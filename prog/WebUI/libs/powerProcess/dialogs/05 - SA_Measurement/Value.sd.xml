@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="SAVersionInfo" content="2" />
+    <d:variable type="external" name="control" default="''" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Measurement Value" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="Measurement" />
+    <d:meta name="dv-custom-attribute|ToolLauncherProgId" content="ControlDlgs.Launcher" />
+    <d:meta name="dv-custom-attribute|SAScriptAfterAttach" content="OnAfterAttach" />
+    <d:meta name="dv-custom-attribute|SARepresentation" content="Basic" />
+    <d:meta name="dv-custom-attribute|SADisplayName" content="Value" />
+    <d:meta name="dv-custom-attribute|SAVersionInfo" content="2" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="value" default="0" />
+    <d:variable type="external" name="status-color" default="0" />
+    <d:variable type="external" name="unit" default="''" />
+    <d:variable type="external" name="decimals" default="2">
+      <d:action type="set" name="decimalsFormat" value="'%1.' + min((max(`decimals`, 0)), 20) + 'f'" />
+    </d:variable>
+    <d:mapping name="f1334" parameters="value">
+      <d:step value="false" when="value &lt;= 37.501" />
+      <d:step value="true" when="value &lt;= 38.497" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:variable type="internal" name="decimalsFormat" />
+    <d:mapping name="f1335" parameters="value">
+      <d:otherwise value="[colors[30], 'none']" />
+    </d:mapping>
+    <d:mapping name="f1336" parameters="value">
+      <d:step value="'Sampled Indication.sd'" when="value &lt;= 28.498" />
+      <d:step value="'Not Sampled Indication.sd'" when="value &lt;= 29.501" />
+      <d:step value="'Sampled Indication.sd'" when="value &lt;= 37.501" />
+      <d:step value="'Not Sampled Indication.sd'" when="value &lt;= 38.497" />
+      <d:otherwise value="'Sampled Indication.sd'" />
+    </d:mapping>
+  </d:head>
+  <d:body n:LN="{LN(control)}" n:IX="{IX(control)}" x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <d:action type="control" when="`control_action_enabled`">
+      <d:parameter name="LN" value="LN(control)" />
+      <d:parameter name="IX" value="IX(control)" />
+      <d:parameter name="opc-id" value="control" />
+    </d:action>
+    <s:text font-size="5.915" fill="{colors[30]}" x="0" y="0" text-anchor="start" dominant-baseline="central" dx="0.592px" d:textScaleAdjustment="true" d:transform-anchor="center-center" d:hidden="f1334(`status-color`) and `subdrawing_dynamics` = 1" y:fill="{colors[30]}" y:fill-rule="evenodd" d:object-name="Unit Text">{if(`subdrawing_dynamics`, format('%s', `unit`), 'unit')}</s:text>
+    <s:text font-size="5.915" fill="{colors[30]}" x="0" y="0" text-anchor="end" dominant-baseline="central" dx="-0.592px" d:textScaleAdjustment="true" d:transform-anchor="center-center" y:fill="{colors[30]}" y:fill-rule="evenodd" d:object-name="Value Text">{if(`subdrawing_dynamics`, format(`decimalsFormat`, `value`), '0.00')}<d:animate attributes="fill, stroke" values="if(`subdrawing_dynamics`, f1335(`status-color`), colors[30])" /></s:text>
+    <d:view name="{f1336(`status-color`)}" s:transform="translate(0,0) scale(1,0.500)" d:transform-anchor="center-center" d:object-name="Sampled Indication">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+    </d:view>
+  </d:body>
+</d:document>

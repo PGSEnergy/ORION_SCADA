@@ -1,0 +1,278 @@
+;#do read_text("sagr_lang/sai_snmp.txt")
+#error stop
+@TMP_LN='ID'_PICTURE_FUNCTION_CONF:VP_OBJECT_LN
+@a_logical_name="BGU_AL_UPD_'TMP_LN'"
+@c_logical_name=%a_logical_name
+
+;initialize variables
+@IU
+@DX
+@OX
+@HE
+@PF
+@RX
+@LD
+
+@P_OBJECTS = LIST
+@OBJ_IDENT
+#LOOP_WITH I = 1 .. %NR_OF_FIELDS
+  @FIELD_IDENT = %OBJECT_IDENTIFIER_'I'_NAME
+  @OBJ_IDENT=%OBJ_IDENT+SUBSTR('ID'_PICTURE_FUNCTION_CONF:V'FIELD_IDENT',1,%OI_LENGTH'I')
+#LOOP_END
+@ADDITIONAL_IDENT  = "          "
+;@UNIT_IDENT= SUBSTR('ID'_PICTURE_FUNCTION_CONF:VDATA_ACQUISITION_UNIT,1,10)
+@UNIT_IDENT="          "
+@RX = %ADDITIONAL_IDENT+%UNIT_IDENT+ "BSSNMPIDEV"
+
+;scales
+@X_SEARCH=FETCH(0,"X","1_1")
+#IF X_SEARCH:VIU == -1 #THEN #BLOCK
+  #CREATE 1_1:X = LIST(SA = 0)
+#BLOCK_END
+
+;define 1/1000 scale for ANSI-AI object if it does not exist
+@X_SEARCH = FETCH(0,"X","BGU_1_1000")
+#IF X_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE BGU_1_1000:X = LIST(SA = 1, SC = (0,1000,0,1))
+#BLOCK_END
+   
+;select different input types
+@v_BinaryIndexes = vector
+@v_DbIndexes     = vector
+@v_AnalogIndexes = vector
+
+@t_Template = 'ID'_PICTURE_FUNCTION_CONF:VSNMP_DEVICE_TEMPLATE
+#if %t_template == "" #then #return
+@apl_name = APL:BNA
+@t_File = "/apl/'apl_name'/APLMOD4/INST/SAI_SNMP.TPL"
+
+#if NOT FILE_MANAGER("EXISTS", FM_SCIL_FILE(%t_File)) #then @t_File = "\sc\sa_lib\base\bbone\inst\SAI_SNMP.TPL"
+
+@l_Result =read_parameter(%t_File,  "'t_Template'",  "INDEX")
+#if %l_Result.STATUS == 0 #then @v_IX = dec_scan(separate(%l_Result.VALUE, ","))
+
+@l_Result =read_parameter(%t_File,  "'t_Template'",  "INDEX_TYPE")
+#if %l_Result.STATUS == 0 #then @v_PT = separate(%l_Result.VALUE, ",")
+
+@l_Result =read_parameter(%t_File,  "'t_Template'",  "OBJECT_TEXT")
+#if %l_Result.STATUS == 0 #then @v_OX = separate(%l_Result.VALUE, ",")  
+
+@l_Result =read_parameter(%t_File,  "'t_Template'",  "HISTORY_ENABLED")
+#if %l_Result.STATUS == 0 #then @v_HE = separate(%l_Result.VALUE, ",")
+
+@l_Result =read_parameter(%t_File,  "'t_Template'",  "DYNAMIC_EVENT_TEXT")
+#if %l_Result.STATUS == 0 #then @v_EH = separate(%l_Result.VALUE, ",")
+
+@l_Result =read_parameter(%t_File,  "'t_Template'",  "ALARM_CLASS")
+#if %l_Result.STATUS == 0 #then @v_AC = separate(%l_Result.VALUE, ",")
+
+@l_Result =read_parameter(%t_File,  "'t_Template'",  "ALARM_ACTIVATION")
+#if %l_Result.STATUS == 0 #then @v_AlAct = separate(%l_Result.VALUE, ",")
+
+
+@v_BinaryIndexes = select(%v_PT, "==""BI""")
+@v_DbIndexes = select(%v_PT, "==""DB""")
+@v_AnalogIndexes = select(%v_PT, "==""AI""")
+
+#if length(%v_BinaryIndexes) > 0 #then #block
+      
+      @begin = 1
+      @end   = length(%v_BinaryIndexes)
+
+      ;binary inputs
+      #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+        #WHEN "SPA" #BLOCK
+          @DX(%begin..%end)   ="N7S"
+          @HE(%begin..%end)   = 1                       ;history enable = yes
+          @PF(%begin..%end)   = "FORM5SAGR1"            ;physical format for printout
+          @LD(%begin..%end)   = BIT_MASK(1)             ;listing device = 1
+        #BLOCK_END
+
+      #CASE_END
+
+     #LOOP_WITH I= %begin .. %end
+
+        @index = %v_BinaryIndexes(%i)
+        @IX = %v_IX(%index)
+        @OX  = %v_OX(%index)
+        @AG = %v_AlAct(%index)
+        @AC = %v_AC(%index) 
+        @HE = dec_scan(%v_HE(%index))      
+        @EH = %v_EH(%index)
+     
+        @P_OBJ0'I' = LIST(-
+              IX = %IX,-                              ;index
+              PT = 3,-                                ;process object type = BI
+              DX = %DX('I'),-                         ;directive text
+              BI = 0,-                                ;object value
+              OI = %OBJ_IDENT,-                       ;substation & bay name
+              OX = %OX,-                              ;object text
+              IU = 1,-                                ;in use = yes
+              SS = 1,-                                ;switch state = manual
+              EE = 1,-                                ;event enable = yes
+              HE = %HE,-                              ;history enable
+              HA = 1,-                                ;history activation = new value
+              HF = 0,-                                ;history at first update = no
+              HL = BIT_MASK(15),-                     ;history log number = 15
+              RC = 1,-                                ;receipt = acknowledgement required
+              AB = 0,-                                ;alarm blocking = no
+              AC = %AC,-                              ;alarm class 
+              AG = %AG,-                              ;alarming value = 0
+              AD = 0,-                                ;alarm delay = 0
+              PD = 0,-                                ;picture device = none
+              PI = "",-                               ;alarm picture
+              PF = %PF('I'),-                         ;physical format for printout
+              RI = 0,-                                ;dynamic texts for printout
+              PA = 1,-                                ;printout activation = new value
+              PU = 0,-                                ;picture/ printout at first update = no
+              LD = %LD('I'),-                         ;listing device
+              EH = %EH,-
+              RX = %RX)                                 ;action activation = 2 (update)
+         @len = length(%P_OBJECTS) + 1
+         #MODIFY P_OBJECTS:V = LIST(P_OBJ0'len'=%P_OBJ0'i')
+
+      #LOOP_END
+#block_end
+
+#if length(%v_DbIndexes) > 0 #then #block
+      
+     @begin = 1
+     @end   = length(%v_DbIndexes)
+
+    ;double binary indication
+    #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+
+      #WHEN "SPA" #BLOCK
+        @DX(%begin..%end)    ="N7D"
+        @HE(%begin..%end)    = 1                      ;history enable = yes
+        @PF(%begin..%end)    = "FORM5SAGR1"           ;physical format for printout
+        @LD(%begin..%end)    = BIT_MASK(1)            ;listing device = 1
+      #BLOCK_END
+
+    #CASE_END
+          
+     #LOOP_WITH I = %begin .. %end
+
+        @index = %v_DbIndexes(%i)
+        @IX = %v_IX(%index)
+        @OX = %v_OX(%index)
+        @LA = dec_scan(%v_AlAct(%index))
+        @AC = %v_AC(%index) 
+        @HE = dec_scan(%v_HE(%index))       
+        @EH = %v_EH(%index)
+  
+        @P_OBJ0'i' = LIST(-
+              IX = %IX,-                              ;index
+              PT = 12,-                               ;process object type = DB
+              DX = %DX(%i),-                          ;directive text
+              DB = 1,-                                ;object value = 1
+              NV = 4,-                                ;normal value = none
+              OI = %OBJ_IDENT,-                       ;substation & bay name
+              OX = %OX,-                              ;object text
+              IU = 1,-                                ;in use = yes
+              SS = 1,-                                ;switch state = manual
+              EE = 1,-                                ;event enable = yes
+              HE = %HE,-                              ;history enable
+              HA = 1,-                                ;history activation = new value
+              HF = 0,-                                ;history at first update = no
+              HL = BIT_MASK(15),-                     ;history log number = 15
+              RC = 1,-                                ;receipt = acknowledgement required
+              AB = 0,-                                ;alarm blocking = no
+              AC = 1,-                                ;alarm class = 1
+              LA = %LA,-                              ;alarm activation = intermediate & faulty alarming
+              AD = 0,-                                ;alarm delay = 0
+              PD = 0,-                                ;picture device = none
+              PI = "",-                               ;alarm picture
+              PF = %PF(%I),-                          ;physical format for printout
+              RI = 0,-                                ;dynamic texts for printout
+              PA = 1,-                                ;printout activation = new value
+              PU = 0,-                                ;picture/ printout at first update = no
+              LD = %LD(%i),-                          ;listing device
+              EH = %EH,-
+              RX = %RX)                                 ;action activation = 2 (update)
+
+             @len = length(%P_OBJECTS) + 1
+             #MODIFY P_OBJECTS:V = LIST(P_OBJ0'len'=%P_OBJ0'i')       
+
+    #loop_end
+
+#block_end
+
+#if length(%v_AnalogIndexes) > 0 #then #block
+      
+   @begin = 1
+   @end   = length(%v_AnalogIndexes)
+
+   ;Analog inputs
+
+   #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+          #WHEN "SPA" #BLOCK
+            @DX(%begin..%end)   ="N6"
+            @HE(%begin..%end)   = 1                       ;history enable = yes
+            @PF(%begin..%end)   = "FORM5SAGR1"            ;physical format for printout
+            @LD(%begin..%end)   = BIT_MASK(1)             ;listing device = 1
+            @SN(%begin..%end)   = "1_1"
+          #BLOCK_END
+   #CASE_END
+     
+   #LOOP_WITH I = %begin .. %end     
+        @hi = 0
+        @hw = 0
+        @lw = 0
+        @li = 0
+        @index = %v_AnalogIndexes(%i)
+        @IX = %v_IX(%index)
+        @OX = %v_OX(%index)
+        @AC = dec_scan(%v_AC(%index)) 
+        @HE = dec_scan(%v_HE(%index))        
+        @EH = %v_EH(%index)
+        
+        @Tmp_As = separate(%v_AlAct(%index), ":")
+   
+        #if length(%Tmp_As) == 4 #then #block
+           @hi = dec_scan(%Tmp_As(4))
+           @hw = dec_scan(%Tmp_As(3))
+           @lw = dec_scan(%Tmp_As(2))
+           @li = dec_scan(%Tmp_As(1))
+        #block_end
+
+       @P_OBJ0'i'= LIST (-
+          IX = %IX,-                              ;index 
+          PT = 9,-                                     ;process object type = AI
+          DX = %DX(%I),-                               ;directive text
+          AI = 0,-                                     ;object value = 0
+          OI = %OBJ_IDENT,-                            ;substation & bay name
+          OX = %OX,-                                   ;object text
+          IU = 1,-                                     ;in use = yes
+          SS = 1,-                                     ;switch state = auto
+          EE = 1,-                                     ;event enable = yes
+          HE = %HE,-                               ;history enable = no
+          HA = 1,-                                     ;history activation = new value
+          HF = 0,-                                     ;history at first update = no
+          HL = BIT_MASK(15),-                          ;history log number = 15
+          HI = %hi,-                                   ;upper alarm limit = 0
+          HW = %hw,-                                   ;upper warning limit = 0
+          LW = %lw,-                                   ;lower warning limit = 0
+          LI = %li,-                                   ;lower alarm limit = 0
+          ST = "Alarm",-                               ;unit of value
+          SN = %SN(%I),-                               ;scale name
+          SZ = 1,-                                     ;zone supervision = SCADA
+          RC = 1,-                                     ;receipt = acknowledgement not required
+          AB = 0,-                                     ;alarm blocking = no
+          AC = %ac,-                                   ;alarm class = disabled
+          AD = 0,-                                     ;alarm delay = 0
+          PD = 0,-                                     ;picture device = none
+          PI = "",-                                    ;alarm picture
+          PF = %PF(%I),-                               ;physical format for printout
+          PA = 1,-                                     ;printout activation = new value
+          PU = 0,-                                     ;picture/ printout at first update = no
+          LD = %LD(%I),-                               ;listing device = none
+          RI = 3,-                                     ;reserved integer
+          EH = %EH,-
+          RX = %RX)   
+                                  
+       @len = length(%P_OBJECTS) + 1
+       #MODIFY P_OBJECTS:V = LIST(P_OBJ0'len'=%P_OBJ0'i')
+      
+   #loop_end
+#block_end

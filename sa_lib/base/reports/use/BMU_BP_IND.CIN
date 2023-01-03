@@ -1,0 +1,51 @@
+; Function:    BMU_BP_IND:C
+; Version:     3.0 (build 23.02.2012)
+; Parameters:  T1 - start time
+;              T2 - end time (not obl.)
+;              l_ReportObject - Object conf.
+; Return data: IP1 - index of start time
+;              IP2 - index of end time
+;              YE1 - year number of start time
+;              YE2 - year number of end time
+;              NP - number of registrations
+; Description: Index calculation for period values
+;-------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;-------------------------------------------------------------------------------
+#local cot, i_Status = Status,-
+       e_TR1 = %T1 - %BOD * 3600,-
+       e_TI1 = e_TR1 - pack_time(year(e_TR1),1,1,0,0,0),-
+       i_ID1,i_ID2, e_TR2 = clock, e_TI2 = clock, e_TIE = clock, i_IPE = 0
+#error ignore
+
+;*** calculate indexes
+@YE1 = year(e_TR1) mod %l_ReportObject.BP_HL
+@IP1 = trunc(e_TI1 div %l_ReportObject.BP) + 1
+i_ID1 = doy(e_TR1)
+      
+#IF data_type(%T2)=="TIME" #then #block
+   e_TR2 = %T2  - %BOD * 3600
+   e_TI2 = e_TR2 - pack_time(year(e_TR2),1,1,0,0,0)
+   @YE2 = year(e_TR2) mod %l_ReportObject.BP_HL
+   @IP2 = trunc(e_TI2 div %l_ReportObject.BP) + 1
+   i_ID2 = doy(e_TR2)
+   @NP  = %IP2 - %IP1 + 1
+#block_end
+#else #block   
+   @YE2 = %YE1
+   @IP2 = %IP1
+   i_ID2 = i_ID1
+   @NP  = 1
+#block_end
+
+#if %YE1 <> %YE2 #then #block
+   e_TIE = pack_time(year(e_TR2),1,1,0,0,0) - pack_time(year(e_TR1),1,1,0,0,0)
+   i_IPE = trunc(e_TIE DIV %l_ReportObject.BP)
+   @N1  = i_IPE - %IP1 + 1
+   @N2  = %IP2
+   @NP  = %N1 + %N2
+#block_end
+
+i_Status = status
+#if i_Status <> 0 #then cot = console_output("BMU_BP_IND:C - SCIL Error='i_Status'","E","MREP") 

@@ -1,0 +1,56 @@
+﻿; This command procedure is used for sending end of initialization information to
+; a IEC 870-5-101 slave protocol converter in a COM application 
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @COM_IEC_STA_NUMBER, number of the STA object of the NCC (protocol converter)
+;         @COI_VALUE, value of Cause of Initialisation byte
+;--------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+@ENABLE_LOGGING = COM_GENVAR:PBZ(3)
+
+@NCC_XREF_INFO = APL:BSV(21)
+
+@TIME = HR_CLOCK
+@RT = TIMES(TIME:VCL)
+@RM = ROUND(TIME:VUS/1000)
+
+#LOOP_WITH I = 1..LENGTH(%NCC_XREF_INFO) ;1
+   @NCC_VECTOR = %NCC_XREF_INFO(%I)
+   #IF %NCC_VECTOR(1) == %COM_IEC_STA_NUMBER #THEN #BLOCK ;2
+         @NCC_NUMBER = %I
+      #LOOP_EXIT
+   #BLOCK_END ;2
+#LOOP_END ;1
+
+;send end of initialization (zero address and value) if data sending is not disabled from tool
+#IF NOT COM_GENVAR:PBZ(%NCC_NUMBER + 4) #THEN #BLOCK ; 1
+   ;if remote reset
+   #IF %COI_VALUE == 2 #THEN #BLOCK
+     @LINE_NUMBER = STA'COM_IEC_STA_NUMBER':SLI
+     @NODE_NUMBER = STA'COM_IEC_STA_NUMBER':BND
+     @PROTOCOL_NUMBER = NET'NODE_NUMBER':SPO'LINE_NUMBER'    
+     ;set line in use (iec104) 
+     #IF %PROTOCOL_NUMBER == 45 #THEN #BLOCK
+         #SET NET'NODE_NUMBER':SIU'LINE_NUMBER' = 1         
+         #SET STA'COM_IEC_STA_NUMBER':SIU=1
+     #BLOCK_END 
+   #BLOCK_END
+   #SET STA'COM_IEC_STA_NUMBER':SSD(1) = ("M_EI_NA_1",0,0,4,%COI_VALUE,1,0)
+   #IF %ENABLE_LOGGING #THEN #BLOCK ; 2
+      @S=STATUS
+      @INFO="'rt':'rm',IESEI,0,,'COM_IEC_STA_NUMBER',,0,IEC101/104,0,0,0,,M_EI_NA_1,4,,,,'COI_VALUE','S',,,"
+      #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+      #ELSE #DO COM_LOG:CIN
+   #BLOCK_END ; 2
+#BLOCK_END ; 1
+#ELSE_IF %ENABLE_LOGGING #THEN #BLOCK ; 1
+   @DISABLE_NCC_DATA=COM_GENVAR:PBZ(%NCC_NUMBER+4)
+   @INFO="'rt':'rm',IESEI,0,,'COM_IEC_STA_NUMBER',disable ncc data sending:'DISABLE_NCC_DATA',,,,,,,,,,,,,,,,"
+   #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+   #ELSE #DO COM_LOG:CIN
+#BLOCK_END ; 1

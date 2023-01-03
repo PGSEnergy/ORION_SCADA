@@ -1,0 +1,72 @@
+;Function: BPU_SET_AUTO_RECLOSE:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_set_auto_reclose.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute), l_data
+;Return data: : LIST(STATUS=integer, err_description=text)
+;Description:
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data, operation
+#local l_result = list(status = 0, err_description="")
+#local t_LN, i_IX = 0, s
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_SET_AR"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+         @REDIRECTED = true                                                                        
+         i_ArgCnt = argument_count                                                                 
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+         #loop_end                                                                                 
+         #return 't_Redirect_Command' ;;;;;                                                        
+      #block_end                                                                                   
+   #block_end                                                                                      
+   #else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+s = status
+#error ignore
+#case operation
+   #when "ON" #block
+      #if attribute_exists(l_data.all_objects, "ar_in_use_cmd_ix") #then #block
+         t_LN = l_data.all_objects.ar_in_use_cmd_ln
+         i_IX = l_data.all_objects.ar_in_use_cmd_ix
+         #set 't_LN':pov'i_IX' = 1
+         i_IX = l_data.all_objects.ar_in_use_sw_ix
+         #if not('t_LN':pss'i_IX' > 1 and 't_LN':pun'i_IX' <> 0) #then -
+            #set 't_LN':pov'i_IX' = 1
+      #block_end
+   #block_end
+   #when "OFF" #block
+      #if attribute_exists(l_data.all_objects, "ar_in_use_cmd_ix") #then #block
+         t_LN = l_data.all_objects.ar_in_use_cmd_ln
+         i_IX = l_data.all_objects.ar_in_use_cmd_ix
+         #set 't_LN':pov'i_IX' = 0
+         i_IX = l_data.all_objects.ar_in_use_sw_ix
+         #if not('t_LN':pss'i_IX' > 1 and 't_LN':pun'i_IX' <> 0) #then -
+            #set 't_LN':pov'i_IX' = 0
+      #block_end
+   #block_end
+   #when "INTERRUPT" #block
+      #if attribute_exists(l_data.all_objects, "ar_interrupt_ix") #then #block
+         t_LN = l_data.all_objects.ar_interrupt_ln
+         i_IX = l_data.all_objects.ar_interrupt_ix
+         #set 't_LN':pov'i_IX' = 1        
+      #block_end
+   #block_end
+#case_end
+s = status
+#if s <> 0 #then l_result = list(status = s, err_description=status_code_name(s))
+
+#return l_result

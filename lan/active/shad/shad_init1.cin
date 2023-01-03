@@ -1,0 +1,60 @@
+; SHAD_INIT1 - INITIALIZE SHAD OBJECTS
+;
+;
+;
+#DO SHADGLOBAL:C
+
+@RT = SYS_TIME
+;           LN         OV  OS
+@NAMES = (("SHADSTATE", 0,  0),-
+          ("SHADAPLSP", 0, 10),-
+          ("SHAD_XMT",  0,  0),-
+          ("SHADSTART", 0, 10),-
+          ("SHADEXTAS", 0, 10),-
+          ("SHAD_TYP",  1,  0))
+
+#LOOP_WITH I = 1..LENGTH(%NAMES)
+   @NAME = %NAMES(%I)
+   @LN = %NAME(1)
+   @OV = %NAME(2)
+   @OS = %NAME(3)
+   #SET 'LN':DOS = 0
+   #SET 'LN':D   = 0
+   #SET 'LN':DLR = 'LN':DHR
+   #LOOP_WITH J = 1 .. 'LN':DHR
+      #SET 'LN':D(%J) = %OV
+      #SET 'LN':DOS(%J) = %OS
+   #LOOP_END
+#LOOP_END
+
+#LOOP_WITH APL = 1 .. %MAX_APL
+   #IF SHADLOCAPL:D(%APL) > 1 #THEN #SET SHADLOCAPL:D(%APL) = 1
+   #IF (TRUNC(SHADLOCAPL:D(%APL)) == 1) AND (APL'APL':BTT == "LOCAL") -
+   #THEN #BLOCK
+      #CASE APL'APL':BSS
+         #WHEN "RECEIVE"              @RCV_OR_XMT = "RCV"
+         #WHEN "WARM_SEND","HOT_SEND" @RCV_OR_XMT = "XMT"
+         #OTHERWISE                   @RCV_OR_XMT = "RCV"
+      #CASE_END
+      #DO SHADSSTART:C
+   #BLOCK_END
+#LOOP_END
+
+#IF %CHK_EXT_SP #THEN #BLOCK
+   #IF SHADCHKSP:CRT == 0 #THEN #EXEC SHADCHKSP:C
+#BLOCK_END         ; IF %CHK_EXT_SP
+#EXEC SHADHOT:C
+#EXEC SHADLOG:C (@APL=APL:BAN,@RT=%RT,-
+                 @TEXT="WD STARTED")
+
+; Initialize WD Time Channels
+
+@TC_NAMES = VECTOR("SHAD_1MIN", "SHAD_5MIN")
+
+#LOOP_WITH I = 1 .. LENGTH(%TC_NAMES)
+   @NAM = %TC_NAMES(%I)
+   #SET 'NAM':TIU=0
+   #SET 'NAM':TIU=1
+#LOOP_END
+
+

@@ -1,0 +1,20 @@
+VECTOR(VECTOR("@TMP=SYS:BSV11","#SET TMP:VB_WINTER_TIME=0",-
+"#SET SYS:BSV11=%TMP"),VECTOR("@TMP=SYS:BSV11","#SET TMP:VB_SUMMER_TIME=0",-
+"#SET SYS:BSV11=%TMP"),VECTOR("@TMP=SYS:BSV11","#SET TMP:VB_HANDLED_BY_APL=1",-
+"#SET SYS:BSV11=%TMP"),VECTOR("@TMP=SYS:BSV11","#SET TMP:VB_ADD_WHEN_SUMMER=1",-
+"#SET SYS:BSV11=%TMP"),"#SET SYS:BCX=""NCC 1""",VECTOR("@tmp=sys:bsv11",-
+"#set tmp:vb_daylight_saving_time_in_use=0","#set sys:bsv11=%tmp"),-
+VECTOR("@tmp=sys:bsv11","#set tmp:vb_execution_history=list",-
+"@history=tmp:vb_execution_history",-
+"#set history:vreduce_hour(1)=type_cast(0,""TIME"")",-
+"#set history:vreduce_hour(2)=type_cast(0,""TIME"")",-
+"#set history:vreduce_hour(3)=type_cast(0,""TIME"")",-
+"#set history:vreduce_hour(4)=type_cast(0,""TIME"")",-
+"#set history:vreduce_hour(5)=type_cast(0,""TIME"")",-
+"#set history:vadd_hour(1) =type_cast(0,""TIME"")",-
+"#set history:vadd_hour(2) =type_cast(0,""TIME"")",-
+"#set history:vadd_hour(3) =type_cast(0,""TIME"")",-
+"#set history:vadd_hour(4) =type_cast(0,""TIME"")",-
+"#set history:vadd_hour(5) =type_cast(0,""TIME"")",-
+"#set tmp:vb_execution_history=%history","#set sys:bsv11=%tmp"),-
+"#set sys:bts=""unknown""")

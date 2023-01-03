@@ -1,0 +1,108 @@
+﻿;OBJECT       : BGU_SAGR.TXT
+;DESCRIPTION  : Executed when application gets hot or at take-over
+;-------------------------------------------------------------------------
+#local sys_bsv11, time_info, daylight_saving, season, sys_set, loc, res
+#local ws_pro_plus_licenses, mt_path, mt_start_cmd, apes, j
+#local start_migration = TRUE
+
+@TEST=FETCH(0,"A","APL_INIT_1")
+
+#IF TEST:VIU == 1 #THEN #BLOCK
+
+   #if length(select(TEST:VSN,"==""LIB4INIT_1""")) == 0 #then #block
+
+           ;paths for printing if application is not prepared for LIB4
+           @TMP_DIRS = PATH("SAGR_BBONE")
+
+           ;modify the directory list for #PATH command
+           #LOOP_WITH I = 1..LENGTH(%TMP_DIRS)
+              @TMP_DIRS(%I) = %TMP_DIRS(%I)
+           #LOOP_END
+
+           @TMP_EXPAND = VECTOR("#PATH FORM FORM,-")
+           @TMP_EXPAND = APPEND(%TMP_EXPAND,%TMP_DIRS)
+
+           ;Expand form
+           #DO %TMP_EXPAND
+
+           ;read in global paths used in  for printer queue
+           #LOOP_WITH I=1..20
+              #IF %I<>15 #THEN #PRINT 'I' FORM/FORM5B_INI
+           #LOOP_END
+        #block_end
+
+#BLOCK_END
+
+;run update files
+#do read_text("/SA_LIB/BASE/BBONE/USE/BGU_RUN_UPDATE_FILES.txt")
+
+;Show L/R objects for group of bays in Installation Tool according to OI Configuration
+#do read_text("/SA_LIB/BASE/BBONE/USE/bgu_init_it.txt")
+
+
+;replace Calender and User Management tool directories in LIB4/Tools.ini
+#error ignore
+@tToolsFile = "/lib4/base/bbone/use/tools.ini"
+@v_Replace_Sections = ("CAL", "UsrMgr")
+@v_Replace_Tool_Dir = ("\sc\sa_lib\base\bbone\use", "\sc\sa_lib\base\bbone\use")
+
+#if file_manager("EXISTS", fm_scil_file("/lib4/base/bbone/use/tools.ini")) #then #block         
+   #loop_with k = 1 .. length(%v_Replace_Sections)
+      @ToolInfo = read_parameter(%tToolsFile, %v_Replace_Sections(%k), "Tool_Dir_", "")
+      #if %ToolInfo.Status == 0 #then #block
+         #if locate(%ToolInfo.Value, "LIB4") > 0 #then @WriteInfo = write_parameter(%tToolsFile, %v_Replace_Sections(%k), "Tool_Dir_", %v_Replace_Tool_Dir(%k))
+      #block_end
+   #loop_end
+#block_end
+
+
+;set sys:bts correctly if microSCADA was not running when shift of time occurred
+sys_bsv11 = sys:bsv11
+#if data_type(sys_bsv11) == "LIST" #then #block
+   #if sys_bsv11.b_handled_by_apl == APL:BAN and sys_bsv11.b_daylight_saving_time_in_use == 1 #then #block
+      time_info = local_time_information(clock)
+      #if time_info.daylight_saving #then season = "SUMMER"
+      #else season = "WINTER"
+      #if season <> SYS:BTS #then #set SYS:BTS = season
+      sys_set = evaluate(read_text("sys_/sys_set.txt"))      
+      loc = select(locate(upper_case(sys_set), "#SET SYS:BTS"), ">0")
+      #if length(loc) == 1 #then #block
+         sys_set(loc(1)) = "#SET SYS:BTS = ""'SEASON'"""
+         res = write_text("sys_/sys_set.txt", dump(sys_set))
+      #block_end
+   #block_end
+#block_end
+
+; Start MigrationTool
+#if start_migration #then #block
+
+   ws_pro_plus_licenses = REGISTRY("READ", "SOFTWARE\ABB\PAK\SYS_600\MAIN_LICENSE", "WORKSTATIONS_PRO_PLUS")
+
+   #if ws_pro_plus_licenses.status == 0 #then #block
+
+      #if dec_scan(ws_pro_plus_licenses.value) > 0 #then start_migration = TRUE
+      #else start_migration = FALSE
+
+   #block_end
+   #else start_migration = FALSE
+
+#block_end
+
+#if start_migration #then #block
+
+   mt_path = REGISTRY("READ", "SOFTWARE\ABB\Products\MicroSCADA Pro\Services", "Path")
+   #if mt_path.status == 0 #then #block
+
+      mt_start_cmd = mt_path.value + "DV2XML\MigrationTool.exe -b -sh -log notify -log file -v info -a " + APL:BNA
+
+      apes = AEP_PROGRAMS(0)
+      #LOOP_WITH j = 1 .. LENGTH(apes)
+         #if apes(j).start_command == mt_start_cmd #THEN start_migration = FALSE
+      #LOOP_END
+
+      #if start_migration #then res = AEP_START(mt_start_cmd)
+
+   #block_end
+
+#block_end
+

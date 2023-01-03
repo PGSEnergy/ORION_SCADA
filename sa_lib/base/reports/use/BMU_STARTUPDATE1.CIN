@@ -1,0 +1,288 @@
+; Function:    BMU_StartUpdate1:C
+; Version:     3.1 (Build 10.4.2014)
+; Parameters:  none
+; Return data: none
+; Description: Update report values at system start-up (Part 1)
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;10.4.2014  3.1.0    HoDa   Sampled data objects with LF4,5 wrong initialized at startup, OS=1 instead of 10 L115
+;--------------------------------------------------------------------------------------------------
+#local i, i_=0, v_ = vector(), e_ = clock, l_ = list(), i_Status = status, cot ,-
+       i_IX1=0, i_IX2=0, l_Data=list(), i_AP = 0, i_SDP = 0, i_FP = 1, e_CRT=clock,-
+       v_ObjNamesCalc = vector(), v_ObjNamesClean = vector(),-
+       x_StartTime = sys_time, x_EndTime = sys_time, x_ExecutionTime = list(),- ;*** Needed to calculate the execution time 
+       e_SP_HistoryLengthLimit = clock, e_BP_HistoryLengthLimit = clock,-
+       i_NoSamplesInBP = 5, i_NoMissingSamples = 0
+
+#error ignore
+
+#if bmu_cycle:tiu==1 #then #set bmu_cycle:tiu=0                                 ;*** To prevent collision between startup update and normal cycle sampling
+
+#if BMU_GLOBAL:CCS==1 #then #do BMU_GLOBAL:CCP                       
+#else #do BMU_GLOBAL:C
+
+;*** define system shutdown times and interval times for measured sample/period values, defined as GLOBAL for usage in StartUpdate2..
+@e_SP_RT_Attr = BMU_SP_CAL1:CRT                                                 ;*** Time of last sampling period execution
+@e_BP_RT_Attr = BMU_BP_CAL1:CRT                                                 ;*** Time of last base period execution
+@e_SP_RT_Correction = %e_SP_RT_Attr - %SP_Delay                                 ;*** last SP execution time - delay
+@e_BP_RT_Correction = %e_BP_RT_Attr - %BP_Delay                                 ;*** last BP execution time - delay
+@e_SP_ShutdownTime = clock - %e_SP_RT_ATTR                                      ;*** Time slot with no sampling period because of shutdown
+@e_BP_ShutdownTime = clock - %e_BP_RT_ATTR                                      ;*** Time slot with no base period execution because of shutdown
+@i_SP_IntervalTime = 0
+@i_BP_IntervalTime = 0
+@b_StartUpdate = true
+
+#loop_with i = 1..length(%v_ReportObjectNames) 
+   @t_ObjectName = %v_ReportObjectNames(i)
+   @l_ReportObject = %l_ReportObjects.OBJ_'t_ObjectName'
+
+   @i_SP_IntervalTime = %l_ReportObject.SP - %SP_Delay
+   @i_BP_IntervalTime = %l_ReportObject.BP - %BP_Delay
+
+   e_SP_HistoryLengthLimit = min(clock - %l_ReportObject.BP,-
+                                 clock - %l_ReportObject.SP_HL * 86400)         ;*** sampling history length limits, SP_HL=0-> 1 base period else SP_HL   
+   e_BP_HistoryLengthLimit = clock -(%l_ReportObject.BP_HL-1)*366 *86400        ;*** base history length limits, BP_HL=0   -> + 1 year
+                                                                                ;***                                   1   -> actual time
+                                                                                ;***                                   2   -> actual time-1 year   
+   ;*** Update measured values (update cycle: sampling period SP)
+   #if substr(%l_ReportObject.ID,1,1)=="M" and substr(%l_ReportObject.ID,1,2)<>"MP" #then #block
+      ;*** sampled/period values 
+      #case %l_ReportObject.SP_HL   
+         #when 0 #block                                                         ;*** no sampling history 
+            i_NoSamplesInBP = %l_ReportObject.BP div %l_ReportObject.SP         ;*** Number of sampled values within one base period
+                                                                                ;*** update 'last' sampling period values (period at system shutdown)
+            #if %e_BP_ShutdownTime > %i_BP_IntervalTime AND -
+                %e_BP_RT_Attr > e_BP_HistoryLengthLimit #then #block             ;*** reset old sampled values (if needed...), shutdown time > 1 base period
+               i_NoMissingSamples = i_NoSamplesInBP - ROUND((%e_SP_RT_Correction - %e_BP_RT_Correction)/%l_ReportObject.SP) ;*** Number of sampled values since 'last' updated period
+               #if i_NoMissingSamples > 0 AND -
+                   i_NoMissingSamples < i_NoSamplesInBP #then -
+               #set 't_ObjectName':DOS(1..i_NoMissingSamples)=10                ;*** Reset missing sampled values
+               @T1 = %e_BP_RT_Correction                                         ;*** Update the base period value for the base period when the shutdown occurs
+               @T2
+               #if BMU_BP_IND:CCS==1 #then #do BMU_BP_IND:CCP
+               #else #do BMU_BP_IND:C
+               @v_ObjectNames = vector(%t_ObjectName)
+               #if BMU_BP_UPDATE:CCS==1 #then #do BMU_BP_UPDATE:CCP
+               #else #do BMU_BP_UPDATE:C
+            #block_end
+            #if 't_ObjectName':DLR < 't_ObjectName':DHR #then -
+               #set 't_ObjectName':DLR = 't_ObjectName':DHR
+            i_ = min(%e_SP_ShutdownTime div %l_ReportObject.SP, i_NoSamplesInBP) ;*** Reset sampled values
+            #case i_
+               #when 0                                                          ;*** No action, shutdown time < sampling period
+               #when i_NoSamplesInBP #block                                     ;*** one complete base period time already expired
+                  #set 't_ObjectName':DOS(..) = 10                              ;*** Reset all sampled values (input for base period calculation)
+                  #set 't_ObjectName':DRT(..) = clock
+               #block_end
+               #otherwise #block                                                ;*** Keep the already sampled value belonging to current base period
+                  i_IX1  = i_ + 1
+                  i_IX2  = i_NoSamplesInBP - i_ + 1         
+                  l_Data = data_fetch(0, %t_ObjectName, i_IX1 ,1 ,0)             ;*** Read sampled values and shift back for x missed samples
+                  l_     = data_store(0, %t_ObjectName, l_Data,1)
+                  #set 't_ObjectName':DOS(i_IX2..) = 10
+                  #set 't_ObjectName':DRT(i_IX2..) = clock
+               #block_end                             
+            #case_end
+         #block_end
+         #otherwise #block                                                      ;*** with sampling history SP_HL>0
+            ;*** Update 'last' base period (period at system shutdown) only one new entry, based on already sampled values in that base period
+            @T1 = %e_BP_RT_Correction
+            @T2
+            #if BMU_BP_IND:CCS==1 #then #do BMU_BP_IND:CCP                      ;*** Index calculation for shutdown time
+            #else #do BMU_BP_IND:C
+            i_SDP = %IP1
+            @T1 = clock
+            @T2
+            #if BMU_BP_IND:CCS==1 #then #do BMU_BP_IND:CCP                      ;*** Index calculation for the actual running period
+            #else #do BMU_BP_IND:C
+            i_AP = %IP1
+            #if ((%e_BP_ShutdownTime > %i_BP_IntervalTime) or (i_AP > i_SDP)) and - ;***Shutdown time > one base period or one base period calc. missed
+                  %e_BP_RT_Attr > e_BP_HistoryLengthLimit #then #block 
+               @T1 = %e_BP_RT_Correction
+               @T2
+               #if BMU_BP_IND:CCS==1 #then #do BMU_BP_IND:CCP
+               #else #do BMU_BP_IND:C
+               #if BMU_BP_CAL3:CCS==1 #then #do BMU_BP_CAL3:CCP                 ;*** Calculate base period values with sampled values as input
+               #else #do BMU_BP_CAL3:C
+            #block_end
+            ;*** Reset sampled values
+            #if %e_SP_ShutdownTime > %i_SP_IntervalTime #then #block              ;*** Shutdown time > one sampling period
+               @T1 = max(%e_SP_RT_Correction, clock - %l_ReportObject.SP_HL * 86400)
+               @T2 = clock - %l_ReportObject.SP
+               #if BMU_SP_IND:CCS==1 #then #do BMU_SP_IND:CCP
+               #else #do BMU_SP_IND:C
+               #if 't_ObjectName':DLR < 't_ObjectName':DHR #then -
+                  #set 't_ObjectName':DLR = 't_ObjectName':DHR
+               #if 't_ObjectName':DLF == 4 OR 't_ObjectName':DLF == 5 #then #block
+                  #set 't_ObjectName':DOS = 1                                   ;### 3.1.0 ID17610 HoDa 10.4.2014
+                  #set 't_ObjectName':DRT = clock
+               #block_end
+               #if %IS2 >= %IS1 #then #block
+                  #set 't_ObjectName':DOS(%IS1..%IS2) = 10
+                  #set 't_ObjectName':DRT(%IS1..%IS2) = clock
+               #block_end
+               #else #block
+                  #set 't_ObjectName':DOS(%IS1..) = 10
+                  #set 't_ObjectName':DRT(%IS1..) = clock
+                  #set 't_ObjectName':DOS(1..%IS2) = 10
+                  #set 't_ObjectName':DRT(1..%IS2) = clock
+               #block_end
+            #block_end
+         #block_end
+      #case_end
+      ;*** Reset base period values (if shutdown time > base period time) ,start from next period after shutdown occurs
+      #if %e_BP_ShutdownTime > %i_BP_IntervalTime #then #block
+         i_ = (%e_BP_ShutdownTime div %l_ReportObject.BP)
+         #if i_ > 1 #then #block                                                ;*** Reset 'old' periods
+            @T1 = max(%e_BP_RT_Correction + %l_ReportObject.BP, pack_time(year-1, 1, 1, %BOD, 1, 0))
+            @T2 = clock - %l_ReportObject.BP
+            #if BMU_BP_IND:CCS==1 #then #do BMU_BP_IND:CCP
+            #else #do BMU_BP_IND:C
+            #if %YE1 == %YE2 #then #block
+               #set 't_ObjectName''YE1':DOS(%IP1..%IP2) = 10
+               #set 't_ObjectName''YE1':DRT(%IP1..%IP2) = clock
+            #block_end
+            #else #block
+               #set 't_ObjectName''YE1':DOS(%IP1..%IPE) = 10
+               #set 't_ObjectName''YE1':DRT(%IP1..%IPE) = clock
+               #set 't_ObjectName''YE2':DOS(1..%IP2) = 10
+               #set 't_ObjectName''YE2':DRT(1..%IP2) = clock
+            #block_end
+         #block_end
+      #block_end
+   #block_end                             ;
+   ;*** Update measured period (no sampling values exist) and meter values (upd_cycle: base period time)
+   #else_if substr(%l_ReportObject.ID,1,2)=="MP" #then #block
+      #if %e_BP_ShutdownTime > %i_BP_IntervalTime  #then #block
+         ;*** sampled value
+         #set 't_ObjectName':DOS(1..1) = 10
+         #set 't_ObjectName':DRT(1..1) = clock
+         ;*** period values
+         @T1 = max(%e_BP_RT_Correction, pack_time(year-1, 1, 1, %BOD, 1, 0))
+         @T2 = clock - %l_ReportObject.BP
+         #if BMU_BP_IND:CCS==1 #then #do BMU_BP_IND:CCP
+         #else #do BMU_BP_IND:C
+         
+         #if 't_ObjectName''YE1':DLR < 't_ObjectName''YE1':DHR #then -
+            #set 't_ObjectName''YE1':DLR = 't_ObjectName''YE1':DHR
+         #if 't_ObjectName''YE2':DLR < 't_ObjectName''YE2':DHR #then -
+            #set 't_ObjectName''YE2':DLR = 't_ObjectName''YE2':DHR
+            
+         #if %YE1 == %YE2 #then #block
+            #set 't_ObjectName''YE1':DOS(%IP1..%IP2) = 2
+            #set 't_ObjectName''YE1':DRT(%IP1..%IP2) = clock
+         #block_end
+         #else #block
+            #set 't_ObjectName''YE1':DOS(%IP1..%IPE) = 10
+            #set 't_ObjectName''YE1':DRT(%IP1..%IPE) = clock
+            #set 't_ObjectName''YE2':DOS(1..%IP2) = 10
+            #set 't_ObjectName''YE2':DRT(1..%IP2) = clock
+         #block_end
+      #block_end
+   #block_end
+   #else_if substr(%l_ReportObject.ID,1,1)=="C" #then -
+      v_ObjNamesCalc=insert_element(v_ObjNamesCalc, 1, %t_ObjectName)   
+#loop_end   
+
+;*** Update time tags for command procedures
+#if BMU_SP_CAL1:CRT == %e_SP_RT_Attr AND -
+    %e_SP_ShutdownTime > %i_SP_IntervalTime #then #block                        ;*** Not executed since start of this update
+   e_ = TYPE_CAST((clock div %Sampling_Periods(1)) * %Sampling_Periods(1) + %SP_Delay,"TIME")
+   #set BMU_SP_CAL1:CRT = e_
+#block_end
+
+#if BMU_BP_CAL1:CRT == %e_BP_RT_Attr AND %e_BP_ShutdownTime > %i_BP_IntervalTime #then #block
+   e_ = TYPE_CAST((clock div %Base_periods(1)) * %Base_periods(1) + %BP_Delay,"TIME")
+   #set BMU_BP_CAL1:CRT = e_
+#block_end
+
+;*** update calculations, needs to be done in order of Calculation.Order_SP, Order_BP
+#if length(v_ObjNamesCalc) > 0 #then #block                                                
+   @e_SP_RT_Attr = BMU_SP_CAL2:CRT
+   @e_BP_RT_Attr = BMU_BP_CAL2:CRT
+   @e_SP_RT_Correction = %e_SP_RT_Attr - %SP_Delay
+   @e_BP_RT_Correction = %e_BP_RT_Attr - %BP_Delay
+   @e_SP_ShutdownTime  = clock - %e_SP_RT_Attr
+   @e_BP_ShutdownTime  = clock - %e_BP_RT_Attr
+   
+   ;*** Update calculations for sampled values
+   v_ObjNamesCalc = %l_Calculation.Order_SP
+   #loop_with i = 1..length(v_ObjNamesCalc) 
+      @t_ObjectName = v_ObjNamesCalc(i)
+      @l_ReportObject = %l_ReportObjects.OBJ_'t_ObjectName'
+      ;*** Define system shutdown times and interval times for calculated sampled values
+      @i_SP_IntervalTime = %l_ReportObject.SP - %SP_Delay
+      @i_BP_IntervalTime = %l_ReportObject.BP - %BP_Delay
+
+      #if BMU_StartUpdate2:CCS==1 #then #do BMU_StartUpdate2:CCP
+      #else #do BMU_StartUpdate2:C
+   #loop_end   
+
+   ;*** Update calculations for period values
+   v_ObjNamesCalc = %l_Calculation.Order_BP
+   #loop_with i = 1..length(v_ObjNamesCalc) 
+      @t_ObjectName = v_ObjNamesCalc(i)
+      @l_ReportObject = %l_ReportObjects.OBJ_'t_ObjectName'
+      ;*** Define system shutdown times and interval times for calculated period values
+      @i_SP_IntervalTime = %l_ReportObject.SP - %SP_Delay
+      @i_BP_IntervalTime = %l_ReportObject.BP - %BP_Delay
+
+      #if BMU_StartUpdate2:CCS==1 #then #do BMU_StartUpdate2:CCP
+      #else #do BMU_StartUpdate2:C
+   #loop_end   
+#block_end
+
+;*** Reset 'old' period values, if shutdown time > reset area and forecast period > 0
+e_CRT = BMU_BP_Clean:CRT
+#loop_with i = 1..length(%v_ReportObjectNames) 
+   @t_ObjectName = %v_ReportObjectNames(i)
+   @l_ReportObject  = %l_ReportObjects.OBJ_'t_ObjectName'
+
+   #if %l_ReportObject.FP > 0 #then i_FP = %l_ReportObject.FP                   ;clean the forecast area
+   #else i_FP = 1                                                               ;clean 1 day
+   #if substr(%l_ReportObject.ID,1,2)<>"CS" #then #block                        ;not for sampling objects only
+   
+      @T1 = max(clock, pack_time(year(e_CRT), month(e_CRT), day(e_CRT), 0, 1, 0) + (i_FP + %BP_Buffer-1)*86400)
+      @T2 = pack_time(year, month, day, 23, 59, 0)+(i_FP-1)*86400
+      #if %T2 > %T1 #then #block
+         #if BMU_BP_IND:CCS==1 #then #do BMU_BP_IND:CCP
+         #else #do BMU_BP_IND:C
+         #if %YE1 == %YE2 #then #block
+            #if application_object_exists(0,"D","'t_ObjectName''YE1'") #then #block
+               #set 't_ObjectName''YE1':DOS(%IP1..%IP2) = 10
+               #set 't_ObjectName''YE1':DRT(%IP1..%IP2) = clock
+            #block_end
+         #block_end
+         #else #block
+            #if application_object_exists(0,"D","'t_ObjectName''YE1'") #then #block
+               #set 't_ObjectName''YE1':DOS(%IP1..) = 10
+               #set 't_ObjectName''YE1':DRT(%IP1..) = clock
+            #block_end
+            #if application_object_exists(0,"D","'t_ObjectName''YE2'") #then #block
+               #set 't_ObjectName''YE2':DOS(1..%IP2) = 10
+               #set 't_ObjectName''YE2':DRT(1..%IP2) = clock
+            #block_end
+         #block_end
+      #block_end
+   #block_end
+#loop_end   
+
+;update time tags for calculation procedures
+#if BMU_SP_CAL2:CRT == %e_SP_RT_Attr AND %e_SP_ShutdownTime > %i_SP_IntervalTime #then #block
+   e_ = TYPE_CAST((clock div %Sampling_Periods(1)) * %Sampling_Periods(1) + %SP_Delay,"TIME")
+   #set BMU_SP_CAL2:CRT = e_
+#block_end
+#if BMU_BP_CAL2:CRT == %e_BP_RT_Attr AND %e_BP_ShutdownTime > %i_BP_IntervalTime #then #block
+   e_ = TYPE_CAST((clock div %Base_Periods(1)) * %Base_Periods(1) + %BP_Delay,"TIME")
+   #set BMU_BP_CAL2:CRT = e_
+#block_end
+
+x_EndTime       = sys_time
+x_ExecutionTime = sys_time_interval(x_StartTime, x_EndTime)
+#if second(x_StartTime.CL) + x_ExecutionTime.S > %sampling_periods(1) #then -  ;*** The update execution time tooks longer than the shortest sampling period
+   #exec_after 5 BMU_StartUpdate1:C                                            ;*** We properly miss the last sampling, to fill that data area -> execute this update procedure again
+#else #set BMU_Cycle:tiu=1
+
+i_Status = status
+#if i_Status <> 0 #then cot = console_output("BMU_STARTUPDATE1:C - SCIL Error='i_Status'","E","MREP")

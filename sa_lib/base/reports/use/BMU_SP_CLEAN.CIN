@@ -1,0 +1,53 @@
+; Function:    BMU_SP_CLEAN:C
+; Version:     3.0 (Build 23.02.2012)
+; Parameters:  v_ObjectNames - which needs to get cleaned
+; Return data: none
+; Description: Reset 'old' sampled values
+;              from BMU_SP_CAL1(2) for MX,MM,MS,MN (CB,CS)
+; Note! This procedure is run only if history
+;       of sampled values are stored in DB
+;-------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;-------------------------------------------------------------------------------
+#local i, i_Status = status, cot,-
+       t_ObjectName = ""
+#error ignore
+
+#if BMU_GLOBAL:CCS==1 #then #DO BMU_GLOBAL:CCP
+#else #DO BMU_GLOBAL:C
+
+#loop_with i = 1..length(%v_ObjectNames)
+   t_ObjectName = %v_ObjectNames(i)
+   @l_ReportObject  = %l_ReportObjects.OBJ_'t_ObjectName' 
+
+   @TS = CLOCK - (%l_ReportObject.SP + %SP_Delay)                               ;*** act.time - 60(120,180...)
+   @T1 = %TS + 5*%l_ReportObject.SP                                             ;*** Start index=+5*60(120,180..) 
+   @T2 = %TS + %SP_BUFFER*%l_ReportObject.SP                                    ;*** End Index= Start Time+ 60*60(120,180..)=1hour,2h,3h..
+
+   #if BMU_SP_IND:CCS==1 #then #DO BMU_SP_IND:CCP
+   #else #DO BMU_SP_IND:C
+
+   #if %IS2 >= %IS1 #then #block
+      #if application_object_exists(0,"D", t_ObjectName) #then #block
+         #set 't_ObjectName':DOS(%IS1..%IS2)=10
+         #set 't_ObjectName':DRT(%IS1..%IS2)=CLOCK
+      #block_end
+      #else -
+         cot = console_output("BMU_SP_CLEAN:C - Data Object 't_ObjectName':D missing","E","MREP")      
+   #block_end
+   #else #block
+      #if application_object_exists(0,"D", t_ObjectName) #then #block
+         #set 't_ObjectName':DOS(%IS1..%NBR_OF_VALUES) = 10
+         #set 't_ObjectName':DRT(%IS1..%NBR_OF_VALUES) = CLOCK
+         #set 't_ObjectName':DOS(1..%IS2) = 10
+         #set 't_ObjectName':DRT(1..%IS2) = CLOCK
+      #block_end
+      #else -
+         cot = console_output("BMU_SP_CLEAN:C - Data Object 't_ObjectName':D missing","E","MREP")      
+   #block_end
+#loop_end
+
+i_Status = status
+#if i_Status <> 0 #then cot = console_output("BMU_SP_CLEAN:C - SCIL Error='i_Status'","E","MREP") 
+

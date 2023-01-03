@@ -1,0 +1,61 @@
+; Function:    BMU_SUMMER:C , execution by BGU_TIMEFO:C
+; Version:     3.0 (Build 20.03.2012)
+; Parameters:  none
+; Return data: none
+; Description: Going to summer time, time +1 hour 
+;-------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;-------------------------------------------------------------------------------
+#local i, i_Status = status, cot
+#error ignore
+
+#if BMU_GLOBAL:CCS==1 #then #do BMU_GLOBAL:CCP
+#else #do BMU_GLOBAL:C
+
+#loop_with i = 1..length(%v_ReportObjectNames)
+   @t_ObjectName   = %v_ReportObjectNames(i)
+   @l_ReportObject = %l_ReportObjectS.OBJ_'t_ObjectName'
+   
+   #if %l_ReportObject.SP_HL>0 #then #block                                     ;*** All except for MP,CP with base period only        
+
+      @T1 = PACK_TIME(YEAR, MONTH, DAY, HOUR, 0, 0)                             ;*** move values from 'leap' hour to current hour and reset 'leap' hour values
+      @T2 = %T1+3600-60
+
+      #if BMU_SP_IND:CCS == 1 #then #do BMU_SP_IND:CCP
+      #else #DO BMU_SP_IND:C
+      
+      @IC1 = %IS1                                                               ;*** start index of current hour already ST
+      @IC2 = %IS2                                                               ;*** end   index of current hour
+      @T1  = PACK_TIME(YEAR, MONTH, DAY, HOUR, 0, 0)-3600                       ;*** start index from last hour in winter time
+      @T2  = %T1 + 3600 - 60                                                    ;*** end   index from last hour in winter time
+
+      #if BMU_SP_IND:CCS == 1 #then #do BMU_SP_IND:CCP
+      #else #do BMU_SP_IND:C
+                   
+      #set 't_ObjectName':DOV(%IC1..%IC2) = 't_ObjectName':DOV(%IS1..%IS2)      ;*** move the data from old winter time hour
+      #set 't_ObjectName':DRT(%IC1..%IC2) = 't_ObjectName':DRT(%IS1..%IS2)+3600 ;*** to new summer time hour
+      #set 't_ObjectName':DOS(%IS1..%IS2) = 11                                  ;*** reset old winter time hour
+      #set 't_ObjectName':DRT(%IS1..%IS2) = %T1
+   #block_end
+#loop_end
+
+#loop_with i = 1..length(%v_ReportObjectNames)
+   @t_ObjectName   = %v_ReportObjectNames(i)
+   @l_ReportObject = %l_ReportObjects.OBJ_'t_ObjectName'
+   
+   #if %l_ReportObject.BP_HL>0 #then #block                                     ;*** all except for MS,CS with sampling period only        
+      @T1 = PACK_TIME(YEAR, MONTH, DAY, HOUR, 1, 0)-3600                        ;*** start index from last hour in winter time
+      @T2 = CLOCK + 3600 - 120
+
+      #if BMU_BP_IND:CCS==1 #then #do BMU_BP_IND:CCP
+      #else #do BMU_BP_IND:C
+      
+      #set 't_ObjectName''YE1':DOS(%IP1..%IP2) = 11                             ;### 2.9 28.06.2010 HoDa
+      #set 't_ObjectName''YE1':DRT(%IP1..%IP2) = %T1
+   #block_end
+#loop_end
+
+i_Status = status
+#if i_Status <> 0 #then cot = console_output("BMU_SUMMER:C - SCIL Error='i_Status'","E","MREP") 
+

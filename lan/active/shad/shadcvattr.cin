@@ -1,0 +1,38 @@
+; SHADCVATTR - CONVERT TEXT ATTRIBUTE VALUE TO NUMERICAL
+; PARAMETERS:
+;   IN:
+;       ATTR - ATTRIBUTE NAME
+;       TVAL - ATTRIBUTE TEXT VALUE
+;   OUT:
+;       NVAL - ATTRIBUTE NUMERICAL VALUE
+
+#CASE %ATTR
+   #WHEN "AS" #BLOCK
+      #CASE %TVAL
+         #WHEN "COLD"        @NVAL = 0
+         #WHEN "WARM"        @NVAL = 1
+         #WHEN "HOT"         @NVAL = 2
+      #CASE_END
+      #BLOCK_END
+   #WHEN "SS" #BLOCK
+      #CASE %TVAL
+         #WHEN "NONE"        @NVAL = 0
+         #WHEN "WARM_SEND"   @NVAL = 1
+         #WHEN "HOT_SEND"    @NVAL = 2
+         #WHEN "RECEIVE"     @NVAL = 3
+      #CASE_END
+      #BLOCK_END
+   #WHEN "SP" #BLOCK
+      #CASE %TVAL
+         #WHEN "TO_WARM_SD"  @NVAL = 1
+         #WHEN "WARM_SD"     @NVAL = 2
+         #WHEN "TO_HOT_SD"   @NVAL = 3
+         #WHEN "HOT_SD"      @NVAL = 4
+         #WHEN "TO_WARM_RC"  @NVAL = 5
+         #WHEN "WARM_RC"     @NVAL = 6
+         #WHEN "TO_HOT_RC"   @NVAL = 7
+         #WHEN "HOT_RC"      @NVAL = 8
+         #OTHERWISE          @NVAL = 0
+      #CASE_END
+      #BLOCK_END
+#CASE_END

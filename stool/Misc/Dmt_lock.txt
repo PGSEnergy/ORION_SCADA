@@ -1,0 +1,42 @@
+; Locks or unlocks access to the DMT data.
+; Arguments:
+;   1 - text, "LOCK" or "UNLOCK"
+;   2 - integer, the semaphore index
+; Return value:
+;   None.
+
+@i_Lock_Index = argument(2)
+
+#if LENGTH(APL:BUV) < %i_Lock_Index #then-
+    #set APL:BUV(%i_Lock_Index) = 0
+#else #block
+   ;  MSC AZ : we should check whether the APL:BUV(%i_Lock_Index) is
+   ;  already sampled or not. This element can be unsampled in the case
+   ;  when another program uses elements with the indexes greater than
+   ;  i_Lock_Index.
+   ;DR 14073: Checked the status when the index is greater than 312 and made it to "0" if not equal to "0"
+   ;;;; Start : DR 14073 
+      @i_Check_Element_Status = get_status(APL:BUV(%i_Lock_Index)) 
+         #if %i_Check_Element_Status <> 0 #then-
+            #set APL:BUV(%i_Lock_Index) = 0
+   ;;;; End : DR 14073
+#block_end
+#case UPPER_CASE(argument(1))
+#when "LOCK" #block
+   @i_Semaphore = ADD_INTERLOCKED("APL", %i_Lock_Index, 1)
+   #loop %i_Semaphore <> 1
+      @i_Semaphore = ADD_INTERLOCKED("APL", %i_Lock_Index, -1)
+      #pause 0.2
+      @i_Semaphore = ADD_INTERLOCKED("APL", %i_Lock_Index, 1)
+   #loop_end 50   ; Lock timeout is 10 seconds
+   #if %i_Semaphore <> 1 #then #block
+      @i_Semaphore = ADD_INTERLOCKED("APL", %i_Lock_Index, -1)
+      @s = DO(DMT_MSG:CIN, "Lock timed out (semaphore count is 'i_Semaphore')", "CRITICAL")
+      #error raise 11
+   #block_end
+#block_end
+#when "UNLOCK" #block
+   @i_Semaphore = ADD_INTERLOCKED("APL", %i_Lock_Index, -1)
+#block_end
+#case_end
+

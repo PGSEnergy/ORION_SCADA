@@ -1,0 +1,139 @@
+;************************************ ATTRIB_D.TXT ********************************************
+;************************************ SR 21.8.1996 ********************************************
+
+;Defines the limit properties of MicroScada Data Object attributes (excluding read-only).
+
+;Data Object
+
+@MAX_INTEGER = 2147483647
+
+#CREATE ATTRIB_DLN:V = LIST(DATA_TYPE = "TEXT",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = max_object_name_length)
+         
+#CREATE ATTRIB_DFI:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = - %MAX_INTEGER,-
+         MAX_VALUE = %MAX_INTEGER)
+
+#CREATE ATTRIB_DFX:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_DOS:V = LIST(DATA_TYPE = "VECTOR",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 65535,-
+         EDATA_TYPE = "INTEGER",-
+         EMIN_VALUE = 0,-
+         EMAX_VALUE = 438)
+
+#CREATE ATTRIB_DOV:V = LIST(DATA_TYPE = "VECTOR",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 65535,-
+         EDATA_TYPE = ("REAL","INTEGER"),-
+         EMIN_VALUE = 0,-
+         EMAX_VALUE = 1.7*10**38)
+
+#CREATE ATTRIB_DIN:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_DIU:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_DLF:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 10)
+
+#CREATE ATTRIB_DPS:V = LIST(DATA_TYPE = ("REAL","INTEGER"),-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1.7*10**38)
+
+#CREATE ATTRIB_DSR:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = max_object_name_length)
+
+#CREATE ATTRIB_DRT:V = LIST(DATA_TYPE = "VECTOR",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 65535,-
+         EDATA_TYPE = "INTEGER",-
+         EMIN_VALUE = 0,-
+         EMAX_VALUE = 2147483647)
+
+#CREATE ATTRIB_DTS:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_DHN:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 399)
+
+#CREATE ATTRIB_DHR:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = max_vector_length)
+
+#CREATE ATTRIB_DLR:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = %ATTRIB_DHR.MAX_VALUE)
+
+#CREATE ATTRIB_DMO:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_DPE:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_DPQ:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0 ,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 30)
+
+#CREATE ATTRIB_DEP:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 255,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 255)
+
+#CREATE ATTRIB_DSE:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_DTC:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = max_object_name_length)
+
+#CREATE ATTRIB_DCM:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_DVL:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 10,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 255)
+
+#CREATE ATTRIB_DON:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_DGP:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = max_object_name_length)
+

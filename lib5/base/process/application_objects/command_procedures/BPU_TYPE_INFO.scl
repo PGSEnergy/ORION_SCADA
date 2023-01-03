@@ -1,0 +1,35 @@
+#local x_CustomData = ARGUMENT(1), l_DisplayInfo = ARGUMENT(2), l_Object_Info, Retval = ""
+#local t_object_type,l_type_info, l_Res, i, v_attrs, t_tmp
+
+#IF DATA_TYPE(x_CustomData) == "LIST" #THEN #IF ATTRIBUTE_EXISTS(x_CustomData, "OBJECTTYPE") #THEN #RETURN x_CustomData.OBJECTTYPE
+
+#error ignore
+
+#IF DATA_TYPE(%LN) <> "NONE" #THEN #BLOCK
+   l_Object_Info = DO(BPU_CONTROL:C, "GET_OBJECT_INFO", %LN, %IX)
+   ROOT.Set_Key_Value("OBJECT_INFO", l_Object_Info)
+   #if attribute_exists(l_object_info, "object_type_description") #then #block
+      l_type_info = do(read_text(l_object_info.object_type_description))
+      #if attribute_exists(l_type_info, "object_type") #then #block
+         #if l_type_info.object_type == "TEMPLATE" #then #block            
+            l_Res = read_parameter(l_type_info.object_type_mapping_file,  "GENERAL",  "Mapper_Attributes")
+            #if l_Res.status == 0 #then  #block
+               v_attrs = separate(l_Res.value, ",")
+               #loop_with i = 1 .. length(v_attrs)
+                  t_tmp = v_attrs(i)
+                  l_Res = read_parameter(l_type_info.object_type_mapping_file, t_tmp,  l_object_info.'t_tmp')
+                  #if l_Res.status == 0 #then  #block
+                     #if l_Res.value <> "USE_NEXT_MAPPER_ATTRIBUTE" #then #block
+                        Retval = l_Res.value
+                        #loop_exit
+                     #block_end
+                  #block_end
+               #loop_end
+            #block_end
+         #block_end
+         #else Retval = l_type_info.object_type
+      #block_end
+   #block_end
+#BLOCK_END
+
+#return Retval

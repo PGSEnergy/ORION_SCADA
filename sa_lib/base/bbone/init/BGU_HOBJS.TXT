@@ -1,0 +1,210 @@
+; File: BGU_HOBJS.TXT
+; Description: Creates the default Event Handling objects for SA-LIB
+; ------------------------------------------------------------------
+
+@l_HObjs = list()
+
+; SAGR H-objects for binary inputs
+#loop_with i_RI = 0 .. 48
+   #set l_HObjs:vSAGR_FORM5FPBI1_'i_RI' = list(VC = 2, VL = 0, ST = ("SAGR_FORM5FPBI1_'i_RI'_ST_0", "SAGR_FORM5FPBI1_'i_RI'_ST_1"))
+#loop_end
+#set l_HObjs:vSAGR_PROT_STR = list(VC = 2, VL = 0, ST = ("SAGR_PROT_STR_ST_0", "SAGR_PROT_STR_ST_1"))
+#set l_HObjs:vSAGR_PROT_TRP = list(VC = 2, VL = 0, ST = ("SAGR_PROT_TRP_ST_0", "SAGR_PROT_TRP_ST_1"))
+
+; SAGR H-objects for double binary indications
+#loop_with i_RI = 0 .. 23
+   #set l_HObjs:vSAGR_FORM5FPDB1_'i_RI' = list(VC = 4, VL = 0, ST = ("SAGR_FORM5FPDB1_'i_RI'_ST_0", "SAGR_FORM5FPDB1_'i_RI'_ST_1", "SAGR_FORM5FPDB1_'i_RI'_ST_2", "SAGR_FORM5FPDB1_'i_RI'_ST_3"))
+#loop_end
+
+;SNMP ***
+;Switch (Port)
+@i_RI = 0
+#set l_HObjs:vSAGR_FORM5FPDB2_'i_RI' = list(VC = 4, VL = 0, ST = ("SAGR_FORM5FPDB2_'i_RI'_ST_0", "SAGR_FORM5FPDB2_'i_RI'_ST_1", "SAGR_FORM5FPDB2_'i_RI'_ST_2", "SAGR_FORM5FPDB2_'i_RI'_ST_3"))
+;Switch (power supply)
+@i_RI = 0
+#set l_HObjs:vSAGR_FORM5FPDB3_'i_RI' = list(VC = 4, VL = 0, ST = ("SAGR_FORM5FPDB3_'i_RI'_ST_0", "SAGR_FORM5FPDB3_'i_RI'_ST_1", "SAGR_FORM5FPDB3_'i_RI'_ST_2", "SAGR_FORM5FPDB3_'i_RI'_ST_3"))
+;GPS (GPS state)
+@i_RI = 0
+#set l_HObjs:vSAGR_FORM5FPDB4_'i_RI' = list(VC = 4, VL = 0, ST = ("SAGR_FORM5FPDB4_'i_RI'_ST_0", "SAGR_FORM5FPDB4_'i_RI'_ST_1", "SAGR_FORM5FPDB4_'i_RI'_ST_2", "SAGR_FORM5FPDB4_'i_RI'_ST_3"))
+;Printer (Paper/Toner)
+@i_RI = 0
+#set l_HObjs:vSAGR_FORM5FPDB5_'i_RI' = list(VC = 4, VL = 0, ST = ("SAGR_FORM5FPDB5_'i_RI'_ST_0", "SAGR_FORM5FPDB5_'i_RI'_ST_1", "SAGR_FORM5FPDB5_'i_RI'_ST_2", "SAGR_FORM5FPDB5_'i_RI'_ST_3"))
+;Printer (Paper/Toner)
+@i_RI = 0
+#set l_HObjs:vSAGR_FORM5FPDB6_'i_RI' = list(VC = 4, VL = 0, ST = ("SAGR_FORM5FPDB6_'i_RI'_ST_0", "SAGR_FORM5FPDB6_'i_RI'_ST_1", "SAGR_FORM5FPDB6_'i_RI'_ST_2", "SAGR_FORM5FPDB6_'i_RI'_ST_3"))
+;door
+@i_RI = 0
+#set l_HObjs:vSAGR_FORM5FPDB7_'i_RI' = list(VC = 4, VL = 0, ST = ("SAGR_FORM5FPDB7_'i_RI'_ST_0", "SAGR_FORM5FPDB7_'i_RI'_ST_1", "SAGR_FORM5FPDB7_'i_RI'_ST_2", "SAGR_FORM5FPDB7_'i_RI'_ST_3"))
+;Jammed
+@i_RI = 0
+#set l_HObjs:vSAGR_FORM5FPDB8_'i_RI' = list(VC = 4, VL = 0, ST = ("SAGR_FORM5FPDB8_'i_RI'_ST_0", "SAGR_FORM5FPDB8_'i_RI'_ST_1", "SAGR_FORM5FPDB8_'i_RI'_ST_2", "SAGR_FORM5FPDB8_'i_RI'_ST_3"))
+;Online
+@i_RI = 0
+#set l_HObjs:vSAGR_FORM5FPDB9_'i_RI' = list(VC = 4, VL = 0, ST = ("SAGR_FORM5FPDB9_'i_RI'_ST_0", "SAGR_FORM5FPDB9_'i_RI'_ST_1", "SAGR_FORM5FPDB9_'i_RI'_ST_2", "SAGR_FORM5FPDB9_'i_RI'_ST_3"))
+;service requested
+@i_RI = 0
+#set l_HObjs:vSAGR_FORM5FPDB10_'i_RI' = list(VC = 4, VL = 0, ST = ("SAGR_FORM5FPDB10_'i_RI'_ST_0", "SAGR_FORM5FPDB10_'i_RI'_ST_1", "SAGR_FORM5FPDB10_'i_RI'_ST_2", "SAGR_FORM5FPDB10_'i_RI'_ST_3"))
+;SNMP ***
+
+; SAGR H-objects for analog inputs
+#set l_HObjs:vSAGR_FORM5FPAI1_0 = list(VC = 2, VL = 0, ST = ("SAGR_FORM5FPAI1_0_ST_0", "SAGR_FORM5FPAI1_0_ST_1"))
+#set l_HObjs:vSAGR_FORM5FPAI1_1 = list(VC = 12, VL = 0, ST = (-
+   "SAGR_FORM5FPAI1_1_ST_0", "SAGR_FORM5FPAI1_1_ST_1", "SAGR_FORM5FPAI1_1_ST_2", "SAGR_FORM5FPAI1_1_ST_3", "SAGR_FORM5FPAI1_1_ST_4", "SAGR_FORM5FPAI1_1_ST_5",-
+   "SAGR_FORM5FPAI1_1_ST_6", "SAGR_FORM5FPAI1_1_ST_7", "SAGR_FORM5FPAI1_1_ST_8", "SAGR_FORM5FPAI1_1_ST_9", "SAGR_FORM5FPAI1_1_ST_10", "SAGR_FORM5FPAI1_1_ST_11"))
+#set l_HObjs:vSAGR_FORM5FPAI1_2 = list(VC = 12, VL = 0, ST = (-
+   "SAGR_FORM5FPAI1_2_ST_0", "SAGR_FORM5FPAI1_2_ST_1", "SAGR_FORM5FPAI1_2_ST_2", "SAGR_FORM5FPAI1_2_ST_3", "SAGR_FORM5FPAI1_2_ST_4", "SAGR_FORM5FPAI1_2_ST_5",-
+   "SAGR_FORM5FPAI1_2_ST_6", "SAGR_FORM5FPAI1_2_ST_7", "SAGR_FORM5FPAI1_2_ST_8", "SAGR_FORM5FPAI1_2_ST_9", "SAGR_FORM5FPAI1_2_ST_10", "SAGR_FORM5FPAI1_2_ST_11"))
+
+#loop_with i_RI = 3 .. 8
+   #set l_HObjs:vSAGR_FORM5FPAI1_'i_RI' = list(VC = (0, 1, 2, 3, 1000, 2000, 3000), VL = 0, ST = ("SAGR_FORM5FPAI1_'i_RI'_ST_0", "SAGR_FORM5FPAI1_'i_RI'_ST_1",-
+      "SAGR_FORM5FPAI1_'i_RI'_ST_2", "SAGR_FORM5FPAI1_'i_RI'_ST_3", "SAGR_FORM5FPAI1_'i_RI'_ST_1000", "SAGR_FORM5FPAI1_'i_RI'_ST_2000", "SAGR_FORM5FPAI1_'i_RI'_ST_3000"))
+#loop_end
+
+#set l_HObjs:vSAGR_FORM5FPAI1_9 = list(VC = 6, VL = 0, ST = (-
+   "SAGR_FORM5FPAI1_9_ST_0", "SAGR_FORM5FPAI1_9_ST_1", "SAGR_FORM5FPAI1_9_ST_2", "SAGR_FORM5FPAI1_9_ST_3", "SAGR_FORM5FPAI1_9_ST_4", "SAGR_FORM5FPAI1_9_ST_5"))
+#set l_HObjs:vSAGR_FORM5FPAI1_10 = list(VC = 5, VL = 0, ST = (-
+   "SAGR_FORM5FPAI1_10_ST_0", "SAGR_FORM5FPAI1_10_ST_1", "SAGR_FORM5FPAI1_10_ST_2", "SAGR_FORM5FPAI1_10_ST_3", "SAGR_FORM5FPAI1_10_ST_4"))
+#set l_HObjs:vSAGR_FORM5FPAI1_11 = list(VC = 6, VL = 0, ST = (-
+   "SAGR_FORM5FPAI1_11_ST_0", "SAGR_FORM5FPAI1_11_ST_1", "SAGR_FORM5FPAI1_11_ST_2", "SAGR_FORM5FPAI1_11_ST_3", "SAGR_FORM5FPAI1_11_ST_4", "SAGR_FORM5FPAI1_11_ST_5"))
+#set l_HObjs:vSAGR_FORM5FPAI1_12 = list(VC = 12, VL = 0, ST = (-
+   "SAGR_FORM5FPAI1_12_ST_0", "SAGR_FORM5FPAI1_12_ST_1", "SAGR_FORM5FPAI1_12_ST_2", "SAGR_FORM5FPAI1_12_ST_3", "SAGR_FORM5FPAI1_12_ST_4", "SAGR_FORM5FPAI1_12_ST_5",-
+   "SAGR_FORM5FPAI1_12_ST_6", "SAGR_FORM5FPAI1_12_ST_7", "SAGR_FORM5FPAI1_12_ST_8", "SAGR_FORM5FPAI1_12_ST_9", "SAGR_FORM5FPAI1_12_ST_10", "SAGR_FORM5FPAI1_12_ST_11"))
+#set l_HObjs:vSAGR_FORM5FPAI1_13 = list(VC = 4, VL = 0, ST = ("SAGR_FORM5FPAI1_13_ST_0", "SAGR_FORM5FPAI1_13_ST_1", "SAGR_FORM5FPAI1_13_ST_2", "SAGR_FORM5FPAI1_13_ST_3"))
+#set l_HObjs:vSAGR_FORM5FPAI1_14 = list(VC = (0, 1, 2, 3, 4, 12, 13, 14, 23, 24, 34, 123, 124, 134, 234, 1234), VL = 0, ST = (-
+   "SAGR_FORM5FPAI1_14_ST_0", "SAGR_FORM5FPAI1_14_ST_1", "SAGR_FORM5FPAI1_14_ST_2", "SAGR_FORM5FPAI1_14_ST_3", "SAGR_FORM5FPAI1_14_ST_4",-
+   "SAGR_FORM5FPAI1_14_ST_12", "SAGR_FORM5FPAI1_14_ST_13", "SAGR_FORM5FPAI1_14_ST_14", "SAGR_FORM5FPAI1_14_ST_23", "SAGR_FORM5FPAI1_14_ST_24",-
+   "SAGR_FORM5FPAI1_14_ST_34", "SAGR_FORM5FPAI1_14_ST_123", "SAGR_FORM5FPAI1_14_ST_124", "SAGR_FORM5FPAI1_14_ST_134", "SAGR_FORM5FPAI1_14_ST_234",-
+   "SAGR_FORM5FPAI1_14_ST_1234"))
+#set l_HObjs:vSAGR_FORM5FPAI1_15 = list(VC = 7, VL = 0, ST = (-
+   "SAGR_FORM5FPAI1_15_ST_0", "SAGR_FORM5FPAI1_15_ST_1", "SAGR_FORM5FPAI1_15_ST_2", "SAGR_FORM5FPAI1_15_ST_3", "SAGR_FORM5FPAI1_15_ST_4", "SAGR_FORM5FPAI1_15_ST_5", "SAGR_FORM5FPAI1_15_ST_6"))
+#set l_HObjs:vSAGR_FORM5FPAI1_16 = list(VC = 6, VL = 0, ST = (-
+   "SAGR_FORM5FPAI1_16_ST_0", "SAGR_FORM5FPAI1_16_ST_1", "SAGR_FORM5FPAI1_16_ST_2", "SAGR_FORM5FPAI1_16_ST_3", "SAGR_FORM5FPAI1_16_ST_4", "SAGR_FORM5FPAI1_16_ST_5"))
+#set l_HObjs:vSAGR_FORM5FPAI1_17 = list(VC = 6, VL = 0, ST = (-
+   "SAGR_FORM5FPAI1_17_ST_0", "SAGR_FORM5FPAI1_17_ST_1", "SAGR_FORM5FPAI1_17_ST_2", "SAGR_FORM5FPAI1_17_ST_3", "SAGR_FORM5FPAI1_17_ST_4", "SAGR_FORM5FPAI1_17_ST_5"))
+#set l_HObjs:vSAGR_FORM5FPAI1_19 = list(VC = 4, VL = 0, VF="AI", ST = (-
+   "SAGR_FORM5FPAI1_19_ST_0", "SAGR_FORM5FPAI1_19_ST_1", "SAGR_FORM5FPAI1_19_ST_2", "SAGR_FORM5FPAI1_19_ST_3"))
+
+#loop_with i_RI = 0 .. 3
+   #set l_HObjs:vSAGR_FORM5FPAI2_'i_RI' = list(VC = 6, VL = 0, ST = (-
+      "SAGR_FORM5FPAI2_'i_RI'_ST_0", "SAGR_FORM5FPAI2_'i_RI'_ST_1", "SAGR_FORM5FPAI2_'i_RI'_ST_2", "SAGR_FORM5FPAI2_'i_RI'_ST_3", "SAGR_FORM5FPAI2_'i_RI'_ST_4", "SAGR_FORM5FPAI2_'i_RI'_ST_5"))
+#loop_end
+
+#set l_HObjs:vSAGR_FORM5FPAI3_1 = list(VC = 0, VL = 0, VF = "", ST = vector("\V0\"))
+#set l_HObjs:vSAGR_FORM5FPAI4_0 = list(VC = 0, VL = 0, VF = "", ST = vector("\V2\"))
+
+;Addcause
+@v_CauseValue = (-35,-34,-33, -32,-31,-30,-25,-24,-23,-22,-
+   1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,-
+   1000,1001,1002,1003,1004,1005,1006,1007,1008,1009,1010,1011,1012,1013,1014,1015,1016,1017,1018,-
+   2000,2001,2002,2003,2004,2005,2006,2007,2008,2009,2010,2011,2012,2013,2014,2015,2016,2017,2018,-
+   3000,3001,3002,3003,3004,3005,3006,3007,3008,3009,3010,3011,3012,3013,3014,3015,3016,3017,3018)
+@i_RI = 0  
+#loop_with i = 1 .. length(%v_CauseValue)
+   @i_Val = %v_CauseValue(%i)
+   @v_CauseValueText(%i) = "SAGR_FORM5FPAI5_'i_RI'_ST_'i_Val'"
+#loop_end
+#set l_HObjs:vSAGR_FORM5FPAI5_'i_RI' = list(VC = %v_CauseValue, VL = 0, ST = %v_CauseValueText)
+
+;Application supervision
+@v_CauseValue = (0,1,2,3,4,5,6,7,8,9,10,11,12,13)
+@v_CauseValueText = vector
+@i_RI = 0  
+#loop_with i = 1 .. length(%v_CauseValue)
+   @i_Val = %v_CauseValue(%i)
+   @v_CauseValueText(%i) = "SAGR_FORM5FPAI6_'i_RI'_ST_'i_Val'"
+#loop_end
+
+#set l_HObjs:vSAGR_FORM5FPAI6_'i_RI' = list(VC = %v_CauseValue, VL = 0, ST = %v_CauseValueText)
+
+;SNMP ***
+;Gps (NTP State)
+@v_CauseValue = (0,1,2,3,4,5)
+@v_CauseValueText = vector
+@i_RI = 0  
+#loop_with i = 1 .. length(%v_CauseValue)
+   @i_Val = %v_CauseValue(%i)
+   @v_CauseValueText(%i) = "SAGR_FORM5FPAI7_'i_RI'_ST_'i_Val'"
+#loop_end
+    
+#set l_HObjs:vSAGR_FORM5FPAI7_'i_RI' = list(VC = %v_CauseValue, VL = 0, ST = %v_CauseValueText, VF = "AI")
+
+@v_CauseValue = (1,2,3,4)
+@v_CauseValueText = vector
+@i_RI = 0  
+#loop_with i = 1 .. length(%v_CauseValue)
+   @i_Val = %v_CauseValue(%i)
+   @v_CauseValueText(%i) = "SAGR_FORM5FPAI8_'i_RI'_ST_'i_Val'"
+#loop_end
+    
+#set l_HObjs:vSAGR_FORM5FPAI8_'i_RI' = list(VC = %v_CauseValue, VL = 0, ST = %v_CauseValueText, VF = "AI")
+
+@v_CauseValue = (1,2,3,4,5,6)
+@v_CauseValueText = vector
+@i_RI = 0  
+#loop_with i = 1 .. length(%v_CauseValue)
+   @i_Val = %v_CauseValue(%i)
+   @v_CauseValueText(%i) = "SAGR_FORM5FPAI9_'i_RI'_ST_'i_Val'"
+#loop_end
+    
+#set l_HObjs:vSAGR_FORM5FPAI9_'i_RI' = list(VC = %v_CauseValue, VL = 0, ST = %v_CauseValueText, VF = "AI")
+
+;SNMP ***
+
+; - SAGR H-objects for analog outputs ------------------------------
+#loop_with i_RI = 0 .. 6
+   #set l_HObjs:vSAGR_FORM5FPAO1_'i_RI' = list(VC = (1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768), VL = 0, ST = (-
+      "SAGR_FORM5FPAO1_'i_RI'_ST_1", "SAGR_FORM5FPAO1_'i_RI'_ST_2", "SAGR_FORM5FPAO1_'i_RI'_ST_4", "SAGR_FORM5FPAO1_'i_RI'_ST_8", "SAGR_FORM5FPAO1_'i_RI'_ST_16", "SAGR_FORM5FPAO1_'i_RI'_ST_32", "SAGR_FORM5FPAO1_'i_RI'_ST_64",-
+      "SAGR_FORM5FPAO1_'i_RI'_ST_128", "SAGR_FORM5FPAO1_'i_RI'_ST_256", "SAGR_FORM5FPAO1_'i_RI'_ST_512", "SAGR_FORM5FPAO1_'i_RI'_ST_1024", "SAGR_FORM5FPAO1_'i_RI'_ST_2048", "SAGR_FORM5FPAO1_'i_RI'_ST_4096", "SAGR_FORM5FPAO1_'i_RI'_ST_8192",-
+      "SAGR_FORM5FPAO1_'i_RI'_ST_16384", "SAGR_FORM5FPAO1_'i_RI'_ST_32768"))
+#loop_end
+
+#loop_with i_RI = 7 .. 8
+   #set l_HObjs:vSAGR_FORM5FPAO1_'i_RI' = list(VC = 4, VL = 0, ST = ("SAGR_FORM5FPAO1_'i_RI'_ST_0", "SAGR_FORM5FPAO1_'i_RI'_ST_1", "SAGR_FORM5FPAO1_'i_RI'_ST_2", "SAGR_FORM5FPAO1_'i_RI'_ST_3"))
+#loop_end
+
+#set l_HObjs:vSAGR_FORM5FPAO1_9 = list(VC = 3, VL = 0, ST = ("SAGR_FORM5FPAO1_9_ST_0", "SAGR_FORM5FPAO1_9_ST_1", "SAGR_FORM5FPAO1_9_ST_2"))
+#set l_HObjs:vSAGR_FORM5FPAO1_10 = list(VC = 6, VL = 1, ST = ("SAGR_FORM5FPAO1_10_ST_1", "SAGR_FORM5FPAO1_10_ST_2", "SAGR_FORM5FPAO1_10_ST_3",-
+   "SAGR_FORM5FPAO1_10_ST_4", "SAGR_FORM5FPAO1_10_ST_5", "SAGR_FORM5FPAO1_10_ST_6"))
+#set l_HObjs:vSAGR_FORM5FPAO1_11 = list(VC = 3, VL = 0, ST = ("SAGR_FORM5FPAO1_11_ST_0", "SAGR_FORM5FPAO1_11_ST_1", "SAGR_FORM5FPAO1_11_ST_2"))
+
+@v_Indices = (12, 13, 15, 16, 18, 19, 21, 22)
+#loop_with i_Count = 1 .. length(%v_Indices)
+   @i_RI = %v_Indices(%i_Count)
+   #set l_HObjs:vSAGR_FORM5FPAO1_'i_RI' = list(VC = (0, 1, 3, 5, 7, 9, 11, 13, 15), VL = 0, ST = ("SAGR_FORM5FPAO1_'i_RI'_ST_0", "SAGR_FORM5FPAO1_'i_RI'_ST_1", "SAGR_FORM5FPAO1_'i_RI'_ST_3",-
+      "SAGR_FORM5FPAO1_'i_RI'_ST_5", "SAGR_FORM5FPAO1_'i_RI'_ST_7", "SAGR_FORM5FPAO1_'i_RI'_ST_9", "SAGR_FORM5FPAO1_'i_RI'_ST_11", "SAGR_FORM5FPAO1_'i_RI'_ST_13", "SAGR_FORM5FPAO1_'i_RI'_ST_15"))
+#loop_end
+
+@v_Indices = (14, 17, 20, 23)
+#loop_with i_Count = 1 .. length(%v_Indices)
+   @i_RI = %v_Indices(%i_Count)
+   #set l_HObjs:vSAGR_FORM5FPAO1_'i_RI' = list(VC = (0, 1, 3, 5, 7, 9, 11, 13, 15), VL = 0, ST = ("SAGR_FORM5FPAO1_'i_RI'_ST_0", "SAGR_FORM5FPAO1_'i_RI'_ST_1", "SAGR_FORM5FPAO1_'i_RI'_ST_1",-
+      "SAGR_FORM5FPAO1_'i_RI'_ST_1", "SAGR_FORM5FPAO1_'i_RI'_ST_1", "SAGR_FORM5FPAO1_'i_RI'_ST_1", "SAGR_FORM5FPAO1_'i_RI'_ST_1", "SAGR_FORM5FPAO1_'i_RI'_ST_1", "SAGR_FORM5FPAO1_'i_RI'_ST_1"))
+#loop_end
+
+
+; SAGR H-objects for binary outputs
+#loop_with i_RI = 0 .. 59
+   #set l_HObjs:vSAGR_FORM5FPBO1_'i_RI' = list(VC = 2, VL = 0, ST = ("SAGR_FORM5FPBO1_'i_RI'_ST_0", "SAGR_FORM5FPBO1_'i_RI'_ST_1"))
+#loop_end
+
+; SAGR H-object for digital input (generator state)
+#set l_HObjs:vSAGR_FORM5FPDI1_1 = list(VC = 4, VL = 0, ST = ("SAGR_FORM5FPDI1_1_ST_0", "SAGR_FORM5FPDI1_1_ST_1", "SAGR_FORM5FPDI1_1_ST_2", "SAGR_FORM5FPDI1_1_ST_3"))
+
+; SAGR H-objects for digital outputs
+#loop_with i_RI = 0 .. 12
+   #set l_HObjs:vSAGR_FORM5FPDO1_'i_RI' = list(VC = 2, VL = 0, ST = ("SAGR_FORM5FPDO1_'i_RI'_ST_0", "SAGR_FORM5FPDO1_'i_RI'_ST_1"))
+#loop_end
+
+@v_Objects = list_attr(%l_HObjs)
+
+@e_state = error_state
+#error ignore
+#loop_with i_Object = 1 .. length(%v_Objects)
+   @s = status
+   @t_Logical_Name = %v_Objects(%i_Object)
+   #if application_object_count(0, "H", "A", "F", "", "LN==""'t_Logical_Name'""") == 0 #then #create 't_Logical_Name':H = l_HObjs:v't_Logical_Name'
+   #else #modify 't_Logical_Name':H = l_HObjs:v't_Logical_Name'
+   @s = status
+   #if %s <> 0 #then @trash = console_output("Error when creating/modifying Event Handling object 't_Logical_Name': " + status_code_name(%s) + " ('s')", "D")  
+#loop_end
+#error 'e_state'

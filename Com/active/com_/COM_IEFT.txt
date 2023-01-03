@@ -1,0 +1,79 @@
+﻿; This command procedure is used for handling IEC101S/IEC104S file transfer 
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT: @NCC_FILE_DIR, @FT_FILE_FILTER, @STA_NR, @FT_FILE_SUBFOLDER   
+;
+;---------------------------------------------------------------------------------------
+
+
+@STA=%STA_NR
+@DISTURBANCE_DIR = %NCC_FILE_DIR
+@DELETEFILES=TRUE
+@I=1
+@MAXDEFINECOUNT=1
+
+
+#LOOP 
+   @FV = STA'STA':SFV(100+%I)
+   #IF LENGTH(%FV)<6 #THEN #LOOP_EXIT
+   #ELSE #BLOCK
+      @FN=STA'STA':SFN(100+%I)
+      @CONTROL_BYTE = %FV(4) DIV 256
+      @ALL_SECTIONS_TRANSMITTED = BIT(%CONTROL_BYTE,1)  
+      @TRANSMISSION_ACKED = BIT(%CONTROL_BYTE,2)
+      @SOF = %FV(4) mod 256
+      #IF %ALL_SECTIONS_TRANSMITTED == 1 AND %TRANSMISSION_ACKED == 1 #THEN #BLOCK
+         ; All sections trasmitted and file is acknowledged - can be removed from the list        
+         #SET STA'STA':SFN=(%FV(1), %FV(2), %FV(3), %SOF, "")         
+         @I=%I-1
+         #IF %DELETEFILES #THEN #BLOCK
+            #IF %FT_FILE_SUBFOLDER #THEN #BLOCK 
+               @NCC_FILE_DIR_PATH = FM_REPRESENT(%NCC_FILE_DIR)
+               @FILE_DIR_PATH = %NCC_FILE_DIR_PATH + "\" + %FN
+               @DTAG = FM_FILE(%FILE_DIR_PATH)  
+            #BLOCK_END
+            #ELSE #BLOCK
+               @DFILE = FILE_MANAGER("LIST", %DISTURBANCE_DIR, %FN)
+               @DTAG = FM_COMBINE(%DISTURBANCE_DIR, %DFILE)
+            #BLOCK_END                     
+            @ST=FILE_MANAGER("DELETE", %DTAG)            
+         #BLOCK_END
+      #BLOCK_END      
+   #BLOCK_END
+   @I=%I+1
+#LOOP_END
+
+#ERROR IGNORE  
+
+#IF %FT_FILE_SUBFOLDER #THEN #BLOCK 
+   @FILES = FILE_MANAGER("LIST", %DISTURBANCE_DIR, %FT_FILE_FILTER, "RECURSIVE")
+#BLOCK_END
+#ELSE #BLOCK
+   @FILES = FILE_MANAGER("LIST", %DISTURBANCE_DIR, %FT_FILE_FILTER)
+#BLOCK_END
+
+@DIR = FM_REPRESENT(%DISTURBANCE_DIR)
+#SET STA'STA':SFD=(%DIR)
+
+#IF LENGTH(%FILES) > %MAXDEFINECOUNT #THEN #BLOCK
+   @DEFINECOUNT = %MAXDEFINECOUNT
+#BLOCK_END   
+#ELSE #BLOCK
+   @DEFINECOUNT = LENGTH(%FILES)
+#BLOCK_END
+
+
+#LOOP_WITH I=1..%DEFINECOUNT 
+   @FTAG = FM_COMBINE(%DISTURBANCE_DIR, %FILES(%I))
+   @CURRFILE = FILE_MANAGER("GET_ATTRIBUTES", %FTAG)
+
+   @FILENAM = FM_REPRESENT(%FILES(%I))
+   @FILELEN = %CURRFILE.SIZE_KB*1024+%CURRFILE.SIZE_B
+   @FILETIM = %CURRFILE.CREATED_S
+   #SET STA'STA':SFN=(0,0,    1, 0, %FILENAM, %FILELEN, %FILETIM)
+#LOOP_END
+
+#ERROR CONTINUE

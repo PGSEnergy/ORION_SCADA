@@ -1,0 +1,74 @@
+; SHADCHKXMT - CHECK FOR SHADOW START TRANSMISSION REQUESTS
+#DO SHADGLOBAL:C
+
+
+#LOOP_WITH APL = 1 .. %MAX_APL
+   @CHK = 0
+   #IF (APL'APL':BTT == "LOCAL") AND (SHADLOCAPL:D(%APL) > 0) #THEN #BLOCK
+      #IF (APL'APL':BAS == "COLD") AND (APL'APL':BSS == "NONE") #THEN -
+         @CHK = 1
+      #ELSE_IF (APL'APL':BAS == "HOT") AND (APL'APL':BSS == "NONE") #THEN -
+         @CHK = 2
+   #BLOCK_END
+   #CASE %CHK
+      #WHEN 1 #BLOCK
+         @LOCAPL = TRUNC(SHADLOCAPL:D(%APL))
+         #CASE %LOCAPL
+            #WHEN 1 #BLOCK
+               #EXEC SHADLSTART:C (@APL = %APL)
+               #BLOCK_END
+            #WHEN 10 #BLOCK
+               #IF (CLOCK - SHADLOCAPL:DRT(%APL)) > %EAPL_START #THEN -
+                  #SET SHADLOCAPL:D(%APL) = 1
+               #BLOCK_END
+         #CASE_END ; %LOCAPL
+         #BLOCK_END
+      #WHEN 2 #BLOCK
+         #IF (SHAD_XMT:D(%APL) >= 10) AND -
+             ((CLOCK - SHAD_XMT:DRT(%APL)) > %SHD_RESTART) -
+         #THEN #BLOCK
+            #DO SHADRESAPL:C
+            @OLD = TIMEOUT(10000)
+            #ERROR IGNORE
+            @AS = APL'ETAPL':'EWAPL'BAS
+            @STATUS = STATUS
+            #ERROR STOP
+            @DUMMY = TIMEOUT(%OLD)
+            #IF %STATUS == 0 #THEN #BLOCK
+               @OS = 0
+               #CASE %AS
+                  #WHEN "COLD" #BLOCK
+                     #EXEC SHADRSTART:'EWAPL'C (@RT=CLOCK,@APL=%ETAPL)
+                     @SS = SHAD_XMT:D(%APL) - 10
+                     #ERROR CONTINUE
+                     #CASE %SS
+                        #WHEN 0 #SET APL'APL':BSS = "NONE"
+                        #WHEN 1 #SET APL'APL':BSS = "WARM_SEND"
+                        #WHEN 2 #SET APL'APL':BSS = "HOT_SEND"
+                     #CASE_END
+                     @STATUS = STATUS
+                     #ERROR STOP
+                     #IF %STATUS == 0 #THEN #BLOCK
+                        #SET SHAD_XMT:D(%APL) = 0
+                     #BLOCK_END
+                     #BLOCK_END
+                  #OTHERWISE #EXEC SHADDBLHOT:C (@APL=%APL)
+               #CASE_END
+            #BLOCK_END
+            #ELSE #BLOCK
+               @OS = 10
+            #BLOCK_END
+            #DO SHADEXTAS:C
+         #BLOCK_END
+         #ELSE_IF (SHAD_XMT:D(%APL) < 10) AND -
+                  ((CLOCK - SHAD_XMT:DRT(%APL)) > %SHD_RESTART) -
+         #THEN #BLOCK
+            #SET SHAD_XMT:D(%APL) = 12
+         #BLOCK_END
+         #BLOCK_END
+   #CASE_END
+#LOOP_END
+
+
+
+

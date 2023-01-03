@@ -1,0 +1,21 @@
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Markku Hamarila/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">Rack</Parameter>
+		<Parameter name="Caption">objectTypeCaption</Parameter>
+		<Parameter name="Description">objectTypeDesc</Parameter>
+		<Parameter name="Group">SPA</Parameter>
+		<Parameter name="Type">RACK</Parameter>
+		<Parameter name="IconFileName">Rack.ico</Parameter>
+		<Parameter name="Tools"></Parameter>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="Visible">False</Parameter>
+		<Parameter name="CanInherit">True</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="DataStructureObjectType">Subnetwork, LSG</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+</ObjectType>

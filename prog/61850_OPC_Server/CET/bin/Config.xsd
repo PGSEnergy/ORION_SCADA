@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<xs:schema id="NewDataSet" targetNamespace="ABB.PCM.ConfigXML" xmlns:mstns="ABB.PCM.ConfigXML" xmlns="ABB.PCM.ConfigXML" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" attributeFormDefault="qualified" elementFormDefault="qualified">
+    <xs:element name="Product">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="Project" minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:attribute name="defaultIcon" form="unqualified" type="xs:string" />
+                    </xs:complexType>
+                </xs:element>
+                <xs:element name="Structures" minOccurs="0" maxOccurs="unbounded">
+                    <xs:complexType>
+                        <xs:sequence>
+                            <xs:element name="Structure" minOccurs="0" maxOccurs="unbounded">
+                                <xs:complexType>
+                                    <xs:attribute name="id" form="unqualified" type="xs:string" />
+                                    <xs:attribute name="label" form="unqualified" type="xs:string" />
+                                    <xs:attribute name="dataStructureType" form="unqualified" type="xs:string" />
+                                    <xs:attribute name="Visible" type="xs:boolean" />
+                                </xs:complexType>
+                            </xs:element>
+                        </xs:sequence>
+                    </xs:complexType>
+                </xs:element>
+            </xs:sequence>
+            <xs:attribute name="id" form="unqualified" type="xs:string" />
+            <xs:attribute name="label" form="unqualified" type="xs:string" />
+        </xs:complexType>
+    </xs:element>
+    <xs:element name="NewDataSet" msdata:IsDataSet="true" msdata:Locale="fi-FI" msdata:EnforceConstraints="False">
+        <xs:complexType>
+            <xs:choice maxOccurs="unbounded">
+                <xs:element ref="Product" />
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+</xs:schema>

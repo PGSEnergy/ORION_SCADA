@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:variable type="external" name="control" default="''" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Measurement Bar" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="Measurement" />
+    <d:meta name="dv-custom-attribute|SARepresentation" content="Line Graph" />
+    <d:meta name="dv-custom-attribute|ToolLauncherProgId" content="ControlDlgs.Launcher" />
+    <d:meta name="dv-custom-attribute|SANoRotate" content="" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="value" default="0" />
+    <d:variable type="external" name="status-color" default="0" />
+    <d:variable type="external" name="low-alarm" default="0" />
+    <d:variable type="external" name="low-warning" default="0" />
+    <d:variable type="external" name="high-warning" default="0" />
+    <d:variable type="external" name="high-alarm" default="0" />
+    <d:variable type="internal" name="minformula" default="0" />
+    <d:variable type="internal" name="maxformula" default="0" />
+    <d:mapping name="f1308" parameters="value">
+      <d:step value="'Sampled Indication.sd'" when="value &lt;= 37.501" />
+      <d:step value="'Not Sampled Indication Wide.sd'" when="value &lt;= 38.497" />
+      <d:otherwise value="'Sampled Indication.sd'" />
+    </d:mapping>
+  </d:head>
+  <d:body n:LN="{LN(control)}" n:IX="{IX(control)}" x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <d:action type="control" when="`control_action_enabled`">
+      <d:parameter name="LN" value="LN(control)" />
+      <d:parameter name="IX" value="IX(control)" />
+      <d:parameter name="opc-id" value="control" />
+    </d:action>
+    <s:line x1="-10" y1="-10" x2="10" y2="-10" y:stroke="{colors[16]}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" y:shape-rendering="crispEdges" d:object-name="Frame Top" />
+    <s:line x1="-10" y1="-10" x2="-10" y2="10" y:stroke="{colors[16]}" y:vector-effect="non-scaling-stroke" y:stroke-width="2" y:shape-rendering="crispEdges" d:object-name="Frame Left" />
+    <s:line x1="-10" y1="10" x2="10" y2="10" y:stroke="{colors[17]}" y:vector-effect="non-scaling-stroke" y:stroke-width="3" y:shape-rendering="crispEdges" d:object-name="Frame Bottom" />
+    <s:line x1="10" y1="-10" x2="10" y2="10" y:stroke="{colors[17]}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" y:shape-rendering="crispEdges" d:object-name="Frame Right" />
+    <d:lineGraph x="-10" y="-10" width="20" height="20" lowAlarm="`low-alarm`" highAlarm="`high-alarm`" lowWarning="`low-warning`" highWarning="`high-warning`" value="`value`" samples="20" dataBackgroundStyle="fill: {colors[19]}" d:object-name="Graph" />
+    <d:view name="{f1308(`status-color`)}" s:transform="translate(0,0) scale(1,1)" d:object-name="Sampled Indication">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="subdrawing_dynamics" value="0" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+    </d:view>
+  </d:body>
+</d:document>

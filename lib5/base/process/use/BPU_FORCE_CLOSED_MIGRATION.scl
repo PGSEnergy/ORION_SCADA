@@ -1,0 +1,46 @@
+;Forced close notification to WebUI dialog.
+;Create needed event channel and command procedure and
+;connect event channel to selection on monitor index of switch devices
+
+#local -
+   i,-
+   l_objs,-
+   l_condition,-
+   t_RX_Sel_On_Mon,-
+   t_LN,-
+   i_IX,-
+   t_AN = "BPU_FORCE_UI_CLOSED",-
+   l_check
+   
+t_RX_Sel_On_Mon = " *FPQ%%%XMEV"
+l_condition = "RX == ""*'t_RX_Sel_On_Mon'"" AND (IX ==19 OR IX == 39)"
+l_objs = application_object_list(0, "IX", "A", "FORWARD", "", l_condition, vector("AE", "AN", "AA", "AF"), 1000000)
+
+#loop_with i = 1 .. l_objs.COUNT
+   t_LN = l_objs.LN(i)
+   i_IX = l_objs.IX(i)
+   #if l_objs.AE(i) == 0 and l_objs.AN(i) == "" #then #block
+      #modify 't_LN':P'i_IX' = list(-
+         AE = 1,-
+         AN = t_AN,-
+         AA = 2)
+   #block_end
+#loop_end
+
+#if not application_object_exists(0, "A", "BPU_FORCE_UI_CLOSED") #then #block
+   #create BPU_FORCE_UI_CLOSED:A = list(-
+      OT = "C",-
+      ON = "BPU_FORCE_UI_CLOSED")
+#block_end
+
+#if not application_object_exists(0, "C", "BPU_FORCE_UI_CLOSED") #then #block
+   l_check = text_read("\sc\lib5\base\process\application_objects\command_procedures\BPU_FORCE_UI_CLOSED.scl")
+   #if l_check.status == 0 #then #block
+      #create BPU_FORCE_UI_CLOSED:C = list(-
+         IU = 1,-
+         ME = 1,-
+         PE = 0,-
+         PQ = 0,-
+         IN = l_check.text)
+   #block_end
+#block_end

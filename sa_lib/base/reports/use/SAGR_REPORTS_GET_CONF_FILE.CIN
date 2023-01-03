@@ -1,0 +1,18 @@
+;CM =Interface for Monitor Pro Reports, read and evaluate the page config file
+; Function: SAGR_REPORTS_GET_CONF_FILE:C
+; Version:     3.0 (build 2.3.2012)
+; Parameters:  name for configuration file
+; Return data: content .dat file
+; Description: reads and evaluate the page configuration file
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#local b_, t_DisplayConfName = %ArgumentList.Conf_Name
+
+#if sagr_reports_getDatFile:ccs == 1 #then -
+      b_ = do(sagr_reports_getDatFile:ccp,t_DisplayConfName)
+#else b_ = do(sagr_reports_getDatFile:c,  t_DisplayConfName)   
+
+#if not b_ #then #return
+#else @output = %l_DisplayConf

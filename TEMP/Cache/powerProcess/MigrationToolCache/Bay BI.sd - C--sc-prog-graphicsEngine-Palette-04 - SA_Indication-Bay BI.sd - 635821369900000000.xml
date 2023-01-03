@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view comment="" box="-500.0 -340.0 500.0 340.0" scale="0.0" delay="0" minortickspacing="1" middletickspacing="1" majortickspacing="1" import_filename="C:/sc/prog/graphicsEngine/Palette/04 - SA_Indication" pathname="C:/sc/prog/graphicsEngine/Palette/04 - SA_Indication" filename="Bay BI.sd" usetooltip="0">
+  <searchpath>
+    <dir idx="1" dname="C:/sc/prog/graphicsEngine/Palette"/>
+    <dir idx="2" dname="C:/sc/prog/graphicsEngine/etc"/>
+    <dir idx="3" dname="C:/sc/prog/graphicsEngine/lib"/>
+    <dir idx="4" dname="C:/sc/prog/graphicsEngine/lib/views"/>
+    <dir idx="5" dname="C:/sc/prog/graphicsEngine/lib/fonts"/>
+    <dir idx="6" dname="C:/sc/prog/graphicsEngine/lib/Templates"/>
+    <dir idx="7" dname="C:/sc/prog/graphicsEngine/lib/Templates/drawings"/>
+    <dir idx="8" dname="views"/>
+    <dir idx="9" dname="drawings"/>
+    <dir idx="10" dname="datafiles"/>
+    <dir idx="11" dname="layouts"/>
+    <dir idx="12" dname="images"/>
+    <dir idx="13" dname="icons"/>
+    <dir idx="14" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\etc"/>
+    <dir idx="15" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\fonts"/>
+    <dir idx="16" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\views"/>
+    <dir idx="17" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\drawings"/>
+    <dir idx="18" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\templates_sftext"/>
+    <dir idx="19" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\templates_sftext\drawings"/>
+    <dir idx="20" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\templates"/>
+    <dir idx="21" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\templates\drawings"/>
+    <dir idx="22" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\datafiles"/>
+    <dir idx="23" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\layouts"/>
+    <dir idx="24" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\images"/>
+    <dir idx="25" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\icons"/>
+  </searchpath>
+  <datasources>
+    <dps id="dps-28aebc0" type="memory" format="binary" name="default.mem">
+      <dp id="dp-28a53d8" type="float" name="State Signal" rows="1" columns="1" delimiter="" global="1" initval="0.0" strinitval=""/>
+      <dp id="dp-27c35c8" type="float" name="Status Color" rows="1" columns="1" delimiter="" global="1" initval="0.0" strinitval=""/>
+      <dp id="dp-28a4db8" type="text" name="Caption" rows="1" columns="17" delimiter="" global="1" initval="0.0" strinitval=""/>
+    </dps>
+  </datasources>
+  <graphics layer="1073741823" lod="all" invisible="0" foregroundcolor="empty" backgroundcolor="23">
+    <sk name="V_CDVObjectInternals" type="external" size="0" value="0"/>
+    <sk name="V_CDVBASECLASS_NAME" type="string" size="0" value="CDVViewWrapper"/>
+    <sk name="V_CDVBASECLASSHDR_NAME" type="string" size="0" value="DVViewWrapper.h"/>
+    <sk name="SAObjectType" type="string" size="0" value="Bay"/>
+    <sk name="ToolLauncherProgId" type="string" size="0" value="ControlDlgs.Launcher"/>
+    <sk name="SANoRotate" type="string" size="0" value=""/>
+    <sk name="DV_RULE_SCRIPT_NAME" type="string" size="0" value="\sc\prog\graphicsEngine\etc\SYS600_scripts.bas"/>
+    <sk name="SASuperType" type="string" size="0" value="Authorization Switch"/>
+    <sk name="SARepresentation" type="string" size="0" value="Binary Input"/>
+    <polygon id="go-2e80000" drname="Face" layer="1073741823" lod="all" invisible="0" foregroundcolor="31" backgroundcolor="17" linewidth="1" strokewidth="0.0" linetype="1" capstyle="butt" joinstyle="miter" dashmode="transparent" fillstatus="fillwithedge" curvetype="default" bfg="empty" bbg="empty" bfreq="0">
+      <pt x="-500.0" y="320.0"/>
+      <pt x="-480.0" y="340.0"/>
+      <pt x="480.0" y="340.0"/>
+      <pt x="500.0" y="320.0"/>
+      <pt x="500.0" y="-320.0"/>
+      <pt x="480.0" y="-340.0"/>
+      <pt x="-480.0" y="-340.0"/>
+      <pt x="-500.0" y="-320.0"/>
+      <dfs id="dfs-2effff0" erasemethod="redrawdelayed" erasecolor="empty" xformanchor="center-center">
+        <dy id="dy-46-2effff0" type="blink" rangelow="0.0" rangehigh="0.0" dprangelow="0.0" dprangehigh="255.0">
+          <refdp dp="#dp-27c35c8" varinfo="default.mem:Status Color"/>
+          <thresholdtable id="tt-2fbffd8" type="mfc" dytype="blink" dprangelow="0.0" dprangehigh="255.0">
+            <ttentry normalized="-1" threshold="-1.0" blink="0" fg="29" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="64" threshold="0.498046875" blink="0" fg="1" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="193" threshold="1.501922607421875" blink="0" fg="2" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="321" threshold="2.498016357421875" blink="0" fg="3" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="450" threshold="3.50189208984375" blink="0" fg="4" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="578" threshold="4.49798583984375" blink="0" fg="5" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="707" threshold="5.501861572265625" blink="0" fg="6" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="835" threshold="6.497955322265625" blink="0" fg="7" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="964" threshold="7.5018310546875" blink="0" fg="8" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="1092" threshold="8.4979248046875" blink="0" fg="9" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="1221" threshold="9.501800537109375" blink="0" fg="10" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="1349" threshold="10.497894287109375" blink="0" fg="11" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="1478" threshold="11.50177001953125" blink="0" fg="12" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="1606" threshold="12.49786376953125" blink="0" fg="13" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="1735" threshold="13.501739501953125" blink="0" fg="14" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="1863" threshold="14.497833251953125" blink="0" fg="15" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="1992" threshold="15.501708984375" blink="0" fg="16" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="2120" threshold="16.497802734375" blink="0" fg="17" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="2249" threshold="17.501678466796875" blink="0" fg="18" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="2377" threshold="18.497772216796875" blink="0" fg="19" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="2506" threshold="19.50164794921875" blink="0" fg="20" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="2634" threshold="20.49774169921875" blink="0" fg="21" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="2763" threshold="21.501617431640625" blink="0" fg="22" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="2891" threshold="22.497711181640625" blink="0" fg="23" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="3020" threshold="23.5015869140625" blink="0" fg="24" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="3148" threshold="24.4976806640625" blink="0" fg="25" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="3277" threshold="25.501556396484375" blink="0" fg="26" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="3405" threshold="26.497650146484375" blink="0" fg="27" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="3534" threshold="27.50152587890625" blink="0" fg="28" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="3662" threshold="28.49761962890625" blink="0" fg="29" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="3791" threshold="29.501495361328125" blink="0" fg="30" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="3919" threshold="30.497589111328125" blink="0" fg="31" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="4048" threshold="31.50146484375" blink="0" fg="32" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="4176" threshold="32.49755859375" blink="0" fg="33" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="4305" threshold="33.501434326171875" blink="0" fg="34" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="4433" threshold="34.497528076171875" blink="0" fg="35" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="4562" threshold="35.50140380859375" blink="0" fg="36" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="4690" threshold="36.49749755859375" blink="0" fg="37" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="4819" threshold="37.501373291015625" blink="0" fg="38" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="4947" threshold="38.497467041015625" blink="0" fg="39" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="5076" threshold="39.5013427734375" blink="0" fg="40" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="5204" threshold="40.4974365234375" blink="0" fg="41" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="5333" threshold="41.501312255859375" blink="1" fg="42" bg="17" bfg="19" bbg="17" bfreq="1000"/>
+            <ttentry normalized="5461" threshold="42.497406005859375" blink="0" fg="43" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="5590" threshold="43.50128173828125" blink="0" fg="44" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="5718" threshold="44.49737548828125" blink="0" fg="45" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="5847" threshold="45.501251220703125" blink="1" fg="46" bg="17" bfg="19" bbg="17" bfreq="1000"/>
+            <ttentry normalized="5975" threshold="46.497344970703125" blink="0" fg="47" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="6104" threshold="47.501220703125" blink="0" fg="48" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="6232" threshold="48.497314453125" blink="0" fg="49" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="6361" threshold="49.501190185546875" blink="0" fg="50" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="6489" threshold="50.497283935546875" blink="0" fg="51" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="6618" threshold="51.50115966796875" blink="0" fg="52" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="6746" threshold="52.49725341796875" blink="0" fg="53" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="6875" threshold="53.501129150390625" blink="0" fg="54" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="7003" threshold="54.497222900390625" blink="0" fg="55" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="7132" threshold="55.5010986328125" blink="0" fg="56" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="7260" threshold="56.4971923828125" blink="0" fg="57" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="7389" threshold="57.501068115234375" blink="0" fg="58" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="7517" threshold="58.497161865234375" blink="0" fg="59" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="7646" threshold="59.50103759765625" blink="0" fg="60" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="7774" threshold="60.49713134765625" blink="0" fg="61" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="7903" threshold="61.501007080078125" blink="0" fg="62" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="8031" threshold="62.497100830078125" blink="0" fg="63" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="8160" threshold="63.5009765625" blink="0" fg="64" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="8288" threshold="64.4970703125" blink="0" fg="65" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="8417" threshold="65.50094604492188" blink="0" fg="66" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="8545" threshold="66.49703979492188" blink="0" fg="67" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="8674" threshold="67.50091552734375" blink="0" fg="68" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="8802" threshold="68.49700927734375" blink="0" fg="69" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="8931" threshold="69.50088500976562" blink="0" fg="70" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="9059" threshold="70.49697875976562" blink="0" fg="71" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="9188" threshold="71.5008544921875" blink="0" fg="72" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="9316" threshold="72.4969482421875" blink="0" fg="73" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="9445" threshold="73.50082397460938" blink="0" fg="74" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="9573" threshold="74.49691772460938" blink="0" fg="75" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="9702" threshold="75.50079345703125" blink="0" fg="76" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="9830" threshold="76.49688720703125" blink="0" fg="77" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="9959" threshold="77.50076293945312" blink="0" fg="78" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="10087" threshold="78.49685668945312" blink="0" fg="79" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="10216" threshold="79.500732421875" blink="0" fg="80" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="10344" threshold="80.496826171875" blink="0" fg="81" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="10473" threshold="81.50070190429688" blink="0" fg="82" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="10601" threshold="82.49679565429688" blink="0" fg="83" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="10730" threshold="83.50067138671875" blink="0" fg="84" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="10858" threshold="84.49676513671875" blink="0" fg="85" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="10987" threshold="85.50064086914062" blink="0" fg="86" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="11115" threshold="86.49673461914062" blink="0" fg="87" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="11244" threshold="87.5006103515625" blink="0" fg="88" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="11372" threshold="88.4967041015625" blink="0" fg="89" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="11501" threshold="89.50057983398438" blink="0" fg="90" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="11629" threshold="90.49667358398438" blink="0" fg="91" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="11758" threshold="91.50054931640625" blink="0" fg="92" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="11886" threshold="92.49664306640625" blink="0" fg="93" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="12015" threshold="93.50051879882812" blink="0" fg="94" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="12143" threshold="94.49661254882812" blink="0" fg="95" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="12272" threshold="95.50048828125" blink="0" fg="96" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="12400" threshold="96.49658203125" blink="0" fg="97" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="12529" threshold="97.50045776367188" blink="0" fg="98" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="12657" threshold="98.49655151367188" blink="0" fg="99" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="12786" threshold="99.50042724609375" blink="0" fg="100" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="12914" threshold="100.49652099609375" blink="0" fg="101" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="13043" threshold="101.50039672851562" blink="0" fg="102" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="13171" threshold="102.49649047851562" blink="0" fg="103" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="13300" threshold="103.5003662109375" blink="0" fg="104" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="13428" threshold="104.4964599609375" blink="0" fg="105" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="13557" threshold="105.50033569335938" blink="0" fg="106" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="13685" threshold="106.49642944335938" blink="0" fg="107" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="13814" threshold="107.50030517578125" blink="0" fg="108" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="13942" threshold="108.49639892578125" blink="0" fg="109" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="14071" threshold="109.50027465820312" blink="0" fg="110" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="14199" threshold="110.49636840820312" blink="0" fg="111" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+            <ttentry normalized="14328" threshold="111.500244140625" blink="0" fg="29" bg="17" bfg="empty" bbg="empty" bfreq="0"/>
+          </thresholdtable>
+        </dy>
+      </dfs>
+    </polygon>
+    <polygon id="go-2e80078" drname="Frame Top Left" layer="1073741823" lod="all" invisible="0" foregroundcolor="16" backgroundcolor="251" linewidth="1" strokewidth="0.0" linetype="1" capstyle="butt" joinstyle="miter" dashmode="transparent" fillstatus="edge" curvetype="default" bfg="empty" bbg="empty" bfreq="0">
+      <pt x="-500.0" y="-320.0"/>
+      <pt x="-500.0" y="320.0"/>
+      <pt x="-480.0" y="340.0"/>
+      <pt x="480.0" y="340.0"/>
+    </polygon>
+    <polygon id="go-2e800f0" drname="Frame Middle" layer="1073741823" lod="all" invisible="0" foregroundcolor="17" backgroundcolor="251" linewidth="1" strokewidth="0.0" linetype="1" capstyle="butt" joinstyle="miter" dashmode="transparent" fillstatus="edge" curvetype="default" bfg="empty" bbg="empty" bfreq="0">
+      <pt x="-500.0" y="-20.0"/>
+      <pt x="-480.0" y="-40.0"/>
+      <pt x="480.0" y="-40.0"/>
+      <pt x="500.0" y="-20.0"/>
+    </polygon>
+    <text id="go-2ffffd0" type="scalable" string="XXX" textfont="System 0 0 0 0 0.0 271.86224365234375 0.0" textdirection="horizontal" textposition="center-center" textjustification="left" drname="Caption Text" layer="1073741823" lod="all" invisible="0" foregroundcolor="30" backgroundcolor="empty" bfg="empty" bbg="empty" bfreq="0">
+      <pt x="0.0" y="140.0"/>
+      <dfs id="dfs-2f00050" erasemethod="redrawdelayed" erasecolor="empty" xformanchor="center-center">
+        <dy id="dy-44-2f00050" type="text" rangelow="0.0" rangehigh="0.0" textformat="%s" dprangelow="0.0" dprangehigh="1.0">
+          <refdp dp="#dp-28a4db8" varinfo="default.mem:Caption"/>
+        </dy>
+      </dfs>
+    </text>
+    <text id="go-3000148" type="scalable" string="Local" textfont="System 0 0 0 0 0.0 294.0083312988281 0.0" textdirection="horizontal" textposition="center-center" textjustification="left" drname="Local Text" layer="1073741823" lod="all" invisible="0" foregroundcolor="30" backgroundcolor="empty" bfg="empty" bbg="empty" bfreq="0">
+      <pt x="0.0" y="-180.0"/>
+      <dfs id="dfs-2f000b0" erasemethod="redrawdelayed" erasecolor="empty" xformanchor="center-center">
+        <dy id="dy-45-2f000b0" type="visibility" rangelow="0.0" rangehigh="0.0" dprangelow="0.0" dprangehigh="1.0">
+          <refdp dp="#dp-28a53d8" varinfo="default.mem:State Signal"/>
+          <thresholdtable id="tt-2fc0060" type="int" dytype="visibility" dprangelow="0.0" dprangehigh="1.0">
+            <ttentry normalized="-1" threshold="-1.0" raw="1"/>
+            <ttentry normalized="16384" threshold="0.5" raw="0"/>
+          </thresholdtable>
+        </dy>
+      </dfs>
+    </text>
+    <text id="go-30002c0" type="scalable" string="Remote" textfont="System 0 0 0 0 0.0 294.0083312988281 0.0" textdirection="horizontal" textposition="center-center" textjustification="left" drname="Remote Text" layer="1073741823" lod="all" invisible="0" foregroundcolor="30" backgroundcolor="empty" bfg="empty" bbg="empty" bfreq="0">
+      <pt x="0.0" y="-180.0"/>
+      <dfs id="dfs-2f00110" erasemethod="redrawdelayed" erasecolor="empty" xformanchor="center-center">
+        <dy id="dy-45-2f00110" type="visibility" rangelow="0.0" rangehigh="0.0" dprangelow="0.0" dprangehigh="1.0">
+          <refdp dp="#dp-28a53d8" varinfo="default.mem:State Signal"/>
+          <thresholdtable id="tt-2fc00e8" type="int" dytype="visibility" dprangelow="0.0" dprangehigh="1.0">
+            <ttentry normalized="-1" threshold="-1.0" raw="0"/>
+            <ttentry normalized="16384" threshold="0.5" raw="1"/>
+          </thresholdtable>
+        </dy>
+      </dfs>
+    </text>
+    <subdrawing id="go-307ffc0" drname="Sampled Indication" layer="1073741823" lod="all" invisible="0" foregroundcolor="31" backgroundcolor="empty" filename="Sampled Indication.sd" dynamicflag="enabled" processrules="1" xscale="1.0" yscale="0.289361834526062" angle="0.0" bfg="empty" bbg="empty" bfreq="0">
+      <pt x="0.0" y="-196.0"/>
+      <dfs id="dfs-2f001d0" erasemethod="redrawdelayed" erasecolor="empty" xformanchor="center-center">
+        <dy id="dy-39-2f001d0" type="subdrawing" rangelow="0.0" rangehigh="0.0" dprangelow="0.0" dprangehigh="255.0">
+          <refdp dp="#dp-27c35c8" varinfo="default.mem:Status Color"/>
+          <thresholdtable id="tt-2fc0280" type="sd" dytype="subdrawing" dprangelow="0.0" dprangehigh="255.0">
+            <ttentry normalized="-1" threshold="-1.0" sdfilename="Sampled Indication.sd"/>
+            <ttentry normalized="4819" threshold="37.501373291015625" sdfilename="Not Sampled Indication.sd"/>
+            <ttentry normalized="4947" threshold="38.497467041015625" sdfilename="Sampled Indication.sd"/>
+          </thresholdtable>
+        </dy>
+      </dfs>
+    </subdrawing>
+  </graphics>
+</view>
+

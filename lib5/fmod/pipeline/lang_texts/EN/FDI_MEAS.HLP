@@ -1,0 +1,33 @@
+
+TYPE_MEAS_'number'
+
+The type of the measurement. The type identifies the
+measurement for the creation of database (indexes,
+object texts, units ..). In case no suitable
+alternative can be found, the indexes 27..37 can
+be used. The indexes 27 .. 32 are for user-defined
+analog (AI) objects, and the indexes 33 .. 37 are
+for user-defined pulse counter (PC) objects.
+
+
+FOLDER_'number'_TITLE
+
+The name of the measurement to be shown in the
+measurement dialog. Attribute is optional, if it is
+not given, the measurement is read from TX-attribute
+in the dialog.
+
+If the configurable attribute
+TYPE_MEAS_'number' is not configured, this
+attribute is being disabled, and the value has no
+meaning.
+
+MEAS_'number'_DECIMALS
+
+The number of decimals used when presenting the
+measurement value in the dialog.
+
+If the configurable attribute
+TYPE_MEAS_'number' is not configured, this
+attribute is being disabled, and the value has no
+meaning.

@@ -1,0 +1,34 @@
+
+;
+;   This is text file for the common bay picture function
+;
+
+;Object text (OX) for process objects, event channels and command procedures 
+#CREATE FPI_BAY2:V = LIST(-
+     LR_SWITCH_IND           = "Bay local/remote-switch",-
+     LOCAL_IND               = "Bay local indication",-
+     REMOTE_IND              = "Bay remote indication",-
+     LR_DISABLED_CMD         = "Bay L/R-switch to disabled cmd",-
+     LR_LOCAL_CMD            = "Bay L/R-switch to local cmd",-
+     LR_REMOTE_CMD           = "Bay L/R-switch to remote cmd",-
+     LR_LOC_REM_CMD          = "Bay local/remote command",-
+     LR_RESERVED_CMD         = "Bay L/R-switch to reserved cmd",-
+     OP_SWITCH_IND           = "Bay operator place switch",-
+     OP_NOT_IN_USE_CMD       = "Bay operator place switch to not in use cmd",-
+     OP_STATION_CMD          = "Bay operator place switch to station cmd",-
+     OP_REMOTE_CMD           = "Bay operator place switch to remote cmd",-
+     OP_STA_REM_CMD          = "Bay operator place switch to station/remote cmd",-
+     EXTERNAL_INT_SCE_HW_IND = "Ext. interlocking (hardware)",-
+     EXTERNAL_INT_SCE_SW_IND = "Ext. interlocking (software)",-
+     EXTERNAL_INT_SCE_SW_CMD = "Ext. interlocking command",-
+     INTERNAL_INT_SCE_IND    = "Internal interlocking",-
+     INTERNAL_INT_SCE_CMD    = "Internal interlocking command",-
+     BLOCKINGS               = "Bay blockings",-
+     MONITOR_EVENT           = "Bay selection on monitor",-
+	  OP_SWITCH_IND      	  = "Operator place-switch",-
+	  OP_SWITCH_CMD           = "Operator place-switch command",-
+	  MLTLEV_IND              = "Multilevel control",-
+     AI2DB_COMMENT           = "Updates DB from AI",-
+     BI22DB_COMMENT          = "Updates DB from two BIs - 1",-
+     SETDB_COMMENT           = "Updates DB from two BIs - 2",-
+     UPDATE_COMMENT          = "Used for updating objects from the process")

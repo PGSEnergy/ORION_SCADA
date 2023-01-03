@@ -1,0 +1,930 @@
+﻿; File: Create_N.scl(v_Nets, v_Passed_Net_Lines)
+; Parameters: [v_Nets], numbers of the NET objects to be included
+;             [v_Passed_Net_Lines], numbers of the corresponding NET object lines to be included
+; Description: Constructs SCIL -level clauses for NET configuration.
+; ----------------------------------------------------------------------------------------------
+
+#local b_Create_All_Lines = true,-
+       v_Nets = vector(),-
+       v_Passed_Net_Lines,-
+       l_System_Configuration_Data = SYS:BSV(2),-
+       t_Lon_File = l_System_Configuration_Data.t_System_Configuration_File,-
+       v_Node_Link_Attribute_Indices,-
+       v_Station_N_Attribute_Indices,-
+       v_Station_B_Attribute_Indices,-
+       i_Net_Number,-
+       v_Node_Objects,-
+       v_Stations,-
+       v_Station_B_ND,-
+       v_Station_B_TN,-
+       v_Station_B_ST,-
+       v_Station_N_LI,-
+       i_Station_Number,-
+       v_Net_Lines,-
+       v_Create_Net_Lines,-
+       b_ACE_Line,-
+       b_Extended_Line,-
+       i_Current_Line,-
+       l_Read,-
+       v_Line_Objects,-
+       i_In_Use_Index,-
+       i_Protocol_Index,-
+       i_Protocol,-
+       b_Last_Statement,-
+       t_SD_Value,-
+       v_Tmp_Node_Link_Attribute_Indices,-
+       i_Link_Index,-
+       t_Attribute,-
+       t_Attribute_Value,-
+       v_ACE_Statements,-
+       v_ACE_Attributes,-
+       i_ACE_Index,-
+       t_ACE_Attribute,-
+       i_Numbers_Length,-
+       v_ACE_Index,-
+       v_ACE_Contents,-
+       v_Extended_Statements,-
+       v_Extended_Attributes = vector("PM"),-
+       i_Extended_Index,-
+       t_Extended_Attribute,-
+       v_Extended_Index,-
+       v_Extended_Contents,-
+       i_Temp_Line,-
+       i_Translated_Object_Number,-
+       t_Station_Type,-
+       t_Line_Attribute,-
+       v_Device_Station_Types,-
+       v_Device_Types,-
+       i_Found_Device_Type,-
+       i_Device_Type,-
+       t_Station_N_Attribute,-
+       v_Station_MS_Not_Indexed = ("DNP","IEC","PLC","ADE","ATR"),-
+       t_File_Name,-
+       v_Read,-
+       i_Status,-
+       t_value,-
+       t_1,-
+       t_2,-
+       v_value,-
+       v_Redundancy_Information,-
+       b_MS_is_indexed,-
+       i,i_1,i_2,i_3,j,i_v,i_pt,i_SPA_PT,-
+       v_NET_Node_Attribute_Indices,-
+       i_NET_Attribute_Index,-
+       v_Net_Attributes,-
+       i_Found,-
+       i_Offset,-
+       v_SY_Def,-
+       i_SY_Node,-
+       i_SY_Appl,-
+       v_NE_Def,-
+       i_NE_Line,-
+       i_NE_SA,-
+       i_Val,-
+       t_Val,-
+       v_SU_Create_Block,-
+       v_SW_Create_Block,-
+       v_IA_index,-
+       b_LAN = FALSE,-
+       v_Set_Last = vector(),-
+       v_Set_Last_Sta = vector(),-
+       v_Set_Z = vector(),-
+       v_Set_Sec = vector(),-
+       t_Sta_User_Defined = "",-
+       b_Continue=FALSE,-
+       v_Fields,-
+       ii
+       
+#if argument_count == 1 #then #block
+   v_Nets = argument(1)
+#block_end
+#else v_Nets = do (%Gv_SCT_Mgr__, "GetObjNrs", "BASE_SYSTEM_NODE")
+
+#if argument_count == 2 #then #block
+   v_Passed_Net_Lines = argument(2)
+   b_Create_All_Lines = false
+#block_end
+
+v_Node_Link_Attribute_Indices = do (%Gv_SCT_Mgr__, "GetObjAttrs", "NET_LINK")
+i_In_Use_Index = find_element(v_Node_Link_Attribute_Indices, "IU")
+i_Protocol_Index = find_element(v_Node_Link_Attribute_Indices, "PO")
+
+v_Station_N_Attribute_Indices = do (%Gv_SCT_Mgr__, "GetObjAttrs", "NET_STATION")
+v_Station_B_Attribute_Indices = do (%Gv_SCT_Mgr__, "GetObjAttrs", "BASE_SYSTEM_STATION")
+
+v_Node_Objects = do (%Gv_SCT_Mgr__, "GetObjNrs", "BASE_SYSTEM_NODE")
+
+v_Stations = do (%Gv_SCT_Mgr__, "GetObjNrs", "BASE_SYSTEM_STATION")
+#if v_Stations(1) == 0 #then v_Stations = vector()
+
+v_Station_B_ND = vector()
+v_Station_B_TN = vector()
+v_Station_N_LI = vector()
+v_Station_B_ST = vector()
+
+#loop_with i = 1 .. length(v_Stations)
+
+   i_Station_Number = v_Stations(i)
+   v_Station_B_ND(i) = do (%Gv_SCT_Mgr__, "GetAttr", "BASE_SYSTEM_STATION", i_Station_Number, "ND")
+   v_Station_B_TN(i) = do (%Gv_SCT_Mgr__, "GetAttr", "BASE_SYSTEM_STATION", i_Station_Number, "TN")
+   v_Station_B_ST(i) = do (%Gv_SCT_Mgr__, "GetAttr", "BASE_SYSTEM_STATION", i_Station_Number, "ST")
+   v_Station_N_LI(i) = do (%Gv_SCT_Mgr__, "GetAttr", "NET_STATION", i_Station_Number, "LI")
+   
+#loop_end
+
+#loop_with i = 1 .. length(v_Nets)
+
+   i_Net_Number = v_Nets(i)
+   
+   v_Net_Attributes = vector()
+   
+   v_Set_Last = vector()
+   
+   #if find_element(v_Node_Objects, i_Net_Number) > 0 #then #block
+   
+;16.08.2005 Begin
+
+      v_NET_Node_Attribute_Indices = do (%Gv_SCT_Mgr__, "GetObjAttrs", "NET_NODE")
+
+      #loop_with i_NET_Attribute_Index = 1 .. length(v_NET_Node_Attribute_Indices)
+      
+         t_Attribute = v_NET_Node_Attribute_Indices(i_NET_Attribute_Index)
+         t_Attribute_Value = do (%Gv_SCT_Mgr__, "GetAttr", "NET_NODE", i_NET_Number, t_Attribute, i_NET_Number, TRUE)
+                  
+         #if substr(t_Attribute,1,2) == "S_" #then t_Attribute = substr(t_Attribute,3,2)
+
+         #if find_element(vector("KP","SY","SU","SW","NE","VE","UA","UI"), t_Attribute) == 0 #then #block
+            
+            #if t_Attribute_Value <> "" and t_Attribute_Value <> "#" #then #block
+               v_Net_Attributes(length(v_Net_Attributes) + 1) = lower_case(t_Attribute)
+               @v_Create_Block(length(%v_Create_Block) + 1) = -
+                  "#set net'i_NET_Number':s" + lower_case(t_Attribute) + "=" + t_Attribute_Value
+            #block_end
+
+         #block_end
+         #else_if t_Attribute == "SU" #then #block
+
+            t_Attribute_Value = separate(substr(t_Attribute_Value,locate(t_Attribute_Value,"(")+1,length(t_Attribute_Value)-locate(t_Attribute_Value,"(")-1), ",")
+            
+            v_SU_Create_Block = vector()
+
+            #loop_with i_v = 1 .. length(t_Attribute_Value)
+            
+               t_Val  = t_Attribute_Value(i_v)
+               
+               v_SU_Create_Block(length(v_SU_Create_Block) + 1) = -
+                                 "#set net'i_NET_Number':ssu'i_v'=" + t_Val
+            
+            #loop_end
+            
+         #block_end
+         #else_if t_Attribute == "SW" #then #block
+
+            t_Attribute_Value = separate(substr(t_Attribute_Value,locate(t_Attribute_Value,"(")+1,length(t_Attribute_Value)-locate(t_Attribute_Value,"(")-1), ",")
+
+            v_SW_Create_Block = vector()
+            
+            #loop_with i_v = 1 .. length(t_Attribute_Value)
+            
+               t_Val  = t_Attribute_Value(i_v)
+               
+               v_SW_Create_Block(length(v_SW_Create_Block) + 1) = -
+                                 "#set net'i_NET_Number':ssw'i_v'=" + t_Val
+            
+            #loop_end
+            
+         #block_end
+         #else_if data_type(t_Attribute_Value) == "VECTOR" #then #block
+
+            #if t_Attribute == "SY" #then #block
+            
+               t_Attribute = lower_case(t_Attribute)
+ 
+               #loop_with i_v = 1 .. length(t_Attribute_Value)
+
+                  v_SY_Def = t_Attribute_Value(i_v)
+                  i_SY_Node = v_SY_Def(1)
+                  i_SY_Appl = v_SY_Def(2)
+                     
+                  #if i_SY_Node > 0 #then #block
+                     v_Net_Attributes(length(v_Net_Attributes) + 1) = "sy"
+                     v_Set_Last(length(v_Set_Last) + 1) = -
+                        "#set net'i_NET_Number':s't_Attribute''i_v'=" + "(" + dec(i_SY_Node, 0) + "," + dec(i_SY_Appl, 0) + ")"
+                     v_Net_Attributes(length(v_Net_Attributes) + 1) = "su"
+                     #if i_v > length(v_SU_Create_Block) #then #block
+                        v_Set_Last(length(v_Set_Last) + 1) = v_SU_Create_Block(length(v_SU_Create_Block))
+                     #block_end
+                     #else #block
+                        v_Set_Last(length(v_Set_Last) + 1) = v_SU_Create_Block(i_v)
+                     #block_end
+                     v_Net_Attributes(length(v_Net_Attributes) + 1) = "sw"
+                     #if i_v > length(v_SW_Create_Block) #then #block
+                        v_Set_Last(length(v_Set_Last) + 1) = v_SW_Create_Block(length(v_SW_Create_Block))
+                     #block_end
+                     #else #block
+                        v_Set_Last(length(v_Set_Last) + 1) = v_SW_Create_Block(i_v)
+                     #block_end
+                  #block_end
+
+               #loop_end
+                  
+            #block_end
+            #else_if t_Attribute == "NE" #then #block
+                  
+               t_Attribute = lower_case(t_Attribute)
+ 
+               #loop_with i_v = 1 .. length(t_Attribute_Value)
+
+                  v_NE_Def  = t_Attribute_Value(i_v)
+                  i_NE_Line = v_NE_Def(1)
+                  i_NE_SA   = v_NE_Def(2)
+                  
+                  #if i_NE_Line > 0 #then #block
+                     v_Net_Attributes(length(v_Net_Attributes) + 1) = "ne"
+                     v_Set_Last(length(v_Set_Last) + 1) = -
+                        "#set net'i_NET_Number':sne'i_v'=" + dec(i_NE_Line, 0)
+                     v_Net_Attributes(length(v_Net_Attributes) + 1) = "sa"
+                     v_Set_Last(length(v_Set_Last) + 1) = -
+                        "#set net'i_NET_Number':ssa'i_v'=" + dec(i_NE_SA, 0)
+                  #block_end
+
+               #loop_end
+                  
+            #block_end
+
+         #block_end
+      
+      #loop_end
+      
+;05.10.2006 AAa, move attribute MS statement to the end
+
+      i_Found = find_element(v_Net_Attributes,"ms")
+      
+      #if i_Found > 0 #then #block
+      
+         @v_Create_Block = insert_element(%v_Create_Block, length(%v_Create_Block)+1, -
+                                          %v_Create_Block(i_Found))
+         @v_Create_Block = delete_element(%v_Create_Block, i_Found)
+      
+      #block_end
+      
+;16.08.2005 End
+
+      v_Net_Lines = do (%Gv_SCT_Mgr__, "GetObjNrs", "NET_LINK", i_Net_Number)
+
+      #if b_Create_All_Lines #then v_Create_Net_Lines = v_Net_Lines
+      #else v_Create_Net_Lines = v_Passed_Net_Lines(i)
+      #if length(v_Create_Net_Lines) > 0 #then #if v_Create_Net_Lines(1) == 0 #then v_Create_Net_Lines = vector()
+
+      #loop_with i_1 = 1 .. length(v_Create_Net_Lines)
+
+         i_Current_Line = v_Create_Net_Lines(i_1)
+         
+         #if find_element(v_Net_Lines, i_Current_Line) > 0 #then #block
+
+            b_LAN = FALSE
+            b_ACE_Line = FALSE
+            b_Extended_Line = FALSE
+            l_Read = read_parameter(t_Lon_File, "NODE_'i_Net_Number'_LINKS", "Node_Link_'i_Current_Line'")
+
+            #if l_Read.STATUS == 0 #then #block
+            
+               v_Line_Objects = separate(l_Read.value, ",")
+
+               #if substr(l_Read.VALUE, length(l_Read.VALUE) - 1, 1) == "," #then v_Line_Objects = v_Line_Objects(1 .. length(v_Line_Objects) - 1)
+    
+               #else_if substr(l_Read.VALUE, length(l_Read.VALUE) - 1, 1) == "+" #then b_Continue = TRUE
+      
+               #loop_with i_v = 2 .. 10000
+      
+                  l_Read = read_parameter(t_Lon_File, "NODE_'i_Net_Number'_LINKS", "Node_Link_'i_Current_Line'" + "_'i_v'")
+      
+                  #if l_Read.STATUS == 0 #then #block
+      
+                     v_Fields = separate(l_Read.VALUE, ",")
+      
+                     #loop_with ii = 1 .. length(v_Fields)
+                        #if b_Continue #then #block
+                           v_Line_Objects(length(v_Line_Objects)) = -
+                           substr(v_Line_Objects(length(v_Line_Objects)),1,length(v_Line_Objects(length(v_Line_Objects))) - 3 ) + substr(v_Fields(ii),2,length(v_Fields(ii))-1)
+                           b_Continue = FALSE
+                        #block_end
+                        #else #block
+                           v_Line_Objects(length(v_Line_Objects) + 1) = v_Fields(ii)
+                        #block_end
+                     #loop_end
+      
+                     #if substr(l_Read.VALUE, length(l_Read.VALUE), 1) == "-" #then #block
+      
+                        #if substr(l_Read.VALUE, length(l_Read.VALUE) - 1, 1) == "," #then v_Line_Objects = v_Line_Objects(1 .. length(v_Line_Objects) - 1)
+                        
+                        #else_if substr(l_Read.VALUE, length(l_Read.VALUE) - 1, 1) == "+" #then b_Continue = TRUE
+      
+                     #block_end
+      
+                  #block_end
+                  #else #loop_exit
+      
+               #loop_end
+            
+            #block_end
+   
+            i_Protocol = dec_scan(v_Line_Objects(i_Protocol_Index))
+         
+            b_Last_Statement = FALSE
+
+            #if i_Current_Line <> 13 #then #block
+            
+               @v_Create_Block(length(%v_Create_Block) + 1) = "#set net'i_Net_Number':spo'i_Current_Line'='i_Protocol'"
+
+               #if i_Protocol == 27 #then #block
+
+                  @v_Create_Block(length(%v_Create_Block) + 1) = "#set net'i_Net_Number':siu'i_Current_Line'=1"
+                  @v_Create_Block(length(%v_Create_Block) + 1) = "#set net'i_Net_Number':siu'i_Current_Line'=0"
+
+               #block_end
+               #else_if i_Protocol == 44 or i_Protocol == 45 #then b_Last_Statement = TRUE
+               #else_if i_Protocol == 14 or i_Protocol == 25 or i_Protocol == 35 or i_Protocol == 43 #then #block
+                  t_SD_Value = do (%Gv_SCT_Mgr__, "GetAttr", "NET_LINK", i_Current_Line, "SD", i_NET_Number, TRUE)
+                  #if t_SD_Value <> "" and t_SD_Value <> "#" #then #block
+                     t_SD_Value = upper_case(evaluate(t_SD_Value))
+                     #if t_SD_Value == "TCP" or t_SD_Value == "UDP" #then #block
+                        b_Last_Statement = TRUE
+                        b_LAN = TRUE
+                     #block_end
+                  #block_end
+               #block_end
+
+            #block_end
+
+            v_Tmp_Node_Link_Attribute_Indices = delete_element(v_Node_Link_Attribute_Indices, (i_In_Use_Index, i_Protocol_Index))
+
+            #loop_with i_Link_Index = 1 .. length(v_Tmp_Node_Link_Attribute_Indices)
+
+               t_Attribute = v_Tmp_Node_Link_Attribute_Indices(i_Link_Index)
+               t_Attribute_Value = do (%Gv_SCT_Mgr__, "GetAttr", "NET_LINK", i_Current_Line, t_Attribute, i_NET_Number, TRUE)
+
+               #if find_element(("XA","NC","RE","PT"), t_Attribute) == 0 #then #block
+
+                  #if t_Attribute_Value <> "" and t_Attribute_Value <> "#" #then #block
+
+                     #if b_LAN and find_element(("BR","PY","SB","RD","TD","RY"), t_Attribute) > 0 #then #block
+                        ;Irrelevant attributes in LAN line
+                     #block_end
+                     #else #block
+                     
+                        @v_Create_Block(length(%v_Create_Block) + 1) = -
+                           "#set net'i_NET_Number':s" + lower_case(t_Attribute) + "'i_Current_Line'=" + t_Attribute_Value
+   
+                     #block_end
+                     
+                     #if t_Attribute == "AC" and t_Attribute_Value == "1" #then b_ACE_Line = TRUE
+                     #else_if t_Attribute == "PM" and (i_Protocol == 14 or i_Protocol == 25) #then b_Extended_Line = TRUE
+                     
+                  #block_end
+
+               #block_end
+               #else_if t_Attribute == "RE" #then #block
+                  #if i_Protocol == 1 or i_Protocol == 2 #then #block
+                     #if t_Attribute_Value <> "" and t_Attribute_Value <> "#" #then #block
+
+                        @v_Create_Block(length(%v_Create_Block) + 1) = -
+                           "#set net'i_NET_Number':s" + lower_case(t_Attribute) + "'i_Current_Line'=" + t_Attribute_Value
+
+                     #block_end
+                  #block_end
+               #block_end
+;AAa 22.03.2004: SPA PT 1,2,3
+               #else_if t_Attribute == "PT" #then #block
+                  #if i_Protocol == 14 #then #block
+                     #if t_Attribute_Value <> "" and t_Attribute_Value <> "#" #then #block
+                  
+                        v_value = vector()
+                        t_1 = replace(t_Attribute_Value,"vector(","")
+                        t_2 = replace(t_1,")","")
+                        v_value = separate(t_2,",")
+
+                        #loop_with i_v = 1 .. length(v_value)   ;3
+                           t_value = v_value(i_v)
+                           i_SPA_PT = 100 * i_Current_Line + i_v
+                           @v_Create_Block(length(%v_Create_Block) + 1) = "#set net'i_NET_Number':spt'i_SPA_PT'='t_value'"
+                        #loop_end
+
+                     #block_end
+                  #block_end
+               #block_end
+
+            #loop_end
+
+            #if b_ACE_Line #then #block
+            
+               v_ACE_Statements = ("#set net'i_NET_Number':siu'i_Current_Line'=1",-
+                                   "#set net'i_NET_Number':siu'i_Current_Line'=0")
+
+;AAa 31.03.2004
+               t_Attribute_Value = do (%Gv_SCT_Mgr__, "GetAttr", "NET_LINK", i_Current_Line, "IU", i_NET_Number, TRUE)
+               #if t_Attribute_Value == "1" #then #block
+   
+                  #loop_with j = 1 .. length(v_ACE_Statements)
+                     @v_Create_Block(length(%v_Create_Block) + 1) = v_ACE_Statements(j)
+                  #loop_end
+               
+               #block_end
+                  
+               v_ACE_Attributes = ("AC", "CL", "MC", "CT", "PU", "RC", "RW")
+
+               #loop_with i_ACE_Index = 1 .. length(v_ACE_Attributes)
+
+                  t_ACE_Attribute = lower_case(v_ACE_Attributes(i_ACE_Index))
+                  i_Numbers_Length = length(dec(i_NET_Number, 0) + dec(i_Current_Line, 0))
+                  v_ACE_Index = select(substr(%v_Create_Block, 1, 12 + i_Numbers_Length), "==""#set net'i_NET_Number':s't_ACE_Attribute''i_Current_Line'""")
+
+                  #if length(v_ACE_Index) > 0 #then #block
+                     v_ACE_Contents = pick(%v_Create_Block, v_ACE_Index)
+                     @v_Create_Block = delete_element(%v_Create_Block, v_ACE_Index)
+                     
+                     #loop_with j = 1 .. length(v_ACE_Contents)
+                        @v_Create_Block(length(%v_Create_Block) + 1) = v_ACE_Contents(j)
+                     #loop_end
+                     
+                  #block_end
+
+                  #if i_ACE_Index == 1 #then #block
+                  
+;AAa 31.03.2004
+               t_Attribute_Value = do (%Gv_SCT_Mgr__, "GetAttr", "NET_LINK", i_Current_Line, "IU", i_NET_Number, TRUE)
+               #if t_Attribute_Value == "1" #then #block
+               
+                     #loop_with j = 1 .. length(v_ACE_Statements)
+                        @v_Create_Block(length(%v_Create_Block) + 1) = v_ACE_Statements(j)
+                     #loop_end
+
+                  #block_end
+                  
+               #block_end
+
+               #loop_end
+
+            #block_end
+
+            #if b_Extended_Line #then #block
+
+               #if not b_ACE_Line #then #block
+
+;AAa 31.03.2004
+                  t_Attribute_Value = do (%Gv_SCT_Mgr__, "GetAttr", "NET_LINK", i_Current_Line, "IU", i_NET_Number, TRUE)
+                  #if t_Attribute_Value == "1" #then #block
+                  
+                     v_Extended_Statements = ("#set net'i_NET_Number':siu'i_Current_Line'=1",-
+                                              "#set net'i_NET_Number':siu'i_Current_Line'=0")
+   
+                     #loop_with j = 1 .. length(v_Extended_Statements)
+                        @v_Create_Block(length(%v_Create_Block) + 1) = v_Extended_Statements(j)
+                     #loop_end
+                     
+                  #block_end
+
+               #block_end
+
+               #loop_with i_Extended_Index = 1 .. length(v_Extended_Attributes)
+
+                  t_Extended_Attribute = lower_case(v_Extended_Attributes(i_Extended_Index))
+                  i_Numbers_Length = length(dec(i_NET_Number, 0) + dec(i_Current_Line, 0))
+                  v_Extended_Index = select(substr(%v_Create_Block, 1, 12 + i_Numbers_Length), "==""#set net'i_NET_Number':s't_Extended_Attribute''i_Current_Line'""")
+
+                  #if length(v_Extended_Index) > 0 #then #block
+                     v_Extended_Contents = pick(%v_Create_Block, v_Extended_Index)
+                     @v_Create_Block = delete_element(%v_Create_Block, v_Extended_Index)
+                     
+                     #loop_with j = 1 .. length(v_Extended_Contents)
+                        @v_Create_Block(length(%v_Create_Block) + 1) = v_Extended_Contents(j)
+                     #loop_end
+                     
+                  #block_end
+
+               #loop_end
+
+            #block_end
+            
+            #if i_Protocol == 14 and substr(upper_case(SYS:BPR), 1, 3) == "CAP" #then #block
+               i_Temp_Line = i_Current_Line * 100 + 1
+               @v_Create_Block(length(%v_Create_Block) + 1) = "#set net'i_Net_Number':spt'i_Temp_Line'=0"
+               i_Temp_Line = i_Current_Line * 100 + 2
+               @v_Create_Block(length(%v_Create_Block) + 1) = "#set net'i_Net_Number':spt'i_Temp_Line'=0"
+               i_Temp_Line = i_Current_Line * 100 + 3
+               @v_Create_Block(length(%v_Create_Block) + 1) = "#set net'i_Net_Number':spt'i_Temp_Line'=0"
+            #block_end
+            
+            #if b_Last_Statement #then #block
+            
+               @v_Create_Block(length(%v_Create_Block) + 1) = "#set net'i_Net_Number':siu'i_Current_Line'=1"
+               @v_Create_Block(length(%v_Create_Block) + 1) = "#set net'i_Net_Number':siu'i_Current_Line'=0"
+
+            #block_end
+
+            #loop_with i_2 = 1 .. length(v_Stations)
+            
+               v_IA_index = vector(0,0,0,0,0,0,0,0,0,0,0,0)
+               v_Set_Last_Sta = vector()
+               v_Set_Z = vector()   ;("a","b","c","d")
+               v_Set_Sec = vector()
+               t_Sta_User_Defined = ""
+
+               i_Station_Number = v_Stations(i_2)
+
+               #if v_Station_B_ND(i_2) == i_Net_Number and v_Station_N_LI(i_2) == i_Current_Line #then #block
+
+                  i_Translated_Object_Number = v_Station_B_TN(i_2)
+                  t_Station_Type = v_Station_B_ST(i_2)
+
+                  #case t_Station_Type
+
+                     #when "LMK" t_Line_Attribute = "lm"
+                     #when "REX" t_Line_Attribute = "rx"
+                     #when "SPA" t_Line_Attribute = "sp"
+                     #when "STA" t_Line_Attribute = "st"
+
+                  #case_end
+
+                  v_Device_Station_Types = ("IEC", "DNP", "SPI", "RTU", "LCU", "PLC", "ADE", "ATR")
+                  v_Device_Types = (29, 30, 22, 4, 20, 28, 24, 27)
+                  i_Found_Device_Type = find_element(v_Device_Station_Types, t_Station_Type)
+                  #if i_Found_Device_Type > 0 #then #block
+
+                     i_Device_Type = v_Device_Types(i_Found_Device_Type)
+                     
+                     @v_Create_Block(length(%v_Create_Block) + 1) = "#set net'i_Net_Number':sdv('i_Device_Type')=('i_Translated_Object_Number','i_Current_Line')"
+
+                  #block_end
+                  #else #block
+                  
+                     @v_Create_Block(length(%v_Create_Block) + 1) = "#set net'i_Net_Number':s't_Line_Attribute''i_Translated_Object_Number'='i_Current_Line'"
+
+                  #block_end
+
+;AAa 26.05.2006 How many internet addresses defined for an IEC station
+                  
+                  #if t_Station_Type == "IEC" #then #block
+                  
+                     #if find_element(v_Station_N_Attribute_Indices, "S_IA") > 0 #then #block
+                     
+                        t_Attribute_Value = do (%Gv_SCT_Mgr__, "GetAttr", "NET_STATION", i_Station_Number, "S_IA")
+
+                        #if data_type(t_Attribute_Value) == "VECTOR" #then #block
+                           #loop_with i_v = 1 .. length(t_Attribute_Value)
+                              t_value = t_Attribute_Value(i_v)
+                              #if t_value <> "" #then #block
+                                 v_IA_index(i_v) = 1
+                               #block_end
+                           #loop_end
+                        #block_end
+                        
+                     #block_end
+                     #if find_element(v_Station_N_Attribute_Indices, "AI") > 0 #then #block
+                     
+                        t_Attribute_Value = do (%Gv_SCT_Mgr__, "GetAttr", "NET_STATION", i_Station_Number, "AI")
+
+                        #if data_type(t_Attribute_Value) == "VECTOR" #then #block
+                           #loop_with i_v = 1 .. length(t_Attribute_Value)
+                              t_value = t_Attribute_Value(i_v)
+                              #if t_value <> "" #then #block
+                                 v_IA_index(i_v) = 1
+                               #block_end
+                           #loop_end
+                        #block_end
+                        
+                     #block_end
+                  
+                  #block_end
+                  
+;AAa 26.05.2006 End
+                  
+                  #loop_with i_3 = 1 .. length(v_Station_N_Attribute_Indices)
+                  
+                     t_Station_N_Attribute = v_Station_N_Attribute_Indices(i_3)
+
+                     #if t_Station_N_Attribute <> "IU" and t_Station_N_Attribute <> "LI" #then #block
+
+;AAa 03.02.2003 The real attribute name after delimeter "_". For example S_ST => ST
+                        #if substr(t_Station_N_Attribute, 1, 2) == "S_" #then #block
+                           t_Attribute = substr(t_Station_N_Attribute, 3, 2)
+                        #block_end
+                        #else #block
+                           t_Attribute = t_Station_N_Attribute
+                        #block_end
+                        
+                        t_Attribute_Value = do (%Gv_SCT_Mgr__, "GetAttr", "NET_STATION", i_Station_Number, t_Station_N_Attribute, TRUE)
+
+;AAa Ignore empty Internet Address
+                        #if t_Station_N_Attribute == "IA" AND t_Attribute_Value == """""" #then t_Attribute_Value = ""
+
+                        #if t_Attribute_Value <> "" and t_Attribute_Value <> "#" #then #block
+;AAa, STA attribute MS hackering
+                           b_MS_is_indexed = TRUE
+                           #if find_element(v_Station_MS_Not_Indexed, t_Station_Type) > 0 #then b_MS_is_indexed = FALSE
+                           #if t_Attribute == "MS" AND b_MS_is_indexed #then #block
+                              v_value = vector()
+                              t_1 = replace(t_Attribute_Value,"vector(","")
+                              t_2 = replace(t_1,")","")
+                              v_value = separate(t_2,",")
+                              #loop_with i_v = 1 .. length(v_value)
+                                 t_value = v_value(i_v)
+                                 #if t_value <> "0" #then @v_Create_Block(length(%v_Create_Block) + 1) = "#set sta'i_Station_Number':sms'i_v'='t_value'"
+                              #loop_end
+                           #block_end
+;AAa, 29.04.03 DNP attribute PT
+                           #else_if t_Attribute == "PT" #then #block
+                              v_value = vector()
+                              t_1 = replace(t_Attribute_Value,"vector(","")
+                              t_2 = replace(t_1,")","")
+                              v_value = separate(t_2,",")
+                              #loop_with i_v = 1 .. length(v_value)
+                                 t_value = v_value(i_v)
+                                 i_pt = i_v - 1
+                                 #if t_value <> "" #then @v_Create_Block(length(%v_Create_Block) + 1) = "#set sta'i_Station_Number':spt'i_pt'='t_value'"
+                              #loop_end
+                           #block_end
+
+;AAa, 04.03.2013 DNP attribute QC
+                           #else_if t_Attribute == "QC" and -
+                              t_Station_Type == "DNP" #then #block
+                              v_value = vector()
+                              t_1 = replace(t_Attribute_Value,"vector(","")
+                              t_2 = replace(t_1,")","")
+                              v_value = separate(t_2,",")
+                              #loop_with i_v = 1 .. length(v_value)
+                                 t_value = v_value(i_v)
+                                 #if t_value <> "" #then @v_Create_Block(length(%v_Create_Block) + 1) = "#set sta'i_Station_Number':sqc'i_v'='t_value'"
+                              #loop_end
+                           #block_end
+
+;S_IA (station IEC) is indexed but IA (stations DNP, PLC, SPA) is not indexed
+                           #else_if t_Attribute == "IA" #then #block
+                              v_value = vector()
+                              t_1 = replace(t_Attribute_Value,"vector(","")
+                              t_2 = replace(t_1,")","")
+                              v_value = separate(t_2,",")
+
+                              #if t_Station_N_Attribute == "IA" #then #block  ; not indexed IA
+                              
+                                 t_value = replace(v_value(1),"""","")
+                                 #if t_value <> "" #then #block
+                                       @v_Create_Block(length(%v_Create_Block) + 1) = -
+                                          "#set sta'i_Station_Number':sia" + "=" + """'t_value'"""
+                                     #block_end
+                                     
+                              #block_end
+                              #else #block   ;indexed IA
+
+                                 #loop_with i_v = 1 .. length(v_value)
+                                    t_value = replace(v_value(i_v),"""","")
+                                    #if t_value <> "" #then #block
+                                       @v_Create_Block(length(%v_Create_Block) + 1) = -
+                                          "#set sta'i_Station_Number':sia'i_v'" + "=" + """'t_value'"""
+                                     #block_end
+                                 #loop_end
+                              
+                              #block_end
+                           #block_end
+                           
+                           #else_if t_Station_Type == "IEC" and -
+                              t_Attribute == "AI" #then #block
+                              v_value = vector()
+                              t_1 = replace(t_Attribute_Value,"vector(","")
+                              t_2 = replace(t_1,")","")
+                              v_value = separate(t_2,",")
+                              
+                              #loop_with i_v = 1 .. length(v_value)
+                                    t_value = replace(v_value(i_v),"""","")
+                                    #if t_value <> "" #then #block
+                                       v_Set_Last_Sta(length(v_Set_Last_Sta) + 1) = -
+                                          "#set sta'i_Station_Number':sai'i_v'" + "=" + """'t_value'"""
+                                     #block_end
+                              #loop_end
+
+                           #block_end
+                           
+                           #else_if t_Station_Type == "IEC" and -
+                                   (t_Attribute           ==   "US" or - 
+                                    t_Attribute           ==   "UR" or -
+                                    t_Station_N_Attribute == "S_ET" or -
+                                    t_Station_N_Attribute == "S_RP" or -
+                                    t_Station_N_Attribute == "S_AT") #then #block
+
+                              v_value = vector()
+                              t_1 = replace(t_Attribute_Value,"vector(","")
+                              t_2 = replace(t_1,")","")
+                              v_value = separate(t_2,",")
+                              #loop_with i_v = 1 .. length(v_value)
+                                 #if v_IA_index(i_v) > 0 #then #block
+                                    t_value = replace(v_value(i_v),"""","")
+                                    #if t_value <> "" #then @v_Create_Block(length(%v_Create_Block) + 1) = -
+                                       "#set sta'i_Station_Number':s" + lower_case(t_Attribute) + "'i_v'" + "=" + t_Value
+                                 #block_end
+                              #loop_end
+
+                           #block_end
+
+                           #else_if t_Station_Type == "IEC" and -
+                                    (t_Station_N_Attribute == "S_CE" or -
+                                     t_Station_N_Attribute == "S_TI" or -
+                                     t_Station_N_Attribute == "S_PD" or -
+                                     t_Station_N_Attribute == "S_EA") #then #block
+
+                              v_value = vector()
+                              t_1 = replace(t_Attribute_Value,"vector(","")
+                              t_2 = replace(t_1,")","")
+                              v_value = separate(t_2,",")
+                              #loop_with i_v = 1 .. length(v_value)
+                                    t_Value = v_value(i_v)
+                                    @v_Create_Block(length(%v_Create_Block) + 1) = -
+                                       "#set sta'i_Station_Number':s" + lower_case(t_Attribute) + "'i_v'" + "=" + t_Value
+                              #loop_end
+
+                           #block_end
+                           
+                           #else_if (i_Protocol == 44 or i_Protocol == 45) and -
+                                    t_Station_N_Attribute == "CP" #then #block
+                              v_Set_Sec(length(v_Set_Sec) + 1) = "#set sta'i_Station_Number':s" + lower_case(t_Attribute) + "=" + t_Attribute_Value
+                           #block_end
+                           #else_if (i_Protocol == 44 or i_Protocol == 45) and -
+                                    (t_Station_N_Attribute == "CI" or -
+                                     t_Station_N_Attribute == "CN" or -
+                                     t_Station_N_Attribute == "CV") #then #block
+                                    
+                                    v_value = vector()
+                                    t_1 = replace(t_Attribute_Value,"vector(","")
+                                    t_2 = replace(t_1,")","")
+                                    v_value = separate(t_2,",")
+                                    #loop_with i_v = 1 .. length(v_value)
+                                          t_Value = v_value(i_v)
+                                          v_Set_Sec(length(v_Set_Sec) + 1) = -
+                                             "#set sta'i_Station_Number':s" + lower_case(t_Attribute) + "'i_v'" + "=" + t_Value
+                                    #loop_end
+                                                                        
+                           #block_end
+                           #else_if i_Protocol == 45 and -
+                                    t_Station_N_Attribute == "S_CX" #then #block
+                              v_Set_Sec(length(v_Set_Sec) + 1) = "#set sta'i_Station_Number':s" + lower_case(t_Attribute) + "=" + t_Attribute_Value
+                           #block_end
+                           #else_if (i_Protocol <> 45 and i_Protocol <> 35) and -
+                                    t_Station_N_Attribute == "S_CX" #then #block
+                                    ;
+                           #block_end
+                           #else_if i_Protocol <> 45 and -
+                                    t_Station_N_Attribute == "S_CD" #then #block
+                                    ;
+                           #block_end
+                           #else_if  i_Protocol == 33 and -
+                                    (t_Station_N_Attribute == "UA" or -
+                                     t_Station_N_Attribute == "UI" or -
+                                     t_Station_N_Attribute == "S_ZA" or -
+                                     t_Station_N_Attribute == "S_ZG" or -
+                                     t_Station_N_Attribute == "S_ZT" or -
+                                     t_Station_N_Attribute == "S_ZU" or -
+                                     t_Station_N_Attribute == "US" or -
+                                     t_Station_N_Attribute == "UR") #then #block
+                                    ;
+                           #block_end
+                           
+                           #else_if t_Station_Type == "DNP" and b_LAN and -
+                                    (t_Station_N_Attribute == "CP" or t_Station_N_Attribute == "S_CX") #then #block
+                              v_Set_Sec(length(v_Set_Sec) + 1) = "#set sta'i_Station_Number':s" + lower_case(t_Attribute) + "=" + t_Attribute_Value
+                           #block_end
+                           #else_if t_Station_Type == "DNP" and b_LAN and -
+                                    (t_Station_N_Attribute == "CI" or -
+                                     t_Station_N_Attribute == "CN" or -
+                                     t_Station_N_Attribute == "CV") #then #block
+                                    
+                                    v_value = vector()
+                                    t_1 = replace(t_Attribute_Value,"vector(","")
+                                    t_2 = replace(t_1,")","")
+                                    v_value = separate(t_2,",")
+                                    #loop_with i_v = 1 .. length(v_value)
+                                          t_Value = v_value(i_v)
+                                          v_Set_Sec(length(v_Set_Sec) + 1) = -
+                                             "#set sta'i_Station_Number':s" + lower_case(t_Attribute) + "'i_v'" + "=" + t_Value
+                                    #loop_end
+                                                                        
+                           #block_end
+                           #else_if t_Station_N_Attribute == "EE" #then #block                                    
+                              ;
+                           #block_end
+                           #else_if t_Station_Type == "DNP" and i_Protocol == 43 and -
+                                    (t_Station_N_Attribute == "S_AI" or -
+                                     t_Station_N_Attribute == "RW" or -
+                                     t_Station_N_Attribute == "SB" or -
+                                     t_Station_N_Attribute == "TC" or -
+                                     t_Station_N_Attribute == "CT" or -
+                                     t_Station_N_Attribute == "SF" or -
+                                     t_Station_N_Attribute == "QC") #then #block
+                              ;
+                           #block_end
+                           
+                           #else_if t_Station_Type == "DNP" and -
+                                    t_Station_N_Attribute == "S_ZT" #then #block
+                              v_Set_Z(1) = "#set sta'i_Station_Number':s" + lower_case(t_Attribute) + "=" + t_Attribute_Value
+                           #block_end
+                           #else_if t_Station_Type == "DNP" and -
+                                    t_Station_N_Attribute == "S_ZA" #then #block
+                              v_Set_Z(2) = "#set sta'i_Station_Number':s" + lower_case(t_Attribute) + "=" + t_Attribute_Value
+                           #block_end
+                           #else_if t_Station_Type == "DNP" and -
+                                    t_Station_N_Attribute == "S_ZG" #then #block
+                              v_Set_Z(3) = "#set sta'i_Station_Number':s" + lower_case(t_Attribute) + "=" + t_Attribute_Value
+                           #block_end
+                           #else_if t_Station_Type == "DNP" and -
+                                    t_Station_N_Attribute == "S_ZU" #then #block
+                              v_Set_Z(4) = "#set sta'i_Station_Number':s" + lower_case(t_Attribute) + "=" + t_Attribute_Value
+                           #block_end
+                           
+                           #else_if t_Station_Type == "IEC" and i_Protocol <> 33 and -
+                                    t_Station_N_Attribute == "S_ZT" #then #block
+                              v_Set_Z(1) = "#set sta'i_Station_Number':s" + lower_case(t_Attribute) + "=" + t_Attribute_Value
+                           #block_end
+                           #else_if t_Station_Type == "IEC" and i_Protocol <> 33 and -
+                                    t_Station_N_Attribute == "S_ZA" #then #block
+                              v_Set_Z(2) = "#set sta'i_Station_Number':s" + lower_case(t_Attribute) + "=" + t_Attribute_Value
+                           #block_end
+                           #else_if t_Station_Type == "IEC" and i_Protocol <> 33 and -
+                                    t_Station_N_Attribute == "S_ZG" #then #block
+                              v_Set_Z(3) = "#set sta'i_Station_Number':s" + lower_case(t_Attribute) + "=" + t_Attribute_Value
+                           #block_end
+                           #else_if t_Station_Type == "IEC" and i_Protocol <> 33 and -
+                                    t_Station_N_Attribute == "S_ZU" #then #block
+                              v_Set_Z(4) = "#set sta'i_Station_Number':s" + lower_case(t_Attribute) + "=" + t_Attribute_Value
+                           #block_end
+                           
+                           #else_if (t_Station_Type == "SPA" and not b_LAN) and (t_Attribute == "CT" or t_Attribute == "ET") #then #block
+                              ;CT and ET apply to SPA TCP only
+                           #block_end
+                           
+                           #else #block
+                              @v_Create_Block(length(%v_Create_Block) + 1) = -
+                                 "#set sta'i_Station_Number':s" + lower_case(t_Attribute) + "=" + t_Attribute_Value
+                           #block_end
+
+                        #block_end
+                     #block_end
+                     
+                  #loop_end
+                  
+;Redundancy
+                  #if i_Protocol == 16 or i_Protocol == 29 or i_Protocol == 30 #then #block
+                        @l_Read_Function = read_parameter(t_Lon_File, "FUNCTIONS", "Node_'i_Net_Number'_Link_'i_Current_Line'")
+                        #if l_Read_Function:vSTATUS == 0 #then #block
+                           #if locate(evaluate(l_Read_Function:vVALUE), "PRIMARY") > 0 or locate(evaluate(l_Read_Function:vVALUE), "SECONDARY") > 0 #then #block
+                              v_Redundancy_Information = separate(evaluate(l_Read_Function:vVALUE), "_")
+                              @v_Create_Block(length(%v_Create_Block) + 1) = "#set sta'i_Station_Number':sli2=" + v_Redundancy_Information(3)
+                           #block_end
+                        #block_end
+                     #block_end
+;redundancy
+
+                  t_File_Name = parse_file_name("sys_conf", "Sta_n_'i_Station_Number'.scl")
+
+                  t_Sta_User_Defined = ""
+                  
+                  i_Status = status
+                  #error ignore
+                     v_Read = read_text(t_File_Name)
+                  #error stop
+                  i_Status = status
+
+                  #if i_Status == 0 #then #block
+                  
+                     t_Sta_User_Defined = "@i_Status = do (read_text(""'t_File_Name'""), 'i_Station_Number')"
+
+                  #block_end
+
+               #block_end
+               
+               #loop_with j = 1 .. length(v_Set_Last_Sta)
+                  @v_Create_Block(length(%v_Create_Block) + 1) = v_Set_Last_Sta(j)
+               #loop_end
+               
+               #loop_with j = 1 .. length(v_Set_Z)
+                  @v_Create_Block(length(%v_Create_Block) + 1) = v_Set_Z(j)
+               #loop_end
+               
+               #loop_with j = 1 .. length(v_Set_Sec)
+                  @v_Create_Block(length(%v_Create_Block) + 1) = v_Set_Sec(j)
+               #loop_end
+               
+               #if t_Sta_User_Defined <> "" #then @v_Create_Block(length(%v_Create_Block) + 1) = t_Sta_User_Defined
+            
+            #loop_end
+
+         #block_end
+
+      #loop_end
+      
+      #loop_with j = 1 .. length(v_Set_Last)
+      
+         @v_Create_Block(length(%v_Create_Block) + 1) = v_Set_Last(j)
+      
+      #loop_end
+
+   #block_end
+
+#loop_end

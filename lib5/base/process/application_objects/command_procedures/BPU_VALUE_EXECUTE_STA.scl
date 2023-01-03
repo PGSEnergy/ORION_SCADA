@@ -1,0 +1,108 @@
+;Function: BPU_VALUE_EXECUTE_STA:C
+;Source file: sc/lib5/base/process/application_objects/bpu_value_select_sta.scl
+;Version: 1.0
+;Parameters:  l_object_info (contents of CD-attribute),  search_result, L/R type, clicked option button value (0..3)
+;Return data: list(status = integer, err_description = text)
+;Description: Prepares select command for OFF (open)
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data, t_type, i_to_state
+#local t_LN, i_IX = 0, i_status, i_command_value, i_simulate_value
+
+#local l_result = list(status = 0, err_description = "")
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_VALUE_EXECUTE_STA"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+         @REDIRECTED = true                                                                        
+         i_ArgCnt = argument_count                                                                 
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+         #loop_end                                                                                 
+         #return 't_Redirect_Command' ;;;;;                                                        
+      #block_end                                                                                   
+   #block_end                                                                                      
+   #else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+
+t_LN = l_object_info.p_object_ln
+
+#case i_to_state
+   #when 0 #block
+      #if attribute_exists(l_data.all_objects, "sta_lr_loc_cmd_ix") #then i_IX = l_data.all_objects.sta_lr_loc_cmd_ix
+   #block_end
+    #when 1 #block
+      #if attribute_exists(l_data.all_objects, "sta_lr_sta_cmd_ix") #then i_IX = l_data.all_objects.sta_lr_sta_cmd_ix
+   #block_end
+   #when 2 #block
+      #if attribute_exists(l_data.all_objects, "sta_lr_rem_cmd_ix") #then i_IX = l_data.all_objects.sta_lr_rem_cmd_ix
+   #block_end
+   #when 3 #block
+      #if attribute_exists(l_data.all_objects, "sta_lr_res_cmd_ix") #then i_IX = l_data.all_objects.sta_lr_res_cmd_ix
+   #block_end
+#case_end
+
+#if attribute_exists(l_object_info, "ind_double_binary") #then #block
+   #if not l_object_info.ind_double_binary #then #block
+      #case i_to_state
+         #when 0, 3 #block
+            #if substr('t_LN':prx'i_IX', 24, 3) == "PLA" #then #block
+               i_command_value = i_to_state
+               i_simulate_value = i_to_state
+            #block_end
+            #else #block
+               l_result.status = -1
+               l_result.err_description = translation("Not supported command")
+               #return l_result
+            #block_end
+         #block_end
+         #when 1 #block
+            i_command_value = 1
+            i_simulate_value = 1
+         #block_end
+         #when 2 #block
+            i_command_value = 0
+            i_simulate_value = 0
+         #block_end
+      #case_end
+   #block_end
+   #else #block
+      i_command_value = 1
+      i_simulate_value = i_to_state
+   #block_end
+#block_end
+#else #block
+   i_command_value = 1
+   i_simulate_value = i_to_state
+#block_end
+
+#if i_IX > 0 #then #block
+   #error ignore
+   i_status = status
+   #set 't_LN':pov'i_IX' = i_command_value
+   i_status = status
+   #if i_status <> 0 #then #block
+      l_result.status = i_status
+      l_result.err_description = status_code_name(i_status)
+   #block_end
+   #else #block
+      #if attribute_exists(l_data.all_objects, "sta_lr_obj_ix") #then #block
+         i_IX = l_data.all_objects.sta_lr_obj_ix
+         #set 't_LN':pov'i_IX' = i_simulate_value
+      #block_end
+   #block_end
+#block_end
+
+#return l_result

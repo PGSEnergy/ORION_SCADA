@@ -1,0 +1,21 @@
+;Code for handling group alarms.
+
+#local argCnt, tRedirectProc, tRedirectCommand, iArgLoop
+tRedirectProc="APLMOD_ALARMINDS"
+#if APPLICATION_OBJECT_EXISTS(0,"C",tRedirectProc) AND -
+DATA_TYPE(%REDIRECTED)=="NONE" #then #block
+   #if 'tRedirectProc':CIU==1 #then #block
+      @REDIRECTED=TRUE
+      argCnt=ARGUMENT_COUNT
+      tRedirectCommand="DO('tRedirectProc':C"
+      #loop_with iArgLoop=1..argCnt
+         tRedirectCommand=tRedirectCommand+",argument('iArgLoop')"
+         #if iArgLoop==argCnt #then #block
+            tRedirectCommand=tRedirectCommand+")"
+         #block_end
+      #loop_end
+      #return 'tRedirectCommand'
+   #block_end
+#block_end
+
+

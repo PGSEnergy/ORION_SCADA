@@ -1,0 +1,87 @@
+;Function: BPU_SEARCH_OBJECTS:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_search_objects.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute)
+;Return data: LIST(EVENT_OBJECT=vector(), ALL_OBJECTS=vector(), STATUS=integer, err_description=text)
+;Description: returns LNs and indexes of object itself and related objects  
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+ 
+#argument l_object_info
+#local l_result = list(all_objects=list(), event_objects = vector())
+#local l_LR_Objects_Required = list(sta_lr_object = false, bay_lr_object = false, sta_lr_required = true, bay_lr_required = true)
+#local t_procedure, l_ois = list(), hard_coded_info = list(), e_state, s
+#local t_station_ID = "ASTA", t_bay_ID = "ABAY"
+
+;****************************************************************************************************
+;redirect command if application specific command procedure is found                               ;*
+#local t_Redirect_Proc = "APLMOD5_BPU_SEARCH_OBJECTS"                                              ;*
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    ;*
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            ;*
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 ;*
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  ;*
+         @REDIRECTED = true                                                                        ;*
+         i_ArgCnt = argument_count                                                                 ;*
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                      ;*
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" ;*
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       ;*
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     ;*
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    ;*
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        ;*
+         #loop_end                                                                                 ;*
+         #return 't_Redirect_Command' ;;;;;                                                        ;*
+      #block_end                                                                                   ;*
+   #block_end                                                                                      ;*
+   #else #delete REDIRECTED:V                                                                      ;*
+#block_end                                                                                         ;*
+;****************************************************************************************************
+;MAIN START
+
+#if argument_count > 2 #then t_station_ID = argument(3)
+#if argument_count > 3 #then t_bay_ID = argument(4)
+
+l_result.all_objects = merge_attributes(l_result.all_objects, l_LR_Objects_Required)
+l_ois = do(bpu_trim_oi_for_query:c, l_object_info)
+
+;read hard coded info if any
+s = status
+e_state=error_state
+#error ignore
+hard_coded_info = do(l_object_info.u_other_objects) 
+#error 'e_state'
+s = status
+#if s <> 0 #then hard_coded_info = list()
+
+;station L/R objects for bays and devices
+#if l_object_info.type_info.object_level == "BAY" or l_object_info.type_info.object_level == "DEV" #then -
+   l_result = do(bpu_search_database_station:c, l_ois.station_name_trimmed, hard_coded_info, t_station_ID, l_result)
+
+;Bay measurements
+#if l_object_info.type_info.object_level == "BAY" #then  -
+   l_result = do(bpu_search_bay_measurements:c, l_ois.bay_name_trimmed, l_result) 
+
+;bay L/R objects for devices
+#if l_object_info.type_info.object_level == "DEV" #then -
+   l_result = do(bpu_search_database_bay:c, l_ois.bay_name_trimmed, hard_coded_info, t_bay_ID, l_result)
+
+;objects of the function itself
+t_procedure =  l_object_info.type_info.command_procedures.check_object_indexes
+l_result = do(bpu_check_indexes:c, l_object_info, t_procedure, l_result)
+
+ ;autoreclosing and trip objects for breakers
+ #if attribute_exists(l_object_info, "switching_device_type") #then #block
+   ;search ar and trip objects for breakers
+   #if l_object_info.switching_device_type == "QB" or l_object_info.switching_device_type=="QI" or l_object_info.switching_device_type == "QS" #then #block
+      ;autoreclose objects
+      t_procedure =  l_object_info.type_info.command_procedures.search_auto_reclose
+      #if application_object_exists(0, "C", t_procedure) #then -
+         l_result = do('t_procedure':c, l_ois.bay_name_trimmed, hard_coded_info, l_result)
+      ;trip objects
+      #if application_object_exists(0, "C", "BPU_SEARCH_DATABASE_TRIP") #then -
+         l_result = do(bpu_search_database_trip:c, l_ois.bay_name_trimmed, hard_coded_info, l_result)
+   #block_end
+#block_end
+
+#return l_result

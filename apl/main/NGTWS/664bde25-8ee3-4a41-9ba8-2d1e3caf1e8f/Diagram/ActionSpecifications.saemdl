@@ -1,0 +1,127 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<NGT>
+  <Header>
+    <ModelInfo value="EventAndActionSpecifications" />
+    <ModelVersion value="1.3.0.0" />
+    <PersistencyVersion value="1.0.0.0" />
+  </Header>
+  <DomModel>
+    <Collection name="Root" type="t0" id="0">
+      <Simple name="Capacity" value="8" />
+      <Items>
+        <Reference name="item" id="1" />
+        <Reference name="item" id="2" />
+        <Reference name="item" id="3" />
+        <Reference name="item" id="4" />
+        <Reference name="item" id="5" />
+        <Reference name="item" id="6" />
+        <Reference name="item" id="7" />
+        <Reference name="item" id="8" />
+      </Items>
+    </Collection>
+    <Complex name="item" type="t1" id="1">
+      <Simple name="openInNewTab" value="False" />
+      <Collection name="parameters" type="t2" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="Description" value="Shows view." />
+      <Simple name="EntityId" value="4cc74715-a20e-4d38-9ed3-6c8e0e20f850" />
+      <Simple name="Name" value="show-view-in-tab" />
+      <Simple name="ActionType" value="show-view-in-tab" />
+      <Simple name="ShowInUI" value="True" />
+      <Simple name="ContentVersion" value="1.0.0.0" />
+    </Complex>
+    <Complex name="item" type="t3" id="2">
+      <Collection name="parameters" type="t2" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="b80e6ba3-9c95-4377-af22-0bb4e8bc68cd" />
+      <Simple name="Description" value="Opens the right pane." />
+      <Simple name="Name" value="open-right-pane" />
+      <Simple name="ActionType" value="open-right-pane" />
+      <Simple name="ShowInUI" value="True" />
+      <Simple name="ContentVersion" value="1.0.0.0" />
+    </Complex>
+    <Complex name="item" type="t4" id="3">
+      <Collection name="parameters" type="t2" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="0e762616-c96f-41c3-8631-1edacdc9b63e" />
+      <Simple name="Description" value="Sets the hover variable to true." />
+      <Simple name="Name" value="_hover" />
+      <Simple name="ActionType" value="set" />
+      <Simple name="ShowInUI" value="False" />
+      <Simple name="ContentVersion" value="1.0.0.0" />
+    </Complex>
+    <Complex name="item" type="t4" id="4">
+      <Collection name="parameters" type="t2" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="ab37de0f-b2a8-400d-a3e3-e9c38ce803e8" />
+      <Simple name="Description" value="Sets the hover variable to false." />
+      <Simple name="Name" value="_hover" />
+      <Simple name="ActionType" value="set" />
+      <Simple name="ShowInUI" value="False" />
+      <Simple name="ContentVersion" value="1.0.0.0" />
+    </Complex>
+    <Complex name="item" type="t4" id="5">
+      <Collection name="parameters" type="t2" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="9299a250-6a69-4f76-bf4a-04b27f64367c" />
+      <Simple name="Description" value="Sets the _pressed variable to true" />
+      <Simple name="Name" value="_pressed" />
+      <Simple name="ActionType" value="set" />
+      <Simple name="ShowInUI" value="False" />
+      <Simple name="ContentVersion" value="1.0.0.0" />
+    </Complex>
+    <Complex name="item" type="t4" id="6">
+      <Collection name="parameters" type="t2" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="dc365ea3-06a8-4511-a9c3-a4ac9e5ccb93" />
+      <Simple name="Description" value="Sets the _pressed variable to false" />
+      <Simple name="Name" value="_pressed" />
+      <Simple name="ActionType" value="set" />
+      <Simple name="ShowInUI" value="False" />
+      <Simple name="ContentVersion" value="1.0.0.0" />
+    </Complex>
+    <Complex name="item" type="t3" id="7">
+      <Collection name="parameters" type="t2" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="134085b8-6333-496c-b1ce-da14b00d6141" />
+      <Simple name="Description" value="Opens a context menu pop over view." />
+      <Simple name="Name" value="device-contextmenu" />
+      <Simple name="ActionType" value="open-popover" />
+      <Simple name="ShowInUI" value="False" />
+      <Simple name="ContentVersion" value="1.0.0.0" />
+    </Complex>
+    <Complex name="item" type="t4" id="8">
+      <Collection name="parameters" type="t2" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="55106505-a239-48b3-92df-b848562624f6" />
+      <Simple name="Description" value="js-invoke" />
+      <Simple name="Name" value="setVariableForDuration" />
+      <Simple name="ActionType" value="js-invoke" />
+      <Simple name="ShowInUI" value="False" />
+      <Simple name="ContentVersion" value="1.0.0.0" />
+    </Complex>
+    <Types>
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.Diagram.API.Model.Actions.IActionSpecification, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t0" />
+      <Type value="ABB.NGT.Domain.Diagram.Implementation.Model.Actions.NavigateAndShowInTabActionSpecification, ABB.NGT.Domain.Diagram.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t1" />
+      <Type value="System.Collections.Generic.List`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t2" />
+      <Type value="ABB.NGT.Domain.Diagram.Implementation.Model.Actions.ControlDialogActionSpecification, ABB.NGT.Domain.Diagram.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t3" />
+      <Type value="ABB.NGT.Domain.Diagram.Implementation.Model.Actions.ActionSpecification, ABB.NGT.Domain.Diagram.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t4" />
+    </Types>
+  </DomModel>
+</NGT>

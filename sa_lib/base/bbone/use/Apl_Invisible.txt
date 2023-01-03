@@ -1,0 +1,7 @@
+#if mon'i_monitor_number':bcx == "<LIB500/INVISIBLE_MONITOR>" #then #block
+  ;This monitor is reserved for the relay tools. Monitor is invisible
+  @Start_Object_Type  = "Dialog"         ;Defines the fist object as a VS dialog
+  @Start_Dialog_File  = "/lib4/base/bbone/use/bgu_invisible_mon.vso"   ;Needed if  Start_Object_Type == "Dialog"
+  @Start_Dialog_Tag   = "Main"      ;Needed if  Start_Object_Type == "Dialog"
+  @Start_Dialog_Type  = "VS_Main_Dialog"   ;Needed if  Start_Object_Type == "Dialog"
+#block_end

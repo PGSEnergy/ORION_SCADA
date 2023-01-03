@@ -1,0 +1,67 @@
+; File: SSS_AplInit.scl([l_Apl_Numbers])
+; Version: SYS 600 9.3
+; Parameters: l_Apl_Numbers, list of specific application numbers with following elements:
+;                STATUS, status of reading specific application numbers (=  0)
+;                DATA, vector of specific application numbers
+; Description: Initialization of local applications for System Self Supervision at system start-up
+; ------------------------------------------------------------------------------------------------
+
+;read in application numbers
+#if argument_count == 1 #then @l_Apl_Numbers = argument(1)
+   #else @l_Apl_Numbers = do(APL:BSV40, "SSS", "GetObjectNumbers", "APPLICATION")
+
+#if l_Apl_Numbers:vSTATUS == 0 #then #block ; 1
+
+   ;read in general info
+   @l_General_Info = APL:BSV45
+   
+   ;define application status
+   #loop_with i_Apl = 1 .. length(l_Apl_Numbers:vDATA)
+   
+      ;read in application physical number
+      @i_Apl_Nr = l_Apl_Numbers:vDATA(%i_Apl)
+    
+      ;read in application attributes
+      @l_Apl_Attr = do(APL:BSV40, "SSS", "GetObjectAttributes", "APPLICATION", %i_Apl_Nr)
+      
+      ;define application state
+      #if l_Apl_Attr:vSTATUS == 0 #then #if l_Apl_Attr:vAS_PRIMARY <> "#" #then #block ; 1_1
+      
+         #if APL'i_Apl_Nr':BTT == "NONE" #then #set 'l_Apl_Attr:vAS_PRIMARY' = -1
+         #else_if APL'i_Apl_Nr':BTT == "LOCAL" and APL'i_Apl_Nr':BAS == "COLD" #then #block
+            ;define event time
+            @l_Time = hr_clock
+            ;update application state
+            #exec sys_syser:c (@SOURCE = "APL_AS", @SOURCE_NR = %i_Apl_Nr, @EVENT = "COLD", @RT = l_Time:vCL, @RM = l_Time:vUS DIV 1000)
+            ;update application shadowing phase (in case of HSB)
+            #if SYS:BSH == 1 and APL'i_Apl_Nr':BSW <> 0 #then #if APL'i_Apl_Nr':BSP == "NONE" #then -
+               #exec sys_syser:c (@SOURCE = "APL_SP", @SOURCE_NR = %i_Apl_Nr, @EVENT = "NONE", @RT = l_Time:vCL, @RM = l_Time:vUS DIV 1000)
+         #block_end
+         #else_if APL'i_Apl_Nr':BTT == "LOCAL" and (APL'i_Apl_Nr':BAS == "WARM" or APL'i_Apl_Nr':BAS == "HOT") #then #block
+            ;check status of indication point
+            @i_Status = status
+            #error ignore
+               @i_OV = 'l_Apl_Attr:vAS_PRIMARY'
+            #error stop
+            ;update application state (if not yet updated)
+            #if status == 10 #then #block
+               ;define event time
+               @l_Time = hr_clock
+               ;application state
+               #exec sys_syser:c (@SOURCE = "APL_AS", @SOURCE_NR = %i_Apl_Nr, @EVENT = APL'i_Apl_Nr':BAS, @RT = l_Time:vCL, @RM = l_Time:vUS DIV 1000)
+            #block_end
+            ;update application shadowing phase (in case of HSB)
+            #if SYS:BSH == 1 and APL'i_Apl_Nr':BSW <> 0 #then #if APL'i_Apl_Nr':BSP == "NONE" #then #block
+               ;define event time
+               @l_Time = hr_clock
+               #exec sys_syser:c (@SOURCE = "APL_SP", @SOURCE_NR = %i_Apl_Nr, @EVENT = "NONE", @RT = l_Time:vCL, @RM = l_Time:vUS DIV 1000)
+            #block_end
+         #block_end
+
+      #block_end ; 1_1
+   
+   #loop_end
+   
+#block_end ; 1
+   #else_if l_Apl_Numbers:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS]", "Could not read application numbers from the configuration file (SSS_AplInit.scl)")
+

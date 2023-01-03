@@ -1,0 +1,49 @@
+﻿; This command procedure is used for switching the DI attribute and marking 
+; the FTABS old in a RP570S protocol converter in a COM500 application 
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @COM_RP_STA_NUMBER, number of the STA object of the NCC (protocol converter)
+;         APL:BSV(20), general parameters
+;         APL:BSV(21), NCC xref table
+;         @RT,@RM
+;------------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+@GEN_INFO = APL:BSV(20)
+@NCC_XREF_INFO = APL:BSV(21)
+@ENABLE_LOGGING = COM_GENVAR:PBZ(3)
+
+#LOOP_WITH I = 1..LENGTH(%NCC_XREF_INFO) ;1
+   @NCC_VECTOR = %NCC_XREF_INFO(%I)
+   #IF %NCC_VECTOR(1) == %COM_RP_STA_NUMBER #THEN #BLOCK ;2
+      #IF %NCC_VECTOR(9) #THEN @RP_RESET_FTABS = TRUE
+      #ELSE @RP_RESET_FTABS = FALSE
+      #LOOP_EXIT
+   #BLOCK_END ;2
+#LOOP_END ;1
+
+#IF GEN_INFO:VRPSS_CMD_TYPE == "COLDSTART" #THEN #BLOCK ;1
+   #IF %RP_RESET_FTABS #THEN #BLOCK ;2
+      ;mark FTABS old
+      #SET STA'COM_RP_STA_NUMBER':SFV = "000000000000"
+   #BLOCK_END ;2
+#BLOCK_END ;1
+#SET GEN_INFO:VRPSS_CMD_TYPE = ""
+#SET APL:BSV(20) = %GEN_INFO      
+
+;set DI to 1
+#IF STA'COM_RP_STA_NUMBER':SDI <> 1 #THEN #SET STA'COM_RP_STA_NUMBER':SDI = 1
+
+#IF %ENABLE_LOGGING #THEN #BLOCK ; 1
+   @TIME = HR_CLOCK
+   @RT = TIMES(TIME:VCL)
+   @RM = ROUND(TIME:VUS/1000)      
+   @INFO="'rt':'rm',RPSDI,'COM_RP_STA_NUMBER',,,RP570 DI set to 1,,,,,,,,,,,,,,,,"
+   #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+   #ELSE #DO COM_LOG:CIN
+#BLOCK_END ; 1
+

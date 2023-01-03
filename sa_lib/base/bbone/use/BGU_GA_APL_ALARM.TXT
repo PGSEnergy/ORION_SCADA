@@ -1,0 +1,22 @@
+; Function:    SAGR_GA_APL_ALARM:C
+; Version:     1.0 (Build 07.12.2008) 
+; Parameters:  LN,IX,...
+; Return data: -
+; Description: check if alarming object is a member of group alarms, if yes launch GA Main
+;--------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;
+;---------------------------------------------------------------------------------------------
+#local lGA_SDB,lSections,x
+lGA_SDB = DATA_MANAGER("OPEN", "APL_/APL_GRPAL.SDB")
+#IF lGA_SDB.STATUS <> 0 #THEN #RETURN
+
+lSections = DATA_MANAGER("LIST_SECTIONS", lGA_SDB.HANDLE)
+x = DATA_MANAGER("CLOSE", lGA_SDB.HANDLE)
+
+#IF lSections.Status <> 0 #THEN #RETURN
+
+#IF FIND_ELEMENT(lSections.Sections, %LN + ":" + DEC(%IX, 0)) <> 0 #THEN -
+   #EXEC SAGR_GA_Main:C (@LN = %LN, @IX = %IX, @METHOD = "MAIN")
+

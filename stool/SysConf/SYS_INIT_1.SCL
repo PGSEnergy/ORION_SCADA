@@ -1,0 +1,74 @@
+; File: SYS_INIT_1.SCL
+; Description: Starts PCNET after application start
+;              DO NOT EDIT! - This procedure is updated automatically
+;              Note! Source code for command procedure SYS_INIT_1:C
+; -------------------------------------------------------------------
+
+@l_System_Configuration = SYS:BSV2
+
+#if data_type(%l_System_Configuration) == "LIST" #then #block
+
+   #if substr(upper_case(SYS:BPR), 1, 3) == "SMS" or substr(upper_case(SYS:BPR), 1, 3) == "CAP" #then #block
+
+      #set l_System_Configuration:vl_System_Start_Time = hr_clock
+      #set SYS:BSV2 = %l_System_Configuration
+
+   #block_end
+
+#block_end
+
+; System Self Supervision 2.x initialization
+#if application_object_count(0, "C", "", "", "", "LN == ""SYS_SSSREV""") > 0 #then #block
+   #if application_object_count(0, "C", "", "", "", "LN == ""SYS_SSSRT""") > 0 #then #exec sys_sssrt:c
+#block_end
+
+; System Configuration for PC-NET start-up
+#if substr(upper_case(SYS:BPR), 1, 3) <> "SMS" and substr(upper_case(SYS:BPR), 1, 3) <> "CAP" #then #block
+
+   #On ERROR #Block
+      @i_Status = status
+      @i_Status = Do(Read_Text("Sys_Tool/msglog.scl"),-
+                     "ERROR",-
+                     "Could not execute PC_NET start file, StartPCNET.scl (SYS_INIT_1:C)",-
+                     %i_Status)
+      #Error 't_Error_State'
+   #Block_End
+   #Error Event
+
+;ID3140 Begin
+;   @b_Status = Do(Read_Text("Sys_Tool/StartPCNET.scl"))
+;
+   @l_System_Configuration_Data = SYS:BSV(2)
+   @b_allow = TRUE
+   #if data_type(%l_System_Configuration_Data) == "LIST" #then #block 
+      #if length(select(list_attr(%l_System_Configuration_Data), -
+         "==""B_CONF_MECH_IN_USE""")) > 0 #then #block
+         #if l_System_Configuration_Data:vb_Conf_Mech_In_Use #then #block
+            @t_Configuration_File = l_System_Configuration_Data:vt_System_Configuration_File
+            @i_appl_pcnet_owner = read_parameter(%t_Configuration_File, "*", -
+                                           "Application_Owner")
+            #if i_appl_pcnet_owner:Vstatus == 0 #then #block
+               @appl_own = i_appl_pcnet_owner:Vvalue
+               #error ignore
+                  @appl_own = DEC_SCAN(%appl_own)
+               #error stop
+               #if status == 0 #then #block
+                  #if  %appl_own <> APL:BAN AND APL'appl_own':BAS == "HOT" #then @b_allow = FALSE
+               #block_end
+            #block_end
+         #block_end
+         #else @b_allow = FALSE
+      #block_end
+   #block_end
+   #if %b_allow #then #block
+               
+      @i_Delay_Time = 0 ; Default delay time is 0 s
+      @l_Ini_Read = read_parameter(%t_Configuration_File, "*", "PCNET_Initial_Delay")
+      #if l_Ini_Read:vSTATUS == 0 #then @i_Delay_Time = dec_scan(l_Ini_Read:vVALUE)
+      #pause %i_Delay_Time                  
+
+      @b_Status = Do(Read_Text("Sys_Tool/StartPCNET.scl"))
+   #block_end
+;ID3140 End
+
+#block_end

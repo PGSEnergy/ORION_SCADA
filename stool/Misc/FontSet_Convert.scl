@@ -1,0 +1,366 @@
+; Module for converting the User/application/workstation specific font definition files
+; to Visual scil tool format
+;----------------------------------------------
+
+@l_Arg = argument(1)
+
+@i_stat = do(read_text("SYS_TOOL/msglog.scl"), "INFO", "Font conversion started...")
+
+@SG_FONT = list()
+
+#case l_Arg:vt_Mon_Size
+   #when "640x480" #set SG_FONT:vhe = 10
+   #when "960x720" #set SG_FONT:vhe = 15
+   #when "1280x960" #set SG_FONT:vhe = 20
+   #when "1600x1200" #set SG_FONT:vhe = 25
+#case_end
+
+@b_Vs_Native = (upper_case(l_Arg:vt_Mon_Type) == "VS_LOCAL")
+
+#if length(l_Arg:vt_Workstation) > 6 #then @t_Old_Format_Ws = substr(l_Arg:vt_Workstation,1,6)
+#else @t_Old_Format_Ws = l_Arg:vt_Workstation
+
+@X_SFONDESC = LIST()
+
+#MODIFY X_SFONDESC:V = LIST(-
+      COMMENT_1  = "Headers and titles",-
+      INFO_1     = "Recommended height: 30-35 SCIL coord.",-
+      COMMENT_2  = "General texts",-
+      INFO_2     = "Recommended height: 20-21 SCIL coord.",-
+      COMMENT_3  = "General texts (Small)",-
+      INFO_3     = "Recommended height: 17-19 SCIL coord.",-
+      COMMENT_4  = "Dynamic values (Big)",-
+      INFO_4     = "Recommended height: 30-35 SCIL coord.",-
+      COMMENT_5  = "Dynamic values (Medium)",-
+      INFO_5     = "Recommended height: 20-21 SCIL coord.",-
+      COMMENT_6  = "Dynamic values (Small)",-
+      INFO_6     = "Recommended height: 17-19 SCIL coord.",-
+      COMMENT_7  = "Un-proportional (Big)",-
+      INFO_7     = "Recommended height: 30-35 SCIL coord.",-
+      COMMENT_8  = "Un-proportional (Medium)",-
+      INFO_8     = "Recommended height: 20-21 SCIL coord.",-
+      COMMENT_9  = "Un-proportional (Small)",-
+      INFO_9     = "Recommended height: 17-19 SCIL coord.",-
+      COMMENT_10 = "Line draw (used by some tools)",-
+      INFO_10    = "Do not change!",-
+      COMMENT_11 = "Chinese (X-Monitors)",-
+      INFO_11    = "",-
+      COMMENT_12 = "Texts in semigraphic tools",-
+      INFO_12    = "Must be un-proportional of size 19-20 SCIl coord.")
+
+
+#IF %b_Vs_Native #THEN #BLOCK
+   #ERROR IGNORE
+   #DO READ_TEXT("/APL/'l_Arg:vt_Apl_Name'/PICT/VSFONT_M.TXT")
+   #ERROR STOP
+#BLOCK_END
+
+#ELSE #BLOCK
+   #ERROR IGNORE
+   @S = STATUS
+   #DO READ_TEXT("/APL/'l_Arg:vt_Apl_Name'/PICT/'t_Old_Format_Ws'_M.FON")
+   #IF STATUS <> 0 #THEN #DO READ_TEXT("/APL/'l_Arg:vt_Apl_Name'/PICT/DEFAUL_M.FON")
+   #ERROR STOP
+#BLOCK_END
+
+@X_AFONDESC = LIST()
+
+#IF %b_Vs_Native #THEN #BLOCK
+   
+   #Case l_Arg:vt_Mon_Size
+
+      #WHEN "640X480" #BLOCK
+         @X_AFONDESC = LIST(-
+            SCOPE_OF_SETTINGS   = "SYSTEM",-
+            FONT_1 = LIST(FAMILY = "Times New Roman" ,FACE = "Bold"   ,POINT_SIZE = 12),-
+            COMMENT_1 = "User Font 1")
+      #BLOCK_END
+   
+      #WHEN "960x720" #BLOCK
+         @X_AFONDESC = LIST(-
+            SCOPE_OF_SETTINGS   = "SYSTEM",-
+            FONT_1 = LIST(FAMILY = "Times New Roman" ,FACE = "Bold"   ,POINT_SIZE = 18),-
+            COMMENT_1 = "User Font 1")
+      #BLOCK_END
+   
+      #WHEN "1280x960" #BLOCK
+         @X_AFONDESC = LIST(-
+            SCOPE_OF_SETTINGS   = "SYSTEM",-
+            FONT_1    = LIST(FAMILY = "Times New Roman" ,FACE = "Bold"   ,POINT_SIZE = 24),-
+            COMMENT_1 = "User Font 1")
+      #BLOCK_END
+      
+      #OTHERWISE #BLOCK
+         @X_AFONDESC = LIST(-
+            SCOPE_OF_SETTINGS   = "SYSTEM",-
+            FONT_1    = LIST(FAMILY = "Times New Roman" ,FACE = "Bold"   ,POINT_SIZE = 28),-
+            COMMENT_1 = "User Font 1")
+      #BLOCK_END
+   #Case_End
+
+   #ERROR IGNORE
+   #DO READ_TEXT("/APL/'l_Arg:vt_Apl_Name'/PICT/VSFONT_U.TXT")
+   #ERROR STOP
+#BLOCK_END
+
+#ELSE #BLOCK
+   #CASE l_Arg:vt_Mon_Size
+      #WHEN "640X480" #BLOCK;   MICROSCADA FONT 8-10 
+         @X_AFONDESC = LIST(-
+            SCOPE_OF_SETTINGS   = "SYSTEM",-
+            NAME_1 = "-*-times-medium-r-*--18-*-*-*-*-*-iso8859-1",-
+            COMMENT_1 = "User Font 1")
+      #BLOCK_END
+     
+      #WHEN "960x720" #BLOCK;   MICROSCADA FONT 12-15
+         @X_AFONDESC = LIST(-
+            SCOPE_OF_SETTINGS   = "SYSTEM",-
+            NAME_1 = "-*-times-bold-r-*--24-*-*-*-*-*-iso8859-1",-
+            COMMENT_1 = "User Font 1")
+      #BLOCK_END
+      
+      #WHEN "1280x960" #BLOCK;   MICROSCADA FONT 16-20
+         @X_AFONDESC = LIST(-
+            SCOPE_OF_SETTINGS   = "SYSTEM",-
+            NAME_1    = "-*-times-bold-r-*--24-*-*-*-*-*-iso8859-1",-
+            COMMENT_1 = "User Font 1")
+      #BLOCK_END
+   
+      #OTHERWISE #BLOCK;   MICROSCADA FONT 20-25
+         @X_AFONDESC = LIST(-
+            SCOPE_OF_SETTINGS   = "SYSTEM",-
+            NAME_1    = "-*-times-bold-r-*--28-*-*-*-*-*-iso8859-1",-
+            COMMENT_1 = "User Font 1")
+      #BLOCK_END  
+   #CASE_END
+
+
+   #ERROR IGNORE
+   @S = STATUS
+   #DO READ_TEXT("/APL/'l_Arg:vt_Apl_Name'/PICT/'t_Old_Format_Ws'_U.FON")
+   #IF STATUS <> 0 #THEN #DO READ_TEXT("/APL/'l_Arg:vt_Apl_Name'/PICT/DEFAUL_U.FON")
+   #ERROR STOP
+#BLOCK_END
+
+#ERROR IGNORE
+#DO READ_TEXT("/APL/'l_Arg:vt_Apl_Name'/PICT/USER_FON.TXT")
+#ERROR STOP
+
+
+
+#if length(%x_sfondesc) > 0 #then #block ;User defined M-scope fonts found
+
+   @l_MFonts = list()
+   @l_MTexts = list()
+
+   #loop_with i = 1 .. 20
+      @t_Font = ""     
+      @t_Comment = ""
+      @t_Info = ""
+
+      #if %b_Vs_Native #then #block
+         @i_stat = status
+         #error ignore  
+         @l_Font = x_SFondesc:vfont_'i'
+         #error stop
+         #if status == 0 #then @t_Font = l_Font:vfamily + "," + l_Font:vface + "," + dec(l_Font:vpoint_size, 0) + ","
+      #block_end
+
+      #else #block
+         #error ignore  
+         @t_Font = x_SFondesc:vname_'i'
+         #error stop
+      #block_end
+
+      #if %t_Font <> "" #then #block
+      
+         #error ignore
+         @t_Comment = x_SFondesc:vcomment_'i'
+         @t_Info = x_SFondesc:vinfo_'i'
+         #error stop
+      
+         #if x_sFondesc:vscope_of_settings == "SYSTEM" #then #block
+            #set l_MTexts:vM'i'_Comment = %t_Comment
+            #set l_MTexts:vM'i'_Info = %t_Info
+         #block_end
+      
+         #if %b_Vs_Native #then #block
+            #set l_MFonts:vM'i'_'l_Arg:vt_Mon_Type'_'l_Arg:vt_Mon_Size' = %t_Font
+            
+            #if x_sFondesc:vscope_of_settings <> "SYSTEM" #then #block
+               #set l_MFonts:vM'i'_VS_LOCAL_'l_Arg:vt_Mon_Size'_COMMENT = %t_Comment
+               #set l_MFonts:vM'i'_VS_LOCAL_'l_Arg:vt_Mon_Size'_INFO = %t_Info
+            #block_end
+         #block_end
+         #else #block
+            #set l_MFonts:vM'i'_VS_REMOTE_'l_Arg:vt_Mon_Size' = %t_Font
+            #set l_MFonts:vM'i'_X_REMOTE_'l_Arg:vt_Mon_Size' = %t_Font
+            
+            #if x_sFondesc:vscope_of_settings <> "SYSTEM" #then #block
+               #set l_MFonts:vM'i'_VS_REMOTE_'l_Arg:vt_Mon_Size'_COMMENT = %t_Comment
+               #set l_MFonts:vM'i'_X_REMOTE_'l_Arg:vt_Mon_Size'_COMMENT = %t_Comment
+               #set l_MFonts:vM'i'_VS_REMOTE_'l_Arg:vt_Mon_Size'_INFO = %t_Info
+               #set l_MFonts:vM'i'_X_REMOTE_'l_Arg:vt_Mon_Size'_INFO = %t_Info
+            #block_end
+         #block_end
+      #block_end
+   #loop_end
+   
+   #if length(%l_MFonts) > 0 #then #block
+
+      #if x_sFondesc:vscope_of_settings == "SYSTEM" #then #block
+         @t_Start = %t_Fonts_Def_Section_Start + "SYSTEM"
+         @t_End = "SYSTEM" + %t_Fonts_Def_Section_End
+         
+         @t_Texts_Start = %t_Fonts_Def_Section_Start + "SYSTEM_TEXTS"
+         @t_Texts_End = "SYSTEM_TEXTS" + %t_Fonts_Def_Section_End
+      
+         @Gl_MTexts = do(read_text("sys_tool/FontSet_Return_Font_Definitions.scl"), %t_Texts_Start, %t_Texts_End, "M")
+      
+         #modify Gl_MTexts:v = %l_MTexts
+      
+         #if %i_Start > 0  and %i_Start <= %i_End #then #block ;i_Start, i_End in FontSet_Return_font_Definitions.scl
+            @v_tmp = %Gv_MFonts_Def(1 .. %i_Start -1)
+            @v_tmp = append(%v_tmp, dump(%Gl_MTexts))
+            @v_tmp = append(%v_tmp, %Gv_MFonts_Def(%i_End + 1 .. length(%Gv_MFonts_Def)))        
+            @Gv_MFonts_Def = %v_tmp         
+         #block_end
+         
+         #else #block
+            @v_tmp = append(%Gv_MFonts_Def, vector(%t_Texts_Start))
+            @v_tmp = append(%v_tmp, dump(%Gl_MTexts))
+            @v_tmp = append(%v_tmp, %t_Texts_End)         
+            @Gv_MFonts_Def = %v_tmp
+         #block_end
+      #block_end
+
+      #else #block
+         #if x_sFondesc:vscope_of_settings == "APPLICATION" #then #block
+            @t_Start = %t_Fonts_Def_Section_Start + %t_Apl_Prefix + l_Arg:vt_Apl_Name
+            @t_End = %t_Apl_Prefix + l_Arg:vt_Apl_Name + %t_Fonts_Def_Section_End
+         #block_end
+         
+         #else_if x_sFondesc:vscope_of_settings == "STATION" #then #block
+            @t_Start = %t_Fonts_Def_Section_Start + %t_Ws_Prefix + l_Arg:vt_Workstation
+            @t_End = %t_Ws_Prefix + l_Arg:vt_Workstation + %t_Fonts_Def_Section_End
+         #block_end
+      #block_end
+      
+      @Gl_MFonts = do(read_text("sys_tool/FontSet_Return_Font_Definitions.scl"), %t_Start, %t_End, "M")
+      
+      #modify Gl_MFonts:v = %l_MFonts
+
+      #if %i_Start > 0  and %i_Start <= %i_End #then #block
+         @v_tmp = %Gv_MFonts_Def(1 .. %i_Start -1)
+         @v_tmp = append(%v_tmp, dump(%Gl_MFonts))
+         @v_tmp = append(%v_tmp, %Gv_MFonts_Def(%i_End + 1 .. length(%Gv_MFonts_Def)))         
+         @Gv_MFonts_Def = %v_tmp         
+      #block_end
+      
+      #else #block
+         @v_tmp = append(%Gv_MFonts_Def, vector(%t_Start))
+         @v_tmp = append(%v_tmp, dump(%Gl_MFonts))
+         @v_tmp = append(%v_tmp, vector(%t_End))         
+         @Gv_MFonts_Def = %v_tmp
+      #block_end
+      
+      @i = write_text(%t_MFonts_Def_File, %Gv_MFonts_Def)
+   #block_end
+#block_end
+
+#if length(%x_afondesc) > 0 #then #block ;User defined U-scope fonts found
+
+   @l_UFonts = list()
+   @l_UTexts = list()
+
+   #loop_with i = 1 .. 20
+      @t_Font = ""     
+      @t_Comment = ""
+      @t_Info = ""
+
+      #if %b_Vs_Native #then #block
+         @i_stat = status
+         #error ignore  
+         @l_Font = x_AFondesc:vfont_'i'
+         #error stop
+         #if status == 0 #then @t_Font = l_Font:vfamily + "," + l_Font:vface + "," + dec(l_Font:vpoint_size, 0) + ","
+      #block_end
+
+      #else #block
+         #error ignore  
+         @t_Font = x_AFondesc:vname_'i'
+         #error stop
+      #block_end
+
+      #error ignore
+      @t_Comment = x_AFondesc:vcomment_'i'
+      @t_Info = x_AFondesc:vinfo_'i'
+      #error stop
+
+      #if %t_Font <> "" #then #block
+         #if %b_Vs_Native #then #block
+            #set l_UFonts:vU'i'_VS_LOCAL_'l_Arg:vt_Mon_Size' = %t_Font
+            #set l_UFonts:vU'i'_VS_LOCAL_'l_Arg:vt_Mon_Size'_COMMENT = %t_Comment
+            #set l_UFonts:vU'i'_VS_LOCAL_'l_Arg:vt_Mon_Size'_INFO = %t_Info
+         #block_end
+         #else #block
+            #set l_UFonts:vU'i'_VS_REMOTE_'l_Arg:vt_Mon_Size' = %t_Font
+            #set l_UFonts:vU'i'_VS_REMOTE_'l_Arg:vt_Mon_Size'_COMMENT = %t_Comment
+            #set l_UFonts:vU'i'_VS_REMOTE_'l_Arg:vt_Mon_Size'_INFO = %t_Info
+            #set l_UFonts:vU'i'_X_REMOTE_'l_Arg:vt_Mon_Size' = %t_Font
+            #set l_UFonts:vU'i'_X_REMOTE_'l_Arg:vt_Mon_Size'_COMMENT = %t_Comment
+            #set l_UFonts:vU'i'_X_REMOTE_'l_Arg:vt_Mon_Size'_INFO = %t_Info
+         #block_end
+      #block_end
+   #loop_end
+
+   #if length(%l_UFonts) > 0 #then #block
+
+      #if x_aFondesc:vscope_of_settings == "SYSTEM" #then #block
+         @t_Start = %t_Fonts_Def_Section_Start + "SYSTEM"
+         @t_End = "SYSTEM" + %t_Fonts_Def_Section_End
+      #block_end
+
+      #else_if x_aFondesc:vscope_of_settings == "APPLICATION" #then #block
+         @t_Start = %t_Fonts_Def_Section_Start + %t_Apl_Prefix + l_Arg:vt_Apl_Name
+         @t_End = %t_Apl_Prefix + l_Arg:vt_Apl_Name + %t_Fonts_Def_Section_End
+      #block_end
+      
+      #else_if x_aFondesc:vscope_of_settings == "STATION" #then #block
+         @t_Start = %t_Fonts_Def_Section_Start + %t_Ws_Prefix + l_Arg:vt_Workstation
+         @t_End = %t_Ws_Prefix + l_Arg:vt_Workstation + %t_Fonts_Def_Section_End
+      #block_end
+      
+      @Gl_UFonts = do(read_text("sys_tool/FontSet_Return_Font_Definitions.scl"), %t_Start, %t_End, "U")
+      
+      #modify Gl_UFonts:v = %l_UFonts
+
+      #if %i_Start > 0  and %i_Start <= %i_End #then #block
+         @v_tmp = %Gv_UFonts_Def(1 .. %i_Start -1)
+         @v_tmp = append(%v_tmp, dump(%Gl_UFonts))
+         @v_tmp = append(%v_tmp, %Gv_UFonts_Def(%i_End + 1 .. length(%Gv_UFonts_Def)))         
+         @Gv_UFonts_Def = %v_tmp         
+      #block_end
+      
+      #else #block
+         @v_tmp = append(%Gv_UFonts_Def, vector(%t_Start))
+         @v_tmp = append(%v_tmp, dump(%Gl_UFonts))
+         @v_tmp = append(%v_tmp, vector(%t_End))
+         @Gv_UFonts_Def = %v_tmp
+      #block_end
+      
+      @i = write_text(%t_UFonts_Def_File, %Gv_UFonts_Def)
+   #block_end
+#block_end
+
+@v_Monitors = vector()
+#error ignore
+@v_Monitors = upper_case(read_text("SYS_TOOL/Fontset_converted.txt"))
+#error stop
+@t_Current_Mon = upper_case(l_Arg:vt_Mon_Type + "_" + l_Arg:vt_Mon_Size + "_" + l_Arg:vt_Apl_Name + -
+                            "_" + l_Arg:vt_Workstation)
+
+@v_Monitors = append(%v_Monitors, vector(%t_Current_Mon))
+@i = write_text("SYS_TOOL/FontSet_Converted.txt", %v_Monitors)
+
+@i_stat = do(read_text("SYS_TOOL/msglog.scl"), "INFO", "Fonts converted succesfully for " + %t_Current_Mon)

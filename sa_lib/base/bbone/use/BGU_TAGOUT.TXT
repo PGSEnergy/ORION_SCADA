@@ -1,0 +1,608 @@
+; Function:    SAGR_TAGOUT:C
+; Version:     1.0 (Build 09.07.2009)                                                                                
+; Parameters:  command selector
+; Return data: depending on command
+; Description: SCIL-Interface with Tagout Class Database
+;----------------------------------------------------------------------------------------------------------------------------------------------------
+;Revision HistOry
+;DAte       Vers.    Author Description
+;09.07.2009 1.0      HoDa   - empty line after #then- statement removed, not detected in compiled mode (Line 359)
+;				    - missing replacement string in Get_Tagout_Id added
+;                           - Section construction in Set_Tag_Text was missing
+;23.04.2009 1.0      HoDa   final clean-up, ready to test
+;22.04.2009 1.0      HoDa   Get_Error_Msg read from SDB    
+;21.04.2009 1.0      HoDa   Delete Tagout event generation delayed for one second
+;21.03.2009 1.0      HoDa   Key generation moved fromVB to here because language issues 
+;28.01.2009 0.6      HoDa   special treatment for three-state switch
+;
+;----------------------------------------------------------------------------------------------------------------------------------------------------
+#argument tCommandSelector
+#local iIXTagoutInd=49, iIXTagoutLogInd = 50
+#local i,i1,j,k,t,v,l,x,v1,v2,iStatus,tScilErrorCode="",cot
+#local tLN,iIX,iDBHandle,iDBError =0,lReturn,lDBData=List()
+#local tActiveClass="Class",tSection,tTagoutID,tAttrName,tAttrValue,tAttrType,tAttrProp,tType,iPriority
+#local tMiscFunction,tOption="",tOwnerName="",vClassAttrNames=Vector()
+#local icPriorOV,inPriorOV,vPriorValues,vPriorTitles,vnPriorOV,vPriorQuant,vTagouts,vTagoutPriorValues
+#local vReprValues,vReprQuant,vReprTitles,icReprOV,inReprOV
+#local bLoggingEnabled=true,bHistoryEnabled=true,bEnableDebugging=sys:bdm>0
+
+;#if bEnableDebugging #then #error stop
+;#else 
+#error ignore
+;bEnableDebugging = false
+#if bEnableDebugging #then #block
+   t=""
+   #if argument_count> 1 #then -
+      #if data_type(argument(2))=="TEXT" #then t="_"+argument(2)
+   x=trace_begin("TRACE_TAGOUT_'tCommandSelector''t'.txt")
+#block_end
+
+;----------------------------- check arguments count and data type ----------------------------------------------------------------------------------
+#if argument_count<1 #then iDBError = 101
+#else #block
+   #case upper_case(tCommandSelector)
+      #when "MISC_FUNCTIONS" #block
+         #if argument_count<2 #then iDBError = 101
+         #else #block
+            #case upper_case(argument(2))
+               #when "NOTIFY_TIME"
+               #when "GET_DATE" 
+               #when "GET_TIME" 
+               #when "GET_ERRORMSG" -
+                  #if argument_count<3 #then iDBError = 101
+                  #else_if data_type(argument(3))<>"INTEGER" and data_type(argument(3))<>"TEXT" #then iDBError = 101
+               #otherwise iDBError = 102
+            #case_end
+         #block_end
+      #block_end
+      #when "EVENT_FUNCTIONS" #block
+         #if argument_count<2 #then iDBError = 101
+         #else #block
+            #case upper_case(argument(2))
+               #when "SET_TAGTEXT","SET_PRIORITY","SET_TAGREPR","RESET_TAGTEXT","RESET_PRIORITY","RESET_TAGREPR" -
+                  #if argument_count<3 #then iDBError = 101
+                  #else_if data_type(argument(3))<>"VECTOR" #then iDBError = 101
+               #otherwise iDBError = 102
+            #case_end 
+         #block_end
+      #block_end
+      #when "GET_NACTIVE_TAGOUTS","GET_TAGOUTS","GET_TAGOUT_NAMES","READ_TAGOUT_ATTRIBUTE_VALUE",-
+            "EDIT_TAGOUT_ATTRIBUTE_VALUE" -
+         #if argument_count<2 #then iDBError = 101
+         #else_if data_type(argument(2))<>"VECTOR" #then iDBError = 101
+      #when "GET_CLASS_ATTRIBUTES","GET_CLASS_ATTRIBUTE_POSTPROCESSING" -
+         #if argument_count<2 #then iDBError = 101
+         #else_if data_type(argument(2))<>"TEXT" #then iDBError = 101
+      #when "DELETE_TAGOUT","REMOVE_TAGOUT","ADD_EMPTY_TAGOUT" -
+         #if argument_count<3 #then iDBError = 101
+         #else_if data_type(argument(2))<>"VECTOR" or -
+                  data_type(argument(3))<>"TEXT" #then iDBError = 101
+      #when "GET_CLASS_ATTRIBUTE_PROPERTY" -
+         #if argument_count<3 #then iDBError = 101
+         #else_if data_type(argument(2))<>"TEXT" or -
+                  data_type(argument(3))<>"TEXT" #then iDBError = 101
+      #when "GET_CLASS","GET_CLASS_ACTIONMETHODS","GET_TAGOUT_ID" iDBError = 0
+      #otherwise iDBError = 102
+   #case_end
+#block_end
+
+;SDB
+;----------------------------- open Class database --------------------------------------------------------------------------------------------------
+#if iDBError == 0 #then #block
+
+   x= DATA_MANAGER("OPEN", "apl_/APL_Tagout.sdb")
+   #if x.status <> 0 #then iDBError = x.Status
+   #else #block
+      iDBHandle = x.handle
+      lDBData = DATA_MANAGER("GET", iDBHandle,"Classes","Names")  
+      #if lDBData.status == 0 #then v = lDBData.value  
+      #else iDBError = 114 
+      lDBData = DATA_MANAGER("GET", iDBHandle,"Classes","ActiveClass")  
+      #if lDBData.status == 0 #then i = lDBData.value
+      #else iDBError = 114 
+      #if iDBError == 0 #then -
+         #if i<= length(v) #then tActiveClass=v(i)
+         #else iDBError = 115
+   #block_end
+#block_end
+
+;Process database
+#if iDBError == 0 #then #block
+   #case upper_case(tCommandSelector)
+      #when "EVENT_FUNCTIONS" #block
+         #case upper_case(argument(2))
+            #when "SET_TAGTEXT","SET_PRIORITY","SET_TAGREPR" #block
+               v=argument(3)
+               tLN=v(1)
+               iIX=v(2)
+               #if application_object_exists(0,"IX",List(LN="'tLN'",IX='iIX')) and -
+                   application_object_exists(0,"IX",List(LN="'tLN'",IX='iIXTagoutInd'))   and -
+                   application_object_exists(0,"IX",List(LN="'tLN'",IX='iIXTagoutLogInd')) #then iDBError = 0
+               #else iDBError = 106
+            #block_end
+         #case_end 
+      #block_end
+   #case_end 
+#block_end
+
+;----------------------------- check logging  -------------------------------------------------------------------------------------------------------
+#if iDBError == 0 #then #block                                                                                                                       
+   lDBData = DATA_MANAGER("GET", iDBHandle,"Settings","LOGGING","bEnabled","Value")
+   #if lDBData.status == 0 #then bLoggingEnabled = lDBData.value ==1 
+   lDBData = DATA_MANAGER("GET", iDBHandle,"Settings","HISTORY","bEnabled","Value")
+   #if lDBData.status == 0 #then bHistoryEnabled = lDBData.value ==1 
+#block_end
+
+;----------------------------- Miscellaneous functions ----------------------------------------------------------------------------------------------
+#if upper_case(tCommandSelector)=="MISC_FUNCTIONS" #then #block
+   tMiscFunction = argument(2)
+   #if argument_count > 2 #then tOption = argument(3)
+   #case upper_case(tMiscFunction)
+      #when "NOTIFY_TIME" #block
+      #block_end
+      #when "GET_DATE" lReturn = date("FULL")
+      #when "GET_TIME" lReturn = tods        ;time of day with seconds
+      #when "GET_ERRORMSG" #block            ;get the error message from SDB
+         iDBError = 0
+         t="x110"
+         #if data_type(argument(3))=="INTEGER" #then t ="x"+dec(argument(3))
+         #else t="x"+argument(3)
+         lDBData = DATA_MANAGER("GET", iDBHandle,"StatusCode",t)  
+         #if lDBData.status == 0 #then lReturn = lDBData.value
+         #else iDBError = 110
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout: 'tCommandSelector'/'tMiscFunction', t='t', iDB Error = 'iDBError', Return Data = 'lReturn'")
+      #block_end
+      #otherwise iDBError = 102
+   #case_end 
+#block_end
+
+;----------------------------- Representation, Event and log generating functions -------------------------------------------------------------------
+#if iDBError == 0 #then #block
+
+   #if upper_case(tCommandSelector)=="EVENT_FUNCTIONS" #then #block
+      tMiscFunction = argument(2)
+      v=argument(3)
+      tLN=v(1)
+      iIX=v(2)
+      #if iIX == 11 #then iIX = 10
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout: 'tCommandSelector'/'tMiscFunction'")
+      #case upper_case(tMiscFunction)
+  
+;====================================================================================================================================================
+         #when "SET_TAGTEXT" #block
+            tSection = "'tLN':PIX'iIX'"
+            tAttrValue = argument(4)
+
+            icPriorOV = 'tLN':P'iIXTagoutInd'
+
+            ;search for last edited tag text 
+            lDBData = DATA_MANAGER("GET", iDBHandle,tSection,"TAGOUTS")
+            #if lDBData.status == 0 #then -
+               #if data_type(lDBData.value)=="VECTOR" #then vTagouts = lDBData.value
+               #else vTagouts=vector()
+            #else iDBError = 112
+            
+            #if length(vTagouts)>0 #then #block
+               i1 = 0
+               #loop_with i = 1 .. length(vTagouts)
+                  t = vTagouts(i)
+                  lDBData = DATA_MANAGER("GET", iDBHandle,tSection,t,"EDIT_TIME")
+                  #if lDBData.status ==0 #then x = lDBData.value
+                  #else x = 0
+                  #if x > i1 #then #block
+                     lDBData = DATA_MANAGER("GET", iDBHandle,tSection,t,"TAG_TEXT")
+                     #if lDBData.status ==0 #then tAttrValue = lDBData.value
+                  #block_end
+               #loop_end
+            #block_end
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout: 'tCommandSelector'/'tMiscFunction', Set Tag text to 'tAttrValue'")
+            #if 'tLN':PCX'iIXTagoutInd' <> tAttrValue #then - 
+               #set 'tLN':PCX'iIXTagoutInd' = tAttrValue
+         #block_end
+
+         #when "RESET_TAGTEXT" #block
+            v=argument(3)
+            tLN=v(1)
+            iIX=v(2)
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout: 'tCommandSelector'/'tMiscFunction'")
+            #set 'tLN':PCX'iIXTagoutInd' = ""
+         #block_end
+      
+;====================================================================================================================================================
+         #when "SET_PRIORITY" #block  ;
+            tSection = "'tLN':PIX'iIX'"
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout: 'tCommandSelector'/'tMiscFunction', Section ok")
+            lDBData = DATA_MANAGER("GET", iDBHandle,tActiveClass,"PRIORITY","TITLES")
+            #if lDBData.status == 0 #then vPriorValues = lDBData.value
+            #else iDBError = 112
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout: 'tCommandSelector'/'tMiscFunction', Read Prior.values ok")
+            lDBData = DATA_MANAGER("GET", iDBHandle,tActiveClass,"PRIORITY","QUANTIFIER")
+            #if lDBData.status == 0 #then vPriorQuant = lDBData.value
+            #else iDBError = 112
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout: 'tCommandSelector'/'tMiscFunction', Read Prior.quantifier ok")
+            icPriorOV = 'tLN':P'iIXTagoutInd'
+            #error continue
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout: 'tCommandSelector'/'tMiscFunction', Read old Prior.OV ok")
+           ;collect the priority state of all active tagouts
+            ;read in all active tagouts
+            lDBData = DATA_MANAGER("GET", iDBHandle,tSection,"TAGOUTS")
+            #if lDBData.status == 0 #then -
+               #if data_type(lDBData.value)=="VECTOR" #then vTagouts = lDBData.value
+               #else vTagouts=vector()
+            #else iDBError = 112
+    
+            @debug="inPriorOV='icPriorOV'"
+            #if length(vTagouts)==0 and icPriorOV <> 0 #then #set 'tLN':POV'iIXTagoutInd' = List(OV=0,OS=0,RT=clock,RM=0)
+            #if length(vTagouts)>0 #then #block
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout: 'tCommandSelector'/'tMiscFunction', Tagouts found")
+               #loop_with i = 1 .. length(vTagouts)
+                  t = vTagouts(i)
+                  lDBData = DATA_MANAGER("GET", iDBHandle,tSection,t,"PRIORITY")
+                  #if lDBData.status ==0 #then vTagoutPriorValues(i) = lDBData.value
+                  #else iDBError = 112
+               #loop_end
+       
+               vnPriorOV = vector() 
+               #loop_with i = 1 .. length(vTagoutPriorValues)         ;Position in vector, need to determine the weigth from the quantifier vector
+                  vnPriorOV(i) = vPriorQuant(find_element(vPriorValues,vTagoutPriorValues(i)))
+               #loop_end
+       
+               vnPriorOV = sum(remove_duplicates(vnPriorOV))
+               inPriorOV = vnPriorOV(1)
+               @debug="inPriorOV='inPriorOV'"
+
+              ;RT should come from date/time attribute
+               #set 'tLN':POV'iIXTagoutInd' = List(OV=inPriorOV,OS=0,RT=clock,RM=0)
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout: 'tCommandSelector'/'tMiscFunction', assign 'inPriorOV' to IX 'iIXTagoutInd'")
+            #block_end
+            #exec RefreshToList:E1
+         #block_end
+
+         #when "RESET_PRIORITY" #block  ;
+            tSection = "'tLN':PIX'iIX'"
+            icPriorOV = 'tLN':P'iIXTagoutInd'
+            #error continue
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout: 'tCommandSelector'/'tMiscFunction', Reset Prior.OV")
+            lDBData = DATA_MANAGER("GET", iDBHandle,tSection,"TAGOUTS")
+            #if lDBData.status == 0 #then -
+               #if data_type(lDBData.value)=="VECTOR" #then vTagouts = lDBData.value
+               #else vTagouts=vector()
+            #else vTagouts=vector()                                  ;no Tagouts found, consider that it was the last one which has been removed
+    
+            @debug="inPriorOV='icPriorOV'"
+            #if length(vTagouts)==0 and icPriorOV <> 0 #then #set 'tLN':POV'iIXTagoutInd' = List(OV=0,OS=0,RT=clock,RM=0)
+            #exec RefreshToList:E1
+         #block_end
+
+;====================================================================================================================================================
+         #when "SET_TAGREPR" #block  ;
+            tSection = "'tLN':PIX'iIX'"
+            tAttrValue = argument(4)        ;title value is used
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout: 'tCommandSelector'/'tMiscFunction', Section ok")
+            iDBError =0
+            #loop_with i=1..1
+               lDBData = DATA_MANAGER("GET", iDBHandle,tActiveClass,"TAG_REPR","TITLES")
+               #if lDBData.status == 0 #then vReprTitles = lDBData.value
+               #else #loop_exit
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout: 'tCommandSelector'/'tMiscFunction', Read Repr.titles ok")
+               lDBData = DATA_MANAGER("GET", iDBHandle,tActiveClass,"TAG_REPR","QUANTIFIER")
+               #if lDBData.status == 0 #then vReprQuant = lDBData.value
+               #else #loop_exit
+            
+               ;find the index 
+               inReprOV = vReprQuant(find_element(vReprTitles,tAttrValue))
+               #set 'tLN':PRI'iIXTagoutInd' = inReprOV
+   
+;;;men at work animation:      o|:-!  (mgr.)        d:-(  (worker)  
+;;               #if inReprOV ==10 #then #block
+;;                                                                                                                                                   #if bEnableDebugging #then cot=console_output(times+" Tagout: 'tCommandSelector'/'tMiscFunction', Man at work animation")
+;;                  #set 'tLN':PFI'iIXTagoutInd' = 0
+;;                  #exec sagr_tagout_maw:c (@ln = tLN)
+;;               #block_end
+               iDBError =0
+            #loop_end
+         #block_end
+         #when "RESET_TAGREPR" #block  ;
+            v=argument(3)
+            tLN=v(1)
+            iIX=v(2)
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout: 'tCommandSelector'/'tMiscFunction'")
+            #set 'tLN':PRI'iIXTagoutInd' = 0
+         #block_end
+         #otherwise iDBError = 102
+      #case_end 
+   #block_end
+#block_end
+
+;----------------------------- Class SCIL Database functions ----------------------------------------------------------------------------------------
+#if iDBError == 0 #then #block
+   #case upper_case(tCommandSelector)
+ 
+;====================================================================================================================================================
+      #when "GET_NACTIVE_TAGOUTS" #block
+         v=argument(2)
+         tLN=v(1)
+         iIX=v(2)
+         #if iIX == 11 #then iIX = 10
+         tSection = "'tLN':PIX'iIX'"
+      ;read number of tagouts
+         lDBData = DATA_MANAGER("GET", iDBHandle,tSection,"TAGOUTS")
+         #if lDBData.status == 0 #then -
+            #if data_type(lDBData.value)=="VECTOR" #then lReturn = length(lDBData.value)
+            #else lReturn = 0
+         #else lReturn = 0
+      #block_end
+ 
+;====================================================================================================================================================
+      #when "GET_TAGOUT_NAMES" #block            ;return all Tagout ID's
+         v=argument(2)
+         tLN=v(1)
+         iIX=v(2)
+         #if iIX == 11 #then iIX = 10
+         tSection = "'tLN':PIX'iIX'"
+      ;read number of tagouts
+         lDBData = DATA_MANAGER("GET", iDBHandle,tSection,"TAGOUTS")
+         #if lDBData.status == 0 #then lReturn = lDBData.value
+         #else lReturn = 123
+      #block_end
+ 
+;====================================================================================================================================================
+      #when "READ_TAGOUT_ATTRIBUTE_VALUE" #block
+         v=argument(2)
+         tLN=v(1)
+         iIX=v(2)
+         #if iIX == 11 #then iIX = 10
+         tSection = "'tLN':PIX'iIX'"
+         tTagoutID = argument(3)  
+         tAttrName = argument(4)
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout: READ_TAGOUT_ATTRIBUTE_VALUE, Section = 'tSection', Key = 'tTagoutID', Attr = 'tAttrName'")
+      ;read number of tagouts
+         lDBData = DATA_MANAGER("GET", iDBHandle,tSection,tTagoutID,tAttrName)
+         #if lDBData.status == 0 #then -
+            lReturn = lDBData.value
+         #else lReturn = 123
+      #block_end
+ 
+;====================================================================================================================================================
+      #when "ADD_EMPTY_TAGOUT" #block
+         v=argument(2)
+         tLN=v(1)
+         iIX=v(2)
+         #if iIX == 11 #then iIX = 10
+         tTagoutID = argument(3)
+         tOwnerName = argument(4)
+         tSection = "'tLN':PIX'iIX'"
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout: ADD_EMPTY_TAGOUT, Section = 'tSection', Key = 'tTagoutID'")
+;check if section already exist or it's the first time that this LNPIX get a tagout
+         lDBData = DATA_MANAGER("LIST_SECTIONS", iDBHandle)
+         #if lDBData.status == 0 #then #block
+            v = lDBData.sections
+            #if find_element(v,tSection) == 0 #then #block
+               lDBData = DATA_MANAGER("CREATE_SECTION", iDBHandle,tSection)
+               lDBData = DATA_MANAGER("PUT", iDBHandle,tSection,vector(),"TAGOUTS")
+            #block_end
+         #block_end
+;read number of tagouts
+         lDBData = DATA_MANAGER("GET", iDBHandle,tSection,"TAGOUTS")
+         #if lDBData.status == 0 #then #block
+            v = lDBData.value
+            v=append(v,tTagoutID)
+            lDBData = DATA_MANAGER("PUT", iDBHandle,tSection,length(v),"NACTIVETAGOUT")
+            lDBData = DATA_MANAGER("PUT", iDBHandle,tSection,List(OWNER="'tOwnerName'"),tTagoutID)
+            lDBData = DATA_MANAGER("PUT", iDBHandle,tSection,v,"TAGOUTS")
+            #if bLoggingEnabled #then -
+               #exec SAGR_TAGOUT_LOG:C (@tAction="ADD_TAGOUT",@tSection=tSection,@tTagoutID=tTagoutID,-
+                                        @tAttrName="OWNER",@tOI='tLN':POI'iIX')
+
+            #if bHistoryEnabled #then -
+               #exec SAGR_TAGOUT_HIST:C (@tAction="ADD_TAGOUT",@tSection=tSection,@tTagoutID=tTagoutID,-
+                                        @tAttrName="OWNER",@tOI='tLN':POI'iIX',@tLN=tLN)
+            #if lDBData.status <> 0 #then iDBError = 124
+         #block_end
+         #else iDBError = 122
+      #block_end
+ 
+;====================================================================================================================================================
+      #when "REMOVE_TAGOUT" #block                 ;for logging purpose
+         v=argument(2)
+         tLN=v(1)
+         iIX=v(2)
+         #if iIX == 11 #then iIX = 10
+         tTagoutID = argument(3)
+         tSection = "'tLN':PIX'iIX'"
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout: REMOVE_TAGOUT, Section = 'tSection', Key = 'tTagoutID'") 
+         lDBData = DATA_MANAGER("GET", iDBHandle,tActiveClass,"ATTRIBUTES","NAMES")
+         #if lDBData.status == 0 #then -
+            vClassAttrNames = lDBData.value 
+         #else iDBError = 112
+         
+         #if bLoggingEnabled #then -
+            #if iDBError == 0 #then -
+               #exec SAGR_TAGOUT_LOG:C (@tAction="REMOVE_ATTR",@tSection=tSection,@tTagoutID=tTagoutID,-
+                                        @vAttrNames=vClassAttrNames,@tOI='tLN':POI'iIX')
+         #if bHistoryEnabled #then -
+            #if iDBError == 0 #then -
+               #exec SAGR_TAGOUT_HIST:C (@tAction="REMOVE_ATTR",@tSection=tSection,@tTagoutID=tTagoutID,-
+                                        @vAttrNames=vClassAttrNames,@tOI='tLN':POI'iIX',@tLN=tLN)
+
+      #block_end
+      
+      #when "DELETE_TAGOUT" #block
+         v=argument(2)
+         tLN=v(1)
+         iIX=v(2)
+         #if iIX == 11 #then iIX = 10
+         tTagoutID = argument(3)
+         tSection = "'tLN':PIX'iIX'"
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout: DELETE_TAGOUT, Section = 'tSection', Key = 'tTagoutID'")
+         lDBData = DATA_MANAGER("GET", iDBHandle,tSection,tTagoutID,"OWNER")
+         tOwnerName = lDBData.VALUE
+         #if bLoggingEnabled #then -
+            #exec_after 1 SAGR_TAGOUT_LOG:C (@tAction="REMOVE_TAGOUT",@tSection=tSection,@tTagoutID=tTagoutID,-
+                                     @tAttrName=tOwnerName,@tOI='tLN':POI'iIX')
+
+         #if bHistoryEnabled #then -
+            #exec_after 1 SAGR_TAGOUT_HIST:C (@tAction="REMOVE_TAGOUT",@tSection=tSection,@tTagoutID=tTagoutID,-
+                                     @tAttrName=tOwnerName,@tOI='tLN':POI'iIX',@tLN=tLN)
+
+         lDBData = DATA_MANAGER("DELETE", iDBHandle,tSection,tTagoutID)
+
+      ;read number of tagouts
+         lDBData = DATA_MANAGER("GET", iDBHandle,tSection,"NACTIVETAGOUT")
+         i = lDBData.value - 1
+      
+         #if i==0 #then #block
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout: DELETE_TAGOUT, Section = 'tSection', Key = 'tTagoutID', last tagout removed")
+            #modify 'tLN':P'iIXTagoutInd'=list(OV=0,CX="",RI=0,FI=0) ;reset IX'iIXTagoutInd' attributes in case of last tagout removed
+            lDBData = DATA_MANAGER("DELETE_SECTION", iDBHandle,tSection)
+         #block_end
+         #else #block                                                                                                                                
+            lDBData = DATA_MANAGER("PUT", iDBHandle,tSection,i,"NACTIVETAGOUT")
+            lDBData = DATA_MANAGER("GET", iDBHandle,tSection,"TAGOUTS")
+            #if lDBData.status == 0 #then #block
+               v = lDBData.value
+               v=delete_element(v,find_element(v,tTagoutID))
+               lDBData = DATA_MANAGER("PUT", iDBHandle,tSection,v,"TAGOUTS")
+            #block_end
+            #if lDBData.status <> 0 #then iDBError = 122
+         #block_end
+      #block_end
+ 
+;====================================================================================================================================================
+      #when "EDIT_TAGOUT_ATTRIBUTE_VALUE" #block
+         v=argument(2)
+         tLN=v(1)
+         iIX=v(2)
+         #if iIX == 11 #then iIX = 10
+         tTagoutID = argument(3)
+         tSection = "'tLN':PIX'iIX'"
+         tAttrName = argument(4)
+         tAttrValue = argument(5)
+         #if tAttrName == "TAG_TEXT" #then #block
+            i = pack_time(year,month,day,hour,minute,second)
+            lDBData = DATA_MANAGER("PUT", iDBHandle,tSection,i,tTagoutID,"EDIT_TIME")
+         #block_end
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout: EDIT_TAGOUT_ATTRIBUTE_VALUE, Section = 'tSection', Key = 'tTagoutID', Attr = 'tAttrName', value = 'tAttrValue'")
+         lDBData = DATA_MANAGER("PUT", iDBHandle,tSection,tAttrValue,tTagoutID,tAttrName)
+         #if lDBData.status <> 0 #then iDBError = 124
+         #else #block
+            #if bLoggingEnabled #then -
+               #exec SAGR_TAGOUT_LOG:C (@tAction="EDIT_ATTR",@tSection=tSection,@tTagoutID=tTagoutID,-
+                                        @tAttrName=tAttrName,@tOI='tLN':POI'iIX')
+            #if bHistoryEnabled #then -
+               #exec SAGR_TAGOUT_HIST:C (@tAction="EDIT_ATTR",@tSection=tSection,@tTagoutID=tTagoutID,-
+                                        @tAttrName=tAttrName,@tOI='tLN':POI'iIX',@tLN=tLN)
+         #block_end
+      #block_end
+ 
+;===================================  Return the complete class definition ==========================================================================
+      #when "GET_CLASS" #block
+         lDBData = DATA_MANAGER("GET", iDBHandle,tActiveClass)
+         #if lDBData.status == 0 #then #block
+         ;first sort and then return as vector
+            v = lDBData.value                                                         ;data vector
+            lReturn = v
+         #block_end
+         #else iDBError = 111
+      #block_end
+
+;===================================  Return a list of action method definition =====================================================================
+      #when "GET_CLASS_ACTIONMETHODS" #block
+         lDBData = DATA_MANAGER("GET", iDBHandle,tActiveClass,"ATTRIBUTES","NAMES")
+         #if lDBData.status == 0 #then #block
+         ;filter out the action methods and then return as vector
+            v = lDBData.value                                                         ;names vector
+            lDBData = DATA_MANAGER("GET", iDBHandle,tActiveClass,"ATTRIBUTES","USED")
+            v1 = lDBData.value                                                        ;useability vector
+            v = pick(v,select(v1,">0"))                                               ;names vector with used flag set
+            v2= pick(v,select(v,"==""AM_*""","WILDCARDS"))
+            lReturn = v2
+         #block_end
+         #else iDBError = 112
+      #block_end
+ 
+;==================================== Genarate a unique ID for new Tagouts ==========================================================================
+      #when "GET_TAGOUT_ID" #block
+         t = edit(timems("FULL"),"collapse")
+         t = replace(t,"-","")
+         t = replace(t,":","")
+         t = replace(t,".","")
+         t = "ID" + t
+         lReturn = t    
+      #block_end
+
+;===================================  Attribute TITLES and NAMES ====================================================================================
+      #when "GET_CLASS_ATTRIBUTES" #block
+         tAttrName = argument(2)
+         lDBData = DATA_MANAGER("GET", iDBHandle,tActiveClass,"ATTRIBUTES",tAttrName)
+         #if lDBData.status == 0 #then #block
+         ;first sort and then return as vector
+            v = lDBData.value                                                         ;data vector
+            lDBData = DATA_MANAGER("GET", iDBHandle,tActiveClass,"ATTRIBUTES","USED")
+            v1 = lDBData.value                                                        ;useability vector
+            lDBData = DATA_MANAGER("GET", iDBHandle,tActiveClass,"ATTRIBUTES","ORDER")
+            v2 = lDBData.value                                                        ;order vector
+            v = pick(v,v2)                                                            ;data vector in order as in order vector indicated
+            v1= pick(v1,v2)                                                           ;useability vector in order as in order vector indicated
+            v = pick(v,select(v1,">0"))                                               ;data vector with used flag set
+            lReturn = v
+         #block_end
+         #else iDBError = 112
+      #block_end
+ 
+;==================================  only valid for type text =======================================================================================
+      #when "GET_CLASS_ATTRIBUTE_PROPERTY" #block
+         tAttrName = argument(2)
+         tAttrProp = argument(3)
+;data type check missing           
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout: GET_CLASS_ATTRIBUTE_PROPERTY, Attr = 'tAttrName', Attr.Prop. = 'tAttrProp'")        
+         lDBData = DATA_MANAGER("GET", iDBHandle,tActiveClass,tAttrName,tAttrProp)
+         #if lDBData.status == 0 #then #block
+            lReturn = lDBData.value
+         #block_end
+         #else iDBError = 112
+      #block_end
+ 
+;==================================  only valid for priority attribute ==============================================================================
+      #when "GET_CLASS_ATTRIBUTE_POSTPROCESSING" #block
+         tAttrName = argument(2)
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout: GET_CLASS_ATTRIBUTE_POSTPROCESSING, Attr = 'tAttrName'")        
+         lDBData = DATA_MANAGER("GET", iDBHandle,tActiveClass,tAttrName,"POSTPROCESSING")
+         #if lDBData.status == 0 #then #block
+            #if data_type(lDBData.value) == "LIST" #then -
+               #if length(list_attr(lDBData.value)) > 0 #then -
+                  #if lDBData.value.b_used #then -
+                     lReturn = lDBData.value
+                  #else lReturn = 0
+               #else lReturn = 0
+            #else lReturn = 0
+         #block_end
+         #else lReturn = 0
+      #block_end
+
+   #case_end
+
+  x = DATA_MANAGER("CLOSE", iDBHandle)
+#block_end
+
+iStatus=status
+#if iStatus <>0 #then #block
+   #if bEnableDebugging #then cot=console_output(times+" Tagout: 'tCommandSelector', SCIL error ['iStatus']")
+   #if bEnableDebugging #then x = trace_end
+   #return 999
+#block_end
+#else_if iDBError > 100 #then #block
+   cot=console_output(times+" Tagout: 'tCommandSelector', error code ['iDBError']")
+   #if bEnableDebugging #then x = trace_end
+   #return iDBError
+#block_end   
+#else #block
+   x=dump(lReturn)
+   t=""
+   #if argument_count> 1 #then -
+      #if data_type(argument(2))=="TEXT" #then t="_"+argument(2)
+   #if bEnableDebugging and length(x)>0 #then x=write_text("pict/trace_tagout_DumpReturnData_'tCommandSelector''t'.txt",dump(lReturn))
+   #if bEnableDebugging #then x = trace_end
+   #return lReturn
+#block_end   
+   

@@ -1,0 +1,11 @@
+; Command Procedure: SYS_SSSRT
+; Version: SYS 600 9.3
+; Description: This is command procedure for updating functionality of System Self Supervision at system startup
+; ---------------------------------------------------------------------------------------------------------------
+
+;check initialization status of SSS
+@b_Initialized = FALSE
+#if length(apl:bsv) > 40 #then #if data_type(apl:bsv41) == "LIST" #then @b_Initialized = TRUE
+
+;update functionality of SSS, if not yet initialized
+#if not(%b_Initialized) #then #do read_text("SYS_TOOL/SSS_Update.scl")

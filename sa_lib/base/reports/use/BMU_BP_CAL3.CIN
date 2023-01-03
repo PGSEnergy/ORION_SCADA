@@ -1,0 +1,58 @@
+; Function:    BMU_BP_CAL3:C
+; Version:     3.0 (Build 23.02.2012)
+; Parameters:  t_ObjectName 
+;              T1 - start time
+; Return data: none
+; Description: Calculate period values (Part 3), defines 
+;              period values out from sampled values when
+;              sampling history is stored to db
+; Note! Only one period can be calculated at the time
+;-------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;-------------------------------------------------------------------------------
+#local i, i_Status = status, cot , trash ,-
+       t_Instruction = "", i_InstructionValue = 0, i_ObjectValue = 0, i_SampleValue = 0
+#error ignore
+
+;*** update period values
+#if application_object_exists(0,"D",%t_ObjectName) #then #block
+   @T1 = %T1
+   @T2 = %T1 + (%l_ReportObject.BP - %l_ReportObject.SP)
+   #if BMU_SP_IND:CCS==1 #then #do BMU_SP_IND:CCP
+   #else #do BMU_SP_IND:C
+   
+   ;*** read sampled values from DB ,return %Data used in DO instruction
+   @Data_ID = %t_ObjectName
+   #if BMU_SP_READ:CCS==1 #then #do BMU_SP_READ:CCP
+   #else #DO BMU_SP_READ:C
+
+   #if application_object_exists(0,"D","'t_ObjectName''YE1'") #then #block
+      #if 't_ObjectName''YE1':DLR < 't_ObjectName''YE1':DHR #then -
+         #set 't_ObjectName''YE1':DLR = 't_ObjectName''YE1':DHR
+   
+      t_Instruction = 't_ObjectName''YE1':DIN
+      #IF t_Instruction > "" #then #block
+         i_InstructionValue = 't_Instruction'
+         #set 't_ObjectName''YE1':DOV(%IP1..%IP2) = i_InstructionValue
+         #if get_status('t_ObjectName''YE1':DOV(%IP1)) == 1022 #then #block
+            #set 't_ObjectName''YE1':DOS(%IP1..%IP2) = 10
+            #set 't_ObjectName''YE1':DOV = 0
+         #block_end
+         #else #set 't_ObjectName''YE1':DOV = i_Instructionvalue
+         #set 't_ObjectName''YE1':DRT = clock
+      #block_end
+      #else #block
+         #set 't_ObjectName''YE1':DOS(%IP1..%IP2) = 10
+         #set 't_ObjectName''YE1':DRT = CLOCK
+      #block_end
+   #block_end
+   #else -
+      cot = console_output("BMU_BP_CAL3:C - Data Object 't_ObjectName''YE1':D missing","E","MREP")            
+#block_end
+#else cot = console_output("BMU_BP_CAL3:C - Data Object 't_ObjectName':D missing","E","MREP")            
+
+i_Status = status
+#if i_Status <> 0 #then -
+      cot = console_output("BMU_BP_CAL3:C - SCIL Error='i_Status' - Report Object 't_ObjectName' - Instruction='t_Instruction'","E","MREP") 
+

@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<NGT>
+  <Header>
+    <ModelInfo value="EventAndActionSpecifications" />
+    <ModelVersion value="1.3.0.0" />
+    <PersistencyVersion value="1.0.0.0" />
+  </Header>
+  <DomModel>
+    <Collection name="Root" type="t0" id="0">
+      <Simple name="Capacity" value="8" />
+      <Items>
+        <Reference name="item" id="1" />
+        <Reference name="item" id="2" />
+        <Reference name="item" id="3" />
+        <Reference name="item" id="4" />
+        <Reference name="item" id="5" />
+        <Reference name="item" id="6" />
+      </Items>
+    </Collection>
+    <Complex name="item" type="t1" id="1">
+      <Simple name="Description" value="Raised when the component is clicked." />
+      <Simple name="EntityId" value="338eea90-fe1f-4366-88e9-f0595940860b" />
+      <Simple name="Name" value="click" />
+      <Simple name="ShowInUI" value="True" />
+      <Simple name="ContentVersion" value="1.0.0.0" />
+    </Complex>
+    <Complex name="item" type="t1" id="2">
+      <Simple name="Description" value="Raised when the mouse enters the component." />
+      <Simple name="EntityId" value="88878cb5-1e48-4188-980b-c1eb7b4089c2" />
+      <Simple name="Name" value="mouseenter" />
+      <Simple name="ShowInUI" value="False" />
+      <Simple name="ContentVersion" value="1.0.0.0" />
+    </Complex>
+    <Complex name="item" type="t1" id="3">
+      <Simple name="Description" value="Raised when the mouse leaves the component." />
+      <Simple name="EntityId" value="1a94a0c9-af26-4915-a00a-99b9ddcf5319" />
+      <Simple name="Name" value="mouseleave" />
+      <Simple name="ShowInUI" value="False" />
+      <Simple name="ContentVersion" value="1.0.0.0" />
+    </Complex>
+    <Complex name="item" type="t1" id="4">
+      <Simple name="Description" value="Raised when the mouse is pressed on the component." />
+      <Simple name="EntityId" value="564ac861-066f-425d-b7bb-ed5d892599fc" />
+      <Simple name="Name" value="mousedown" />
+      <Simple name="ShowInUI" value="False" />
+      <Simple name="ContentVersion" value="1.0.0.0" />
+    </Complex>
+    <Complex name="item" type="t1" id="5">
+      <Simple name="Description" value="Raised when the mouse is released on the component." />
+      <Simple name="EntityId" value="faf1c54f-9bdc-49d6-8d92-97a79248d537" />
+      <Simple name="Name" value="mouseup" />
+      <Simple name="ShowInUI" value="False" />
+      <Simple name="ContentVersion" value="1.0.0.0" />
+    </Complex>
+    <Complex name="item" type="t1" id="6">
+      <Simple name="Description" value="Raised when the component is right clicked." />
+      <Simple name="EntityId" value="5445e550-007f-44d6-a3c9-4b23353f96e5" />
+      <Simple name="Name" value="contextmenu" />
+      <Simple name="ShowInUI" value="False" />
+      <Simple name="ContentVersion" value="1.0.0.0" />
+    </Complex>
+    <Types>
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.Diagram.API.Model.Events.IEventSpecification, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t0" />
+      <Type value="ABB.NGT.Domain.Diagram.Implementation.Model.Events.EventSpecification, ABB.NGT.Domain.Diagram.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t1" />
+    </Types>
+  </DomModel>
+</NGT>

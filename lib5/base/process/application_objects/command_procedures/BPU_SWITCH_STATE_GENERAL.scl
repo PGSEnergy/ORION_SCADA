@@ -1,0 +1,882 @@
+;Function: BPU_SWITCH_STATE_GENERAL:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_switch_state_general.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute),  search_result, session number of control dialog, name of workstation
+;Return data:
+;Description: Calculates state of main tab and messages related to the object
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_Objects, i_session, l_connection_state
+#local i, t_Attr, v_Attrs
+#local v_messages = vector(), i_count = 0, b_open_enabled = true, b_close_enabled = true, b_disable_both_directions = false
+#local i_sta_LR_Authorized, l_capabilities = list()
+#local t_LN = l_object_info.p_object_ln, l_WP_Auth = list(), i_type, v_reasons, t_attribute, t_control_point
+#local l_value_convention = list(), t_value, t_indication_value = "", i_Val, l_user_interlocking, s, i_tmp_number, t_tmp_ln, i_tmp_ix
+#local l_result = list(OPEN_ENABLED = true, CLOSE_ENABLED = true, MESSAGES = vector()), t_procedure = ""
+#local l_lr_check = list, l_alarm, l_counter, l_cdm_actual_value, i_Auth_Level, v_inhit_reasons = vector, b_bay_mlt_allows = false, t_bay_ln, i_bay_ix
+#local b_sta_lr_allows, b_bay_sr_allows, b_sw_sr_allows
+#local l_data_points = list(-
+   SysIntCls = list(),-
+   SysIntOpn = list(),-
+   SysIntReason = list(),-
+   allow_close = list(),-
+   allow_open = list(),-
+   SwLrInh = list(),-
+   BayLrInh = list(),-
+   StaLrInh = list(),-
+   AutorecMode = list(),-
+   SysUb = list(),-
+   SysCb = list(),-
+   SysAb = list(),-
+   SysHb = list(),-
+   SysPb = list(),-
+   SysXb = list(),-
+   switch_open_close_command = list(),-
+   forced_clear_pending_selections_command = list(),-
+   Tagout = list(),-
+   user_authorized = list())
+
+#local l_cdm_default_value = list(-
+   data_quality = 196608,-
+   timestamp = list())
+   
+#local l_cdm_authority = list(-
+   control_permitted = true,-
+   level_permitted = true,-
+   control_inhibit_reason = vector())
+   
+#local l_default_capabilities = list(-
+   Basic = list(-
+      DATAPOINTS = vector(-
+         "switch_position"),-
+      AUTHORIZED = TRUE),-
+   Operation = list(-
+      DATAPOINTS = vector(-
+         "switch_open_close_command"),-
+      AUTHORIZED = FALSE))
+   
+#local v_control_inhibit_reasons = vector
+
+#local l_ctrl_inhibit_reason = list(-
+   switch_position = list(-
+      control_point = "switch_open_close_command",-
+      inhibit_reasons = vector()),-
+   forced_clear_pending_selections = list(-
+      control_point = "forced_clear_pending_selections_command",-
+      inhibit_reasons = vector()))
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found
+#local t_Redirect_Proc = "APLMOD5_BPU_SWITCH_STATE_GENERAL"
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block
+   #if data_type(%REDIRECTED)=="NONE" #then #block
+      #if 't_Redirect_Proc':CIU == 1 #then #block
+         @REDIRECTED = true
+         i_ArgCnt = argument_count
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP"
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"
+         #loop_with i_arg_loop = 1 .. i_ArgCnt
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"
+         #loop_end
+         #return 't_Redirect_Command' ;;;;;
+      #block_end
+   #block_end
+   #else #delete REDIRECTED:V
+#block_end
+;**************************************************************************************************
+;MAIN START
+
+;define value convention for process data
+t_procedure =  l_object_info.type_info.command_procedures.get_indications_switch
+l_value_convention = do('t_procedure':c, l_object_info, l_Objects)
+
+;indication not in use or switch state off
+#if l_connection_state.i_connection_ss == -1 or l_connection_state.i_connection_iu == -1 #then #block
+    i_count = i_count + 1
+   v_messages(i_count) = translation("Indication not in use (IU) or switch state (SS) is off")
+#block_end
+
+;indication state
+#if not l_connection_state.indication_missing #then #block
+   l_capabilities = merge_attributes(l_capabilities, list(basic = l_default_capabilities.basic))
+   #if not (l_connection_state.i_connection_ss == -1 or l_connection_state.i_connection_iu == -1) #then #block
+      #if l_connection_state.i_connection_os < 10 #then #block
+         i_count = i_count + 1
+         v_messages(i_count) = translation("Object state: ") + 't_LN':psx'l_Objects.indication_db_ix'
+         #if attribute_exists(l_value_convention.position_indication, "ov_'l_connection_state.indication_state'") #then -
+            t_indication_value = l_value_convention.position_indication.ov_'l_connection_state.indication_state'
+         #else t_indication_value = "NOT_DEFINED"
+         #case t_indication_value
+            #when "OPEN" #block
+               b_open_enabled = false 
+            #block_end
+            #when "CLOSED" #block
+               b_close_enabled = false
+            #block_end
+            #when "INTERMEDIATE" #block
+               b_disable_both_directions = true
+            #block_end
+            #when "FAULTY" #block
+               b_disable_both_directions = true
+            #block_end
+            #when "NOT_DEFINED" #block
+               i_count = i_count + 1
+               v_messages(i_count) = translation("Object state not supported")
+               b_disable_both_directions = true
+               v_control_inhibit_reasons = append(-
+                  v_control_inhibit_reasons, list(value = 0, custom_value = 1001, custom_text = v_messages(i_count)))
+            #block_end
+         #case_end
+      #block_end
+      #else #block
+         i_count = i_count + 1
+         v_messages(i_count) = translation("Object status: Not sampled")
+         b_disable_both_directions = true         
+         v_control_inhibit_reasons = append(-
+            v_control_inhibit_reasons, list(value = 0, custom_value = 1002, custom_text = v_messages(i_count)))
+      #block_end
+   #block_end
+   #else #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Object is not in use or switch state is off")
+   #block_end
+   
+   ;not connected to process
+   #if not (l_connection_state.o_connection_ss == 1 and l_connection_state.o_connection_un == 1) and -
+   not (l_connection_state.i_connection_ss == 1 and l_connection_state.i_connection_un == 1) #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Object is simulated")
+   #block_end
+#block_end
+#else #block
+   i_count = i_count + 1
+   v_messages(i_count) = translation("Indication object(s) missing")
+   b_disable_both_directions = true
+   v_control_inhibit_reasons = append(-
+      v_control_inhibit_reasons, list(value = 0, custom_value = 1003, custom_text = v_messages(i_count)))
+#block_end
+
+;workplace authority
+l_WP_Auth = do(BPU_WP_AUTHORITY:C)
+#if not l_WP_Auth.allowed #then #block
+   i_count = i_count + 1
+   v_messages(i_count) = l_WP_Auth.error_message
+   b_disable_both_directions = true
+   v_control_inhibit_reasons = append(-
+      v_control_inhibit_reasons, list(value = 0, custom_value = 1004, custom_text = v_messages(i_count)))
+#block_end
+
+;multilevel control
+#if attribute_exists(l_objects, "bay_multilevel_control_ix") #then #block
+   t_bay_ln = l_objects.bay_multilevel_control_ln
+   i_bay_ix = l_objects.bay_multilevel_control_ix
+   #if 't_bay_ln':pos'i_bay_ix' <> 10 #then -
+      b_bay_mlt_allows = ('t_bay_ln':pov'i_bay_ix' == 1)
+#block_end
+
+;Bay S/R switch
+b_bay_sr_allows = true
+#if attribute_exists(l_objects, "bay_op_object_ln") #then #block
+   t_bay_ln = l_objects.bay_op_object_ln
+   #if 't_bay_ln':pos'l_objects.bay_op_object_ix' <> 10 #then #block
+      #if ('t_bay_ln':pov'l_objects.bay_op_object_ix' == 1 and apl:bsv(3) == 0) or ('t_bay_ln':pov'l_objects.bay_op_object_ix' == 0 and apl:bsv(3) == 1) #then b_bay_sr_allows = false
+   #block_end
+#block_end
+
+;Switch S/R switch
+b_sw_sr_allows = true
+#if attribute_exists(l_objects, "sw_locsta_ix") #then #block
+   #if 't_LN':pos'l_objects.sw_locsta_ix' <> 10 #then #block
+      #if ('t_LN':pov'l_objects.sw_locsta_ix' == 1 and apl:bsv(3) == 0) or ('t_LN':pov'l_objects.sw_locsta_ix' == 0 and apl:bsv(3) == 1) #then b_sw_sr_allows = false
+   #block_end
+#block_end
+
+#if not b_bay_mlt_allows #then #block
+   ;Station L/R switch
+   b_sta_lr_allows = true
+   #if not(((b_bay_sr_allows and attribute_exists(l_objects, "bay_op_object_ln")) or (b_sw_sr_allows and attribute_exists(l_objects, "sw_locsta_ix"))) and apl:bsv(3) == 1) #then #block
+      l_cdm_actual_value = merge_attributes(l_cdm_default_value, list(value = false, timestamp = sys_time))
+      l_lr_check = do(bpu_resolve_sta_lr_authority:c, l_Objects, v_messages, i_count, b_disable_both_directions)
+      #if data_type(l_lr_check) == "LIST" #then #block
+         #if attribute_exists(l_lr_check, "count") and attribute_exists(l_lr_check, "messages") and attribute_exists(l_lr_check, "disable_all") #then #block
+            i_count = l_lr_check.count
+            v_messages = l_lr_check.messages
+            b_disable_both_directions = l_lr_check.disable_all         
+            l_cdm_actual_value = merge_attributes(l_cdm_actual_value, list(value = l_lr_check.disable_all))
+            #if l_lr_check.lr_message.custom_value <> 0 #then #block
+               l_cdm_authority.level_permitted = false
+               v_control_inhibit_reasons = append(-
+                  v_control_inhibit_reasons, l_lr_check.lr_message)
+               b_sta_lr_allows = false
+            #block_end
+         #block_end
+      #block_end
+      l_data_points.StaLrInh = l_cdm_actual_value
+   #block_end
+   
+   ;Bay L/R switch
+   l_cdm_actual_value = merge_attributes(l_cdm_default_value, list(value = false, timestamp = sys_time))
+   l_lr_check = do(bpu_resolve_bay_lr_authority:c, l_Objects, l_value_convention, v_messages, i_count, b_disable_both_directions)
+   #if data_type(l_lr_check) == "LIST" #then #block
+      #if attribute_exists(l_lr_check, "count") and attribute_exists(l_lr_check, "messages") and attribute_exists(l_lr_check, "disable_all") #then #block
+         i_count = l_lr_check.count
+         v_messages = l_lr_check.messages
+         b_disable_both_directions = l_lr_check.disable_all
+         l_cdm_actual_value = merge_attributes(l_cdm_actual_value, list(value = l_lr_check.disable_all))      
+         #if l_lr_check.lr_message.custom_value <> 0 #then #block
+            l_cdm_authority.level_permitted = false
+            v_control_inhibit_reasons = append(-
+               v_control_inhibit_reasons, l_lr_check.lr_message)
+         #block_end
+      #block_end
+   #block_end
+   l_data_points.BayLrInh = l_cdm_actual_value
+   
+   ;Bay S/R switch
+   #if not((b_sta_lr_allows or (b_sw_sr_allows and attribute_exists(l_objects, "sw_locsta_ix"))) and apl:bsv(3) == 1) #then #block
+      #if not b_bay_sr_allows #then #block
+         i_count = i_count + 1
+         v_messages(i_count) = translation("Bay operator place switch inhibits control")
+         b_disable_both_directions = true
+         l_cdm_authority.level_permitted = false
+         v_control_inhibit_reasons = append(-
+            v_control_inhibit_reasons, list(value = 0, custom_value = 1050, custom_text = v_messages(i_count)))
+      #block_end
+   #block_end
+   
+   ;Switch S/R switch
+   #if not((b_sta_lr_allows or (b_bay_sr_allows and attribute_exists(l_objects, "bay_op_object_ln"))) and apl:bsv(3) == 1) #then #block
+      #if not b_sw_sr_allows #then #block
+         i_count = i_count + 1
+         v_messages(i_count) = translation("Switch S/R switch inhibits control")
+         b_disable_both_directions = true
+         l_cdm_authority.level_permitted = false
+         v_control_inhibit_reasons = append(-
+            v_control_inhibit_reasons, list(value = 0, custom_value = 1018, custom_text = v_messages(i_count)))
+      #block_end
+   #block_end
+#block_end
+
+;logical node L/R switch
+#if attribute_exists(l_objects, "sw_loc_ix") #then #block
+   #if 't_LN':pos'l_objects.sw_loc_ix' <> 10 #then #block
+      i_val = 't_LN':pov'l_objects.sw_loc_ix'
+      #if attribute_exists(l_value_convention.logical_node_loc, "ov_'i_val'") #then t_value = l_value_convention.logical_node_loc.ov_'i_val'
+      #else t_value = "NOT_DEFINED"
+      #if t_value == "LOCAL" #then #block
+         i_count = i_count + 1
+         b_disable_both_directions = true
+         l_cdm_authority.level_permitted = false
+         v_control_inhibit_reasons = append(-
+            v_control_inhibit_reasons, list(value = 2))
+      #block_end
+   #block_end
+#block_end
+
+;control object missing
+#if l_connection_state.control_missing #then #block
+   i_count = i_count + 1
+   v_messages(i_count) = translation("Control objects missing")
+   b_disable_both_directions = true
+   v_control_inhibit_reasons = append(-
+      v_control_inhibit_reasons, list(value = 0, custom_value = 1019, custom_text = v_messages(i_count)))
+#block_end
+
+;auxiliary plug disconnected
+#if attribute_exists(l_objects, "aux_plug_ix") #then #block
+   #if 't_LN':pos'l_objects.aux_plug_ix' <> 10 #then #block
+      #if 't_LN':pov'l_objects.aux_plug_ix' == 0 #then #block
+         i_count = i_count + 1
+         v_messages(i_count) = translation("Auxiliary plug not connected")
+         b_disable_both_directions = true        
+         v_control_inhibit_reasons = append(-
+            v_control_inhibit_reasons, list(value = 0, custom_value = 1020, custom_text = v_messages(i_count)))
+      #block_end
+   #block_end
+   #else #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Auxiliary plug not sampled")
+      b_disable_both_directions = true      
+         v_control_inhibit_reasons = append(-
+            v_control_inhibit_reasons, list(value = 0, custom_value = 1021, custom_text = v_messages(i_count)))
+   #block_end
+#block_end
+
+;user not authorized
+l_cdm_actual_value = merge_attributes(l_cdm_default_value, list(value = true, timestamp = sys_time))
+#if attribute_exists( l_object_info, "authorization_group") #then #block
+   #if not do(bpu_user_authorized:c, l_object_info, 1) #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Not authorized to control")
+      b_disable_both_directions = true
+      l_cdm_authority.control_permitted = false
+      l_cdm_actual_value = merge_attributes(l_cdm_actual_value, list(value = false))      
+      v_control_inhibit_reasons = append(-
+         v_control_inhibit_reasons, list(value = 0, custom_value = 1022, custom_text = v_messages(i_count)))
+   #block_end
+#block_end
+l_data_points.user_authorized = l_cdm_actual_value
+
+;Under command
+#if l_object_info.motorized #then #block
+   #if attribute_exists(l_objects, "cmd_event_ix") #then #block
+      #if 't_LN':pos'l_objects.cmd_event_ix' <> 10 #then #block
+         #if 't_LN':pov'l_objects.cmd_event_ix' == 1 #then #block
+            i_count = i_count + 1
+            v_messages(i_count) = translation("Object is under command")
+            b_disable_both_directions = true
+            #if attribute_exists(l_ctrl_inhibit_reason, "switch_position") #then -
+                  l_ctrl_inhibit_reason.switch_position.inhibit_reasons = append(-
+                     l_ctrl_inhibit_reason.switch_position.inhibit_reasons, list(value = 26))         
+         #block_end
+      #block_end
+   #block_end
+#block_end
+
+#if not l_connection_state.indication_missing and not l_connection_state.control_missing #then #block
+
+   ;substituted, internal
+   #if l_connection_state.i_connection_su == 1 #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Values substituted by control application")
+   #block_end
+
+   ;substituted, external
+   #if l_connection_state.i_connection_sb == 1 #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Values substituted by control device")
+   #block_end
+   
+   ;test mode
+   #if l_connection_state.i_connection_tm == 1 #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Object is in Test mode")
+      b_disable_both_directions = true      
+      v_control_inhibit_reasons = append(-
+         v_control_inhibit_reasons, list(value = 0, custom_value = 1023, custom_text = v_messages(i_count)))
+   #block_end
+   
+   ;discrepancy in position indication objects (if input objects not all in same state)
+   #if l_connection_state.i_connection_ss == -1 or l_connection_state.i_connection_un == -1 #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Discrepancy in indication objects")
+      b_disable_both_directions = true      
+      v_control_inhibit_reasons = append(-
+         v_control_inhibit_reasons, list(value = 0, custom_value = 1024, custom_text = v_messages(i_count)))
+   #block_end
+
+   #if l_object_info.motorized #then #block
+      ;discrepancy in command objects (if output objects not all in same state)
+      #if l_connection_state.o_connection_ss == -1 or l_connection_state.o_connection_un == -1 #then #block
+         i_count = i_count + 1
+         v_messages(i_count) = translation("Discrepancy in command objects")
+         b_disable_both_directions = true
+         v_control_inhibit_reasons = append(-
+            v_control_inhibit_reasons, list(value = 0, custom_value = 1025, custom_text = v_messages(i_count)))
+      #block_end
+      #else #block
+         ;object not controllable
+         #if not (l_connection_state.o_connection_ss == 1 and l_connection_state.o_connection_un == 1) and -
+          (l_connection_state.i_connection_ss == 1 and l_connection_state.i_connection_un == 1) #then #block
+            i_count = i_count + 1
+            v_messages(i_count) = translation("Device not remotely controllable")
+            b_disable_both_directions = true         
+            v_control_inhibit_reasons = append(-
+            v_control_inhibit_reasons, list(value = 0, custom_value = 1026, custom_text = v_messages(i_count)))
+         #block_end
+      #block_end
+
+      ;indication not connected to process
+      #if (l_connection_state.o_connection_ss == 1 and l_connection_state.o_connection_un == 1) and -
+      not (l_connection_state.i_connection_ss == 1 and l_connection_state.i_connection_un == 1) #then #block
+         i_count = i_count + 1
+         v_messages(i_count) = translation("Indication not connected to process")
+         b_disable_both_directions = true      
+         v_control_inhibit_reasons = append(-
+            v_control_inhibit_reasons, list(value = 0, custom_value = 1027, custom_text = v_messages(i_count)))
+      #block_end
+   #block_end
+#block_end
+
+#if not l_object_info.motorized #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Device not controllable")
+      b_disable_both_directions = true      
+      v_control_inhibit_reasons = append(-
+         v_control_inhibit_reasons, list(value = 0, custom_value = 1028, custom_text = v_messages(i_count)))
+#block_end
+#else #block
+   l_capabilities = merge_attributes(l_capabilities, list(operation = l_default_capabilities.operation))
+   l_capabilities.operation.authorized = l_data_points.user_authorized.value
+   
+   ;command objects not connected to process
+   #if (l_connection_state.o_connection_ss == 0 or l_connection_state.o_connection_un == 0) and -
+    (l_connection_state.i_connection_ss == 1 and l_connection_state.i_connection_un == 1) #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Control objects not connected to process")
+      b_disable_both_directions = true      
+      v_control_inhibit_reasons = append(-
+         v_control_inhibit_reasons, list(value = 0, custom_value = 1029, custom_text = v_messages(i_count)))
+   #block_end
+
+   l_cdm_actual_value = merge_attributes(l_cdm_default_value, list(value = false, timestamp = sys_time))
+   ;control blocked
+   #if l_object_info.motorized and not l_connection_state.control_missing #then #block
+      #if l_connection_state.o_connection_ub == 1 #then #block
+         i_count = i_count + 1
+         v_messages(i_count) = translation("Control blocked")
+         b_disable_both_directions = true
+         l_cdm_actual_value.value = true         
+         v_control_inhibit_reasons = append(-
+            v_control_inhibit_reasons, list(value = 0, custom_value = 1030, custom_text = v_messages(i_count)))
+      #block_end
+   #block_end
+   l_data_points.SysCb = l_cdm_actual_value
+
+   ;check the other section of the three-state switch
+   #if l_object_info.switching_device_type == "Q3" and not l_connection_state.indication_missing #then #block
+      #if l_connection_state.i_connection_ss < 10 #then #block
+         ;if other switch section not open
+         #if l_value_convention.position_indication.ov_'l_connection_state.indication2_state' <> "OPEN" #then #block
+            ;earth switch section not open (free)
+            #if l_object_info.switch_section == 1 #then #block
+               i_count = i_count + 1
+               v_messages(i_count) = translation("Earth switch section not open")
+               b_disable_both_directions = true               
+               v_control_inhibit_reasons = append(-
+                  v_control_inhibit_reasons, list(value = 0, custom_value = 1031, custom_text = v_messages(i_count)))
+            #block_end
+            ;disconnector section not open
+            #else #block
+               i_count = i_count + 1
+               v_messages(i_count) = translation("Disconnector section not open")
+               b_disable_both_directions = true               
+               v_control_inhibit_reasons = append(-
+                  v_control_inhibit_reasons, list(value = 0, custom_value = 1032, custom_text = v_messages(i_count)))
+            #block_end
+         #block_end
+      #block_end
+   #block_end
+
+   ;both directions blocked by device
+   #if attribute_exists(l_objects, "ext_cntr_blk_ix") #then #block
+      #if 't_ln':pos'l_objects.ext_cntr_blk_ix' <> 10 #then #block
+         i_val = trunc('t_LN':pov'l_Objects.ext_cntr_blk_ix')
+         i_type = 't_ln':ppt'l_objects.ext_cntr_blk_ix' ;3 (BI) or 9 (AI)
+         #if attribute_exists(l_value_convention.ext_blocked_'i_type', "ov_'i_val'") #then -
+            t_value = l_value_convention.ext_blocked_'i_type'.ov_'i_val'
+         #else t_value = "NOT_DEFINED"
+         #if t_value == "BLOCKED" #then #block
+               i_count = i_count + 1
+               v_messages(i_count) = translation("Object is externally blocked")
+               b_disable_both_directions = true               
+               v_control_inhibit_reasons = append(-
+                  v_control_inhibit_reasons, list(value = 0, custom_value = 1033, custom_text = v_messages(i_count)))
+         #block_end
+      #block_end
+   #block_end
+
+   ;close interlocked (by device)
+   #if t_indication_value <> "CLOSED" #then #block
+      #if attribute_exists(l_objects, "close_ilock_ix") #then #block
+         #if 't_LN':pos'l_Objects.close_ilock_ix' <> 10 #then #block
+            i_val = 't_LN':pov'l_Objects.close_ilock_ix'
+            #if attribute_exists(l_value_convention.close_interlocked, "ov_'i_val'") #then t_value = l_value_convention.close_interlocked.ov_'i_val'
+            #else t_value = "NOT_DEFINED"
+            #if t_value == "CLOSE_INTERLOCKED" #then #block
+               i_count = i_count + 1
+               v_messages(i_count) = 't_LN':ptx'l_Objects.close_ilock_ix'
+               b_close_enabled = false               
+               v_control_inhibit_reasons = append(-
+                  v_control_inhibit_reasons, list(value = 10))
+            #block_end
+            #case 't_LN':pos'l_Objects.close_ilock_ix'
+               #when 1 #block
+                  i_count = i_count + 1
+                  v_messages(i_count) = 't_LN':ptx'l_Objects.close_ilock_ix' + " " + translation("Value invalid")
+               #block_end
+               #when 2 #block
+                  i_count = i_count + 1
+                  v_messages(i_count) = 't_LN':ptx'l_Objects.close_ilock_ix' + " " + translation("Value obsolete") 
+               #block_end
+            #case_end
+         #block_end
+         #else #block
+            i_count = i_count + 1
+            v_messages(i_count) = 't_LN':ptx'l_Objects.close_ilock_ix' + ": " + translation("Value not sampled")
+            b_close_enabled = false            
+            v_control_inhibit_reasons = append(-
+               v_control_inhibit_reasons, list(value = 0, custom_value = 1035, custom_text = v_messages(i_count)))
+         #block_end
+      #block_end
+   #block_end
+   
+   ;open interlocked (by device)
+   #if t_indication_value <> "OPEN" #then #block
+      #if attribute_exists(l_objects, "open_ilock_ix") #then #block
+         #if 't_LN':pos'l_Objects.open_ilock_ix' <> 10 #then #block
+            i_val = 't_LN':pov'l_Objects.open_ilock_ix'
+            #if attribute_exists(l_value_convention.open_interlocked, "ov_'i_val'") #then t_value = l_value_convention.open_interlocked.ov_'i_val'
+            #else t_value = "NOT_DEFINED"
+            #if t_value == "OPEN_INTERLOCKED" #then #block
+               i_count = i_count + 1
+               v_messages(i_count) = 't_LN':ptx'l_Objects.open_ilock_ix'
+               b_open_enabled = false
+               v_control_inhibit_reasons = append(-
+                  v_control_inhibit_reasons, list(value = 10))
+            #block_end
+            #case 't_LN':pos'l_Objects.open_ilock_ix'       
+               #when 1 #block
+                  i_count = i_count + 1
+                  v_messages(i_count) = 't_LN':ptx'l_Objects.open_ilock_ix' + " " + translation("Value invalid")
+               #block_end
+               #when 2 #block
+                  i_count = i_count + 1
+                  v_messages(i_count) = 't_LN':ptx'l_Objects.open_ilock_ix' + " " + translation("Value obsolete")                  
+               #block_end 
+            #case_end
+         #block_end
+         #else #block
+            i_count = i_count + 1
+            v_messages(i_count) = 't_LN':ptx'l_Objects.open_ilock_ix' + ": " + translation("Value not sampled")
+            b_open_enabled = false
+            v_control_inhibit_reasons = append(-
+               v_control_inhibit_reasons, list(value = 0, custom_value = 1035, custom_text = v_messages(i_count)))
+         #block_end
+      #block_end
+   #block_end
+
+   ;close blocked (by device)
+   #if t_indication_value <> "CLOSED" #then #block
+      #if attribute_exists(l_objects, "close_block_ix") #then #block
+         #if 't_LN':pos'l_Objects.close_block_ix' <> 10 #then #block
+            i_val = 't_LN':pov'l_Objects.close_block_ix'
+            #if attribute_exists(l_value_convention.close_blocked, "ov_'i_val'") #then t_value = l_value_convention.close_blocked.ov_'i_val'
+            #else t_value = "NOT_DEFINED"
+            #if t_value == "CLOSE_BLOCKED" #then #block
+               i_count = i_count + 1
+               v_messages(i_count) = 't_LN':ptx'l_Objects.close_block_ix'
+               b_close_enabled = false
+               l_cdm_actual_value = merge_attributes(l_cdm_actual_value, list(value = true))
+               v_control_inhibit_reasons = append(-
+                  v_control_inhibit_reasons, list(value = 0, custom_value = 1036, custom_text = v_messages(i_count)))
+            #block_end
+            #case 't_LN':pos'l_Objects.close_block_ix'
+               #when 1 #block
+                  i_count = i_count + 1
+                  v_messages(i_count) = 't_LN':ptx'l_Objects.close_block_ix' + " " + translation("Value invalid")
+               #block_end
+               #when 2 #block
+                  i_count = i_count + 1
+                  v_messages(i_count) = 't_LN':ptx'l_Objects.close_block_ix' + " " + translation("Value obsolete")                                  
+               #block_end
+            #case_end
+         #block_end
+         #else #block
+            i_count = i_count + 1
+            v_messages(i_count) = 't_LN':ptx'l_Objects.close_block_ix' + ": " + translation("Value not sampled")
+            b_close_enabled = false            
+            v_control_inhibit_reasons = append(-
+               v_control_inhibit_reasons, list(value = 0, custom_value = 1035, custom_text = v_messages(i_count)))
+         #block_end
+      #block_end     
+   #block_end
+
+   ;open blocked (by device)
+   #if t_indication_value <> "OPEN" #then #block
+      #if attribute_exists(l_objects, "open_block_ix") #then #block
+         #if 't_LN':pos'l_Objects.open_block_ix' <> 10 #then #block
+            i_val = 't_LN':pov'l_Objects.open_block_ix'
+            #if attribute_exists(l_value_convention.open_blocked, "ov_'i_val'") #then t_value = l_value_convention.open_blocked.ov_'i_val'
+            #else t_value = "NOT_DEFINED"
+            #if t_value == "OPEN_BLOCKED" #then #block
+               i_count = i_count + 1
+               v_messages(i_count) = 't_LN':ptx'l_Objects.open_block_ix'
+               b_open_enabled = false
+               v_control_inhibit_reasons = append(-
+                  v_control_inhibit_reasons, list(value = 0, custom_value = 1037, custom_text = v_messages(i_count)))
+            #block_end
+            #case 't_LN':pos'l_Objects.open_block_ix'
+               #when 1 #block
+                  i_count = i_count + 1
+                  v_messages(i_count) = 't_LN':ptx'l_Objects.open_block_ix' + " " + translation("Value invalid")
+               #block_end
+               #when 2 #block
+                  i_count = i_count + 1
+                  v_messages(i_count) = 't_LN':ptx'l_Objects.open_block_ix' + " " + translation("Value obsolete") 
+               #block_end
+            #case_end
+         #block_end
+         #else #block
+            i_count = i_count + 1
+            v_messages(i_count) = 't_LN':ptx'l_Objects.open_block_ix' + ": " + translation("Value not sampled")
+            b_close_enabled = false            
+            v_control_inhibit_reasons = append(-
+               v_control_inhibit_reasons, list(value = 0, custom_value = 1035, custom_text = v_messages(i_count)))
+         #block_end
+      #block_end
+   #block_end
+
+   ;user interlocking
+   l_cdm_actual_value = merge_attributes(l_cdm_default_value, list(value = false, timestamp = sys_time))
+   l_data_points.SysIntCls = l_cdm_actual_value
+   l_data_points.SysIntOpn = l_cdm_actual_value
+   l_cdm_actual_value = merge_attributes(l_cdm_default_value, list(value = false, timestamp = sys_time))
+   l_data_points.SysIntReason = l_cdm_actual_value
+   #if attribute_exists(l_object_info, "u_interlocking") #then #block
+      @close_interlocked  = false
+      @open_interlocked = false
+      @interlocking_cause = ""
+      #error ignore
+      s = status
+      l_user_interlocking = do(l_object_info.u_interlocking)
+      s = status
+      #error stop
+      #if s == 0 #then #block
+         #if attribute_exists(l_user_interlocking, "close_interlocked") #then #block
+            #if l_user_interlocking.close_interlocked #then #block
+               b_close_enabled = false
+               l_data_points.SysIntCls.value = true
+            #block_end
+         #block_end
+         #if attribute_exists(l_user_interlocking, "open_interlocked") #then #block
+            #if l_user_interlocking.open_interlocked #then #block
+               b_open_enabled = false
+               l_data_points.SysIntOpn.value = true
+            #block_end
+         #block_end
+         #if attribute_exists(l_user_interlocking, "interlocking_cause") #then #block
+            #if length(l_user_interlocking.interlocking_cause) > 0 #then #block
+               i_count = i_count + 1
+               v_messages(i_count) = l_user_interlocking.interlocking_cause
+               l_data_points.SysIntReason.value = l_user_interlocking.interlocking_cause
+               v_control_inhibit_reasons = append(-
+               v_control_inhibit_reasons, list(value = 0, custom_value = 1049, custom_text = v_messages(i_count)))
+            #block_end
+         #block_end
+      #block_end
+   #block_end
+#block_end
+
+;auto reclosing in progress
+l_cdm_actual_value = merge_attributes(l_cdm_default_value, list(value = false, timestamp = sys_time))
+l_data_points.AutoRecMode = l_cdm_actual_value
+#if attribute_exists(l_objects, "ar_object") #then #block
+   t_tmp_ln = l_objects.ar_running_ln1
+   i_tmp_ix = l_objects.ar_running_ix1
+   i_type = 't_tmp_ln':ppt'i_tmp_ix'
+   #if 't_tmp_ln':pos'i_tmp_ix' < 10 #then #block
+      i_val = trunc('t_tmp_ln':pov'i_tmp_ix')
+      #if attribute_exists(l_value_convention.ar_running_'i_type', "ov_'i_val'") #then -
+         t_value = l_value_convention.ar_running_'i_type'.ov_'i_val'
+      #if t_value == "RUNNING" #then #block
+         i_count = i_count + 1
+         v_messages(i_count) = translation("Auto-reclosing in progress")
+         b_disable_both_directions = true
+         v_control_inhibit_reasons = append(-
+            v_control_inhibit_reasons, list(value = 0, custom_value = 1038, custom_text = v_messages(i_count)))
+      #block_end
+   #block_end
+   #if attribute_exists(l_objects, "ar_in_use_sw_ln") #then #block
+      t_tmp_ln = l_objects.ar_in_use_sw_ln
+      i_tmp_ix = l_objects.ar_in_use_sw_ix
+      #if 't_tmp_ln':pos'i_tmp_ix' < 10 #then #block
+         #if 't_tmp_ln':pov'i_tmp_ix' == 1 #then l_data_points.AutoRecMode.value = true
+      #block_end
+   #block_end
+#block_end
+
+;synchrocheck
+#if attribute_exists(l_objects, "syn_ind_ix") #then #block
+   #if t_indication_value <> "CLOSED" #then #block
+      #if 't_LN':pos'l_objects.syn_ind_ix' < 10 #then #block
+         #if 't_LN':pov'l_objects.syn_ind_ix' == 0 #then #block
+            i_count = i_count + 1
+            v_messages(i_count) = translation("Device is not synchronized")
+            b_disable_both_directions = true
+            v_control_inhibit_reasons = append(-
+               v_control_inhibit_reasons, list(value = 0, custom_value = 1050, custom_text = v_messages(i_count)))
+         #block_end
+      #block_end
+      #else #block
+         i_count = i_count + 1
+         v_messages(i_count) = 't_LN':ptx'l_Objects.syn_ind_ix' + ": " + translation("Value not sampled")
+         b_close_enabled = false            
+         v_control_inhibit_reasons = append(-
+            v_control_inhibit_reasons, list(value = 0, custom_value = 1035, custom_text = v_messages(i_count)))
+      #block_end
+   #block_end
+#block_end
+
+;;latching output relays active
+;#if attribute_exists(l_objects, "ar_object") #then #block
+;   i_tmp_number = length(pick(list_attr(l_objects), select(list_attr(l_objects), "==""LATCHED_RELAY_IX*""", "WILDCARDS")))
+;   #loop_with i = 1 .. i_tmp_number
+;      t_tmp_ln = l_objects.latched_relay_ln'i'
+;      i_tmp_ix = l_objects.latched_relay_ix'i'
+;      #if 't_tmp_ln':pos'i_tmp_ix' < 0 #then #block
+;         #if 't_tmp_ln':pov'i_tmp_ix' == 1 #then #block
+;            i_count = i_count + 1
+;            v_messages(i_count) = translation("Latched output relay active!")
+;            b_disable_both_directions = true
+;            #loop_exit
+;         #block_end
+;      #block_end
+;   #loop_end
+;#block_end
+
+;external/internal interlocking out of use
+#if l_object_info.motorized #then #block
+   ;external interlocking out of use
+   #if attribute_exists(l_objects, "ext_sw_interlock_in_use_ix") #then #block
+      t_tmp_ln = l_objects.ext_sw_interlock_in_use_ln
+      #if 't_tmp_ln':pos'l_objects.ext_sw_interlock_in_use_ix' < 10 #then #block
+         #if 't_tmp_ln':pov'l_objects.ext_sw_interlock_in_use_ix' == 0 #then #block
+            i_count = i_count + 1
+            v_messages(i_count) = translation("Control application interlocking out of use")
+         #block_end
+      #block_end
+   #block_end
+
+   ;internal interlocking out of use
+   #if attribute_exists(l_objects, "int_interlock_in_use_ix") #then #block
+      t_tmp_ln = l_objects.int_interlock_in_use_ln
+      #if 't_tmp_ln':pos'l_objects.int_interlock_in_use_ix' < 10 #then #block
+         #if 't_tmp_ln':pov'l_objects.int_interlock_in_use_ix' == 0 #then #block
+            i_count = i_count + 1
+            v_messages(i_count) = translation("Control device interlocking out of use")
+         #block_end
+      #block_end
+   #block_end
+#block_end
+
+;selected on another monitor
+#if i_session > 1 #then #block
+   i_count = i_count + 1
+   v_messages(i_count) = translation("Selected on another monitor")
+   b_disable_both_directions = true   
+   v_control_inhibit_reasons = append(-
+      v_control_inhibit_reasons, list(value = 0, custom_value = 1039, custom_text = v_messages(i_count)))
+#block_end
+
+#if not l_connection_state.indication_missing #then #block
+   ;blocked by device
+   #if l_connection_state.i_connection_bl == 1 #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Signal blocked by control device")
+   #block_end
+
+   ;status
+   #case l_connection_state.i_connection_os
+      #when 1 #block
+         i_count = i_count + 1
+         v_messages(i_count) = translation("Position indication invalid")
+         b_disable_both_directions = true         
+         v_control_inhibit_reasons = append(-
+            v_control_inhibit_reasons, list(value = 0, custom_value = 1040, custom_text = v_messages(i_count)))
+      #block_end
+      #when 2 #block
+         i_count = i_count + 1
+         v_messages(i_count) = translation("Position indication obsolete")
+         b_disable_both_directions = true
+         v_control_inhibit_reasons = append(-
+            v_control_inhibit_reasons, list(value = 0, custom_value = 1041, custom_text = v_messages(i_count)))
+      #block_end
+      #when 3 #block
+         i_count = i_count + 1
+         v_messages(i_count) = translation("Position indication not time synchronized")
+      #block_end
+   #case_end
+
+   l_cdm_actual_value = merge_attributes(l_cdm_default_value, list(value = false, timestamp = sys_time))
+   ;update blocked
+   #if l_connection_state.i_connection_ub == 1 #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Update blocked")
+      b_disable_both_directions = true
+      l_cdm_actual_value.value = true
+      v_control_inhibit_reasons = append(-
+         v_control_inhibit_reasons, list(value = 0, custom_value = 1042, custom_text = v_messages(i_count)))
+   #block_end
+   l_data_points.SysUb = l_cdm_actual_value
+   l_cdm_actual_value.value = false
+   ;alarm blocked
+   #if l_connection_state.i_connection_ab == 1 #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Alarm blocked")
+      l_cdm_actual_value.value = true
+   #block_end
+   l_data_points.SysAb = l_cdm_actual_value
+   l_cdm_actual_value.value = false
+   ;event blocked
+   #if l_connection_state.i_connection_hb == 1 #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Event blocked") 
+      l_cdm_actual_value.value = true
+   #block_end
+   l_data_points.SysHb = l_cdm_actual_value
+   l_cdm_actual_value.value = false
+   ;printout blocked
+   #if l_connection_state.i_connection_pb == 1 #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Printout blocked")      
+      l_cdm_actual_value.value = true
+   #block_end
+   l_data_points.SysPb = l_cdm_actual_value
+   l_cdm_actual_value.value = false
+   ;action blocked
+   #if l_connection_state.i_connection_xb == 1 #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Action blocked")          
+      l_cdm_actual_value.value = true
+   #block_end
+   l_data_points.SysXb = l_cdm_actual_value
+   ;operation counter limit
+   #if 't_LN':pco'l_Objects.indication_db_ix' == 1 #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Operation counter limit exceeded")
+   #block_end
+#block_end
+
+#if b_disable_both_directions #then #block
+   b_open_enabled = false
+   b_close_enabled = false
+#block_end
+
+l_result = merge_attributes(l_result, list(-
+   OPEN_ENABLED = b_open_enabled,-
+   CLOSE_ENABLED = b_close_enabled,-
+   DISABLE_BOTH = b_disable_both_directions,-
+   MESSAGES = v_messages))
+
+l_cdm_actual_value = merge_attributes(l_cdm_default_value, list(value = l_result.OPEN_ENABLED, timestamp = sys_time))
+l_data_points.allow_open = l_cdm_actual_value
+
+l_cdm_actual_value = merge_attributes(l_cdm_default_value, list(value = l_result.CLOSE_ENABLED, timestamp = sys_time))
+l_data_points.allow_close = l_cdm_actual_value
+
+;Authorizations
+l_cdm_authority.control_inhibit_reason = v_control_inhibit_reasons
+v_attrs = list_attr(l_ctrl_inhibit_reason)
+#loop_with i = 1 .. length(v_attrs)
+   v_reasons = vector
+   t_attribute = v_attrs(i)
+   t_control_point = l_ctrl_inhibit_reason.'t_attribute'.control_point
+   v_reasons = l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons
+   #if attribute_exists(l_data_points, t_control_point) #then -
+      l_data_points.'t_control_point' = list(-
+         control_permitted = l_cdm_authority.control_permitted,-
+         level_permitted = l_cdm_authority.level_permitted,-
+         control_inhibit_reason = append(l_cdm_authority.control_inhibit_reason, v_reasons))
+#loop_end
+
+l_result = merge_attributes(l_result, l_data_points)
+l_result = merge_attributes(l_result, list(capabilities = l_capabilities))
+l_result = merge_attributes(l_result, list(datapoints = list_attr(l_result)))
+
+#return l_result

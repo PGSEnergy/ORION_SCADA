@@ -1,0 +1,1016 @@
+#argument t_Method_Name
+
+#local argCnt, tRedirectProc, tRedirectCommand, iArgLoop
+tRedirectProc="APLMOD_BLOCK"
+#if APPLICATION_OBJECT_EXISTS(0,"C",tRedirectProc) AND -
+DATA_TYPE(%REDIRECTED)=="NONE" #then #block
+   #if 'tRedirectProc':CIU==1 #then #block
+      @REDIRECTED=TRUE
+      argCnt=ARGUMENT_COUNT
+      tRedirectCommand="DO('tRedirectProc':C"
+      #loop_with iArgLoop=1..argCnt
+         tRedirectCommand=tRedirectCommand+",argument('iArgLoop')"
+         #if iArgLoop==argCnt #then #block
+            tRedirectCommand=tRedirectCommand+")"
+         #block_end
+      #loop_end
+      #return 'tRedirectCommand'
+   #block_end
+#block_end
+
+#if sys:bdm<>0 #then @b_enable_debugging=true
+#else @b_enable_debugging=false
+@i_Description=t_Method_Name
+#if %b_enable_debugging #then #block
+   @i_Trash=trace_begin("TRACE_BGU_BLOCK_'t_Method_Name'.txt")
+   #on error #block
+      @i_Stat=status
+      @i_Trash=console_output(times + " BGU_BLOCK.TXT error when executing 'i_Description': 'i_Stat'. " + -
+      "Trace created to PICT/TRACE_BGU_BLOCK_'t_Method_Name'.txt")
+      @i_Trash=trace_end
+      ;#return %i_Stat
+   #block_end
+   ;@i_Trash=console_output(times + " BGU_BLOCK.TXT running method 't_Method_Name'...")        
+#block_end
+
+@t_Method_Name=argument(1)
+@arg2=argument(2) ;,"ESTH01_Q0"
+
+#if data_type(%arg2)=="VECTOR" #then #block
+   @PF_ID=%arg2(1)
+   @PF_INDICATION_INDEX=%arg2(2)
+#block_end
+#else #block
+   @PF_ID=%arg2
+#block_end
+
+;@i_Trash=console_output(times + " BGU_BLOCK.TXT running method 't_Method_Name'...")        
+
+@ConfPath=path("APL_")
+@ConfPath=%ConfPath(1)
+@ConfPath=substr(%ConfPath,1, length(%ConfPath)-4)
+@ConfPath=%ConfPath+"POBJCONF"
+
+@e_state=error_state
+#error ignore
+@DAT_FILE=evaluate(read_text(%ConfPath+"\'PF_ID'.dat"))
+#error 'e_state'
+@trash=status
+
+#if data_type(%DAT_FILE) <> "LIST" #then #block
+   #error ignore
+   @DAT_FILE=evaluate(read_text(%ConfPath+"\'PF_ID'%QT1.dat"))
+   #error 'e_state'
+#block_end
+#if data_type(%DAT_FILE) <> "LIST" #then #block
+   #error ignore
+   @DAT_FILE=evaluate(read_text(%ConfPath+"\'PF_ID'%QT2.dat"))
+   #error 'e_state'
+#block_end
+#if data_type(%DAT_FILE) <> "LIST" AND data_type(%PF_INDICATION_INDEX)=="INTEGER" #then #block
+   #error ignore
+   @DAT_FILE=evaluate(read_text(%ConfPath+"\'PF_ID'%'PF_INDICATION_INDEX'.dat"))
+   #error 'e_state'
+#block_end
+#if data_type(%DAT_FILE) <> "LIST" #then @DAT_FILE = 'pf_id':pcd
+
+@v_Attrs = list_attr(%DAT_FILE)
+#if data_type(%DAT_FILE.Created_By) <> "NONE" #then #if %DAT_FILE.Created_By == "SA_LIB" #then #block
+   @v_Check = pick(%v_Attrs, select(%v_Attrs, "==""L_CD*""", "WILDCARDS"))
+   #if length(%v_Check) > 0 #then #block
+       #if %PF_INDICATION_INDEX == 0 #then #block
+         @l_CheckIndexes = application_object_list(0, "IX", "I", "F", "'pf_id'")
+         #if %l_CheckIndexes.Count > 0 #then @PF_INDICATION_INDEX = %l_CheckIndexes.IX(1)
+       #block_end
+;      #if substr('pf_id':PRX'PF_INDICATION_INDEX', 23, 1) == "P" #then #block
+         #loop_with i = 1 .. length(%v_Check)
+            @t_Attr = %v_Check(%i)
+            @l_Tmp_Data = DAT_FILE:VL_CD'i'
+            @v_indexes = l_Tmp_Data:vp_Object_Indexes
+            @v_Check1 = select(%v_indexes, "=='PF_INDICATION_INDEX'")
+            #if length(%v_Check1) > 0 #then #block
+               #CREATE DAT_FILE:V = %l_Tmp_Data
+               #loop_exit
+            #block_end
+         #loop_end
+;      #block_end
+   #block_end
+#block_end
+
+@Is_Alarm_Indicator = false
+@Is_Measurement = false
+@Is_Switch = false
+@Is_Trafo = false
+
+#case %dat_file.type_pf
+   #when "SAGR_MEA", "FPI_ME1", "FPI_ME2", "FPI_ME3" #block
+      @Is_Measurement = True
+   #block_end
+   #when "SAGR_AI", "FPI_AI" #block
+      @Is_Alarm_Indicator = True
+   #block_end
+   #when "SAGR_SW", "FPI_SSW" #block
+      @Is_Switch = true
+   #block_end
+   #when "SAGR_TAP", "FPI_TRT_1", "FPI_TRT_2","SAGR_VCTR" #block
+      @Is_Trafo = true
+   #block_end
+#case_end
+
+@Is_Group_Object = not (%Is_Alarm_Indicator or %Is_Measurement or %Is_Switch or %Is_Trafo)
+
+@trash=status
+
+@STATION_NAME=""
+@BAY_NAME=""
+@DEVICE_NAME=""
+@SPECIAL_IDENTIFIER_1 = ""
+@SPECIAL_IDENTIFIER_2 = ""
+@SPECIAL_IDENTIFIER_3 = ""
+
+#error ignore
+@STATION_NAME=%DAT_FILE.STATION_NAME
+@BAY_NAME=%DAT_FILE.BAY_NAME
+@DEVICE_NAME=%DAT_FILE.DEVICE_NAME
+@SPECIAL_IDENTIFIER_1 = %DAT_FILE.SPECIAL_IDENTIFIER_1
+@SPECIAL_IDENTIFIER_2 = %DAT_FILE.SPECIAL_IDENTIFIER_2
+@SPECIAL_IDENTIFIER_3 = %DAT_FILE.SPECIAL_IDENTIFIER_3
+#error stop
+
+
+@OLD_UB_VALUE = 0
+@NEW_UB_VALUE = 0
+@OLD_CB_VALUE = 0
+@NEW_CB_VALUE = 0
+@OLD_AB_VALUE = 0
+@NEW_AB_VALUE = 0
+@OLD_HB_VALUE = 0
+@NEW_HB_VALUE = 0
+@OLD_PB_VALUE = 0
+@NEW_PB_VALUE = 0
+@OLD_XB_VALUE = 0
+@NEW_XB_VALUE = 0
+
+@INPUT_SIGNAL_NR  = 0
+@OUTPUT_SIGNAL_NR = 0
+@ALARM_OBJ_NR     = 0
+@HISTORY_OBJ_NR   = 0
+@PRINT_OBJ_NR     = 0
+@REPROC_OBJ_NR    = 0
+@UB_BLK_NR        = 0
+@CB_BLK_NR        = 0
+@AB_BLK_NR        = 0
+@HB_BLK_NR        = 0
+@PB_BLK_NR        = 0
+@XB_BLK_NR        = 0
+@UB_BLK_ENABLED   = FALSE
+@CB_BLK_ENABLED   = FALSE
+@AB_BLK_ENABLED   = FALSE
+@HB_BLK_ENABLED   = FALSE
+@PB_BLK_ENABLED   = FALSE
+@XB_BLK_ENABLED   = FALSE
+
+@TMP_LN_IN      = VECTOR()
+@TMP_LN_OUT     = VECTOR()
+@TMP_IX_IN      = VECTOR()
+@TMP_IX_OUT     = VECTOR()
+@TMP_IXS        = VECTOR()
+@ATTR_IN        = LIST()
+@ATTR_OUT       = LIST()
+@UPDATE_OBJECTS = LIST()
+
+
+;check the usage of object identification (OI) -attribute
+@S = STATUS
+@POINTER_STA  = 0
+@POINTER_BAY  = 0
+@POINTER_DEV  = 0
+@POINTER_SPECIAL1 = 0
+@POINTER_SPECIAL2 = 0
+@POINTER_SPECIAL3 = 0
+@J = 1
+#ERROR IGNORE
+@APL_BSV15      = APL:BSV15
+@PROCESSOBJECTS = APL_BSV15:VPROCESS_OBJECTS
+@OI             = PROCESSOBJECTS:VOI
+#LOOP_WITH I = 1 .. 30
+  #IF DATA_TYPE(OI:VLENGTH'I')=="INTEGER" #THEN #BLOCK  
+    @OI_LENGTH'I' = OI:VLENGTH'I'
+    ;if field in use
+    #IF %OI_LENGTH'I' > 0 #THEN #BLOCK  
+      @NR_OF_FIELDS = %I
+      @OI_FIELD'I'  = OI:VFIELD'I'
+      #IF      LENGTH(SELECT(%OI_FIELD'I',"==""STA"""))>0 #THEN @POINTER_STA = %I
+      #ELSE_IF LENGTH(SELECT(%OI_FIELD'I',"==""BAY"""))>0 #THEN @POINTER_BAY = %I
+      #ELSE_IF LENGTH(SELECT(%OI_FIELD'I',"==""DEV"""))>0 #THEN @POINTER_DEV = %I
+      #ELSE_IF LENGTH(%OI_FIELD'I') > 0 #THEN #BLOCK
+         @POINTER_SPECIAL'J' = %I
+         @J = %J + 1 
+      #BLOCK_END
+    #BLOCK_END
+  #BLOCK_END
+  #ELSE #LOOP_EXIT
+#LOOP_END
+#ERROR CONTINUE
+
+;set defaults if APL:BSV15 not correctly defined
+@S = STATUS
+#IF %S <> 0 #THEN #BLOCK
+  @OI_LENGTH1   = 10
+  @OI_LENGTH2   = 15
+  @OI_LENGTH3   = 5
+  @OI_LENGTH4   = 0
+  @OI_LENGTH5   = 0
+  @POINTER_STA  = 1
+  @POINTER_BAY  = 2
+  @POINTER_DEV  = 3
+  @NR_OF_FIELDS = 3
+#BLOCK_END
+
+;set starting points of OI-attribute for station, bay and device
+@START_OF_STA = 1
+@START_OF_BAY = 1
+@START_OF_DEV = 1
+
+;station
+#LOOP_WITH I = 1 .. %POINTER_STA
+  #IF %I > 1 #THEN #BLOCK
+    @PREVIOUS_FIELD = %I - 1
+    @START_OF_STA = %START_OF_STA + %OI_LENGTH'PREVIOUS_FIELD'
+  #BLOCK_END
+#LOOP_END
+
+;bay
+#LOOP_WITH I = 1 .. %POINTER_BAY
+  #IF %I > 1 #THEN #BLOCK
+    @PREVIOUS_FIELD = %I - 1
+    @START_OF_BAY = %START_OF_BAY + %OI_LENGTH'PREVIOUS_FIELD'
+  #BLOCK_END
+#LOOP_END
+
+;special identifiers
+#LOOP_WITH J = 1 .. 3
+    #IF %POINTER_SPECIAL'J' > 0 #THEN #BLOCK
+      @START_OF_SPECIAL'J' = 1
+      #LOOP_WITH I = 1 .. %POINTER_SPECIAL'J'
+        #IF %I > 1 #THEN #BLOCK
+          @PREVIOUS_FIELD = %I - 1
+          @START_OF_SPECIAL'J' = %START_OF_SPECIAL'J' + %OI_LENGTH'PREVIOUS_FIELD'
+        #BLOCK_END
+      #LOOP_END
+   #BLOCK_END
+#LOOP_END
+
+@i_Sta_Length = 0
+@i_Bay_Length = 0
+@i_Dev_Length = 0
+@i_Special_1_Length = 0
+@i_Special_2_Length = 0
+@i_Special_3_Length = 0
+@l_Apl_Bsv15 = apl:bsv(15)
+
+@i_Special_Counter = 1
+@tmp_Start = 0
+@tmp_Dev_Start = 0
+
+#loop_with i = 1 .. 5
+   
+   #if %l_Apl_Bsv15.Process_Objects.Oi.Length'i' > 0 #then #block
+   
+      @t_FieldID'i' = %l_Apl_Bsv15.Process_Objects.Oi.Field'i'(1)
+     
+      #case %t_FieldID'i'
+         
+         #when "STA" #block
+            @i_Sta_Length = %l_Apl_Bsv15.Process_Objects.Oi.Length'i'
+         #block_end
+         
+         #when "BAY" #block
+            @i_Bay_Length = %l_Apl_Bsv15.Process_Objects.Oi.Length'i'
+         #block_end
+         
+         #when "DEV" #block
+            @i_Dev_Length = %l_Apl_Bsv15.Process_Objects.Oi.Length'i'
+            @tmp_Dev_start = %tmp_Start + 1
+         #block_end
+         
+         #otherwise #block
+            @i_Special_'i_Special_Counter'_Length = %l_Apl_Bsv15.Process_Objects.Oi.Length'i'
+            @i_Special_Counter = %i_Special_Counter + 1
+         #block_end
+            
+      #case_end
+      
+      @tmp_Start = %tmp_Start + %l_Apl_Bsv15.Process_Objects.Oi.Length'i'
+      
+   #block_end
+
+#loop_end
+
+#if %PF_INDICATION_INDEX > 0 #then #block
+   @e_state = ERROR_STATE
+   #error ignore
+   @s = status
+   @tmp = 'pf_id':piu'PF_INDICATION_INDEX'
+   @s = status
+   #error 'e_state'
+   #if %s == 0 #then #block
+      #if 'pf_id':piu'PF_INDICATION_INDEX' > 0 #then #block
+         #if 'pf_id':pss'PF_INDICATION_INDEX' > 0 #then #block
+            #if data_type(%Dat_File.Station_Name) <> "NONE" #then #block
+               #if %i_Sta_Length > 0 #then #block
+                  @tmp_name = edit(substr('pf_id':poi'PF_INDICATION_INDEX', %start_of_sta, %i_Sta_Length), "TRIM")
+                  #if %tmp_name <> %station_name #then @station_name = %tmp_name
+               #block_end
+            #block_end
+            #if data_type(%Dat_File.Bay_Name) <> "NONE" #then #block
+               #if %i_Bay_Length > 0 #then #block
+                  @tmp_name = edit(substr('pf_id':poi'PF_INDICATION_INDEX', %start_of_bay, %i_Bay_Length), "TRIM")
+                  #if %tmp_name <> %bay_name #then @bay_name = %tmp_name
+               #block_end
+            #block_end
+            #if data_type(%Dat_File.Device_Name) <> "NONE" #then #block
+               #if %i_Dev_Length > 0 #then #block
+                  @tmp_name = edit(substr('pf_id':poi'PF_INDICATION_INDEX', %tmp_Dev_start, %i_Dev_Length), "TRIM")
+                  #if %tmp_name <> %device_name #then @device_name = %tmp_name
+               #block_end
+            #block_end
+            #if data_type(%Dat_File.Special_Identifier_1) <> "NONE" #then #block
+               #if %i_Special_1_Length > 0 #then #block
+                  @tmp_name = edit(substr('pf_id':poi'PF_INDICATION_INDEX', %start_of_special1, %i_Special_1_Length), "TRIM")
+                  #if %tmp_name <> %special_identifier_1 #then @special_identifier_1 = %tmp_name
+               #block_end
+            #block_end
+            #if data_type(%Dat_File.Special_Identifier_2) <> "NONE" #then #block
+               #if %i_Special_2_Length > 0 #then #block
+                  @tmp_name = edit(substr('pf_id':poi'PF_INDICATION_INDEX', %start_of_special2, %i_Special_2_Length), "TRIM")
+                  #if %tmp_name <> %special_identifier_2 #then @special_identifier_2 = %tmp_name
+               #block_end
+            #block_end
+            #if data_type(%Dat_File.Special_Identifier_3) <> "NONE" #then #block
+               #if %i_Special_3_Length > 0 #then #block
+                  @tmp_name = edit(substr('pf_id':poi'PF_INDICATION_INDEX', %start_of_special3, %i_Special_3_Length), "TRIM")
+                  #if %tmp_name <> %special_identifier_3 #then @special_identifier_3 = %tmp_name
+               #block_end
+            #block_end
+         #block_end
+      #block_end
+   #block_end
+#block_end
+
+;trim station name for queries
+@STATION_NAME_TRIMMED = ""
+
+@TMP_SPECIAL = 1
+#LOOP_WITH I = 1 .. %POINTER_STA
+   #IF %OI.FIELD'I'(1) == "STA" #THEN #BLOCK
+      @STATION_NAME_TRIMMED = %STATION_NAME_TRIMMED + SUBSTR(%STATION_NAME, 1, %OI.LENGTH'I')
+   #BLOCK_END
+   #ELSE #BLOCK
+      @STATION_NAME_TRIMMED = %STATION_NAME_TRIMMED + SUBSTR(%SPECIAL_IDENTIFIER_'TMP_SPECIAL', 1, %OI.LENGTH'I')
+      @TMP_SPECIAL = %TMP_SPECIAL + 1
+   #BLOCK_END
+#LOOP_END
+
+;trim bay name for queries
+@BAY_NAME_TRIMMED = ""
+
+@TMP_SPECIAL = 1
+#LOOP_WITH I = 1 .. %POINTER_BAY
+   #IF %OI.FIELD'I'(1) == "STA" #THEN #BLOCK
+      @BAY_NAME_TRIMMED = %BAY_NAME_TRIMMED + SUBSTR(%STATION_NAME, 1, %OI.LENGTH'I')
+   #BLOCK_END
+   #ELSE_IF %OI.FIELD'I'(1) == "BAY" #THEN #BLOCK
+      @BAY_NAME_TRIMMED = %BAY_NAME_TRIMMED + SUBSTR(%BAY_NAME, 1, %OI.LENGTH'I')
+   #BLOCK_END
+   #ELSE #BLOCK
+      @BAY_NAME_TRIMMED = %BAY_NAME_TRIMMED + SUBSTR(%SPECIAL_IDENTIFIER_'TMP_SPECIAL', 1, %OI.LENGTH'I')
+      @TMP_SPECIAL = %TMP_SPECIAL + 1
+   #BLOCK_END
+#LOOP_END
+
+;trim special identifiers
+#LOOP_WITH J = 1 .. 3
+   @TMP_SPECIAL = 1
+   #IF %POINTER_SPECIAL'J' > 0 #THEN #BLOCK
+      @SPECIAL_IDENTIFIER_'J'_TRIMMED = ""
+
+       #LOOP_WITH I = 1 .. %POINTER_SPECIAL'J'
+         #IF %OI.FIELD'I'(1) == "STA" #THEN #BLOCK
+            @SPECIAL_IDENTIFIER_'J'_TRIMMED = %SPECIAL_IDENTIFIER_'J'_TRIMMED + SUBSTR(%STATION_NAME, 1, %OI.LENGTH'I')
+         #BLOCK_END
+         #ELSE_IF %OI.FIELD'I'(1) == "BAY" #THEN #BLOCK
+            @SPECIAL_IDENTIFIER_'J'_TRIMMED = %SPECIAL_IDENTIFIER_'J'_TRIMMED + SUBSTR(%BAY_NAME, 1, %OI.LENGTH'I')
+         #BLOCK_END
+         #ELSE_IF %OI.FIELD'I'(1) == "DEV" #THEN #BLOCK
+            @SPECIAL_IDENTIFIER_'J'_TRIMMED = %SPECIAL_IDENTIFIER_'J'_TRIMMED + SUBSTR(%DEVICE_NAME, 1, %OI.LENGTH'I') + "*"
+         #BLOCK_END
+         #ELSE #BLOCK
+            @SPECIAL_IDENTIFIER_'J'_TRIMMED = %SPECIAL_IDENTIFIER_'J'_TRIMMED + SUBSTR(%SPECIAL_IDENTIFIER_'TMP_SPECIAL', 1, %OI.LENGTH'I')
+            @TMP_SPECIAL = %TMP_SPECIAL + 1
+         #BLOCK_END
+      #LOOP_END
+   #BLOCK_END
+#LOOP_END
+
+@DEVICE_NAME_TRIMMED = ""
+;trim device name for queries
+#IF %POINTER_DEV > 0 #THEN #BLOCK
+  #LOOP_WITH I=1..(1+(%START_OF_DEV-(%START_OF_BAY+%OI_LENGTH'POINTER_BAY')))
+    #IF %I > 1 #THEN @DEVICE_NAME_TRIMMED = %DEVICE_NAME_TRIMMED + "%"
+  #LOOP_END
+  @DEVICE_NAME_TRIMMED = %DEVICE_NAME_TRIMMED + SUBSTR(%DEVICE_NAME,1,%OI_LENGTH'POINTER_DEV') + "*"
+#BLOCK_END
+#ELSE @DEVICE_NAME_TRIMMED = "*"
+   
+@b_SpecialGroupSwitch = False
+#if %PF_INDICATION_INDEX > 0 #then #block
+   #IF SUBSTR('PF_ID':PRX'PF_INDICATION_INDEX',23,8) == "AGRPILRS" #THEN #BLOCK
+      #IF %SPECIAL_IDENTIFIER_1 <> "" #THEN @STATION_NAME_TRIMMED = %SPECIAL_IDENTIFIER_1_TRIMMED
+      #IF %SPECIAL_IDENTIFIER_2 <> "" #THEN @STATION_NAME_TRIMMED = %SPECIAL_IDENTIFIER_2_TRIMMED
+      #IF %SPECIAL_IDENTIFIER_3 <> "" #THEN @STATION_NAME_TRIMMED = %SPECIAL_IDENTIFIER_3_TRIMMED
+      @b_SpecialGroupSwitch = True
+   #BLOCK_END
+#block_end
+
+;ID: 
+#if argument(4) == "APPLY_TO_SELECTED" #then #block
+   @t_Filter_Input = "IU == 1 AND SS > 0 AND RZ == 0 AND IX == 'PF_INDICATION_INDEX'"
+   @t_Filter_Output = "IU == -2" ;only input objects can come as argument
+#block_end
+#else #block
+   #if attribute_exists(%dat_file, "switching_device_type") #then #block
+      #if %dat_file.switching_device_type == "QT" #then @i_IX = 30
+      #else @i_IX = 10
+      @t_Device_Type_Filter = substr('pf_id':PRX'i_IX', 23, 4)
+   #block_end
+   #else @t_Device_Type_Filter = "%%%%"
+   
+   ;LIB process objects based on LIB RX-attribute convention (%==free character)
+   @RX1 = pad("%",20) + "FPXTAGXIND*"                      ;tagging indication
+   @RX2 = pad("%",20) + "FPXTAGXEVT*"                     ;tagging event
+   @RX3 = pad("%",22) + %t_Device_Type_Filter + "I%%%*"   ;indications (e.g. breaker indication or interlocking signal)
+   @RX4 = pad("%",22) + %t_Device_Type_Filter + "E%%%*"   ;event recording (RP570 protocol)
+   @RX5 = pad("%",22) + %t_Device_Type_Filter + "M%%%*"   ;measurements
+   @RX6 = pad("%",22) + %t_Device_Type_Filter + "X%%%*"   ;internal signals (e.g. selected on monitor)
+   @RX7 = pad("%",22) + %t_Device_Type_Filter + "C%%%*"   ;commands
+   @RX8 = pad("%",22) + %t_Device_Type_Filter + "S%%%*"   ;set points
+   @RX9 = ""
+   
+   @t_Filter_Input = "IU == 1 AND SS > 0 AND RZ == 0 AND RX<>""'RX1'"" AND RX<>""'RX2'"" AND RX<>""'RX6'"" AND RX<>""'RX8'"" AND ((RX==""'RX3'"" OR RX==""'RX4'"" OR RX==""'RX5'"") OR (RX==""'RX9'"" AND (PT==3 OR PT==6 OR PT==9 OR PT==12 OR PT==13 OR PT==14)))"
+   @t_Filter_Output = "IU == 1 AND SS > 0 AND RZ == 0 AND RX<>""'RX6'"" AND ((RX==""'RX7'"" OR RX==""'RX8'"") OR (RX==""'RX9'"" AND (PT==5 OR PT==7 OR PT==11)))"
+#block_end
+
+;STATION L/R DIALOG:
+#IF (%STATION_NAME<>"" AND %BAY_NAME=="" AND %DEVICE_NAME=="" and %Is_Group_Object) OR %b_SpecialGroupSwitch #THEN #BLOCK ;
+         
+   @l_Inputs = APPLICATION_OBJECT_LIST(0, "IX", "OI", "", "'STATION_NAME_TRIMMED'*", %t_Filter_Input)
+   #IF %l_Inputs.COUNT > 0 #THEN #BLOCK
+      @TMP_LN_IN = %l_Inputs.LN
+      @TMP_IX_IN = %l_Inputs.IX
+   #BLOCK_END
+   
+  @l_Outputs = APPLICATION_OBJECT_LIST(0, "IX",  "OI", "", "'STATION_NAME_TRIMMED'*", %t_Filter_Output)
+   #IF %l_Outputs.COUNT > 0 #THEN #BLOCK
+      @TMP_LN_OUT = %l_Outputs.LN
+      @TMP_IX_OUT = %l_Outputs.IX
+   #BLOCK_END
+   
+#BLOCK_END
+
+;BAY object:
+#IF %STATION_NAME<>"" AND %BAY_NAME<>"" AND %DEVICE_NAME == ""  and %Is_Group_Object #THEN #BLOCK
+   
+   @l_Inputs = APPLICATION_OBJECT_LIST(0, "IX",  "OI", "", "'BAY_NAME_TRIMMED'*", %t_Filter_Input)
+   #IF %l_Inputs.COUNT > 0 #THEN #BLOCK
+      @TMP_LN_IN = %l_Inputs.LN
+      @TMP_IX_IN = %l_Inputs.IX
+   #BLOCK_END
+   
+   @l_Outputs = APPLICATION_OBJECT_LIST(0, "IX",  "OI", "", "'BAY_NAME_TRIMMED'*", %t_Filter_Output)
+   
+   #IF %l_Outputs.COUNT > 0 #THEN #BLOCK
+      @TMP_LN_OUT = %l_Outputs.LN
+      @TMP_IX_OUT = %l_Outputs.IX
+   #BLOCK_END
+   
+#BLOCK_END
+
+#IF %STATION_NAME<>"" AND %BAY_NAME<>"" and not %IS_GROUP_OBJECT #THEN #BLOCK
+
+   #if %Is_Measurement #then #block
+      @l_Meas_Objects = list(ln = vector , ix = vector)
+      #if argument(4) == "APPLY_TO_SELECTED" #then #block
+         @l_Meas_Objects.ln(1) = %pf_id
+         @l_Meas_Objects.ix(1) = %PF_INDICATION_INDEX
+      #block_end
+      #else #block
+         @i_Count = 0
+         #loop_with i = 1 .. 4
+            #if %dat_file.type_meas_'i' <> "" #then #block
+               @i_tmp_IX = dec_scan(substr(%dat_file.type_meas_'i', 7, 0))
+               #if application_object_exists(0, "IX", list(ln="'pf_id'", ix = %i_tmp_IX)) #then #block
+                  @i_Count = %i_Count + 1
+                  @l_Meas_Objects.ln(%i_Count) = %pf_id
+                  @l_Meas_Objects.ix(%i_Count) = %i_tmp_IX
+               #block_end
+            #block_end
+         #loop_end
+      #block_end
+      @l_Inputs = application_object_attributes(0, "IX", %l_Meas_Objects, vector("LN", "IX"))
+      #if length(%l_Inputs.LN) > 0 #then #block
+         @TMP_LN_IN = %l_Inputs.LN
+         @TMP_IX_IN = %l_Inputs.IX
+      #block_end
+   #block_end
+   #else #block
+      @l_Inputs = application_object_list(0, "IX", "I", "F", %PF_ID, %t_Filter_Input)
+      #if %l_Inputs.COUNT > 0 #then #block
+         @TMP_LN_IN = %l_Inputs.LN
+         @TMP_IX_IN = %l_Inputs.IX
+      #block_end
+      
+      @l_Outputs = application_object_list(0, "IX", "I", "F", %PF_ID, %t_Filter_Output)
+      #if %l_Outputs.COUNT > 0 #then #block
+         @TMP_LN_OUT = %l_Outputs.LN
+         @TMP_IX_OUT = %l_Outputs.IX
+      #BLOCK_END
+   #block_end
+  
+#BLOCK_END
+
+;show blocking state
+
+;input objects
+@ATTR_IN=APPLICATION_OBJECT_ATTRIBUTES(0,"IX",LIST(LN=%TMP_LN_IN,IX=%TMP_IX_IN),VECTOR("UN","SS","UB","AB","HB","PB","XB","AC","HE","LD","AE"))
+
+;number of input signals
+@INPUT_SIGNAL_NR = LENGTH(%TMP_LN_IN)
+
+;count input process objects for each blocking category 
+#LOOP_WITH I=1..(%INPUT_SIGNAL_NR)
+   #SET ATTR_IN:VLN('I')=%TMP_LN_IN('I')
+   #SET ATTR_IN:VIX('I')=%TMP_IX_IN('I')
+   ;update blocking
+   #IF ATTR_IN:VUB('I')==1 #THEN @UB_BLK_NR = %UB_BLK_NR + 1
+   ;alarm blocking
+   ;#IF ATTR_IN:VAC('I')<>0 #THEN #BLOCK
+      @ALARM_OBJ_NR = %ALARM_OBJ_NR + 1
+      #IF ATTR_IN:VAB('I')==1 #THEN @AB_BLK_NR = %AB_BLK_NR + 1
+   ;#BLOCK_END
+   ;history blocking
+   ;#IF ATTR_IN:VHE('I')<>0 #THEN #BLOCK
+      @HISTORY_OBJ_NR = %HISTORY_OBJ_NR + 1
+      #IF ATTR_IN:VHB('I')==1 #THEN @HB_BLK_NR = %HB_BLK_NR + 1
+   ;#BLOCK_END
+   ;printout blocking
+   ;#IF ATTR_IN:VLD('I')<>0 #THEN #BLOCK
+      @PRINT_OBJ_NR = %PRINT_OBJ_NR + 1
+      #IF ATTR_IN:VPB('I')==1 #THEN @PB_BLK_NR = %PB_BLK_NR + 1
+   ;#BLOCK_END
+   ;reprocessing blocking
+   ;#IF ATTR_IN:VAE('I')<>0 #THEN #BLOCK
+      @REPROC_OBJ_NR = %REPROC_OBJ_NR + 1
+      #IF ATTR_IN:VXB('I')==1 #THEN @XB_BLK_NR = %XB_BLK_NR + 1
+   ;#BLOCK_END
+#LOOP_END
+
+;delete unnecessary vectors
+#DELETE TMP_LN_IN:V
+#DELETE TMP_IX_IN:V
+
+;output objects
+@ATTR_OUT=APPLICATION_OBJECT_ATTRIBUTES(0,"IX",LIST(LN=%TMP_LN_OUT,IX=%TMP_IX_OUT),VECTOR("UN","SS","UB","AB","HB","PB","XB","AC","HE","LD","AE"))
+
+;number of output signals
+@OUTPUT_SIGNAL_NR = LENGTH(%TMP_LN_OUT)
+
+;count output process objects for each blocking category 
+#LOOP_WITH I=1..(%OUTPUT_SIGNAL_NR)
+   #SET ATTR_OUT:VLN('I')=%TMP_LN_OUT('I')
+   #SET ATTR_OUT:VIX('I')=%TMP_IX_OUT('I')
+   ;control blocking
+   #IF ATTR_OUT:VUB('I')==1 #THEN @CB_BLK_NR = %CB_BLK_NR + 1
+   ;alarm blocking
+   ;#IF ATTR_OUT:VAC('I')<>0 #THEN #BLOCK
+      @ALARM_OBJ_NR = %ALARM_OBJ_NR + 1
+      #IF ATTR_OUT:VAB('I')==1 #THEN @AB_BLK_NR = %AB_BLK_NR + 1
+   ;#BLOCK_END
+   ;history blocking
+   ;#IF ATTR_OUT:VHE('I')<>0 #THEN #BLOCK
+      @HISTORY_OBJ_NR = %HISTORY_OBJ_NR + 1
+      #IF ATTR_OUT:VHB('I')==1 #THEN @HB_BLK_NR = %HB_BLK_NR + 1
+   ;#BLOCK_END
+   ;printout blocking
+   ;#IF ATTR_OUT:VLD('I')<>0 #THEN #BLOCK
+      @PRINT_OBJ_NR = %PRINT_OBJ_NR + 1
+      #IF ATTR_OUT:VPB('I')==1 #THEN @PB_BLK_NR = %PB_BLK_NR + 1
+   ;#BLOCK_END
+   ;reprocessing blocking
+   ;#IF ATTR_OUT:VAE('I')<>0 #THEN #BLOCK
+      @REPROC_OBJ_NR = %REPROC_OBJ_NR + 1
+      #IF ATTR_OUT:VXB('I')==1 #THEN @XB_BLK_NR = %XB_BLK_NR + 1
+   ;#BLOCK_END
+#LOOP_END
+
+;delete unnecessary vectors
+#DELETE TMP_LN_OUT:V
+#DELETE TMP_IX_OUT:V
+@RESULT_VECTOR=VECTOR(0,0,0,0,0,0)
+#LOOP_WITH I = 1..6
+   #CASE %I
+      ;update blocking
+      #WHEN 1 #BLOCK
+         @BLOCK_ATTR = "UB"
+         @SIGNAL_CNT = %INPUT_SIGNAL_NR
+      #BLOCK_END
+      ;control blocking
+      #WHEN 2 #BLOCK
+         @BLOCK_ATTR = "CB"
+         @SIGNAL_CNT = %OUTPUT_SIGNAL_NR
+      #BLOCK_END
+      ;alarm blocking
+      #WHEN 3 #BLOCK
+         @BLOCK_ATTR = "AB"
+         @SIGNAL_CNT = %ALARM_OBJ_NR
+      #BLOCK_END
+      ;history blocking
+      #WHEN 4 #BLOCK
+         @BLOCK_ATTR = "HB"
+         @SIGNAL_CNT = %HISTORY_OBJ_NR
+      #BLOCK_END
+      ;printout blocking
+      #WHEN 5 #BLOCK
+         @BLOCK_ATTR = "PB"
+         @SIGNAL_CNT = %PRINT_OBJ_NR
+      #BLOCK_END
+      ;reprocessing blocking
+      #WHEN 6 #BLOCK
+         @BLOCK_ATTR = "XB"
+         @SIGNAL_CNT = %REPROC_OBJ_NR
+      #BLOCK_END
+   #CASE_END
+   
+   ;all process objects blocked
+   #IF %'BLOCK_ATTR'_BLK_NR==%SIGNAL_CNT AND %SIGNAL_CNT>0 #THEN #BLOCK
+;            FPU_'BLOCK_ATTR'_ON.SET_STATE_SET
+;            FPU_'BLOCK_ATTR'_OFF.SET_STATE_UNSET
+      @OLD_'BLOCK_ATTR'_VALUE   = 2
+      @NEW_'BLOCK_ATTR'_VALUE   = 2
+      @'BLOCK_ATTR'_BLK_ENABLED = TRUE
+      @RESULT_VECTOR(%I)=1
+   #BLOCK_END
+   ;all process objects deblocked
+   #ELSE_IF %'BLOCK_ATTR'_BLK_NR==0 AND %SIGNAL_CNT>0 #THEN #BLOCK
+;            FPU_'BLOCK_ATTR'_ON.SET_STATE_UNSET
+;            FPU_'BLOCK_ATTR'_OFF.SET_STATE_SET
+      @OLD_'BLOCK_ATTR'_VALUE   = 1
+      @NEW_'BLOCK_ATTR'_VALUE   = 1
+      @'BLOCK_ATTR'_BLK_ENABLED = TRUE
+      @RESULT_VECTOR(%I)=0
+   #BLOCK_END
+   ;some process objects blocked/deblocked
+   #ELSE_IF %'BLOCK_ATTR'_BLK_NR<%SIGNAL_CNT AND %SIGNAL_CNT>0 #THEN #BLOCK
+;            FPU_'BLOCK_ATTR'_ON.SET_STATE_UNSET
+;            FPU_'BLOCK_ATTR'_OFF.SET_STATE_UNSET
+      @OLD_'BLOCK_ATTR'_VALUE   = 0
+      @NEW_'BLOCK_ATTR'_VALUE   = 0
+      @'BLOCK_ATTR'_BLK_ENABLED = TRUE
+      @RESULT_VECTOR(%I)=2
+   #BLOCK_END
+   ;no process objects to block
+   #ELSE #BLOCK
+;            FPU_'BLOCK_ATTR'_ON.SET_STATE_UNSET
+;            FPU_'BLOCK_ATTR'_OFF.SET_STATE_UNSET
+      @OLD_'BLOCK_ATTR'_VALUE = 0
+      @NEW_'BLOCK_ATTR'_VALUE = 0
+   #BLOCK_END
+#LOOP_END
+      
+;      #IF .INPUT_SIGNAL_NR==0 AND .OUTPUT_SIGNAL_NR==0 #THEN #BLOCK
+;         .GC : FG=("M",5)
+;         .BOX 16,380,448,25,FILL
+;         .GC 0=DEFAULT_GC: FG=("M",17), FT=("M",2)
+;         .TEXT 20,400,FPU_SSWF:VMSG_NO_OBJECTS_FOUND
+;      #BLOCK_END
+
+;search for process objects to be blocked/unblocked
+#case %t_Method_Name
+   #when "GET_BLOCKING_STATE" #block
+      #return %result_vector
+   #block_end
+   #when "SET_BLOCKING_STATE" #block
+      ;block/unblock objects
+      ;FOR TRACING:
+      @OLD_UB_VALUE='OLD_UB_VALUE'
+      @OLD_CB_VALUE='OLD_CB_VALUE'
+      @OLD_AB_VALUE='OLD_AB_VALUE'
+      @OLD_HB_VALUE='OLD_HB_VALUE'
+      @OLD_PB_VALUE='OLD_PB_VALUE'
+      @OLD_XB_VALUE='OLD_XB_VALUE'
+      @NEW_UB_VALUE='NEW_UB_VALUE'
+      @NEW_CB_VALUE='NEW_CB_VALUE'
+      @NEW_AB_VALUE='NEW_AB_VALUE'
+      @NEW_HB_VALUE='NEW_HB_VALUE'
+      @NEW_PB_VALUE='NEW_PB_VALUE'
+      @NEW_XB_VALUE='NEW_XB_VALUE'
+      @V_NEW_STATES=argument(3)
+      @V_NEW_STATES_CONVERTED=%V_NEW_STATES
+      #LOOP_WITH I=1..6
+         #IF %V_NEW_STATES(%I)==0 #THEN @V_NEW_STATES_CONVERTED(%I)=1        ;Semantics in SCIL and VB differs
+         #ELSE_IF %V_NEW_STATES(%I)==1 #THEN @V_NEW_STATES_CONVERTED(%I)=2
+         #ELSE_IF %V_NEW_STATES(%I)==2 #THEN @V_NEW_STATES_CONVERTED(%I)=0
+      #LOOP_END
+      @NEW_UB_VALUE=%V_NEW_STATES_CONVERTED(1)
+      @NEW_CB_VALUE=%V_NEW_STATES_CONVERTED(2)
+      @NEW_AB_VALUE=%V_NEW_STATES_CONVERTED(3)
+      @NEW_HB_VALUE=%V_NEW_STATES_CONVERTED(4)
+      @NEW_PB_VALUE=%V_NEW_STATES_CONVERTED(5)
+      @NEW_XB_VALUE=%V_NEW_STATES_CONVERTED(6)
+      #IF (%OLD_UB_VALUE <> %NEW_UB_VALUE OR %OLD_CB_VALUE <> %NEW_CB_VALUE OR %OLD_AB_VALUE <> %NEW_AB_VALUE OR %OLD_HB_VALUE <> %NEW_HB_VALUE OR -
+           %OLD_PB_VALUE <> %NEW_PB_VALUE OR %OLD_XB_VALUE <> %NEW_XB_VALUE) AND (%INPUT_SIGNAL_NR<>0 OR %OUTPUT_SIGNAL_NR<>0) #THEN #BLOCK
+        ;.SET PARENT.BLK_CHANGED = TRUE
+      
+        ;show text
+        ;.GC 0=DEFAULT_GC: FG=("M",17), FT=("M",2)
+        ;.TEXT 20,400,FPU_SSWF:VMSG_BLOCKING
+        ;#PAUSE 0.1
+         
+        @B_UPDATE_SET = FALSE
+        @B_CONTROL_SET = FALSE
+        @B_ALARM_SET = FALSE
+        @B_HISTORY_SET = FALSE
+        @B_PRINTOUT_SET = FALSE
+        @B_REPROCESING_SET = FALSE
+           
+        ;input objects
+        #LOOP_WITH I=1..(%INPUT_SIGNAL_NR)
+          @TMP_LN=ATTR_IN:VLN('I')
+          @TMP_IX=ATTR_IN:VIX('I')
+          #IF ATTR_IN:VHE('I')<>0 #THEN #SET 'TMP_LN':PHE'TMP_IX'=0
+      
+          ;update blocking
+          #IF %OLD_UB_VALUE <> %NEW_UB_VALUE #THEN #BLOCK
+            #SET 'TMP_LN':PUB'TMP_IX'=%NEW_UB_VALUE-1
+            @B_UPDATE_SET = TRUE
+          #BLOCK_END
+          ;alarm blocking
+;;;          #IF %OLD_AB_VALUE <> %NEW_AB_VALUE AND ATTR_IN:VAC('I')<>0 #THEN #BLOCK
+          #IF %OLD_AB_VALUE <> %NEW_AB_VALUE #THEN #BLOCK
+            #SET 'TMP_LN':PAB'TMP_IX'=%NEW_AB_VALUE-1
+            @B_ALARM_SET = TRUE
+          #BLOCK_END
+          ;history blocking
+;;;          #IF %OLD_HB_VALUE <> %NEW_HB_VALUE AND ATTR_IN:VHE('I')<>0 #THEN #BLOCK
+          #IF %OLD_HB_VALUE <> %NEW_HB_VALUE #THEN #BLOCK
+            #SET 'TMP_LN':PHB'TMP_IX'=%NEW_HB_VALUE-1
+            @B_HISTORY_SET = TRUE
+          #BLOCK_END
+          ;printout blocking
+;;;          #IF %OLD_PB_VALUE <> %NEW_PB_VALUE AND ATTR_IN:VLD('I')<>0 #THEN #BLOCK
+          #IF %OLD_PB_VALUE <> %NEW_PB_VALUE #THEN #BLOCK
+            #SET 'TMP_LN':PPB'TMP_IX'=%NEW_PB_VALUE-1
+            @B_PRINTOUT_SET = TRUE
+          #BLOCK_END
+          ;reprocesing blocking
+;;;          #IF %OLD_XB_VALUE <> %NEW_XB_VALUE AND ATTR_IN:VAE('I')<>0 #THEN #BLOCK
+          #IF %OLD_XB_VALUE <> %NEW_XB_VALUE #THEN #BLOCK
+            #SET 'TMP_LN':PXB'TMP_IX'=%NEW_XB_VALUE-1
+            @B_REPROCESING_SET = TRUE
+          #BLOCK_END
+          #IF ATTR_IN:VHE('I')<>0 #THEN #BLOCK
+            #SET 'TMP_LN':PHE'TMP_IX'=ATTR_IN:VHE('I')
+          #BLOCK_END
+          
+          #IF %Is_Alarm_Indicator #THEN #BLOCK         
+             @BLOCKINGS_LN = %TMP_LN
+             @BLOCKINGS_IX = 18
+             #IF application_object_exists(0, "IX", LIST(LN=%BLOCKINGS_LN, IX=%BLOCKINGS_IX)) #THEN  #BLOCK
+                #IF 'BLOCKINGS_LN':PEH'BLOCKINGS_IX' == "SYS_AI" #THEN #SET 'BLOCKINGS_LN':PEH'BLOCKINGS_IX'="SAGR_FORM5FPAI1_2"          
+                #SET 'BLOCKINGS_LN':POI'BLOCKINGS_IX'= 'TMP_LN':POI'TMP_IX'
+                #SET 'BLOCKINGS_LN':POX'BLOCKINGS_IX'= 'TMP_LN':POX'TMP_IX'
+                   
+                #IF %B_UPDATE_SET #THEN #SET 'BLOCKINGS_LN':POV'BLOCKINGS_IX'= %NEW_UB_VALUE - 1
+                #IF %B_CONTROL_SET #THEN #SET 'BLOCKINGS_LN':POV'BLOCKINGS_IX'= %NEW_CB_VALUE - 1 + 2
+                #IF %B_ALARM_SET #THEN #SET 'BLOCKINGS_LN':POV'BLOCKINGS_IX'= %NEW_AB_VALUE - 1 + 4
+                #IF %B_HISTORY_SET #THEN #SET 'BLOCKINGS_LN':POV'BLOCKINGS_IX'= %NEW_HB_VALUE - 1 + 6
+                #IF %B_PRINTOUT_SET #THEN #SET 'BLOCKINGS_LN':POV'BLOCKINGS_IX'= %NEW_PB_VALUE - 1 + 8
+                #IF %B_REPROCESING_SET #THEN #SET 'BLOCKINGS_LN':POV'BLOCKINGS_IX'= %NEW_XB_VALUE - 1 + 10                
+            #BLOCK_END                 
+         #BLOCK_END
+             
+          
+        #LOOP_END
+        
+        @SSS'TMP_LN' = VECTOR()      
+        ;if update unblocked, then update objects from process
+        #IF %OLD_UB_VALUE <> %NEW_UB_VALUE #THEN #BLOCK
+          #IF %NEW_UB_VALUE == 1 #THEN #BLOCK
+            @UPDATE_OBJECTS =LIST()
+            #LOOP_WITH I=1..(%INPUT_SIGNAL_NR)
+              @TMP_LN=ATTR_IN:VLN('I')
+              @TMP_IX=ATTR_IN:VIX('I')
+              ;if connected to process
+              #IF (ATTR_IN:VSS('I')==2 OR ATTR_IN:VSS('I')==3) AND ATTR_IN:VUN('I')<>0 #THEN #BLOCK
+                @SSS'TMP_LN' = VECTOR()
+                @SSS'TMP_LN'=APPEND(%SSS'TMP_LN',%TMP_IX)
+                #MODIFY UPDATE_OBJECTS:V=LIST(SSS'TMP_LN'=%SSS'TMP_LN')
+              #BLOCK_END
+              ;simulated process
+              #ELSE_IF 'TMP_LN':POS'TMP_IX'==2 #THEN #BLOCK
+                #IF ATTR_IN:VHE('I')<>0 #THEN #SET 'TMP_LN':PHE'TMP_IX'=0
+                #IF ATTR_IN:VPB('I')<>1 #THEN #SET 'TMP_LN':PPB'TMP_IX'=1
+                #SET 'TMP_LN':POV'TMP_IX' = 'TMP_LN':POV'TMP_IX'
+                #IF ATTR_IN:VPB('I')<>1 #THEN #SET 'TMP_LN':PPB'TMP_IX'=ATTR_IN:VPB('I')
+                #IF ATTR_IN:VHE('I')<>0 #THEN #SET 'TMP_LN':PHE'TMP_IX'=ATTR_IN:VHE('I')
+              #BLOCK_END
+            #LOOP_END
+
+            ;#DO READ_TEXT("/sa_lib/base/bbone/use/BGU_UPDATE.TXT")
+
+            #EXEC BGU_UPDATE:C (@UPDATE_OBJECTS=%UPDATE_OBJECTS)
+            ;.GC : FG=("M",5)
+            ;.BOX 16,380,448,25,FILL
+            ;.GC 0=DEFAULT_GC: FG=("M",17), FT=("M",2)
+            ;.TEXT 20,400,FPU_SSWF:VMSG_UPDATE_STARTED
+            ;.FLUSH    
+          #BLOCK_END
+        #BLOCK_END
+      
+        ;output objects
+        #LOOP_WITH I=1..(%OUTPUT_SIGNAL_NR)
+          @TMP_LN=ATTR_OUT:VLN('I')
+          @TMP_IX=ATTR_OUT:VIX('I')
+          #IF ATTR_OUT:VHE('I')<>0 #THEN #SET 'TMP_LN':PHE'TMP_IX'=0
+      
+          ;control blocking
+          #IF %OLD_CB_VALUE <> %NEW_CB_VALUE #THEN #BLOCK
+            #SET 'TMP_LN':PUB'TMP_IX'=%NEW_CB_VALUE-1
+            @B_CONTROL_SET = TRUE
+          #BLOCK_END
+          ;alarm blocking
+;;;          #IF %OLD_AB_VALUE <> %NEW_AB_VALUE AND ATTR_OUT:VAC('I')<>0 #THEN #SET 'TMP_LN':PAB'TMP_IX'=%NEW_AB_VALUE-1
+          #IF %OLD_AB_VALUE <> %NEW_AB_VALUE #THEN #SET 'TMP_LN':PAB'TMP_IX'=%NEW_AB_VALUE-1
+          ;history blocking
+;;;          #IF %OLD_HB_VALUE <> %NEW_HB_VALUE AND ATTR_OUT:VHE('I')<>0 #THEN #SET 'TMP_LN':PHB'TMP_IX'=%NEW_HB_VALUE-1
+          #IF %OLD_HB_VALUE <> %NEW_HB_VALUE #THEN #SET 'TMP_LN':PHB'TMP_IX'=%NEW_HB_VALUE-1
+          ;printout blocking
+;;;          #IF %OLD_PB_VALUE <> %NEW_PB_VALUE AND ATTR_OUT:VLD('I')<>0 #THEN #SET 'TMP_LN':PPB'TMP_IX'=%NEW_PB_VALUE-1
+          #IF %OLD_PB_VALUE <> %NEW_PB_VALUE #THEN #SET 'TMP_LN':PPB'TMP_IX'=%NEW_PB_VALUE-1
+          ;reprocesing blocking
+;;;          #IF %OLD_XB_VALUE <> %NEW_XB_VALUE AND ATTR_OUT:VAE('I')<>0 #THEN #SET 'TMP_LN':PXB'TMP_IX'=%NEW_XB_VALUE-1
+          #IF %OLD_XB_VALUE <> %NEW_XB_VALUE #THEN #SET 'TMP_LN':PXB'TMP_IX'=%NEW_XB_VALUE-1
+          
+          #IF ATTR_OUT:VHE('I')<>0 #THEN #SET 'TMP_LN':PHE'TMP_IX'=ATTR_OUT:VHE('I')
+        #LOOP_END
+
+        @BLOCKINGS=FALSE
+        @INDICATION_DB_IX=10;
+        @INDICATION_DB_LN=%PF_ID
+                                 
+         @b_SpecialGroupSwitch = False
+         #if %PF_INDICATION_INDEX > 0 #then #block
+            #IF SUBSTR('PF_ID':PRX'PF_INDICATION_INDEX',23,8) == "AGRPILRS" #THEN #BLOCK
+               #IF %SPECIAL_IDENTIFIER_1 <> "" #THEN @OI_CONDITION = "'SPECIAL_IDENTIFIER_1_TRIMMED'*"
+               #IF %SPECIAL_IDENTIFIER_2 <> "" #THEN @OI_CONDITION = "'SPECIAL_IDENTIFIER_2_TRIMMED'*"
+               #IF %SPECIAL_IDENTIFIER_3 <> "" #THEN @OI_CONDITION = "'SPECIAL_IDENTIFIER_3_TRIMMED'*"
+               @b_SpecialGroupSwitch = True
+               @RX_COND = "AGRPXBLK"
+            #BLOCK_END
+         #block_end
+         
+         #IF NOT %b_SpecialGroupSwitch #THEN #BLOCK
+             #IF %DEVICE_NAME=="" AND %BAY_NAME=="" #THEN #BLOCK
+               @OI_CONDITION = "'STATION_NAME_TRIMMED'*"
+               @RX_COND = "ASTAXBLK"
+            #BLOCK_END
+            #ELSE_IF %DEVICE_NAME=="" #THEN #BLOCK
+               @OI_CONDITION = "'BAY_NAME_TRIMMED'*"
+               @RX_COND = "ABAYXBLK"
+            #BLOCK_END
+            #ELSE #BLOCK
+               @OI_CONDITION = "'BAY_NAME_TRIMMED'*"
+               @RX_COND = "ABAYXBLK"
+            #BLOCK_END
+         #BLOCK_END
+       
+         @TMP_LIST
+         @TMP_LN=VECTOR()
+         @TMP_IX=VECTOR()
+        
+         @l_Inputs = APPLICATION_OBJECT_LIST(0, "IX",  "OI", "", "'OI_CONDITION'", "RX==""%%%%%%%%%%%%%%%%%%%%%%'RX_COND'*""")
+         #IF %l_Inputs.COUNT > 0 #THEN #BLOCK
+            @TMP_LN = %l_Inputs.LN
+            @TMP_IX = %l_Inputs.IX
+         #BLOCK_END
+         
+         #IF LENGTH(%TMP_LN) > 0 #THEN #BLOCK
+           #LOOP_WITH I = 1 .. LENGTH(%TMP_LN)
+             @LN = %TMP_LN('I')
+             @IX = %TMP_IX('I')
+         
+             ;bay blocking objects
+             #IF SUBSTR('LN':PRX'IX',23,8) == %RX_COND AND NOT %BLOCKINGS #THEN #BLOCK
+               @BLOCKINGS    = TRUE
+               @BLOCKINGS_LN = %TMP_LN('I')
+               @BLOCKINGS_IX = %TMP_IX('I')
+             #BLOCK_END
+            #LOOP_END
+          #BLOCK_END
+                  
+        ;printout to eventlist & printer if dedicated process object is found
+        #IF %BLOCKINGS #THEN #BLOCK
+      
+          #DO READ_TEXT("/sa_lib/base/bbone/lang0/SAI_SSW.TXT")
+          @e_state=error_state
+          #error ignore
+          @s = status
+          @apl_bsv11 = apl:bsv(11)
+          @tmp_lang =  %apl_bsv11.b_application_language
+          #if %tmp_lang <> 0 #then #block
+             #DO READ_TEXT("/sa_lib/base/bbone/lang'tmp_lang'/SAI_SSW.TXT")
+          #block_end
+          #error 'e_state'
+          
+          #if %xx == "%%" or  %xx == "" #then #block
+            @l_Tmp_Objects  = application_object_list(0, "IX",  "I", "F",  "'PF_ID'")
+            #if %l_Tmp_Objects.Count > 0 #then #block
+               @i_TmpIX = %l_Tmp_Objects.IX(1)
+               @XX = substr('pf_id':prx'i_TmpIX', 23 , 2)
+               #if data_type(FPU_SSWF:VAI_TITLE) == "NONE" #then #set FPU_SSWF:VAI_TITLE = "Alarm Indicator Blockings"
+               #if data_type(FPU_SSWF:VAR_TITLE) == "NONE" #then #set FPU_SSWF:VAR_TITLE = "Auto Reclose Blockings"
+               #if data_type(FPU_SSWF:VME_TITLE) == "NONE" #then #set FPU_SSWF:VME_TITLE = "Measurement Blockings"
+               #if data_type(FPU_SSWF:VTR_TITLE) == "NONE" #then #set FPU_SSWF:VTR_TITLE = "Transformer Blockings"
+               #if data_type(FPU_SSWF:VAB_TITLE) == "NONE" #then #set FPU_SSWF:VAB_TITLE = "Bay Blockings"
+               #if data_type(FPU_SSWF:VAS_TITLE) == "NONE" #then #set FPU_SSWF:VAS_TITLE = "Station Blockings"
+               #if data_type(FPU_SSWF:VAG_TITLE) == "NONE" #then #set FPU_SSWF:VAG_TITLE = "Operator place Blockings"
+            #block_end
+          #block_end
+
+          #CASE %XX
+            #WHEN "QB","QS","QI" @NEW_OX_TEXT = FPU_SSWF:VCB_TITLE
+            #WHEN "QD","QL","QF" @NEW_OX_TEXT = FPU_SSWF:VDC_TITLE
+            #WHEN "QE","QM" @NEW_OX_TEXT = FPU_SSWF:VES_TITLE
+            #WHEN "QT" @NEW_OX_TEXT = FPU_SSWF:VTR_TITLE
+            #WHEN "Q3" @NEW_OX_TEXT = FPU_SSWF:VTSS_TITLE
+            #WHEN "HA" @NEW_OX_TEXT = FPU_SSWF:VAI_TITLE
+            #WHEN "FA" @NEW_OX_TEXT = FPU_SSWF:VAR_TITLE
+            #WHEN "PM" @NEW_OX_TEXT = FPU_SSWF:VME_TITLE
+            #WHEN "TA" @NEW_OX_TEXT = FPU_SSWF:VTR_TITLE
+            #WHEN "AB" @NEW_OX_TEXT = FPU_SSWF:VAB_TITLE
+            #WHEN "AS" @NEW_OX_TEXT = FPU_SSWF:VAS_TITLE
+            #WHEN "AG" @NEW_OX_TEXT = FPU_SSWF:VAG_TITLE
+            #OTHERWISE @NEW_OX_TEXT = FPU_SSWF:VSW_TITLE
+          #CASE_END
+
+          ;@INDICATION_DB_LN = %DAT_FILE.INDICATION_DB_LN
+          ;@INDICATION_DB_IX = %DAT_FILE.INDICATION_DB_IX
+          ;@BLOCKINGS_LN     = %DAT_FILE.BLOCKINGS_LN
+          ;@BLOCKINGS_IX     = %DAT_FILE.BLOCKINGS_IX
+          
+          @NEW_OI_TEXT = 'INDICATION_DB_LN':POI'PF_INDICATION_INDEX' ;'INDICATION_DB_IX'
+    
+          #IF NOT %Is_Alarm_Indicator #THEN #BLOCK
+             
+             #SET 'BLOCKINGS_LN':POI'BLOCKINGS_IX'= %NEW_OI_TEXT
+             #SET 'BLOCKINGS_LN':POX'BLOCKINGS_IX'= %NEW_OX_TEXT
+             
+             #IF %B_UPDATE_SET #THEN #SET 'BLOCKINGS_LN':POV'BLOCKINGS_IX'= %NEW_UB_VALUE - 1
+             #IF %B_CONTROL_SET #THEN #SET 'BLOCKINGS_LN':POV'BLOCKINGS_IX'= %NEW_CB_VALUE - 1 + 2
+             #IF %B_ALARM_SET #THEN #SET 'BLOCKINGS_LN':POV'BLOCKINGS_IX'= %NEW_AB_VALUE - 1 + 4
+             #IF %B_HISTORY_SET #THEN #SET 'BLOCKINGS_LN':POV'BLOCKINGS_IX'= %NEW_HB_VALUE - 1 + 6
+             #IF %B_PRINTOUT_SET #THEN #SET 'BLOCKINGS_LN':POV'BLOCKINGS_IX'= %NEW_PB_VALUE - 1 + 8
+             #IF %B_REPROCESING_SET #THEN #SET 'BLOCKINGS_LN':POV'BLOCKINGS_IX'= %NEW_XB_VALUE - 1 + 10
+             
+          #BLOCK_END
+          
+        #BLOCK_END
+      #BLOCK_END
+      
+      ;update info messages
+      ;%DAT_FILE.DEFINE_CURRENT_STATE
+      ;%DAT_FILE.SHOW_MESSAGE
+      ;%DAT_FILE.INIT_BUTTON_STATES
+      
+      ;Erase blockings dialog
+      ;!ERASE SUBS
+   #block_end
+   #when "GET_ENABLED_BLOCKINGS" #block
+      @l_EnabledBlockings   = list(-
+                   UPDATE   = "ENABLED",-
+                   CONTROL  = "ENABLED",-
+                   ALARM    = "ENABLED",- 
+                   EVENT    = "ENABLED",-
+                   PRINTOUT = "ENABLED",-
+                   ACTION   = "ENABLED")
+
+      #case %dat_file.type_pf
+         #when "SAGR_MEA", "FPI_ME1", "FPI_ME2", "FPI_ME3", "SAGR_AI", "FPI_AI" #block
+            #modify l_EnabledBlockings:v = list(CONTROL = "DISABLED")
+         #block_end
+      #case_end
+
+      #return %l_EnabledBlockings
+      
+   #block_end
+#case_end

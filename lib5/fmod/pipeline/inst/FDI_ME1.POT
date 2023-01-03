@@ -1,0 +1,407 @@
+;-----------------------------------------------------------------
+; Rev.
+; 0.00     2005.09.19   TR    Erstellt - Tank (Messwert)
+;-----------------------------------------------------------------
+;collect information for object identifier (OI-attribute)
+
+@OBJ_IDENT
+#LOOP_WITH I = 1 .. %L_OI_DEF.DEPTH
+	#IF DATA_TYPE(%OBJECT_IDENTIFIER_'I'_NAME) <> "NONE" #THEN #BLOCK
+		@FIELD_IDENT = %OBJECT_IDENTIFIER_'I'_NAME
+		@OBJ_IDENT=%OBJ_IDENT+SUBSTR('ID'_PICTURE_FUNCTION_CONF:V'FIELD_IDENT',1, %L_OI_DEF.LEVELS(%I).WIDTH)
+	#BLOCK_END
+	#IF %L_OI_DEF.LEVELS(%I).NAME == "DEV" #THEN #LOOP_EXIT
+#LOOP_END
+
+;read object texts
+#CREATE FPI_ME:V = LIST(-
+   OBJECT_10 = "Volume [m³]",-
+   OBJECT_11 = "Flow [m³/h]",-
+   OBJECT_12 = "Pressure [bar]",-
+   OBJECT_13 = "Level [mWs]",-
+   OBJECT_14 = "Temperature [°C]",-
+   OBJECT_15 = "Degree of opening [%]",-
+   OBJECT_16 = "Suction pressure [bar]",-
+   OBJECT_17 = "pH-value",-
+   OBJECT_18 = "Turbidity [FNU]",-
+   OBJECT_19 = "UV-disinfection [W / m²]",-
+   OBJECT_20 = "Count rate [*1 m³]",-
+   OBJECT_21 = "User defined measurement",-
+   OBJECT_22 = "User defined measurement",-
+   OBJECT_23 = "User defined measurement",-
+   OBJECT_24 = "User defined measurement",-
+   OBJECT_25 = "User defined measurement",-
+   OBJECT_26 = "User defined measurement",-
+   OBJECT_27 = "User defined measurement",-
+   OBJECT_28 = "User defined measurement",-
+   OBJECT_29 = "User defined measurement",-
+   OBJECT_30 = "User defined measurement",-
+   OBJECT_31 = "User defined measurement",-
+   OBJECT_32 = "User defined measurement",-
+   OBJECT_33 = "User defined measurement",-
+   OBJECT_34 = "User defined measurement",-
+   OBJECT_35 = "User defined measurement",-
+   OBJECT_36 = "User defined measurement",-
+   OBJECT_37 = "User defined measurement",-
+   OBJECT_38 = "User defined measurement",-
+   OBJECT_39 = "User defined measurement",-
+   OBJECT_40 = "User defined measurement",-
+   OBJECT_41 = "User defined measurement",-
+   OBJECT_42 = "User defined measurement",-
+   OBJECT_43 = "User defined measurement",-
+   OBJECT_44 = "User defined measurement",-
+   OBJECT_45 = "User defined counter",-
+   OBJECT_46 = "User defined counter",-
+   OBJECT_47 = "User defined counter",-
+   OBJECT_48 = "User defined counter",-
+   OBJECT_49 = "User defined counter",-
+   UPDATE_COMMENT = "Used for updating objects from the process")
+
+;collect information for object identifier (OI-attribute)
+@OBJ_IDENT
+#LOOP_WITH I = 1 .. %L_OI_DEF.DEPTH
+	#IF DATA_TYPE(%OBJECT_IDENTIFIER_'I'_NAME) <> "NONE" #THEN #BLOCK
+		@FIELD_IDENT = %OBJECT_IDENTIFIER_'I'_NAME
+		@OBJ_IDENT=%OBJ_IDENT+SUBSTR('ID'_PICTURE_FUNCTION_CONF:V'FIELD_IDENT',1, %L_OI_DEF.LEVELS(%I).WIDTH)
+	#BLOCK_END
+	#IF %L_OI_DEF.LEVELS(%I).NAME == "DEV" #THEN #LOOP_EXIT
+#LOOP_END
+
+;create needed scales, command procedures and event channels
+
+;command procedure for updating objects from the process
+@C_SEARCH = FETCH(0,"C","BPU_UPDATE")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+  #CREATE BPU_UPDATE:C = LIST(-
+       IU = 1,-
+       MO = 1,-
+       CM = FPI_ME:VUPDATE_COMMENT,-
+       IN = ("",-
+             "#DO READ_TEXT(""B5_BBONE/BPU_UPDATE.TXT"")"))
+#BLOCK_END
+
+;define 1:1 scale for AI object if it does not exist
+@X_SEARCH=FETCH(0,"X","1_1")
+#IF X_SEARCH:VIU == -1 #THEN #BLOCK
+  #CREATE 1_1:X = LIST(SA = 0)
+#BLOCK_END
+
+;create needed scales
+#CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+  #WHEN "ANSI" #BLOCK
+    ;define 1/1000 scale for ANSI-AI object if it does not exist
+    @X_SEARCH = FETCH(0,"X","FDU_1_1000")
+    #IF X_SEARCH:VIU == -1 #THEN #BLOCK
+        #CREATE FDU_1_1000:X = LIST(SA = 1, SC = (0,1000,0,1))
+    #BLOCK_END
+  #BLOCK_END
+#CASE_END
+
+;initialize variables
+@IX
+@DX
+@HE
+@ST
+@SN
+@SZ
+@PF
+@LD
+@TYPE
+@P_OBJ01
+@P_OBJ02
+@P_OBJ03
+@P_OBJ04
+@P_OBJ05
+@P_OBJ06
+@P_OBJ07
+@P_OBJ08
+@P_OBJECTS   = LIST()
+
+;measurement objects
+#LOOP_WITH I=1..4
+  @TMP_CHECK = VECTOR()
+  #LOOP_WITH J=1..%I
+    @TMP_CHECK =APPEND(%TMP_CHECK,'ID'_PICTURE_FUNCTION_CONF:VTYPE_MEAS_'J')
+  #LOOP_END
+  #IF LENGTH('ID'_PICTURE_FUNCTION_CONF:VTYPE_MEAS_'I') > 0 AND LENGTH(SELECT(%TMP_CHECK,"=='ID'_PICTURE_FUNCTION_CONF:VTYPE_MEAS_'I'"))==1 #THEN #BLOCK
+
+    @IX   = DEC_SCAN(SUBSTR('ID'_PICTURE_FUNCTION_CONF:VTYPE_MEAS_'I',4,5))
+    @TYPE = SUBSTR('ID'_PICTURE_FUNCTION_CONF:VTYPE_MEAS_'I',1,3)
+    @DP   = 'ID'_PICTURE_FUNCTION_CONF:VMEAS_'I'_DECIMALS
+    @UNIT_IDENT_'I'       = SUBSTR('ID'_PICTURE_FUNCTION_CONF:VDATA_ACQUISITION_UNIT_'I',1,10)
+    @ADDITIONAL_IDENT_'I' = SUBSTR('ID'_PICTURE_FUNCTION_CONF:VFUNCTION_BLOCK_'I',1,10)
+
+    ;proper unit for measurement
+    #CASE %IX
+      #WHEN 10..49 #block
+        @ST = ""   ;user defined
+        @tmp_st_j1 = locate( FPI_ME:vOBJECT_'IX', "[" )
+        @tmp_st_j2 = locate( FPI_ME:vOBJECT_'IX', "]" )
+        #if %tmp_st_j1>0 and (%tmp_st_j2 - %tmp_st_j1)>1 #then #block
+          @ST = substr( FPI_ME:vOBJECT_'IX', %tmp_st_j1 + 1, %tmp_st_j2 - %tmp_st_j1 - 1 )
+        #block_end
+      #block_end
+      #OTHERWISE  @ST = ""   ;user defined
+    #CASE_END
+
+    ;analog inputs
+    #IF %IX > 0 AND %IX < 45 #THEN #BLOCK
+      #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+        #WHEN "SPA" #BLOCK
+          @DX ="N6"
+          @HE = 1                                    ;history enable = yes
+          @SN ="1_1"                                 ;scale = 1:1
+          @SZ = 1                                    ;zone supervision = SCADA
+          @PF = "FORM5SAGR1"                         ;physical format for printout
+          @LD = BIT_MASK(1)                          ;listing device = 1
+        #BLOCK_END
+
+        #WHEN "IEC101","IEC103" #BLOCK
+          @DX ="C9"
+          @HE = 1                                      ;history enable = yes
+          @SN ="1_1"                                   ;scale = 1:1
+          @SZ = 1                                      ;zone supervision = SCADA
+          @PF = "FORM5BPU1"                           ;physical format for printout
+          @LD = BIT_MASK(1)                            ;listing device = 1
+        #BLOCK_END
+
+        #WHEN "ANSI" #BLOCK
+          @DX ="9"
+          @HE = 1                                      ;history enable = yes
+          @SN ="BGU_1_1000"                            ;scale = 1:1
+          @SZ = 1                                      ;zone supervision = SCADA
+          @PF = "FORM5BPU1"                           ;physical format for printout
+          @LD = BIT_MASK(1)                            ;listing device = 1
+        #BLOCK_END
+
+        #WHEN "RTU" #BLOCK
+          #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+            @DX ="I6"
+            @DX2="I11"
+            @HE = 0                                    ;history enable = no
+            @SN ="1_1"                                 ;scale = 1:1
+            @SZ = 0                                    ;zone supervision = RTU
+            @PF = "DUMMY"                              ;physical format for printout
+            @LD = 0                                    ;listing device = none
+          #BLOCK_END
+
+          #ELSE #BLOCK
+            @DX ="I6"
+            @HE = 1                                    ;history enable = yes
+            @SN ="1_1"                                 ;scale = 1:1
+            @SZ = 0                                    ;zone supervision = RTU
+            @PF = "FORM5DEGR1"                         ;physical format for printout
+            @LD = BIT_MASK(1)                          ;listing device = 1
+          #BLOCK_END
+        #BLOCK_END
+
+        #WHEN "RTU_E" #BLOCK
+          #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+            @DX ="R6"
+            @DX2="R11"
+            @HE = 0                                    ;history enable = no
+            @SN ="1_1"                                 ;scale = 1:1
+            @SZ = 0                                    ;zone supervision = RTU
+            @PF = "DUMMY"                              ;physical format for printout
+            @LD = 0                                    ;listing device = none
+          #BLOCK_END
+
+          #ELSE #BLOCK
+            @DX ="R6"
+            @HE = 1                                    ;history enable = yes
+            @SN ="1_1"                                 ;scale = 1:1
+            @SZ = 0                                    ;zone supervision = RTU
+            @PF = "FORM5DEGR1"                         ;physical format for printout
+            @LD = BIT_MASK(1)                          ;listing device = 1
+          #BLOCK_END
+        #BLOCK_END
+
+        #WHEN "MODBUS_RTU" #BLOCK
+            @DX ="I6"
+            @HE = 1                                    ;history enable = yes
+            @SN ="1_1"                                 ;scale = 1:1
+            @SZ = 0                                    ;zone supervision = RTU
+            @PF = "FORM5DEGR1"                         ;physical format for printout
+            @LD = BIT_MASK(1)                          ;listing device = 1
+        #BLOCK_END
+
+      #CASE_END
+
+      @RX = %ADDITIONAL_IDENT_'I'+%UNIT_IDENT_'I'+"DPDMEAM'TYPE'"  ;ob
+      #IF 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE == "IEC61850" #THEN #BLOCK
+
+         #IF DATA_TYPE('ID'_PICTURE_FUNCTION_CONF:VDEFINE_ITEM_NAME) <> "NONE" #THEN - 
+            @b_Fill_IN = 'ID'_PICTURE_FUNCTION_CONF:VDEFINE_ITEM_NAME
+         #ELSE @b_Fill_IN = false
+
+         @RX = SUBSTR(%RX,1,35) + %v_61850_ID(%IX-9)
+
+         #IF %b_Fill_IN #THEN #BLOCK
+            @v_LN_OPC_Instances = vector
+            @t_OPC_Prefix = ""
+            @v_Instance(1) = ""
+            @v_LN_OPC_Instances = 'ID'_PICTURE_FUNCTION_CONF:VOPC_LN_INSTANCE_'I'
+            @t_OPC_Prefix = 'ID'_PICTURE_FUNCTION_CONF:VOPC_ITEM_PREFIX
+            @v_Dots = locate(%v_LN_OPC_Instances(1),".","ALL")
+
+            #if length(%v_Dots) > 0 #then #block
+               @v_Instance(1) = substr(%v_LN_OPC_Instances(1),1, %v_Dots(1) - 1)
+            #block_end
+            #else @v_Instance(1) = %v_LN_OPC_Instances(1)
+
+            #CASE %IX
+               #WHEN 1..49 #BLOCK ;user defined
+                  @IN(1) = %v_LN_OPC_Instances(1)
+               #BLOCK_END
+               #OTHERWISE #BLOCK
+                  @IN(1) = %v_LN_OPC_Instances(1)
+               #BLOCK_END
+            #CASE_END
+         #BLOCK_END
+         #ELSE @IN(1) = ""
+      #BLOCK_END
+      #ELSE @IN(1) = ""
+
+      #MODIFY P_OBJECTS:V = LIST(P_OBJ0'I' = LIST(-
+          IX = %IX,-                                   ;index 
+          PT = 9,-                                     ;process object type = analog input
+          DX = %DX,-                                   ;directive text
+          AI = 0,-                                     ;object value = 0
+          OI = %OBJ_IDENT,-                            ;substation & bay name
+          OX = FPI_ME:VOBJECT_'IX',-                   ;object text
+          IU = 1,-                                     ;in use = yes
+          SS = 1,-                                     ;switch state = manual
+          EE = 1,-                                     ;event enable = yes
+          HE = %HE,-                                   ;history enable 
+          HA = 3,-                                     ;history activation = warning & alarm
+          HF = 1,-                                     ;history at first update = yes
+          HL = BIT_MASK(15),-                          ;history log number = 15
+          EH = "SAGR_FORM5FPAI2_1",-                   ;event handling object  ;ob
+          HI = 0,-                                     ;upper alarm limit = 0
+          HW = 0,-                                     ;upper warning limit = 0
+          LW = 0,-                                     ;lower warning limit = 0
+          LI = 0,-                                     ;lower alarm limit = 0
+          ST = %ST,-                                   ;unit of value
+          SN = %SN,-                                   ;scale name
+          SZ = %SZ,-                                   ;zone supervision
+          RC = 1,-                                     ;receipt = acknowledgement required
+          AB = 0,-                                     ;alarm blocking = no
+          AC = 1,-                                     ;alarm class = 1
+          AD = 0,-                                     ;alarm delay = 0
+          PD = 0,-                                     ;picture device = none
+          PI = "",-                                    ;alarm picture
+          PF = %PF,-                                   ;physical format for printout
+          RI = 1,-                                     ;dynamic texts for printout
+          PA = 3,-                                     ;printout activation = warning & alarm
+          PU = 1,-                                     ;picture/ printout at first update = yes
+          LD = 0,-                  ;ob BIT_MASK(1),-  ;listing device
+          IN = %IN(1),-                                ;
+          RX = %RX,-                                   ;data acquisition unit and group information
+          DP = %DP))                                   ; Decimal places     
+
+      @RX = %ADDITIONAL_IDENT_'I'+%UNIT_IDENT_'I'+"DPDMEAE'TYPE'"  ;ob
+      
+      ;event recording objects for RTU
+      #IF ('ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE == "RTU" OR 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE == "RTU_E" OR 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE == "DNP_30") -
+      AND 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+        #IF SUBSTR('ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE,1,3) == "RTU" #THEN @I_SZ = 0
+        #ELSE @I_SZ = 1
+        @J=%I+4 
+        #MODIFY P_OBJECTS:V = LIST(P_OBJ0'J' = LIST(-
+          IX = %IX+100,-                               ;index 
+          PT = 9,-                                     ;process object type = AI
+          DX = %DX2,-                                  ;directive text
+          AI = 0,-                                     ;object value = 0
+          OI = %OBJ_IDENT,-                            ;substation & bay name
+          OX = FPI_ME:VOBJECT_'IX',-                   ;object text
+          IU = 1,-                                     ;in use = yes
+          SS = 2,-                                     ;switch state = auto
+          EE = 1,-                                     ;event enable = yes
+          HE = 1,-                                     ;history enable 
+          HA = 3,-                                     ;history activation = warning & alarm
+          HF = 1,-                                     ;history at first update = yes
+          HL = BIT_MASK(15),-                          ;history log number = 15
+          EH = "SAGR_FORM5FPAI2_1",-                   ;event handling object  ;ob
+          HI = 0,-                                     ;upper alarm limit = 0
+          HW = 0,-                                     ;upper warning limit = 0
+          LW = 0,-                                     ;lower warning limit = 0
+          LI = 0,-                                     ;lower alarm limit = 0
+          ST = %ST,-                                   ;unit of value
+          SN = "1_1",-                                 ;scale name
+          SZ = %I_SZ,-                                 ;zone supervision = RTU
+          RC = 0,-                                     ;receipt = acknowledgement not required
+          AB = 0,-                                     ;alarm blocking = no
+          AC = 0,-                                     ;alarm class = disabled
+          AD = 0,-                                     ;alarm delay = 0
+          PD = 0,-                                     ;picture device = none
+          PI = "",-                                    ;alarm picture
+          PF = "FORM5DEGR1",-                          ;physical format for printout
+          RI = 1,-                                     ;dynamic texts for printout
+          PA = 3,-                                     ;printout activation = warning & alarm
+          PU = 1,-                                     ;picture/ printout at first update = yes
+          LD = 0,-                  ;ob BIT_MASK(1),-  ;listing device
+          RX = %RX)) ;data acquisition unit and group information
+      #BLOCK_END
+    #BLOCK_END
+
+    ;pulse counter
+    #ELSE #BLOCK
+      #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+        #WHEN "IEC101","IEC103" #BLOCK
+          @DX ="C13"
+          @SC = 1                                      ;pulse counter scaling 
+        #BLOCK_END
+
+        #WHEN "ANSI" #BLOCK
+          @DX ="13"
+          @SC = 0.001                                  ;pulse counter scaling 
+        #BLOCK_END
+
+        #WHEN "RTU" #BLOCK
+          @DX ="I8"
+          @SC = 1                                      ;pulse counter scaling 
+        #BLOCK_END
+
+        #WHEN "RTU_E" #BLOCK
+          @DX ="R8"
+          @SC = 1                                      ;pulse counter scaling 
+        #BLOCK_END
+
+        #WHEN "MODBUS_RTU" #BLOCK
+          @DX ="I8"
+          @SC = 1                                      ;pulse counter scaling 
+        #BLOCK_END
+
+      #CASE_END
+
+      @RX = %ADDITIONAL_IDENT_'I'+%UNIT_IDENT_'I'+"DPDMEAM'TYPE'"  ;ob
+      
+      @IN(1) = ""
+
+
+      #MODIFY P_OBJECTS:V = LIST(P_OBJ0'I' = LIST(-
+          IX = %IX,-                                   ;index 
+          PT = 13,-                                    ;process object type = PC
+          DX = %DX,-                                   ;directive text
+          PC = 0,-                                     ;object value = 0
+          OI = %OBJ_IDENT,-                            ;substation & bay name
+          OX = FPI_ME:VOBJECT_'IX',-                   ;object text
+          IU = 1,-                                     ;in use = yes
+          SS = 1,-                                     ;switch state = manual
+          EE = 1,-                                     ;event enable = yes
+          HE = 0,-                                     ;history enable = no
+          HA = 1,-                                     ;history activation = new value
+          HF = 0,-                                     ;history at first update = no
+          HL = BIT_MASK(15),-                          ;history log number = 15
+          SC = %SC,-                                   ;pulse counter scaling
+          ST = %ST,-                                   ;unit of value
+          PF = "",-                                    ;physical format for printout
+          RI = 0,-                                     ;dynamic texts for printout
+          PA = 1,-                                     ;printout activation = warning & alarm
+          PU = 0,-                                     ;picture/ printout at first update = yes
+          LD = 0,-                                     ;listing device
+          IN = %IN(1),-
+          RX = %RX)) ;data acquisition unit and group information
+    #BLOCK_END
+  #BLOCK_END
+#LOOP_END

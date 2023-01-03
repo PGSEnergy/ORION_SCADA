@@ -1,0 +1,121 @@
+;Updating the different tools.ini files
+;@a=trace_begin("\toolsupdate.txt")
+
+;first we update the "sys_tool/tools.ini"
+
+#error ignore
+
+;let's check the ToolMgr
+@Data = read_parameter("sys_tool/tools.ini","ToolMgr","Tool_Dir_")
+#if data:vSTATUS <> 0 #then #block
+  ;we need to write needed info to the tools.ini
+  @Data = write_parameter("sys_tool/tools.ini","ToolMgr","Tool_Dir_","Sys_Tool")
+#block_end
+
+;let's check the SSSLVIEWER
+@Data = read_parameter("sys_tool/tools.ini","SSSLVIEWER","Tool_Dir_")
+#if data:vSTATUS <> 0 #then #block
+  ;we need to write needed info to the tools.ini
+  @Data = write_parameter("sys_tool/tools.ini","SSSLVIEWER","Tool_Dir_","Sys_Tool")
+#block_end
+
+
+
+;let's check the ToolMon
+@Data = read_parameter("sys_tool/tools.ini","ToolMon","Tool_Dir_")
+#if data:vSTATUS <> 0 #then #block
+  ;we need to write needed info to the tools.ini
+  @Data = write_parameter("sys_tool/tools.ini","ToolMon","Tool_Dir_","/sa_lib/services/ToolMon")
+#block_end
+
+
+;let's check the ToolStarter
+@Data = read_parameter("sys_tool/tools.ini","ToolStarter","Tool_Dir_")
+#if data:vSTATUS <> 0 #then #block
+  ;we need to write needed info to the tools.ini
+  @Data = write_parameter("sys_tool/tools.ini","ToolStarter","Tool_Dir_","/sa_lib/services/ToolStarter")
+#block_end
+
+
+
+;And finally we need to update the lib4\base\bbone\use\tools.ini file
+
+;first let's check wheter the lib is installed i.e the tools.ini file exists...
+
+@libDir = fm_scil_directory("/LIB4/base/bbone/use")
+
+#if DIRECTORY_MANAGER("EXISTS", %libDir) #then #block
+
+
+   #if length(path("bbone"))>0 #then #block
+      @fileLib="/LIB4/base/bbone/use/cal.ini"
+      @bLibFileExist=FILE_MANAGER("EXISTS",FM_SCIL_FILE(%fileLib))
+      
+      #if %bLibFileExist==false #then #block
+         @sagrFile="/sa_lib/base/bbone/use/cal.ini"
+         #if FILE_MANAGER("EXISTS",FM_SCIL_FILE(%sagrFile)) #then #block
+              @oK=FILE_MANAGER("COPY",FM_SCIL_FILE(%sagrFile),FM_SCIL_FILE(%fileLib))
+         #block_end
+      #block_end
+      
+      
+      
+      @fileLib="/LIB4/base/bbone/use/UsrMgr.ini"
+      @bLibFileExist=FILE_MANAGER("EXISTS",FM_SCIL_FILE(%fileLib))
+      
+      #if %bLibFileExist==false #then #block
+         @sagrFile="/sa_lib/base/bbone/use/UsrMgr.ini"
+         #if FILE_MANAGER("EXISTS",FM_SCIL_FILE(%sagrFile)) #then #block
+              @oK=FILE_MANAGER("COPY",FM_SCIL_FILE(%sagrFile),FM_SCIL_FILE(%fileLib))
+         #block_end
+      #block_end
+
+      #if file_manager("exists", fm_scil_file("/lib4/base/bbone/use/tools.ini"))==TRUE #then #block
+ 
+   
+           @Data = read_parameter("/lib4/base/bbone/use/tools.ini","UsrMgr","Tool_Dir_")
+           #if data:vSTATUS <> 0 #then #block
+              ;we need to write needed info to the tools.ini
+              @Data = write_parameter("/lib4/base/bbone/use/tools.ini","UsrMgr","Tool_Dir_","\sc\LIB4\base\bbone\use")
+           #block_end
+           
+           
+           @Data = read_parameter("/lib4/base/bbone/use/tools.ini","Cal","Tool_Dir_")
+           #if data:vSTATUS <> 0 #then #block
+              ;we need to write needed info to the tools.ini
+              @Data = write_parameter("/lib4/base/bbone/use/tools.ini","CAL","Tool_Dir_","\sc\LIB4\base\bbone\use")
+           #block_end
+           
+           
+           @Data = read_parameter("/lib4/base/bbone/use/tools.ini","ToolStarter","Tool_Dir_")
+     
+           #if data:vSTATUS <> 0 #then #block
+               @v_registered_tools = read_text("/LIB4/base/bbone/use/tools.ini")
+               @v_registered_tools = append(%v_registered_tools, read_text("sys_tool/tools.ini")) 
+               @st=write_text("/lib4/base/bbone/use/tools.ini",%v_registered_tools)
+           #block_end
+           
+           
+
+      #block_end
+   #block_end
+   
+   
+#block_end
+
+
+
+;and finally copy the needed apl_init.vso
+@stoolDir = fm_scil_directory("/stool/misc")
+#if DIRECTORY_MANAGER("EXISTS", %stoolDir) #then #block
+    @fileSys="/stool/misc/apl_init.vso"
+
+     @bSysFileExist=FILE_MANAGER("EXISTS",FM_SCIL_FILE(%fileSys))
+     #if %bSysFileExist==TRUE #then #block
+         @aplFile="APL_/apl_init.vso"
+         @bCopy=FILE_MANAGER("COPY",FM_SCIL_FILE(%fileSys),FM_SCIL_FILE(%aplFile),"OVERWRITE")
+         #if %bCopy>0 #then #block
+	       @a=console_output("Info: BGU_TOOLS_INI_UPD.TXT execution failed when copying APL_INIT.VSO (SCIL Error:'bCopy')")
+         #block_end
+     #block_end
+#block_end

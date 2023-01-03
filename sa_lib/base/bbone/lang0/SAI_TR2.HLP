@@ -1,0 +1,311 @@
+COMMON TAP CHANGER
+
+1. Environmental requirements
+
+In order for the transformer to have full
+functionality, the following components need to
+be installed:
+
+SA-LIB
+
+   - Station
+   - Bay
+
+2. Configurable attributes
+
+It is important to configure attributes in the order
+of appearance since setting one attribute may
+enable/disable and/or reset another attribute
+later.
+
+STATION_NAME
+
+A selector type of an editable combo box to
+select or enter the name of the substation. As a
+default, the maximum length of the text is 9
+characters. The selection list shows up to ten
+latest entries.
+
+The configurable attribute is being read directly
+from the process object database, if there is any
+process object linked to the selected transformer.
+Therefore, the configurable attribute within a
+standard function has meaning only when the process
+objects have not been created.
+
+This text will be used as a substation identifier of
+the transformer objects on event list, alarm list,
+printout, database query, etc. It is very important
+that this text is similar to all objects within the
+same substation.
+
+BAY_NAME
+
+A selector type of an editable combo box to
+select or enter the name of the bay (feeder). As a
+default, the maximum length of the text is 14
+characters. The selection list shows up to ten
+latest entries.
+
+The configurable attribute is being read directly
+from the process object database, if there is any
+process object linked to the selected transformer.
+Therefore, the configurable attribute within a
+standard function has meaning only when the process
+objects have not been created.
+
+This text will be used as a bay (feeder) identifier
+of the transformer objects on event list, alarm
+list, printout, database query, etc. It is very
+important that this text is similar to all objects
+within the same bay (feeder).
+
+DEVICE_NAME
+
+A selector type of an editable combo box to
+select or enter the name (identifier) of the
+transformer. As a default, the maximum length of
+the text is 5 characters. The selection list shows
+up to ten latest entries.
+
+The configurable attribute is being read directly
+from the process object database, if there is any
+process object linked to the selected transformer.
+Therefore, the configurable attribute within a
+standard function has meaning only when the process
+objects have not been created.
+
+This text will be used as an identifier of the
+transformer on event list, alarm list, printout,
+database query, etc.
+
+MIN POSITION
+
+The minimum position of the tap changer.
+
+MAX POSITION
+
+The maximum position of the tap changer.
+
+P_OBJECT_LN
+
+The logical name of the database process objects.
+The maximum length of the text is 10 characters.
+Allowed characters are the letters A-Z, all
+digits and the underscore (_).
+
+The logical names of process objects has to be
+unique throughout the entire system, that is,
+different objects cannot have the same logical
+name. Therefore, it is very important to have a
+proper naming convention for the process object
+database.
+
+Certain naming convention is also required to speed
+up the opening time of the main dialogs. With the
+predefined naming convention it is possible to
+collect all station and bay related database
+objects without searching through the complete
+database. Therefore, it is advised to use the
+following naming convention:
+
+  - The first three characters identify the substation
+  - The following four characters identify the bay
+  - The last three characters can be freely used to
+    identify the source of the signal i.e. device,
+    unit, etc.
+
+The following list is presented as an example of a
+proper naming convention within one bay. The
+station name is Green Bay and the bay name is HA12
+Downtown:
+
+  - GRB, station
+  - GRBHA12BAY, bay
+  - GRBHA12Q0, circuit breaker Q0
+  - GRBHA12Q1, truck Q1
+  - GRBHA12Q9, earth switch Q9
+  - GRBHA12CT, measurements/current transformer
+  - GRBHA12VT, measurements/voltage
+    transformer
+  - GRBHA12ALA, alarm indicator
+  - GRBHA12AR, auto-reclosing tag
+  - GRBHA12TRP, tripping tag
+  - GRBHA12R1, feeder terminal or protection unit
+    1
+  - GRBHA12R2, feeder terminal or protection unit
+    1
+  - GRBHA12LS1, line segment 1 of busbar
+    coloring
+  - GRBHA12LS2, line segment 2 of busbar
+    coloring
+  - GRBHA12LS3, line segment 3 of busbar
+    coloring
+  - GRBHA12LI, line indicator of busbar
+    coloring
+
+STATION_TYPE
+
+A selector type of a combo box to select the
+station type of the objects.
+
+The database process objects will be created for
+the station type defined here. The list of supported
+protocols is as follows:
+
+  - SPA
+  - ANSI
+  - LON
+  - RP570
+  - RP570 with FTABs
+  - IEC 870-5-101
+  - IEC 870-5-103
+  - ICCP
+  - DNP 3.0
+  - MODBUS RTU
+  - IEC 61850-8
+  - PROCOL
+
+CMD_PARAMETER
+
+A selector type of a combo box to select the
+command parameter for control method. This
+attribute has meaning only if IEC 870-5-101 or
+DNP 3.0 or ICCP protocol is selected, otherwise this
+attribute is being disabled. The supported control
+parameters are:
+
+  - Double command (TY = 46)
+  - Single command (TY = 45)
+
+for IEC 870-5-101 and ICCP protocol and
+
+  - Select-Operate
+
+for DNP 3.0 protocol.
+
+OUTPUT_STATUS
+
+An ON/OFF type of a toggle button to select
+whether there is need for output status process
+objects with the DNP 3.0 protocol. If
+STATION_TYPE is other than DNP 3.0, the
+configurable attribute is being disabled, and the
+value has no meaning.
+
+AUTHORIZATION GROUP
+
+A selector type of an editable combo box to
+select the authorization group for the object. The
+maximum length of the text is 63 characters. The
+given text has to be usable as a SCIL list
+attribute name (see SCIL manual). The contents
+of the selection list is taken from the existing
+authorization groups.
+
+NOTE! The name may not be composed of two
+letters followed by a number.
+
+The attribute can be defined, if the object is
+wanted to be included in some authorization group.
+The authorization level of each user in this group
+can be defined afterwards by the system manager with
+User Management picture.
+
+OPERATOR_PLACE_HANDLING
+
+This setting enables the check of authorized
+control location (SCS/NCC) for an object. This setting is
+available only with IEC 61850-8 protocol.
+
+Depending on the selection, a different kind of set of process
+objects are are created. The following options are available:
+
+ None:
+ Object-specific control authority not used. Control dialog
+ automatically detects if MicroSCADA Internal authority check
+ is in use in bay level and allows the control accordingly.
+		
+ Loc:
+ There is an object-specific Local/Remote switch on logical
+ node (e.g. CSWI/ATCC) level.
+
+ LocSta:
+ There is an object-specific Station/NCC switch on logical
+ node (e.g. CSWI/ATCC) level.
+ 
+ Loc and LocSta:
+ Both Local/Remote and Station/NCC switches exist on logical
+ node level.
+
+BAY_LR_POLARITY
+
+The polarity of the bay local/remote-switch
+input signal.
+
+OPERATION_MODE
+
+Selection for the operation mode, where regulator
+is running. Depending on this attribute the following
+indications/settings are possible in control dialog:
+
+ - Single
+    - Auto
+    - manual
+
+ - Parallel - Master/Slave
+    - Parallel
+    - Single
+    - Auto/Manual, when regulator is in Single mode
+    - Master/Slave, when regulator is in Parallel mode
+
+ - Parallel - Negative Reactance Principle
+    - Parallel
+    - Single
+    - Auto
+    - Manual
+
+- Parallel - Minimizing Circulating Current
+    - Parallel
+    - Single
+    - Auto
+    - Manual
+
+NOTE!
+Single/parallel setting is available only with IEC61850
+protocol, otherwise it is indication only.
+
+With IEC61850 protocol auto/manual setting can be
+enabled/disabled by setting the IU attribute of index 14
+to in use/not in use.
+
+With IEC61850 protocol Master/Slave setting can be
+enabled/disabled by setting the IU attribute of indexes
+33/34 to in use/not in use.
+
+AUTO_MANUAL_IND_TYPE
+
+Either BI or DB type of process object can be
+created for the auto/manual indication. This
+attribute must be configured before the process
+objects are created.
+
+TRANSFORMER_TYPE
+
+Selection for the 2-winding or 3-winding
+transformer.
+
+EVENT_RECORDING
+
+An ON/OFF type of a toggle button to select
+whether there is a need for event recording process
+objects with the RP 570 protocol. If
+STATION_TYPE is other than RTU 2xx or RTU
+2xx/FTABs, the configurable attribute is being
+disabled, and the value has no meaning.
+
+With the RP 570 the time stamp from process device
+comes into the event recording process object. If no
+accurate time stamp is needed or available, or the
+device is emulating the RP 570 without an event
+recording possibility, do not set this attribute ON.

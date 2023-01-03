@@ -1,0 +1,54 @@
+;This procedure creates the configuration for the Workplace X SSS functionality. It can be called cyclically or whenever changes are done to the system configuration that affects SSS
+
+#local application
+#local ied
+#local snmp
+#local s
+#local conversion_status
+#local i_status
+#local apl_path
+#local application_path
+#local ied_path
+#local snmp_path
+#local or_path
+
+i_Status = STATUS
+#ERROR IGNORE
+application = DO(BPU_SSS_APPLICATION_MODEL:C)
+#ERROR STOP
+i_Status = STATUS
+#IF i_Status == 0 #THEN #BLOCK
+s = WRITE_TEXT("apl_/apl_sss_application_object_model.txt", DUMP(application))
+#BLOCK_END
+
+i_Status = STATUS
+#ERROR IGNORE
+ied = DO(BPU_SSS_IED_MODEL:C)
+#ERROR STOP
+i_Status = STATUS
+#IF i_Status == 0 #THEN #BLOCK
+s = WRITE_TEXT("apl_/apl_sss_ied_object_model.txt", DUMP(ied))
+#BLOCK_END
+
+i_Status = STATUS
+#ERROR IGNORE
+snmp = DO(BPU_SSS_SNMP_MODEL:C)
+#ERROR STOP
+i_Status = STATUS
+#IF i_Status == 0 #THEN #BLOCK
+s = WRITE_TEXT("apl_/apl_sss_snmp_object_model.txt", DUMP(snmp))
+#BLOCK_END
+
+apl_path = FM_REPRESENT(FM_APPLICATION_DIRECTORY("APL_"))
+
+application_path = "'apl_path'/apl_sss_application_object_model.txt"
+ied_path = "'apl_path'/apl_sss_ied_object_model.txt"
+snmp_path = "'apl_path'/apl_sss_snmp_object_model.txt" 
+or_path = "'apl_path'/apl_sss_object_references.json"
+
+
+
+#ERROR CONTINUE
+conversion_status = OPS_PROCESS("SupervisionConfigurationTool.exe 'application_path' 'ied_path' 'snmp_path' 'or_path'")
+#IF conversion_status.start_status <> 0 #THEN -
+   @CO = console_output("SSS model updating failed. Status = 'conversion_status.start_status'", "E", "SSS")

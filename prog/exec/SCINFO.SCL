@@ -1,0 +1,199 @@
+;File:        scinfo.scl
+;Desription:  A SCIL program to query and log the state of the running system.
+;Subject:     System Info Logging for Technical Support
+;-----------------------------------------------------------------------------
+
+#local i, j, w, v = vector(), v_output = vector()
+
+#local mpu, mpu_free, mpu_size, mpu_used, mpu_used_blocks, mpu_block_sizes, mpu_len, mpu_ub, -
+       mpu_ubt, mpu_bs, mpu_bst
+
+#local apls, apl_nr, apl_na, apl_pu1, apl_pu2, apl_eu, apl_qu1, apl_qu2, apl_qu3, apl_qu4, apl_au, -
+       apl_ro, apl_ros, apl_tt, apl_as, apl_ss, apl_sp
+
+#local lm, lm_appl_opc_servers, lm_expired, lm_history_data, lm_hsb, lm_hw_lock, -
+       lm_opc_ae_clients, lm_opc_da_clients, lm_process_io, lm_protocol, lm_hd, lm_pr,-
+       lm_opc_client, lm_workstations, lm_workstations_pro
+
+
+;*** MEMORY POOL USAGE
+
+v_output(length(v_output)+1) = ""
+v_output(length(v_output)+1) = "*** MEMORY POOL USAGE *** " + times
+
+mpu = memory_pool_usage("GLOBAL")
+
+mpu_free = mpu.free
+mpu_size = mpu.size
+mpu_used = mpu.used
+mpu_used_blocks = mpu.used_blocks
+mpu_block_sizes = mpu.block_sizes
+
+v_output(length(v_output)+1) = ""
+v_output(length(v_output)+1) = "GLOBAL MEMORY POOL SIZE='mpu_size', FREE='mpu_free', USED='mpu_used'"
+
+mpu_len = length(dec(1024*1024*mpu_size)) + 1
+
+#loop_with i = 1 .. length(mpu.used_blocks)
+   mpu_ubt = pad(" ", mpu_len)
+   mpu_bst = pad(" ", mpu_len)
+   mpu_ub  = dec(mpu_used_blocks(i))
+   mpu_ubt = substr(mpu_ubt,1,mpu_len-length(mpu_ub)) + mpu_ub
+   mpu_bs  = dec(mpu_block_sizes(i))
+   mpu_bst = substr(mpu_bst,1,mpu_len-length(mpu_bs)) + mpu_bs
+   v_output(length(v_output)+1) = "   'mpu_bst': 'mpu_ubt'"
+#loop_end
+
+;*** SYS
+
+#if SYS:BRE < " 9.4" #then #block
+   v = dump(fetch(0,"B","SYS"))
+   w = write_text("\sc\temp\sa_d\sysdump.txt",v)
+#block_end
+
+;*** APPLICATIONS
+
+v_output(length(v_output)+1) = ""
+v_output(length(v_output)+1) = "*** APPLICATION STATUS *** " + times
+
+#if SYS:BRE > " 9.2" #then #block
+
+   apls = base_system_object_list("APL","TT == ""LOCAL"" or TT==""EXTERNAL""")
+   
+#block_end
+#else #block
+
+   apls = list(count=0,bm=vector())
+   
+   #loop_with i = 1 ..max_application_number
+      #if apl'i':btt == "LOCAL" and apl'i':bas == "HOT" #then #block
+         apls.count = apls.count + 1
+         apls.bm(apls.count) = i
+      #block_end
+   #loop_end
+   
+#block_end
+
+#loop_with i = 1 .. apls.count
+
+   apl_nr  = apls.bm(i)
+   apl_na  = apl'apl_nr':bna
+   apl_tt  = apl'apl_nr':btt
+   apl_as  = apl'apl_nr':bas
+   apl_ss  = apl'apl_nr':bss
+   apl_sp  = apl'apl_nr':bsp
+   apl_pu1 = apl'apl_nr':bpu1
+   apl_pu2 = apl'apl_nr':bpu2
+   apl_eu  = apl'apl_nr':beu
+   apl_qu1 = apl'apl_nr':bqu1
+   apl_qu2 = apl'apl_nr':bqu2
+   apl_qu3 = apl'apl_nr':bqu3
+   apl_qu4 = apl'apl_nr':bqu4
+   apl_au  = apl'apl_nr':bau
+   apl_ros = apl'apl_nr':bro
+
+   #if apl_tt == "LOCAL" #then #block
+      v_output(length(v_output)+1) = ""
+      v_output(length(v_output)+1) = "APPLICATION 'apl_nr', NA='apl_na', TT='apl_tt', AS='apl_as', SS='apl_ss', SP='apl_sp'"
+      v_output(length(v_output)+1) = "  QUEUES: PU=('apl_pu1','apl_pu2'), EU='apl_eu', QU=('apl_qu1','apl_qu2','apl_qu3','apl_qu4'), AU='apl_au'"
+   #block_end
+   #else #block
+      v_output(length(v_output)+1) = ""
+      v_output(length(v_output)+1) = "APPLICATION 'apl_nr', NA='apl_na', TT='apl_tt', EU='apl_eu'"
+   #block_end
+   
+   #if apl_tt == "LOCAL" and max(apl_pu1,apl_pu2,apl_eu,apl_qu1,apl_qu2,apl_qu3,apl_qu4) > 0 #then #block
+      v_output(length(v_output)+1) = "  RUNNING OBJECTS: "
+      #loop_with j = 1 .. 32
+         apl_ro = apl_ros(j)
+         #if apl_ro <> "" #then #block
+            v_output(length(v_output)+1) = "   'j': 'apl_ro' "
+         #block_end
+      #loop_end
+   #block_end
+
+   #if SYS:BRE < " 9.4" #then #block
+      v = vector()
+      v = dump(fetch(0,"B","APL'apl_nr'"))
+      w = write_text("\sc\temp\sa_d\apl'apl_nr'dump.txt",v)
+   #block_end
+
+#loop_end
+
+#if SYS:BRE < " 9.1" #then #block
+
+   ;;license_manager("status") not implemented
+   
+#block_end
+#else_if SYS:BRE > " 9.2" #then #block
+   
+   ;*** DYNAMIC LICENSE DATA
+   
+   lm = license_manager("status")
+   
+   lm_appl_opc_servers = lm.appl_opc_servers
+   lm_expired = lm.expired
+   lm_history_data = lm.history_data
+   lm_hsb = lm.hsb
+   lm_hw_lock = lm.hw_lock
+   lm_opc_ae_clients = lm.opc_ae_clients
+   lm_opc_da_clients = lm.opc_da_clients;
+   lm_process_io = lm.process_io
+   lm_protocol = lm.protocol
+   
+   v_output(length(v_output)+1) = ""
+   v_output(length(v_output)+1) = "*** DYNAMIC LICENSE DATA *** " + times
+   v_output(length(v_output)+1) = ""
+   
+   v_output(length(v_output)+1) = "appl_opc_servers = 'lm_appl_opc_servers'"
+   v_output(length(v_output)+1) = "expired = 'lm_expired'"
+   v_output(length(v_output)+1) = "hsb = 'lm_hsb'"
+   v_output(length(v_output)+1) = "opc_ae_clients = 'lm_opc_ae_clients'"
+   v_output(length(v_output)+1) = "opc_da_clients = 'lm_opc_da_clients'"
+   v_output(length(v_output)+1) = "process_io = 'lm_process_io'"
+   
+   v_output(length(v_output)+1) = "history data:"
+   #loop_with i = 1 .. length(lm_history_data)
+      lm_hd  = dec(lm_history_data(i))
+      v_output(length(v_output)+1) = "   'i': 'lm_hd'"
+   #loop_end
+   
+   v_output(length(v_output)+1) = "protocol:"
+   #loop_with i = 1 .. length(lm_protocol)
+      lm_pr  = dec(lm_protocol(i))
+      v_output(length(v_output)+1) = "   'i': 'lm_pr'"
+   #loop_end
+
+#block_end
+#else #block   ; revision 9.1
+
+   ;*** DYNAMIC LICENSE DATA
+   
+   lm = license_manager("status")
+
+   lm_expired = lm.expired
+   lm_hsb = lm.hsb
+   lm_opc_client = lm.opc_client
+   lm_process_io = lm.process_io
+   lm_workstations = lm.workstations
+   lm_workstations_pro = lm.workstations_pro
+   
+   v_output(length(v_output)+1) = ""
+   v_output(length(v_output)+1) = "*** DYNAMIC LICENSE DATA *** " + times
+   v_output(length(v_output)+1) = ""
+   
+   v_output(length(v_output)+1) = "expired = 'lm_expired'"
+   v_output(length(v_output)+1) = "hsb = 'lm_hsb'"
+   v_output(length(v_output)+1) = "opc_client = 'lm_opc_client'"
+   v_output(length(v_output)+1) = "process_io = 'lm_process_io'"
+   v_output(length(v_output)+1) = "workstations = 'lm.workstations'"
+   v_output(length(v_output)+1) = "workstations_pro = 'lm.workstations_pro'"
+   
+#block_end
+
+#if SYS:BRE < " 9.4" #then #block
+   w = write_text("\sc\temp\sa_d\sys600_systeminfo.txt", v_output, 1)
+#block_end
+#else #block
+   #return v_output
+#block_end

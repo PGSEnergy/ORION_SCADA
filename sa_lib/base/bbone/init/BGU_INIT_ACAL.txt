@@ -1,0 +1,84 @@
+;Create process object for audible alarm.
+;Note that the process object is disabled (IU=0) by default.
+;To enable the functionality, set IU attribute to 1, this brings
+;audible alarm acknowledgement button active in Monitor Pro.
+;--------------------------------------------------------------------------
+@t_PO_C_NAME  = "ACK_SOUND"  ;!Same name for :P and :C!
+@i_PO_INDEX   = 1
+
+@l_CHECK      = FETCH(0,"P","'t_PO_C_NAME'") 
+#IF l_CHECK:VIU == -1 #THEN #block
+   @l_TEMP_LIST1 = LIST(IU=0,-
+                     SS=1,-
+                     BO=0,-
+                     DX="5",-
+                     LD=BIT_MASK(1),-
+                     HL=BIT_MASK(15),-
+                     RI=1,-
+                     HA=4,-
+                     HE=0,-
+                     OX="Audible alarm",-
+                     PF="FORM4B_BO1",-
+                     CX="Acknowledge audible alarms!")
+   #CREATE 't_PO_C_NAME':P'i_PO_INDEX' = %l_TEMP_LIST1
+#block_end
+
+;Create command procedure
+;--------------------------------------------------------------------------
+@l_CHECK      = FETCH(0,"C","'t_PO_C_NAME'") 
+#IF l_CHECK:VIU == -1 #THEN #block
+   @l_TEMP_LIST2 = LIST(IU=1,-
+                     MO=1,-
+                     CM="Acknowledge audible alarms!",-
+                     IN=VECTOR(";Acknowledge audible alarms!",-
+                               ";## DO NOT CHANGE NAME OF THIS COMMANDPROCEDURE! ##",-
+                               "",-
+							   ";#local argData",-
+                               "",-
+                               ";#if argument_count > 0 #then #block",-
+                               ";   argData = argument(1)",-
+                               ";   argData.USER_NAME",-
+                               ";   argData.WORKPLACE_NAME",-
+                               ";#block_end",-
+                               "",-
+                               ";************************************************************************************",-
+                               ";******************  Option 1",-
+                               ";************************************************************************************",-
+                               ";### NOTE:",-
+                               ";### For HSB-systems also the audible device which is connected to the second computer",-
+                               ";### has to be acknowledged (additional #SET-commands)!",-
+                               ";### ",-
+                               ";### Projectspecific work has to be done in any case!",-
+                               ";-------------------------------",-
+                               ";--- Eventlist entry    -> TRUE",-
+                               ";--- No Eventlist entry -> FALSE (Default)",-
+                               ";-------------------------------",-
+                               "@b_entry_in_eventlist   =  FALSE",-
+                               ";-------------------------------",-
+                               "#if %b_entry_in_eventlist == TRUE #then #block",-
+                               "                                     #set 't_PO_C_NAME':PHE=1",-
+                               "                                     #set 't_PO_C_NAME':PPA=4",-
+                               "                                  #block_end",-
+                               "                                  #else #block",-
+                               "                                     #set 't_PO_C_NAME':PHE=0",-
+                               "                                     #set 't_PO_C_NAME':PPA=3",-
+                               "                                  #block_end",-
+                               "#set 't_PO_C_NAME':PBO1=0",-
+                               "#set 't_PO_C_NAME':PBO1=1",-
+                               "#set 't_PO_C_NAME':PBO1=0",-
+                               "",-
+                               ";************************************************************************************",-
+                               ";******************  Option 2",-
+                               ";************************************************************************************",-
+                               ";### NOTE:",-
+                               ";### Ensure that the option <Audio_set will be used> is enabled!",-
+                               ";### Check it in MicroSCADA Control Panel/Admin/Drivers/MS-AA/Change Settings/Settings!",-
+                               "",-
+                               "@v_tmp   = separate(parse_file_name(""pict""),""\"")",-
+                               "@t_Drive = %v_tmp(1)",-
+                               ";@XXX=OPS_CALL(""''t_Drive''\sc\prog\exec\audio_set all off"")",-
+                               ";@XXX=audio_alarm(""all"", ""off"")",-
+                               ""))
+   #CREATE 't_PO_C_NAME':C = %l_TEMP_LIST2
+#block_end
+

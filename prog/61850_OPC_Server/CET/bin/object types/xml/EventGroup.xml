@@ -1,0 +1,21 @@
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">EventGroup</Parameter>
+		<Parameter name="Caption">Generic EventGroup Object</Parameter>
+		<Parameter name="Description">Generic Object</Parameter>
+		<Parameter name="Group">Communication</Parameter>
+		<Parameter name="Type">GENERIC</Parameter>
+		<Parameter name="IconFileName">eventdefinitions.ico</Parameter>
+		<Parameter name="Tools"/>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="Visible">False</Parameter> 
+		<Parameter name="CanInherit">False</Parameter> 
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="DataStructureObjectType">OPCServer, OPCClient</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+</ObjectType>
+

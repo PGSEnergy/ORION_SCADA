@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2006 U (http://www.altova.com) by XMLSPY 2006 Professional Ed., Installed for 5 users (ABB Oy) -->
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Markku Hamarila/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">SNMP IED</Parameter>
+		<Parameter name="Caption">objectTypeCaption</Parameter>
+		<Parameter name="Description">objectTypeDesc</Parameter>
+		<Parameter name="Group">SNMP</Parameter>
+		<Parameter name="Type">IED</Parameter>
+		<Parameter name="IconFileName">GenIED.ico</Parameter>
+		<Parameter name="Tools">SCLImport, OnlineDiagnosticsIedSnmp,SCDExportVerbs</Parameter>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="Visible">True</Parameter>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="PCMObjectType">SNMP Subnetwork</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+	
+	<Parameters type="DynamicPropertyLists">
+		<Parameter name="SNMPVersion">
+			<List value="1" properties="InUse, SimulationMode, DeviceConnectionStatus, StationRemoteSwitchOPCPath, PollRate, Timeout,CommunityName,
+		WriteCommunityName,SNMPVersion,LocalHostIP"/>
+			<List value="2" properties="InUse, SimulationMode, DeviceConnectionStatus, StationRemoteSwitchOPCPath, PollRate, Timeout,CommunityName,
+		WriteCommunityName,SNMPVersion,LocalHostIP"/>
+			<List value="3" properties="InUse, SimulationMode, DeviceConnectionStatus, StationRemoteSwitchOPCPath, PollRate, Timeout,CommunityName,
+		WriteCommunityName,SNMPVersion,User,AuthenticationProtocol,AuthenticationPassword,EncryptionAlgorithm,EncryptionPassword,LocalHostIP"/>
+		</Parameter>
+	</Parameters>
+	
+	<Parameters type="SCLExport">
+		<Export name="CDATA">InUse, SimulationMode, DeviceConnectionStatus, StationRemoteSwitchOPCPath, PollRate, Timeout,CommunityName,
+		WriteCommunityName,SNMPVersion,User,AuthenticationProtocol,AuthenticationPassword,EncryptionAlgorithm,EncryptionPassword,LocalHostIP</Export>
+		<Export name="Addresses">IP</Export>
+		<Export name="DeviceConnectionStatus" exportType="csv">DeviceConnectionStatusClass, Section, PrintBlock</Export>
+		<Export name="SCLConfigVersion">SCLConfigVersion</Export>
+		<Export name="SCLIedType">SCLIedType</Export>
+	</Parameters>
+	
+	<Properties type="PropertyDefinitions">
+		<Property name="OPCObjectType" category="[010] Basic">
+			<Value>SNMP IED</Value>
+			<DescID>OPCObjectTypeDesc</DescID>
+			<CaptionID>OPCObjectType</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>OPCObjectType</AttributeName>
+		</Property>
+		
+		<Property name="CommunityName" category="[030] Community">
+			<Value>public</Value>
+			<DescID>CommunityNameDesc</DescID>
+			<CaptionID>CommunityName</CaptionID>
+			<Values type="string">
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>CommunityName</AttributeName>
+		</Property>
+		
+		<Property name="WriteCommunityName" category="[030] Community">
+			<Value>private</Value>
+			<DescID>WriteCommunityNameDesc</DescID>
+			<CaptionID>WriteCommunityName</CaptionID>
+			<Values type="string">
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>WriteCommunityName</AttributeName>
+		</Property>
+	
+		<Property name="User" category="[050] Security">
+			<Value/>
+			<DescID>UserDesc</DescID>
+			<CaptionID>User</CaptionID>
+			<Values type="string">
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>User</AttributeName>
+		</Property>
+				
+		<Property name="AccessPointName" category="[010] Basic">
+			<Value>1</Value>
+			<DescID>AccessPointNameDesc</DescID>
+			<CaptionID>AccessPointName</CaptionID>
+			<Values type="string">
+           </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>AccessPointName</AttributeName>
+		</Property>
+		
+		<Property name="PollRate" category="[040] Polling">
+			<Value>2</Value>
+			<DescID>PollRateDesc</DescID>
+			<CaptionID>PollRateCaptionID</CaptionID>
+			<Values type="numerical">
+				<Min>0</Min>
+				<Max>3600</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>PollRate</AttributeName>
+		</Property>
+		
+		<Property name="Timeout" category="[040] Polling">
+			<Value>5</Value>
+			<DescID>TimeoutDesc</DescID>
+			<CaptionID>Timeout</CaptionID>
+			<Values type="numerical">
+				<Min>0</Min>
+				<Max>3600</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>Timeout</AttributeName>
+		</Property>
+				
+		<Property name="SimulationMode" category="[010] Basic">
+			<Value>0</Value>
+			<DescID>SimulationModeDesc</DescID>
+			<CaptionID>SimulationMode</CaptionID>
+			<Values type="singleChoice">
+				<Enum textID="False" value="0"/>
+				<Enum textID="True" value="1"/>
+			</Values>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>SimulationMode</AttributeName>
+		</Property>
+		
+		<Property name="Section" category="[070] OPC Alarm and Event">
+			<Value>0</Value>
+			<DescID>SectionDesc</DescID>
+			<CaptionID>Section</CaptionID>
+			<Values type="numerical">
+				<Min>0</Min>
+				<Max>16</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName>Section</AttributeName>
+		</Property>
+		
+		<Property name="PrintBlock" category="[070] OPC Alarm and Event">
+			<Value>False</Value>
+			<DescID>PrintBlockDesc</DescID>
+			<CaptionID>PrintBlock</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName>PrintBlock</AttributeName>
+		</Property>
+		
+		<Property name="DeviceConnectionStatusClass" category="[070] OPC Alarm and Event">
+			<Value>Device Connection Status</Value>
+			<DescID>DeviceConnectionStatusClassDesc</DescID>
+			<CaptionID>DeviceConnectionStatusClass</CaptionID>
+			<Values type="singleChoiceDynamic">
+				<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupDCSEvents" secondchildObjectType="DeviceConnectionEventGroup"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HWW</Access>
+			<AttributeName>DeviceConnectionStatusClass</AttributeName>
+		</Property>
+		
+		<Property name="InUse" category="[010] Basic">
+			<Value>1</Value>
+			<DescID>InUseDesc</DescID>
+			<CaptionID>InUse</CaptionID>
+			<Values type="singleChoice">
+				<Enum value="1" textID="In Use"/>
+				<Enum value="0" textID="Not In Use"/>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>InUse</AttributeName>
+		</Property>
+		
+		<Property name="SNMPVersion" category="[010] Basic">
+			<Value>2</Value>
+			<DescID>SNMPVersionDesc</DescID>
+			<CaptionID>SNMPVersion</CaptionID>
+			<Values type="singleChoice">
+				<Enum value="1" textID="SNMP v1"/>
+				<Enum value="2" textID="SNMP v2c"/>
+				<Enum value="3" textID="SNMP v3"/>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>SNMPVersion</AttributeName>
+		</Property>
+
+		<Property name="AuthenticationProtocol" category="[050] Security">
+			<Value>0</Value>
+			<DescID>AuthenticationProtocolDesc</DescID>
+			<CaptionID>AuthenticationProtocol</CaptionID>
+			<Values type="singleChoice">
+				<Enum value="0" textID="Not Used"/>
+				<Enum value="1" textID="MD5"/>
+				<Enum value="2" textID="SHA"/>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>AuthenticationProtocol</AttributeName>
+		</Property>
+
+		<Property name="AuthenticationPassword" category="[050] Security">
+			<Value/>
+			<DescID>AuthenticationPasswordDesc</DescID>
+			<CaptionID>AuthenticationPassword</CaptionID>
+			<Values type="string">
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>AuthenticationPassword</AttributeName>
+		</Property>
+
+		<Property name="EncryptionAlgorithm" category="[050] Security">
+			<Value>0</Value>
+			<DescID>EncryptionAlgorithmDesc</DescID>
+			<CaptionID>EncryptionAlgorithm</CaptionID>
+			<Values type="singleChoice">
+				<Enum value="0" textID="Not Used"/>
+				<Enum value="1" textID="DES"/>
+				<Enum value="2" textID="AES"/>
+				<Enum value="3" textID="3DES"/>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>EncryptionAlgorithm</AttributeName>
+		</Property>
+
+		<Property name="EncryptionPassword" category="[050] Security">
+			<Value/>
+			<DescID>EncryptionPasswordDesc</DescID>
+			<CaptionID>EncryptionPassword</CaptionID>
+			<Values type="string">
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>EncryptionPassword</AttributeName>
+		</Property>
+		
+		<Property name="IP" category="[020] Addresses">
+			<Value>127.0.0.1</Value>
+			<DescID>IPDesc</DescID>
+			<CaptionID>IP</CaptionID>
+			<Values type="IPOrHostnameWithPort" />
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>IP</AttributeName>
+		</Property>
+		
+		<Property name="LocalHostIP" category="[020] Addresses">
+			<Value/>
+			<DescID>LocalHostIPDesc</DescID>
+			<CaptionID>LocalHostIP</CaptionID>
+			<Values type="IPOrHostnameWithPort" />
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>LocalHostIP</AttributeName>
+		</Property>
+		
+		<Property name="SCLConfigVersion" category="">
+			<Value/>
+			<DescID>SCLConfigVersionDesc</DescID>
+			<CaptionID>SCLConfigVersion</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RRR</Access>
+			<AttributeName>configVersion</AttributeName>
+		</Property>
+		
+		<Property name="SCLIedType" category="">
+			<Value>SNMP IED</Value>
+			<DescID>SCLIedTypeDesc</DescID>
+			<CaptionID>SCLIedType</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RRR</Access>
+			<AttributeName>SCLIedType</AttributeName>
+		</Property>
+		
+        <Property name="StationRemoteSwitchOPCPath" category="[060] Control Authorization">
+        <Value/>
+        <DescID>StationRemoteSwitchOPCPathDesc</DescID>
+        <CaptionID>StationRemoteSwitchOPCPath</CaptionID>
+        <Values type="string"/>
+        <DataType>System.String</DataType>
+        <HelpKey/>
+        <Access>RWW</Access>
+        <AttributeName>StationRemoteSwitchOPCPath</AttributeName>
+      </Property>
+
+	</Properties>
+</ObjectType>

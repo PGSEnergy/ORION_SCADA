@@ -1,0 +1,340 @@
+; File: SSS_AplObj.scl()
+; Version: SYS 600 9.3
+; Parameters: none
+; Description: This is the text file for creating command procedures, time channels, 
+;              data objects and event channels for SYS 600 System Self Supervision      
+; ----------------------------------------------------------------------------------
+
+#error continue
+
+
+;*************** GENERAL DEFINITIONS  ***************
+
+;define parallel queue number to be used
+@i_PQ = 4
+
+
+;*************** INITIALIZATION OF PATHS, GENERAL SETTINGS, SCM SERVICES ETC. ***************
+
+;define application specific path definitions for SYS 600 System Self Supervision
+@t_Apl_Name = APL:BNA
+#path SSS_PATH +/APL/'t_Apl_Name'/SUPERV
+   
+;define path for Base Tools language text directory
+#path SSS_LANG +/STOOL/SUPERV/LANG_TEXTS
+
+;initialize general application parameters and copy default parametrization files into application directory
+#error ignore
+   @i_Status = status
+   @l_General_Info = APL:BSV45
+#error continue
+
+#if status <> 0 or data_type(%l_General_Info) <> "LIST" #then #block
+   
+   ;initialize APL:BSV(45..49)
+   #loop_with i = 0..4
+      #set APL:BSV(45+%i) = vector()
+   #loop_end
+
+   ;read general application parameters (from setup file)
+   #error ignore
+      @i_Status = status
+      #do read_text("SSS_PATH/SSS_Setup.scl")
+   #error continue
+
+   #if status == 5007 #then #do read_text("SYS_TOOL/SSS_Setup.scl")
+   
+   ;load general application parameters to APL:BSV(45)
+   #set APL:BSV(45) = %sys_ssset
+   
+   ;read in general info
+   @l_General_Info = APL:BSV45
+
+   ;copy default parametrization files into application directory
+   @i_Conf_Ini = file_manager("COPY", fm_scil_file("/STOOL/SUPERV/SSSConf.ini"), fm_scil_file(sys_ssset:vFILE_NAME_OF_CONF_INI))
+   @i_Event_Ini = file_manager("COPY", fm_scil_file("/STOOL/SUPERV/SSSEvent.ini"), fm_scil_file(sys_ssset:vFILE_NAME_OF_EVENT_INI))
+   @i_Filter_Ini = file_manager("COPY", fm_scil_file("/STOOL/SUPERV/SSSFilter.ini"), fm_scil_file(sys_ssset:vFILE_NAME_OF_FILTER_INI))
+   @i_CtrlDlg_Ini = file_manager("COPY", fm_scil_file("/STOOL/SUPERV/SSS_CTRLDLG.INI"), fm_scil_file("SSS_PATH/SSS_CTRLDLG.INI"))
+
+#block_end
+
+;initialize SCM services for SYS 600 System Self Supervision
+#error ignore
+   @i_Status = status
+   @l_SCM_Manager = APL:BSV40
+#error continue
+
+#if status <> 0 or data_type(%l_SCM_Manager) <> "VECTOR" #then -
+   @i_Init_Status = do(read_text("SYS_TOOL/SCT_Mgr.scl"), "acINIT", "SSS", "SYSTEMVARIABLE")
+
+
+;*************** CREATE TIME CHANNELS ***************
+
+@l_SYS_NETSR = list(-   ;Note! Not to be executed in the pq...
+      IU     = 1,-
+      CY     = (0,l_General_Info:vNET_STATUS_CHECK_INTERVAL),-
+      SU     = (0,0),-
+      SY     = (0,clock),-
+      CM     = do(apl:bsv40, "SSS", "GetLanguageText", "Time_Cha_of_SYS_NETSR", true))
+      
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateTimeChannel", "SYS_NETSR", %l_SYS_NETSR)
+
+
+;*************** CREATE COMMAND PROCEDURES ***************
+
+@l_SYS_APLER = list(-
+      IU     = 1,-
+      MO     = 1,-
+      PE     = 1,-
+      PQ     = %i_PQ,-
+      CM     = do(apl:bsv40, "SSS", "GetLanguageText", "Cmd_Proc_of_SYS_APLER", true),-
+      IN     = read_text("SYS_TOOL/sys_apler.scl"))
+      
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateCommandProcedure", "SYS_APLER", %l_SYS_APLER, true)
+
+
+@l_SYS_NETLMR = list(-
+      IU      = 1,-
+      MO      = 1,-
+      PE      = 1,-
+      PQ      = 4,-
+      CM      = do(apl:bsv40, "SSS", "GetLanguageText", "Cmd_Proc_of_SYS_NETLMR", true),-
+      IN      = read_text("SYS_TOOL/sys_netlmr.scl"))
+
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateCommandProcedure", "SYS_NETLMR", %l_SYS_NETLMR, true)
+
+
+@l_SYS_NETMR = list(-
+      IU     = 1,-
+      MO     = 1,-
+      PE     = 1,-
+      PQ     = %i_PQ,-
+      CM     = do(apl:bsv40, "SSS", "GetLanguageText", "Cmd_Proc_of_SYS_NETMR", true),-
+      IN     = read_text("SYS_TOOL/sys_netmr.scl"))
+      
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateCommandProcedure", "SYS_NETMR", %l_SYS_NETMR, true)
+
+
+@l_SYS_NETSR = list(-   ;Note! This procedure is executed by the time channel...
+      IU     = 1,-
+      MO     = 1,-
+      PE     = 1,-
+      PQ     = %i_PQ,-
+      TC     = "SYS_NETSR",-
+      CM     = do(apl:bsv40, "SSS", "GetLanguageText", "Cmd_Proc_of_SYS_NETSR", true),-
+      IN     = read_text("SYS_TOOL/sys_netsr.scl"))
+      
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateCommandProcedure", "SYS_NETSR", %l_SYS_NETSR, true)
+
+
+@l_SYS_OSER = list(-
+      IU    = 1,-
+      MO    = 1,-
+      PE    = 1,-
+      PQ    = %i_PQ,-
+      CM    = do(apl:bsv40, "SSS", "GetLanguageText", "Cmd_Proc_of_SYS_OSER", true),-
+      IN    = read_text("SYS_TOOL/sys_oser.scl"))
+      
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateCommandProcedure", "SYS_OSER", %l_SYS_OSER, true)
+
+
+@l_SYS_PRIMR = list(-
+      IU     = 1,-
+      MO     = 1,-
+      PE     = 1,-
+      PQ     = %i_PQ,-
+      CM     = do(apl:bsv40, "SSS", "GetLanguageText", "Cmd_Proc_of_SYS_PRIMR", true),-
+      IN     = read_text("SYS_TOOL/sys_primr.scl"))
+      
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateCommandProcedure", "SYS_PRIMR", %l_SYS_PRIMR, true)
+
+
+@l_SYS_SLCMR = list(-
+      IU     = 1,-
+      MO     = 1,-
+      PE     = 1,-
+      PQ     = %i_PQ,-
+      CM     = do(apl:bsv40, "SSS", "GetLanguageText", "Cmd_Proc_of_SYS_SLCMR", true),-
+      IN     = read_text("SYS_TOOL/sys_slcmr.scl"))
+
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateCommandProcedure", "SYS_SLCMR", %l_SYS_SLCMR, true)
+
+
+@l_SYS_SSSINI = list(-  ;Note! Execution prioritety of this procedure is set to 1...
+      IU     = 1,-
+      MO     = 1,-
+      EP     = 1,-
+      PE     = 1,-
+      PQ     = %i_PQ,-
+      CM     = do(apl:bsv40, "SSS", "GetLanguageText", "Cmd_Proc_of_SYS_SSSINI", true),-
+      IN     = read_text("SYS_TOOL/sys_sssini.scl"))
+      
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateCommandProcedure", "SYS_SSSINI", %l_SYS_SSSINI, true)
+
+
+@l_SYS_SSSREV = list(-
+      IU     = 1,-
+      MO     = 0,-
+      PE     = 0,-
+      PQ     = 0,-
+      CM     = do(apl:bsv40, "SSS", "GetLanguageText", "Cmd_Proc_of_SYS_SSSREV", true),-
+      IN     = read_text("SYS_TOOL/sys_sssrev.scl"))
+      
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateCommandProcedure", "SYS_SSSREV", %l_SYS_SSSREV, true)
+
+
+@l_SYS_SSSRT = list(-   ;Note! Execution prioritety of this procedure is set to 0...
+      IU     = 1,-
+      MO     = 1,-
+      EP     = 0,-
+      PE     = 1,-
+      PQ     = %i_PQ,-
+      CM     = do(apl:bsv40, "SSS", "GetLanguageText", "Cmd_Proc_of_SYS_SSSRT", true),-
+      IN     = read_text("SYS_TOOL/sys_sssrt.scl"))
+      
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateCommandProcedure", "SYS_SSSRT", %l_SYS_SSSRT, true)
+
+
+@l_SYS_STAMR = list(-
+      IU     = 1,-
+      MO     = 1,-
+      PE     = 1,-
+      PQ     = %i_PQ,-
+      CM     = do(apl:bsv40, "SSS", "GetLanguageText", "Cmd_Proc_of_SYS_STAMR", true),-
+      IN     = read_text("SYS_TOOL/sys_stamr.scl"))
+      
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateCommandProcedure", "SYS_STAMR", %l_SYS_STAMR, true)
+
+
+@l_SYS_SYSER = list(-
+      IU     = 1,-
+      MO     = 1,-
+      PE     = 1,-
+      PQ     = %i_PQ,-
+      CM     = do(apl:bsv40, "SSS", "GetLanguageText", "Cmd_Proc_of_SYS_SYSER", true),-
+      IN     = read_text("SYS_TOOL/sys_syser.scl"))
+      
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateCommandProcedure", "SYS_SYSER", %l_SYS_SYSER, true)
+
+
+@l_SYS_UPOER = list(-   ;Note! Free Text attribute of this procedure is set to "FALSE" as default... 
+      IU     = 0,-
+      MO     = 1,-
+      PE     = 1,-
+      PQ     = %i_PQ,-
+      FX     = "FALSE",-
+      CM     = do(apl:bsv40, "SSS", "GetLanguageText", "Cmd_Proc_of_SYS_UPOER", true),-
+      IN     = read_text("SYS_TOOL/sys_upoer.scl"))
+      
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateCommandProcedure", "SYS_UPOER", %l_SYS_UPOER, true)
+
+
+;*************** CREATE DATA OBJECTS ***************
+
+@l_SYS_CNTR = list(-
+      IU    = 1,-
+      MO    = 0,-
+      PE    = 1,-
+      PQ    = 4,-
+      HR    = 5,-
+      CM    = do(apl:bsv40, "SSS", "GetLanguageText", "Data_Obj_of_SYS_CNTR", true))
+      
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateDataObject", "SYS_CNTR", %l_SYS_CNTR, false, true, 0)
+
+
+;*************** CREATE SCALE OBJECTS ***************
+@l_1_1 = list(-
+   SA  = 1,-
+   SN  = (0,1,0,1))
+
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateScaleObject", "1_1", %l_1_1)
+
+
+;*************** CREATE EVENT CHANNELS ***************
+
+;Event channels for system message routing
+@l_SYS_NETLMR = list(CM = do(apl:bsv40, "SSS", "GetLanguageText", "Event_Cha_of_SYS_NETLMR", true))
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateEventChannel", "SYS_NETLMR", "SYS_NETLMR", "C", %l_SYS_NETLMR)
+
+@l_SYS_NETMR = list(CM = do(apl:bsv40, "SSS", "GetLanguageText", "Event_Cha_of_SYS_NETMR", true))
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateEventChannel", "SYS_NETMR", "SYS_NETMR", "C", %l_SYS_NETMR)
+
+@l_SYS_PRIMR = list(CM = do(apl:bsv40, "SSS", "GetLanguageText", "Event_Cha_of_SYS_PRIMR", true))
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateEventChannel", "SYS_PRIMR", "SYS_PRIMR", "C", %l_SYS_PRIMR)
+
+@l_SYS_SLCMR = list(CM = do(apl:bsv40, "SSS", "GetLanguageText", "Event_Cha_of_SYS_SLCMR", true))
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateEventChannel", "SYS_SLCMR", "SYS_SLCMR", "C", %l_SYS_SLCMR)
+
+@l_SYS_SLCMR = list(CM = do(apl:bsv40, "SSS", "GetLanguageText", "Event_Cha_of_SYS_STAMR", true))
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateEventChannel", "SYS_STAMR", "SYS_STAMR", "C", %l_SYS_STAMR)
+
+
+;Event channels for predefined events
+@l_APL_EVENT = list(CM = do(apl:bsv40, "SSS", "GetLanguageText", "Event_Cha_of_APL_EVENT", true))
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateEventChannel", "APL_EVENT", "SYS_APLER", "C", %l_APL_EVENT)
+
+@l_SYS_EVENT = list(CM = do(apl:bsv40, "SSS", "GetLanguageText", "Event_Cha_of_SYS_EVENT", true))
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateEventChannel", "SYS_EVENT", "SYS_SSSRT", "C", %l_SYS_EVENT)
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateEventChannel", "SYS_EVENT", "SYS_SYSER", "C")
+
+@l_OS_EVENT = list(CM = do(apl:bsv40, "SSS", "GetLanguageText", "Event_Cha_of_OS_EVENT", true))
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateEventChannel", "OS_EVENT", "SYS_OSER", "C", %l_OS_EVENT)
+
+@l_UNDEF_PROC = list(CM = do(apl:bsv40, "SSS", "GetLanguageText", "Event_Cha_of_UNDEF_PROC", true))
+@i_Create_Status = do(apl:bsv40, "SSS", "CreateEventChannel", "UNDEF_PROC", "SYS_UPOER", "C", %l_UNDEF_PROC)
+
+
+;*************** CREATE INTERCONNECTIONS ***************
+
+;Command procedure of SYS_INIT_1:C
+@l_SYS_INIT_1 = list(-
+   IU         = 1,-
+   CM         = do(apl:bsv40, "SSS", "GetLanguageText", "Cmd_Proc_of_SYS_INIT_1", true),-
+   IN         = vector("; System Self Supervision 2.x initialization", "#if application_object_count(0, ""C"", """", """", """", ""LN == """"SYS_SSSREV"""""") > 0 #then #exec sys_sssrt:c"))
+
+@l_Check_Instruction = do(apl:bsv40, "SSS", "CheckProcedureInstruction", "SYS_INIT_1", l_SYS_INIT_1:vIN)
+
+#if l_Check_Instruction:vSTATUS == 0 #then #block
+
+   #if not(l_Check_Instruction:vDATA) #then @i_Create_Status = -
+      do(apl:bsv40, "SSS", "CreateCommandProcedure", "SYS_INIT_1", %l_SYS_INIT_1, false, true, "acAPPEND_TOP", true)
+
+#block_end
+#else #block ;process object does not exist
+
+   ;create SYS_INIT_1:C
+   @i_Create_Status = do(apl:bsv40, "SSS", "CreateCommandProcedure", "SYS_INIT_1", %l_SYS_INIT_1, false)
+   
+   ;attach SYS_INIT_1:C to event channel (APL_EVENT_1:A)
+   @i_Create_Status = do(apl:bsv40, "SSS", "CreateEventChannel", "APL_INIT_1", "SYS_INIT_1")
+
+#block_end
+
+
+;FORM pictures
+@v_File_Path = path("FORM")
+@t_File_Path = fm_scil_represent(fm_directory(%v_File_Path(1)))
+
+@i_Pic_AI = file_manager("COPY", fm_scil_file("/STOOL/SUPERV/FORM4BSAI.PIC"), fm_scil_file(%t_File_Path+"/FORM4BSAI.PIC"))
+@i_Txt_AI = file_manager("COPY", fm_scil_file("/STOOL/SUPERV/FORM4BSAI.TXT"), fm_scil_file(%t_File_Path+"/FORM4BSAI.TXT"))
+@i_Pic_BI = file_manager("COPY", fm_scil_file("/STOOL/SUPERV/FORM4BSBI.PIC"), fm_scil_file(%t_File_Path+"/FORM4BSBI.PIC"))
+@i_Txt_BI = file_manager("COPY", fm_scil_file("/STOOL/SUPERV/FORM4BSBI.TXT"), fm_scil_file(%t_File_Path+"/FORM4BSBI.TXT"))
+
+;Process object indications for Operating System, Application (current) and Base System
+@l_Operating_System = do(apl:bsv40, "SSS", "PutObjectAttributes", "OPERATING_SYSTEM", 0, list(CREATOR = "BBONE"))
+@l_Operating_System = do(apl:bsv40, "SSS", "CreateProcessObject", "OPERATING_SYSTEM", "INDICATION", 0)
+
+@l_Application = do(apl:bsv40, "SSS", "PutObjectNumber", "APPLICATION", APL:BAN)
+@l_Application = do(apl:bsv40, "SSS", "PutObjectAttributes", "APPLICATION", APL:BAN, list(CX = "LOCAL", CREATOR = "BBONE"))
+@l_Application = do(apl:bsv40, "SSS", "CreateProcessObject", "APPLICATION", "INDICATION", APL:BAN)
+@i_Apl_State = do(read_text("SYS_TOOL/SSS_Aplinit.scl"), list(STATUS = 0, DATA = vector(APL:BAN)))
+
+@l_Base_System = do(apl:bsv40, "SSS", "PutObjectNumber", "NODE", SYS:BND)
+@l_Base_System = do(apl:bsv40, "SSS", "PutObjectAttributes", "NODES", SYS:BND, list(TYPE = "BASE SYSTEM", CREATOR = "BBONE"))
+@l_Base_System = do(apl:bsv40, "SSS", "CreateProcessObject", "NODE", "INDICATION", SYS:BND)
+
+
+
+;Application (current) state
+@i_Apl_State = do(read_text("SYS_TOOL/SSS_AplInit.scl"), list(STATUS = 0, DATA = vector(APL:BAN)))
+

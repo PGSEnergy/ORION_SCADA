@@ -1,0 +1,47 @@
+
+; COMMAND PROCEDURES
+
+@NAME=""
+@L=READ_TEXT ("SYSORF_RH.CPR",1,10000)
+@LEN = LENGTH(%L)
+@READ_CPR="FALSE"
+@COPY_CPR = "FALSE"
+#LOOP_WITH I=1..%LEN
+   #IF SUBSTR(%L(%I),1,2)=="RF" #THEN #BLOCK
+      @READ_CPR="TRUE"
+      @COPY_CPR = "TRUE"
+      @LINE=1
+      @NAME=%L(%I)
+      @COLPOS=LOCATE(%NAME, ":")
+      @NAME=SUBSTR(%NAME, 1, %COLPOS-1)      
+      #CREATE CPR:V
+      #SET CPR:VLN = %NAME
+      #SET CPR:VIU = 1
+      @A=FETCH(2,"C", %NAME)
+      #IF A:VIU==-1 #THEN @CREATED = "FALSE"
+      #ELSE @CREATED="TRUE"
+   #BLOCK_END
+   #ELSE_IF SUBSTR(%L(%I),1,2)=="EN" #THEN #BLOCK
+      @READ_CPR="FALSE"
+      #IF %CREATED == "FALSE" #THEN #CREATE 'NAME':2C = %CPR
+      #ELSE #MODIFY 'NAME':2C = %CPR
+   #BLOCK_END
+   #ELSE_IF LOCATE(%NAME,"_U_") > 0 #THEN #BLOCK
+      #IF (%OVERWRITE_USER == "TRUE") OR (%CREATED=="FALSE") #THEN #BLOCK
+         #SET CPR:VIN(%LINE)=%L(%I)
+         @LINE = %LINE + 1
+      #BLOCK_END
+      #ELSE #BLOCK ; OVERWRITE OF OLD USER SECTION NOT ALLOWED
+         @COPY_CPR = "FALSE"
+      #BLOCK_END
+   #BLOCK_END
+   #ELSE #IF %READ_CPR=="TRUE" #THEN #BLOCK
+      #IF %COPY_CPR=="TRUE" #THEN #BLOCK
+         #SET CPR:VIN(%LINE)=%L(%I)
+         @LINE = %LINE + 1
+      #BLOCK_END
+   #BLOCK_END
+#LOOP_END      
+   
+
+

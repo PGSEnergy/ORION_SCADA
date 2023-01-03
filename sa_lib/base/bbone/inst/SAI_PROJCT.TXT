@@ -1,0 +1,13 @@
+;********************************************************************
+; Copyright Hitachi Power Grids. All rights reserved.
+; File       : SAI_PROJCT.TXT 
+; Type       : Include file 
+; Function   : Define project dependent configuration constants (e.g. variables)
+; Usage      : For all project specific features ion LIB530 these boolean variables 
+;              should be always checked  for ex. #IF %PROJ_xxx #THEN #BLOCK
+
+; Specific variable for transformers, if TRUE the color of grounded is
+; propagated through the transformer, if FALSE the color of passive is
+; set for other windings if one of the windings is grounded.
+;
+@GROUNDED_PROPAGATE = TRUE

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="SAObjectType" content="Bay" />
+    <d:variable type="external" name="control" default="''" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Bay" />
+    <d:meta name="dv-custom-attribute|ToolLauncherProgId" content="ControlDlgs.Launcher" />
+    <d:meta name="dv-custom-attribute|SANoRotate" content="" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="Authorization Switch" />
+    <d:meta name="dv-custom-attribute|SARepresentation" content="Binary Input" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="state-signal" default="0" />
+    <d:variable type="external" name="status-color" default="0" />
+    <d:variable type="external" name="status-text" default="''" />
+    <d:variable type="external" name="status-color" default="0" />
+    <d:mapping name="f0" parameters="value">
+      <d:step value="colors[19]" when="value &lt;= 34.500" />
+      <d:step value="'rgb(255, 0, 255)'" when="value &lt;= 35.500" />
+      <d:step value="colors[19]" when="value &lt;= 37.500" />
+      <d:step value="'rgb(255, 0, 255)'" when="value &lt;= 39.499" />
+      <d:step value="colors[19]" when="value &lt;= 49.499" />
+      <d:step value="'rgb(255, 0, 255)'" when="value &lt;= 50.499" />
+      <d:otherwise value="colors[19]" />
+    </d:mapping>
+    <d:mapping name="f1" parameters="value">
+      <d:step value="colors[31]" when="value &lt;= 2.900" />
+      <d:step value="colors[32]" when="value &lt;= 3.099" />
+      <d:otherwise value="colors[31]" />
+    </d:mapping>
+    <d:mapping name="f3" parameters="value">
+      <d:step value="0" when="value &lt;= 0.900" />
+      <d:step value="10" when="value &lt;= 1.100" />
+      <d:step value="0" when="value &lt;= 1.900" />
+      <d:step value="2000" when="value &lt;= 2.100" />
+      <d:otherwise value="0" />
+    </d:mapping>
+    <d:mapping name="f2" parameters="value">
+      <d:step value="[colors[31], colors[17]]" when="value &lt;= 0.900" />
+      <d:step value="[[colors[31], colors[32]], [colors[17], colors[31]]]" when="value &lt;= 1.100" />
+      <d:step value="[colors[31], colors[17]]" when="value &lt;= 1.900" />
+      <d:step value="[[colors[31], colors[32]], [colors[17], colors[31]]]" when="value &lt;= 2.100" />
+      <d:otherwise value="[colors[31], colors[17]]" />
+    </d:mapping>
+    <d:mapping name="f4" parameters="value">
+      <d:step value="true" when="value &lt;= 34.500" />
+      <d:step value="false" when="value &lt;= 35.500" />
+      <d:step value="true" when="value &lt;= 37.500" />
+      <d:step value="false" when="value &lt;= 39.499" />
+      <d:step value="true" when="value &lt;= 49.499" />
+      <d:step value="false" when="value &lt;= 50.499" />
+      <d:otherwise value="true" />
+    </d:mapping>
+  </d:head>
+  <d:body n:LN="{LN(control)}" n:IX="{IX(control)}" x1="-10" y1="-10" x2="10" y2="10">
+    <d:action type="control" when="`control_action_enabled`">
+      <d:parameter name="LN" value="LN(control)" />
+      <d:parameter name="IX" value="IX(control)" />
+      <d:parameter name="opc-id" value="control" />
+    </d:action>
+    <s:polyline points="-10.100,10.080 9.920,10.080 9.920,-9.940 " y:fill="none" y:fill-rule="evenodd" y:stroke="{colors[17]}" y:vector-effect="non-scaling-stroke" y:stroke-width="3" d:object-name="Frame Bottom Right" />
+    <s:polyline points="-10,10 -10,-10 10,-10 " y:fill="none" y:fill-rule="evenodd" y:stroke="{colors[16]}" y:vector-effect="non-scaling-stroke" y:stroke-width="2" d:object-name="Frame Top Left" />
+    <s:rect width="20" height="20" x="-10" y="-10" class="bounding-box" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f0(`status-color`), colors[19])}" y:fill-rule="evenodd" y:stroke="none" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Bounding Box" />
+    <s:circle cx="0" cy="0" r="9.600" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f1(`state-signal`), colors[31])}" y:fill-rule="evenodd" y:stroke="{colors[17]}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Circle">
+      <d:animate attributes="fill, stroke" values="if(`subdrawing_dynamics`, f2(`state-signal`), colors[31])" interval="if(`subdrawing_dynamics`, f3(`state-signal`), 1000)" />
+    </s:circle>
+    <s:circle cx="0" cy="0" r="9.600" d:hidden="f4(`status-color`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="{colors[31]}" y:fill-rule="evenodd" y:stroke="{colors[17]}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Circle" />
+    <s:text font-family="Times New Roman" font-size="8.738" fill="{colors[30]}" x="16.140" y="4.820" text-anchor="start" dominant-baseline="ideographic" dx="0.874px" d:textScaleAdjustment="true" d:transform-anchor="center-center" y:fill="{colors[30]}" y:fill-rule="evenodd">{if(`subdrawing_dynamics`, format('%s', `status-text`), 'Name')}</s:text>
+  </d:body>
+</d:document>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="SAVersionInfo" content="1" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Tagout" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="Tagout" />
+    <d:meta name="dv-custom-attribute|SATopology" content="" />
+    <d:meta name="dv-custom-attribute|SARepresentation" content="ANSI" />
+    <d:meta name="dv-custom-attribute|SANoRotate" content="" />
+    <d:meta name="dv-custom-attribute|SAOrientation" content="Vertical" />
+    <d:meta name="dv-custom-attribute|SAVersionInfo" content="1" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="value" default="0" />
+    <d:mapping name="f334" parameters="value">
+      <d:step value="true" when="value &lt;= 0.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f335" parameters="value">
+      <d:step value="colors[31]" when="value &lt;= 0.500" />
+      <d:step value="'url(#i2)'" when="value &lt;= 1.508" />
+      <d:step value="'url(#i3)'" when="value &lt;= 3.508" />
+      <d:step value="'url(#i4)'" when="value &lt;= 7.508" />
+      <d:step value="'url(#i5)'" when="value &lt;= 15.508" />
+      <d:step value="'url(#i6)'" when="value &lt;= 31.508" />
+      <d:step value="'url(#i7)'" when="value &lt;= 63.508" />
+      <d:step value="'url(#i8)'" when="value &lt;= 127.500" />
+      <d:otherwise value="'url(#i9)'" />
+    </d:mapping>
+  </d:head>
+  <d:body x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <s:pattern id="i2" width="4" height="4" patternUnits="userSpaceOnUse" d:adjustToScreenCoordSystem="true">
+      <s:rect x="0" y="0" width="4" height="4" fill="{colors[23]}" />
+      <s:path stroke="{colors[115]}" stroke-width="1" d="M 0 8 L 8 0 M -4 8 L 4 0 M 4 -4 L -4 4" />
+    </s:pattern>
+    <s:pattern id="i3" width="4" height="4" patternUnits="userSpaceOnUse" d:adjustToScreenCoordSystem="true">
+      <s:rect x="0" y="0" width="4" height="4" fill="{colors[23]}" />
+      <s:path stroke="{colors[114]}" stroke-width="1" d="M 0 8 L 8 0 M -4 8 L 4 0 M 4 -4 L -4 4" />
+    </s:pattern>
+    <s:pattern id="i4" width="4" height="4" patternUnits="userSpaceOnUse" d:adjustToScreenCoordSystem="true">
+      <s:rect x="0" y="0" width="4" height="4" fill="{colors[23]}" />
+      <s:path stroke="{colors[113]}" stroke-width="1" d="M 0 8 L 8 0 M -4 8 L 4 0 M 4 -4 L -4 4" />
+    </s:pattern>
+    <s:pattern id="i5" width="4" height="4" patternUnits="userSpaceOnUse" d:adjustToScreenCoordSystem="true">
+      <s:rect x="0" y="0" width="4" height="4" fill="{colors[23]}" />
+      <s:path stroke="{colors[112]}" stroke-width="1" d="M 0 8 L 8 0 M -4 8 L 4 0 M 4 -4 L -4 4" />
+    </s:pattern>
+    <s:pattern id="i6" width="4" height="4" patternUnits="userSpaceOnUse" d:adjustToScreenCoordSystem="true">
+      <s:rect x="0" y="0" width="4" height="4" fill="{colors[23]}" />
+      <s:path stroke="{colors[111]}" stroke-width="1" d="M 0 8 L 8 0 M -4 8 L 4 0 M 4 -4 L -4 4" />
+    </s:pattern>
+    <s:pattern id="i7" width="4" height="4" patternUnits="userSpaceOnUse" d:adjustToScreenCoordSystem="true">
+      <s:rect x="0" y="0" width="4" height="4" fill="{colors[23]}" />
+      <s:path stroke="{colors[110]}" stroke-width="1" d="M 0 8 L 8 0 M -4 8 L 4 0 M 4 -4 L -4 4" />
+    </s:pattern>
+    <s:pattern id="i8" width="4" height="4" patternUnits="userSpaceOnUse" d:adjustToScreenCoordSystem="true">
+      <s:rect x="0" y="0" width="4" height="4" fill="{colors[23]}" />
+      <s:path stroke="rgb(255, 64, 64)" stroke-width="1" d="M 0 8 L 8 0 M -4 8 L 4 0 M 4 -4 L -4 4" />
+    </s:pattern>
+    <s:pattern id="i9" width="4" height="4" patternUnits="userSpaceOnUse" d:adjustToScreenCoordSystem="true">
+      <s:rect x="0" y="0" width="4" height="4" fill="{colors[23]}" />
+      <s:path stroke="rgb(255, 128, 128)" stroke-width="1" d="M 0 8 L 8 0 M -4 8 L 4 0 M 4 -4 L -4 4" />
+    </s:pattern>
+    <s:pattern id="i10" width="4" height="4" patternUnits="userSpaceOnUse" d:adjustToScreenCoordSystem="true">
+      <s:rect x="0" y="0" width="4" height="4" fill="rgb(192, 192, 192)" />
+      <s:path stroke="{colors[31]}" stroke-width="1" d="M 0 8 L 8 0 M -4 8 L 4 0 M 4 -4 L -4 4" />
+    </s:pattern>
+    <s:polyline points="-13,-13 13,-13 13,13 -13,13 -13,-13 -11,-11 11,-11 11,11 -11,11 -11,-11 " d:hidden="f334(`value`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f335(`value`), colors[31])}" y:fill-rule="evenodd" y:stroke="none" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Tagout" />
+  </d:body>
+</d:document>

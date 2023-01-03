@@ -1,0 +1,14 @@
+﻿;Application start definitions for SYS600 10.2.0
+
+;path definitions
+#PATH COM_ /COM/ACTIVE/COM_
+
+;definitions for the VS dialog to be shown after apl_init.vso
+@Start_Object_Type = "Dialog"               ;Defines if the fist object is a picture or VS dialog
+@Start_Dialog_File = "Apl_/Apl_Start.vso"   ;Needed if  Start_Object_Type == "Dialog"
+@Start_Dialog_Tag  = "Main"                 ;Needed if  Start_Object_Type == "Dialog"
+@Start_Dialog_Type = "VS_Main_Dialog"       ;Needed if  Start_Object_Type == "Dialog"
+@Start_Dialog_Attributes = vector()
+
+;execute COM 500 application start script
+#DO READ_TEXT("COM_/COM_START.TXT")

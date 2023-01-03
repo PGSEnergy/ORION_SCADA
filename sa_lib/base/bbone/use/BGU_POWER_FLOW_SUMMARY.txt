@@ -1,0 +1,43 @@
+;Calculates power flow direction from local and remote power flows.
+;values: 1 = undetermined, 2 = de-energized, 3= energized,
+;4 = active power flow in, 5 = active power flow out, 6 = reactive capactive power flow
+;7 = reactive inductive power flow
+
+#local -
+   i_Local_Value,-
+   i_Remote_Value,-
+   i_Summary_Value,-
+   v_Power_Flow_Matrix,-
+   i_Summary_IX = 11,-
+   i_Local_IX = 12,-
+   i_Remote_IX = 13,-
+   t_Remote_LN  = ""
+
+   v_Power_Flow_Matrix = vector(-
+      (1, 1, 3, 4, 5, 6, 7),-
+      (1, 2, 1, 1, 1, 1, 1),-
+      (3, 1, 3, 1, 1, 3, 3),-
+      (4, 1, 1, 1, 4, 1, 1),-
+      (5, 1, 1, 5, 1, 1, 1),-
+      (6, 1, 3, 1, 1, 6, 6),-
+      (7, 1, 3, 1, 1, 7, 7))
+
+i_Local_Value = 'LN':POV'i_Local_IX'
+
+#if 'LN':PIU'i_Remote_IX' > 0 #then #block
+   i_Remote_Value = 'LN':POV'i_Remote_IX'
+   i_Summary_Value = v_Power_Flow_Matrix(i_Local_Value)(i_Remote_Value)
+#block_end
+#else #block
+   i_Summary_Value = i_Local_Value
+#block_end
+
+#if i_Summary_Value <> 'LN':POV'i_Summary_IX' #then -
+   #set 'LN':POV'i_Summary_IX' = i_Summary_Value
+
+;set local power flow value to remote power flow if needed
+t_Remote_LN = do(BGU_POWER_FLOW_LN_MAPPING:C, %LN, i_Remote_IX)
+#if t_Remote_LN <> "" #then #block
+   #if 't_Remote_LN':P'i_Remote_IX' <> i_Local_Value #then -
+      #set 't_Remote_LN':P'i_Remote_IX' = i_Local_Value
+#block_end

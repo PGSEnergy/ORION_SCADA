@@ -1,0 +1,32 @@
+﻿;OBJECT       : BGU_HDSTXT.TXT
+;Copyright Hitachi Power Grids. All rights reserved.
+;
+;DESCRIPTION  : This text file contains the text phrases used in the
+;               needed objects and procedures for the 
+;               Hard Disk Supervision Function 
+;--------------------------------------------------------------------------------
+;**********************
+;Text for time channels
+;**********************
+#CREATE TIME_CHANNEL:V = LIST(-
+      TXT1 = "Time Channel for the LIB 500 Hard Disk Supervision")
+
+;****************************
+;Text for command procedures
+;***************************
+#CREATE COMMAND_PROC:V = LIST(-
+      TXT1 = "Procedure for the LIB 500 Hard Disk Supervision",-
+      TXT2 = "This procedure is activated when HD size alarm is activated")
+
+;************************
+;Text for process objects
+;************************
+#CREATE P_OBJ:V = LIST(-   
+      TXT1 = "Hard disk space",-
+      TXT2 = "LIB 500 HD Supervision/ Object to store the free space")
+  
+;****************
+;Text for actions
+;****************
+#CREATE ACTION:V = LIST(-   
+      TXT1 = "Action channel for the LIB 500 Hard Disk Supervision")    

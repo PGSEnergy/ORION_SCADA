@@ -1,0 +1,75 @@
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Mikko Ripatti/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+  <Parameters type="InterfaceDefinition">
+    <Parameter name="ObjectType">ReportClient</Parameter>
+    <Parameter name="Caption">objectTypeCaption</Parameter>
+    <Parameter name="Description">objectTypeDesc</Parameter>
+    <Parameter name="Group">Communication</Parameter>
+    <Parameter name="Type">REPORTCLIENT</Parameter>
+    <Parameter name="IconFileName">ReportClient.ico</Parameter>
+    <Parameter name="Tools">
+    </Parameter>
+    <Parameter name="DataServers" />
+    <Parameter name="Verbs" />
+    <Parameter name="CanInherit">False</Parameter>
+    <Parameter name="ParentControlConditions">
+      <Structure name="COMMUNICATION">
+        <Condition type="DataStructureObjectType">REPORTENABLED</Condition>
+      </Structure>
+    </Parameter>
+  </Parameters>
+  <Properties type="PropertyDefinitions">
+    <Property name="iedName" category="[010] Basic">
+      <Value>Report Client</Value>
+      <DescID>iedNameDesc</DescID>
+      <CaptionID>iedName</CaptionID>
+      <Values type="string" />
+      <DataType>System.String</DataType>
+      <HelpKey />
+      <Access>RWW</Access>
+      <AttributeName>iedName</AttributeName>
+    </Property>
+    <Property name="ldInst" category="[010] Basic">
+      <Value>LD1</Value>
+      <DescID>ldInstDesc</DescID>
+      <CaptionID>ldInst</CaptionID>
+      <Values type="string">
+      </Values>
+      <DataType>System.String</DataType>
+      <HelpKey />
+      <Access>RWW</Access>
+      <AttributeName>ldInst</AttributeName>
+    </Property>
+    <Property name="lnInst" category="[010] Basic">
+      <Value></Value>
+      <DescID>lnInstDesc</DescID>
+      <CaptionID>lnInst</CaptionID>
+      <Values type="string">
+      </Values>
+      <DataType>System.String</DataType>
+      <HelpKey />
+      <Access>RWW</Access>
+      <AttributeName>lnInst</AttributeName>
+    </Property>
+    <Property name="prefix" category="[010] Basic">
+      <Value></Value>
+      <DescID>prefixDesc</DescID>
+      <CaptionID>prefix</CaptionID>
+      <Values type="string" />
+      <DataType>System.String</DataType>
+      <HelpKey />
+      <Access>RWW</Access>
+      <AttributeName>prefix</AttributeName>
+    </Property>
+    <Property name="lnClass" category="[010] Basic">
+      <Value>LLN0</Value>
+      <DescID>lnClassDesc</DescID>
+      <CaptionID>lnClass</CaptionID>
+      <Values type="string" />
+      <DataType>System.String</DataType>
+      <HelpKey />
+      <Access>RWW</Access>
+      <AttributeName>lnClass</AttributeName>
+    </Property>
+  </Properties>
+</ObjectType>

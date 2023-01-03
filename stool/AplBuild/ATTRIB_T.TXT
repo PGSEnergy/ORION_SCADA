@@ -1,0 +1,127 @@
+;************************************ ATTRIB_T.TXT ********************************************
+;************************************ SR
+
+;Defines the limit properties of MicroScada Time Channel attributes (excluding read-only).
+
+;Command Procedure
+
+#CREATE ATTRIB_TLN:V = LIST(DATA_TYPE = "TEXT",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = max_object_name_length)
+
+#CREATE ATTRIB_TIU:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_TMO:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_TCD:V = LIST(DATA_TYPE = "VECTOR",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 2,-
+         EDATA_TYPE = "TEXT",-   ;Boolean
+         EMIN_LENGTH = 0,-
+         EMAX_LENGTH = 255)
+
+#CREATE ATTRIB_TCY:V = LIST(DATA_TYPE = "VECTOR",-
+         DEFAULT_VALUE = 0,-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 2,-
+         EDATA_TYPE = "INTEGER",-
+         EMIN_VALUE = 0,-
+         EMAX_VALUE = 1000000000)
+
+#CREATE ATTRIB_TSU:V = LIST(DATA_TYPE = "VECTOR",-
+         DEFAULT_VALUE = 0,-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 2,-
+         EDATA_TYPE = "INTEGER",-
+         EMIN_VALUE = 0,-
+         EMAX_VALUE = 7)
+
+#CREATE ATTRIB_TSY:V = LIST(DATA_TYPE = "VECTOR",-
+         DEFAULT_VALUE = 0,-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 2,-
+         EDATA_TYPE = "INTEGER",-
+         EMIN_VALUE = 0,-
+         EMAX_VALUE = 1000000000)
+
+#CREATE ATTRIB_TPE:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_TPQ:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 30)  ;(APL0:BPQ)
+
+#CREATE ATTRIB_TSX:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_TRB:V = LIST(DATA_TYPE = "VECTOR",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 2,-
+         EDATA_TYPE = "INTEGER",-
+         EMIN_VALUE = 0,-
+         EMAX_VALUE = 1000000000)
+         
+#CREATE ATTRIB_TRE:V = LIST(DATA_TYPE = "VECTOR",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 2,-
+         EDATA_TYPE = "INTEGER",-
+         EMIN_VALUE = 0,-
+         EMAX_VALUE = 1000000000)
+         
+#CREATE ATTRIB_TRT:V = LIST(DATA_TYPE = "VECTOR",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 2,-
+         EDATA_TYPE = "INTEGER",-
+         EMIN_VALUE = 0,-
+         EMAX_VALUE = 1000000000)
+
+#CREATE ATTRIB_TRS:V = LIST(DATA_TYPE = "VECTOR",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 2,-
+         EDATA_TYPE = "INTEGER",-
+         EMIN_VALUE = 0,-
+         EMAX_VALUE = 1000000000)
+
+#CREATE ATTRIB_TCM:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_TZT:V = LIST(DATA_TYPE = "INTEGER",-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1000000000)
+
+#CREATE ATTRIB_TSP:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "YES",-
+         ALLOWED = vector("YES","NO","ONCE"),-
+         MIN_LENGTH = length("NO"),-
+         MAX_LENGTH = length("ONCE"))
+
+#CREATE ATTRIB_TCP:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "CALENDAR",-
+         ALLOWED = vector("CALENDAR","EVEN"),-
+         MIN_LENGTH = length("EVEN"),-
+         MAX_LENGTH = length("CALENDAR"))
+
+#CREATE ATTRIB_TDP:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "EVEN",-
+         ALLOWED = vector("CALENDAR","EVEN","APPLICATION_DEFAULT"),-
+         MIN_LENGTH = length("EVEN"),-
+         MAX_LENGTH = length("APPLICATION_DEFAULT"))
+
+
+         
+
+

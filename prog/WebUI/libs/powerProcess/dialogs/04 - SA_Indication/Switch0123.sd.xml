@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="SAVersionInfo" content="2" />
+    <d:meta name="dv-custom-attribute|SATopologyModel" content="Strict" />
+    <d:meta name="dv-custom-attribute|DefaultScalingFactor" content="1" />
+    <d:meta name="dv-custom-attribute|SADisplayName" content="Switch" />
+    <d:meta name="dv-custom-attribute|SAVersionInfo" content="2" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="s0" default="0" />
+    <d:variable type="external" name="s1" default="0" />
+    <d:variable type="external" name="s2" default="0" />
+    <d:variable type="external" name="s3" default="0" />
+    <d:variable type="external" name="c1" default="0" />
+    <d:variable type="external" name="c2" default="0" />
+    <d:variable type="external" name="c3" default="0" />
+    <d:variable type="external" name="t1" default="''" />
+    <d:variable type="external" name="t2" default="''" />
+    <d:variable type="external" name="t3" default="''" />
+    <d:mapping name="f0" parameters="value">
+      <d:step value="true" when="value &lt;= 0.500" />
+      <d:step value="false" when="value &lt;= 1.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f1" parameters="value">
+      <d:step value="true" when="value &lt;= 0.500" />
+      <d:step value="false" when="value &lt;= 1.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f2" parameters="value">
+      <d:step value="true" when="value &lt;= 0.500" />
+      <d:step value="false" when="value &lt;= 1.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f3" parameters="value">
+      <d:step value="colors[30]" when="value &lt;= 0.500" />
+      <d:step value="'rgb(0, 255, 0)'" when="value &lt;= 1.500" />
+      <d:otherwise value="colors[30]" />
+    </d:mapping>
+    <d:mapping name="f4" parameters="value">
+      <d:step value="colors[30]" when="value &lt;= 0.500" />
+      <d:step value="'rgb(0, 255, 0)'" when="value &lt;= 1.500" />
+      <d:otherwise value="colors[30]" />
+    </d:mapping>
+    <d:mapping name="f5" parameters="value">
+      <d:step value="true" when="value &lt;= 0.500" />
+      <d:step value="false" when="value &lt;= 1.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f6" parameters="value">
+      <d:step value="true" when="value &lt;= 0.500" />
+      <d:step value="false" when="value &lt;= 1.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f7" parameters="value">
+      <d:step value="true" when="value &lt;= 0.500" />
+      <d:step value="false" when="value &lt;= 1.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f8" parameters="value">
+      <d:step value="true" when="value &lt;= 0.500" />
+      <d:step value="false" when="value &lt;= 1.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f9" parameters="value">
+      <d:step value="true" when="value &lt;= 0.500" />
+      <d:step value="false" when="value &lt;= 1.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f10" parameters="value">
+      <d:step value="colors[30]" when="value &lt;= 0.500" />
+      <d:step value="'rgb(0, 255, 0)'" when="value &lt;= 1.500" />
+      <d:otherwise value="colors[30]" />
+    </d:mapping>
+    <d:mapping name="f11" parameters="value">
+      <d:step value="true" when="value &lt;= 36.499" />
+      <d:step value="false" when="value &lt;= 37.498" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f12" parameters="value">
+      <d:step value="true" when="value &lt;= 36.499" />
+      <d:step value="false" when="value &lt;= 37.498" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f13" parameters="value">
+      <d:step value="true" when="value &lt;= 36.499" />
+      <d:step value="false" when="value &lt;= 37.498" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f14" parameters="value">
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 0.500" />
+      <d:step value="'rgb(0, 255, 0)'" when="value &lt;= 1.500" />
+      <d:otherwise value="'rgb(0, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f15" parameters="value">
+      <d:step value="true" when="value &lt;= 31.499" />
+      <d:step value="false" when="value &lt;= 32.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f16" parameters="value">
+      <d:step value="true" when="value &lt;= 31.499" />
+      <d:step value="false" when="value &lt;= 32.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f17" parameters="value">
+      <d:step value="true" when="value &lt;= 31.499" />
+      <d:step value="false" when="value &lt;= 32.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f18" parameters="value">
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 0.500" />
+      <d:step value="'rgb(0, 255, 0)'" when="value &lt;= 1.500" />
+      <d:otherwise value="'rgb(0, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f19" parameters="value">
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 0.500" />
+      <d:step value="'rgb(0, 255, 0)'" when="value &lt;= 1.500" />
+      <d:otherwise value="'rgb(0, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f20" parameters="value">
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 0.500" />
+      <d:step value="'rgb(0, 255, 0)'" when="value &lt;= 1.500" />
+      <d:otherwise value="'rgb(0, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f21" parameters="value">
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 0.500" />
+      <d:step value="'rgb(0, 255, 0)'" when="value &lt;= 1.500" />
+      <d:otherwise value="'rgb(0, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f22" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f23" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f24" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f25" parameters="value">
+      <d:step value="true" when="value &lt;= 2.500" />
+      <d:step value="false" when="value &lt;= 3.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f26" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f27" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f28" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f29" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f30" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f31" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f32" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f33" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f34" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f35" parameters="value">
+      <d:step value="true" when="value &lt;= 2.500" />
+      <d:step value="false" when="value &lt;= 3.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f36" parameters="value">
+      <d:step value="true" when="value &lt;= 2.500" />
+      <d:step value="false" when="value &lt;= 3.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f37" parameters="value">
+      <d:step value="true" when="value &lt;= 2.500" />
+      <d:step value="false" when="value &lt;= 3.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f38" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f39" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f40" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f41" parameters="value">
+      <d:step value="true" when="value &lt;= 2.500" />
+      <d:step value="false" when="value &lt;= 3.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f42" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f43" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f44" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f45" parameters="value">
+      <d:step value="true" when="value &lt;= 2.500" />
+      <d:step value="false" when="value &lt;= 3.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f46" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f47" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f48" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f49" parameters="value">
+      <d:step value="true" when="value &lt;= 2.500" />
+      <d:step value="false" when="value &lt;= 3.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f50" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f51" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f52" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f53" parameters="value">
+      <d:step value="true" when="value &lt;= 2.500" />
+      <d:step value="false" when="value &lt;= 3.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f54" parameters="value">
+      <d:step value="true" when="value &lt;= 2.500" />
+      <d:step value="false" when="value &lt;= 3.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f55" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f56" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f57" parameters="value">
+      <d:step value="false" when="value &lt;= 31.499" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 36.499" />
+      <d:step value="true" when="value &lt;= 37.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+  </d:head>
+  <d:body x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <s:circle cx="0" cy="0" r="56.569" y:fill="rgb(208, 208, 208)" y:fill-rule="evenodd" y:stroke="{colors[31]}" y:vector-effect="non-scaling-stroke" y:stroke-width="2" d:object-name=" 2759" />
+    <s:rect width="16" height="104" x="-8" y="-52" s:pointer-events="visiblePainted" d:hidden="f0(`s2`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="rgb(160, 160, 160)" y:fill-rule="evenodd" y:stroke="rgb(128, 128, 128)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:rect width="16" height="22" x="-8" y="-52" s:pointer-events="visiblePainted" d:hidden="f1(`s2`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="rgb(48, 48, 48)" y:fill-rule="evenodd" y:stroke="rgb(128, 128, 128)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:rect width="104" height="16" x="-52" y="-8" s:pointer-events="visiblePainted" d:hidden="f2(`s0`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="rgb(160, 160, 160)" y:fill-rule="evenodd" y:stroke="rgb(128, 128, 128)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:text font-weight="bold" font-family="Arial" font-size="41.356" x="-70" y="-48" text-anchor="end" dominant-baseline="central" dx="-4.136px" d:textScaleAdjustment="true" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f3(`s1`), colors[30])}" y:fill-rule="evenodd">{if(`subdrawing_dynamics`, format('%f', `t1`), '1|')}</s:text>
+    <s:text font-weight="bold" font-family="Arial" font-size="41.356" x="-39" y="-94" text-anchor="end" dominant-baseline="central" dx="-4.136px" d:textScaleAdjustment="true" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f4(`s2`), colors[30])}" y:fill-rule="evenodd">{if(`subdrawing_dynamics`, format('%f', `t2`), '2|')}</s:text>
+    <s:rect width="22" height="16" x="-52" y="-8" s:pointer-events="visiblePainted" d:hidden="f5(`s0`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="rgb(48, 48, 48)" y:fill-rule="evenodd" y:stroke="rgb(128, 128, 128)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:polygon points="42.920,31.480 31.480,42.920 -42.920,-31.480 -31.480,-42.920 42.920,31.480 " d:hidden="f6(`s1`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="rgb(160, 160, 160)" y:fill-rule="evenodd" y:stroke="rgb(128, 128, 128)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:polygon points="-42.920,31.480 -31.480,42.920 42.920,-31.480 31.480,-42.920 -42.920,31.480 " d:hidden="f7(`s3`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="rgb(160, 160, 160)" y:fill-rule="evenodd" y:stroke="rgb(128, 128, 128)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:polygon points="-42.920,-31.480 -31.480,-42.920 -15.900,-27.340 -27.340,-15.900 -42.920,-31.480 " d:hidden="f8(`s1`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="rgb(48, 48, 48)" y:fill-rule="evenodd" y:stroke="rgb(128, 128, 128)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:polygon points="42.600,-31.480 31.160,-42.920 15.580,-27.340 27.020,-15.900 42.600,-31.480 " d:hidden="f9(`s3`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="rgb(48, 48, 48)" y:fill-rule="evenodd" y:stroke="rgb(128, 128, 128)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:text font-weight="bold" font-family="Arial" font-size="41.356" x="-70" y="0" text-anchor="end" dominant-baseline="central" dx="-4.136px" d:textScaleAdjustment="true" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f10(`s0`), colors[30])}" y:fill-rule="evenodd">0</s:text>
+    <s:circle cx="0" cy="0" r="56.569" d:hidden="f11(`c1`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="rgb(0, 0, 255)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" d:object-name=" 2759" />
+    <s:circle cx="0" cy="0" r="56.569" d:hidden="f12(`c2`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="rgb(0, 0, 255)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" d:object-name=" 2759" />
+    <s:circle cx="0" cy="0" r="56.569" d:hidden="f13(`c3`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="rgb(0, 0, 255)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" d:object-name=" 2759" />
+    <s:text font-weight="bold" font-family="Arial" font-size="41.356" x="-8" y="-140" text-anchor="end" dominant-baseline="central" dx="-4.136px" d:textScaleAdjustment="true" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f14(`s3`), 'rgb(0, 0, 0)')}" y:fill-rule="evenodd">{if(`subdrawing_dynamics`, format('%f', `t3`), '3|')}</s:text>
+    <s:circle cx="0" cy="0" r="56.569" d:hidden="f15(`c3`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="rgb(0, 255, 0)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" d:object-name=" 2759" />
+    <s:circle cx="0" cy="0" r="56.569" d:hidden="f16(`c2`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="rgb(0, 255, 0)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" d:object-name=" 2759" />
+    <s:circle cx="0" cy="0" r="56.569" d:hidden="f17(`c1`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="rgb(0, 255, 0)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" d:object-name=" 2759" />
+    <s:polyline points="0,-48 0,-94 -39,-94 " d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="{if(`subdrawing_dynamics`, f18(`s2`), 'rgb(0, 0, 0)')}" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:polyline points="-32,-32 -48,-48 -70,-48 " d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="{if(`subdrawing_dynamics`, f19(`s1`), 'rgb(0, 0, 0)')}" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:polyline points="34,-34 34,-140 -8,-140 " d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="{if(`subdrawing_dynamics`, f20(`s3`), 'rgb(0, 0, 0)')}" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:polyline points="-46,0 -48,0 -70,0 " d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="{if(`subdrawing_dynamics`, f21(`s0`), 'rgb(0, 0, 0)')}" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:text font-weight="bold" font-family="Arial" font-size="41.356" fill="rgb(255, 0, 255)" x="-70" y="0" text-anchor="end" dominant-baseline="central" dx="-4.136px" d:textScaleAdjustment="true" d:hidden="f22(`c1`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="rgb(255, 0, 255)" y:fill-rule="evenodd">0</s:text>
+    <s:text font-weight="bold" font-family="Arial" font-size="41.356" fill="rgb(255, 0, 255)" x="-70" y="0" text-anchor="end" dominant-baseline="central" dx="-4.136px" d:textScaleAdjustment="true" d:hidden="f23(`c2`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="rgb(255, 0, 255)" y:fill-rule="evenodd">0</s:text>
+    <s:text font-weight="bold" font-family="Arial" font-size="41.356" fill="rgb(255, 0, 255)" x="-70" y="0" text-anchor="end" dominant-baseline="central" dx="-4.136px" d:textScaleAdjustment="true" d:hidden="f24(`c3`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="rgb(255, 0, 255)" y:fill-rule="evenodd">0</s:text>
+    <s:text font-weight="bold" font-family="Arial" font-size="41.356" fill="rgb(255, 0, 255)" x="-70" y="0" text-anchor="end" dominant-baseline="central" dx="-4.136px" d:textScaleAdjustment="true" d:hidden="f25(`s0`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="rgb(255, 0, 255)" y:fill-rule="evenodd">0</s:text>
+    <s:text font-weight="bold" font-family="Arial" font-size="41.356" fill="rgb(255, 0, 255)" x="-70" y="-48" text-anchor="end" dominant-baseline="central" dx="-4.136px" d:textScaleAdjustment="true" d:transform-anchor="center-center" d:hidden="f26(`c1`) and `subdrawing_dynamics` = 1" y:fill="rgb(255, 0, 255)" y:fill-rule="evenodd">{if(`subdrawing_dynamics`, format('%f', `t1`), '1|')}</s:text>
+    <s:text font-weight="bold" font-family="Arial" font-size="41.356" fill="rgb(255, 0, 255)" x="-39" y="-94" text-anchor="end" dominant-baseline="central" dx="-4.136px" d:textScaleAdjustment="true" d:transform-anchor="center-center" d:hidden="f27(`c2`) and `subdrawing_dynamics` = 1" y:fill="rgb(255, 0, 255)" y:fill-rule="evenodd">{if(`subdrawing_dynamics`, format('%f', `t2`), '2|')}</s:text>
+    <s:text font-weight="bold" font-family="Arial" font-size="41.356" fill="rgb(255, 0, 255)" x="-8" y="-140" text-anchor="end" dominant-baseline="central" dx="-4.136px" d:textScaleAdjustment="true" d:transform-anchor="center-center" d:hidden="f28(`c3`) and `subdrawing_dynamics` = 1" y:fill="rgb(255, 0, 255)" y:fill-rule="evenodd">{if(`subdrawing_dynamics`, format('%f', `t3`), '3|')}</s:text>
+    <s:text font-weight="bold" font-family="Arial" font-size="41.356" fill="rgb(255, 0, 255)" x="-70" y="-48" text-anchor="end" dominant-baseline="central" dx="-4.136px" d:textScaleAdjustment="true" d:transform-anchor="center-center" d:hidden="f29(`c2`) and `subdrawing_dynamics` = 1" y:fill="rgb(255, 0, 255)" y:fill-rule="evenodd">{if(`subdrawing_dynamics`, format('%f', `t1`), '1|')}</s:text>
+    <s:text font-weight="bold" font-family="Arial" font-size="41.356" fill="rgb(255, 0, 255)" x="-70" y="-48" text-anchor="end" dominant-baseline="central" dx="-4.136px" d:textScaleAdjustment="true" d:transform-anchor="center-center" d:hidden="f30(`c3`) and `subdrawing_dynamics` = 1" y:fill="rgb(255, 0, 255)" y:fill-rule="evenodd">{if(`subdrawing_dynamics`, format('%f', `t1`), '1|')}</s:text>
+    <s:text font-weight="bold" font-family="Arial" font-size="41.356" fill="rgb(255, 0, 255)" x="-39" y="-94" text-anchor="end" dominant-baseline="central" dx="-4.136px" d:textScaleAdjustment="true" d:transform-anchor="center-center" d:hidden="f31(`c1`) and `subdrawing_dynamics` = 1" y:fill="rgb(255, 0, 255)" y:fill-rule="evenodd">{if(`subdrawing_dynamics`, format('%f', `t2`), '2|')}</s:text>
+    <s:text font-weight="bold" font-family="Arial" font-size="41.356" fill="rgb(255, 0, 255)" x="-39" y="-94" text-anchor="end" dominant-baseline="central" dx="-4.136px" d:textScaleAdjustment="true" d:transform-anchor="center-center" d:hidden="f32(`c3`) and `subdrawing_dynamics` = 1" y:fill="rgb(255, 0, 255)" y:fill-rule="evenodd">{if(`subdrawing_dynamics`, format('%f', `t2`), '2|')}</s:text>
+    <s:text font-weight="bold" font-family="Arial" font-size="41.356" fill="rgb(255, 0, 255)" x="-8" y="-140" text-anchor="end" dominant-baseline="central" dx="-4.136px" d:textScaleAdjustment="true" d:transform-anchor="center-center" d:hidden="f33(`c2`) and `subdrawing_dynamics` = 1" y:fill="rgb(255, 0, 255)" y:fill-rule="evenodd">{if(`subdrawing_dynamics`, format('%f', `t3`), '3|')}</s:text>
+    <s:text font-weight="bold" font-family="Arial" font-size="41.356" fill="rgb(255, 0, 255)" x="-8" y="-140" text-anchor="end" dominant-baseline="central" dx="-4.136px" d:textScaleAdjustment="true" d:transform-anchor="center-center" d:hidden="f34(`c1`) and `subdrawing_dynamics` = 1" y:fill="rgb(255, 0, 255)" y:fill-rule="evenodd">{if(`subdrawing_dynamics`, format('%f', `t3`), '3|')}</s:text>
+    <s:text font-weight="bold" font-family="Arial" font-size="41.356" fill="rgb(255, 0, 255)" x="-70" y="-48" text-anchor="end" dominant-baseline="central" dx="-4.136px" d:textScaleAdjustment="true" d:transform-anchor="center-center" d:hidden="f35(`s0`) and `subdrawing_dynamics` = 1" y:fill="rgb(255, 0, 255)" y:fill-rule="evenodd">{if(`subdrawing_dynamics`, format('%f', `t1`), '1|')}</s:text>
+    <s:text font-weight="bold" font-family="Arial" font-size="41.356" fill="rgb(255, 0, 255)" x="-39" y="-94" text-anchor="end" dominant-baseline="central" dx="-4.136px" d:textScaleAdjustment="true" d:transform-anchor="center-center" d:hidden="f36(`s0`) and `subdrawing_dynamics` = 1" y:fill="rgb(255, 0, 255)" y:fill-rule="evenodd">{if(`subdrawing_dynamics`, format('%f', `t2`), '2|')}</s:text>
+    <s:text font-weight="bold" font-family="Arial" font-size="41.356" fill="rgb(255, 0, 255)" x="-8" y="-140" text-anchor="end" dominant-baseline="central" dx="-4.136px" d:textScaleAdjustment="true" d:transform-anchor="center-center" d:hidden="f37(`s0`) and `subdrawing_dynamics` = 1" y:fill="rgb(255, 0, 255)" y:fill-rule="evenodd">{if(`subdrawing_dynamics`, format('%f', `t3`), '3|')}</s:text>
+    <s:polyline points="-46,0 -48,0 -70,0 " d:hidden="f38(`c2`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="rgb(255, 0, 255)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:polyline points="-46,0 -48,0 -70,0 " d:hidden="f39(`c1`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="rgb(255, 0, 255)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:polyline points="-46,0 -48,0 -70,0 " d:hidden="f40(`c3`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="rgb(255, 0, 255)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:polyline points="-46,0 -48,0 -70,0 " d:hidden="f41(`s0`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="rgb(255, 0, 255)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:polyline points="-32,-32 -48,-48 -70,-48 " d:hidden="f42(`c1`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="rgb(255, 0, 255)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:polyline points="-32,-32 -48,-48 -70,-48 " d:hidden="f43(`c2`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="rgb(255, 0, 255)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:polyline points="-32,-32 -48,-48 -70,-48 " d:hidden="f44(`c3`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="rgb(255, 0, 255)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:polyline points="-32,-32 -48,-48 -70,-48 " d:hidden="f45(`s0`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="rgb(255, 0, 255)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:polyline points="0,-48 0,-94 -39,-94 " d:hidden="f46(`c1`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="rgb(255, 0, 255)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:polyline points="0,-48 0,-94 -39,-94 " d:hidden="f47(`c2`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="rgb(255, 0, 255)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:polyline points="0,-48 0,-94 -39,-94 " d:hidden="f48(`c3`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="rgb(255, 0, 255)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:polyline points="0,-48 0,-94 -39,-94 " d:hidden="f49(`s0`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="rgb(255, 0, 255)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:polyline points="34,-34 34,-140 -8,-140 " d:hidden="f50(`c1`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="rgb(255, 0, 255)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:polyline points="34,-34 34,-140 -8,-140 " d:hidden="f51(`c2`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="rgb(255, 0, 255)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:polyline points="34,-34 34,-140 -8,-140 " d:hidden="f52(`c3`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="rgb(255, 0, 255)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:polyline points="34,-34 34,-140 -8,-140 " d:hidden="f53(`s0`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="rgb(255, 0, 255)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:circle cx="0" cy="0" r="56.569" d:hidden="f54(`s0`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="rgb(255, 0, 255)" y:fill-rule="evenodd" y:stroke="rgb(0, 0, 0)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" d:object-name=" 2759" />
+    <s:circle cx="0" cy="0" r="56.569" d:hidden="f55(`c3`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="rgb(255, 0, 255)" y:fill-rule="evenodd" y:stroke="rgb(0, 0, 0)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" d:object-name=" 2759" />
+    <s:circle cx="0" cy="0" r="56.569" d:hidden="f56(`c2`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="rgb(255, 0, 255)" y:fill-rule="evenodd" y:stroke="rgb(0, 0, 0)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" d:object-name=" 2759" />
+    <s:circle cx="0" cy="0" r="56.569" d:hidden="f57(`c1`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="rgb(255, 0, 255)" y:fill-rule="evenodd" y:stroke="rgb(0, 0, 0)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" d:object-name=" 2759" />
+  </d:body>
+</d:document>

@@ -1,0 +1,55 @@
+;CM =Interface for Monitor Pro Reports, Set the value, edited in Meas.Report GUI
+; Function:    SAGR_REPORTS_SET_VALUE:C
+; Version:     3.0 (build 2.3.2012)
+; Parameters:  Conf_Name="xxxx",Time_From,Time_To,Column_Name, New_Value,Old_Value,Old_Status,User_Name
+; Return data: 
+; Description: Set the manual edited value
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#local b_, -
+       l_NewData = list(OS=VECTOR(9), OV=VECTOR(%ArgumentList.NEW_VALUE)),-
+       l_OldData = LIST(OS=VECTOR(%ArgumentList.OLD_STATUS), OV=VECTOR(%ArgumentList.OLD_VALUE)),-
+       t_ReportObjectName = %ArgumentList.COLUMN_NAME,-
+       t_DisplayConfName  = %ArgumentList.CONF_NAME,-
+       l_ReportObject     = %l_ReportObjects.Obj_'t_ReportObjectName',- 
+       t_WriteProc = "BMU_BP_WRITE", t_SumProc = "BMU_BP_SUM1"
+
+#if SAGR_REPORTS_GETDATFILE:ccs == 1 #then -
+      b_ = do(SAGR_REPORTS_GETDATFILE:ccp,t_DisplayConfName)
+#else b_ = do(SAGR_REPORTS_GETDATFILE:c,  t_DisplayConfName)   
+#if not b_ #then #return
+
+@T1 = %ArgumentList.TIME_FROM
+@T2 = %ArgumentList.TIME_TO
+#if data_type(%T1)<>"TIME" OR data_type(%T2)<>"TIME" #then #error raise
+#if data_type(%T1)=="NONE" #then @T1=clock
+
+#if %REPORT_TYPE == "HOUR" #then #block  ;### Obsolete because EDIT value not supported for Hour reports
+   t_WriteProc = "BMU_SP_WRITE"
+   t_SumProc   = "BMU_SP_SUM"
+#block_end         
+
+#exec 't_WriteProc':C (@T1 = %T1,-  ;*** %ArgumentList.TIME_FROM, -
+                       @T2 = %T2,-  ;*** %ArgumentList.TIME_TO, -
+                       @DATA_ID        = t_ReportObjectName,-
+                       @v_OV           = VECTOR(%ArgumentList.NEW_VALUE),-
+                       @b_Manual       = TRUE,-
+                       @t_ObjectName   = t_ReportObjectName,-
+                       @l_ReportObject = l_ReportObject)
+
+#exec 't_SumProc':C (@T1 = %T1,-  ;*** %ArgumentList.TIME_FROM, -
+                     @T2 = %T2,-  ;*** %ArgumentList.TIME_TO, -
+                     @DATA_ID         = t_ReportObjectName,-
+                     @t_ObjectName    = t_ReportObjectName,-
+                     @l_ReportObject  = l_ReportObject)
+                 
+#exec BMU_LOGMAN:C (@T1 = %T1,-  ;*** %ArgumentList.TIME_FROM, -
+                    @T2 = %T2,-  ;*** %ArgumentList.TIME_TO, -
+                    @DATA_ID    = t_ReportObjectName,-                    
+                    @l_OldData   = l_OldData, -
+                    @l_NewData   = l_NewData,-
+                    @t_User       = %ArgumentList.USER_NAME, -
+                    @b_DST        = FALSE,-
+                    @l_ReportObject = l_ReportObject) ;argument(10)

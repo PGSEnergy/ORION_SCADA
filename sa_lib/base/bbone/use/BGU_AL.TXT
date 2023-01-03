@@ -1,0 +1,221 @@
+#local argCnt, tRedirectProc, tRedirectCommand, iArgLoop
+tRedirectProc="APLMOD_AL"
+#if APPLICATION_OBJECT_EXISTS(0,"C",tRedirectProc) AND -
+DATA_TYPE(%REDIRECTED)=="NONE" #then #block
+   #if 'tRedirectProc':CIU==1 #then #block
+      @REDIRECTED=TRUE
+      argCnt=ARGUMENT_COUNT
+      tRedirectCommand="DO('tRedirectProc':C"
+      #loop_with iArgLoop=1..argCnt
+         tRedirectCommand=tRedirectCommand+",argument('iArgLoop')"
+         #if iArgLoop==argCnt #then #block
+            tRedirectCommand=tRedirectCommand+")"
+         #block_end
+      #loop_end
+      #return 'tRedirectCommand'
+   #block_end
+#block_end
+
+#if sys:bdm<>0 #then @b_enable_debugging=true
+#else @b_enable_debugging=false
+
+@COMMAND_SELECTOR=argument(2) ;Defines the command 
+
+#if %b_enable_debugging #then #block
+   @i_Trash=trace_begin("TRACE_BGU_AL_'COMMAND_SELECTOR'.txt")
+   #on error #block
+      #if %b_enable_debugging #then #block
+         @i_Stat=status
+         @i_Trash=console_output(-
+            times + -
+            " BGU_AL:C error when executing 'COMMAND_SELECTOR': 'i_Stat'. " + -
+            "Trace created to PICT/TRACE_BGU_AL_'COMMAND_SELECTOR'.txt")
+         @i_Trash=trace_end
+         @enable_debugging=false
+      #block_end
+      #return
+   #block_end
+#block_end
+
+@id_arg=argument(1)
+#if data_type(%id_arg)=="VECTOR" #then #block
+   @PF_ID=%id_arg(1)
+   @TYPE_OF_PF_ID=data_type(%PF_ID)
+   @TYPE_OF_PF_ID_IS="'TYPE_OF_PF_ID'"
+   @PF_INDICATION_INDEX=%id_arg(2)
+#block_end
+#else #block
+   @PF_ID=%id_arg
+#block_end
+
+@ConfPath=path("APL_")
+@ConfPath=%ConfPath(1)
+@ConfPath=substr(%ConfPath,1, length(%ConfPath)-4)
+@AplPath=%ConfPath
+@ConfPath=%ConfPath+"POBJCONF"
+@ConfPathIs="'ConfPath'" ;This is for debugging. Makes path readable in trace file.
+@e_state=error_state
+#error ignore
+@DAT_FILE=evaluate(read_text(%ConfPath+"\'PF_ID'.dat"))
+#error 'e_state'
+#if data_type(%DAT_FILE) <> "LIST" AND data_type(%PF_INDICATION_INDEX)=="INTEGER" #then #block
+   #error ignore
+   @DAT_FILE=evaluate(read_text(%ConfPath+"\'PF_ID'%'PF_INDICATION_INDEX'.dat"))
+   #error 'e_state'
+#block_end
+#if data_type(%DAT_FILE) <> "LIST" #then @DAT_FILE = 'pf_id':pcd
+
+@CONF_DATA=%DAT_FILE
+;@Pf_Id = %pf_id          ;Picture function ID
+@Ln    = %CONF_DATA.P_OBJECT_LN     ;Logical name of process objects
+
+@DAT_FILE=%DAT_FILE
+#IF DAT_FILE:VP_OBJECT_LN == "" #THEN #SET DAT_FILE:VP_OBJECT_LN =  "ABCDEFGHIJ"
+
+#case %COMMAND_SELECTOR
+   #when "CALCULATE_STATE", "GET_SIGNAL_LIST" #block
+      @NOT_CONNECTED_BV        = FALSE
+      @TYPE_UNDEFINED          = FALSE
+      @SEL_ON_MON_BV           = FALSE
+      @OBJECTS_MISSING         = FALSE
+      @SHOW_ALARM              = FALSE
+      @NOT_SAMPLED_BV          = FALSE
+      @SUBSTITUTED_I_BV        = FALSE
+      @UPDATE_BLK_I_BV         = FALSE
+      @NOT_UPDATED_OS2_BV      = FALSE
+      @NOT_UPDATED_OS4_9_BV    = FALSE
+      @SUBSTITUTED_E_BV        = FALSE
+      @UPDATE_BLK_E_BV         = FALSE
+      @INVALID_BV              = FALSE
+      @ALARM_UNACKNOWLEDGED_BV = FALSE
+      @ALARM_ACKNOWLEDGED_BV   = FALSE
+      @ALARM_BLK_BV            = FALSE
+      @HISTORY_BLK_BV          = FALSE
+      @PRINTOUT_BLK_BV         = FALSE
+      @EV_ACT_BLK_BV           = FALSE
+      @WARNING_BV              = FALSE
+      
+      @V_GROUP_LN=VECTOR()
+      @V_GROUP_IX=VECTOR()
+      @I=1
+;      #loop
+;         #if data_type(%DAT_FILE.LINK_SIGNAL'I'_TO_LN) <> "NONE" #then #block
+;            #if %DAT_FILE.LINK_SIGNAL'I'_TO_LN <> "" AND %DAT_FILE.LINK_SIGNAL'I'_TO_IX <> 0 #then #block
+;               @V_GROUP_LN(length(%V_GROUP_LN)+1)=%DAT_FILE.LINK_SIGNAL'I'_TO_LN
+;               @V_GROUP_IX(length(%V_GROUP_IX)+1)=%DAT_FILE.LINK_SIGNAL'I'_TO_IX
+;            #block_end
+;         #block_end
+;         #else #loop_exit
+;         @I=%I+1
+;      #loop_end
+      #loop_with i=1..8
+         ;---------------------------------------------------------------------------------------------------------
+         #IF %DAT_FILE.TYPE_OF_SIGNAL'i' == "LINK" #THEN #BLOCK
+            @TMP_LN = UPPER_CASE(%DAT_FILE.LINK_SIGNAL'I'_TO_LN)
+            @TMP_IX = %DAT_FILE.LINK_SIGNAL'I'_TO_IX
+            #IF %TMP_LN <> "" #THEN #BLOCK
+               @V_GROUP_LN=append(%V_GROUP_LN,%TMP_LN)
+               @V_GROUP_IX=append(%V_GROUP_IX,%TMP_IX)
+            #BLOCK_END
+         #BLOCK_END
+         #ELSE #BLOCK
+            #IF %DAT_FILE.TYPE_OF_SIGNAL'I' <> "" #THEN #BLOCK
+               @V_GROUP_LN=append(%V_GROUP_LN, %PF_ID)
+               @V_GROUP_IX=append(%V_GROUP_IX, 9 + %I)
+            #BLOCK_END
+         #BLOCK_END
+         ;---------------------------------------------------------------------------------------------------------
+      #loop_end
+
+      #if %COMMAND_SELECTOR=="GET_SIGNAL_LIST" #then #block
+         #return LIST(LN=%V_GROUP_LN, IX=%V_GROUP_IX)
+      #block_end
+      
+      #IF length(%V_GROUP_LN)==0 #THEN @TYPE_UNDEFINED = TRUE      
+
+      #LOOP_WITH I = 1 .. length(%V_GROUP_LN)
+       #IF %V_GROUP_LN(%I) <>"" AND %V_GROUP_IX(%I) > 0 #THEN #BLOCK
+         @TMP_LN=%V_GROUP_LN(%I)
+         @TMP_IX=%V_GROUP_IX(%I)
+         @ATTR=APPLICATION_OBJECT_ATTRIBUTES(0,"IX",-
+         list(LN=vector(%TMP_LN), IX=vector(%TMP_IX)), -
+         vector("UN","PT","AR","AL","AZ","UB","AB","HB","PB",-
+         "XB","OS","SS","SB","BL","OR","OF","SU"))
+        
+         @INDICATION_UN = ATTR:VUN(1)
+         @INDICATION_SS = ATTR:VSS(1)
+         @INDICATION_PT = ATTR:VPT(1)
+         @INDICATION_SU = ATTR:VSU(1)
+         @INDICATION_UB = ATTR:VUB(1)
+         @INDICATION_OS = ATTR:VOS(1)
+         @INDICATION_SB = ATTR:VSB(1)
+         @INDICATION_AL = ATTR:VAL(1)
+         @INDICATION_AR = ATTR:VAR(1)
+         @INDICATION_AB = ATTR:VAB(1)
+         @INDICATION_HB = ATTR:VHB(1)
+         @INDICATION_PB = ATTR:VPB(1)
+         @INDICATION_XB = ATTR:VXB(1)
+         @INDICATION_OR = ATTR:VOR(1)
+         @INDICATION_OF = ATTR:VOF(1)
+         @INDICATION_BL = ATTR:VBL(1)
+           
+         @S = STATUS
+         
+         #IF %INDICATION_SU == 1 #THEN  @SUBSTITUTED_I_BV = TRUE
+         #IF %INDICATION_UB == 1 #THEN  @UPDATE_BLK_I_BV  = TRUE
+         #CASE %INDICATION_OS
+            #WHEN 1  @INVALID_BV = TRUE
+            #WHEN 2  @NOT_UPDATED_OS2_BV = TRUE
+            #WHEN 3  @TIME_INVALID_BV = TRUE
+            #WHEN 4..9  @NOT_UPDATED_OS4_9_BV = TRUE
+            #WHEN 10 #BLOCK
+               @NOT_SAMPLED_BV = TRUE
+               @INDICATION_AL = 0
+               @INDICATION_AR = 1
+            #BLOCK_END  
+         #CASE_END
+         #IF %INDICATION_SB==1 #THEN  @SUBSTITUTED_E_BV = TRUE
+         #IF %INDICATION_BL==1 #THEN  @UPDATE_BLK_E_BV = TRUE
+         #IF %INDICATION_AR == 0 #THEN @ALARM_UNACKNOWLEDGED_BV = TRUE
+         #IF %INDICATION_AL == 1 AND %INDICATION_AR == 1 #THEN @ALARM_ACKNOWLEDGED_BV = TRUE
+         #IF %INDICATION_AB == 1 #THEN  @ALARM_BLK_BV = TRUE
+         #IF %INDICATION_HB == 1 #THEN  @HISTORY_BLK_BV = TRUE
+         #IF %INDICATION_PB == 1 #THEN  @PRINTOUT_BLK_BV = TRUE
+         #IF %INDICATION_XB == 1 #THEN  @EV_ACT_BLK_BV = TRUE
+         #IF ATTR:VPT(1) == 11 #THEN #BLOCK
+            @TMP_LN = ATTR:VLN(1)
+            @TMP_IX = ATTR:VIX(1)
+            #IF 'TMP_LN':PAZ'TMP_IX' > 2 #THEN  @WARNING_BV = TRUE
+         #BLOCK_END
+        #IF NOT (%INDICATION_SS > 1  AND %INDICATION_UN<>0) #THEN -
+           @NOT_CONNECTED_BV = TRUE
+        #IF STATUS<>0 #THEN @OBJECTS_MISSING = TRUE
+      
+       #BLOCK_END
+      #LOOP_END
+      
+      #ERROR CONTINUE
+      ;select symbol for object
+      #IF %SEL_ON_MON_BV #THEN  @STATE = 1
+      #ELSE_IF %TYPE_UNDEFINED #THEN  @STATE = 2
+      #ELSE_IF %SUBSTITUTED_I_BV #THEN  @STATE = 8
+      #ELSE_IF %UPDATE_BLK_I_BV #THEN  @STATE = 2
+      #ELSE_IF %NOT_UPDATED_OS2_BV #THEN  @STATE = 2
+      #ELSE_IF %NOT_UPDATED_OS4_9_BV #THEN  @STATE = 2
+      #ELSE_IF %SUBSTITUTED_E_BV #THEN  @STATE = 8
+      #ELSE_IF %UPDATE_BLK_E_BV #THEN  @STATE = 2
+      #ELSE_IF %INVALID_BV #THEN  @STATE = 2
+      #ELSE_IF %ALARM_UNACKNOWLEDGED_BV #THEN  @STATE = 3
+      #ELSE_IF %ALARM_ACKNOWLEDGED_BV #THEN  @STATE = 4
+      #ELSE_IF %ALARM_BLK_BV OR %HISTORY_BLK_BV OR -
+         %PRINTOUT_BLK_BV OR %EV_ACT_BLK_BV #THEN  @STATE = 5
+      #ELSE_IF %NOT_CONNECTED_BV #THEN  @STATE = 6
+      #ELSE_IF %OBJECTS_MISSING #THEN  @STATE = 2
+      #ELSE  @STATE = 7
+            
+      @TYPE_UNDEFINED = FALSE
+
+      ;Set value to combined state process object:
+      #SET 'PF_ID':POV'PF_INDICATION_INDEX'=%STATE
+   #block_end
+#case_end

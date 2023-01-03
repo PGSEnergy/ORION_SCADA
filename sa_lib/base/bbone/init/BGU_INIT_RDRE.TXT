@@ -1,0 +1,20 @@
+@C_SEARCH = FETCH(0,"C","BGU_RDRE")
+#IF C_SEARCH:VIU <> -1 #THEN #BLOCK
+   #DELETE BGU_RDRE:C 
+#BLOCK_END
+@CIN=TEXT_READ("/SA_LIB/BASE/BBONE/USE/BGU_RDRE.TXT")
+#CREATE BGU_RDRE:C = LIST(-
+     IU = 1,-
+     MO = 1,-
+     PE = 1,-
+     PQ = 6,-
+     CM = "Interface for automated disturbance uploading",-
+     IN = %CIN.TEXT)
+
+@A_SEARCH = FETCH(0,"A","BGU_RDRE")
+#IF A_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE BGU_RDRE:A = LIST(-
+   CM = "Interface for automated disturbance uploading",-
+   OT = "C",-
+   ON = "BGU_RDRE")
+#BLOCK_END

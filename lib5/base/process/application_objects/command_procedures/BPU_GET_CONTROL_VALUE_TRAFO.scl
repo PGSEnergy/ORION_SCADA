@@ -1,0 +1,32 @@
+;Function: BPU_GET_CONTROL_VALUE_TRAFO:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_get_control_value_trafo.scl
+;Version: 1.0
+;Parameters: t_control_type (control type for operation), t_sta_type (protocol), t_command (operation to be performed)
+;Return data: : i_control_value, integer 
+;Description: Decides the control for for the action based on command type and operation
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument t_control_type, t_sta_type, t_command
+#local i_control_value
+#case t_control_type
+   #when "DIR-BO", "SEC-BO", "DIR-AO", "SEC-AO" #block
+      #case t_command
+         #when "MANUAL_SELECT", "MANUAL_EXECUTE", "SINGLE_SELECT", "SINGLE_EXECUTE", "SLAVE_SELECT", "SLAVE_EXECUTE" i_control_value = 0
+         #when "AUTO_SELECT", "AUTO_EXECUTE", "PARALLEL_SELECT", "PARALLEL_EXECUTE", "MASTER_SELECT", "MASTER_EXECUTE" i_control_value = 1
+         #when "LOWER_SELECT", "LOWER_EXECUTE" #block
+            #if t_sta_type == "IEC61850" #then i_control_value = 1
+            #else i_control_value = 0
+         #block_end         
+         #when "RAISE_SELECT", "RAISE_EXECUTE" #block
+            #if t_sta_type == "IEC61850" #then i_control_value = 2
+            #else i_control_value = 1
+         #block_end
+         #otherwise i_control_value = 0
+      #case_end
+   #block_end
+   #when "SEC-2BO", "SEC-4BO", "SEC-5AO" i_control_value = 1
+#case_end
+
+#return i_control_value

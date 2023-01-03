@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<NGT>
+  <Header>
+    <ModelInfo value="CommunicationConfiguration" />
+    <ModelVersion value="1.3.0.0" />
+    <PersistencyVersion value="1.0.0.0" />
+  </Header>
+  <DomModel>
+    <Complex name="Root" type="t0" id="0">
+      <Reference name="physicalNetworks" id="1" />
+      <Reference name="serviceConnections" id="2" />
+      <Reference name="role" id="3" />
+      <Reference name="typicalID" id="4" />
+      <Reference name="parameters" id="5" />
+      <Reference name="names" id="6" />
+      <Simple name="EntityId" value="c262dd1d-efcd-479e-9034-c9e316fb02c7" />
+    </Complex>
+    <Complex name="physicalNetworks" type="t1" id="1">
+      <Collection name="internalList" type="t2" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="PhysicalNetworks" />
+    </Complex>
+    <Complex name="serviceConnections" type="t3" id="2">
+      <Collection name="internalList" type="t4" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="ServiceConnections" />
+    </Complex>
+    <Complex name="role" type="t5" id="3">
+      <Simple name="value" value="Standalone" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="Role" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="typicalID" type="t6" id="4">
+      <Simple name="value" value="00000000-0000-0000-0000-000000000000" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="TypicalID" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="parameters" type="t7" id="5">
+      <Dictionary name="internalDictionary" type="t8" id="0">
+        <Items />
+      </Dictionary>
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="Parameters" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="names" type="t9" id="6">
+      <Collection name="internalList" type="t10" id="0">
+        <Simple name="Capacity" value="1" />
+        <Items>
+          <Reference name="item" id="7" />
+        </Items>
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="Names" />
+    </Complex>
+    <Complex name="item" type="t11" id="7">
+      <Reference name="name" id="8" />
+      <Reference name="parent" id="0" />
+      <Reference name="Type" id="9" />
+    </Complex>
+    <Complex name="name" type="t12" id="8">
+      <Simple name="value" value="TypicalSystemCommunicationConfiguration" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="7" />
+      <Simple name="PropertyName" value="Name" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="Type" type="t13" id="9">
+      <Simple name="NameType" value="ABB Internal Name" />
+      <Simple name="NameAuthority" value="NGT" />
+    </Complex>
+    <Types>
+      <Type value="ABB.NGT.Domain.Communication.Implementation.Model.SystemModel.SystemCommunicationConfiguration, ABB.NGT.Domain.Communication.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t0" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldList`3[[ABB.NGT.Domain.Communication.API.Model.IPhysicalNetwork, ABB.NGT.Domain.Communication.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Communication.Contracts.Events.CommunicationChildAddedEvent, ABB.NGT.Domain.Communication.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Communication.Contracts.Events.CommunicationChildRemovedEvent, ABB.NGT.Domain.Communication.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t1" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.Communication.API.Model.IPhysicalNetwork, ABB.NGT.Domain.Communication.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t2" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldList`3[[ABB.NGT.Domain.Communication.API.Model.IServiceConnection, ABB.NGT.Domain.Communication.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Communication.Contracts.Events.CommunicationChildAddedEvent, ABB.NGT.Domain.Communication.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Communication.Contracts.Events.CommunicationChildRemovedEvent, ABB.NGT.Domain.Communication.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t3" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.Communication.API.Model.IServiceConnection, ABB.NGT.Domain.Communication.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t4" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[ABB.NGT.Domain.Concepts.API.TypicalInstanceRole, ABB.NGT.Domain.Concepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Communication.Contracts.Events.CommunicationPropertyChangedEvent, ABB.NGT.Domain.Communication.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t5" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[System.Guid, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[ABB.NGT.Domain.Communication.Contracts.Events.CommunicationPropertyChangedEvent, ABB.NGT.Domain.Communication.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t6" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldDictionary`5[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[ABB.NGT.Domain.Concepts.API.Parameters.IParameterComponent, ABB.NGT.Domain.Concepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Concepts.Contracts.Events.Parameters.ParameterPropertyChangedEvent, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Concepts.Contracts.Events.Parameters.ParameterChildAddedEvent, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Concepts.Contracts.Events.Parameters.ParameterChildRemovedEvent, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t7" />
+      <Type value="System.Collections.Generic.Dictionary`2[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[ABB.NGT.Domain.Concepts.API.Parameters.IParameterComponent, ABB.NGT.Domain.Concepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t8" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldList`3[[ABB.NGT.Domain.Concepts.API.IEntityName, ABB.NGT.Domain.Concepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Concepts.Contracts.Events.Name.NameAddedEvent, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Concepts.Contracts.Events.Name.NameRemovedEvent, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t9" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.Concepts.API.IEntityName, ABB.NGT.Domain.Concepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t10" />
+      <Type value="ABB.NGT.Domain.Concepts.Contracts.EntityName, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t11" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[ABB.NGT.Domain.Concepts.Contracts.Events.Name.NameChangedEvent, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t12" />
+      <Type value="ABB.NGT.ToolConcepts.API.Environment.WorkspaceSettings.EntityNameType, ABB.NGT.ToolConcepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t13" />
+    </Types>
+  </DomModel>
+</NGT>

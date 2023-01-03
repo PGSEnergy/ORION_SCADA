@@ -1,0 +1,29 @@
+; SHADLOG - LOGGING OF SHADOWING EVENTS
+;
+; INPUT PARAMETERS:
+;  %APL    - APPLICATION NUMBER
+;  %RT     - TIME OF EVENT
+;  %TEXT   - TEXT TO BE LOGGED
+
+
+#DO SHADGLOBAL:C
+
+#IF %HSB_LOG #THEN #BLOCK
+   @RT_TIME = TIMEMS(%RT,"FULL")
+   @APL_NO = DEC(%APL,2)
+   @HDR     = "'RT_TIME' APL'APL' :"
+              ;DD-MM-YY HH:MM:SS.MSS APLNN :
+   @NO_HDR  = "                            "
+   #CASE DATA_TYPE(%TEXT)
+      #WHEN "TEXT" #BLOCK
+         @LINE(1) = %HDR + %TEXT
+         #BLOCK_END
+      #WHEN "VECTOR" #BLOCK
+         @LINE(1) = %HDR + %TEXT(1)
+         #LOOP_WITH I = 2 .. LENGTH(%TEXT)
+            @LINE(%I) = %NO_HDR + %TEXT(%I)
+         #LOOP_END
+         #BLOCK_END
+   #CASE_END
+   @XX = WRITE_TEXT(%LOG_FILE,%LINE,1)
+#BLOCK_END         ; IF %HSB_LOG

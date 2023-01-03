@@ -1,0 +1,668 @@
+
+#local argCnt, tRedirectProc, tRedirectCommand, iArgLoop, t_DAINI_CONFIG_SCRIPT = "SAGR_BBONE/BGU_DAINI.txt"
+tRedirectProc="APLMOD_CREATEDB"
+#if APPLICATION_OBJECT_EXISTS(0,"C",tRedirectProc) AND -
+DATA_TYPE(%REDIRECTED)=="NONE" #then #block
+   #if 'tRedirectProc':CIU==1 #then #block
+      @REDIRECTED=TRUE
+      argCnt=ARGUMENT_COUNT
+      tRedirectCommand="DO('tRedirectProc':C"
+      #loop_with iArgLoop=1..argCnt
+         tRedirectCommand=tRedirectCommand+",argument('iArgLoop')"
+         #if iArgLoop==argCnt #then #block
+            tRedirectCommand=tRedirectCommand+")"
+         #block_end
+      #loop_end
+      #return 'tRedirectCommand'
+   #block_end
+#block_end
+
+#error stop
+#if sys:bdm == 1 #then @b_enable_debugging = true ;@st = trace_begin("BGU_CREATEDB.TXT")
+#else @b_enable_debugging = false
+
+#if argument_count > 1 #then @COMMAND_SELECTOR=argument(2)
+#else @COMMAND_SELECTOR=""
+#if %b_enable_debugging #then #block
+   @i_Trash=trace_begin("PICT/TRACE_BGU_CREATEDB_'COMMAND_SELECTOR'.txt")
+#block_end
+#on error #block
+   #if %b_enable_debugging #then #block
+      @i_Trash=trace_end
+   #block_end
+   #return
+#block_end
+;#if %b_enable_debugging #then  #block
+;   @file_number=1
+;   #loop 
+;      @trace_file_name = "PICT/TRACE_BGU_CREATEDB_'COMMAND_SELECTOR'_'file_number'.TXT"
+;      @source=FM_APPLICATION_FILE(%trace_file_name)
+;      #if FILE_MANAGER("EXISTS", %source) #then @file_number=%file_number+1
+;      #else #loop_exit
+;   #loop_end
+;   @st=trace_begin(%trace_file_name)
+;#block_end
+
+;--------------------------------------------------
+;Path4.txt doesn't exist if LIB5xx is not installed
+;--------------------------------------------------
+#error ignore
+   #if directory_manager("EXISTS", fm_application_directory("aplmod4/inst")) and -
+       directory_manager("EXISTS", fm_application_directory("aplmod4/lang0")) and -
+       directory_manager("EXISTS", fm_application_directory("aplmod4/use")) and -
+       directory_manager("EXISTS" , fm_directory("\sc\lib4")) #then #do read_text("bbone/path4.txt")
+#error continue
+
+#if argument_count > 1 #then #block
+   #if argument(2) == "GET_STA_NUMBERS" #then #block
+      @lStaNumbers = BASE_SYSTEM_OBJECT_LIST("STA", "ST == ""SPA""")
+      @vIEC61850StaNumbers = append(vector(0), %lStaNumbers.BM)
+      @vSPAStaNumbers = %vIEC61850StaNumbers
+
+      @lStaNumbers = BASE_SYSTEM_OBJECT_LIST("STA", "ST == ""REX""")
+      @vLONStaNumbers = append(vector(0), %lStaNumbers.BM)
+
+      #if %b_enable_debugging #then @st = trace_end
+      #return vector(vector("RE_","SPACOM"),-           ;"RELAY_TYPE"
+                     vector("IEC61850","LON","SPA"),-   ;"STATION_TYPE"
+                     %vIEC61850StaNumbers,-
+                     %vLONStaNumbers,-
+                     %vSPAStaNumbers)
+
+   #block_end
+   #else_if argument(2) == "GET_CPI_INFO" #then #block
+      @vNodNumbers = vector()
+      @vSANumbers = vector()
+      @iDefaultOffset = 200; E.g NOD'x':BBM == 21, NOD'x':BSA == 221
+
+      @lLinNumbers = BASE_SYSTEM_OBJECT_LIST("LIN", "LT == ""LAN""")
+
+      #loop_with i = 1..length(%lLinNumbers.BM)
+         @iLinNumber = %lLinNumbers.BM(%i)
+         @lNodNumbers = BASE_SYSTEM_OBJECT_LIST("NOD", "LI == 'iLinNumber'")
+         @vNodNumbers = append(%vNodNumbers, %lNodNumbers.BM)
+      #loop_end
+
+      @vNodNumbers = pick(%vNodNumbers, sort(%vNodNumbers))
+
+      #loop_with i = 1..length(%vNodNumbers)
+         @iNodNumber = %vNodNumbers(%i)
+         @vSANumbers = append(%vSANumbers, NOD'iNodNumber':BSA)
+      #loop_end
+
+      #if %b_enable_debugging #then @st = trace_end
+      #return vector(%vNodNumbers,-
+                     %vSANumbers,-
+                     SYS:BND,-
+                     SYS:BSA,-
+                     %iDefaultOffset)
+
+   #block_end
+#block_end
+
+@b_Create_Object = false
+@b_Create_H_Obj = false
+@b_Override = false
+@b_Import_Language = false
+@t_Language_File = ""
+#if argument_count >= 2 #then #block
+   #if argument(2) == "CREATE_OBJECT" #then @b_Create_Object = true
+   #if argument(2) == "CREATE_EVENT_OBJECT" #then @b_Create_H_Obj = true
+   #if argument(2) == "IMPORT_LANGUAGE"  #then #block
+      @b_Import_Language = true
+      #if argument_count > 4 #then @t_Language_File = argument(5)
+   #block_end
+   #if argument_count > 2 #then #block
+      @t_Language = argument(3)
+      #if file_manager("EXISTS",fm_file("\sc\LIB4\base\bbone\use\bgu_lxref.txt")) #then #block
+         @languages=read_text("\sc\LIB4\base\bbone\use\bgu_lxref.txt")
+         #if length(%languages) > 0 #then #block
+            #loop_with i = 1 .. length(%languages)
+               @v_lang_ID = separate(%languages(%i),",")
+               #if length(%v_lang_ID) > 1 #then @t_lang_ID = %v_lang_ID(2)
+               #if %t_lang_ID == %t_Language #then #block
+                  @i_LangID = %v_lang_ID(1)
+                  #if directory_manager("EXISTS",fm_directory("\sc\sa_lib\base\bbone\lang'i_LangID'")) #then #PATH SAGR_LANG +NO_CREATE, /SA_LIB/BASE/BBONE/LANG'i_LangID'
+               #block_end
+            #loop_end
+         #block_end
+      #block_end
+   #block_end
+   #if argument_count > 3 #then @b_Override = argument(4)
+#block_end
+
+#if %b_Import_Language #then #block
+
+   ;check if texts already exists in Text DB and write there if not
+   @v_All_Event_Texts = read_text("'t_Language_File'",1 ,10000)   ;("pict/en_iec.txt", 1, 10000)
+   @t_Mon_Bla = %t_Language ;%t_Language ;"EN"
+   @t_Text_DB = "APL_/APL_TEXT.SDB"
+   
+   @db = data_manager("OPEN", "'t_Text_DB'")
+   #loop_with kkk = 1 .. length(%v_All_Event_Texts)
+   
+      @i_Equal = locate(%v_All_Event_Texts(%kkk),"=")
+      
+      #if %i_Equal > 0  #then #block
+         @id = substr(%v_All_Event_Texts(%kkk), 1, %i_Equal - 1)
+         @v_Event_Text = substr(%v_All_Event_Texts(%kkk), %i_Equal + 1, 0)
+         @v_Event_Text = substr(%v_Event_Text, 2, length(%v_Event_Text)-2)
+         
+         @result = data_manager("GET", db:vhandle, %id, %t_Mon_Bla)
+         ;#if result:vSTATUS <> 0 #then #block
+         
+            #if result:vSTATUS == 660 #then -
+               @result = data_manager("CREATE_SECTION", db:vhandle, %id)
+            ;#if result:vstatus == 0 or result:vstatus == 421 #then -
+               ;@result = data_manager("DELETE", db:vhandle, %id, %v_Event_Text, %t_Mon_Bla)
+               @result = data_manager("PUT", db:vhandle, %id, %v_Event_Text, %t_Mon_Bla)
+               
+         ;#block_end
+      #block_end       
+   #loop_end     
+   
+   @close_result = data_manager("CLOSE", db:vhandle)
+   #if %b_enable_debugging #then @st = trace_end
+   
+#block_end
+#else_if %b_Create_H_Obj #then #block
+   
+   ;--------------------------------------------------
+   ;If 2 arguments (Object attributes and "CREATE_EVENT_OBJECT")
+   ;then create event object and return SCIL status code of action
+   ;--------------------------------------------------
+   @t_Language = "EN"
+   @b_Override = false
+   #if argument_count > 2 #then @t_Language = argument(3)
+   #if argument_count > 3 #then @b_Override = argument(4)      
+   #error ignore
+   @return_value=list(LAST_STATUS=0, ERROR_COUNT=0)
+   @s = status
+   @l_Attributes = argument(1)
+   @t_H_Object_Name = l_Attributes:VLN
+   
+   @t_Text_DB = "APL_/APL_TEXT.SDB"
+   
+   ;create H-object if not yet created
+   @H_Search = fetch(0,"H",%t_H_Object_Name)
+   #if H_Search:VIU == -1 #then #block
+      #create 't_H_Object_Name':H = LIST(-
+                               VC = l_Attributes:VVALUE_COUNT,-
+                               VL = l_Attributes:VVALUE_LOW,-
+                               VF = l_Attributes:VVALUE_FORMULA,-
+                               ST = l_Attributes:VSTATE_TEXTS)                                        
+   #block_end
+   
+   @Status = status
+   #if %Status <> 0 #then #block
+      ;@st=console_output("Error occurred when creating Event object 'LN'")
+      @return_value.LAST_STATUS= %Status
+      @return_value.ERROR_COUNT=%return_value.ERROR_COUNT + 1
+   #block_end
+   
+   ;check if texts already exists in Text DB and write there if not
+   @db = data_manager("OPEN", "'t_Text_DB'")
+   #loop_with kkk = 1 .. length(l_Attributes:VTRANSLATED_STATE_TEXTS)
+      @t_Text = l_Attributes:VTRANSLATED_STATE_TEXTS(%kkk)
+      @id = l_Attributes:VSTATE_TEXTS(%kkk)
+      @result = data_manager("GET", db:vhandle, %id, %t_Language)
+      #if result:vSTATUS <> 0 #then #block     
+         #if result:vSTATUS == 660 #then -
+            @result = data_manager("CREATE_SECTION", db:vhandle, %id)
+         #if result:vstatus == 0 or result:vstatus == 421 #then -
+            @result = data_manager("PUT", db:vhandle, %id, %t_Text, %t_Language)   
+      #block_end
+   #loop_end
+   @close_result = data_manager("CLOSE", db:vhandle)
+   
+   @Status = status
+   #if %Status <> 0 #then #block
+      ;@st=console_output("Error occurred when creating object 'LN':P'IX'")
+      @return_value.LAST_STATUS=%Status
+      @return_value.ERROR_COUNT=%return_value.ERROR_COUNT + 1
+   #block_end
+  
+   #if %b_enable_debugging #then @st = trace_end
+   #return %return_value
+      
+#block_end
+#else_if argument_count == 2 #then #block
+   #if argument(2) == "GET_DEFAULTS" #then #block
+      ;--------------------------------------------------
+      ;If 2 arguments (CONFIG_DATA_FILE and "GET_DEFAULTS")
+      ;then return default values for the standard function
+      ;--------------------------------------------------      
+      
+      @PF_ID = ""
+      @Config_File = argument(1)
+      @Data_File_Prog = read_text(%Config_File, 1, 10000)
+      @Read_Begin = select(edit(%Data_File_Prog, "trim"), "==""##FUNC_INIT_BEGIN""")
+      @Read_End   = select(edit(%Data_File_Prog, "trim"), "==""##FUNC_INIT_END""")
+      
+      #if length(%Read_Begin) > 0 and length(%Read_End) > 0 #then #block
+         #if %Read_End(1) > %Read_Begin(1) + 1 #then #block
+            @Procedure_For_Do = %Data_File_Prog(%Read_Begin(1)+1..%Read_End(1)-1)
+            @Procedure_For_Do = replace(%Procedure_For_Do, "''.ID''", "_''PF_ID''")
+            #error ignore
+               #do %Procedure_For_Do
+            #error stop
+            #if %b_enable_debugging #then @st = trace_end
+            #return %_'PF_ID'_PICTURE_FUNCTION_CONF
+         #block_end
+      #block_end
+   #block_end
+#block_end   
+#else_if argument_count == 1 or %b_Create_Object #then #block
+
+   @pf_id=argument(1) ;logical name of the process object, defines the file
+   @_'pf_id'=argument(1)
+   #if %b_enable_debugging #then @st = trace_end
+   #if %b_enable_debugging #then @i_Trash=trace_begin("TRACE_'PF_ID'.txt")
+   @ConfPath=path("APL_")
+   @ConfPath=%ConfPath(1)
+   @ConfPath=substr(%ConfPath,1, length(%ConfPath)-4)
+   @ConfPath=%ConfPath+"POBJCONF"
+   @FileNameIs="'ConfPath'"
+   @TEXT = TEXT_READ(%ConfPath+"\'PF_ID'.dat")
+   @TEXT = replace(%text.text,"''","")         ;single quote replacement
+   @_'PF_ID'_PICTURE_FUNCTION_CONF=evaluate(%TEXT)
+
+   @Logical_Name = %pf_id
+   @return_value=list(LAST_STATUS=0, ERROR_COUNT=0)
+   @ss = status
+   
+   
+   #search 1 0 "P" "I" %Logical_Name
+   #error stop
+   @ss = status
+   #if %ss == 252 #then #block
+      @return_value.LAST_STATUS=252
+      @return_value.ERROR_COUNT=%return_value.ERROR_COUNT + 1
+   #block_end
+   #else #block
+   
+   ;check the usage of object identification (OI) -attribute
+   @S = STATUS
+   @POINTER_STA  = 0
+   @POINTER_BAY  = 0
+   @POINTER_DEV  = 0
+   #ERROR IGNORE
+   @APL_BSV15      = APL:BSV15
+   @PROCESSOBJECTS = APL_BSV15:VPROCESS_OBJECTS
+   @OI             = PROCESSOBJECTS:VOI
+   #LOOP_WITH I = 1 .. 30
+     #IF DATA_TYPE(OI:VLENGTH'I')=="INTEGER" #THEN #BLOCK  
+       @OI_LENGTH'I' = OI:VLENGTH'I'
+       ;if field in use
+       #IF %OI_LENGTH'I' > 0 #THEN #BLOCK  
+         @NR_OF_FIELDS = %I
+         @OI_TITLE'I'  = OI:VTITLE'I'
+         @OI_FIELD'I'  = OI:VFIELD'I'
+         #IF      LENGTH(SELECT(%OI_FIELD'I',"==""STA"""))>0 #THEN @POINTER_STA = %I
+         #ELSE_IF LENGTH(SELECT(%OI_FIELD'I',"==""BAY"""))>0 #THEN @POINTER_BAY = %I
+         #ELSE_IF LENGTH(SELECT(%OI_FIELD'I',"==""DEV"""))>0 #THEN @POINTER_DEV = %I
+       #BLOCK_END
+       #ELSE #BLOCK
+         @OI_TITLE'I'  = ""
+         @OI_FIELD'I'  = ""
+       #BLOCK_END
+     #BLOCK_END
+     #ELSE #LOOP_EXIT
+   #LOOP_END
+   #ERROR STOP
+   
+   ;set defaults if APL:BSV15 not correctly defined
+   @S = STATUS
+   #IF %S <> 0 #THEN #BLOCK
+     @OI_TITLE1    = "Substation"
+     @OI_TITLE2    = "Bay"
+     @OI_TITLE3    = "Device"
+     @OI_TITLE4    = ""
+     @OI_TITLE5    = ""
+     @OI_LENGTH1   = 10
+     @OI_LENGTH2   = 15
+     @OI_LENGTH3   = 5
+     @OI_LENGTH4   = 0
+     @OI_LENGTH5   = 0
+     @POINTER_STA  = 1
+     @POINTER_BAY  = 2
+     @POINTER_DEV  = 3
+     @NR_OF_FIELDS = 3
+   #BLOCK_END
+   
+   ;set configurable attributes according to OI-configuration
+   @NR_OF_SPECIAL_FIELD = 0
+   @OBJECT_IDENTIFIERS  = VECTOR()
+   
+   #LOOP_WITH I = 1 .. 30
+     #IF %I <= %NR_OF_FIELDS #THEN #BLOCK  
+   
+       ;define the name of the configurable attribute
+       #IF      %I == %POINTER_STA #THEN @OBJECT_IDENTIFIER_'I'_NAME = "STATION_NAME"
+       #ELSE_IF %I == %POINTER_BAY #THEN @OBJECT_IDENTIFIER_'I'_NAME = "BAY_NAME"
+       #ELSE_IF %I == %POINTER_DEV #THEN @OBJECT_IDENTIFIER_'I'_NAME = "DEVICE_NAME"
+       #ELSE #BLOCK
+         @NR_OF_SPECIAL_FIELD = %NR_OF_SPECIAL_FIELD + 1
+         @OBJECT_IDENTIFIER_'I'_NAME = "SPECIAL_IDENTIFIER_'NR_OF_SPECIAL_FIELD'"
+       #BLOCK_END
+   
+       ;set one space between different fields
+       #IF %I < %NR_OF_FIELDS AND %OI_LENGTH'I' > 1 #THEN @OBJECT_IDENTIFIER_'I'_MAX_LENGTH = %OI_LENGTH'I' - 1
+       #ELSE @OBJECT_IDENTIFIER_'I'_MAX_LENGTH = %OI_LENGTH'I'
+   
+       ;create a list of previously used identifiers
+       @SECTION  = %OBJECT_IDENTIFIER_'I'_NAME
+       @KEYS     = VECTOR()
+       #LOOP_WITH J = 1 .. 10
+         @NEW_KEY= "'SECTION''J'"
+         @KEY'J' = READ_PARAMETER("PICT/OBJ_IDEN.INI",%SECTION,%NEW_KEY)
+         @KEY    = %KEY'J'
+         #IF KEY:VSTATUS == 0 #THEN #BLOCK
+           @KEYS = APPEND(%KEYS,KEY:VVALUE)
+          #BLOCK_END
+       #LOOP_END
+       @OBJECT_IDENTIFIER_'I'_VALUES = %KEYS
+   
+       ;set configuration for SCT
+       @OBJECT_IDENTIFIER_'I' = LIST(-
+            NAME       = %OBJECT_IDENTIFIER_'I'_NAME,-
+            TYPE       = "EDITABLE_SELECTOR",-
+            INPUT_TYPE = "TEXT",-
+            VALUES     = %OBJECT_IDENTIFIER_'I'_VALUES,-
+            REPRESENT  = %OBJECT_IDENTIFIER_'I'_VALUES,-
+            MAX_LENGTH = %OBJECT_IDENTIFIER_'I'_MAX_LENGTH)
+       @OBJECT_IDENTIFIERS = APPEND(%OBJECT_IDENTIFIERS, %OBJECT_IDENTIFIER_'I')
+     #BLOCK_END
+     #ELSE #LOOP_EXIT
+   #LOOP_END
+   
+    
+    ;****************** Get_Process_Objects_From_Data_File *************************
+   
+   @P_Objects = list()
+   
+   
+   @ID= "_" + "'PF_ID'"
+;-------------------------------------------------------------------------------------
+   @Data_File_Prog = read_text(_'PF_ID'_Picture_function_conf:vConfig_data_file,1,10000)
+      @Read_Begin = select(edit(%Data_File_Prog,"trim"),"==""##P_OBJECTS_BEGIN""")
+      @Read_End   = select(edit(%Data_File_Prog,"trim"),"==""##P_OBJECTS_END""")
+      #if length(%Read_Begin) > 0 and length(%Read_End) > 0 #then #block
+         #if %Read_End(1) > %Read_Begin(1) + 1 #then #block
+            #error ignore
+               #do %Data_File_Prog(%Read_Begin(1)+1..%Read_End(1)-1);** Need %Id and %Picture_Function_Conf_List **
+            #error stop
+            @test = status
+            #if %test>0 #then #block
+               @return_value.LAST_STATUS =%test
+               @return_value.ERROR_COUNT=%return_value.ERROR_COUNT + 1
+            #block_end
+         #block_end
+      #block_end
+      
+      @Process_Objects = vector()
+      
+      #if length(%P_Objects) > 0 #then #block
+      
+         @Po_Info = list_attr(%P_Objects)
+         #loop_with Lp = 1..length(%Po_Info)
+      
+            @Data_Attr = %Po_Info(%Lp)
+            @Obj = P_Objects:v'Data_Attr'
+            @s = status
+            #error ignore
+               @Dummy = Obj:vLN
+            #error stop
+            #if status == 421 #then #set Obj:vLN = _'PF_ID'_Picture_function_conf:vP_Object_LN
+      
+            @Process_Objects(length(%Process_Objects) + 1) = %Obj
+      
+         #loop_end
+      
+      #block_end
+      
+      @v_Created_Indexes = vector
+      #If length(%P_Objects) > 0 #then #block
+     
+         #loop_with Lp = 1..length(%Process_Objects)
+            @Object = %Process_Objects(%Lp)
+            @Ln = Object:vLN
+            @Ix = Object:vIX
+            @In = ""
+            #error ignore
+            @In = Object:vIN
+            @S = status
+            ;@st=console_output("Creating object 'LN':P'IX'")
+            
+            @b_Trying_To_Create = false
+            @l_check = fetch(0,"P","'Ln'",%IX)
+            #if %b_Override #then #block
+               #if l_check:viu > -1 #then #block
+                  #if argument_count > 4 #then #if argument(5) == True #then #block
+                     @l_TmpAttr = fetch(0, "P", %Ln, %Ix)
+                     @Object = merge_attributes(%Object, %l_TmpAttr)
+                  #block_end
+                  #delete 'Ln':P'Ix'
+               #block_end
+               #create 'Ln':P'Ix' = %Object
+               @l_check = fetch(0,"P","'Ln'",%IX)
+               #if l_check:viu > 0 #then #if substr('Ln':PRX'Ix',27,1) == "X" #then @In = "LIB Internal Object"
+               @b_Trying_To_Create = true
+            #block_end
+            #if l_check:viu == -1 and not %b_Override #then #block
+               #create 'Ln':P'Ix' = %Object         
+               @l_check = fetch(0,"P","'Ln'",%IX)
+               #if l_check:viu > 0 #then #if substr('Ln':PRX'Ix',27,1) == "X" #then @In = "LIB Internal Object"
+               @b_Trying_To_Create = true
+            #block_end
+
+            #error stop
+            @Status = status
+            #if %Status <> 0 and %b_Trying_To_Create #then #block
+               ;@st=console_output("Error occurred when creating object 'LN':P'IX'")
+               @return_value.LAST_STATUS=%Status
+               @return_value.ERROR_COUNT=%return_value.ERROR_COUNT + 1
+               #if %status == 2355 #then #block
+                  @l_P_objects = application_object_list(0, "IX", "A", "FORWARD", "", "IN == ""'IN'""", vector())
+                  #if %l_P_objects.Count > 0 #then #block
+                     @tmp1 = %l_P_objects.LN(1)
+                     @tmp2 = %l_P_objects.IX(1)
+                     @Conflicting_Object = ": Conflicting Object 'tmp1':P'tmp2'"
+                  #block_end
+               #block_end
+               #else @Conflicting_Object = ""
+               @string(1) = "FAIL;'LN':P'IX';"  + "'IN';" + status_code_name(%status) + " ('status') 'Conflicting_Object'"
+               @xx = write_text("PICT/SCL_IMPORT.LOG",%string,1)
+            #block_end
+            #else_if %b_Trying_To_Create #then #block
+               @string(1) = "OK;'LN':P'IX';'IN';"
+               @v_Created_Indexes = append(%v_Created_Indexes, "'LN':P'IX'")
+               @xx = write_text("PICT/SCL_IMPORT.LOG",%string,1)
+               #if file_manager("EXISTS", fm_file(parse_file_name("SYS_TOOL", "EVTCONV.SCL"))) #then @l_Result = do(read_text("SYS_TOOL/EVTCONV.SCL"), "SEARCH_AND_CREATE", %Ln, FALSE, "CREATE_DB_FROM_SCL")
+
+               #if 'LN':PIN'IX' > "" and %_'PF_ID'_PICTURE_FUNCTION_CONF.UNIT_NUMBER > 0 #then #block
+                  @dx = 'LN':PDX'IX'
+                  
+                  #ERROR IGNORE
+                  @S = STATUS
+                  @PoType = DEC_SCAN(SUBSTR(%dx,2,0))
+                  @S = STATUS
+                  #IF %S > 0 #THEN #BLOCK
+                     @S = STATUS
+                     @PoType = DEC_SCAN(SUBSTR(%dx, 2, MAX(1, LENGTH(%dx) - 2)))
+                     @S = STATUS
+                     #IF %S> 0 #then @PoType = 0
+                  #BLOCK_END
+                  #ERROR STOP
+                  
+                  @UN = %_'PF_ID'_PICTURE_FUNCTION_CONF.UNIT_NUMBER
+                  
+                  #IF NOT ATTRIBUTE_EXISTS(APL:BSV11, "start_addr_'un'_'PoType'") #THEN #BLOCK                   
+                     #IF %PoType == 7 #THEN @start_addr_'un'_'PoType' = (1,0)
+                     #ELSE @start_addr_'un'_'PoType' = (1,16)
+                  #BLOCK_END
+                  #ELSE #BLOCK
+                     @BSV11 = APL:BSV11
+                     @start_addr_'un'_'PoType' = %BSV11.start_addr_'un'_'PoType'
+                  #BLOCK_END 
+                  
+                  @start_addr_'un'_'PoType' = do(READ_TEXT(t_DAINI_Config_Script), "Find_Address", %PoType, %start_addr_'un'_'PoType', %dx, %un)
+                 
+                  #ERROR IGNORE
+                  @S = STATUS
+                  #modify 'ln':0P'ix' = LIST (UN = %un,-
+                                                  OA = RTU_OA(%PoType, %start_addr_'un'_'PoType'(1)),-
+                                                  OB = %start_addr_'un'_'PoType'(2))
+                  @S = STATUS
+
+                  #IF %PoType <> 7 #THEN @start_addr_'un'_'PoType'(1) = %start_addr_'un'_'PoType'(1) + 1
+                  #SET APL:BSV11 = MERGE_ATTRIBUTES(APL:BSV11, LIST(start_addr_'un'_'PoType' = %start_addr_'un'_'PoType'))
+
+                  #if %s <> 0 #then #block
+                     @string(1) = "FAIL;'LN':P'IX';"  + "'IN';" + status_code_name(%s) + " ('s') when assigning adrress 'un'"
+                     #IF %_'PF_ID'_PICTURE_FUNCTION_CONF.DA_CONFIG_FILE <> "" #THEN #BLOCK
+                        @Tmp = %_'PF_ID'_PICTURE_FUNCTION_CONF.DA_CONFIG_FILE
+                        @string(2) = ";;;" + "Item was not added to External OPC DA Client file ('Tmp')"
+                     #BLOCK_END
+                     @xx = write_text("PICT/SCL_IMPORT.LOG",%string,1)
+                           
+                  #block_end
+                  
+                  #ERROR STOP
+                  @b_SetPOtoAuto = TRUE
+                  #IF %b_SetPOtoAuto #THEN #BLOCK
+                     #ERROR IGNORE
+                     ;disable event and printout
+                     @TMP_EE='ln':PEE'ix'
+                     @TMP_HE='ln':PHE'ix'
+                     @TMP_PB='ln':PPB'ix'
+                     @TMP_AC='ln':PAC'ix'
+                     #IF %TMP_EE<>0 #THEN #SET 'ln':PEE'ix'=0
+                     #IF %TMP_HE<>0 #THEN #SET 'ln':PHE'ix'=0
+                     #IF %TMP_PB<>1 #THEN #SET 'ln':PPB'ix'=1
+                     #IF %TMP_AC<>0 #THEN #SET 'ln':PAC'ix'=0
+
+                     #modify 'ln':0P'ix' = LIST ( SS = 2 )
+
+                     #IF %TMP_AC<>0 #THEN #SET 'ln':PAC'ix'= %TMP_AC
+                     #IF %TMP_PB<>1 #THEN #SET 'ln':PPB'ix'= %TMP_PB
+                     #IF %TMP_HE<>0 #THEN #SET 'ln':PHE'ix'= %TMP_HE
+                     #IF %TMP_EE<>0 #THEN #SET 'ln':PEE'ix'= %TMP_EE
+                     #ERROR STOP
+                  #BLOCK_END
+                  #IF %_'PF_ID'_PICTURE_FUNCTION_CONF.TYPE_PF == "SAGR_MEA" #THEN #BLOCK
+                     #LOOP_WITH Instance = 1 .. 4
+                        @Tmp_Type = %_'PF_ID'_PICTURE_FUNCTION_CONF.TYPE_MEAS_'Instance'
+                        #IF %Tmp_Type <> "" #THEN #BLOCK
+                           @Tmp_Index = DEC_SCAN(SUBSTR(%Tmp_Type,4,0))                                            
+                           #IF %Tmp_Index == %Ix #THEN #BLOCK
+                              #IF %_'PF_ID'_PICTURE_FUNCTION_CONF.MEAS_'Instance'_RANGE #THEN #MODIFY 'ln':0P'ix' = LIST(SZ = 0)
+                              #LOOP_EXIT
+                           #BLOCK_END 
+                        #BLOCK_END
+                     #LOOP_END
+                  #BLOCK_END
+                                                  
+               #block_end
+                  
+            #block_end
+         #loop_end
+         
+        #if length(%v_Created_Indexes) > 0 #then #block
+            #if not(sys:bre < " 9.2") #then #set 'ln':PCD = %_'PF_ID'_PICTURE_FUNCTION_CONF
+        #block_end
+
+        #IF %_'PF_ID'_PICTURE_FUNCTION_CONF.DA_CONFIG_FILE <> "" #THEN #BLOCK
+           #IF NOT ATTRIBUTE_EXISTS(APL:BSV11, "v_SCL_Importer_Temp") #THEN -
+                  #SET APL:BSV11 = MERGE_ATTRIBUTES(APL:BSV11, LIST ( v_SCL_Importer_Temp = VECTOR(), v_SCL_Importer_Inis = VECTOR(%_'PF_ID'_PICTURE_FUNCTION_CONF.DA_CONFIG_FILE)))
+                  
+           @v_To_Ini = APL:BSV11
+           @i_Ini_Index = FIND_ELEMENT(%v_To_Ini.v_SCL_Importer_Inis, %_'PF_ID'_PICTURE_FUNCTION_CONF.DA_CONFIG_FILE)
+           #IF %i_Ini_Index == 0 #THEN #BLOCK
+               @i_Ini_Index = LENGTH(%v_To_Ini.v_SCL_Importer_Temp) + 1
+               #SET APL:BSV11 = MERGE_ATTRIBUTES(APL:BSV11, LIST(v_SCL_importer_Inis = APPEND(%v_To_Ini.v_SCL_Importer_Inis, %_'PF_ID'_PICTURE_FUNCTION_CONF.DA_CONFIG_FILE)))
+           #BLOCK_END
+   
+           #ERROR IGNORE
+           @S = STATUS
+           @v_To_Ini = %v_To_Ini.v_SCL_Importer_Temp(%i_Ini_Index)
+           @S = STATUS
+           #ERROR STOP
+           #IF %S <> 0 #THEN @v_To_Ini = VECTOR()
+   
+           
+           #LOOP_WITH I = 1 .. LENGTH(%v_Created_Indexes)
+               @ln = SEPARATE(%v_Created_Indexes(%I), ":")
+               @ix = SUBSTR(%ln(2), 2)
+               @ln = %ln(1)
+               #IF 'ln':PIN'ix' <> "" #THEN @v_To_Ini = APPEND(%v_To_Ini, "'ln':'ix'")
+           #LOOP_END
+           
+           
+           @v_Tmp_Inis = APL:BSV11        
+           @v_Tmp_Inis = %v_Tmp_Inis.v_SCL_Importer_Temp
+           @v_Tmp_Inis(%i_Ini_Index) = %v_To_Ini
+           #SET APL:BSV11 = MERGE_ATTRIBUTES(APL:BSV11, LIST( v_SCL_Importer_Temp = %v_Tmp_Inis))
+        #BLOCK_END
+        
+        
+        #if not(sys:bre < " 9.2") and not(%b_enable_debugging)  #then @del = file_manager("DELETE", fm_file(%ConfPath+"\'PF_ID'.dat"))
+      
+      #block_end
+   
+   #block_end
+   #if %b_enable_debugging #then @st = trace_end
+   #return %return_value
+#block_end
+#else_if argument_count > 2 #then #block
+
+   ;Command selectors for additional import functions
+   ;PRE_IMPORT:  Executed before creating event and process objects
+   ;MID_IMPORT:  Executed after creating event objects and before creating process objects
+   ;POST_IMPORT: Executed after creating process objects
+
+   ;Argument 1: Empty, TEXT
+   ;Argument 2: Command selector, TEXT
+   ;Argument 3: Language, TEXT
+   ;Argument 4: Overwrite, BOOLEAN
+
+   #case argument(2)
+      #when "PRE_IMPORT" #BLOCK
+        
+         #IF ATTRIBUTE_EXISTS(APL:BSV11, "v_SCL_Importer_Inis") #THEN #SET APL:BSV11 = DELETE_ATTRIBUTE(APL:BSV11, "v_SCL_Importer_Inis")
+         #IF ATTRIBUTE_EXISTS(APL:BSV11, "v_SCL_Importer_Temp") #THEN #SET APL:BSV11 = DELETE_ATTRIBUTE(APL:BSV11, "v_SCL_Importer_Temp")
+         
+         @v_Attrs = LIST_ATTR(APL:BSV11)
+         #LOOP_WITH I = 1 .. LENGTH(%v_Attrs)
+            @t_TmpAttr = %v_Attrs(%i)
+            #IF SUBSTR(%t_TmpAttr, 1, 11) == "START_ADDR_" #THEN  #SET APL:BSV11 = DELETE_ATTRIBUTE(APL:BSV11, "'t_TmpAttr'")
+         #LOOP_END
+      #BLOCK_END
+      #WHEN "MID_IMPORT" #block
+      #block_end
+      #WHEN "POST_IMPORT" #BLOCK
+         @BSV11 = APL:BSV11
+         #IF ATTRIBUTE_EXISTS(%BSV11, "v_SCL_Importer_Temp") #THEN #BLOCK
+            @v_Item_Vectors = %BSV11.v_SCL_Importer_Temp
+            @v_Inis = %BSV11.v_SCL_Importer_Inis
+            
+            #LOOP_WITH I = 1 .. LENGTH(%v_Inis)
+               @v_New_Items = %v_Item_Vectors(%I)
+               @v_Items = DO(READ_TEXT(t_DAINI_Config_Script), "Get_Items_From_Ini", %v_Inis(%I))
+               @v_Items.UNMAPPED = REMOVE_DUPLICATES(APPEND(%v_Items.UNMAPPED, %v_New_Items))
+               
+               @Items = DO(READ_TEXT(t_DAINI_Config_Script), "Save_Items", %v_Inis(%I), %v_Items)
+               #IF %items < 0 #THEN @XX = CONSOLE_OUTPUT("Failed to write DA Client ini: " + STATUS_CODE_NAME(-1*%ITEMS))
+               #IF %b_enable_debugging #THEN @XX = CONSOLE_OUTPUT("POST_IMPORT: " + %v_Inis(%I) + " written 'Items'")
+            #LOOP_END
+            
+            #SET APL:BSV11 = DELETE_ATTRIBUTE(APL:BSV11, "v_SCL_Importer_Inis")      
+            #SET APL:BSV11 = DELETE_ATTRIBUTE(APL:BSV11, "v_SCL_Importer_Temp")     
+         #BLOCK_END
+        
+      #BLOCK_END
+   #case_end
+   #if %b_enable_debugging #then @st = trace_end
+
+ #block_end
+;#if %b_enable_debugging #then @st = trace_end

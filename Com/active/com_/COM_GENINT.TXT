@@ -1,0 +1,420 @@
+﻿; This command procedure is used for executing general interrogation
+; in a COM application. In DNP 3.0 slave protocol GI initilises NET database 
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @COM_EXCLUSIVE_STA_NUMBER, number of the STA object of the NCC sending GI command
+;         @COM_APLCMD_PROTOCOL, protocol of the NCC sending GI command
+;         @COM_ORIGINATOR, originator address of the NCC
+;         @COM_IEC_GRP, possible group number for IEC NCC  
+; OUTPUT  @COM_EXCLUSIVE_STA_NUMBER, forwarded to upstream procedures
+;         @COM_CAUSE_OF_TRANSMISSION, forwarded to upstream procedures
+;         @LN, @IX, @OS, @RT, @RM, @CA, @AL, @OV, @BL, @SB, @OR, @CT attributes of the object 
+;         to be sent to the NCC,forwarded to upstream procedures
+;---------------------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+@IEC_TERM_ENABLED = COM_GENVAR:PBZ(2)
+@ENABLE_LOGGING = COM_GENVAR:PBZ(3)
+@DISABLE_TRIP_SIGNALS_SENDING = COM_GENVAR:PBZ(19)
+@NOT_SAMPLED_STATUS_IN_ALARM_GROUP = COM_GENVAR:PBZ(13)
+@ENABLE_SENDING = TRUE
+@COM_CAUSE_OF_TRANSMISSION = 0
+
+;first protocol-specific part
+#CASE %COM_APLCMD_PROTOCOL ; 1
+   #WHEN 1 #BLOCK ; RP-570 slave
+      #IF %ENABLE_LOGGING #THEN #BLOCK ; 3
+         @TIME = HR_CLOCK
+         @RT = TIMES(TIME:VCL)
+         @RM = ROUND(TIME:VUS/1000)      
+         @INFO="'rt':'rm',GENINT,'COM_EXCLUSIVE_STA_NUMBER',,,RP570S database initialization started,,,,,,,,,,,,,,,,"
+         #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+         #ELSE #DO COM_LOG:CIN
+      #BLOCK_END ; 3
+      ;initialise group alarms
+      @COM_SEND_GRPAL_STA_NUMBER = %COM_EXCLUSIVE_STA_NUMBER
+      @QUERY_CONDITION = "PT < 100 AND TI <> 0 AND IU == 1 AND SS > 0 AND (PT==3 OR PT==6 OR PT==9 OR PT==12 OR PT==13 OR PT==16) AND RX <> ""%%%%%%%%%%%%%%%%%%%%BN*"""
+      ;reset DI attribute
+      #IF STA'COM_EXCLUSIVE_STA_NUMBER':SDI == 1 #THEN #SET STA'COM_EXCLUSIVE_STA_NUMBER':SDI = 0
+      #IF COM_GRPSND:CCS == 1 #THEN #DO COM_GRPSND:CCP
+      #ELSE #DO COM_GRPSND:CIN
+   #BLOCK_END
+   #WHEN 2 #BLOCK ;IEC 870-5-101 slave protocol ; 2
+      #IF %SUB_PROTOCOL == 2 #THEN #BLOCK
+         #IF %ENABLE_LOGGING #THEN #BLOCK ; 3
+            @TIME = HR_CLOCK
+            @RT = TIMES(TIME:VCL)
+            @RM = ROUND(TIME:VUS/1000)      
+            @INFO="'rt':'rm',GENINT,'COM_EXCLUSIVE_STA_NUMBER',,,ICCP database initialization started,,,,,,,,,,,,,,,,"
+            #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+            #ELSE #DO COM_LOG:CIN
+         #BLOCK_END ; 3  
+         @QUERY_CONDITION = "PT < 100 AND TI <> 0 AND IU == 1 AND SS > 0 AND (PT==3 OR PT==6 OR PT==9 OR PT==12 OR PT==14 OR PT==16) AND RX <> ""%%%%%%%%%%%%%%%%%%%%BN*"""   
+         @COM_CAUSE_OF_TRANSMISSION = 20
+         #IF STA'COM_EXCLUSIVE_STA_NUMBER':SDI == 1 #THEN #SET STA'COM_EXCLUSIVE_STA_NUMBER':SDI = 0
+         @COM_SEND_GRPAL_STA_NUMBER = %COM_EXCLUSIVE_STA_NUMBER
+         #IF COM_GRPSND:CCS == 1 #THEN #DO COM_GRPSND:CCP
+         #ELSE #DO COM_GRPSND:CIN 
+      #BLOCK_END
+      #ELSE_IF %SUB_PROTOCOL == 3 #THEN #BLOCK
+         #IF %ENABLE_LOGGING #THEN #BLOCK ; 3
+            @TIME = HR_CLOCK
+            @RT = TIMES(TIME:VCL)
+            @RM = ROUND(TIME:VUS/1000)      
+            @INFO="'rt':'rm',GENINT,'COM_EXCLUSIVE_STA_NUMBER',,,IEC 61850 database initialization started,,,,,,,,,,,,,,,,"
+            #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+            #ELSE #DO COM_LOG:CIN
+         #BLOCK_END ; 3  
+         @QUERY_CONDITION = "PT < 100 AND TI <> 0 AND IU == 1 AND SS > 0 AND (PT==3 OR PT==9 OR PT==12 OR PT==13 OR PT==14) AND RX <> ""%%%%%%%%%%%%%%%%%%%%BN*"""   
+         @COM_CAUSE_OF_TRANSMISSION = 20
+         #IF STA'COM_EXCLUSIVE_STA_NUMBER':SDI == 1 #THEN #SET STA'COM_EXCLUSIVE_STA_NUMBER':SDI = 0
+         @COM_SEND_GRPAL_STA_NUMBER = %COM_EXCLUSIVE_STA_NUMBER
+      #BLOCK_END
+      #ELSE #BLOCK
+         #IF %ENABLE_LOGGING #THEN #BLOCK ; 3
+            @TIME = HR_CLOCK
+            @RT = TIMES(TIME:VCL)
+            @RM = ROUND(TIME:VUS/1000)            
+            @INFO="'rt':'rm',GENINT,'COM_EXCLUSIVE_STA_NUMBER',,,IEC101/104 general interrogation started,,,,,,,,,,,,,,,,"
+            #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+            #ELSE #DO COM_LOG:CIN
+         #BLOCK_END ; 3
+         @COM_SEND_GRPAL_STA_NUMBER = %COM_EXCLUSIVE_STA_NUMBER
+         ;set replay window size to 90, if smaller
+         @RW_SIZE = STA'COM_EXCLUSIVE_STA_NUMBER':SRW
+         #IF STA'COM_EXCLUSIVE_STA_NUMBER':SRW < 90 #THEN #SET STA'COM_EXCLUSIVE_STA_NUMBER':SRW = 90
+         #CASE %COM_IEC_GRP
+            #WHEN 21..36 #BLOCK
+               @QUERY_CONDITION = "FI=='COM_IEC_GRP'-20 AND PT < 100 AND TI <> 0 AND IU == 1 AND SS > 0 AND (PT==3 OR PT==6 OR PT==9 OR PT==12 OR PT==14 OR PT==16) AND RX <> ""%%%%%%%%%%%%%%%%%%%%BN*"""     
+               @COM_CAUSE_OF_TRANSMISSION = %COM_IEC_GRP
+            #BLOCK_END
+            #OTHERWISE #BLOCK
+               @QUERY_CONDITION = "PT < 100 AND TI <> 0 AND IU == 1 AND SS > 0 AND (PT==3 OR PT==6 OR PT==9 OR PT==12 OR PT==14 OR PT==16) AND RX <> ""%%%%%%%%%%%%%%%%%%%%BN*"""   
+               @COM_CAUSE_OF_TRANSMISSION = 20
+               #IF COM_GRPSND:CCS == 1 #THEN #DO COM_GRPSND:CCP
+               #ELSE #DO COM_GRPSND:CIN 
+            #BLOCK_END
+         #CASE_END     
+      #BLOCK_END
+   #BLOCK_END ; 2
+   #WHEN 3 #BLOCK ; CPI
+      #IF %ENABLE_LOGGING #THEN #BLOCK ; 3
+         @TIME = HR_CLOCK
+         @RT = TIMES(TIME:VCL)
+         @RM = ROUND(TIME:VUS/1000)            
+         @INFO="'rt':'rm',GENINT,'COM_EXCLUSIVE_STA_NUMBER',,,MODBUS/CPI database initialization started,,,,,,,,,,,,,,,,"
+         #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+         #ELSE #DO COM_LOG:CIN
+      #BLOCK_END ; 3   
+      ;initialise group alarms
+      @COM_SEND_GRPAL_STA_NUMBER = %COM_EXCLUSIVE_STA_NUMBER
+      @QUERY_CONDITION = "PT < 100 AND TI <> 0 AND IU == 1 AND SS > 0 AND (PT==3 OR PT==6 OR PT==9 OR PT==12 OR PT==13 OR PT==16) AND RX <> ""%%%%%%%%%%%%%%%%%%%%BN*"""
+      #IF COM_GRPSND:CCS == 1 #THEN #DO COM_GRPSND:CCP
+      #ELSE #DO COM_GRPSND:CIN      
+   #BLOCK_END      
+   #WHEN 4 #BLOCK ;DNP 3.0 slave protocol ; 2
+      #IF %ENABLE_LOGGING #THEN #BLOCK ; 3
+         @TIME = HR_CLOCK
+         @RT = TIMES(TIME:VCL)
+         @RM = ROUND(TIME:VUS/1000)            
+         @INFO="'rt':'rm',GENINT,'COM_EXCLUSIVE_STA_NUMBER',,,DNP30S database initialization started,,,,,,,,,,,,,,,,"
+         #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+         #ELSE #DO COM_LOG:CIN
+      #BLOCK_END ; 3         
+      ;initialise group alarms
+      @COM_SEND_GRPAL_STA_NUMBER = %COM_EXCLUSIVE_STA_NUMBER
+      @QUERY_CONDITION = "PT < 100 AND TI <> 0 AND IU == 1 AND SS > 0 AND (((PT==3 OR PT==9 OR PT==12 OR PT==13 OR PT==16) AND RX <> ""%%%%%%%%%%%%%%%%%%%%BN*"") OR ((PT==5 OR PT==11) AND GI > 0))"      
+      ;reset DI attribute. Value 2 destroys the old database.
+      #IF STA'COM_EXCLUSIVE_STA_NUMBER':SDI == 1 #THEN #SET STA'COM_EXCLUSIVE_STA_NUMBER':SDI = 2
+      #IF COM_GRPSND:CCS == 1 #THEN #DO COM_GRPSND:CCP
+      #ELSE #DO COM_GRPSND:CIN     
+   #BLOCK_END ; 2
+#CASE_END ; 1
+
+;send up all indications with a connection to this NCC
+;if not sampled or erroneous status, give value and alarm state on worst-case basis 
+#LOOP ; 1
+   @GI_OBJECTS = APPLICATION_OBJECT_LIST(0,"IX","A","F","",%QUERY_CONDITION,("OS","DX","PT","OV","AL","LN","IX","RT","RM","BL","SB","OR","CT","OG","GI","RZ","QL"),60000)
+   #IF LENGTH(GI_OBJECTS:VLN) > 0 #THEN #BLOCK ; 2
+      #LOOP_WITH GI_SIGNAL = 1..LENGTH(GI_OBJECTS:VLN) ; 3
+         @GI = GI_OBJECTS:VGI(%GI_SIGNAL) 
+         ;check that trip signals sending is allowed during IEC General Interrogation 
+         #IF %COM_APLCMD_PROTOCOL == 2 AND (BIT(%GI,0) == 1 AND %DISABLE_TRIP_SIGNALS_SENDING) #THEN @ENABLE_SENDING = FALSE 
+         #ELSE @ENABLE_SENDING = TRUE 
+         #IF %ENABLE_SENDING #THEN #BLOCK ;4               
+             @OS = GI_OBJECTS:VOS(%GI_SIGNAL)
+             @IX = GI_OBJECTS:VIX(%GI_SIGNAL)
+             @LN = GI_OBJECTS:VLN(%GI_SIGNAL)                     
+             #CASE GI_OBJECTS:VDX(%GI_SIGNAL) ; 5
+               ;if RTU 200 event recording object and not sampled, read from lower index
+               #WHEN "I10S","R10S","I11","R11","I10D","R10D" #BLOCK ; 6
+                  #IF (%OS == 10 OR %OS == 2) #THEN #BLOCK ; 7
+                     @LOW_IX = %IX - 100
+                     @LOW_OS = 'LN':POS'LOW_IX'
+                     #IF %LOW_OS < 10 #THEN #BLOCK ; 8
+                        @OS = %LOW_OS
+                        #SET GI_OBJECTS:VOV(%GI_SIGNAL) = 'LN':POV'LOW_IX'
+                        #SET GI_OBJECTS:VAL(%GI_SIGNAL) = 'LN':PAL'LOW_IX'
+                        #SET GI_OBJECTS:VRT(%GI_SIGNAL) = 'LN':PRT'LOW_IX'
+                        #SET GI_OBJECTS:VRM(%GI_SIGNAL) = 'LN':PRM'LOW_IX'
+                        #SET GI_OBJECTS:VBL(%GI_SIGNAL) = 'LN':PBL'LOW_IX'
+                        #SET GI_OBJECTS:VSB(%GI_SIGNAL) = 'LN':PSB'LOW_IX'
+                        #SET GI_OBJECTS:VOR(%GI_SIGNAL) = 'LN':POR'LOW_IX'
+                        #SET GI_OBJECTS:VCT(%GI_SIGNAL) = 'LN':PCT'LOW_IX' 
+                        #SET GI_OBJECTS:VOG(%GI_SIGNAL) = 'LN':POG'LOW_IX'                       
+                        #SET GI_OBJECTS:VQL(%GI_SIGNAL) = 'LN':PQL'LOW_IX'                       
+                     #BLOCK_END ; 8
+                  #BLOCK_END ; 7                
+               #BLOCK_END ; 6
+             #CASE_END ; 5
+             #CASE GI_OBJECTS:VPT(%GI_SIGNAL) ; 5
+               #WHEN 3 #BLOCK ; binary input
+                  #IF %OS < 10 #THEN #BLOCK
+                     @BI = GI_OBJECTS:VOV(%GI_SIGNAL)
+                     @AL = GI_OBJECTS:VAL(%GI_SIGNAL)
+                  #BLOCK_END
+                  #ELSE #BLOCK
+                     #IF %NOT_SAMPLED_STATUS_IN_ALARM_GROUP #THEN #BLOCK
+                        @BI = 1
+                        @AL = 0 
+                     #BLOCK_END                 
+                     #ELSE #BLOCK
+                        @BI = 1
+                        @AL = 1
+                     #BLOCK_END
+                  #BLOCK_END
+                  @CA = "BI"
+                  @COM_PROC = "COM_USBI"
+               #BLOCK_END
+               #WHEN 5 #BLOCK ; binary output
+                  #IF BIT(%GI,1)==1 #THEN #BLOCK
+                     #IF %OS < 10 #THEN #BLOCK
+                        @BO = GI_OBJECTS:VOV(%GI_SIGNAL)
+                     #BLOCK_END
+                     #ELSE #BLOCK
+                        #IF %NOT_SAMPLED_STATUS_IN_ALARM_GROUP #THEN #BLOCK  
+                           @BO = 0
+                           @AL = 0               
+                        #BLOCK_END                 
+                        #ELSE #BLOCK   
+                           @BO = 0
+                           @AL = 1
+                        #BLOCK_END
+                     #BLOCK_END
+                     @COM_PROC = "COM_USBO"
+                  #BLOCK_END
+               #BLOCK_END            
+               #WHEN 6 #BLOCK ; digital input
+                  #IF %OS < 10 #THEN #BLOCK
+                     @DI = GI_OBJECTS:VOV(%GI_SIGNAL)
+                     @AL = GI_OBJECTS:VAL(%GI_SIGNAL)
+                  #BLOCK_END
+                  #ELSE #BLOCK
+                     #IF %NOT_SAMPLED_STATUS_IN_ALARM_GROUP #THEN #BLOCK  
+                        @DI = 0
+                        @AL = 0                        
+                     #BLOCK_END                 
+                     #ELSE #BLOCK                           
+                        @DI = 0
+                        @AL = 1
+                     #BLOCK_END                    
+                  #BLOCK_END                    
+                  @CA = "DI"
+                  @COM_PROC = "COM_USDI"
+               #BLOCK_END
+               #WHEN 9 #BLOCK ; analog input
+                  #IF %OS < 10 #THEN #BLOCK
+                     @AI = GI_OBJECTS:VOV(%GI_SIGNAL)
+                     @AL = GI_OBJECTS:VAL(%GI_SIGNAL)
+                  #BLOCK_END
+                  #ELSE #BLOCK
+                     #IF %NOT_SAMPLED_STATUS_IN_ALARM_GROUP #THEN #BLOCK  
+                        @AI = 0
+                        @AL = 0
+                     #BLOCK_END                 
+                     #ELSE #BLOCK               
+                        @AI = 0
+                        @AL = 1
+                     #BLOCK_END             
+                  #BLOCK_END                    
+                  @CA = "AI"
+                  @COM_PROC = "COM_USAI"
+               #BLOCK_END
+               #WHEN 11 #BLOCK ; analog output
+                  #IF %OS < 10 #THEN #BLOCK
+                     @AO = GI_OBJECTS:VOV(%GI_SIGNAL)
+                  #BLOCK_END
+                  #ELSE #BLOCK
+                     @BO = 0
+                  #BLOCK_END
+                  @COM_PROC = "COM_USAO"
+               #BLOCK_END                        
+               #WHEN 12 #BLOCK ; double binary input
+                  #IF %OS < 10 #THEN #BLOCK
+                     @DB = GI_OBJECTS:VOV(%GI_SIGNAL)
+                     @AL = GI_OBJECTS:VAL(%GI_SIGNAL)
+                  #BLOCK_END
+                  #ELSE #BLOCK
+                     #IF %NOT_SAMPLED_STATUS_IN_ALARM_GROUP #THEN #BLOCK  
+                        @DB = 1
+                        @AL = 0                     
+                     #BLOCK_END
+                     #ELSE #BLOCK
+                        @DB = 1
+                        @AL = 1
+                     #BLOCK_END
+                  #BLOCK_END
+                  @CA = "DB"
+                  @COM_PROC = "COM_USDB"
+               #BLOCK_END
+               #WHEN 13 #BLOCK ; pulse counter
+                  #IF %OS < 10 #THEN @PC = GI_OBJECTS:VOV(%GI_SIGNAL)
+                  #ELSE @PC = 0
+                  @CA = "PC"
+                  @COM_PROC = "COM_USPC"
+               #BLOCK_END
+               #WHEN 14 #BLOCK ; bit stream
+                  #IF %OS < 10 #THEN @BS = GI_OBJECTS:VOV(%GI_SIGNAL)
+                  #ELSE @BS = BIT_STRING(65535)
+                  @CA = "BS"
+                  @COM_PROC = "COM_USBS"
+               #BLOCK_END
+               #WHEN 16 #BLOCK ; OPC_EVENT
+                  #IF %OS < 10 #THEN #BLOCK
+                     @OE = GI_OBJECTS:VOV(%GI_SIGNAL)
+                     @AL = GI_OBJECTS:VAL(%GI_SIGNAL)
+                  #BLOCK_END
+                  #ELSE #BLOCK
+                     #IF %NOT_SAMPLED_STATUS_IN_ALARM_GROUP #THEN #BLOCK  
+                        @OE = 1
+                        @AL = 0
+                     #BLOCK_END                 
+                     #ELSE #BLOCK
+                        @OE = 1
+                        @AL = 1
+                     #BLOCK_END
+                  #BLOCK_END
+                  @CA = "OE"
+                  @COM_PROC = "COM_USOE"
+               #BLOCK_END
+               #OTHERWISE @COM_PROC = ""
+            #CASE_END ; 6
+            #IF %COM_PROC <> "" #THEN #BLOCK
+               @COM_EXCLUSIVE_STA_NUMBER = %COM_EXCLUSIVE_STA_NUMBER
+               @RT = GI_OBJECTS:VRT(%GI_SIGNAL)
+               @RM = GI_OBJECTS:VRM(%GI_SIGNAL)
+               @BL = GI_OBJECTS:VBL(%GI_SIGNAL)
+               @SB = GI_OBJECTS:VSB(%GI_SIGNAL)
+               @OR = GI_OBJECTS:VOR(%GI_SIGNAL)
+               @CT = GI_OBJECTS:VCT(%GI_SIGNAL)  
+               @OG = GI_OBJECTS:VOG(%GI_SIGNAL)  
+               @RZ = GI_OBJECTS:VRZ(%GI_SIGNAL)   
+               @QL = GI_OBJECTS:VQL(%GI_SIGNAL) 
+               #IF 'COM_PROC':CCS == 1 #THEN #DO 'COM_PROC':CCP
+               #ELSE #DO 'COM_PROC':CIN            
+            #BLOCK_END ; 5
+         #BLOCK_END ; 4         
+      #LOOP_END ; 3
+   #BLOCK_END ; 2
+   #IF NOT GI_OBJECTS:VMORE #THEN #LOOP_EXIT
+#LOOP_END 2 ; 1
+
+;second protocol-specific part
+#CASE %COM_APLCMD_PROTOCOL ; 1
+   #WHEN 1 #BLOCK ;RP 570 slave protocol ; 2
+      ;return STA object's DI attribute to 1 and mark FTABS old
+      @COM_RP_STA_NUMBER = %COM_EXCLUSIVE_STA_NUMBER
+      #IF COM_RPSDI:CCS == 1 #THEN #DO COM_RPSDI:CCP
+      #ELSE #DO COM_RPSDI:CIN
+      #IF %ENABLE_LOGGING #THEN #BLOCK ; 3
+         @TIME = HR_CLOCK
+         @RT = TIMES(TIME:VCL)
+         @RM = ROUND(TIME:VUS/1000)            
+         @INFO="'rt':'rm',GENINT,'COM_EXCLUSIVE_STA_NUMBER',,,RP570S database initialization ended,,,,,,,,,,,,,,,,"
+         #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+         #ELSE #DO COM_LOG:CIN
+      #BLOCK_END ; 3
+   #BLOCK_END ; 2
+   #WHEN 2 #BLOCK ;IEC 870-5-101 slave protocol ; 2
+      #IF %SUB_PROTOCOL == 2 #THEN #BLOCK
+         #SET STA'COM_EXCLUSIVE_STA_NUMBER':SDI = 1
+         @ICCP_NODE_NUMBER = STA'COM_EXCLUSIVE_STA_NUMBER':BND
+         #SET NET'ICCP_NODE_NUMBER':SIU1 = 1
+         #IF %ENABLE_LOGGING #THEN #BLOCK ; 3
+            @TIME = HR_CLOCK
+            @RT = TIMES(TIME:VCL)
+            @RM = ROUND(TIME:VUS/1000)            
+            @INFO="'rt':'rm',GENINT,'COM_EXCLUSIVE_STA_NUMBER',,,ICCP database initialization ended,,,,,,,,,,,,,,,,"
+            #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+            #ELSE #DO COM_LOG:CIN
+         #BLOCK_END ; 3
+      #BLOCK_END
+      #ELSE_IF %SUB_PROTOCOL == 3 #THEN #BLOCK
+         #SET STA'COM_EXCLUSIVE_STA_NUMBER':SDI = 1
+         @IEC61850_NODE_NUMBER = STA'COM_EXCLUSIVE_STA_NUMBER':BND
+         #SET NET'IEC61850_NODE_NUMBER':SIU1 = 1
+         #IF %ENABLE_LOGGING #THEN #BLOCK ; 3
+            @TIME = HR_CLOCK
+            @RT = TIMES(TIME:VCL)
+            @RM = ROUND(TIME:VUS/1000)            
+            @INFO="'rt':'rm',GENINT,'COM_EXCLUSIVE_STA_NUMBER',,,IEC 61850 database initialization ended,,,,,,,,,,,,,,,,"
+            #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+            #ELSE #DO COM_LOG:CIN
+         #BLOCK_END ; 3
+      #BLOCK_END
+      #ELSE #BLOCK   
+         ;send activation termination
+         #IF %IEC_TERM_ENABLED #THEN #SET STA'COM_EXCLUSIVE_STA_NUMBER':SCF = (256*%COM_ORIGINATOR+10,0,100)
+         ;return old replay window size
+         #SET STA'COM_EXCLUSIVE_STA_NUMBER':SRW = %RW_SIZE 
+         #IF %ENABLE_LOGGING #THEN #BLOCK ; 3
+            #IF %IEC_TERM_ENABLED #THEN #BLOCK
+               @TIME = HR_CLOCK
+               @RT = TIMES(TIME:VCL)
+               @RM = ROUND(TIME:VUS/1000)      
+               @INFO="'rt':'rm',GENINT,'COM_EXCLUSIVE_STA_NUMBER',,,Activation termination,,,,0,,,,,,,,,,,,"
+               #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+               #ELSE #DO COM_LOG:CIN 
+            #BLOCK_END
+            @TIME = HR_CLOCK
+            @RT = TIMES(TIME:VCL)
+            @RM = ROUND(TIME:VUS/1000)            
+            @INFO="'rt':'rm',GENINT,'COM_EXCLUSIVE_STA_NUMBER',,,IEC101/104 general interrogation ended,,,,,,,,,,,,,,,,"
+            #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+            #ELSE #DO COM_LOG:CIN
+         #BLOCK_END ; 3
+      #BLOCK_END
+   #BLOCK_END ; 2
+   #WHEN 3 #BLOCK ;CPI interface ; 2
+      ;return STA object's DI attribute to 1 and mark FTABS old
+      @COM_RP_STA_NUMBER = %COM_EXCLUSIVE_STA_NUMBER
+      #IF COM_CPIDI:CCS == 1 #THEN #DO COM_CPIDI:CCP
+      #ELSE #DO COM_CPIDI:CIN
+      #IF %ENABLE_LOGGING #THEN #BLOCK ; 3
+         @TIME = HR_CLOCK
+         @RT = TIMES(TIME:VCL)
+         @RM = ROUND(TIME:VUS/1000)            
+         @INFO="'rt':'rm',GENINT,'COM_EXCLUSIVE_STA_NUMBER',,,MODBUS/CPI database initialization ended,,,,,,,,,,,,,,,,"
+         #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+         #ELSE #DO COM_LOG:CIN
+      #BLOCK_END ; 3
+   #BLOCK_END ; 2
+   #WHEN 4 #BLOCK ;DNP 3.0 slave protocol ; 2
+      ;return STA object's DI attribute to 1
+      #SET STA'COM_EXCLUSIVE_STA_NUMBER':SDI = 1
+      #IF %ENABLE_LOGGING #THEN #BLOCK ; 3
+         @TIME = HR_CLOCK
+         @RT = TIMES(TIME:VCL)
+         @RM = ROUND(TIME:VUS/1000)            
+         @INFO="'rt':'rm',GENINT,'COM_EXCLUSIVE_STA_NUMBER',,,DNP30S database initialization ended,,,,,,,,,,,,,,,,"
+         #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+         #ELSE #DO COM_LOG:CIN
+      #BLOCK_END ; 3
+   #BLOCK_END ; 2
+#CASE_END ; 1
+
+

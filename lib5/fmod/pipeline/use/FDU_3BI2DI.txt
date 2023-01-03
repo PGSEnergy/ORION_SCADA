@@ -1,0 +1,75 @@
+;
+;------------------------------------------------------------------
+;FDU_3BI2DI
+;Rev.  0.01
+;------------------------------------------------------------------
+;
+; 10 - DB - Indication
+;310 - DI - Symbol image
+;311 - BI - Error
+;312 - BI - Ready
+;313 - BI - Connected
+;------------------------------------------------------------------
+
+@ix_db  = 10
+@ix_di  = 310
+@ix_bi1 = 311
+@ix_bi2 = 312
+@ix_bi3 = 313
+
+
+;
+#if 'ln':pOS'ix_bi1' > 9 or 'ln':pOS'ix_bi2' > 9 or 'ln':pOS'ix_bi3' > 9 #then #block
+   ;Status >9 !!! 
+   #set 'ln':POV'ix_db' = list(os=10)
+   #set 'ln':POV'ix_di' = 6
+   #set 'ln':POV16 = 1
+   #set 'ln':POV17 = 1
+
+#block_end
+#else #block 
+      @max_os = max('ln':pOS'ix_bi1','ln':pOS'ix_bi2','ln':pOS'ix_bi3')
+      @wert = 'ln':pOV'ix_bi1'*100 + 'ln':pOV'ix_bi2'*10 +'ln':pOV'ix_bi3'*1 
+           
+      #case %wert
+         #when 0 #block
+            #set 'ln':POV'ix_di' = 0
+            #set 'ln':POV'ix_db' = list(ov=2, os=%max_os)
+            #set 'ln':POV16 = 1
+            #set 'ln':POV17 = 1
+         #block_end 
+      
+         #when 10 #block
+            #set 'ln':POV'ix_di' = 3
+            #set 'ln':POV'ix_db' = list(ov=2, os=%max_os)
+            #set 'ln':POV16 = 0
+            #set 'ln':POV17 = 0
+         #block_end 
+      
+         #when 1,11 #block
+            #set 'ln':POV'ix_di' = 4
+            #set 'ln':POV'ix_db' = list(ov=1, os=%max_os)
+            #set 'ln':POV16 = 0
+            #set 'ln':POV17 = 0
+         #block_end 
+      
+         #when 100,101,110,111 #block
+            ;
+            #if 'ln':PAS'ix_bi1' == 2 #then #block 
+               #set 'ln':POV'ix_di' = 1
+            #block_end
+            #else #block
+               #set 'ln':POV'ix_di' = 2
+            #block_end
+            
+            #set 'ln':POV16 = 1
+            #set 'ln':POV17 = 1
+         #block_end 
+         
+         #otherwise #block
+           #set 'ln':POV'ix_di' = 5
+           #set 'ln':POV'ix_db' = list(ov=0, os=%max_os)
+         #block_end
+      
+      #case_end
+#block_end

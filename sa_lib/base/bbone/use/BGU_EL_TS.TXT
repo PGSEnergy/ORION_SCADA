@@ -1,0 +1,53 @@
+;Object:       BGU_EL_TS:C
+;File:         BGU_EL_TS.TXT
+;Author:       MLoukas/RSD
+;Modified:     23.11.1999
+;Arguments:    None
+;Return value: LIST with following attributes:
+;
+;   ATTRIBUTE     MEANING
+;   T             Current system time (TIME)
+;   TMS           Milliseconds of the current system time (INTEGER)
+;   TZ            Number of minutes to add to current system time to
+;                 obtain UTC time (value is 0 if sys:bts=="UNKNOWN")
+;                 (INTEGER)
+
+#local argCnt, tRedirectProc, tRedirectCommand, iArgLoop
+tRedirectProc="APLMOD_EL_TS"
+#if APPLICATION_OBJECT_EXISTS(0,"C",tRedirectProc) AND -
+DATA_TYPE(%REDIRECTED)=="NONE" #then #block
+   #if 'tRedirectProc':CIU==1 #then #block
+      @REDIRECTED=TRUE
+      argCnt=ARGUMENT_COUNT
+      tRedirectCommand="DO('tRedirectProc':C"
+      #loop_with iArgLoop=1..argCnt
+         tRedirectCommand=tRedirectCommand+",argument('iArgLoop')"
+         #if iArgLoop==argCnt #then #block
+            tRedirectCommand=tRedirectCommand+")"
+         #block_end
+      #loop_end
+      #return 'tRedirectCommand'
+   #block_end
+#block_end
+
+;---------------------------------------------------------------------
+;SETTINGS:
+
+@I_DIFF_DAYLIGHT =  -60 ; Count of minutes to add to daylight saving
+                        ; time to obtain UTC time
+@I_DIFF_STANDARD = -120 ; Count of minutes to add to standard 
+                        ; time to obtain UTC time
+;---------------------------------------------------------------------
+
+@L_CURRENT_TIME = HR_CLOCK
+#CASE SYS:BTS
+   #WHEN "SUMMER" @I_ADD=%I_DIFF_DAYLIGHT
+   #WHEN "WINTER" @I_ADD=%I_DIFF_STANDARD
+   #OTHERWISE @I_ADD=0
+#CASE_END
+
+#RETURN LIST(-
+   T=L_CURRENT_TIME:VCL,-
+   TMS=TRUNC(L_CURRENT_TIME:VUS/1000),-
+   TZ=%I_ADD)
+                   

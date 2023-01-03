@@ -1,0 +1,56 @@
+;CM =Interface for Monitor Pro Reports, Return all Notes (comments) within visible time frame
+; Function:    SAGR_REPORTS_GET_ALL_NOTES:C 
+; CM = Interface for Monitor Pro Reports, Read all notes for currently open Display
+; Version:     3.0 (build 2.3.2012)
+; Parameters:  Conf_Name="QUICK_REPORT_xxxx",Time_From,Time_To,Time_Interval=xx (60,120,180,..)
+; Return data: Index=VECTOR(),Note=VECTOR(),Time_ID=VECTOR()
+; Description: 
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#local i,i_=0, b_ = true, e_=clock, v_ = vector(), l_ = list(),-
+       t_ApplDir = fm_application_directory("REPORTS"),-
+       l_DisplayConf=List(), t_DisplayConfName = %ArgumentList.CONF_NAME
+#local v_Indexes = vector(), v_ID = vector(), v_Notes = vector(), t_ID=""
+
+@output = list(INDEX = v_Indexes, TIME_ID = v_ID, NOTE = v_Notes)
+
+#if sagr_reports_getDatFile:ccs == 1 #then -
+      b_ = do(sagr_reports_getDatFile:ccp,t_DisplayConfName)
+#else b_ = do(sagr_reports_getDatFile:c,  t_DisplayConfName)   
+#if not b_ #then #return
+
+@T1 = %ArgumentList.TIME_FROM
+@T2 = %ArgumentList.TIME_TO
+#if data_type(%T1)<>"TIME" OR data_type(%T2)<>"TIME" #then #return
+#if data_type(%T1)=="NONE" #then @T1 = clock
+
+#if SAGR_REPORTS_CALCDATARANGE:ccs == 1 #then -
+      #do SAGR_REPORTS_CALCDATARANGE:ccp                                    ;*** calculate the used data range 
+#else #do SAGR_REPORTS_CALCDATARANGE:c
+
+#if file_manager("EXISTS",fm_file(fm_represent(t_ApplDir) + "\'t_DisplayConfName'.mno")) #then #block 
+   v_ = locate(READ_Text("REPORTS/'t_DisplayConfName'.mno"),"ID_")
+   #if find_element(v_,1) > 0 #then #block
+      #loop_with i = 1..%DATA_LENGTH         
+         #if %Report_Type=="YEAR" #then e_ = PACK_TIME(YEAR(%T1), i, 1, %BOD, 1,0)
+         #else e_ = %T1 + (I-1) * %TIME_INTERVAL
+
+         i_ = type_cast(e_,"INTEGER")         
+         t_ID = "ID_'i_'"
+         l_ = read_parameter("REPORTS/'t_DisplayConfName'.mno","Report Comments", t_ID)
+
+         #if l_.STATUS == 0 #then #block
+            #if length(edit(l_.VALUE,"COLLAPSE")) > 1 #then #block
+               v_Indexes = append(v_Indexes,i)
+               v_ID      = append(v_ID,t_ID)
+               v_Notes   = append(v_Notes, substr(l_.VALUE,2,0))
+            #block_end
+         #block_end
+      #loop_end
+   #block_end
+#block_end
+
+@output= list(INDEX = v_Indexes, TIME_ID = v_ID, NOTE = v_Notes)
+

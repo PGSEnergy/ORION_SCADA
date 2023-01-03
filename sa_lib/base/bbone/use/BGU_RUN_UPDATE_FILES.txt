@@ -1,0 +1,22 @@
+;run update files
+#local v_files, i, j, w, v_file_content, v_upd_tags, v_tag
+#local sa_lib_dir =  fm_scil_directory("/sa_lib/base"), t_apl = apl:bna, e_clock = clock
+#local l_update = list(-
+   filters = vector("UPD_*", "UPDA_*"),-
+   tags = ((";## Executed",-
+               ";## at 'e_clock', This is not executed again while these lines are here"),-
+              (";## Executed by application 't_apl'",-
+               ";## at 'e_clock', This is not executed again while these lines are here")))
+
+;read and execute files
+#loop_with i = 1 .. length(l_update.filters) ;upd* and upda* ... files
+   v_files = fm_represent(fm_combine(sa_lib_dir, file_manager("LIST", sa_lib_dir, l_update.filters(i), "RECURSIVE")))
+   #loop_with j = 1 .. length(v_files)
+      v_file_content = read_text(v_files(j), 1, 10000)
+      #if length(select(locate(v_file_content, l_update.tags(i)(1)), "<>0")) == 0 #then #block
+         #do v_file_content
+         v_tag = append(l_update.tags(i), v_file_content)
+         w = write_text(v_files(j), v_tag) ;set tag so that file is executed only once 
+      #block_end
+   #loop_end
+#loop_end

@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="SAVersionInfo" content="1" />
+    <d:variable type="external" name="control" default="''" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Alarm Indicator" />
+    <d:meta name="dv-custom-attribute|SARepresentation" content="Led" />
+    <d:meta name="dv-custom-attribute|SANoRotate" content="" />
+    <d:meta name="dv-custom-attribute|SAVersionInfo" content="1" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="status-color" default="0" />
+    <d:variable type="external" name="name" default="''" />
+    <d:value-list name="f229" min="0" max="47" default-expression="[colors[19], 'none']">
+      <d:option value="46" expression="[[colors[48], colors[19]], ['none', 'none']]" />
+    </d:value-list>
+    <d:value-list name="f230" min="0" max="50">
+      <d:option expression="colors[29]" />
+      <d:option text="rgb(255, 255, 128)" />
+      <d:option text="rgb(255, 0, 0)" />
+      <d:option text="rgb(0, 255, 0)" />
+      <d:option text="rgb(0, 0, 255)" />
+      <d:option text="rgb(255, 0, 255)" />
+      <d:option text="rgb(255, 255, 0)" />
+      <d:option text="rgb(0, 255, 255)" />
+      <d:option text="rgb(255, 128, 0)" />
+      <d:option text="rgb(128, 255, 0)" />
+      <d:option text="rgb(0, 255, 128)" />
+      <d:option text="rgb(0, 128, 255)" />
+      <d:option text="rgb(128, 0, 255)" />
+      <d:option text="rgb(255, 0, 128)" />
+      <d:option text="rgb(128, 128, 128)" />
+      <d:option text="rgb(255, 255, 255)" />
+      <d:option expression="colors[16]" />
+      <d:option expression="colors[17]" />
+      <d:option expression="colors[18]" />
+      <d:option expression="colors[19]" />
+      <d:option expression="colors[20]" />
+      <d:option expression="colors[21]" />
+      <d:option expression="colors[22]" />
+      <d:option expression="colors[23]" />
+      <d:option expression="colors[24]" />
+      <d:option expression="colors[25]" />
+      <d:option expression="colors[26]" />
+      <d:option expression="colors[27]" />
+      <d:option expression="colors[28]" />
+      <d:option expression="colors[29]" />
+      <d:option expression="colors[30]" />
+      <d:option expression="colors[31]" />
+      <d:option expression="colors[32]" />
+      <d:option expression="colors[33]" />
+      <d:option expression="colors[34]" />
+      <d:option expression="colors[35]" />
+      <d:option expression="colors[36]" />
+      <d:option expression="colors[32]" />
+      <d:option expression="colors[38]" />
+      <d:option expression="colors[39]" />
+      <d:option expression="colors[40]" />
+      <d:option expression="colors[41]" />
+      <d:option expression="colors[42]" />
+      <d:option expression="colors[43]" />
+      <d:option expression="colors[44]" />
+      <d:option expression="colors[45]" />
+      <d:option expression="colors[46]" />
+      <d:option expression="colors[47]" />
+      <d:option expression="colors[48]" />
+      <d:option expression="colors[49]" />
+      <d:option expression="colors[50]" />
+    </d:value-list>
+    <d:value-list name="f231">
+      <d:option value="38" text="Not Sampled Indication.sd" />
+    </d:value-list>
+  </d:head>
+  <d:body n:LN="{LN(control)}" n:IX="{IX(control)}" x1="-10" y1="-10" x2="10" y2="10">
+    <s:polyline points="-10,10 -10,-10 10,-10 " y:fill="none" y:fill-rule="evenodd" y:stroke="{colors[16]}" y:vector-effect="non-scaling-stroke" y:stroke-width="2" d:object-name="Frame Top Left" />
+    <s:polyline points="-10,10 10,10 10,-10 " y:fill="none" y:fill-rule="evenodd" y:stroke="{colors[17]}" y:vector-effect="non-scaling-stroke" y:stroke-width="3" d:object-name="Frame Bottom Right" />
+    <s:rect width="20" height="20" x="-10" y="-10" class="bounding-box" d:transform-anchor="center-center" y:fill="{colors[19]}" y:fill-rule="evenodd" y:stroke="none" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Bounding Box">
+      <d:animate attributes="fill, stroke" values="if(`subdrawing_dynamics`, f229(`status-color`), colors[19])" />
+    </s:rect>
+    <s:circle cx="0" cy="0" r="9.600" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f230(`status-color`), colors[31])}" y:fill-rule="evenodd" y:stroke="{colors[17]}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Circle" />
+    <d:view name="{f231(`status-color`)}" s:transform="translate(0,0) scale(1,1)" d:transform-anchor="center-center" d:object-name="Sampled Indication">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+    </d:view>
+    <s:text font-family="Times New Roman" font-size="8.585" fill="{colors[30]}" x="12.800" y="0" text-anchor="start" dominant-baseline="central" dx="0.859px" d:textScaleAdjustment="true" d:transform-anchor="center-center" y:fill="{colors[30]}" y:fill-rule="evenodd">{if(`subdrawing_dynamics`, format('%f', `name`), 'Name')}</s:text>
+  </d:body>
+</d:document>

@@ -1,0 +1,135 @@
+﻿; This command procedure is used for executing reading of user data command
+; in a COM500 application
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @COM_EXCLUSIVE_STA_NUMBER, number of the STA object of the NCC sending CI command
+;         @COM_READ_OBJECT_ADDRESS ; information object address of the object to be sent up
+;         BNCC*_XRS*:P, xref tables
+; OUTPUT  @COM_EXCLUSIVE_STA_NUMBER, forwarded to upstream procedures
+;         @LN, @IX, @OS, @RT, @RM, @CA, @AL, @OV, @BL, @SB, @OR, @CT attributes of the object 
+;         to be sent to the NCC, forwarded to upstream procedures
+;---------------------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+;intialize variables
+@READ_ADDRESS_FOUND = FALSE
+@CONTINUE_SEARCH = TRUE
+
+;resolve the ncc number
+@NCC_XREF_TABLE = APL:BSV(21)
+#LOOP_WITH COUNT = 1..LENGTH(%NCC_XREF_TABLE) ; 1
+   @NCC = %NCC_XREF_TABLE(%COUNT)
+   #IF %NCC(1) == %COM_EXCLUSIVE_STA_NUMBER #THEN #BLOCK
+      @NCC_NUMBER = %COUNT
+      #LOOP_EXIT
+   #BLOCK_END   
+#LOOP_END ; 1
+;find NCC address from the free-type process objects, resolve xref table index
+#LOOP_WITH OBJECT_NUMBER = 1..7 ; 1
+   #LOOP_WITH INDEX = 1..2000 ; 2
+      #IF BNCC'NCC_NUMBER'_XRS'OBJECT_NUMBER':PZA(%INDEX) == %COM_READ_OBJECT_ADDRESS #THEN #BLOCK   
+         @CONTINUE_SEARCH = FALSE
+         @READ_XREF_INDEX = (%OBJECT_NUMBER-1)*2000 + %INDEX  
+         #LOOP_EXIT
+      #BLOCK_END ; 3
+   #LOOP_END ; 2
+   #IF NOT %CONTINUE_SEARCH #THEN #LOOP_EXIT
+#LOOP_END ; 1
+#IF NOT %CONTINUE_SEARCH #THEN #BLOCK ; 2
+   ;read the attributes of the process object
+   @READ_OBJECT = APPLICATION_OBJECT_LIST(0,"IX","A","F","","PT < 100 AND IU == 1 AND (PT==3 OR PT==6 OR PT==9 OR PT==12 OR PT==14) AND TI == %READ_XREF_INDEX AND RX <> ""%%%%%%%%%%%%%%%%%%%%BN*""",-
+   ("OS","DX","PT","OV","AL","LN","IX","RT","RM","BL","SB","OR","CT","OG","RZ"),10000)
+   ;send to the requesting NCC (COT=requested=5)
+   #IF LENGTH(READ_OBJECT:VLN) > 0 #THEN #BLOCK ; 2
+      @OS = READ_OBJECT:VOS(1)
+      #CASE READ_OBJECT:VPT(1) ; 3
+         #WHEN 3 #BLOCK
+            #IF %OS < 10 #THEN #BLOCK
+               @BI = READ_OBJECT:VOV(1)
+               @AL = READ_OBJECT:VAL(1)
+            #BLOCK_END
+            #ELSE #BLOCK
+               @BI = 1
+               @AL = 1
+            #BLOCK_END
+            @CA = "BI"
+            @COM_PROC = "COM_USBI"
+         #BLOCK_END
+         #WHEN 6 #BLOCK
+            #IF %OS < 10 #THEN #BLOCK
+               @DI = READ_OBJECT:VOV(1)
+               @AL = READ_OBJECT:VAL(1)
+            #BLOCK_END
+            #ELSE #BLOCK
+               @DI = 0
+               @AL = 1
+            #BLOCK_END                    
+            @CA = "DI"
+            @COM_PROC = "COM_USDI"
+         #BLOCK_END
+         #WHEN 9 #BLOCK
+            #IF %OS < 10 #THEN #BLOCK
+               @AI = READ_OBJECT:VOV(1)
+               @AL = READ_OBJECT:VAL(1)
+            #BLOCK_END
+            #ELSE #BLOCK
+               @AI = 0
+               @AL = 1
+            #BLOCK_END                    
+            @CA = "AI"
+            @COM_PROC = "COM_USAI"
+         #BLOCK_END
+         #WHEN 12 #BLOCK
+            #IF %OS < 10 #THEN #BLOCK
+               @DB = READ_OBJECT:VOV(1)
+               @AL = READ_OBJECT:VAL(1)
+            #BLOCK_END
+            #ELSE #BLOCK
+               @DB = 1
+               @AL = 1
+            #BLOCK_END
+            @CA = "DB"
+            @COM_PROC = "COM_USDB"
+         #BLOCK_END
+         #WHEN 13 #BLOCK
+            #IF %OS < 10 #THEN #BLOCK
+               @PC = READ_OBJECT:VOV(1)
+               @AL = READ_OBJECT:VAL(1)
+            #BLOCK_END
+            #ELSE #BLOCK
+               @PC = 0
+               @AL = 1
+            #BLOCK_END
+            @CA = "PC"
+            @COM_PROC = "COM_USPC"
+         #BLOCK_END
+         #WHEN 14 #BLOCK
+            #IF %OS < 10 #THEN @BS = READ_OBJECT:VOV(1)
+            #ELSE @BS = BIT_STRING(65535)
+            @CA = "BS"
+            @COM_PROC = "COM_USBS"
+         #BLOCK_END
+         #OTHERWISE @COM_PROC = ""
+      #CASE_END ; 3
+      #IF %COM_PROC <> "" #THEN #BLOCK ; 3
+         @COM_CAUSE_OF_TRANSMISSION = 5 ; requested
+         @COM_EXCLUSIVE_STA_NUMBER = %COM_EXCLUSIVE_STA_NUMBER
+         @IX = READ_OBJECT:VIX(1)
+         @LN = READ_OBJECT:VLN(1)
+         @RT = READ_OBJECT:VRT(1)
+         @RM = READ_OBJECT:VRM(1)
+         @BL = READ_OBJECT:VBL(1)
+         @SB = READ_OBJECT:VSB(1)
+         @OR = READ_OBJECT:VOR(1)
+         @CT = READ_OBJECT:VCT(1)
+         @OG = READ_OBJECT:VOG(1)
+         @RZ = READ_OBJECT:VRZ(1)
+         #IF 'COM_PROC':CCS == 1 #THEN #DO 'COM_PROC':CCP
+         #ELSE #DO 'COM_PROC':CIN
+      #BLOCK_END ; 3
+   #BLOCK_END ; 2
+#BLOCK_END ; 1

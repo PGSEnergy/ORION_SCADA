@@ -1,0 +1,130 @@
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Mikko Ripatti/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+  <Parameters type="InterfaceDefinition">
+    <Parameter name="ObjectType">EventQueueSkipMultipleUpdates</Parameter>
+    <Parameter name="Caption">objectTypeCaption</Parameter>
+    <Parameter name="Description">objectTypeDesc</Parameter>
+    <Parameter name="Group">Event Classes</Parameter>
+    <Parameter name="Type">EVENT</Parameter>
+    <Parameter name="IconFileName">ae.ico</Parameter>
+    <Parameter name="Tools" />
+    <Parameter name="DataServers" />
+    <Parameter name="Verbs" />
+    <Parameter name="Visible">True</Parameter>
+    <Parameter name="CanInherit">False</Parameter>
+    <Parameter name="ParentControlConditions">
+      <Structure name="COMMUNICATION">
+        <Condition type="PCMObjectType">EventGroupDCSEvents</Condition>
+      </Structure>
+    </Parameter>
+  </Parameters>
+  <Parameters type="SCLExport">
+    <Export name="CDATA">
+BaseType, 
+EventBufferOverflowErrorMessage, 
+SeverityOfEventBufferOverflowError, 
+EventBufferOverflowErrorAckReq, 
+EventBufferStateNormalMessage, 
+EventBufferStateNormalAckReq, 
+SendSimpleEvent
+</Export>
+  </Parameters>
+  <Properties type="PropertyDefinitions">
+    <Property name="OPCObjectType" category="[010] Basic">
+      <Value>Event Class</Value>
+      <DescID>OPCObjectTypeDesc</DescID>
+      <CaptionID>OPCObjectType</CaptionID>
+      <Values type="string">
+      </Values>
+      <DataType>System.String</DataType>
+      <HelpKey />
+      <Access>HHR</Access>
+      <AttributeName>OPCObjectType</AttributeName>
+    </Property>
+    <Property name="BaseType" category="[010] Basic">
+      <Value>EventQueueOverflow</Value>
+      <DescID>BaseTypeDesc</DescID>
+      <CaptionID>BaseType</CaptionID>
+      <Values type="singleChoice">
+        <Enum textID="Discrete Indication" value="DiscInd" />
+        <Enum textID="Limit Supervision" value="MVLevelBase" />
+        <Enum textID="Trip Event" value="Trip" />
+        <Enum textID="Advanced Discrete Indication" value="Discrete" />
+        <Enum textID="Device Connection Status" value="DeviceConnectionStatus" />
+        <Enum textID="Advanced Limit Supervision" value="Level" />
+        <Enum textID="Quality Texts" value="Quality Texts" />
+        <Enum textID="Event Queue Skip Multiple Updates Threshold" value="EventQueueOverflow" />
+      </Values>
+      <DataType>System.String</DataType>
+      <HelpKey />
+      <Access>HHH</Access>
+      <AttributeName />
+    </Property>
+    <Property name="EventBufferOverflowErrorMessage" category="[010] Basic">
+      <Value>Event buffer overflow</Value>
+      <DescID>EventBufferOverflowErrorMessageDesc</DescID>
+      <CaptionID>EventBufferOverflowErrorMessage</CaptionID>
+      <Values type="string" />
+      <DataType>System.String</DataType>
+      <HelpKey />
+      <Access>RWW</Access>
+      <AttributeName />
+    </Property>
+    <Property name="EventBufferStateNormalMessage" category="[010] Basic">
+      <Value>Event buffer normal</Value>
+      <DescID>EventBufferStateNormalMessageDesc</DescID>
+      <CaptionID>EventBufferStateNormalMessage</CaptionID>
+      <Values type="string" />
+      <DataType>System.String</DataType>
+      <HelpKey />
+      <Access>RWW</Access>
+      <AttributeName />
+    </Property>
+    <Property name="SeverityOfEventBufferOverflowError" category="[010] Basic">
+      <Value>1000</Value>
+      <DescID>SeverityOfEventBufferOverflowErrorDesc</DescID>
+      <CaptionID>SeverityOfEventBufferOverflowError</CaptionID>
+      <Values type="numerical">
+        <Min>1</Min>
+        <Max>1000</Max>
+      </Values>
+      <DataType>System.String</DataType>
+      <HelpKey />
+      <Access>RWW</Access>
+      <AttributeName />
+    </Property>
+    <Property name="EventBufferStateNormalAckReq" category="[010] Basic">
+      <Value>False</Value>
+      <DescID>EventBufferStateNormalAckReqDesc</DescID>
+      <CaptionID>EventBufferStateNormalAckReq</CaptionID>
+      <Values type="boolean">
+      </Values>
+      <DataType>System.Boolean</DataType>
+      <HelpKey />
+      <Access>RWW</Access>
+      <AttributeName />
+    </Property>
+    <Property name="EventBufferOverflowErrorAckReq" category="[010] Basic">
+      <Value>False</Value>
+      <DescID>EventBufferOverflowErrorAckReqDesc</DescID>
+      <CaptionID>EventBufferOverflowErrorAckReq</CaptionID>
+      <Values type="boolean">
+      </Values>
+      <DataType>System.Boolean</DataType>
+      <HelpKey />
+      <Access>RWW</Access>
+      <AttributeName />
+    </Property>
+    <Property name="SendSimpleEvent" category="[010] Basic">
+      <Value>False</Value>
+      <DescID>SendSimpleEventDesc</DescID>
+      <CaptionID>SendSimpleEvent</CaptionID>
+      <Values type="boolean">
+      </Values>
+      <DataType>System.Boolean</DataType>
+      <HelpKey />
+      <Access>RWW</Access>
+      <AttributeName />
+    </Property>
+  </Properties>
+</ObjectType>

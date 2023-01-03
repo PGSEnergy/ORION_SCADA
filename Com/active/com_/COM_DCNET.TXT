@@ -1,0 +1,156 @@
+﻿; This command procedure is used for creating the COM500 start objects
+; for NET restarting
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+;-------------------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+; Read in NCC parameters and create NET diagnostic objects
+@NCC_XREF_TABLE = APL:BSV(21)
+@NCC_NODE_NUMBERS = VECTOR()
+
+#LOOP_WITH I = 1..LENGTH(%NCC_XREF_TABLE)
+   @SAME_NCC_NODE_FOUND = FALSE
+   @NCC = %NCC_XREF_TABLE(%I)
+   #IF LENGTH(%NCC) > 0 #THEN #BLOCK
+      @STA_NR = %NCC(1)   
+      @STA_NODE = STA'STA_NR':BND
+      ; Check that sta object is created and create objects only ones per net
+      #IF LENGTH(%NCC_NODE_NUMBERS) > 0 #THEN #BLOCK
+         #IF %STA_NODE == 0 #THEN @SAME_NCC_NODE_FOUND = TRUE
+         #ELSE #BLOCK
+            #LOOP_WITH J =  1..LENGTH(%NCC_NODE_NUMBERS)
+               #IF %STA_NODE == %NCC_NODE_NUMBERS(%J) #THEN @SAME_NCC_NODE_FOUND = TRUE            
+            #LOOP_END         
+         #BLOCK_END
+      #BLOCK_END
+      @NCC_NODE_NUMBERS(LENGTH(%NCC_NODE_NUMBERS)+1) = %STA_NODE      
+
+      #IF NOT %SAME_NCC_NODE_FOUND #THEN #BLOCK
+         @OA_DC = 6000 + %STA_NODE   
+      
+         ; Create NET system message command procedure  
+         @DC_COM_PR = FETCH(0, "C", "COM_NET'STA_NODE'D")
+         #IF DC_COM_PR:VIU == -1 #THEN #CREATE COM_NET'STA_NODE'D:C = LIST(LN = "COM_NET'STA_NODE'D")   
+         @STA_NODE_DIAG_CODE_VECTOR = ("; Command Procedure: COM_NET'STA_NODE'D",-
+                                       "; Description: Handles system messages from the NET",-
+                                       ";              DO NOT EDIT! - This procedure is updated automatically",-
+                                       "; -----------------------------------------------------------------",-
+                                       "",-                         
+                                       ";Initializes COM 500 communication to NCCs if NET with NCC link is restarted",-                                          
+                                       "#IF LENGTH(APL:BSV) >= 19 #THEN #BLOCK",-
+                                       "  #IF DATA_TYPE(APL:BSV(20)) ==""LIST"" #THEN #BLOCK",-
+                                       "     #IF %AI == 10001 AND LENGTH(APL:BSV20) > 0 AND LENGTH(APL:BSV21) > 0 #THEN #BLOCK",-
+                                       "         @GEN_INFO = APL:BSV20",-
+                                       "         @NCC_XREF_TABLE = APL:BSV21",-            
+                                       "         @SAME_NCC_NODE_FOUND = FALSE",-                                                                  
+                                       "         #LOOP_WITH I=1..LENGTH(%NCC_XREF_TABLE)",-
+                                       "            @NCC = %NCC_XREF_TABLE(%I)",-                                       
+                                       "            #IF LENGTH(%NCC) > 0 #THEN #BLOCK",-                                       
+                                       "               @STA_NCC = %NCC(1)",-
+                                       "               #IF STA''STA_NCC'':BND == (''LN'':POA''IX'' - 6000) #THEN @SAME_NCC_NODE_FOUND = TRUE",-                                       
+                                       "            #BLOCK_END",-                                       
+                                       "         #LOOP_END",-
+                                       "         #IF (GEN_INFO:VCOM_DATABASE_INITIALISED == TRUE) AND %SAME_NCC_NODE_FOUND #THEN #BLOCK",-
+                                       "           #EXEC_AFTER 5 COM_NETINI_H:C",-
+                                       "           #SET COM_GENVAR:PBZ(4) = 0",-
+                                       "         #BLOCK_END",-
+                                       "      #BLOCK_END",-
+                                       "   #BLOCK_END",-
+                                       "#BLOCK_END")
+   
+         #MODIFY COM_NET'STA_NODE'D:C = LIST(-  
+               IU = 1,-
+               IN = %STA_NODE_DIAG_CODE_VECTOR,-
+               CM = "NET 'STA_NODE' Diagnostics")   
+   
+         ; Create scale with name 1_1, if it does not exist
+         @SCALE = FETCH(0, "X", "1_1")
+         #IF SCALE:VIU == -1 #THEN #CREATE 1_1:X = LIST(SA = 0)
+   
+         ; Create NET system message p-object, or modify action if already exists
+         ; if object with right address exists under different name (e.g. LIB name) - modify actions   
+         @DC_OBJ = PHYS_FETCH(0,0,%OA_DC)
+         #IF DC_OBJ:VIU >= 0 #THEN #BLOCK   
+               @CURRENT_ACT = 'DC_OBJ:VLN':PAN(DC_OBJ:VIX) 
+               #IF %CURRENT_ACT <> "COM_NET'STA_NODE'D"  #THEN #BLOCK
+                  @CURRENT_ACT_EV_CHNL = FETCH(0,"A",%CURRENT_ACT)
+                  #IF CURRENT_ACT_EV_CHNL:VIU <> -1 #THEN #BLOCK
+                     @CURRENT_ACT_EV_CHNL_SN = 'CURRENT_ACT':ASN
+                     @CURRENT_ACT_EV_CHNL_ST = 'CURRENT_ACT':AST
+                     @COM_DC_EV_CHNL_FOUND = FALSE
+                     #LOOP_WITH J = 1..LENGTH(%CURRENT_ACT_EV_CHNL_SN)
+                        @SN_J = %CURRENT_ACT_EV_CHNL_SN(%J) 
+                        #IF %SN_J == "COM_NET'STA_NODE'D" #THEN #BLOCK
+                           @COM_DC_EV_CHNL_FOUND = TRUE
+                           #LOOP_EXIT
+                        #BLOCK_END
+                     #LOOP_END
+                     #IF NOT %COM_DC_EV_CHNL_FOUND #THEN #BLOCK                  
+                        @CURRENT_ACT_EV_CHNL_SN = APPEND(%CURRENT_ACT_EV_CHNL_SN,"COM_NET'STA_NODE'D")
+                        @CURRENT_ACT_EV_CHNL_ST = APPEND(%CURRENT_ACT_EV_CHNL_ST,"C")
+                        #MODIFY 'CURRENT_ACT_EV_CHNL:VLN':A = LIST(SN = %CURRENT_ACT_EV_CHNL_SN,-
+                                                             ST = %CURRENT_ACT_EV_CHNL_ST)
+                     #BLOCK_END
+                  #BLOCK_END
+               #BLOCK_END
+               ; If object with right address exists under right name but wrong index - delete object    
+               #ELSE #IF DC_OBJ:VIX <> %STA_NODE #THEN #DELETE 'DC_OBJ:VLN':P(DC_OBJ:VIX)    
+         #BLOCK_END
+         @DC_OBJ = PHYS_FETCH(0,0,%OA_DC)
+         #IF DC_OBJ:VIU == -1 #THEN #BLOCK
+            @DC_OBJ = FETCH(0, "P", "COM_NETD", %STA_NODE)
+            #IF DC_OBJ:VIU == -1 #THEN #BLOCK
+               ; If neither address nor right name/index exists - create object         
+               #CREATE COM_NETD:P(%STA_NODE) = LIST(-
+                  LN = "COM_NETD",-
+                  IX = %STA_NODE,-
+                  PT = 9,-
+                  AI = 0,-
+                  IU = 1,-
+                  SN = "1_1",-
+                  DX = "9")
+               #MODIFY DC_OBJ:V = LIST(LN = "COM_NETD",-
+                                       IX = %STA_NODE)
+               #SET COM_NETD:PGC = "NET Diagnostics"                       
+            #BLOCK_END
+            
+            ; Create NET system message event channel  
+            @DC_EV_CHNL = FETCH(0, "A", "COM_NET'STA_NODE'D")
+            @PREV_SN = vector()
+            @PREV_ST = vector()      
+            #IF DC_EV_CHNL:VIU <> -1 #THEN #BLOCK
+               @PREV_SN = COM_NET'STA_NODE'D:ASN 
+               @PREV_ST = COM_NET'STA_NODE'D:AST
+               #DELETE COM_NET'STA_NODE'D:A
+            #BLOCK_END     
+            #CREATE COM_NET'STA_NODE'D:A = LIST(LN = "COM_NET'STA_NODE'D",-
+               ON = "COM_NET'STA_NODE'D",-
+               OT = "C",-
+               SN = %PREV_SN,-
+               ST = %PREV_ST,-
+               CM = "NET 'STA_NODE' Diagnostics")
+                  
+            ; Modify object
+            #MODIFY 'DC_OBJ:VLN':P(DC_OBJ:VIX) = LIST(-
+               CX = "NET 'STA_NODE' Diagnostics",-
+               UN = 0,-
+               OA = %OA_DC,-
+               SS = 2,-
+               AN = "COM_NET'STA_NODE'D",-
+               AE = 1,-
+               AA = 2,-
+               AF = 1,-
+               SN = "1_1",-
+               RI = %STA_NODE)
+   
+         #BLOCK_END        
+         
+      #BLOCK_END
+   #BLOCK_END
+#LOOP_END
+

@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<NGT>
+  <Header>
+    <ModelInfo value="DataPoints" />
+    <ModelVersion value="1.3.0.0" />
+    <PersistencyVersion value="1.0.0.0" />
+  </Header>
+  <DomModel>
+    <Complex name="Root" type="t0" id="0">
+      <Reference name="functionSpecifications" id="1" />
+      <Reference name="dataPointConnectionConfigurations" id="2" />
+      <Reference name="dataPoints" id="3" />
+      <Reference name="dataPointInputSpecifications" id="4" />
+      <Simple name="EntityId" value="3d3538d0-5edf-4050-9b0a-71d38f32ea0a" />
+    </Complex>
+    <Complex name="functionSpecifications" type="t1" id="1">
+      <Collection name="internalList" type="t2" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="FunctionSpecifications" />
+    </Complex>
+    <Complex name="dataPointConnectionConfigurations" type="t3" id="2">
+      <Collection name="internalList" type="t4" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="DataPointConnectionConfigurations" />
+    </Complex>
+    <Complex name="dataPoints" type="t5" id="3">
+      <Collection name="internalList" type="t6" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="DataPoints" />
+    </Complex>
+    <Complex name="dataPointInputSpecifications" type="t7" id="4">
+      <Collection name="internalList" type="t8" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="DataPointInputSpecifications" />
+    </Complex>
+    <Types>
+      <Type value="ABB.NGT.DataSource.DataPoint.DataPointModelCatalog, ABB.NGT.DataSource.DataPoint, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t0" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldList`3[[ABB.NGT.Domain.DataPoint.API.Model.IFunctionSpecification, ABB.NGT.Domain.DataPoint.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.DataPoint.Contracts.Events.DataPointChildAddedEvent, ABB.NGT.Domain.DataPoint.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.DataPoint.Contracts.Events.DataPointChildRemovedEvent, ABB.NGT.Domain.DataPoint.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t1" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.DataPoint.API.Model.IFunctionSpecification, ABB.NGT.Domain.DataPoint.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t2" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldList`3[[ABB.NGT.Domain.DataPoint.API.Model.IDataPointConnectionConfiguration, ABB.NGT.Domain.DataPoint.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.DataPoint.Contracts.Events.DataPointChildAddedEvent, ABB.NGT.Domain.DataPoint.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.DataPoint.Contracts.Events.DataPointChildRemovedEvent, ABB.NGT.Domain.DataPoint.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t3" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.DataPoint.API.Model.IDataPointConnectionConfiguration, ABB.NGT.Domain.DataPoint.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t4" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldList`3[[ABB.NGT.Domain.DataPoint.API.Model.IDataPoint, ABB.NGT.Domain.DataPoint.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.DataPoint.Contracts.Events.DataPointChildAddedEvent, ABB.NGT.Domain.DataPoint.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.DataPoint.Contracts.Events.DataPointChildRemovedEvent, ABB.NGT.Domain.DataPoint.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t5" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.DataPoint.API.Model.IDataPoint, ABB.NGT.Domain.DataPoint.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t6" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldList`3[[ABB.NGT.Domain.DataPoint.API.Model.IDataPointInputSpecification, ABB.NGT.Domain.DataPoint.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.DataPoint.Contracts.Events.DataPointChildAddedEvent, ABB.NGT.Domain.DataPoint.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.DataPoint.Contracts.Events.DataPointChildRemovedEvent, ABB.NGT.Domain.DataPoint.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t7" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.DataPoint.API.Model.IDataPointInputSpecification, ABB.NGT.Domain.DataPoint.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t8" />
+    </Types>
+  </DomModel>
+</NGT>

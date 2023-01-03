@@ -1,0 +1,636 @@
+;Function: BPU_PARSE_AND_EXECUTE_CMD:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_parse_and_execute_cmd.scl
+;Version: 1.0
+;Parameters:
+;Return data: list(status=INTEGER, err_description=TEXT)
+;Description: Routes common command (defined in ControlCommand.proto) to actual LIB5 command
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data, l_command
+
+#local -
+   t_command_selector,-
+   trash,-
+   i,-
+   v_args,-
+   v_tmp,-
+   v_addr_LN_IX,-
+   b_OK = true,-
+   t_aux_value = "",-
+   t_LN,-
+   i_IX,-
+   t_RX,-
+   t_data_point_type,-
+   l_control_bitmask = list(-
+            -;None = 0,-
+            -;Normal = 1,-
+            Interlocked = 2,-
+            SynchroCheck = 4,-
+            Test = 8,-
+            BayControl = 16,-
+            StationControl = 32,-
+            RemoteControl = 48,-
+            AutomaticBay = 64,-
+            AutomaticStation = 80,-
+            AutomaticRemote = 112,-
+            Maintenance = 128,-
+            Process = 144),-
+   command_value = 1,-
+   l_command_result,-
+   i_sel_on_mon_ix = 0,-
+   t_proc = "BPU_PARSE_AND_EXECUTE_COMMAND:C",-
+   l_command_response = list(-
+      value = 0,-
+      status_type = 0,- ; 0 = confirmation, 1 = termination (only 0 supported)
+      success = true),-
+   l_custom_response = list(-
+      custom_value = 0,-
+      custom_text = ""),-
+   v_attributes,-
+   i_reason,-
+   t_attr,-
+   l_tq,-
+   t_t1,-
+   t_t2,-
+   b_add_cause_found = false,-
+   i_Add_Cause_IX,-
+   r_add_cause_pause = 0.2,-
+   l_add_cause_values,-
+   l_state = list()
+
+#if sys:bdm == 1 #then #block
+   #error ignore
+   trash = trace_begin("pict/trace_bpu_parse_and_execute_cmd.txt")
+   #loop_with i = 1 .. argument_count
+      v_args(i) = argument(i)
+   #loop_end
+   trash = write_text("args_bpu_parse_and_execute_cmd.txt", dump(v_args))
+#block_end
+
+v_tmp = separate(l_command.address, ".")
+#if length(v_tmp) > 1 #then #block
+   t_data_point_type = v_tmp(2)
+   v_addr_LN_IX = separate(v_tmp(1), ":")
+   #if length(v_addr_LN_IX) > 1 #then #block
+      t_LN = v_addr_LN_IX(1)
+      i_IX = v_addr_LN_IX(2)
+   #block_end
+   #else b_OK = false
+   v_tmp = separate(t_data_point_type, "/")
+   #if length(v_tmp) > 1 #then t_data_point_type = v_tmp(2)
+#block_end
+#else b_OK = false
+
+#if not b_OK #then #block
+   #if sys:bdm == 1 #then trash = trace_end
+   #return list(STATUS = -1, ERR_DESCRIPTION = translation("Address could not be resolved"))
+#block_end
+
+l_add_cause_values = do(bpu_add_cause_values:c)
+l_state = do(bpu_control:c, "CALCULATE_STATE", l_object_info, l_data)
+#if attribute_exists(l_state, upper_case(t_data_point_type)) #then #block
+   #if attribute_exists(l_state.'t_data_point_type', "CONTROL_PERMITTED") #then #block
+      #if not l_state.'t_data_point_type'.control_permitted #then #block
+         l_command_response.success = false
+         l_command_response.value = l_add_cause_values.no_access_authority 
+         #return l_command_response
+      #block_end
+   #block_end
+   #if attribute_exists(l_state.'t_data_point_type', "LEVEL_PERMITTED") #then #block
+      #if not l_state.'t_data_point_type'.level_permitted #then #block
+         l_command_response.success = false
+         l_command_response.value = l_add_cause_values.blocked_by_switching_hierarchy
+         #return l_command_response
+      #block_end
+   #block_end
+#block_end
+
+#case upper_case(l_command.command_type)
+   #when "BOOLVALUE" #block
+      ;currently only switch devices support command parameters
+      #if t_data_point_type == "switch_open_close_command" #then #block
+         #if attribute_exists(l_command, "INTERLOCK_BYPASS") #then #block
+            #if not l_command.INTERLOCK_BYPASS #then command_value = command_value + l_control_bitmask.interlocked
+         #block_end
+         
+         #if attribute_exists(l_command, "SYNCHROCHECK_BYPASS") #then #block
+            #if not l_command.SYNCHROCHECK_BYPASS #then command_value = command_value + l_control_bitmask.synchrocheck
+         #block_end
+         
+         #if attribute_exists(l_command, "TEST_COMMAND") #then #block
+            #if l_command.TEST_COMMAND #then command_value = command_value + l_control_bitmask.test
+         #block_end
+         
+         #if attribute_exists(l_command, "OR_CAT") #then #block
+            #if attribute_exists(l_control_bitmask, l_command.OR_CAT) #then -
+               command_value = command_value + l_control_bitmask.'l_command.OR_CAT'
+         #block_end     
+      #block_end
+      
+      ;interlock bypass, synchrocheck bypass and test commands supported only with IEC61850 protocol
+      #if command_value > 1 #then #block
+         #if attribute_exists(l_object_info, "STATION_TYPE") #then #block
+            #if not do(bpu_user_authorized:c, l_object_info, 1, "FORCED_OPERATION_AUTHORITY") #then #block               
+               l_command_response.success = false
+               l_command_response.value = 20 ;no_access_authority add cause
+               #return l_command_response
+            #block_end
+            #if l_object_info.STATION_TYPE <> "IEC61850" #then #block
+               l_command_response.success = false
+               l_command_response.value = 1 ;Command not supported add cause
+               #return l_command_response
+            #block_end
+            #else #block
+               #if bit(command_value, 1) == 1 #then #block
+                  #if attribute_exists(l_object_info, "INTERLOCKING_BYPASS") #then #block
+                     #if not l_object_info.INTERLOCKING_BYPASS #then #block
+                        l_command_response.success = false
+                        l_command_response = merge_attributes(-
+                           l_command_response, list(custom_value = 1052, custom_text = translation("Interlock bypass functionality not configured")))
+                     #block_end
+                  #block_end
+                  #else #block
+                     l_command_response.success = false
+                        l_command_response = merge_attributes(-
+                           l_command_response, list(custom_value = 1053, custom_text = translation("Interlock bypass functionality not available")))
+                  #block_end
+               #block_end
+               #if bit(command_value, 2) == 1 #then #block
+                  #if attribute_exists(l_object_info, "SYNCHROCHECK_BYPASS") #then #block
+                     #if not l_object_info.SYNCHROCHECK_BYPASS #then #block
+                        l_command_response.success = false
+                        l_command_response = merge_attributes(-
+                           l_command_response, list(custom_value = 1054, custom_text = translation("Synchro-check bypass functionality not configured")))
+                     #block_end
+                  #block_end
+                  #else #block
+                     l_command_response.success = false
+                        l_command_response = merge_attributes(-
+                           l_command_response, list(custom_value = 1055, custom_text = translation("Synchro-check bypass functionality not available")))
+                  #block_end
+               #block_end
+               #if  not l_command_response.success #then #return l_command_response
+            #block_end
+         #block_end         
+      #block_end
+
+      #if upper_case(l_command.command) == "SELECT" #then #block
+         #if l_command.command_value #then #block
+            #case t_data_point_type
+               #when "switch_open_close_command" t_command_selector = "SELECT_ON"
+               #when "auto_manual_set_operation_mode_command" #block         
+                  t_command_selector = "SELECT_TRAFO"
+                  command_value = l_command.command_value
+                  t_aux_value = "AUTO_SELECT"
+               #block_end              
+               #when "co_operation_mode_set_value_command" #block
+                  t_command_selector = "SELECT_TRAFO"
+                  command_value = l_command.command_value
+                  t_aux_value = "PARALLEL_SELECT"
+               #block_end
+               #when "co_operation_role_set_value_command" #block
+                  t_command_selector = "SELECT_TRAFO"
+                  command_value = l_command.command_value
+                  t_aux_value = "MASTER_SELECT"
+               #block_end
+               #when "forced_clear_pending_selections_command",-
+                     "group_event_blocked_command",-
+                     "group_alarm_blocked_command",-
+                     "operator_blocked_command" t_command_selector = "DO_NOTHING"    
+            #case_end
+         #block_end
+         #else #block
+            #case t_data_point_type
+               #when "switch_open_close_command" t_command_selector = "SELECT_OFF"
+               #when "auto_manual_set_operation_mode_command" #block         
+                  t_command_selector = "SELECT_TRAFO"
+                  command_value = l_command.command_value
+                  t_aux_value = "MANUAL_SELECT"
+               #block_end
+               #when "co_operation_mode_set_value_command" #block
+                  t_command_selector = "SELECT_TRAFO"
+                  command_value = l_command.command_value
+                  t_aux_value  = "SINGLE_SELECT"
+               #block_end
+               #when "co_operation_role_set_value_command" #block
+                  t_command_selector = "SELECT_TRAFO"
+                  command_value = not l_command.command_value
+                  t_aux_value = "FOLLOWER_SELECT"
+               #block_end
+               #when "forced_clear_pending_selections_command",-
+                     "group_event_blocked_command",-
+                     "group_alarm_blocked_command",-
+                     "operator_blocked_command" t_command_selector = "DO_NOTHING"
+            #case_end
+         #block_end
+      #block_end
+      #else_if upper_case(l_command.command) == "OPERATE" #then #block
+         #if l_command.command_value #then #block
+            #case t_data_point_type
+               #when "switch_open_close_command" t_command_selector = "EXECUTE_ON"
+               #when "auto_manual_set_operation_mode_command" #block         
+                  t_command_selector = "EXECUTE_TRAFO"
+                  command_value = l_command.command_value
+                  t_aux_value = "AUTO_EXECUTE"
+               #block_end
+               #when "co_operation_mode_set_value_command" #block
+                  t_command_selector = "EXECUTE_TRAFO"
+                  command_value = l_command.command_value
+                  t_aux_value  = "PARALLEL_EXECUTE"
+               #block_end       
+               #when "co_operation_role_set_value_command" #block
+                  t_command_selector = "EXECUTE_TRAFO"
+                  command_value = l_command.command_value
+                  t_aux_value = "MASTER_EXECUTE"
+               #block_end
+               #when "forced_clear_pending_selections_command" #block
+                  t_command_selector = "RELEASE_RESERVATION"
+                  command_value = l_command.command_value
+               #block_end
+               #when "group_event_blocked_command" #block
+                  t_command_selector = "SET_BLOCKINGS"
+                  command_value = list(event = 1)
+               #block_end
+               #when "group_alarm_blocked_command" #block
+                  t_command_selector = "SET_BLOCKINGS"
+                  command_value = list(alarm = 1)
+               #block_end
+               #when "operator_blocked_command" #block
+                  #case 't_LN':PPT'i_IX'
+                     #when 3, 6, 9, 12 #block
+                        t_command_selector = "SET_BLOCKINGS"
+                        command_value = list(update = 1)
+                     #block_end
+                     #when 5, 7, 11 #block
+                        t_command_selector = "SET_BLOCKINGS"
+                        command_value = list(control = 1)
+                     #block_end
+                  #case_end
+               #block_end   
+            #case_end
+         #block_end
+         #else #block
+            #case t_data_point_type
+               #when "switch_open_close_command" t_command_selector = "EXECUTE_OFF"
+               #when "auto_manual_set_operation_mode_command" #block
+                  t_command_selector = "EXECUTE_TRAFO"
+                  command_value = l_command.command_value
+                  t_aux_value = "MANUAL_EXECUTE"
+               #block_end
+               #when "co_operation_mode_set_value_command" #block
+                  t_command_selector = "EXECUTE_TRAFO"
+                  command_value = l_command.command_value
+                  t_aux_value  = "SINGLE_EXECUTE"
+               #block_end      
+               #when "co_operation_role_set_value_command" #block
+                  t_command_selector = "EXECUTE_TRAFO"
+                  command_value = not l_command.command_value
+                  t_aux_value = "FOLLOWER_EXECUTE"
+               #block_end
+               #when "forced_clear_pending_selections_command" #block
+                  t_command_selector = "RELEASE_RESERVATION"
+                  command_value = l_command.command_value
+               #block_end
+               #when "group_event_blocked_command" #block
+                  t_command_selector = "SET_BLOCKINGS"
+                  command_value = list(event = 0)
+               #block_end
+               #when "group_alarm_blocked_command" #block
+                  t_command_selector = "SET_BLOCKINGS"
+                  command_value = list(alarm = 0)
+               #block_end
+               #when "operator_blocked_command" #block
+                  #case 't_LN':PPT'i_IX'
+                     #when 3, 6, 9, 12 #block
+                        t_command_selector = "SET_BLOCKINGS"
+                        command_value = list(update = 0)
+                     #block_end
+                     #when 5, 7, 11 #block
+                        t_command_selector = "SET_BLOCKINGS"
+                        command_value = list(control = 0)
+                     #block_end
+                  #case_end
+               #block_end        
+            #case_end
+         #block_end
+      #block_end
+      #else_if upper_case(l_command.command) == "CANCEL" #then #block
+         #case t_data_point_type
+            #when "auto_manual_set_operation_mode_command" #block
+               t_command_selector = "CANCEL_TRAFO"
+               command_value = l_command.command_value
+               #if l_command.command_value #then t_aux_value = "AUTO_CANCEL"
+               #else t_aux_value = "MANUAL_CANCEL"
+            #block_end
+            #when "co_operation_role_set_value_command" #block
+               t_command_selector = "CANCEL_TRAFO"
+               command_value = l_command.command_value
+               #if l_command.command_value #then t_aux_value = "MASTER_CANCEL"
+               #else t_aux_value = "FOLLOWER_CANCEL"
+            #block_end
+            #when "forced_clear_pending_selections_command",-
+                  "group_event_blocked_command",-
+                  "group_alarm_blocked_command",-
+                  "operator_blocked_command" t_command_selector = "DO_NOTHING"
+            #otherwise t_command_selector = "CANCEL"
+         #case_end
+      #block_end
+      #else #block
+         trash = console_output("'t_proc': Command type not defined", "D", "LIB5")
+         #return list(status = -1, err_description = "Command type not defined")
+      #block_end
+   #block_end
+   #when "FLOATVALUE", "SIGNEDINT32VALUE", "DOUBLEBINARYVALUE", "UNSIGNED_INT32VALUE", "STRINGVALUE", "SIGNEDINT64VALUE" #block
+      #if upper_case(l_command.command) == "SELECT" #then #block
+         #case t_data_point_type
+            #when "tap_value_raise_or_lower_command" #block
+               #if l_command.command_value == 0 #then #block
+                  trash = console_output("'t_proc': Not supported trafo command: 't_data_point_type' ('l_command.command_value')", "D", "LIB5")
+                  #return list(status = -1, err_description = "Not supported trafo command")
+               #block_end
+               #else_if l_command.command_value == 1 #then #block
+                  t_command_selector = "SELECT_TRAFO"
+                  command_value = l_command.command_value
+                  t_aux_value = "RAISE_SELECT"
+               #block_end
+               #else_if l_command.command_value == 2 #then #block
+                  t_command_selector = "SELECT_TRAFO"
+                  command_value = l_command.command_value
+                  t_aux_value = "LOWER_SELECT"
+               #block_end
+            #block_end
+            #when "co_operation_mode_set_value_command" #block
+               #if l_command.command_value == 0 #then #block
+                  t_command_selector = "SELECT_TRAFO"
+                  command_value = l_command.command_value
+                  t_aux_value = "SINGLE_SELECT"
+               #block_end
+               #else_if l_command.command_value == 1 #then #block
+                  t_command_selector = "SELECT_TRAFO"
+                  command_value = l_command.command_value
+                  t_aux_value = "PARALLEL_SELECT"
+               #block_end
+               #else_if l_command.command_value == 2 #then #block
+                  t_command_selector = "SELECT_TRAFO"
+                  command_value = l_command.command_value
+                  t_aux_value = "PARALLEL_SELECT"
+               #block_end
+               #else #block
+                  trash = console_output("'t_proc': Not supported trafo command: 't_data_point_type' ('l_command.command_value')", "D", "LIB5")
+                  #return list(status = -1, err_description = "Not supported trafo command")
+               #block_end
+            #block_end            
+            #when "co_operation_role_set_value_command" #block
+               #if l_command.command_value == 1 #then #block
+                  t_command_selector = "SELECT_TRAFO"
+                  command_value = l_command.command_value
+                  t_aux_value = "MASTER_SELECT"
+               #block_end
+               #else_if l_command.command_value == 2 #then #block
+                  t_command_selector = "SELECT_TRAFO"
+                  command_value = l_command.command_value
+                  t_aux_value ="FOLLOWER_SELECT"
+               #block_end
+               #else #block
+                  trash = console_output("'t_proc': Not supported trafo command: 't_data_point_type' ('l_command.command_value')", "D", "LIB5")
+                  #return list(status = -1, err_description = "Not supported trafo command")
+               #block_end
+            #block_end
+            #when "reference_voltage_set_value_command" #block
+               t_command_selector = "SELECT_TRAFO"
+               command_value = l_command.command_value
+               t_aux_value = "REF_VOLTAGE_SELECT"
+            #block_end
+            #when "OpCnt" #block
+               ;TODO
+            #block_end
+            #when "station_local_remote_command" #block
+               t_command_selector = "VALUE_SELECT"
+               command_value = "LR_SWITCH"              
+               #case l_command.command_value
+                  #when 0 t_aux_value = 1
+                  #when 1 t_aux_value = 2
+                  #otherwise #block
+                     l_command_response.value = 1 ;Command not supported add cause
+                     #return l_command_response
+                  #block_end
+               #case_end
+            #block_end
+            #when "low_2",-
+                  "low_1",-
+                  "high_1",-
+                  "high_2",-
+                  "autoreclosing_mode_set_value_command" t_command_selector = "DO_NOTHING"
+         #case_end
+      #block_end
+      #else_if upper_case(l_command.command) == "OPERATE" #then #block
+         #case t_data_point_type
+            #when "tap_value_raise_or_lower_command" #block
+               #if l_command.command_value == 0 #then #block
+                  trash = console_output("'t_proc': Not supported trafo command: 't_data_point_type' ('l_command.command_value')", "D", "LIB5")
+                  #return list(status = -1, err_description = "Not supported trafo command")
+               #block_end
+               #else_if l_command.command_value == 1 #then #block
+                  t_command_selector = "EXECUTE_TRAFO"
+                  command_value = l_command.command_value
+                  t_aux_value = "RAISE_EXECUTE"
+               #block_end
+               #else_if l_command.command_value == 2 #then #block
+                  t_command_selector = "EXECUTE_TRAFO"
+                  command_value = l_command.command_value
+                  t_aux_value = "LOWER_EXECUTE"
+               #block_end
+            #block_end
+            #when "co_operation_mode_set_value_command" #block
+               #if l_command.command_value == 0 #then #block
+                  t_command_selector = "EXECUTE_TRAFO"
+                  command_value = l_command.command_value
+                  t_aux_value = "SINGLE_EXECUTE"
+               #block_end
+               #else_if l_command.command_value == 1 #then #block
+                  t_command_selector = "EXECUTE_TRAFO"
+                  command_value = l_command.command_value
+                  t_aux_value = "PARALLEL_EXECUTE"
+               #block_end
+               #else_if l_command.command_value == 2 #then #block
+                  t_command_selector = "EXECUTE_TRAFO"
+                  command_value = l_command.command_value
+                  t_aux_value = "PARALLEL_EXECUTE"
+               #block_end
+               #else #block
+                  trash = console_output("'t_proc': Not supported trafo command: 't_data_point_type' ('l_command.command_value')", "D", "LIB5")
+                  #return list(status = -1, err_description = "Not supported trafo command")
+               #block_end
+            #block_end         
+            #when "co_operation_role_set_value_command" #block
+               #if l_command.command_value == 1 #then t_command_selector = "FOLLOWER_EXECUTE"
+               #else_if l_command.command_value == 2 #then t_command_selector = "MASTER_EXECUTE"
+               #else #block
+                  trash = console_output("'t_proc': Not supported trafo command: 't_data_point_type' ('l_command.command_value')", "D", "LIB5")
+                  #return list(status = -1, err_description = "Not supported trafo command")
+               #block_end
+            #block_end
+            #when "reference_voltage_set_value_command" #block
+               t_command_selector = "EXECUTE_TRAFO"
+               command_value = l_command.command_value
+               t_aux_value = "REF_VOLTAGE_EXECUTE"
+            #block_end
+            #when "station_local_remote_command" #block
+               t_command_selector = "VALUE_EXECUTE"
+               command_value = "LR_SWITCH"
+               #case l_command.command_value
+                  #when 0 t_aux_value = 1
+                  #when 1 t_aux_value = 2
+                  #otherwise #block
+                     l_command_response.value = 1 ;Command not supported add cause
+                     #return l_command_response
+                  #block_end
+               #case_end
+            #block_end
+            #when "autoreclosing_mode_set_value_command" #block
+               t_command_selector = "SET_AUTO_RECLOSE"
+               #if l_command.command_value == 0 #then command_value = "OFF"
+               #else command_value = "ON"
+            #block_end
+            #when "low_2" #block
+               t_command_selector = "SET_LIMITS"
+               command_value = list(low_alarm = l_command.command_value)
+               t_aux_value = list(LN = t_LN, IX = i_IX)
+            #block_end
+            #when "low_1" #block
+               t_command_selector = "SET_LIMITS"
+               command_value = list(low_warning = l_command.command_value)
+               t_aux_value = list(LN = t_LN, IX = i_IX)
+            #block_end
+            #when "high_1" #block
+               t_command_selector = "SET_LIMITS"
+               command_value = list(high_warning = l_command.command_value)
+               t_aux_value = list(LN = t_LN, IX = i_IX)
+            #block_end
+            #when "high_2" #block
+               t_command_selector = "SET_LIMITS"
+               command_value = list(high_alarm = l_command.command_value)
+               t_aux_value = list(LN = t_LN, IX = i_IX)
+            #block_end
+         #case_end         
+      #block_end
+      #else_if upper_case(l_command.command) == "CANCEL" #then #block         
+          #case t_data_point_type
+            #when "auto_manual_set_operation_mode_command" #block
+               t_command_selector = "CANCEL_TRAFO"
+               command_value = l_command.command_value               
+               #if l_command.command_value #then t_aux_value = "AUTO_CANCEL"
+               #else t_aux_value = "MANUAL_CANCEL"
+            #block_end
+            #when "tap_value_raise_or_lower_command" #block
+               t_command_selector = "CANCEL_TRAFO"
+               command_value = l_command.command_value               
+               #if l_command.command_value == 1 #then t_aux_value = "RAISE_CANCEL"
+               #else t_aux_value = "LOWER_CANCEL"
+            #block_end
+            #when "co_operation_mode_set_value_command" #block
+               t_command_selector = "CANCEL_TRAFO"
+               command_value = l_command.command_value               
+               #if l_command.command_value == 1 or l_command.command_value == 2 #then t_aux_value = "PARALLEL_CANCEL"
+               #else t_aux_value = "SINGLE_CANCEL"             
+            #block_end
+            #when "co_operation_role_set_value_command" #block
+               t_command_selector = "CANCEL_TRAFO"
+               command_value = l_command.command_value               
+               #if l_command.command_value == 0 #then t_aux_value = "FOLLOWER_CANCEL"
+               #else t_aux_value = "MASTER_CANCEL"             
+            #block_end
+            #when "reference_voltage_set_value_command" #block
+               t_command_selector = "CANCEL_TRAFO"
+               command_value = l_command.command_value
+               t_aux_value = "REF_VOLTAGE_CANCEL"             
+            #block_end
+            #when "station_local_remote_command",-
+                  "autoreclosing_mode_set_value_command",-
+                  "low_2",-
+                  "low_1",-
+                  "high_1",-
+                  "high_2" t_command_selector = "DO_NOTHING"
+            #otherwise t_command_selector = "CANCEL"
+         #case_end         
+      #block_end
+      #else #block         
+         trash = console_output("'t_proc': 't_proc' :Command type not defined", "D", "LIB5")
+         #return list(status = -1, err_description = "Command type not defined")
+      #block_end
+   #block_end
+   #otherwise #block
+      #return list(STATUS = -1, ERR_DESCRIPTION = translation("Unknown command type") + " " + l_command.command_type)
+   #block_end
+#case_end
+
+#if data_type(t_command_selector) == "NONE" #then #block    
+   trash = console_output(translation("Not supported data point type") + ": 't_data_point_type'", "D", "LIB5")
+   #return list(status = -1, err_description = translation("Not supported data point type") + ": 't_data_point_type'")
+#block_end
+
+#if attribute_exists(l_data.all_objects, "SEL_ON_MON_IX") #then -
+   i_sel_on_mon_ix = l_data.all_objects.SEL_ON_MON_IX
+
+#if upper_case(l_command.command) == "OPERATE" #then #block
+   #if i_sel_on_mon_ix > 0 #then #block
+      #if 't_LN':pos'i_sel_on_mon_ix' < 10 #then #set 't_LN':pov'i_sel_on_mon_ix' = 't_LN':pov'i_sel_on_mon_ix' + 1
+      #else #set 't_LN':pov'i_sel_on_mon_ix' = 1
+   #block_end
+#block_end
+
+;check actual add cause if process object exists
+#if attribute_exists(l_object_info, "add_cause_ix") #then #block
+   i_Add_Cause_IX = l_object_info.add_cause_ix
+   #if i_Add_Cause_IX > 0 #then #block
+      #if application_object_exists(0, "IX", list(LN = t_LN, IX = i_Add_Cause_IX)) #then #block
+         l_tq = 't_LN':prq'i_Add_Cause_IX'
+         t_t1 = times(l_tq.cl) + "." + dec(l_tq.ms, 0)
+         b_add_cause_found = true
+      #block_end
+   #block_end
+#block_end
+#if t_command_selector == "DO_NOTHING" #then -
+   l_command_result = l_command_response
+#else - 
+   l_command_result = do(BPU_CONTROL:C, t_command_selector, l_object_info, l_data, command_value, t_aux_value)
+
+#if upper_case(l_command.command) == "OPERATE" #then #block
+   #if i_sel_on_mon_ix > 0 #then #set 't_LN':pov'i_sel_on_mon_ix' = 't_LN':pov'i_sel_on_mon_ix' - 1
+#block_end
+
+;response message according to Control.proto
+#if attribute_exists(l_command_result, "STATUS") #then #block
+   l_command_response.success = (l_command_result.status == 0)
+#block_end
+
+#if not l_command_response.success #then #block
+   b_OK = false
+   #if b_add_cause_found #then #block
+      #pause r_add_cause_pause
+      l_tq = 't_LN':prq'i_Add_Cause_IX'
+      t_t2 = times(l_tq.cl) + "." + dec(l_tq.ms, 0)
+      #if t_t2 > t_t1 #then #block         
+         i_reason = round('t_LN':POV'i_Add_Cause_IX')
+         v_attributes = list_attr(l_add_cause_values)
+         #loop_with i = 1 .. length(v_attributes)
+            t_attr = v_attributes(i)
+            #if l_add_cause_values.'t_attr' == i_reason #then #block
+               l_command_response.value = i_reason
+               b_OK = true
+               #loop_exit
+            #block_end
+         #loop_end
+      #block_end
+   #block_end
+   
+   #if not b_OK #then #block
+      l_command_response = merge_attributes(-
+         l_command_response, list(custom_value = l_command_result.status, custom_text = l_command_result.err_description + " " + "'l_command_result.status'"))
+   #block_end
+#block_end
+
+#if sys:bdm == 1 #then #block
+   trash = trace_end
+#block_end
+
+#return l_command_response

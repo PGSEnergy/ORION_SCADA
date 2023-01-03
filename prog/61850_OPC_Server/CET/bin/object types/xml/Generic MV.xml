@@ -1,0 +1,20 @@
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Mikko Ripatti/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">MV</Parameter>
+		<Parameter name="Caption">MV</Parameter>
+		<Parameter name="Description">Measured value</Parameter>
+		<Parameter name="Group">Data objects</Parameter>
+		<Parameter name="Type">DO</Parameter>
+		<Parameter name="IconFileName">mv.ico</Parameter>
+		<Parameter name="Tools"></Parameter>
+    <Parameter name="Visible">False</Parameter>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="DataStructureObjectType">LN</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+</ObjectType>

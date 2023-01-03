@@ -1,0 +1,23 @@
+;************************ Apl_Stl.txt **************************************
+; Do not make any changes to this file. This is a system file and it may 
+; cause problems if this file is edited. If the start object, picture ...
+; need changes then it can be redefined in Apl_Init.txt. That file is not 
+; updated when prepare the application. This file will be owerwritten when
+; prepare the application for MS-STOOL.
+;***************************************************************************
+
+
+#path Tmp +no_create,/STool/Def
+#do read_text("Tmp/Path_Def.txt")
+
+;@Start_Object_Type   = "Dialog"         ;Defines if the fist object is a picture or VS dialog
+;@Start_Picture_Name  = "APL_/APL_START"   ;Needed if  Start_Object_Type == "Picture"
+;@Start_Dialog_File   = "APL_/Apl_Start.vso"   ;Needed if  Start_Object_Type == "Dialog"
+;@Start_Dialog_Tag    = "Main"      ;Needed if  Start_Object_Type == "Dialog"
+;@Start_Dialog_Type   = "VS_Main_Dialog"   ;Needed if  Start_Object_Type == "Dialog"
+
+@Start_Object_Type			= "Dialog"   		;Defines the fist object as a VS dialog
+@Start_Dialog_File			= "/sa_lib/base/bbone/use/bgu_login.vso"	;Needed if  Start_Object_Type == "Dialog"
+@Start_Dialog_Tag				= "Main"		;Needed if  Start_Object_Type == "Dialog"
+@Start_Dialog_Type			= "VS_Main_Dialog"	;Needed if  Start_Object_Type == "Dialog"
+@Start_Dialog_Attributes	= vector()

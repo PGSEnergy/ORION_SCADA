@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:variable type="external" name="control" default="''" />
+    <d:meta name="dv-custom-attribute|ABB SA Symbols" content="v1.0" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Raw Button Status" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="Button" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="top-text" default="''" />
+    <d:variable type="external" name="middle-text" default="''" />
+    <d:variable type="external" name="bottom-text" default="''" />
+    <d:variable type="external" name="status-color" default="0" />
+    <d:variable type="external" name="show-status-color" default="0" />
+    <d:variable type="external" name="normal-text-visibility" default="0" />
+    <d:variable type="external" name="bold-text-visibility" default="0" />
+    <d:variable type="external" name="state-color" default="0" />
+    <d:variable type="external" name="show-state-color" default="0" />
+    <d:variable type="external" name="sunken" default="0" />
+    <d:variable type="external" name="flat" default="0" />
+    <d:mapping name="f24" parameters="value">
+      <d:step value="true" when="value &lt;= 40.500" />
+      <d:step value="false" when="value &lt;= 42.506" />
+      <d:step value="true" when="value &lt;= 44.503" />
+      <d:step value="false" when="value &lt;= 46.507" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f25" parameters="value">
+      <d:step value="['none', 'rgb(255, 255, 255)']" when="value &lt;= 40.500" />
+      <d:step value="['none', colors[41]]" when="value &lt;= 41.501" />
+      <d:step value="[['none', 'none'], [colors[42], colors[19]]]" when="value &lt;= 42.500" />
+      <d:step value="['none', 'rgb(255, 255, 255)']" when="value &lt;= 44.500" />
+      <d:step value="['none', colors[45]]" when="value &lt;= 45.500" />
+      <d:step value="[['none', 'none'], [colors[46], colors[19]]]" when="value &lt;= 46.500" />
+      <d:otherwise value="['none', 'rgb(255, 255, 255)']" />
+    </d:mapping>
+  </d:head>
+  <d:body n:LN="{LN(control)}" n:IX="{IX(control)}" x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <s:rect width="40" height="20" x="-20" y="-10" s:pointer-events="visiblePainted" d:hidden="f24(`status-color`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="{subdrawing_color}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Status Blink">
+      <d:animate attributes="fill, stroke" values="if(`subdrawing_dynamics`, f25(`status-color`), 'none')" />
+    </s:rect>
+  </d:body>
+</d:document>

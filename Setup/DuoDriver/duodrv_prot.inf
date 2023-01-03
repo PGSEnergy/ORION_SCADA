@@ -1,0 +1,197 @@
+;
+; Copyright (c) 2020 ABB
+;
+; DuoDriver protocol setup information file
+;
+
+;******************************************************************************
+; Version Section
+;------------------------------------------------------------------------------
+[Version]
+Signature="$Windows NT$"
+DriverVer=09/24/2020,5.0.31001
+Provider=%S_Provider%
+CatalogFile=duodrv_prot.cat
+Class = NetTrans
+ClassGUID = {4D36E975-E325-11CE-BFC1-08002BE10318}
+
+;******************************************************************************
+; Manufacturer
+;------------------------------------------------------------------------------
+[Manufacturer]
+%S_Mfg%=_Models,NTx86,NTamd64
+
+
+;******************************************************************************
+; Models sections
+;------------------------------------------------------------------------------
+[_Models.NTx86]
+%S_Prot_Desc%=_Install.win32, NM_DUODRIVER_PT_{047E7A79-7427-41a7-92C1-62A37A9EAFCB}
+
+[_Models.NTamd64]
+%S_Prot_Desc%=_Install.win64, NM_DUODRIVER_PT_{047E7A79-7427-41a7-92C1-62A37A9EAFCB}
+
+
+;******************************************************************************
+; Install Sections x86
+;------------------------------------------------------------------------------
+[_Install.win32]
+Characteristics = 0x88  ;  NCF_HAS_UI | NCF_HIDDEN
+CopyFiles=_CopyFiles_sys_x86, _CopyFiles_dll_x86
+AddReg = _AddReg_ndi, _AddReg_ndi_x86
+
+[_Install.win32.Services]
+; note: The service name must match with the DD_PROTOCOL_NAME_W string in the driver.
+AddService = DuoDriverPT, 0, _AddService_x86, _EventLog_x86
+
+[_AddService_x86]
+ServiceType    = 1       ; SERVICE_KERNEL_DRIVER
+StartType      = 3       ; SERVICE_DEMAND_START
+ErrorControl   = 1       ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\duodriver.sys
+
+[_EventLog_x86]
+AddReg=_EventLogAddReg_x86
+
+[_EventLogAddReg_x86]
+HKR,,EventMessageFile,%REG_EXPAND_SZ%,"%%SystemRoot%%\System32\netevent.dll;%%SystemRoot%%\System32\drivers\duodriver.sys"
+HKR,,TypesSupported,  %REG_DWORD%, 7
+
+;******************************************************************************
+; Remove Sections x86
+;------------------------------------------------------------------------------
+[_Install.win32.Remove]
+DelFiles=_CopyFiles_sys_x86, _CopyFiles_dll_x86
+
+[_Install.win32.Remove.Services]
+DelService = DuoDriverPT
+
+;******************************************************************************
+; Install Sections x64
+;------------------------------------------------------------------------------
+[_Install.win64]
+Characteristics = 0x88  ;  NCF_HAS_UI | NCF_HIDDEN
+CopyFiles=_CopyFiles_sys_x64, _CopyFiles_dll_x64
+AddReg = _AddReg_ndi, _AddReg_ndi_x64
+
+[_Install.win64.Services]
+AddService = DuoDriverPT, 0, _AddService_x64, _EventLog_x64
+
+[_AddService_x64]
+ServiceType    = 1       ; SERVICE_KERNEL_DRIVER
+StartType      = 3       ; SERVICE_DEMAND_START
+ErrorControl   = 1       ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\duodriver_x64.sys
+
+[_EventLog_x64]
+AddReg=_EventLogAddReg_x64
+
+[_EventLogAddReg_x64]
+HKR,,EventMessageFile,%REG_EXPAND_SZ%,"%%SystemRoot%%\System32\netevent.dll;%%SystemRoot%%\System32\drivers\duodriver_x64.sys"
+HKR,,TypesSupported,  %REG_DWORD%, 7
+
+;******************************************************************************
+; Remove Sections x64
+;------------------------------------------------------------------------------
+[_Install.win64.Remove]
+DelFiles=_CopyFiles_sys_x64, _CopyFiles_dll_x64
+
+[_Install.win64.Remove.Services]
+DelService = DuoDriverPT
+
+;******************************************************************************
+; Registry sections
+;------------------------------------------------------------------------------
+[_AddReg_ndi]
+HKR, Ndi,             Service,    %REG_SZ%, "DuoDriverPT"
+HKR, Ndi,             HelpText,   %REG_SZ%, "%S_PROT_HELP_TEXT%"
+HKR, Ndi\Interfaces,  UpperRange, %REG_SZ%, "noupper"
+HKR, Ndi\Interfaces,  LowerRange, %REG_SZ%, "ndis5"
+
+[_AddReg_ndi_x86]
+; notfify object
+HKR, Ndi,    ClsID,         %REG_SZ%, "{41BEC2A9-71ED-401A-91C7-35606CBE027E}"
+HKR, Ndi,    ComponentDll,  %REG_SZ%, "DuoDriverNotifyObj-41BEC2A9-71ED-401A-91C7-35606CBE027E.dll"
+
+[_AddReg_ndi_x64]
+; notfify object
+HKR, Ndi,    ClsID,         %REG_SZ%, "{41BEC2A9-71ED-401A-91C7-35606CBE027E}"
+HKR, Ndi,    ComponentDll,  %REG_SZ%, "DuoDriverNotifyObj-41BEC2A9-71ED-401A-91C7-35606CBE027E_x64.dll"
+
+
+;******************************************************************************
+; Copy file sections
+;------------------------------------------------------------------------------
+; Note: No string variable possible in these sections !
+; We use COPYFLG_NOVERSIONCHECK to suppress pop-up dialogs if newer files are overwritten.
+[_CopyFiles_sys_x86]
+duodriver.sys,,,0x00000004
+
+[_CopyFiles_dll_x86]
+DuoDriverNotifyObj-41BEC2A9-71ED-401A-91C7-35606CBE027E.dll,,,0x00000004
+
+[_CopyFiles_sys_x64]
+duodriver_x64.sys,,,0x00000004
+
+[_CopyFiles_dll_x64]
+DuoDriverNotifyObj-41BEC2A9-71ED-401A-91C7-35606CBE027E_x64.dll,,,0x00000004
+
+;******************************************************************************
+; Destination Directories
+;------------------------------------------------------------------------------
+[DestinationDirs]
+DefaultDestDir  = 12  ; %windir%\system32\drivers 
+_CopyFiles_sys_x86 = 12
+_CopyFiles_sys_x64 = 12
+_CopyFiles_dll_x86 = 11
+_CopyFiles_dll_x64 = 11  ; %windir%\system32
+
+;******************************************************************************
+; Disk Layout
+;------------------------------------------------------------------------------
+[SourceDisksNames.x86]
+1=%S_DiskName%,,0
+[SourceDisksNames.amd64]
+1=%S_DiskName%,,0
+
+[SourceDisksFiles.x86]
+duodriver.sys=1
+DuoDriverNotifyObj-41BEC2A9-71ED-401A-91C7-35606CBE027E.dll=1
+[SourceDisksFiles.amd64]
+duodriver_x64.sys=1
+DuoDriverNotifyObj-41BEC2A9-71ED-401A-91C7-35606CBE027E_x64.dll=1
+
+
+
+;******************************************************************************
+; Text Strings
+;------------------------------------------------------------------------------
+[Strings]
+;
+; Non-Localizable Strings, DO NOT MODIFY!
+;
+REG_SZ         = 0x00000000
+REG_MULTI_SZ   = 0x00010000
+REG_EXPAND_SZ  = 0x00020000
+REG_BINARY     = 0x00000001
+REG_DWORD      = 0x00010001
+
+
+;
+; Localizable Strings, modify as required
+;
+; provider
+S_Provider="ABB"
+S_Mfg="ABB"
+
+; disk name
+S_DiskName="DuoDriver driver disk"
+
+; device descriptions
+S_Prot_Desc="DuoDriver Protocol"
+
+S_PROT_HELP_TEXT="DuoDriver uses a pair of Ethernet NICs to implement a fail-safe redundancy protocol according to IEC62439."
+
+
+
+;;;;;;;;;;;;;;;;;;;;;; EOF ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

@@ -1,0 +1,883 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="SAVersionInfo" content="2" />
+    <d:variable type="external" name="control" default="''" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Earth Switch" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="Switching Device" />
+    <d:meta name="dv-custom-attribute|SATopology" content="" />
+    <d:meta name="dv-custom-attribute|SARepresentation" content="IEC" />
+    <d:meta name="dv-custom-attribute|ToolLauncherProgId" content="ControlDlgs.Launcher" />
+    <d:meta name="dv-custom-attribute|SADisplayName" content="Earth_Switch_H" />
+    <d:meta name="dv-custom-attribute|SAVersionInfo" content="2" />
+    <d:meta name="dv-custom-attribute|SADefaultColor" content="58" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="position" default="0" />
+    <d:variable type="external" name="status-color" default="0" />
+    <d:variable type="external" name="status-color-earth" default="0" />
+    <d:mapping name="f554" parameters="value">
+      <d:step value="colors[19]" when="value &lt;= 1.500" />
+      <d:step value="'rgb(255, 255, 128)'" when="value &lt;= 2.500" />
+      <d:otherwise value="colors[19]" />
+    </d:mapping>
+    <d:mapping name="f555" parameters="value">
+      <d:step value="[colors[19], 'none']" when="value &lt;= 41.499" />
+      <d:step value="[[colors[49], colors[19]], ['none', 'none']]" when="value &lt;= 42.499" />
+      <d:step value="[colors[19], 'none']" when="value &lt;= 45.498" />
+      <d:step value="[[colors[48], colors[19]], ['none', 'none']]" when="value &lt;= 46.498" />
+      <d:otherwise value="[colors[19], 'none']" />
+    </d:mapping>
+    <d:value-list name="f556" min="0" max="255" default-expression="colors[29]">
+      <d:option value="1" text="rgb(255, 255, 128)" />
+      <d:option value="2" text="rgb(255, 0, 0)" />
+      <d:option value="3" text="rgb(0, 255, 0)" />
+      <d:option value="4" text="rgb(0, 0, 255)" />
+      <d:option value="5" text="rgb(255, 0, 255)" />
+      <d:option value="6" text="rgb(255, 255, 0)" />
+      <d:option value="7" text="rgb(0, 255, 255)" />
+      <d:option value="8" text="rgb(255, 128, 0)" />
+      <d:option value="9" text="rgb(128, 255, 0)" />
+      <d:option value="10" text="rgb(0, 255, 128)" />
+      <d:option value="11" text="rgb(0, 128, 255)" />
+      <d:option value="12" text="rgb(128, 0, 255)" />
+      <d:option value="13" text="rgb(255, 0, 128)" />
+      <d:option value="14" text="rgb(128, 128, 128)" />
+      <d:option value="15" text="rgb(255, 255, 255)" />
+      <d:option value="16" expression="colors[16]" />
+      <d:option value="17" expression="colors[17]" />
+      <d:option value="18" expression="colors[18]" />
+      <d:option value="19" expression="colors[19]" />
+      <d:option value="20" expression="colors[20]" />
+      <d:option value="21" expression="colors[21]" />
+      <d:option value="22" expression="colors[22]" />
+      <d:option value="23" expression="colors[23]" />
+      <d:option value="24" expression="colors[24]" />
+      <d:option value="25" expression="colors[25]" />
+      <d:option value="26" expression="colors[26]" />
+      <d:option value="27" expression="colors[27]" />
+      <d:option value="28" expression="colors[28]" />
+      <d:option value="30" expression="colors[30]" />
+      <d:option value="31" expression="colors[31]" />
+      <d:option value="32" expression="colors[32]" />
+      <d:option value="33" expression="colors[33]" />
+      <d:option value="34" expression="colors[34]" />
+      <d:option value="35" expression="colors[35]" />
+      <d:option value="36" expression="colors[36]" />
+      <d:option value="37" expression="colors[37]" />
+      <d:option value="38" expression="colors[38]" />
+      <d:option value="39" expression="colors[39]" />
+      <d:option value="40" expression="colors[40]" />
+      <d:option value="41" expression="colors[41]" />
+      <d:option value="42" expression="colors[42]" />
+      <d:option value="43" expression="colors[43]" />
+      <d:option value="44" expression="colors[44]" />
+      <d:option value="45" expression="colors[45]" />
+      <d:option value="46" expression="colors[46]" />
+      <d:option value="47" expression="colors[47]" />
+      <d:option value="48" expression="colors[48]" />
+      <d:option value="49" expression="colors[49]" />
+      <d:option value="50" expression="colors[50]" />
+      <d:option value="51" expression="colors[51]" />
+      <d:option value="52" expression="colors[52]" />
+      <d:option value="53" expression="colors[53]" />
+      <d:option value="54" expression="colors[54]" />
+      <d:option value="55" expression="colors[55]" />
+      <d:option value="56" expression="colors[56]" />
+      <d:option value="57" expression="colors[57]" />
+      <d:option value="58" expression="colors[58]" />
+      <d:option value="59" expression="colors[59]" />
+      <d:option value="60" expression="colors[60]" />
+      <d:option value="61" expression="colors[61]" />
+      <d:option value="62" expression="colors[62]" />
+      <d:option value="63" expression="colors[63]" />
+      <d:option value="64" expression="colors[64]" />
+      <d:option value="65" expression="colors[65]" />
+      <d:option value="66" expression="colors[66]" />
+      <d:option value="67" expression="colors[67]" />
+      <d:option value="68" expression="colors[68]" />
+      <d:option value="69" expression="colors[69]" />
+      <d:option value="70" expression="colors[70]" />
+      <d:option value="71" expression="colors[71]" />
+      <d:option value="72" expression="colors[72]" />
+      <d:option value="73" expression="colors[73]" />
+      <d:option value="74" expression="colors[74]" />
+      <d:option value="75" expression="colors[75]" />
+      <d:option value="76" expression="colors[76]" />
+      <d:option value="77" expression="colors[77]" />
+      <d:option value="78" expression="colors[78]" />
+      <d:option value="79" expression="colors[79]" />
+      <d:option value="80" expression="colors[80]" />
+      <d:option value="81" expression="colors[81]" />
+      <d:option value="82" expression="colors[82]" />
+      <d:option value="83" expression="colors[83]" />
+      <d:option value="84" expression="colors[84]" />
+      <d:option value="85" expression="colors[85]" />
+      <d:option value="86" expression="colors[86]" />
+      <d:option value="87" expression="colors[87]" />
+      <d:option value="88" expression="colors[88]" />
+      <d:option value="89" expression="colors[89]" />
+      <d:option value="90" expression="colors[90]" />
+      <d:option value="91" expression="colors[91]" />
+      <d:option value="92" expression="colors[92]" />
+      <d:option value="93" expression="colors[93]" />
+      <d:option value="94" expression="colors[94]" />
+      <d:option value="95" expression="colors[95]" />
+      <d:option value="96" expression="colors[96]" />
+      <d:option value="97" expression="colors[97]" />
+      <d:option value="98" expression="colors[98]" />
+      <d:option value="99" expression="colors[99]" />
+      <d:option value="100" expression="colors[100]" />
+      <d:option value="101" expression="colors[101]" />
+      <d:option value="102" expression="colors[102]" />
+      <d:option value="103" expression="colors[103]" />
+      <d:option value="104" expression="colors[104]" />
+      <d:option value="105" expression="colors[105]" />
+      <d:option value="106" expression="colors[106]" />
+      <d:option value="107" expression="colors[107]" />
+      <d:option value="108" expression="colors[108]" />
+      <d:option value="109" expression="colors[109]" />
+      <d:option value="110" expression="colors[110]" />
+      <d:option value="111" expression="colors[111]" />
+      <d:option value="254" text="rgb(240, 240, 240)" />
+      <d:option value="255" text="rgb(255, 255, 255)" />
+    </d:value-list>
+    <d:mapping name="f557" parameters="value">
+      <d:step value="false" when="value &lt;= 0.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:value-list name="f558" min="0" max="255" default-expression="colors[29]">
+      <d:option value="1" text="rgb(255, 255, 128)" />
+      <d:option value="2" text="rgb(255, 0, 0)" />
+      <d:option value="3" text="rgb(0, 255, 0)" />
+      <d:option value="4" text="rgb(0, 0, 255)" />
+      <d:option value="5" text="rgb(255, 0, 255)" />
+      <d:option value="6" text="rgb(255, 255, 0)" />
+      <d:option value="7" text="rgb(0, 255, 255)" />
+      <d:option value="8" text="rgb(255, 128, 0)" />
+      <d:option value="9" text="rgb(128, 255, 0)" />
+      <d:option value="10" text="rgb(0, 255, 128)" />
+      <d:option value="11" text="rgb(0, 128, 255)" />
+      <d:option value="12" text="rgb(128, 0, 255)" />
+      <d:option value="13" text="rgb(255, 0, 128)" />
+      <d:option value="14" text="rgb(128, 128, 128)" />
+      <d:option value="15" text="rgb(255, 255, 255)" />
+      <d:option value="16" expression="colors[16]" />
+      <d:option value="17" expression="colors[17]" />
+      <d:option value="18" expression="colors[18]" />
+      <d:option value="19" expression="colors[19]" />
+      <d:option value="20" expression="colors[20]" />
+      <d:option value="21" expression="colors[21]" />
+      <d:option value="22" expression="colors[22]" />
+      <d:option value="23" expression="colors[23]" />
+      <d:option value="24" expression="colors[24]" />
+      <d:option value="25" expression="colors[25]" />
+      <d:option value="26" expression="colors[26]" />
+      <d:option value="27" expression="colors[27]" />
+      <d:option value="28" expression="colors[28]" />
+      <d:option value="30" expression="colors[30]" />
+      <d:option value="31" expression="colors[31]" />
+      <d:option value="32" expression="colors[32]" />
+      <d:option value="33" expression="colors[33]" />
+      <d:option value="34" expression="colors[34]" />
+      <d:option value="35" expression="colors[35]" />
+      <d:option value="36" expression="colors[36]" />
+      <d:option value="37" expression="colors[37]" />
+      <d:option value="38" expression="colors[38]" />
+      <d:option value="39" expression="colors[39]" />
+      <d:option value="40" expression="colors[40]" />
+      <d:option value="41" expression="colors[41]" />
+      <d:option value="42" expression="colors[42]" />
+      <d:option value="43" expression="colors[43]" />
+      <d:option value="44" expression="colors[44]" />
+      <d:option value="45" expression="colors[45]" />
+      <d:option value="46" expression="colors[46]" />
+      <d:option value="47" expression="colors[47]" />
+      <d:option value="48" expression="colors[48]" />
+      <d:option value="49" expression="colors[49]" />
+      <d:option value="50" expression="colors[50]" />
+      <d:option value="51" expression="colors[51]" />
+      <d:option value="52" expression="colors[52]" />
+      <d:option value="53" expression="colors[53]" />
+      <d:option value="54" expression="colors[54]" />
+      <d:option value="55" expression="colors[55]" />
+      <d:option value="56" expression="colors[56]" />
+      <d:option value="57" expression="colors[57]" />
+      <d:option value="58" expression="colors[58]" />
+      <d:option value="59" expression="colors[59]" />
+      <d:option value="60" expression="colors[60]" />
+      <d:option value="61" expression="colors[61]" />
+      <d:option value="62" expression="colors[62]" />
+      <d:option value="63" expression="colors[63]" />
+      <d:option value="64" expression="colors[64]" />
+      <d:option value="65" expression="colors[65]" />
+      <d:option value="66" expression="colors[66]" />
+      <d:option value="67" expression="colors[67]" />
+      <d:option value="68" expression="colors[68]" />
+      <d:option value="69" expression="colors[69]" />
+      <d:option value="70" expression="colors[70]" />
+      <d:option value="71" expression="colors[71]" />
+      <d:option value="72" expression="colors[72]" />
+      <d:option value="73" expression="colors[73]" />
+      <d:option value="74" expression="colors[74]" />
+      <d:option value="75" expression="colors[75]" />
+      <d:option value="76" expression="colors[76]" />
+      <d:option value="77" expression="colors[77]" />
+      <d:option value="78" expression="colors[78]" />
+      <d:option value="79" expression="colors[79]" />
+      <d:option value="80" expression="colors[80]" />
+      <d:option value="81" expression="colors[81]" />
+      <d:option value="82" expression="colors[82]" />
+      <d:option value="83" expression="colors[83]" />
+      <d:option value="84" expression="colors[84]" />
+      <d:option value="85" expression="colors[85]" />
+      <d:option value="86" expression="colors[86]" />
+      <d:option value="87" expression="colors[87]" />
+      <d:option value="88" expression="colors[88]" />
+      <d:option value="89" expression="colors[89]" />
+      <d:option value="90" expression="colors[90]" />
+      <d:option value="91" expression="colors[91]" />
+      <d:option value="92" expression="colors[92]" />
+      <d:option value="93" expression="colors[93]" />
+      <d:option value="94" expression="colors[94]" />
+      <d:option value="95" expression="colors[95]" />
+      <d:option value="96" expression="colors[96]" />
+      <d:option value="97" expression="colors[97]" />
+      <d:option value="98" expression="colors[98]" />
+      <d:option value="99" expression="colors[99]" />
+      <d:option value="100" expression="colors[100]" />
+      <d:option value="101" expression="colors[101]" />
+      <d:option value="102" expression="colors[102]" />
+      <d:option value="103" expression="colors[103]" />
+      <d:option value="104" expression="colors[104]" />
+      <d:option value="105" expression="colors[105]" />
+      <d:option value="106" expression="colors[106]" />
+      <d:option value="107" expression="colors[107]" />
+      <d:option value="108" expression="colors[108]" />
+      <d:option value="109" expression="colors[109]" />
+      <d:option value="110" expression="colors[110]" />
+      <d:option value="111" expression="colors[111]" />
+      <d:option value="254" text="rgb(240, 240, 240)" />
+      <d:option value="255" text="rgb(255, 255, 255)" />
+    </d:value-list>
+    <d:mapping name="f559" parameters="value">
+      <d:step value="true" when="value &lt;= 0.500" />
+      <d:step value="false" when="value &lt;= 1.500" />
+      <d:step value="true" when="value &lt;= 2.500" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:value-list name="f560" min="0" max="255" default-expression="colors[29]">
+      <d:option value="1" text="rgb(255, 255, 128)" />
+      <d:option value="2" text="rgb(255, 0, 0)" />
+      <d:option value="3" text="rgb(0, 255, 0)" />
+      <d:option value="4" text="rgb(0, 0, 255)" />
+      <d:option value="5" text="rgb(255, 0, 255)" />
+      <d:option value="6" text="rgb(255, 255, 0)" />
+      <d:option value="7" text="rgb(0, 255, 255)" />
+      <d:option value="8" text="rgb(255, 128, 0)" />
+      <d:option value="9" text="rgb(128, 255, 0)" />
+      <d:option value="10" text="rgb(0, 255, 128)" />
+      <d:option value="11" text="rgb(0, 128, 255)" />
+      <d:option value="12" text="rgb(128, 0, 255)" />
+      <d:option value="13" text="rgb(255, 0, 128)" />
+      <d:option value="14" text="rgb(128, 128, 128)" />
+      <d:option value="15" text="rgb(255, 255, 255)" />
+      <d:option value="16" expression="colors[16]" />
+      <d:option value="17" expression="colors[17]" />
+      <d:option value="18" expression="colors[18]" />
+      <d:option value="19" expression="colors[19]" />
+      <d:option value="20" expression="colors[20]" />
+      <d:option value="21" expression="colors[21]" />
+      <d:option value="22" expression="colors[22]" />
+      <d:option value="23" expression="colors[23]" />
+      <d:option value="24" expression="colors[24]" />
+      <d:option value="25" expression="colors[25]" />
+      <d:option value="26" expression="colors[26]" />
+      <d:option value="27" expression="colors[27]" />
+      <d:option value="28" expression="colors[28]" />
+      <d:option value="30" expression="colors[30]" />
+      <d:option value="31" expression="colors[31]" />
+      <d:option value="32" expression="colors[32]" />
+      <d:option value="33" expression="colors[33]" />
+      <d:option value="34" expression="colors[34]" />
+      <d:option value="35" expression="colors[35]" />
+      <d:option value="36" expression="colors[36]" />
+      <d:option value="37" expression="colors[37]" />
+      <d:option value="38" expression="colors[38]" />
+      <d:option value="39" expression="colors[39]" />
+      <d:option value="40" expression="colors[40]" />
+      <d:option value="41" expression="colors[41]" />
+      <d:option value="42" expression="colors[42]" />
+      <d:option value="43" expression="colors[43]" />
+      <d:option value="44" expression="colors[44]" />
+      <d:option value="45" expression="colors[45]" />
+      <d:option value="46" expression="colors[46]" />
+      <d:option value="47" expression="colors[47]" />
+      <d:option value="48" expression="colors[48]" />
+      <d:option value="49" expression="colors[49]" />
+      <d:option value="50" expression="colors[50]" />
+      <d:option value="51" expression="colors[51]" />
+      <d:option value="52" expression="colors[52]" />
+      <d:option value="53" expression="colors[53]" />
+      <d:option value="54" expression="colors[54]" />
+      <d:option value="55" expression="colors[55]" />
+      <d:option value="56" expression="colors[56]" />
+      <d:option value="57" expression="colors[57]" />
+      <d:option value="58" expression="colors[58]" />
+      <d:option value="59" expression="colors[59]" />
+      <d:option value="60" expression="colors[60]" />
+      <d:option value="61" expression="colors[61]" />
+      <d:option value="62" expression="colors[62]" />
+      <d:option value="63" expression="colors[63]" />
+      <d:option value="64" expression="colors[64]" />
+      <d:option value="65" expression="colors[65]" />
+      <d:option value="66" expression="colors[66]" />
+      <d:option value="67" expression="colors[67]" />
+      <d:option value="68" expression="colors[68]" />
+      <d:option value="69" expression="colors[69]" />
+      <d:option value="70" expression="colors[70]" />
+      <d:option value="71" expression="colors[71]" />
+      <d:option value="72" expression="colors[72]" />
+      <d:option value="73" expression="colors[73]" />
+      <d:option value="74" expression="colors[74]" />
+      <d:option value="75" expression="colors[75]" />
+      <d:option value="76" expression="colors[76]" />
+      <d:option value="77" expression="colors[77]" />
+      <d:option value="78" expression="colors[78]" />
+      <d:option value="79" expression="colors[79]" />
+      <d:option value="80" expression="colors[80]" />
+      <d:option value="81" expression="colors[81]" />
+      <d:option value="82" expression="colors[82]" />
+      <d:option value="83" expression="colors[83]" />
+      <d:option value="84" expression="colors[84]" />
+      <d:option value="85" expression="colors[85]" />
+      <d:option value="86" expression="colors[86]" />
+      <d:option value="87" expression="colors[87]" />
+      <d:option value="88" expression="colors[88]" />
+      <d:option value="89" expression="colors[89]" />
+      <d:option value="90" expression="colors[90]" />
+      <d:option value="91" expression="colors[91]" />
+      <d:option value="92" expression="colors[92]" />
+      <d:option value="93" expression="colors[93]" />
+      <d:option value="94" expression="colors[94]" />
+      <d:option value="95" expression="colors[95]" />
+      <d:option value="96" expression="colors[96]" />
+      <d:option value="97" expression="colors[97]" />
+      <d:option value="98" expression="colors[98]" />
+      <d:option value="99" expression="colors[99]" />
+      <d:option value="100" expression="colors[100]" />
+      <d:option value="101" expression="colors[101]" />
+      <d:option value="102" expression="colors[102]" />
+      <d:option value="103" expression="colors[103]" />
+      <d:option value="104" expression="colors[104]" />
+      <d:option value="105" expression="colors[105]" />
+      <d:option value="106" expression="colors[106]" />
+      <d:option value="107" expression="colors[107]" />
+      <d:option value="108" expression="colors[108]" />
+      <d:option value="109" expression="colors[109]" />
+      <d:option value="110" expression="colors[110]" />
+      <d:option value="111" expression="colors[111]" />
+      <d:option value="254" text="rgb(240, 240, 240)" />
+      <d:option value="255" text="rgb(255, 255, 255)" />
+    </d:value-list>
+    <d:mapping name="f561" parameters="value">
+      <d:step value="true" when="value &lt;= 1.500" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:value-list name="f562" min="0" max="255" default-expression="colors[29]">
+      <d:option value="1" text="rgb(255, 255, 128)" />
+      <d:option value="2" text="rgb(255, 0, 0)" />
+      <d:option value="3" text="rgb(0, 255, 0)" />
+      <d:option value="4" text="rgb(0, 0, 255)" />
+      <d:option value="5" text="rgb(255, 0, 255)" />
+      <d:option value="6" text="rgb(255, 255, 0)" />
+      <d:option value="7" text="rgb(0, 255, 255)" />
+      <d:option value="8" text="rgb(255, 128, 0)" />
+      <d:option value="9" text="rgb(128, 255, 0)" />
+      <d:option value="10" text="rgb(0, 255, 128)" />
+      <d:option value="11" text="rgb(0, 128, 255)" />
+      <d:option value="12" text="rgb(128, 0, 255)" />
+      <d:option value="13" text="rgb(255, 0, 128)" />
+      <d:option value="14" text="rgb(128, 128, 128)" />
+      <d:option value="15" text="rgb(255, 255, 255)" />
+      <d:option value="16" expression="colors[16]" />
+      <d:option value="17" expression="colors[17]" />
+      <d:option value="18" expression="colors[18]" />
+      <d:option value="19" expression="colors[19]" />
+      <d:option value="20" expression="colors[20]" />
+      <d:option value="21" expression="colors[21]" />
+      <d:option value="22" expression="colors[22]" />
+      <d:option value="23" expression="colors[23]" />
+      <d:option value="24" expression="colors[24]" />
+      <d:option value="25" expression="colors[25]" />
+      <d:option value="26" expression="colors[26]" />
+      <d:option value="27" expression="colors[27]" />
+      <d:option value="28" expression="colors[28]" />
+      <d:option value="30" expression="colors[30]" />
+      <d:option value="31" expression="colors[31]" />
+      <d:option value="32" expression="colors[32]" />
+      <d:option value="33" expression="colors[33]" />
+      <d:option value="34" expression="colors[34]" />
+      <d:option value="35" expression="colors[35]" />
+      <d:option value="36" expression="colors[36]" />
+      <d:option value="37" expression="colors[37]" />
+      <d:option value="38" expression="colors[38]" />
+      <d:option value="39" expression="colors[39]" />
+      <d:option value="40" expression="colors[40]" />
+      <d:option value="41" expression="colors[41]" />
+      <d:option value="42" expression="colors[42]" />
+      <d:option value="43" expression="colors[43]" />
+      <d:option value="44" expression="colors[44]" />
+      <d:option value="45" expression="colors[45]" />
+      <d:option value="46" expression="colors[46]" />
+      <d:option value="47" expression="colors[47]" />
+      <d:option value="48" expression="colors[48]" />
+      <d:option value="49" expression="colors[49]" />
+      <d:option value="50" expression="colors[50]" />
+      <d:option value="51" expression="colors[51]" />
+      <d:option value="52" expression="colors[52]" />
+      <d:option value="53" expression="colors[53]" />
+      <d:option value="54" expression="colors[54]" />
+      <d:option value="55" expression="colors[55]" />
+      <d:option value="56" expression="colors[56]" />
+      <d:option value="57" expression="colors[57]" />
+      <d:option value="58" expression="colors[58]" />
+      <d:option value="59" expression="colors[59]" />
+      <d:option value="60" expression="colors[60]" />
+      <d:option value="61" expression="colors[61]" />
+      <d:option value="62" expression="colors[62]" />
+      <d:option value="63" expression="colors[63]" />
+      <d:option value="64" expression="colors[64]" />
+      <d:option value="65" expression="colors[65]" />
+      <d:option value="66" expression="colors[66]" />
+      <d:option value="67" expression="colors[67]" />
+      <d:option value="68" expression="colors[68]" />
+      <d:option value="69" expression="colors[69]" />
+      <d:option value="70" expression="colors[70]" />
+      <d:option value="71" expression="colors[71]" />
+      <d:option value="72" expression="colors[72]" />
+      <d:option value="73" expression="colors[73]" />
+      <d:option value="74" expression="colors[74]" />
+      <d:option value="75" expression="colors[75]" />
+      <d:option value="76" expression="colors[76]" />
+      <d:option value="77" expression="colors[77]" />
+      <d:option value="78" expression="colors[78]" />
+      <d:option value="79" expression="colors[79]" />
+      <d:option value="80" expression="colors[80]" />
+      <d:option value="81" expression="colors[81]" />
+      <d:option value="82" expression="colors[82]" />
+      <d:option value="83" expression="colors[83]" />
+      <d:option value="84" expression="colors[84]" />
+      <d:option value="85" expression="colors[85]" />
+      <d:option value="86" expression="colors[86]" />
+      <d:option value="87" expression="colors[87]" />
+      <d:option value="88" expression="colors[88]" />
+      <d:option value="89" expression="colors[89]" />
+      <d:option value="90" expression="colors[90]" />
+      <d:option value="91" expression="colors[91]" />
+      <d:option value="92" expression="colors[92]" />
+      <d:option value="93" expression="colors[93]" />
+      <d:option value="94" expression="colors[94]" />
+      <d:option value="95" expression="colors[95]" />
+      <d:option value="96" expression="colors[96]" />
+      <d:option value="97" expression="colors[97]" />
+      <d:option value="98" expression="colors[98]" />
+      <d:option value="99" expression="colors[99]" />
+      <d:option value="100" expression="colors[100]" />
+      <d:option value="101" expression="colors[101]" />
+      <d:option value="102" expression="colors[102]" />
+      <d:option value="103" expression="colors[103]" />
+      <d:option value="104" expression="colors[104]" />
+      <d:option value="105" expression="colors[105]" />
+      <d:option value="106" expression="colors[106]" />
+      <d:option value="107" expression="colors[107]" />
+      <d:option value="108" expression="colors[108]" />
+      <d:option value="109" expression="colors[109]" />
+      <d:option value="110" expression="colors[110]" />
+      <d:option value="111" expression="colors[111]" />
+      <d:option value="254" text="rgb(240, 240, 240)" />
+      <d:option value="255" text="rgb(255, 255, 255)" />
+    </d:value-list>
+    <d:value-list name="f563">
+      <d:option value="38" text="Not Sampled Indication.sd" />
+    </d:value-list>
+    <d:mapping name="f564" parameters="value">
+      <d:step value="[colors[19], 'none']" when="value &lt;= 41.499" />
+      <d:step value="[[colors[49], colors[19]], ['none', 'none']]" when="value &lt;= 42.499" />
+      <d:step value="[colors[19], 'none']" when="value &lt;= 45.498" />
+      <d:step value="[[colors[48], colors[19]], ['none', 'none']]" when="value &lt;= 46.498" />
+      <d:otherwise value="[colors[19], 'none']" />
+    </d:mapping>
+    <d:value-list name="f565" min="0" max="255" default-expression="colors[29]">
+      <d:option value="1" text="rgb(255, 255, 128)" />
+      <d:option value="2" text="rgb(255, 0, 0)" />
+      <d:option value="3" text="rgb(0, 255, 0)" />
+      <d:option value="4" text="rgb(0, 0, 255)" />
+      <d:option value="5" text="rgb(255, 0, 255)" />
+      <d:option value="6" text="rgb(255, 255, 0)" />
+      <d:option value="7" text="rgb(0, 255, 255)" />
+      <d:option value="8" text="rgb(255, 128, 0)" />
+      <d:option value="9" text="rgb(128, 255, 0)" />
+      <d:option value="10" text="rgb(0, 255, 128)" />
+      <d:option value="11" text="rgb(0, 128, 255)" />
+      <d:option value="12" text="rgb(128, 0, 255)" />
+      <d:option value="13" text="rgb(255, 0, 128)" />
+      <d:option value="14" text="rgb(128, 128, 128)" />
+      <d:option value="15" text="rgb(255, 255, 255)" />
+      <d:option value="16" expression="colors[16]" />
+      <d:option value="17" expression="colors[17]" />
+      <d:option value="18" expression="colors[18]" />
+      <d:option value="19" expression="colors[19]" />
+      <d:option value="20" expression="colors[20]" />
+      <d:option value="21" expression="colors[21]" />
+      <d:option value="22" expression="colors[22]" />
+      <d:option value="23" expression="colors[23]" />
+      <d:option value="24" expression="colors[24]" />
+      <d:option value="25" expression="colors[25]" />
+      <d:option value="26" expression="colors[26]" />
+      <d:option value="27" expression="colors[27]" />
+      <d:option value="28" expression="colors[28]" />
+      <d:option value="30" expression="colors[30]" />
+      <d:option value="31" expression="colors[31]" />
+      <d:option value="32" expression="colors[32]" />
+      <d:option value="33" expression="colors[33]" />
+      <d:option value="34" expression="colors[34]" />
+      <d:option value="35" expression="colors[35]" />
+      <d:option value="36" expression="colors[36]" />
+      <d:option value="37" expression="colors[37]" />
+      <d:option value="38" expression="colors[38]" />
+      <d:option value="39" expression="colors[39]" />
+      <d:option value="40" expression="colors[40]" />
+      <d:option value="41" expression="colors[41]" />
+      <d:option value="42" expression="colors[42]" />
+      <d:option value="43" expression="colors[43]" />
+      <d:option value="44" expression="colors[44]" />
+      <d:option value="45" expression="colors[45]" />
+      <d:option value="46" expression="colors[46]" />
+      <d:option value="47" expression="colors[47]" />
+      <d:option value="48" expression="colors[48]" />
+      <d:option value="49" expression="colors[49]" />
+      <d:option value="50" expression="colors[50]" />
+      <d:option value="51" expression="colors[51]" />
+      <d:option value="52" expression="colors[52]" />
+      <d:option value="53" expression="colors[53]" />
+      <d:option value="54" expression="colors[54]" />
+      <d:option value="55" expression="colors[55]" />
+      <d:option value="56" expression="colors[56]" />
+      <d:option value="57" expression="colors[57]" />
+      <d:option value="58" expression="colors[58]" />
+      <d:option value="59" expression="colors[59]" />
+      <d:option value="60" expression="colors[60]" />
+      <d:option value="61" expression="colors[61]" />
+      <d:option value="62" expression="colors[62]" />
+      <d:option value="63" expression="colors[63]" />
+      <d:option value="64" expression="colors[64]" />
+      <d:option value="65" expression="colors[65]" />
+      <d:option value="66" expression="colors[66]" />
+      <d:option value="67" expression="colors[67]" />
+      <d:option value="68" expression="colors[68]" />
+      <d:option value="69" expression="colors[69]" />
+      <d:option value="70" expression="colors[70]" />
+      <d:option value="71" expression="colors[71]" />
+      <d:option value="72" expression="colors[72]" />
+      <d:option value="73" expression="colors[73]" />
+      <d:option value="74" expression="colors[74]" />
+      <d:option value="75" expression="colors[75]" />
+      <d:option value="76" expression="colors[76]" />
+      <d:option value="77" expression="colors[77]" />
+      <d:option value="78" expression="colors[78]" />
+      <d:option value="79" expression="colors[79]" />
+      <d:option value="80" expression="colors[80]" />
+      <d:option value="81" expression="colors[81]" />
+      <d:option value="82" expression="colors[82]" />
+      <d:option value="83" expression="colors[83]" />
+      <d:option value="84" expression="colors[84]" />
+      <d:option value="85" expression="colors[85]" />
+      <d:option value="86" expression="colors[86]" />
+      <d:option value="87" expression="colors[87]" />
+      <d:option value="88" expression="colors[88]" />
+      <d:option value="89" expression="colors[89]" />
+      <d:option value="90" expression="colors[90]" />
+      <d:option value="91" expression="colors[91]" />
+      <d:option value="92" expression="colors[92]" />
+      <d:option value="93" expression="colors[93]" />
+      <d:option value="94" expression="colors[94]" />
+      <d:option value="95" expression="colors[95]" />
+      <d:option value="96" expression="colors[96]" />
+      <d:option value="97" expression="colors[97]" />
+      <d:option value="98" expression="colors[98]" />
+      <d:option value="99" expression="colors[99]" />
+      <d:option value="100" expression="colors[100]" />
+      <d:option value="101" expression="colors[101]" />
+      <d:option value="102" expression="colors[102]" />
+      <d:option value="103" expression="colors[103]" />
+      <d:option value="104" expression="colors[104]" />
+      <d:option value="105" expression="colors[105]" />
+      <d:option value="106" expression="colors[106]" />
+      <d:option value="107" expression="colors[107]" />
+      <d:option value="108" expression="colors[108]" />
+      <d:option value="109" expression="colors[109]" />
+      <d:option value="110" expression="colors[110]" />
+      <d:option value="111" expression="colors[111]" />
+      <d:option value="254" text="rgb(240, 240, 240)" />
+      <d:option value="255" text="rgb(255, 255, 255)" />
+    </d:value-list>
+    <d:value-list name="f566" min="0" max="255" default-expression="colors[29]">
+      <d:option value="1" text="rgb(255, 255, 128)" />
+      <d:option value="2" text="rgb(255, 0, 0)" />
+      <d:option value="3" text="rgb(0, 255, 0)" />
+      <d:option value="4" text="rgb(0, 0, 255)" />
+      <d:option value="5" text="rgb(255, 0, 255)" />
+      <d:option value="6" text="rgb(255, 255, 0)" />
+      <d:option value="7" text="rgb(0, 255, 255)" />
+      <d:option value="8" text="rgb(255, 128, 0)" />
+      <d:option value="9" text="rgb(128, 255, 0)" />
+      <d:option value="10" text="rgb(0, 255, 128)" />
+      <d:option value="11" text="rgb(0, 128, 255)" />
+      <d:option value="12" text="rgb(128, 0, 255)" />
+      <d:option value="13" text="rgb(255, 0, 128)" />
+      <d:option value="14" text="rgb(128, 128, 128)" />
+      <d:option value="15" text="rgb(255, 255, 255)" />
+      <d:option value="16" expression="colors[16]" />
+      <d:option value="17" expression="colors[17]" />
+      <d:option value="18" expression="colors[18]" />
+      <d:option value="19" expression="colors[19]" />
+      <d:option value="20" expression="colors[20]" />
+      <d:option value="21" expression="colors[21]" />
+      <d:option value="22" expression="colors[22]" />
+      <d:option value="23" expression="colors[23]" />
+      <d:option value="24" expression="colors[24]" />
+      <d:option value="25" expression="colors[25]" />
+      <d:option value="26" expression="colors[26]" />
+      <d:option value="27" expression="colors[27]" />
+      <d:option value="28" expression="colors[28]" />
+      <d:option value="30" expression="colors[30]" />
+      <d:option value="31" expression="colors[31]" />
+      <d:option value="32" expression="colors[32]" />
+      <d:option value="33" expression="colors[33]" />
+      <d:option value="34" expression="colors[34]" />
+      <d:option value="35" expression="colors[35]" />
+      <d:option value="36" expression="colors[36]" />
+      <d:option value="37" expression="colors[37]" />
+      <d:option value="38" expression="colors[38]" />
+      <d:option value="39" expression="colors[39]" />
+      <d:option value="40" expression="colors[40]" />
+      <d:option value="41" expression="colors[41]" />
+      <d:option value="42" expression="colors[42]" />
+      <d:option value="43" expression="colors[43]" />
+      <d:option value="44" expression="colors[44]" />
+      <d:option value="45" expression="colors[45]" />
+      <d:option value="46" expression="colors[46]" />
+      <d:option value="47" expression="colors[47]" />
+      <d:option value="48" expression="colors[48]" />
+      <d:option value="49" expression="colors[49]" />
+      <d:option value="50" expression="colors[50]" />
+      <d:option value="51" expression="colors[51]" />
+      <d:option value="52" expression="colors[52]" />
+      <d:option value="53" expression="colors[53]" />
+      <d:option value="54" expression="colors[54]" />
+      <d:option value="55" expression="colors[55]" />
+      <d:option value="56" expression="colors[56]" />
+      <d:option value="57" expression="colors[57]" />
+      <d:option value="58" expression="colors[58]" />
+      <d:option value="59" expression="colors[59]" />
+      <d:option value="60" expression="colors[60]" />
+      <d:option value="61" expression="colors[61]" />
+      <d:option value="62" expression="colors[62]" />
+      <d:option value="63" expression="colors[63]" />
+      <d:option value="64" expression="colors[64]" />
+      <d:option value="65" expression="colors[65]" />
+      <d:option value="66" expression="colors[66]" />
+      <d:option value="67" expression="colors[67]" />
+      <d:option value="68" expression="colors[68]" />
+      <d:option value="69" expression="colors[69]" />
+      <d:option value="70" expression="colors[70]" />
+      <d:option value="71" expression="colors[71]" />
+      <d:option value="72" expression="colors[72]" />
+      <d:option value="73" expression="colors[73]" />
+      <d:option value="74" expression="colors[74]" />
+      <d:option value="75" expression="colors[75]" />
+      <d:option value="76" expression="colors[76]" />
+      <d:option value="77" expression="colors[77]" />
+      <d:option value="78" expression="colors[78]" />
+      <d:option value="79" expression="colors[79]" />
+      <d:option value="80" expression="colors[80]" />
+      <d:option value="81" expression="colors[81]" />
+      <d:option value="82" expression="colors[82]" />
+      <d:option value="83" expression="colors[83]" />
+      <d:option value="84" expression="colors[84]" />
+      <d:option value="85" expression="colors[85]" />
+      <d:option value="86" expression="colors[86]" />
+      <d:option value="87" expression="colors[87]" />
+      <d:option value="88" expression="colors[88]" />
+      <d:option value="89" expression="colors[89]" />
+      <d:option value="90" expression="colors[90]" />
+      <d:option value="91" expression="colors[91]" />
+      <d:option value="92" expression="colors[92]" />
+      <d:option value="93" expression="colors[93]" />
+      <d:option value="94" expression="colors[94]" />
+      <d:option value="95" expression="colors[95]" />
+      <d:option value="96" expression="colors[96]" />
+      <d:option value="97" expression="colors[97]" />
+      <d:option value="98" expression="colors[98]" />
+      <d:option value="99" expression="colors[99]" />
+      <d:option value="100" expression="colors[100]" />
+      <d:option value="101" expression="colors[101]" />
+      <d:option value="102" expression="colors[102]" />
+      <d:option value="103" expression="colors[103]" />
+      <d:option value="104" expression="colors[104]" />
+      <d:option value="105" expression="colors[105]" />
+      <d:option value="106" expression="colors[106]" />
+      <d:option value="107" expression="colors[107]" />
+      <d:option value="108" expression="colors[108]" />
+      <d:option value="109" expression="colors[109]" />
+      <d:option value="110" expression="colors[110]" />
+      <d:option value="111" expression="colors[111]" />
+      <d:option value="254" text="rgb(240, 240, 240)" />
+      <d:option value="255" text="rgb(255, 255, 255)" />
+    </d:value-list>
+    <d:value-list name="f567" min="0" max="255" default-expression="colors[29]">
+      <d:option value="1" text="rgb(255, 255, 128)" />
+      <d:option value="2" text="rgb(255, 0, 0)" />
+      <d:option value="3" text="rgb(0, 255, 0)" />
+      <d:option value="4" text="rgb(0, 0, 255)" />
+      <d:option value="5" text="rgb(255, 0, 255)" />
+      <d:option value="6" text="rgb(255, 255, 0)" />
+      <d:option value="7" text="rgb(0, 255, 255)" />
+      <d:option value="8" text="rgb(255, 128, 0)" />
+      <d:option value="9" text="rgb(128, 255, 0)" />
+      <d:option value="10" text="rgb(0, 255, 128)" />
+      <d:option value="11" text="rgb(0, 128, 255)" />
+      <d:option value="12" text="rgb(128, 0, 255)" />
+      <d:option value="13" text="rgb(255, 0, 128)" />
+      <d:option value="14" text="rgb(128, 128, 128)" />
+      <d:option value="15" text="rgb(255, 255, 255)" />
+      <d:option value="16" expression="colors[16]" />
+      <d:option value="17" expression="colors[17]" />
+      <d:option value="18" expression="colors[18]" />
+      <d:option value="19" expression="colors[19]" />
+      <d:option value="20" expression="colors[20]" />
+      <d:option value="21" expression="colors[21]" />
+      <d:option value="22" expression="colors[22]" />
+      <d:option value="23" expression="colors[23]" />
+      <d:option value="24" expression="colors[24]" />
+      <d:option value="25" expression="colors[25]" />
+      <d:option value="26" expression="colors[26]" />
+      <d:option value="27" expression="colors[27]" />
+      <d:option value="28" expression="colors[28]" />
+      <d:option value="30" expression="colors[30]" />
+      <d:option value="31" expression="colors[31]" />
+      <d:option value="32" expression="colors[32]" />
+      <d:option value="33" expression="colors[33]" />
+      <d:option value="34" expression="colors[34]" />
+      <d:option value="35" expression="colors[35]" />
+      <d:option value="36" expression="colors[36]" />
+      <d:option value="37" expression="colors[37]" />
+      <d:option value="38" expression="colors[38]" />
+      <d:option value="39" expression="colors[39]" />
+      <d:option value="40" expression="colors[40]" />
+      <d:option value="41" expression="colors[41]" />
+      <d:option value="42" expression="colors[42]" />
+      <d:option value="43" expression="colors[43]" />
+      <d:option value="44" expression="colors[44]" />
+      <d:option value="45" expression="colors[45]" />
+      <d:option value="46" expression="colors[46]" />
+      <d:option value="47" expression="colors[47]" />
+      <d:option value="48" expression="colors[48]" />
+      <d:option value="49" expression="colors[49]" />
+      <d:option value="50" expression="colors[50]" />
+      <d:option value="51" expression="colors[51]" />
+      <d:option value="52" expression="colors[52]" />
+      <d:option value="53" expression="colors[53]" />
+      <d:option value="54" expression="colors[54]" />
+      <d:option value="55" expression="colors[55]" />
+      <d:option value="56" expression="colors[56]" />
+      <d:option value="57" expression="colors[57]" />
+      <d:option value="58" expression="colors[58]" />
+      <d:option value="59" expression="colors[59]" />
+      <d:option value="60" expression="colors[60]" />
+      <d:option value="61" expression="colors[61]" />
+      <d:option value="62" expression="colors[62]" />
+      <d:option value="63" expression="colors[63]" />
+      <d:option value="64" expression="colors[64]" />
+      <d:option value="65" expression="colors[65]" />
+      <d:option value="66" expression="colors[66]" />
+      <d:option value="67" expression="colors[67]" />
+      <d:option value="68" expression="colors[68]" />
+      <d:option value="69" expression="colors[69]" />
+      <d:option value="70" expression="colors[70]" />
+      <d:option value="71" expression="colors[71]" />
+      <d:option value="72" expression="colors[72]" />
+      <d:option value="73" expression="colors[73]" />
+      <d:option value="74" expression="colors[74]" />
+      <d:option value="75" expression="colors[75]" />
+      <d:option value="76" expression="colors[76]" />
+      <d:option value="77" expression="colors[77]" />
+      <d:option value="78" expression="colors[78]" />
+      <d:option value="79" expression="colors[79]" />
+      <d:option value="80" expression="colors[80]" />
+      <d:option value="81" expression="colors[81]" />
+      <d:option value="82" expression="colors[82]" />
+      <d:option value="83" expression="colors[83]" />
+      <d:option value="84" expression="colors[84]" />
+      <d:option value="85" expression="colors[85]" />
+      <d:option value="86" expression="colors[86]" />
+      <d:option value="87" expression="colors[87]" />
+      <d:option value="88" expression="colors[88]" />
+      <d:option value="89" expression="colors[89]" />
+      <d:option value="90" expression="colors[90]" />
+      <d:option value="91" expression="colors[91]" />
+      <d:option value="92" expression="colors[92]" />
+      <d:option value="93" expression="colors[93]" />
+      <d:option value="94" expression="colors[94]" />
+      <d:option value="95" expression="colors[95]" />
+      <d:option value="96" expression="colors[96]" />
+      <d:option value="97" expression="colors[97]" />
+      <d:option value="98" expression="colors[98]" />
+      <d:option value="99" expression="colors[99]" />
+      <d:option value="100" expression="colors[100]" />
+      <d:option value="101" expression="colors[101]" />
+      <d:option value="102" expression="colors[102]" />
+      <d:option value="103" expression="colors[103]" />
+      <d:option value="104" expression="colors[104]" />
+      <d:option value="105" expression="colors[105]" />
+      <d:option value="106" expression="colors[106]" />
+      <d:option value="107" expression="colors[107]" />
+      <d:option value="108" expression="colors[108]" />
+      <d:option value="109" expression="colors[109]" />
+      <d:option value="110" expression="colors[110]" />
+      <d:option value="111" expression="colors[111]" />
+      <d:option value="254" text="rgb(240, 240, 240)" />
+      <d:option value="255" text="rgb(255, 255, 255)" />
+    </d:value-list>
+  </d:head>
+  <d:body n:LN="{LN(control)}" n:IX="{IX(control)}" x1="10" y1="-10" x2="30" y2="10">
+    <d:action type="control" when="`control_action_enabled`">
+      <d:parameter name="LN" value="LN(control)" />
+      <d:parameter name="IX" value="IX(control)" />
+      <d:parameter name="opc-id" value="control" />
+    </d:action>
+    <s:rect width="20" height="20" x="-10" y="-10" class="bounding-box" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f554(`position`), colors[19])}" y:fill-rule="evenodd" y:stroke="none" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Bounding Box">
+      <d:animate attributes="fill, stroke" values="if(`subdrawing_dynamics`, f555(`status-color`), colors[19])" />
+    </s:rect>
+    <s:polyline points="10,0.800 8,0.800 8,4.400 7.600,4.800 6.800,4.800 6.400,4.400 6.400,-4.400 6.800,-4.800 7.600,-4.800 8,-4.400 8,-0.800 10,-0.800 " d:transform-anchor="center-center" d:hidden="f557(`position`) and `subdrawing_dynamics` = 1" y:fill="{if(`subdrawing_dynamics`, f556(`status-color`), subdrawing_color)}" y:fill-rule="evenodd" y:stroke="none" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Intermediate" />
+    <s:polyline points="10,0.800 7.600,0.800 -0.400,8.800 -0.800,8.800 -1.600,8 -1.600,7.600 6.800,-0.800 10,-0.800 " d:transform-anchor="center-center" d:hidden="f559(`position`) and `subdrawing_dynamics` = 1" y:fill="{if(`subdrawing_dynamics`, f558(`status-color`), subdrawing_color)}" y:fill-rule="evenodd" y:stroke="none" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Open" />
+    <s:polyline points="10,0.800 -4,0.800 -4.800,0 -4,-0.800 10,-0.800 " d:transform-anchor="center-center" d:hidden="f561(`position`) and `subdrawing_dynamics` = 1" y:fill="{if(`subdrawing_dynamics`, f560(`status-color`), subdrawing_color)}" y:fill-rule="evenodd" y:stroke="none" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Closed" />
+    <s:polyline points="-10,-0.800 -5.600,-0.800 -5.600,-4.400 -5.200,-4.800 -4.400,-4.800 -4,-4.400 -4,4.400 -4.400,4.800 -5.200,4.800 -5.600,4.400 -5.600,0.800 -10,0.800 " d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f562(`status-color`), subdrawing_color)}" y:fill-rule="evenodd" y:stroke="none" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Top" />
+    <d:view name="{f563(`status-color`)}" s:transform="translate(0,0) scale(1,1)" d:transform-anchor="center-center" d:object-name="Sampled Indication">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+    </d:view>
+    <s:rect width="20" height="20" x="10" y="-10" class="bounding-box" d:transform-anchor="center-center" y:fill="{colors[19]}" y:fill-rule="evenodd" y:stroke="none" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Bounding Box">
+      <d:animate attributes="fill, stroke" values="if(`subdrawing_dynamics`, f564(`status-color-earth`), colors[19])" />
+    </s:rect>
+    <s:polyline points="10,-0.800 18.040,-0.800 18.040,-9.580 18.500,-10.060 19.300,-10.060 19.680,-9.580 19.680,9.540 19.300,10.020 18.500,10.020 18.040,9.540 18.040,0.800 10,0.800 " d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f565(`status-color-earth`), subdrawing_color)}" y:fill-rule="evenodd" y:stroke="none" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Top" />
+    <s:polygon points="23.300,-6.440 23.680,-6.840 24.460,-6.840 24.860,-6.440 24.860,6.420 24.460,6.800 23.680,6.800 23.300,6.420 23.300,-6.440 " d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f566(`status-color-earth`), subdrawing_color)}" y:fill-rule="evenodd" y:stroke="none" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Middle" />
+    <s:polygon points="28.460,-3.240 28.860,-3.620 29.640,-3.620 30.120,-3.240 30.120,3.200 29.640,3.580 28.860,3.580 28.460,3.200 28.460,-3.240 " d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f567(`status-color-earth`), subdrawing_color)}" y:fill-rule="evenodd" y:stroke="none" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Bottom" />
+  </d:body>
+</d:document>

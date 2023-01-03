@@ -1,0 +1,279 @@
+;****************************************************
+;* Example logic for calculating power flow direction. Applies when VT
+;* is separated from power flow indicator with disconnector.
+;* 
+;*      |
+;*      |
+;*     ( ) CT
+;*      |
+;*      |
+;*      -----( )( ) VT
+;*      |
+;*     _|_
+;*    \   
+;*     \    Line Disconnector
+;*      \    
+;*      |_________
+;*      |         |
+;*      |        _|_
+;*      |       \   
+;*      |        \    Earth switch
+;*      |         \    
+;*      |         |                                   
+;*      |       ----- 
+;*      |        ---
+;*   ___|___      -
+;*   \     /  
+;*    \   /  Power flow indicator
+;*     \_/ 
+;*   
+;****************************************************
+#local -
+   i_Nominal_Voltage = 0,-
+   i_Nominal_Voltage_Limit_Setting = 0.7,-
+   t_Active_Power_LN = "???",-
+   i_Active_Power_IX = 20,-
+   t_Reactive_Power_LN = "???",-
+   i_Reactive_Power_IX = 21,-
+   b_Reactive_Power_Exists = false,-
+   b_Reactive_Power_OK = false,-
+   i_Reactive_Value = 0,-
+   t_Voltage_L1_L2_LN = "???",-
+   i_Voltage_L1_L2_IX = 16,-
+   t_Voltage_L2_L3_LN = "???",-
+   i_Voltage_L2_L3_IX = 17,-
+   t_Voltage_L3_L1_LN = "???",-
+   i_Voltage_L3_L1_IX = 18,-
+   l_Voltage_Inconsistency = list(-
+      VALUE = false,-
+      STATUS = 0),-
+   b_VT_Group_Alarm = false,-
+   t_Line_Disconnector_LN = "???",-
+   i_Line_Disconnector_IX = 10,-
+   t_Earth_Switch_LN = "???",-
+   i_Earth_Switch_IX = 10,-
+   t_Local_Calculated_Power_Flow_LN = "???",-
+   t_Local_Calculated_Power_Flow_IX = 12,-
+   l_CD,-
+   l_OIs,-
+   l_Process_Objects,-
+   i,-
+   v_Good_OS_Values = (0, 3),-
+   l_Calculated_Power_Flow = list(-
+      VALUE = 4,-
+      STATUS = 0),-
+   l_Power_Flow = list(-
+      UNDETERMINED = 1,-
+      DE_ENERGIZED = 2,-
+      ENERGIZED_NO_POWER_FLOW = 3,-
+      ACTIVE_POWER_FLOW_IN = 4,-
+      ACTIVE_POWER_FLOW_OUT = 5,-
+      REACTIVE_CAPACITIVE_POWER_FLOW = 6,-
+      REACTIVE_INDUCTIVE_POWER_FLOW = 7),-
+   l_Switch_Position = list(-
+      INTERMEDIATE = 0,-
+      CLOSED = 1,-
+      OPEN = 2,-
+      FAULTY = 3),-
+   l_Status = list(-
+      GOOD = 0,-
+      QUESTIONABLE = 2),-
+   v_Query_Condition = vector(-
+      "RX == ""*FPQ%%%IPOS*""",- ;Switch_Devices
+      "RX == ""*MEAM*""",-       ;Measurements
+      "RX == ""*IPFL*"""),-      ;Local power flow
+   t_Query = "",-
+   i_Res
+     
+l_CD =  do(BPU_CONTROL:C, "GET_OBJECT_INFO", %LN, %IX)
+l_OIs = do(BPU_CONTROL:C, "TRIM_OI_FOR_QUERY", l_CD)
+
+t_Query = replace(collect(v_Query_Condition, "@"), "@", " OR ")
+l_Process_Objects = application_object_list(0, "IX", "OI", "", l_OIs.Bay_Name_Trimmed + "*", t_Query, vector("RX"))
+
+#loop_with i = 1 .. l_Process_Objects.COUNT
+   #if substr(l_Process_Objects.RX(i), 28, 3) == "VOL" and l_Process_Objects.IX(i) == i_Voltage_L1_L2_IX #then t_Voltage_L1_L2_LN = l_Process_Objects.LN(i)
+   #else_if substr(l_Process_Objects.RX(i), 28, 3) == "VOL" and l_Process_Objects.IX(i) == i_Voltage_L2_L3_IX #then t_Voltage_L2_L3_LN = l_Process_Objects.LN(i)
+   #else_if substr(l_Process_Objects.RX(i), 28, 3) == "VOL" and l_Process_Objects.IX(i) == i_Voltage_L3_L1_IX #then t_Voltage_L3_L1_LN = l_Process_Objects.LN(i)
+   #else_if substr(l_Process_Objects.RX(i), 28, 3) == "APW" and l_Process_Objects.IX(i) == i_Active_Power_IX #then t_Active_Power_LN = l_Process_Objects.LN(i)
+   #else_if substr(l_Process_Objects.RX(i), 28, 3) == "RPW" and l_Process_Objects.IX(i) == i_Reactive_Power_IX #then #block
+      t_Reactive_Power_LN = l_Process_Objects.LN(i)
+      b_Reactive_Power_Exists = true
+   #block_end
+   #else_if substr(l_Process_Objects.RX(i), 27, 4) == "IPFL" #then t_Local_Calculated_Power_Flow_LN = l_Process_Objects.LN(i)
+   ;**** line disconnector found based on RX, most probably project specific adjustment needed
+   #else_if substr(l_Process_Objects.RX(i), 23, 2) == "QD" and substr(l_Process_Objects.RX(i), 25, 2) == "07" #then t_Line_Disconnector_LN = l_Process_Objects.LN(i)
+   ;****
+   #else_if substr(l_Process_Objects.RX(i), 23, 2) == "QE" #then t_Earth_Switch_LN = l_Process_Objects.LN(i)
+#loop_end
+
+;If all needed data points are not found don't try to calculate power flow direction
+#if t_Active_Power_LN == "???" or -
+   t_Voltage_L1_L2_LN == "???" or -
+   t_Voltage_L2_L3_LN == "???" or -
+   t_Voltage_L3_L1_LN == "???" or -
+   t_Line_Disconnector_LN == "???" or -
+   t_Earth_Switch_LN == "???" or -
+   t_Local_Calculated_Power_Flow_LN == "???" #then #block      
+      i_Res = console_output("Power flow direction calculation aborted, all data points are not available:", "D")
+      i_Res = console_output("t_Active_Power_LN = 't_Active_Power_LN'", "D")
+      i_Res = console_output("t_Reactive_Power_LN = 't_Reactive_Power_LN'", "D")
+      i_Res = console_output("t_Voltage_L1_L2_LN = 't_Voltage_L1_L2_LN'", "D")
+      i_Res = console_output("t_Voltage_L2_L3_LN = 't_Voltage_L2_L3_LN'", "D")        
+      i_Res = console_output("t_Voltage_L3_L1_LN = 't_Voltage_L3_L1_LN'", "D")
+      i_Res = console_output("t_Line_Disconnector_LN = 't_Line_Disconnector_LN'", "D")
+      i_Res = console_output("t_Earth_Switch_LN = 't_Earth_Switch_LN'", "D")
+      i_Res = console_output("t_Local_Calculated_Power_Flow_LN = 't_Local_Calculated_Power_Flow_LN'", "D")   
+
+      #return
+#block_end
+
+;****************************************************
+;Here you can add project specific code to read and override nominal voltage and nominal voltage setting default values
+
+;i_Nominal_Voltage = read from somehere
+;i_Nominal_Voltage_Limit_Setting = read from somehere
+
+;****************************************************
+
+;Check voltage consistency
+#if find_element(v_Good_OS_Values, 't_Voltage_L1_L2_LN':POS'i_Voltage_L1_L2_IX') == 0 or -
+   find_element(v_Good_OS_Values, 't_Voltage_L2_L3_LN':POS'i_Voltage_L2_L3_IX') == 0 or -
+   find_element(v_Good_OS_Values, 't_Voltage_L2_L3_LN':POS'i_Voltage_L3_L1_IX') == 0 #then -
+      l_Voltage_Inconsistency.STATUS = 2
+#else_if  ('t_Voltage_L1_L2_LN':POV'i_Voltage_L1_L2_IX' == 0 and -
+   't_Voltage_L2_L3_LN':POV'i_Voltage_L2_L3_IX' == 0 and -
+   't_Voltage_L2_L3_LN':POV'i_Voltage_L3_L1_IX' == 0) #then -
+      l_Voltage_Inconsistency.VALUE = false
+#else_if  't_Voltage_L1_L2_LN':POV'i_Voltage_L1_L2_IX' < i_Nominal_Voltage * i_Nominal_Voltage_Limit_Setting or -
+   't_Voltage_L2_L3_LN':POV'i_Voltage_L2_L3_IX' < i_Nominal_Voltage * i_Nominal_Voltage_Limit_Setting or -
+   't_Voltage_L3_L1_LN':POV'i_Voltage_L3_L1_IX' < i_Nominal_Voltage * i_Nominal_Voltage_Limit_Setting #then -
+      l_Voltage_Inconsistency.VALUE = true   
+
+;Reactive power (optional)
+#if b_Reactive_Power_Exists #then #block
+   #if find_element(v_Good_OS_Values, 't_Reactive_Power_LN':POS'i_Reactive_Power_IX') > 0 #then #block
+      b_Reactive_Power_OK = true
+      i_Reactive_Value = 't_Reactive_Power_LN':POV'i_Reactive_Power_IX'
+   #block_end
+#block_end
+
+;VT group alarm hardcoded to false
+;In principle VT Group Alarm must catch all the situations where a 0 Voltage
+;could appear even though the actual line voltage is still high, e.g. VT MCB Tripped or VT Fuse fail etc.).
+b_VT_Group_Alarm = false
+
+#if find_element(v_Good_OS_Values, 't_Line_Disconnector_LN':POS'i_Line_Disconnector_IX') == 0 or -
+   find_element(v_Good_OS_Values, 't_Earth_Switch_LN':POS'i_Earth_Switch_IX') == 0 or -
+   find_element(v_Good_OS_Values, 't_Active_Power_LN':POS'i_Active_Power_IX') == 0 or -
+   find_element(v_Good_OS_Values, 't_Active_Power_LN':POS'i_Active_Power_IX') == 0 or -
+   find_element(v_Good_OS_Values, l_Voltage_Inconsistency.STATUS) == 0 or -
+   (b_Reactive_Power_Exists and not b_Reactive_Power_OK) #then #block     
+      l_Calculated_Power_Flow = list(-
+         VALUE = l_Power_Flow.UNDETERMINED,-
+         STATUS = l_Status.GOOD)   
+#block_end
+#else_if 't_Earth_Switch_LN':PTS'i_Earth_Switch_IX' == l_Switch_Position.CLOSED #then -
+   l_Calculated_Power_Flow = list(-
+      VALUE = l_Power_Flow.DE_ENERGIZED,-
+      STATUS = l_Status.GOOD)
+#else_if 't_Active_Power_LN':POV'i_Active_Power_IX' > 0 #then #block
+    #if 't_Line_Disconnector_LN':PTS'i_Line_Disconnector_IX' <> l_Switch_Position.CLOSED #then -
+      l_Calculated_Power_Flow = list(-
+         VALUE = l_Power_Flow.ACTIVE_POWER_FLOW_IN,-
+         STATUS = l_Status.QUESTIONABLE)
+    #else_if l_Voltage_Inconsistency.VALUE #then -
+      l_Calculated_Power_Flow = list(-
+         VALUE = l_Power_Flow.ACTIVE_POWER_FLOW_IN,-
+         STATUS = l_Status.QUESTIONABLE)
+    #else -       
+      l_Calculated_Power_Flow = list(-
+         VALUE = l_Power_Flow.ACTIVE_POWER_FLOW_IN,-
+         STATUS = l_Status.GOOD)
+#block_end
+#else_if 't_Active_Power_LN':POV'i_Active_Power_IX' < 0 #then #block
+    #if 't_Line_Disconnector_LN':PTS'i_Line_Disconnector_IX' == l_Switch_Position.OPEN #then -
+      l_Calculated_Power_Flow = list(-
+         VALUE = l_Power_Flow.ACTIVE_POWER_FLOW_OUT,-
+         STATUS = l_Status.QUESTIONABLE)
+    #else_if l_Voltage_Inconsistency.VALUE #then -
+      l_Calculated_Power_Flow = list(-
+         VALUE = l_Power_Flow.ACTIVE_POWER_FLOW_OUT,-
+         STATUS = l_Status.QUESTIONABLE)
+    #else -  
+      l_Calculated_Power_Flow = list(-
+         VALUE = l_Power_Flow.ACTIVE_POWER_FLOW_OUT,-
+         STATUS = l_Status.GOOD)
+#block_end
+#else_if b_Reactive_Power_Exists and i_Reactive_Value > 0 #then #block
+   #if 't_Line_Disconnector_LN':PTS'i_Line_Disconnector_IX' == l_Switch_Position.OPEN #then -
+      l_Calculated_Power_Flow = list(-
+         VALUE = l_Power_Flow.REACTIVE_INDUCTIVE_POWER_FLOW,-
+         STATUS = l_Status.QUESTIONABLE)
+   #else_if l_Voltage_Inconsistency.VALUE #then -
+      l_Calculated_Power_Flow = list(-
+         VALUE = l_Power_Flow.REACTIVE_INDUCTIVE_POWER_FLOW,-
+         STATUS = l_Status.QUESTIONABLE)
+   #else -
+      l_Calculated_Power_Flow = list(-
+         VALUE = l_Power_Flow.REACTIVE_INDUCTIVE_POWER_FLOW,-
+         STATUS = l_Status.GOOD)
+#block_end
+#else_if b_Reactive_Power_Exists and i_Reactive_Value < 0 #then #block
+   #if 't_Line_Disconnector_LN':PTS'i_Line_Disconnector_IX' == l_Switch_Position.OPEN #then -
+      l_Calculated_Power_Flow = list(-
+         VALUE = l_Power_Flow.REACTIVE_CAPACITIVE_POWER_FLOW,-
+         STATUS = l_Status.QUESTIONABLE)
+   #else_if l_Voltage_Inconsistency.VALUE #then -
+      l_Calculated_Power_Flow = list(-
+         VALUE = l_Power_Flow.REACTIVE_CAPACITIVE_POWER_FLOW,-
+         STATUS = l_Status.QUESTIONABLE)
+   #else -
+      l_Calculated_Power_Flow = list(-
+         VALUE = l_Power_Flow.REACTIVE_CAPACITIVE_POWER_FLOW,-
+         STATUS = l_Status.GOOD)
+#block_end
+#else_if 't_Active_Power_LN':POV'i_Active_Power_IX' == 0 and i_Reactive_Value == 0 #then #block
+   #if 't_Line_Disconnector_LN':PTS'i_Line_Disconnector_IX' == l_Switch_Position.CLOSED #then #block
+      #if 't_Voltage_L1_L2_LN':POV'i_Voltage_L1_L2_IX' <> 0 #then #block
+         #if l_Voltage_Inconsistency.VALUE #then -
+            l_Calculated_Power_Flow = list(-
+               VALUE = l_Power_Flow.ENERGIZED_NO_POWER_FLOW,-
+               STATUS = l_Status.QUESTIONABLE)
+         #else_if b_VT_Group_Alarm #then -
+            l_Calculated_Power_Flow = list(-
+               VALUE = l_Power_Flow.ENERGIZED_NO_POWER_FLOW,-
+               STATUS = l_Status.QUESTIONABLE)
+         #else -
+            l_Calculated_Power_Flow = list(-
+               VALUE = l_Power_Flow.ENERGIZED_NO_POWER_FLOW,-
+               STATUS = l_Status.GOOD)            
+      #block_end
+      #else #block
+         #if l_Voltage_Inconsistency.VALUE #then -
+            l_Calculated_Power_Flow = list(-
+               VALUE = l_Power_Flow.UNDETERMINED,-
+               STATUS = l_Status.QUESTIONABLE)
+         #else_if b_VT_Group_Alarm #then -
+            l_Calculated_Power_Flow = list(-
+               VALUE = l_Power_Flow.UNDETERMINED,-
+               STATUS = l_Status.QUESTIONABLE)
+         #else -
+            l_Calculated_Power_Flow = list(-
+               VALUE = l_Power_Flow.DE_ENERGIZED,-
+               STATUS = l_Status.GOOD)            
+      #block_end
+   #block_end
+   #else -
+      l_Calculated_Power_Flow = list(-
+         VALUE = l_Power_Flow.UNDETERMINED,-
+         STATUS = l_Status.GOOD)
+#block_end
+#else -
+   l_Calculated_Power_Flow = list(-
+      VALUE = l_Power_Flow.UNDETERMINED,-
+      STATUS = l_Status.GOOD)
+      
+#set 't_Local_Calculated_Power_Flow_LN':P't_Local_Calculated_Power_Flow_IX' = list(-
+   OV = l_Calculated_Power_Flow.VALUE,-
+   OS = l_Calculated_Power_Flow.STATUS)

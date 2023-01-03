@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:variable type="external" name="control" default="''" />
+    <d:meta name="dv-custom-attribute|ABB SA Symbols" content="v1.0" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Tank 1 Fill" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="Tank" />
+    <d:meta name="dv-custom-attribute|SATopology" content="" />
+    <d:meta name="dv-custom-attribute|SAOpenVSCILOnClickVso" content="B5_USE/BPU_DLG_ENG.VSO@1MAIN@2@31SGTS:-1" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="value" default="0" />
+    <d:variable type="external" name="status-color" default="0" />
+    <d:variable type="external" name="low-alarm-limit" default="0" />
+    <d:variable type="external" name="low-warning-limit" default="0" />
+    <d:variable type="external" name="high-warning-limit" default="0" />
+    <d:variable type="external" name="high-alarm-limit" default="0" />
+  </d:head>
+  <d:body n:LN="{LN(control)}" n:IX="{IX(control)}" x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <d:view name="08 - PL_Equipment/Tank 1.sd" s:transform="translate(0,0) scale(1,1)" d:object-name="Tank 1">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+    </d:view>
+    <d:view name="00 - Common/Scale 0-100 - LED.sd" s:transform="translate(0,-36) scale(1,1)" d:object-name="Scale 0-100 - LED">
+      <d:parameter name="subdrawing_color" value="subdrawing_color" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="value" value="`value`" />
+      <d:parameter name="status-color" value="`status-color`" />
+      <d:parameter name="low-alarm-limit" value="`low-alarm-limit`" />
+      <d:parameter name="low-warning-limit" value="`low-warning-limit`" />
+      <d:parameter name="high-warning-limit" value="`high-warning-limit`" />
+      <d:parameter name="high-alarm-limit" value="`high-alarm-limit`" />
+      <d:meta name="dv-variable-mapping|Value" content="Value" />
+      <d:meta name="dv-variable-mapping|Status Color" content="Status Color" />
+      <d:meta name="dv-variable-mapping|Low Alarm Limit" content="Low Alarm Limit" />
+      <d:meta name="dv-variable-mapping|Low Warning Limit" content="Low Warning Limit" />
+      <d:meta name="dv-variable-mapping|High Warning Limit" content="High Warning Limit" />
+      <d:meta name="dv-variable-mapping|High Alarm Limit" content="High Alarm Limit" />
+    </d:view>
+    <s:rect width="0" height="0" x="-40" y="-102.500" s:pointer-events="visiblePainted" y:fill="none" y:fill-rule="evenodd" y:stroke="{subdrawing_color}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Hotspot1" />
+    <s:rect width="0" height="0" x="-40" y="32.500" s:pointer-events="visiblePainted" y:fill="none" y:fill-rule="evenodd" y:stroke="{subdrawing_color}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Hotspot2" />
+    <s:rect width="0" height="0" x="40" y="-102.500" s:pointer-events="visiblePainted" y:fill="none" y:fill-rule="evenodd" y:stroke="{subdrawing_color}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Hotspot3" />
+    <s:rect width="0" height="0" x="40" y="32.500" s:pointer-events="visiblePainted" y:fill="none" y:fill-rule="evenodd" y:stroke="{subdrawing_color}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Hotspot4" />
+    <s:rect width="0" height="0" x="0" y="-120" s:pointer-events="visiblePainted" y:fill="none" y:fill-rule="evenodd" y:stroke="{subdrawing_color}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Hotspot5" />
+    <s:rect width="0" height="0" x="0" y="40" s:pointer-events="visiblePainted" y:fill="none" y:fill-rule="evenodd" y:stroke="{subdrawing_color}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Hotspot6" />
+  </d:body>
+</d:document>

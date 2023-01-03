@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Markku Hamarila/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">DirectValue</Parameter>
+		<Parameter name="Caption">objectTypeCaptionDiscreteDirect</Parameter>
+		<Parameter name="Description">objectTypeDesc</Parameter>
+		<Parameter name="Group">Event Classes</Parameter>
+		<Parameter name="Type">EVENT</Parameter>
+		<Parameter name="IconFileName">ae.ico</Parameter>
+		<Parameter name="Tools"/>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="Visible">True</Parameter>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="PCMObjectType">DiscreteEventGroup</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+	<Parameters type="SCLExport">
+		<Export name="CDATA">BaseType, Message, Severity, SimpleEventCategory</Export>
+	</Parameters>
+	<Properties type="PropertyDefinitions">
+			<Property name="OPCObjectType" category="[010] Basic">
+			<Value>Event Class</Value>
+			<DescID>OPCObjectTypeDesc</DescID>
+			<CaptionID>OPCObjectType</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHR</Access>
+			<AttributeName>OPCObjectType</AttributeName>
+		</Property>
+	<Property name="BaseType" category="Basic">
+			<Value>DirectValue</Value>
+			<DescID>Base Type of Command Tracking Condition</DescID>
+			<CaptionID>Base Type</CaptionID>
+			<Values type="singleChoice">
+				<Enum textID="Direct Value" value="DirectValue"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RRR</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="Severity" category="Basic">
+			<Value>4</Value>
+			<DescID>Severity</DescID>
+			<CaptionID>Severity</CaptionID>
+			<Values type="numerical">
+				<Min>1</Min>
+				<Max>1000</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="Message" category="Basic">
+			<Value>Message</Value>
+			<DescID>Message</DescID>
+			<CaptionID>Message</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="SimpleEventCategory" category="Basic">
+			<Value/>
+			<DescID>Simple Event Category to use</DescID>
+			<CaptionID>Simple Event Category</CaptionID>
+			<Values type="singleChoiceDynamic">
+				<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupCommonDefinitions" secondchildObjectType="SimpleEventGroup"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+	</Properties>
+</ObjectType>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="SAVersionInfo" content="1" />
+    <d:variable type="external" name="control" default="''" />
+    <d:meta name="dv-custom-attribute|SATopologyModel" content="Strict" />
+    <d:meta name="dv-custom-attribute|SAVersionInfo" content="1" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Status 1-2-3-4" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="Status" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="status" default="0" />
+    <d:variable type="external" name="status-color" default="0" />
+    <d:mapping name="f1398" parameters="value">
+      <d:step value="true" when="value &lt;= 33.501" />
+      <d:step value="false" when="value &lt;= 50.497" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f1399" parameters="value">
+      <d:step value="[colors[32], 'none']" when="value &lt;= 32.625" />
+      <d:step value="[colors[33], 'none']" when="value &lt;= 33.675" />
+      <d:step value="[colors[34], 'none']" when="value &lt;= 34.725" />
+      <d:step value="[colors[35], 'none']" when="value &lt;= 35.775" />
+      <d:step value="[colors[36], 'none']" when="value &lt;= 36.825" />
+      <d:step value="[colors[37], 'none']" when="value &lt;= 37.875" />
+      <d:step value="[colors[38], 'none']" when="value &lt;= 38.925" />
+      <d:step value="[colors[39], 'none']" when="value &lt;= 39.974" />
+      <d:step value="[colors[40], 'none']" when="value &lt;= 40.500" />
+      <d:step value="[colors[41], 'none']" when="value &lt;= 41.500" />
+      <d:step value="[[colors[42], colors[49]], ['none', 'none']]" when="value &lt;= 42.500" />
+      <d:step value="[colors[43], 'none']" when="value &lt;= 43.124" />
+      <d:step value="[colors[44], 'none']" when="value &lt;= 44.175" />
+      <d:step value="[colors[45], 'none']" when="value &lt;= 45.224" />
+      <d:step value="[[colors[46], colors[48]], ['none', 'none']]" when="value &lt;= 46.274" />
+      <d:step value="[colors[47], 'none']" when="value &lt;= 47.325" />
+      <d:step value="[colors[48], 'none']" when="value &lt;= 48.374" />
+      <d:step value="[colors[49], 'none']" when="value &lt;= 49.424" />
+      <d:step value="[colors[50], 'none']" when="value &lt;= 50.474" />
+      <d:otherwise value="[colors[45], 'none']" />
+    </d:mapping>
+  </d:head>
+  <d:body n:LN="{LN(control)}" n:IX="{IX(control)}" x1="-5" y1="-5" x2="5" y2="5">
+    <s:rect width="10" height="10" x="-5" y="-5" class="bounding-box" d:hidden="f1398(`status-color`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="{colors[19]}" y:fill-rule="evenodd" y:stroke="none" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Bounding Box">
+      <d:animate attributes="fill, stroke" values="if(`subdrawing_dynamics`, f1399(`status-color`), colors[19])" />
+    </s:rect>
+    <s:image x="-5" y="-5" height="10" width="10" y:image-rendering="pixelated" xlink:href="/resources/06 - SA_Supervision/help_magenta_128.gif" d:object-name="Uncertain" />
+    <s:image x="-5" y="-5" height="10" width="10" y:image-rendering="pixelated" xlink:href="/resources/06 - SA_Supervision/info_orange_128.gif" d:object-name="Warning" />
+    <s:image x="-5" y="-5" height="10" width="10" y:image-rendering="pixelated" xlink:href="/resources/06 - SA_Supervision/ok_128.gif" d:object-name="OK" />
+    <s:image x="-5" y="-5" height="10" width="10" y:image-rendering="pixelated" xlink:href="/resources/06 - SA_Supervision/alarm_128.gif" d:object-name="Alarm" />
+  </d:body>
+</d:document>

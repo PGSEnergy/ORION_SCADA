@@ -1,0 +1,598 @@
+﻿; This command procedure is used for sending BI process object values
+; from a COM application to a NCC (upstream direction)
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @LN, @IX, @RT, @RM, @OS, @CA, @CT, from input process object
+;         @COM_CAUSE_OF_TRANSMISSION, COT, given if executed manually at GI
+;         @NCC_STA_NUMBERS , STA numbers of the NCCs, vector
+;         @NCC_PROTOCOLS, protocols of the NCCs, vector
+;         @NCC_ADDRESSES, addresses of the NCCs, vector
+;         @NCC_BIT_ADDRESSES, bit addresses of the NCCs, vector
+;         @SIGNAL_CLASSES, classes of the signals, vector
+;         @SCALE_NAMES, names of the scales, vector
+;         @ADDITIONAL_DATA, additional xref data, vector
+;         @NCC_OPERATION_MODES, operation modes of the NCCs, vector   
+;         @AL_GROUP_NUMBERS, alarm group numbers, vector
+;         @AL_GROUP_BIT_NUMBERS, alarm group bit numbers, vector
+;         @SIGNAL_HANDLING_ATTRS, datatype-specific special conditions, integer (bit mask)
+;         @NCC_NUMBERS, numbers of the NCCs, vector 
+;         APL:BSV(28), time stamps of the pending indications
+;         APL:BSV(29), ids (ln+ix+sta_nr) of the pending indications
+; OUTPUT  APL:BSV(28), time stamps of the pending indications
+;         APL:BSV(29), ids (ln+ix+sta_nr) of the pending indications
+;---------------------------------------------------------------------------------------------
+
+
+#ERROR CONTINUE
+
+;initialize variables
+@CONNECTED_TO_COMMAND_FROM_STA = 0
+@PREVENT_DATA_SENDING = FALSE
+@INTERROGATED_OR_REQUESTED = FALSE
+@IEC_TERM_ENABLED = COM_GENVAR:PBZ(2)
+@ENABLE_LOGGING = COM_GENVAR:PBZ(3)
+@ENABLE_DATA_SENDING_AFTER_STARTUP = COM_GENVAR:PBZ(4)
+@UN = 'LN':PUN'IX'
+@SX = 'LN':PSX'IX'
+@INDICATION_BLOCKED = FALSE
+@INDICATION_BLOCKED_ENABLED = COM_GENVAR:PBZ(16)
+@RZ = 'LN':PRZ'IX'
+
+;if newer registration found
+#IF 'LN':PRT'IX' > %RT OR ('LN':PRT'IX' == %RT AND 'LN':PRM'IX' > %RM) #THEN #BLOCK
+   #IF DATA_TYPE(%COM_CAUSE_OF_TRANSMISSION) == "INTEGER" #THEN #BLOCK
+      #IF %COM_CAUSE_OF_TRANSMISSION >= 20 #THEN #BLOCK
+         @PREVENT_DATA_SENDING = TRUE
+         @UPDATE_SIGNAL_TIME = TIMES  
+         @NOTIFY = CONSOLE_OUTPUT("'UPDATE_SIGNAL_TIME' The oldest update of signal 'LN':P'IX' is not sent to the NCCs")
+      #BLOCK_END ; 2
+      #ELSE #BLOCK
+         @OS = 'LN':POS'IX'
+         #IF %OS < 10 #THEN #BLOCK
+            @BI = 'LN':POV'IX'
+            @AL = 'LN':PAL'IX'
+         #BLOCK_END
+         #ELSE #BLOCK
+            @BI = 1
+            @AL = 1
+         #BLOCK_END
+         @RT = 'LN':PRT'IX'
+         @RM = 'LN':PRM'IX'
+         @BL = 'LN':PBL'IX'
+         @SB = 'LN':PSB'IX'
+         @OR = 'LN':POR'IX'
+         @CT = 'LN':PCT'IX'
+         @OG = 'LN':POG'IX'
+      #BLOCK_END
+   #BLOCK_END   
+#BLOCK_END ; 1
+#IF NOT %PREVENT_DATA_SENDING AND %ENABLE_DATA_SENDING_AFTER_STARTUP #THEN #BLOCK ; 1
+   ;read cross-reference table pointer
+   @XREF_INDEX = 'LN':PTI'IX'
+   ;if xref found, decode NCC addresses and group alarm information
+   #IF %XREF_INDEX > 0  #THEN #BLOCK  ; 2
+       #IF COM_USXREF:CCS == 1 #THEN #DO COM_USXREF:CCP
+       #ELSE #DO COM_USXREF:CIN
+      ;if connected to a command, set flag and remove id and time from apl:bsv
+      @ID = %LN + DEC(%IX,1)
+      @TMP = SELECT(APL:BSV(29),"==""'ID'/*""","WILDCARDS")
+      #IF LENGTH(%TMP) > 0 #THEN #BLOCK ; 3
+         @IND_IDS = APL:BSV(29)
+         @ID_VEC = SEPARATE(%IND_IDS(%TMP(1)),"/")
+         @CONNECTED_TO_COMMAND_FROM_STA = DEC_SCAN(%ID_VEC(3))        
+         @COMMAND_ADDRESS = DEC_SCAN(%ID_VEC(2))
+         @ORIGINATOR = DEC_SCAN(%ID_VEC(4))
+         #SET APL:BSV(28) = DELETE_ELEMENT(APL:BSV(28),%TMP(1))
+         #SET APL:BSV(29) = DELETE_ELEMENT(APL:BSV(29),%TMP(1))
+      #BLOCK_END ; 3
+      ;if NCC connections found, send value to NCCs and alarm to group alarm object
+      #IF LENGTH(%NCC_STA_NUMBERS) > 0 #THEN #BLOCK ; 3
+         ;if connected to a command, set COT to 11
+         ;if no COT given, assume spontaneous COT
+         #IF %CONNECTED_TO_COMMAND_FROM_STA <> 0 #THEN @COT = 11 + 256*%OG   
+         #ELSE_IF DATA_TYPE(%COM_CAUSE_OF_TRANSMISSION) == "INTEGER" #THEN #BLOCK
+            @COT = %COM_CAUSE_OF_TRANSMISSION + 256*%OG
+            @INTERROGATED_OR_REQUESTED = TRUE
+         #BLOCK_END   
+         #ELSE @COT = 3 + 256*%OG
+         ;in case of an ANSI object read status from the analog object
+         #IF 'LN':PDX'IX' == "3" #THEN #BLOCK ; 4
+            @TMP = %IX + 100
+            #ERROR IGNORE
+            @OS = 'LN':POS'TMP'
+            #ERROR CONTINUE
+         #BLOCK_END ; 4
+         #IF %INDICATION_BLOCKED_ENABLED #THEN #BLOCK
+            #IF BIT(%RZ,3) == 1 #THEN #BLOCK
+               #IF BIT(%RZ,8) == 0 AND DATA_TYPE(%COM_CAUSE_OF_TRANSMISSION) <> "INTEGER" #THEN #BLOCK 
+                  @INDICATION_BLOCKED = TRUE
+               #BLOCK_END
+            #BLOCK_END
+         #BLOCK_END
+         #IF NOT %INDICATION_BLOCKED #THEN #BLOCK
+            #LOOP_WITH NCC_COUNTER = 1..LENGTH(%NCC_STA_NUMBERS) ; 4
+               ;cross-reference parameters
+               @NCC_NUMBER = %NCC_NUMBERS(%NCC_COUNTER)
+               @STA_NR = %NCC_STA_NUMBERS(%NCC_COUNTER)
+               @AL_GROUP = %AL_GROUP_NUMBERS(%NCC_COUNTER)
+               @AL_BIT = %AL_GROUP_BIT_NUMBERS(%NCC_COUNTER)
+               ;if  NCC address found, send value according to the NCC protocol
+               ;check also that data sending is allowed by parameter set from tool            
+               #IF %NCC_ADDRESSES(%NCC_COUNTER) <> -1 AND NOT COM_GENVAR:PBZ(%NCC_NUMBER+4) #THEN #BLOCK ; 5
+                  #CASE %NCC_PROTOCOLS(%NCC_COUNTER) ; 6
+                     #WHEN 1 #BLOCK ;********************** RP-570 slave protocol **************************************************************************; 7
+                        ;invert value if required
+                        #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),2) == 1 #THEN @VALUE = 1 - %BI
+                        #ELSE @VALUE = %BI
+                        ;check status (valid/invalid)
+                        #IF %OS == 0 #THEN @STATUS = 0 
+                        #ELSE @STATUS = 1 
+                        #IF %INDICATION_BLOCKED_ENABLED #THEN #BLOCK
+                           #IF BIT(%RZ,3) == 1 #THEN @STATUS = 1 
+                        #BLOCK_END
+                        #IF %OS == 3 #THEN @RP_TIME_QUALITY = 5
+                        #ELSE @RP_TIME_QUALITY = 0 
+                        ;************** project-specific modifications ***************************
+                        #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),0) == 1 #THEN #BLOCK
+                           ;write the project-specific code in this block
+                        #BLOCK_END
+                        ;send value to NET
+                        #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),3) == 1 #THEN #BLOCK ;send as double ind ; 8
+                           @DB_VALUES = (2,1)
+                           @VALUE = %DB_VALUES(%VALUE+1)
+                           @BIT_OFFSET = 128
+                           #SET STA'STA_NR':SDD(%NCC_ADDRESSES(%NCC_COUNTER)) = (RTU_ATIME(%RT,%RM),%NCC_BIT_ADDRESSES(%NCC_COUNTER),%VALUE,%STATUS,0) ;send as double ind
+                        #BLOCK_END ; 8
+                        #ELSE #BLOCK
+                           @BIT_OFFSET = 0                     
+                           #SET STA'STA_NR':SID(%NCC_ADDRESSES(%NCC_COUNTER)) = (RTU_ATIME(%RT,%RM),%NCC_BIT_ADDRESSES(%NCC_COUNTER),%VALUE,%STATUS,0);send as single ind
+                        #BLOCK_END   
+                        ;send ERMx telegram if required
+                        #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),1) == 1 AND NOT %INTERROGATED_OR_REQUESTED AND STA'STA_NR':SDI == 1 #THEN -
+                        #SET STA'STA_NR':SEX(%NCC_ADDRESSES(%NCC_COUNTER)) = (32,RTU_ATIME(%RT,%RM),%RP_TIME_QUALITY,%BIT_OFFSET+%NCC_BIT_ADDRESSES(%NCC_COUNTER),%VALUE)                                        
+                        #IF %ENABLE_LOGGING #THEN #BLOCK ; 8
+                           @NCC_ADDR=%NCC_ADDRESSES(%NCC_COUNTER)
+                           @NCC_BIT_ADDR=%NCC_BIT_ADDRESSES(%NCC_COUNTER)                        
+                           @SH=%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER)
+                           @S=STATUS
+                           @INFO="'rt':'rm',USBI,'UN','LN':P'IX','STA_NR',,'BI',RP570,'SH','NCC_ADDR'^'NCC_BIT_ADDR','VALUE',,,,,,,'status','S','OS',,'SX'"
+                           #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                           #ELSE #DO COM_LOG:CIN
+                        #BLOCK_END ; 8                     
+                     #BLOCK_END ; 7          
+                     #WHEN 2 #BLOCK ;********************** IEC protocol *******************************************************************; 7
+                        #IF %NCC_SUBPROTOCOLS(%NCC_COUNTER) == 2 #THEN #BLOCK ;ICCP
+                           ;invert value if required
+                           #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),1) == 1 #THEN @VALUE = 1 - %BI
+                           #ELSE @VALUE = %BI
+                           @DB_VALUES = (2,1)
+                           @VALUE = %DB_VALUES(%VALUE+1)
+                           ;************** project-specific modifications ***************************
+                           #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),0) == 1 #THEN #BLOCK
+                              ;write the project-specific code in this block
+                           #BLOCK_END
+                           #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),2) == 1 #THEN #BLOCK
+                              #IF %OS == 3 #THEN @TIME_VALIDITY = 1
+                              #ELSE @TIME_VALIDITY = 0
+                              #IF %OS == 2 #THEN @NT = 1
+                              #ELSE @NT = 0
+                              #IF %OS == 1 OR %OS == 10 #THEN @IV = 1
+                              #ELSE @IV = 0
+                              @EVENT_FLAG = 0+0*2+0*4+%IV*8+%NT*16+%SB*32+%BL*64+%TIME_VALIDITY*128
+                              #SET  STA'STA_NR':SEV(%NCC_ADDRESSES(%NCC_COUNTER))=(%VALUE,%EVENT_FLAG,0,%RT,%RM)
+                              @QUALIFIER = %EVENT_FLAG
+                           #BLOCK_END
+                           #ELSE #BLOCK
+                              #IF %OS == 1 OR %OS == 10 #THEN @QUALIFIER = 4 
+                              #ELSE_IF %OS == 2 #THEN @QUALIFIER = 3 
+                              #ELSE @QUALIFIER = 1
+                              #IF %OS == 1 OR %OS == 10 #THEN @OS_STATUS = 2
+                              #ELSE_IF %OS == 3 #THEN @OS_STATUS = 1
+                              #ELSE @OS_STATUS = 0
+                              #SET  STA'STA_NR':SDV(%NCC_ADDRESSES(%NCC_COUNTER))=(%VALUE,%QUALIFIER,0,%OS_STATUS,%RT,%RM)
+                           #BLOCK_END
+                           #IF %ENABLE_LOGGING #THEN #BLOCK ; 8
+                              @NCC_ADDR=%NCC_ADDRESSES(%NCC_COUNTER)
+                              @NCC_TYPE=%NCC_SUBPROTOCOLS(%NCC_COUNTER)
+                              @SH=%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER)
+                              @S=STATUS
+                              @INFO="'rt':'rm',USBI,'UN','LN':P'IX','STA_NR',,'BI',ICCP,'SH','NCC_ADDR','VALUE',,,,,,,'QUALIFIER','S','OS',,'SX'"
+                              #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                              #ELSE #DO COM_LOG:CIN
+                           #BLOCK_END ; 8                                                                              
+                        #BLOCK_END
+                        #ELSE_IF %NCC_SUBPROTOCOLS(%NCC_COUNTER) == 3 #THEN #BLOCK ;IEC 61850 Server
+                           @LOG_SEND_TERM = 0
+                           ;invert value if required
+                           #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),1) == 1 #THEN @VALUE = 1 - %BI
+                           #ELSE @VALUE = %BI
+                           #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),2) == 1 #THEN #BLOCK ;send as double ind 
+                              @DB_VALUES = (17,18)
+                              @VALUE = %DB_VALUES(%VALUE+1)
+                           #BLOCK_END
+                           #IF DATA_TYPE(%COM_CAUSE_OF_TRANSMISSION) == "INTEGER" #THEN @COT = %COM_CAUSE_OF_TRANSMISSION
+                           #ELSE @COT = 3                   
+                           #IF %OS == 1 OR %OS == 10 #THEN @VALIDITY = 1
+                           #ELSE_IF %OS == 2 #THEN @VALIDITY = 3
+                           #ELSE @VALIDITY = 0
+                           #IF 'LN':PDX'IX'== "E7S" #THEN #BLOCK
+                              #IF %INTERROGATED_OR_REQUESTED #THEN @QUALIFIER = BIT(%QL,8)+2*BIT(%QL,9)+4*BIT(%QL,10)+8*BIT(%QL,11)+16*BIT(%QL,12)+32*BIT(%QL,13)+64*BIT(%VALIDITY,0)+128*BIT(%VALIDITY,1)-
+                                                                        +2048*BIT(%QL,3)+4096*BIT(%QL,4)+8192*BIT(%QL,5)+16384*BIT(%QL,6)+32768*BIT(%QL,7) 
+                              #ELSE @QUALIFIER = BIT(%QL,8)+2*BIT(%QL,9)+4*BIT(%QL,10)+8*BIT(%QL,11)+16*BIT(%QL,12)+32*BIT(%QL,13)+64*BIT(%QL,14)+128*BIT(%QL,15)-
+                                                                        +2048*BIT(%QL,3)+4096*BIT(%QL,4)+8192*BIT(%QL,5)+16384*BIT(%QL,6)+32768*BIT(%QL,7) 
+                           #BLOCK_END                                             
+                           #ELSE @QUALIFIER = 64*BIT(%VALIDITY,0)+128*BIT(%VALIDITY,1)+2048*%BL+8192*%SB 
+                           @SOT = 10
+                           #IF %OS == 3 #THEN @SOT =BIT_SET(%SOT,5) 
+                           ;************** project-specific modifications ***************************
+                           #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),0) == 1 #THEN #BLOCK
+                              ;write the project-specific code in this block
+                           #BLOCK_END
+                           #SET STA'STA_NR':SDV = (%NCC_ADDRESSES(%NCC_COUNTER),%VALUE,%COT,%QUALIFIER,%SOT,%RT,%RM)
+                           #IF %CONNECTED_TO_COMMAND_FROM_STA == %STA_NR #THEN #BLOCK   
+                              #SET STA'STA_NR':SCF = (10,%COMMAND_ADDRESS,0,0,1)
+                              @LOG_SEND_TERM = 1
+                           #BLOCK_END
+                           #IF %ENABLE_LOGGING #THEN #BLOCK ; 8
+                              @NCC_ADDR=%NCC_ADDRESSES(%NCC_COUNTER)
+                              @NCC_TYPE=%NCC_SUBPROTOCOLS(%NCC_COUNTER)
+                              @SH=%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER)
+                              @S=STATUS
+                              @INFO="'rt':'rm',USBI,'UN','LN':P'IX','STA_NR',,'BI',IEC 61850,'SH','NCC_ADDR','VALUE',,,'COT',,,,'QUALIFIER','S','OS',,'SX'"
+                              #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                              #ELSE #DO COM_LOG:CIN
+                              #IF %LOG_SEND_TERM == 1 #THEN #BLOCK
+                                 @CF_TIME = HR_CLOCK
+                                 @CF_RT = TIMES(CF_TIME:VCL)
+                                 @CF_RM = ROUND(CF_TIME:VUS/1000)
+                                 @INFO="'CF_RT':'CF_RM',USBI,'STA_NR',,,Activation termination,,,,'COMMAND_ADDRESS',,,,,,,,,,,,"
+                                 #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                                 #ELSE #DO COM_LOG:CIN 
+                              #BLOCK_END
+                           #BLOCK_END ; 8                                                                                                                                                        
+                        #BLOCK_END
+                        #ELSE #BLOCK ; IEC 101/104
+                           ;protocol-specific parameters
+                           @LOG_SEND_TERM = 0
+                           @SEND_WITHOUT_TIME_TAG = TRUE
+                           @SD_VALUE = -1
+                           @EV_VALUE = -1                     
+                           @SD_PRIORITY = 2
+                           @EV_PRIORITY = 2
+                           @SD_OVERWRITE = 0
+                           #IF %SIGNAL_CLASSES(%NCC_COUNTER) == 0 #THEN #BLOCK
+                              @SD_CLASS = 1 ; use default classes
+                              @EV_CLASS = 1 
+                           #BLOCK_END
+                           #ELSE #BLOCK
+                              @SD_CLASS = %SIGNAL_CLASSES(%NCC_COUNTER) ; use signal spes. classes                     
+                              @EV_CLASS = %SIGNAL_CLASSES(%NCC_COUNTER)                        
+                           #BLOCK_END
+                           ;invert value if required
+                           #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),2) == 1 #THEN @VALUE = 1 - %BI
+                           #ELSE @VALUE = %BI
+                           ;compose qualifiers for single and double indications
+                           #IF %OS == 2 #THEN @NT = 1
+                           #ELSE @NT = 0
+                           #IF %INDICATION_BLOCKED_ENABLED #THEN #BLOCK
+                              #IF BIT(%RZ,3) == 1 #THEN @NT = 1
+                           #BLOCK_END   
+                           #IF %OS == 1 OR %OS == 10 #THEN @IV = 1
+                           #ELSE @IV = 0
+                           #IF %OS == 3 #THEN @IEC_CTRL = 1
+                           #ELSE @IEC_CTRL = 0
+                           #IF %UTC_LOCAL_CONVERSION(%NCC_COUNTER) == 1 #THEN #BLOCK
+                              @IEC_CTRL = BIT_SET(%IEC_CTRL,3)
+                           #BLOCK_END     
+                           #ELSE_IF %UTC_LOCAL_CONVERSION(%NCC_COUNTER) == 2 #THEN #BLOCK
+                              @IEC_CTRL = BIT_SET(%IEC_CTRL,2)
+                           #BLOCK_END  
+                           
+                           @SINGLE_QUALIFIER = %BI+2*0+4*0+8*0+16*%BL+32*%SB+64*%NT+128*%IV
+                           @DOUBLE_QUALIFIER = BIT(%BI+1,0)+2*BIT(%BI+1,1)+4*0+8*0+16*%BL+32*%SB+64*%NT+128*%IV
+                           ;************** project-specific modifications ***************************
+                           #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),0) == 1 #THEN #BLOCK
+                              ;write the project-specific code in this block
+                           #BLOCK_END
+                           ;send value to NET according to the signal handling attributes
+                           ;assume zero priority and overwrite
+                           ;no time tag is sent at general interrogation or when sending requested data              
+                           #IF (BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),1) == 1  OR BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),4) == 1 -
+                             OR BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),5) == 1) AND NOT %INTERROGATED_OR_REQUESTED #THEN #BLOCK ;send with time tag ; 8
+                              #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),3) == 1 #THEN #BLOCK;send as double ind ; 9
+                                 #IF %NCC_SUBPROTOCOLS(%NCC_COUNTER) == 1 #THEN #BLOCK
+                                    #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),1) == 1 #THEN @TYPE_ID = "M_DP_TA_1"  
+                                    #ELSE @TYPE_ID = "M_DP_TB_1" ;send with long time tag                             
+                                 #BLOCK_END
+                                 #ELSE #BLOCK                              
+                                    #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),5) == 1 #THEN @TYPE_ID = "M_DP_TB_1"  ;send with long time tag
+                                    #ELSE @TYPE_ID = "M_DP_TA_1"                              
+                                 #BLOCK_END
+                                 @QUALIFIER = %DOUBLE_QUALIFIER
+                                 @EV_VALUE = %VALUE + 1
+                              #BLOCK_END ; 9
+                              #ELSE #BLOCK ;send as single ind
+                                 #IF %NCC_SUBPROTOCOLS(%NCC_COUNTER) == 1 #THEN #BLOCK
+                                    #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),1) == 1 #THEN @TYPE_ID = "M_SP_TA_1" 
+                                    #ELSE @TYPE_ID = "M_SP_TB_1" ;send with long time tag  
+                                 #BLOCK_END
+                                 #ELSE #BLOCK
+                                    #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),5) == 1 #THEN @TYPE_ID = "M_SP_TB_1"  ;send with long time tag
+                                    #ELSE @TYPE_ID = "M_SP_TA_1"   
+                                 #BLOCK_END                           
+                                 @QUALIFIER = %SINGLE_QUALIFIER
+                                 @EV_VALUE = %VALUE
+                              #BLOCK_END ; 9
+                              #SET STA'STA_NR':SEV(%EV_CLASS) = (%TYPE_ID,%NCC_ADDRESSES(%NCC_COUNTER),%EV_VALUE,%COT,%QUALIFIER,%EV_PRIORITY,%RT,%RM,%IEC_CTRL)                        
+                              #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),4) == 0 #THEN @SEND_WITHOUT_TIME_TAG = FALSE ; not also with time tag                      
+                           #BLOCK_END ; 8
+                           #IF %SEND_WITHOUT_TIME_TAG #THEN #BLOCK ;send without time tag ; 8
+                              #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),3) == 1 #THEN #BLOCK;send as double ind
+                                 @TYPE_ID = "M_DP_NA_1" 
+                                 @QUALIFIER = %DOUBLE_QUALIFIER
+                                 @SD_VALUE = %VALUE + 1
+                              #BLOCK_END
+                              #ELSE #BLOCK ;send as single ind
+                                 @TYPE_ID = "M_SP_NA_1"
+                                 @QUALIFIER = %SINGLE_QUALIFIER
+                                 @SD_VALUE = %VALUE
+                              #BLOCK_END
+                              #SET STA'STA_NR':SSD(%SD_CLASS) = (%TYPE_ID,%NCC_ADDRESSES(%NCC_COUNTER),%SD_VALUE,%COT,%QUALIFIER,%SD_PRIORITY,%SD_OVERWRITE)
+                           #BLOCK_END ; 8
+                           ;if connected to a command and manual confirmation, terminate the command 
+                           #IF %CONNECTED_TO_COMMAND_FROM_STA == %STA_NR #THEN #BLOCK   
+                              #IF  STA'STA_NR':SPC == 0 AND %IEC_TERM_ENABLED #THEN #BLOCK
+                                 #SET STA'STA_NR':SCF = (256*%ORIGINATOR+10,%COMMAND_ADDRESS)  
+                                 @LOG_SEND_TERM = 1
+                              #BLOCK_END
+                           #BLOCK_END
+                           #IF %ENABLE_LOGGING #THEN #BLOCK ; 8
+                              @NCC_ADDR=%NCC_ADDRESSES(%NCC_COUNTER)
+                              @NCC_TYPE=%NCC_SUBPROTOCOLS(%NCC_COUNTER)
+                              @SH=%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER)
+                              #IF %NCC_TYPE == 0 #THEN @NCC_TYPE = "IEC101"
+                              #ELSE @NCC_TYPE = "IEC104"
+                              #IF %SD_VALUE <> -1 #THEN @VALUE = %SD_VALUE
+                              #ELSE @VALUE = %EV_VALUE
+                              @S=STATUS
+                              #IF %SEND_WITHOUT_TIME_TAG #THEN @DATA_CLASS = %SD_CLASS
+                              #ELSE @DATA_CLASS = %EV_CLASS                          
+                              @INFO="'rt':'rm',USBI,'UN','LN':P'IX','STA_NR',,'BI','NCC_TYPE','SH','NCC_ADDR','VALUE',,'TYPE_ID','COT',,,,'QUALIFIER','S','OS','DATA_CLASS','SX'"
+                              #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                              #ELSE #DO COM_LOG:CIN
+                              #IF %LOG_SEND_TERM == 1 #THEN #BLOCK
+                                 @CF_TIME = HR_CLOCK
+                                 @CF_RT = TIMES(CF_TIME:VCL)
+                                 @CF_RM = ROUND(CF_TIME:VUS/1000)
+                                 @INFO="'CF_RT':'CF_RM',USBI,'STA_NR',,,Activation termination,,,,'COMMAND_ADDRESS',,,,,,,,,,,,"
+                                 #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                                 #ELSE #DO COM_LOG:CIN 
+                              #BLOCK_END
+                           #BLOCK_END ; 8                                                                              
+                        #BLOCK_END
+                     #BLOCK_END ; 7 
+                     #WHEN 3 #BLOCK ;********************** CPI (attribute interface as in RP-570 slave) ******************************************; 7   
+                        ;invert value if required
+                        #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),2) == 1 #THEN @VALUE = 1 - %BI
+                        #ELSE @VALUE = %BI
+                        ;check status (valid/invalid)
+                        #IF %OS == 0 #THEN @STATUS = 0 
+                        #ELSE @STATUS = 1 
+                        #IF %INDICATION_BLOCKED_ENABLED #THEN #BLOCK
+                           #IF BIT(%RZ,3) == 1 #THEN @STATUS = 1
+                        #BLOCK_END
+                        ;************** project-specific modifications ***************************
+                        #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),0) == 1 #THEN #BLOCK
+                           ;write the project-specific code in this block
+                        #BLOCK_END
+                        ;send value to NET
+                        #CASE %NCC_SUBPROTOCOLS(%NCC_COUNTER) 
+                           #WHEN 0 #BLOCK ;standard CPI
+                              #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),3) == 1 #THEN #BLOCK ;send as double ind ; 8
+                                 @DB_VALUES = (2,1)
+                                 @VALUE = %DB_VALUES(%VALUE+1)
+                                 @BIT_OFFSET = 128
+                                 #SET STA'STA_NR':SDD(%NCC_ADDRESSES(%NCC_COUNTER)) = (RTU_ATIME(%RT,%RM),%NCC_BIT_ADDRESSES(%NCC_COUNTER),%VALUE,%STATUS,0) ;send as double ind
+                              #BLOCK_END ; 8
+                              #ELSE #BLOCK
+                                 @BIT_OFFSET = 0                     
+                                 #SET STA'STA_NR':SID(%NCC_ADDRESSES(%NCC_COUNTER)) = (RTU_ATIME(%RT,%RM),%NCC_BIT_ADDRESSES(%NCC_COUNTER),%VALUE,%STATUS,0);send as single ind
+                              #BLOCK_END   
+                              ;send ERMx telegram if required
+                              #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),1) == 1 AND NOT %INTERROGATED_OR_REQUESTED #THEN -
+                              #SET STA'STA_NR':SEX(%NCC_ADDRESSES(%NCC_COUNTER)) = (32,RTU_ATIME(%RT,%RM),0,%BIT_OFFSET+%NCC_BIT_ADDRESSES(%NCC_COUNTER),%VALUE)                  
+                           #BLOCK_END
+                           #WHEN 1 #BLOCK ;cdc-II
+                              #IF (0 <> %ADDITIONAL_DATA(%NCC_COUNTER) ) #THEN #BLOCK
+                                 #IF (0 == (%ADDITIONAL_DATA(%NCC_COUNTER) DIV 10000) ) #THEN #BLOCK
+                                    @IDX= (3 * (%ADDITIONAL_DATA(%NCC_COUNTER) DIV 100)) + 130
+                                    @IDX= %IDX + (%ADDITIONAL_DATA(%NCC_COUNTER) MOD 100 - 1) DIV 16
+                                    @BIT= ((%ADDITIONAL_DATA(%NCC_COUNTER) MOD 100) - 1) MOD 16
+                                 #BLOCK_END
+                                 #ELSE #BLOCK
+                                    @IDX= (%ADDITIONAL_DATA(%NCC_COUNTER) MOD 10000) DIV 100 + 96
+                                    @BIT= (%ADDITIONAL_DATA(%NCC_COUNTER) MOD 100) - 1
+                                 #BLOCK_END
+                                 #SET STA'STA_NR':SID(%IDX) = (RTU_ATIME(%RT,%RM),%BIT,%VALUE,%STATUS,0);send as single ind
+                              #BLOCK_END
+                              #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),3) == 1 #THEN #BLOCK ;send as double ind ; 8
+                                 @DB_VALUES = (2,1)
+                                 @VALUE = %DB_VALUES(%VALUE+1)
+                                 @BIT_OFFSET = 128
+                                 #SET STA'STA_NR':SDD(%NCC_ADDRESSES(%NCC_COUNTER)) = (RTU_ATIME(%RT,%RM),%NCC_BIT_ADDRESSES(%NCC_COUNTER),%VALUE,%STATUS,0) ;send as double ind
+                              #BLOCK_END ; 8
+                              #ELSE #BLOCK
+                                 @BIT_OFFSET = 0                     
+                                 #SET STA'STA_NR':SID(%NCC_ADDRESSES(%NCC_COUNTER)) = (RTU_ATIME(%RT,%RM),%NCC_BIT_ADDRESSES(%NCC_COUNTER),%VALUE,%STATUS,0);send as single ind
+                              #BLOCK_END                        
+                           #BLOCK_END  
+                           #WHEN 2 #BLOCK ;modbus slave
+                              #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),3) == 1 #THEN #BLOCK ;send as double ind ; 8
+                                 @DB_VALUES = (2,1)
+                                 @VALUE = %DB_VALUES(%VALUE+1)
+                                 @BIT_OFFSET = 128
+                                 #SET STA'STA_NR':SDD(%NCC_ADDRESSES(%NCC_COUNTER)) = (RTU_ATIME(%RT,%RM),%NCC_BIT_ADDRESSES(%NCC_COUNTER),%VALUE,%STATUS,0) ;send as double ind
+                              #BLOCK_END ; 8
+                              #ELSE #BLOCK
+                                 @BIT_OFFSET = 0                     
+                                 #SET STA'STA_NR':SID(%NCC_ADDRESSES(%NCC_COUNTER)) = (RTU_ATIME(%RT,%RM),%NCC_BIT_ADDRESSES(%NCC_COUNTER),%VALUE,%STATUS,0);send as single ind
+                              #BLOCK_END   
+                           #BLOCK_END
+                        #CASE_END
+                        #IF %ENABLE_LOGGING #THEN #BLOCK ; 8
+                           @NCC_ADDR=%NCC_ADDRESSES(%NCC_COUNTER)
+                           @NCC_BIT_ADDR=%NCC_BIT_ADDRESSES(%NCC_COUNTER)
+                           @NCC_TYPE=%NCC_SUBPROTOCOLS(%NCC_COUNTER)
+                           @SH=%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER)
+                           @S=STATUS
+                           #IF %NCC_TYPE == 0 #THEN @NCC_TYPE = "CPI"
+                           #ELSE_IF %NCC_TYPE == 1 #THEN @NCC_TYPE = "CDC-2"
+                           #ELSE @NCC_TYPE = "MODBUS"      
+                           @INFO="'rt':'rm',USBI,'UN','LN':P'IX','STA_NR',,'BI','NCC_TYPE','SH','NCC_ADDR'^'NCC_BIT_ADDR','VALUE',,,,,,,'status','S','OS',,'SX'"
+                           #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                           #ELSE #DO COM_LOG:CIN
+                        #BLOCK_END ; 8                                                               
+                     #BLOCK_END ; 7                     
+                     #WHEN 4 #BLOCK ;********************** DNP 3.0 slave *************************************************************************; 7
+                        ;protocol parameters 
+                        @SD_CLASS = 1 ; high weight (priority) default event class
+                        #IF %SIGNAL_CLASSES(%NCC_COUNTER) == 0 #THEN #BLOCK
+                           @EV_CLASS = 0 ; use default event class
+                        #BLOCK_END
+                        #ELSE @EV_CLASS = %SIGNAL_CLASSES(%NCC_COUNTER) ; use signal spes. class
+                        @DELTA = 0 
+                        @EV_CTRL = 0
+                        #IF %COT == 3 + 256*%OG AND %INTERROGATED_OR_REQUESTED == TRUE #THEN @INTERROGATED_OR_REQUESTED = FALSE
+                        ;compose control byte
+                        #CASE %NCC_OPERATION_MODES(%NCC_COUNTER)
+                           #WHEN 1 @CTRL = 7  ; quiescent mode                     
+                           #WHEN 2 @CTRL = 3  ; unsolicited report-by-exception mode
+                           #WHEN 3 @CTRL = 1  ; polled report-by-exception mode
+                           #WHEN 4 @CTRL = 1  ; polled static mode                        
+                        #CASE_END  
+                        ;compose flag byte
+                        #IF %OS == 2 #THEN @COMM_LOST = 1
+                        #ELSE @COMM_LOST = 0
+                        #IF %OS == 1 OR %OS == 10 OR %OS == 2 #THEN @ON_LINE = 0
+                        #ELSE @ON_LINE = 1 
+                        #IF %INDICATION_BLOCKED_ENABLED #THEN #BLOCK
+                           #IF BIT(%RZ,3) == 1 #THEN @ON_LINE = 0
+                        #BLOCK_END
+                        @FLAG = %ON_LINE+0*2+%COMM_LOST*4+0*8+%SB*16+%BL*32+0*64+0*128
+                        ;group and variation of the object
+                        #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),7) == 1 #THEN #BLOCK
+                           @OBJ_VAR = (3,2) ; Send with flag 
+                           #IF NOT %INTERROGATED_OR_REQUESTED #THEN #BLOCK
+                              #IF STA'STA_NR':SDI == 1 #THEN #BLOCK 
+                                 #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),5) == 1 #THEN @OBJ_VAR = (4,3) ; send change with relative time
+                                 #ELSE_IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),4) == 1 #THEN @OBJ_VAR = (4,2) ; send change with time
+                                 #ELSE_IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),3) == 1 #THEN @OBJ_VAR = (4,1) ; send change without time
+                              #BLOCK_END  
+                           #BLOCK_END  
+                        #BLOCK_END     
+                        #ELSE #BLOCK
+                           @OBJ_VAR = (1,2) ; send with status 
+                           #IF NOT %INTERROGATED_OR_REQUESTED #THEN #BLOCK
+                              #IF STA'STA_NR':SDI == 1 #THEN #BLOCK 
+                                 #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),5) == 1 #THEN @OBJ_VAR = (2,3) ; send change with relative time
+                                 #ELSE_IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),4) == 1 #THEN @OBJ_VAR = (2,2) ; send change with time
+                                 #ELSE_IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),3) == 1 #THEN @OBJ_VAR = (2,1) ; send change without time
+                              #BLOCK_END            
+                           #BLOCK_END            
+                        #BLOCK_END                                                
+                        ;invert value if required
+                        #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),1) == 1 #THEN @VALUE = 1-%BI
+                        #ELSE @VALUE = %BI
+                        ;send as double binary
+                        #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),2) == 1 #THEN #BLOCK
+                           @DB_VALUES = (12,11)
+                           @VALUE = %DB_VALUES(%VALUE+1)
+                        #BLOCK_END                 
+                        #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),7) == 1 #THEN #BLOCK
+                           @DB_VALUES = (2,1)
+                           @VALUE = %DB_VALUES(%VALUE+1)
+                        #BLOCK_END                 
+                        #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),6) == 1 #THEN #BLOCK ; send every EV writing to master
+                           @EV_CTRL = 1
+                        #BLOCK_END
+                        #IF %UTC_LOCAL_CONVERSION(%NCC_COUNTER) == 1 #THEN #BLOCK
+                           @EV_CTRL = BIT_SET(%EV_CTRL,1)
+                        #BLOCK_END
+                        ;**************** project-specific modifications *************************
+                        #IF BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),0) == 1 #THEN #BLOCK
+                           ;write the project-specific code in this block
+                        #BLOCK_END
+                        ;send value to NET                     
+                        #IF NOT %INTERROGATED_OR_REQUESTED #THEN #BLOCK
+                           #IF (BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),3) == 1 OR BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),4) == 1 OR -
+                           BIT(%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER),5) == 1) AND STA'STA_NR':SDI == 1 #THEN -
+                           #SET STA'STA_NR':SEV(%EV_CLASS) = (%OBJ_VAR(1),%OBJ_VAR(2),%NCC_ADDRESSES(%NCC_COUNTER),%VALUE,%FLAG,%DELTA,%RT,%RM,%EV_CTRL) ; send with time
+                           #ELSE #SET STA'STA_NR':SSD(%SD_CLASS) = (%OBJ_VAR(1),%OBJ_VAR(2),%NCC_ADDRESSES(%NCC_COUNTER),%VALUE,%FLAG,%CTRL)    
+                        #BLOCK_END
+                        #ELSE #SET STA'STA_NR':SSD(%SD_CLASS) = (%OBJ_VAR(1),%OBJ_VAR(2),%NCC_ADDRESSES(%NCC_COUNTER),%VALUE,%FLAG,%CTRL)    
+                        #IF %ENABLE_LOGGING #THEN #BLOCK ; 8
+                           @SH=%SIGNAL_HANDLING_ATTRS(%NCC_COUNTER)
+                           @OBJ=%OBJ_VAR(1)
+                           @VAR=%OBJ_VAR(2)
+                           @NCC_ADDR=%NCC_ADDRESSES(%NCC_COUNTER)
+                           @S=STATUS
+                           #IF %EV_CLASS == 0 #THEN @DATA_CLASS = %SD_CLASS
+                           #ELSE @DATA_CLASS = %EV_CLASS 
+                           @INFO="'rt':'rm',USBI,'UN','LN':P'IX','STA_NR',,'BI',DNP30,'SH','NCC_ADDR','VALUE',,,,'OBJ','VAR','FLAG','CTRL','S','OS','DATA_CLASS','SX'"
+                           #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                           #ELSE #DO COM_LOG:CIN
+                        #BLOCK_END ; 8
+                     #BLOCK_END ; 7                               
+                  #CASE_END ; 6
+               #BLOCK_END ; 5
+               #ELSE_IF %ENABLE_LOGGING #THEN #BLOCK ; 5
+                  #IF %NCC_ADDRESSES(%NCC_COUNTER) <> -1 #THEN @NCC_ADDR_FOUND = TRUE
+                  #ELSE @NCC_ADDR_FOUND = FALSE
+                  @DISABLE_NCC_DATA=COM_GENVAR:PBZ(%NCC_NUMBER+4)          
+                  @INFO="'rt':'rm',USBI,'UN','LN':P'IX','STA_NR',ncc addr found:'NCC_ADDR_FOUND' disable ncc data sending:'DISABLE_NCC_DATA',,,,,,,,,,,,,,,,"
+                  #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                  #ELSE #DO COM_LOG:CIN
+               #BLOCK_END ; 5                        
+               ;if group alarm information found and alarm state changed, set to the group/bit
+               #IF %AL_GROUP > 0 AND %AL_BIT > 0 #THEN #BLOCK ; 5
+                  #IF %AL <> BIT(BNCC'NCC_NUMBER'_GRP:POV'AL_GROUP',%AL_BIT) #THEN #BLOCK ; 6
+                     #IF %AL == 1 #THEN #BLOCK ; 7
+                        @SEND_ALARM_GROUP_ALWAYS_WHEN_ALARMING = BIT(BNCC'NCC_NUMBER'_GRP:PFI'AL_GROUP',3)
+                        #IF %SEND_ALARM_GROUP_ALWAYS_WHEN_ALARMING == 1 #THEN #BLOCK
+                           #SET BNCC'NCC_NUMBER'_GRP:PRI'AL_GROUP' = BNCC'NCC_NUMBER'_GRP:PRI'AL_GROUP'+2
+                        #BLOCK_END
+                        #SET BNCC'NCC_NUMBER'_GRP:POV'AL_GROUP' = LIST(OV=BIT_SET(BNCC'NCC_NUMBER'_GRP:POV'AL_GROUP',%AL_BIT),RT=%RT,RM=%RM)
+                        @PULSE_GROUP = (BIT(BNCC'NCC_NUMBER'_GRP:PFI'AL_GROUP',1)==1)
+                        ; if group alarm is sent as pulse, send also immediteally resetting value
+                        #IF %PULSE_GROUP #THEN #BLOCK
+                           #IF 'LN':PAR'IX'==0 #THEN #SET BNCC'NCC_NUMBER'_GRP:POV'AL_GROUP' = LIST(OV=BIT_CLEAR(BNCC'NCC_NUMBER'_GRP:POV'AL_GROUP',%AL_BIT),RT=%RT,RM=%RM)
+                        #BLOCK_END 
+                     #BLOCK_END ; 7
+                     #ELSE #SET BNCC'NCC_NUMBER'_GRP:POV'AL_GROUP' = LIST(OV=BIT_CLEAR(BNCC'NCC_NUMBER'_GRP:POV'AL_GROUP',%AL_BIT),RT=%RT,RM=%RM)
+                  #BLOCK_END ; 6
+               #BLOCK_END ; 5
+            #LOOP_END ; 4
+         #BLOCK_END ; 4     
+      #BLOCK_END ; 3
+      #ELSE_IF %ENABLE_LOGGING #THEN #BLOCK
+         @INFO="'rt':'rm',USBI,'UN','LN':P'IX',,ncc connection not found,,,,,,,,,,,,,,,,"
+         #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+         #ELSE #DO COM_LOG:CIN
+      #BLOCK_END
+   #BLOCK_END ; 2
+   #ELSE_IF %ENABLE_LOGGING #THEN #BLOCK
+      @INFO="'rt':'rm',USBI,'UN','LN':P'IX',,cross-reference not found,,,,,,,,,,,,,,,,"
+      #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+      #ELSE #DO COM_LOG:CIN
+   #BLOCK_END     
+#BLOCK_END ; 1   
+#ELSE_IF %ENABLE_LOGGING #THEN #BLOCK
+   @INFO="'rt':'rm',USBI,'UN','LN':P'IX',,prevent_sending:'PREVENT_DATA_SENDING' enable_sending_after_startup:'ENABLE_DATA_SENDING_AFTER_STARTUP',,,,,,,,,,,,,,,,"
+   #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+   #ELSE #DO COM_LOG:CIN
+#BLOCK_END    
+
+

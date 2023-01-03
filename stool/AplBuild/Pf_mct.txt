@@ -1,0 +1,132 @@
+
+menu configuration tool   
+------------------------------------------
+
+1.  General
+2.  Functionality
+     2.1  Adding an item
+           2.1.1  Functionality of the Add Menu Item -dialog
+           2.1.2  Functionality of the Edit Menu Item -dialog
+           2.1.3  Functionality of the Preview -dialog
+3.  Converting menu file structure
+4.  Showing Visual SCIL Header in 'Base for 4.0.2'
+
+
+1. General
+
+The menus are configurable in three parts. As default The Common Part
+and the Help part are common for all pictures within an application.
+The Picture Specific Part is holding items used in that picture only.
+The sources, where the menu definitions are fetched, are configurated
+in each pictures base picture function.
+
+
+2. Functionality
+
+The menu parts are shown as three pages in a notebook. The cascade items
+are presented as folders and the normal items and separators as leafs.
+At first the menu bar main items are shown. The content of the main items
+can be browsed through just by expanding the folders. The configurations are
+saved under the application when OK is selected and discarded with Cancel.
+By default the menu standard and help part definitions are saved under
+/apl/'application'/apl_mod4/lang'language' and the menu standard and help
+part action programs under /apl/'application'/apl_mod4/use directory.
+
+2.1 Adding an item
+
+The menu items can be added by selecting an existing item (or the root
+folder, if no items exist) and then selecting the Add button. A dialog is
+opened, where needed definitions can be made. If the selected item is an
+expanded folder, then the new item is placed under the selected folder.
+If the selected item is a collapsed folder, then the new item belongs to
+the selected folders parent folder and is placed below the selected
+folder. The main menu items (under root folder) can be cascade type only.
+
+2.1.1 Functionality of the Add Menu Item -dialog
+
+The menu item type is selected with the available radio buttons. If selected
+item type is Item or Cascade item, then the Identification and Title text 
+fields are active and can be filled in. The Identification field can also be
+left empty. In that case the system time is automatically used as an 
+identifier for the item. The identifier has to be unique within a menu part.
+The menu action definitions are defined in the Menu action definitions -area.
+The cascade items can be enabled/disabled.
+
+For normal items you can define the action, that is done when the menu
+item is selected at runtime. The most common actions can be made by
+selecting action types Open picture / Open dialog and filling in the needed
+details. (Note! Picture and window names can be max. 10 characters, X can be
+in range 0..80, Y in 0..48). If you have knowledge with SCIL syntax, you can
+also define the action program in SCIL by selecting the Advanced button.
+Made changes are saved with OK and discarded with Cancel
+
+2.1.2 Functionality of the Edit Menu Item -dialog
+
+The Edit Menu Item -dialog is similar with Add Menu Item -dialog
+,exept that the current definitions are shown at dialog start-up.
+
+2.1.3  Functionality of the Preview -dialog
+
+You can open the preview dialog by selecting the Preview button. The dialog
+presents the menus currently modified as they are shown at runtime. No menu
+actions are done. The dialog is dynamically updated, when changes are made.
+The dialog can be closed from the dialogs upper right corner.
+
+
+3.  Converting menu file structure
+
+The typical situation for converting the file structure of the used menu
+configuratiuon files is, when e.g. a Process Picture, containing the 'Base for 4.0.2'
+and the graphical primitive Header, shall be upgraded to 'Base for 4.0.3' and
+Visual SCIL Header, to get the new features of it by keeping the contents of the
+customer modified menu files.
+
+The files can be converted to the new file structure by following these steps. 
+
+ (1) Select the Base Picture Function (Click on the picture background).
+ (2) Open SCT from the left tool bar, push "Copy Attributes"-button and
+      remember or write down the entries from attributes STANDARD_MENU_ACTION,
+      SPECIFIC_MENU_ACTION and HELP_MENU_ACTION. These are needed
+      later on. Close SCT via "Cancel"-button.
+ (3) Delete the Base Picture Function.
+ (4) Install new 'Base for 4.0.3' and send it to the back of the picture via
+      Menu Item 'Arrange - Send to back'. This ensures that all other picture
+      functions (e.g. switch devices, transformers,...) and single line diagram
+      are later on visible again.
+ (5) Open SCT from the left tool bar and push "Paste Attributes"-button. Push
+      then "Apply"-button and open the MCT via the Notebookpageleaf 'Tools'. An
+      Info dialog appears, saying that old menu file syntax detected. Read the
+      dialog and close it.
+ (6) Push the 'Convert...'-button. Old menu definition source file is displayed
+      for the respective menu part.
+ (7) Give in the entry of the former attribute STANDARD_MENU_ACTION into the
+      field 'Menu action source of old syntax'. Then give in the path/filename of
+      the new source file into the field 'Destination for new syntax' and push
+      'OK'-button. You can use any path/filename of your choice.
+         ! IMPORTANT NOTE:
+         ! The file will be automatically created! An existing file will be
+         ! overwritten without asking!!
+         ! Check the path/filename twice before pushing "OK"!!
+ (8) Close MCT via "OK"-button!
+ (9) Change path/filename in attribute STANDARD_MENU_PART to same
+       path/filename that was given into the field 'Destination for new syntax',
+       push "Apply"-button and open MCT again. The new file structure was
+       recognized for the Standard Part.
+ (10) Repeat steps (5) to (8) for Specific part and Help part and close after that
+        the SCT via "OK"-button!
+        The attributes to be changed will than be SPECIFIC_MENU_ACTION or
+        HELP_MENU_ACTION!
+        For Specific menu part the new entry should be: PICT/<My_Name>.MNU
+        (<My_Name>: recommended to be the same like the picturename!)
+           ! IMPORTANT NOTE:
+           ! All the used menu parts have to be converted. This is a Must! If the
+           ! picture specific menu part was not used, it has not to be converted.
+
+4.  Showing Visual SCIL Header in 'Base for 4.0.2'
+
+ (1) Open the window, named 'HEADER'. The window is located inside the base
+      picture function.
+ (2) Check that the 'Logical Path' is B_USE, change the 'Picture Name'
+      to BGU_HEAD2A and push 'OK'-button.
+ (3) Save the picture.
+       Note: The menu configuration files remain and will not be changed.

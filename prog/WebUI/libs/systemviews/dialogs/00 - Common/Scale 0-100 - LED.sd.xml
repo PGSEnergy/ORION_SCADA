@@ -1,0 +1,454 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:variable type="external" name="control" default="''" />
+    <d:meta name="dv-custom-attribute|ABB SA Symbols" content="v1.0" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Level Indicator (LED)" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="Level Indicator" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="value" default="0" />
+    <d:variable type="external" name="status-color" default="0" />
+    <d:variable type="external" name="low-alarm-limit" default="0" />
+    <d:variable type="external" name="low-warning-limit" default="0" />
+    <d:variable type="external" name="high-warning-limit" default="0" />
+    <d:variable type="external" name="high-alarm-limit" default="0" />
+    <d:value-list name="f82" min="0" max="255">
+      <d:option expression="colors[57]" />
+      <d:option text="rgb(255, 255, 128)" />
+      <d:option text="rgb(255, 0, 0)" />
+      <d:option text="rgb(0, 255, 0)" />
+      <d:option text="rgb(0, 0, 255)" />
+      <d:option text="rgb(255, 0, 255)" />
+      <d:option text="rgb(255, 255, 0)" />
+      <d:option text="rgb(0, 255, 255)" />
+      <d:option text="rgb(255, 128, 0)" />
+      <d:option text="rgb(128, 255, 0)" />
+      <d:option text="rgb(0, 255, 128)" />
+      <d:option text="rgb(0, 128, 255)" />
+      <d:option text="rgb(128, 0, 255)" />
+      <d:option text="rgb(255, 0, 128)" />
+      <d:option text="rgb(128, 128, 128)" />
+      <d:option text="rgb(255, 255, 255)" />
+      <d:option expression="colors[16]" />
+      <d:option expression="colors[17]" />
+      <d:option expression="colors[18]" />
+      <d:option expression="colors[19]" />
+      <d:option expression="colors[20]" />
+      <d:option expression="colors[21]" />
+      <d:option expression="colors[22]" />
+      <d:option expression="colors[23]" />
+      <d:option expression="colors[24]" />
+      <d:option expression="colors[25]" />
+      <d:option expression="colors[26]" />
+      <d:option expression="colors[27]" />
+      <d:option expression="colors[28]" />
+      <d:option expression="colors[29]" />
+      <d:option expression="colors[30]" />
+      <d:option expression="colors[31]" />
+      <d:option expression="colors[32]" />
+      <d:option expression="colors[33]" />
+      <d:option expression="colors[34]" />
+      <d:option expression="colors[35]" />
+      <d:option expression="colors[36]" />
+      <d:option expression="colors[37]" />
+      <d:option expression="colors[38]" />
+      <d:option expression="colors[39]" />
+      <d:option expression="colors[40]" />
+      <d:option expression="colors[41]" />
+      <d:option expression="colors[42]" />
+      <d:option expression="colors[43]" />
+      <d:option expression="colors[44]" />
+      <d:option expression="colors[45]" />
+      <d:option expression="colors[46]" />
+      <d:option expression="colors[47]" />
+      <d:option expression="colors[48]" />
+      <d:option expression="colors[49]" />
+      <d:option expression="colors[50]" />
+      <d:option expression="colors[51]" />
+      <d:option expression="colors[52]" />
+      <d:option expression="colors[53]" />
+      <d:option expression="colors[54]" />
+      <d:option expression="colors[55]" />
+      <d:option expression="colors[56]" />
+      <d:option expression="colors[57]" />
+      <d:option expression="colors[58]" />
+      <d:option expression="colors[59]" />
+      <d:option expression="colors[60]" />
+      <d:option expression="colors[61]" />
+      <d:option expression="colors[62]" />
+      <d:option expression="colors[63]" />
+      <d:option expression="colors[64]" />
+      <d:option expression="colors[65]" />
+      <d:option expression="colors[66]" />
+      <d:option expression="colors[67]" />
+      <d:option expression="colors[68]" />
+      <d:option expression="colors[69]" />
+      <d:option expression="colors[70]" />
+      <d:option expression="colors[71]" />
+      <d:option expression="colors[72]" />
+      <d:option expression="colors[73]" />
+      <d:option expression="colors[74]" />
+      <d:option expression="colors[75]" />
+      <d:option expression="colors[76]" />
+      <d:option expression="colors[77]" />
+      <d:option expression="colors[78]" />
+      <d:option expression="colors[79]" />
+      <d:option expression="colors[80]" />
+      <d:option expression="colors[81]" />
+      <d:option expression="colors[82]" />
+      <d:option expression="colors[83]" />
+      <d:option expression="colors[84]" />
+      <d:option expression="colors[85]" />
+      <d:option expression="colors[86]" />
+      <d:option expression="colors[87]" />
+      <d:option expression="colors[88]" />
+      <d:option expression="colors[89]" />
+      <d:option expression="colors[90]" />
+      <d:option expression="colors[91]" />
+      <d:option expression="colors[92]" />
+      <d:option expression="colors[93]" />
+      <d:option expression="colors[94]" />
+      <d:option expression="colors[95]" />
+      <d:option expression="colors[96]" />
+      <d:option expression="colors[97]" />
+      <d:option expression="colors[98]" />
+      <d:option expression="colors[99]" />
+      <d:option expression="colors[100]" />
+      <d:option expression="colors[101]" />
+      <d:option expression="colors[102]" />
+      <d:option expression="colors[103]" />
+      <d:option expression="colors[104]" />
+      <d:option expression="colors[105]" />
+      <d:option expression="colors[106]" />
+      <d:option expression="colors[107]" />
+      <d:option expression="colors[108]" />
+      <d:option expression="colors[109]" />
+      <d:option expression="colors[110]" />
+      <d:option expression="colors[111]" />
+      <d:option expression="colors[112]" />
+      <d:option expression="colors[113]" />
+      <d:option expression="colors[114]" />
+      <d:option expression="colors[115]" />
+      <d:option expression="colors[116]" />
+      <d:option text="rgb(255, 64, 64)" />
+      <d:option text="rgb(255, 128, 128)" />
+      <d:option text="rgb(255, 192, 192)" />
+      <d:option text="rgb(64, 0, 64)" />
+      <d:option text="rgb(128, 0, 128)" />
+      <d:option text="rgb(192, 0, 192)" />
+      <d:option text="rgb(255, 0, 255)" />
+      <d:option text="rgb(255, 64, 255)" />
+      <d:option text="rgb(255, 128, 255)" />
+      <d:option text="rgb(255, 192, 255)" />
+      <d:option text="rgb(255, 255, 255)" />
+      <d:option text="rgb(0, 51, 0)" />
+      <d:option text="rgb(0, 102, 0)" />
+      <d:option text="rgb(0, 153, 0)" />
+      <d:option text="rgb(0, 204, 0)" />
+      <d:option text="rgb(0, 255, 0)" />
+      <d:option text="rgb(64, 255, 64)" />
+      <d:option text="rgb(128, 255, 128)" />
+      <d:option text="rgb(192, 255, 192)" />
+      <d:option text="rgb(51, 51, 0)" />
+      <d:option text="rgb(102, 102, 0)" />
+      <d:option text="rgb(153, 153, 0)" />
+      <d:option text="rgb(204, 204, 0)" />
+      <d:option text="rgb(255, 255, 0)" />
+      <d:option text="rgb(255, 255, 64)" />
+      <d:option text="rgb(255, 255, 128)" />
+      <d:option text="rgb(255, 255, 192)" />
+      <d:option text="rgb(0, 0, 51)" />
+      <d:option text="rgb(0, 0, 102)" />
+      <d:option text="rgb(0, 0, 153)" />
+      <d:option text="rgb(0, 0, 204)" />
+      <d:option text="rgb(0, 0, 255)" />
+      <d:option text="rgb(64, 64, 255)" />
+      <d:option text="rgb(128, 128, 255)" />
+      <d:option text="rgb(192, 192, 255)" />
+      <d:option text="rgb(0, 51, 51)" />
+      <d:option text="rgb(0, 102, 102)" />
+      <d:option text="rgb(0, 153, 153)" />
+      <d:option text="rgb(0, 204, 204)" />
+      <d:option text="rgb(0, 255, 255)" />
+      <d:option text="rgb(64, 255, 255)" />
+      <d:option text="rgb(128, 255, 255)" />
+      <d:option text="rgb(192, 255, 255)" />
+      <d:option text="rgb(51, 25, 0)" />
+      <d:option text="rgb(102, 51, 0)" />
+      <d:option text="rgb(153, 76, 0)" />
+      <d:option text="rgb(204, 102, 0)" />
+      <d:option text="rgb(255, 128, 0)" />
+      <d:option text="rgb(255, 160, 64)" />
+      <d:option text="rgb(255, 192, 128)" />
+      <d:option text="rgb(255, 224, 192)" />
+      <d:option text="rgb(0, 25, 51)" />
+      <d:option text="rgb(0, 51, 102)" />
+      <d:option text="rgb(0, 76, 153)" />
+      <d:option text="rgb(0, 102, 204)" />
+      <d:option text="rgb(0, 128, 255)" />
+      <d:option text="rgb(64, 160, 255)" />
+      <d:option text="rgb(128, 192, 255)" />
+      <d:option text="rgb(192, 224, 255)" />
+      <d:option text="rgb(25, 0, 51)" />
+      <d:option text="rgb(51, 0, 102)" />
+      <d:option text="rgb(76, 0, 153)" />
+      <d:option text="rgb(102, 0, 204)" />
+      <d:option text="rgb(128, 0, 255)" />
+      <d:option text="rgb(160, 64, 255)" />
+      <d:option text="rgb(192, 128, 255)" />
+      <d:option text="rgb(224, 192, 255)" />
+      <d:option text="rgb(51, 0, 25)" />
+      <d:option text="rgb(102, 0, 51)" />
+      <d:option text="rgb(153, 0, 76)" />
+      <d:option text="rgb(204, 0, 102)" />
+      <d:option text="rgb(255, 0, 128)" />
+      <d:option text="rgb(255, 64, 160)" />
+      <d:option text="rgb(255, 128, 192)" />
+      <d:option text="rgb(255, 192, 224)" />
+      <d:option text="rgb(255, 0, 0)" />
+      <d:option text="rgb(255, 32, 0)" />
+      <d:option text="rgb(255, 64, 0)" />
+      <d:option text="rgb(255, 96, 0)" />
+      <d:option text="rgb(255, 128, 0)" />
+      <d:option text="rgb(255, 160, 0)" />
+      <d:option text="rgb(255, 192, 0)" />
+      <d:option text="rgb(255, 224, 0)" />
+      <d:option text="rgb(255, 255, 0)" />
+      <d:option text="rgb(224, 255, 0)" />
+      <d:option text="rgb(192, 255, 0)" />
+      <d:option text="rgb(160, 255, 0)" />
+      <d:option text="rgb(128, 255, 0)" />
+      <d:option text="rgb(96, 255, 0)" />
+      <d:option text="rgb(64, 255, 0)" />
+      <d:option text="rgb(32, 255, 0)" />
+      <d:option text="rgb(0, 255, 0)" />
+      <d:option text="rgb(0, 255, 32)" />
+      <d:option text="rgb(0, 255, 64)" />
+      <d:option text="rgb(0, 255, 96)" />
+      <d:option text="rgb(0, 255, 128)" />
+      <d:option text="rgb(0, 255, 160)" />
+      <d:option text="rgb(0, 255, 192)" />
+      <d:option text="rgb(0, 255, 224)" />
+      <d:option text="rgb(0, 255, 255)" />
+      <d:option text="rgb(0, 224, 255)" />
+      <d:option text="rgb(0, 192, 255)" />
+      <d:option text="rgb(0, 160, 255)" />
+      <d:option text="rgb(0, 128, 255)" />
+      <d:option text="rgb(0, 96, 255)" />
+      <d:option text="rgb(0, 64, 255)" />
+      <d:option text="rgb(0, 32, 255)" />
+      <d:option text="rgb(0, 0, 255)" />
+      <d:option text="rgb(32, 0, 255)" />
+      <d:option text="rgb(64, 0, 255)" />
+      <d:option text="rgb(96, 0, 255)" />
+      <d:option text="rgb(128, 0, 255)" />
+      <d:option text="rgb(160, 0, 255)" />
+      <d:option text="rgb(192, 0, 255)" />
+      <d:option text="rgb(224, 0, 255)" />
+      <d:option text="rgb(255, 0, 255)" />
+      <d:option text="rgb(255, 0, 224)" />
+      <d:option text="rgb(255, 0, 192)" />
+      <d:option text="rgb(255, 0, 160)" />
+      <d:option text="rgb(255, 0, 128)" />
+      <d:option text="rgb(255, 0, 96)" />
+      <d:option text="rgb(255, 0, 64)" />
+      <d:option text="rgb(255, 0, 32)" />
+      <d:option text="rgb(16, 16, 16)" />
+      <d:option text="rgb(32, 32, 32)" />
+      <d:option text="rgb(48, 48, 48)" />
+      <d:option text="rgb(64, 64, 64)" />
+      <d:option text="rgb(80, 80, 80)" />
+      <d:option text="rgb(96, 96, 96)" />
+      <d:option text="rgb(112, 112, 112)" />
+      <d:option text="rgb(128, 128, 128)" />
+      <d:option text="rgb(144, 144, 144)" />
+      <d:option text="rgb(160, 160, 160)" />
+      <d:option text="rgb(176, 176, 176)" />
+      <d:option text="rgb(192, 192, 192)" />
+      <d:option text="rgb(208, 208, 208)" />
+      <d:option text="rgb(224, 224, 224)" />
+      <d:option text="rgb(240, 240, 240)" />
+      <d:option text="rgb(255, 255, 255)" />
+    </d:value-list>
+    <d:mapping name="f83" parameters="value">
+      <d:step value="true" when="value &lt;= 41.500" />
+      <d:step value="false" when="value &lt;= 42.500" />
+      <d:step value="true" when="value &lt;= 45.500" />
+      <d:step value="false" when="value &lt;= 46.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f84" parameters="value">
+      <d:step value="['rgb(255, 255, 255)', 'none']" when="value &lt;= 41.500" />
+      <d:step value="[[colors[42], colors[19]], ['none', 'none']]" when="value &lt;= 42.500" />
+      <d:step value="['rgb(255, 255, 255)', 'none']" when="value &lt;= 45.500" />
+      <d:step value="[[colors[46], colors[19]], ['none', 'none']]" when="value &lt;= 46.500" />
+      <d:otherwise value="['rgb(255, 255, 255)', 'none']" />
+    </d:mapping>
+    <d:mapping name="f85" parameters="value">
+      <d:step value="'rgb(112, 112, 112)'" when="value &lt;= 97.498" />
+      <d:otherwise value="'rgb(255, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f86" parameters="value">
+      <d:step value="'rgb(112, 112, 112)'" when="value &lt;= 92.496" />
+      <d:otherwise value="'rgb(255, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f87" parameters="value">
+      <d:step value="'rgb(112, 112, 112)'" when="value &lt;= 87.497" />
+      <d:otherwise value="'rgb(255, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f88" parameters="value">
+      <d:step value="'rgb(112, 112, 112)'" when="value &lt;= 82.498" />
+      <d:otherwise value="'rgb(255, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f89" parameters="value">
+      <d:step value="'rgb(112, 112, 112)'" when="value &lt;= 77.496" />
+      <d:otherwise value="'rgb(255, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f90" parameters="value">
+      <d:step value="'rgb(112, 112, 112)'" when="value &lt;= 72.498" />
+      <d:otherwise value="'rgb(255, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f91" parameters="value">
+      <d:step value="'rgb(112, 112, 112)'" when="value &lt;= 62.497" />
+      <d:otherwise value="'rgb(255, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f92" parameters="value">
+      <d:step value="'rgb(112, 112, 112)'" when="value &lt;= 67.499" />
+      <d:otherwise value="'rgb(255, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f93" parameters="value">
+      <d:step value="'rgb(112, 112, 112)'" when="value &lt;= 57.498" />
+      <d:otherwise value="'rgb(255, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f94" parameters="value">
+      <d:step value="'rgb(112, 112, 112)'" when="value &lt;= 52.499" />
+      <d:otherwise value="'rgb(255, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f95" parameters="value">
+      <d:step value="'rgb(112, 112, 112)'" when="value &lt;= 2.499" />
+      <d:otherwise value="'rgb(255, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f96" parameters="value">
+      <d:step value="'rgb(112, 112, 112)'" when="value &lt;= 47.498" />
+      <d:otherwise value="'rgb(255, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f97" parameters="value">
+      <d:step value="'rgb(112, 112, 112)'" when="value &lt;= 42.499" />
+      <d:otherwise value="'rgb(255, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f98" parameters="value">
+      <d:step value="'rgb(112, 112, 112)'" when="value &lt;= 37.500" />
+      <d:otherwise value="'rgb(255, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f99" parameters="value">
+      <d:step value="'rgb(112, 112, 112)'" when="value &lt;= 32.498" />
+      <d:otherwise value="'rgb(255, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f100" parameters="value">
+      <d:step value="'rgb(112, 112, 112)'" when="value &lt;= 27.499" />
+      <d:otherwise value="'rgb(255, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f101" parameters="value">
+      <d:step value="'rgb(112, 112, 112)'" when="value &lt;= 22.501" />
+      <d:otherwise value="'rgb(255, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f102" parameters="value">
+      <d:step value="'rgb(112, 112, 112)'" when="value &lt;= 17.499" />
+      <d:otherwise value="'rgb(255, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f103" parameters="value">
+      <d:step value="'rgb(112, 112, 112)'" when="value &lt;= 12.500" />
+      <d:otherwise value="'rgb(255, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f104" parameters="value">
+      <d:step value="'rgb(112, 112, 112)'" when="value &lt;= 7.501" />
+      <d:otherwise value="'rgb(255, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f105" parameters="value">
+      <d:step value="3" when="value &lt;= -0.500" />
+      <d:step value="1" when="value &lt;= 0.500" />
+      <d:otherwise value="3" />
+    </d:mapping>
+    <d:mapping name="f106" parameters="value">
+      <d:step value="true" when="value &lt;= -0.999" />
+      <d:step value="false" when="value &lt;= 100.995" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f107" parameters="value">
+      <d:step value="3" when="value &lt;= -0.500" />
+      <d:step value="1" when="value &lt;= 0.500" />
+      <d:otherwise value="3" />
+    </d:mapping>
+    <d:mapping name="f108" parameters="value">
+      <d:step value="true" when="value &lt;= -0.999" />
+      <d:step value="false" when="value &lt;= 100.995" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f109" parameters="value">
+      <d:step value="3" when="value &lt;= -0.500" />
+      <d:step value="1" when="value &lt;= 0.500" />
+      <d:otherwise value="3" />
+    </d:mapping>
+    <d:mapping name="f110" parameters="value">
+      <d:step value="true" when="value &lt;= -0.999" />
+      <d:step value="false" when="value &lt;= 100.995" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f111" parameters="value">
+      <d:step value="colors[28]" when="value &lt;= -0.500" />
+      <d:step value="colors[30]" when="value &lt;= 0.500" />
+      <d:otherwise value="colors[28]" />
+    </d:mapping>
+    <d:mapping name="f112" parameters="value">
+      <d:step value="3" when="value &lt;= -0.500" />
+      <d:step value="1" when="value &lt;= 0.500" />
+      <d:otherwise value="3" />
+    </d:mapping>
+    <d:mapping name="f113" parameters="value">
+      <d:step value="true" when="value &lt;= -0.999" />
+      <d:step value="false" when="value &lt;= 100.995" />
+      <d:otherwise value="true" />
+    </d:mapping>
+  </d:head>
+  <d:body n:LN="{LN(control)}" n:IX="{IX(control)}" x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <s:rect width="25" height="145" x="-12.500" y="-72.500" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f82(`status-color`), subdrawing_color)}" y:fill-rule="evenodd" y:stroke="none" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Status" />
+    <s:rect width="25" height="145" x="-12.500" y="-72.500" s:pointer-events="visiblePainted" d:hidden="f83(`status-color`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="{subdrawing_color}" y:fill-rule="evenodd" y:stroke="none" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Status Blink">
+      <d:animate attributes="fill, stroke" values="if(`subdrawing_dynamics`, f84(`status-color`), subdrawing_color)" />
+    </s:rect>
+    <s:rect width="20" height="140" x="-10" y="-70" s:pointer-events="visiblePainted" y:fill="rgb(160, 160, 160)" y:fill-rule="evenodd" y:stroke="none" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Meter border" />
+    <s:rect width="16" height="3" x="-8" y="-68" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f85(`value`), 'rgb(112, 112, 112)')}" y:fill-rule="evenodd" y:stroke="rgb(96, 96, 96)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <d:view name="00 - Common/Scale 0-100 - Basic.sd" s:transform="translate(15,0) scale(1,1)" d:object-name="Scale 0-100 - Basic">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+    </d:view>
+    <s:rect width="16" height="3" x="-8" y="-61" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f86(`value`), 'rgb(112, 112, 112)')}" y:fill-rule="evenodd" y:stroke="rgb(96, 96, 96)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <s:rect width="16" height="3" x="-8" y="-54" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f87(`value`), 'rgb(112, 112, 112)')}" y:fill-rule="evenodd" y:stroke="rgb(96, 96, 96)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <s:rect width="16" height="3" x="-8" y="-47" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f88(`value`), 'rgb(112, 112, 112)')}" y:fill-rule="evenodd" y:stroke="rgb(96, 96, 96)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <s:rect width="16" height="3" x="-8" y="-40" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f89(`value`), 'rgb(112, 112, 112)')}" y:fill-rule="evenodd" y:stroke="rgb(96, 96, 96)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <s:rect width="16" height="3" x="-8" y="-33" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f90(`value`), 'rgb(112, 112, 112)')}" y:fill-rule="evenodd" y:stroke="rgb(96, 96, 96)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <s:rect width="16" height="3" x="-8" y="-19" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f91(`value`), 'rgb(112, 112, 112)')}" y:fill-rule="evenodd" y:stroke="rgb(96, 96, 96)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <s:rect width="16" height="3" x="-8" y="-26" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f92(`value`), 'rgb(112, 112, 112)')}" y:fill-rule="evenodd" y:stroke="rgb(96, 96, 96)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <s:rect width="16" height="3" x="-8" y="-12" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f93(`value`), 'rgb(112, 112, 112)')}" y:fill-rule="evenodd" y:stroke="rgb(96, 96, 96)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <s:rect width="16" height="3" x="-8" y="-5" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f94(`value`), 'rgb(112, 112, 112)')}" y:fill-rule="evenodd" y:stroke="rgb(96, 96, 96)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <s:rect width="16" height="3" x="-8" y="65" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f95(`value`), 'rgb(112, 112, 112)')}" y:fill-rule="evenodd" y:stroke="rgb(96, 96, 96)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <s:rect width="16" height="3" x="-8" y="2" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f96(`value`), 'rgb(112, 112, 112)')}" y:fill-rule="evenodd" y:stroke="rgb(96, 96, 96)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <s:rect width="16" height="3" x="-8" y="9" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f97(`value`), 'rgb(112, 112, 112)')}" y:fill-rule="evenodd" y:stroke="rgb(96, 96, 96)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <s:rect width="16" height="3" x="-8" y="16" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f98(`value`), 'rgb(112, 112, 112)')}" y:fill-rule="evenodd" y:stroke="rgb(96, 96, 96)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <s:rect width="16" height="3" x="-8" y="23" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f99(`value`), 'rgb(112, 112, 112)')}" y:fill-rule="evenodd" y:stroke="rgb(96, 96, 96)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <s:rect width="16" height="3" x="-8" y="30" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f100(`value`), 'rgb(112, 112, 112)')}" y:fill-rule="evenodd" y:stroke="rgb(96, 96, 96)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <s:rect width="16" height="3" x="-8" y="37" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f101(`value`), 'rgb(112, 112, 112)')}" y:fill-rule="evenodd" y:stroke="rgb(96, 96, 96)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <s:rect width="16" height="3" x="-8" y="44" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f102(`value`), 'rgb(112, 112, 112)')}" y:fill-rule="evenodd" y:stroke="rgb(96, 96, 96)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <s:rect width="16" height="3" x="-8" y="51" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f103(`value`), 'rgb(112, 112, 112)')}" y:fill-rule="evenodd" y:stroke="rgb(96, 96, 96)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <s:rect width="16" height="3" x="-8" y="58" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f104(`value`), 'rgb(112, 112, 112)')}" y:fill-rule="evenodd" y:stroke="rgb(96, 96, 96)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <s:line x1="15" y1="70" x2="21" y2="70" y:stroke-width="{f105(`high-alarm-limit`)}" d:transform-anchor="center-center" d:hidden="f106(`high-warning-limit`) and `subdrawing_dynamics` = 1" d:transform="translate(0 {if(`subdrawing_dynamics`, scale(`high-warning-limit`, 0, 100, 0, -140), 0)})" y:stroke="{colors[27]}" y:vector-effect="non-scaling-stroke" y:shape-rendering="crispEdges" d:object-name="High Warning Limit" />
+    <s:line x1="21" y1="70" x2="15" y2="70" y:stroke-width="{f107(`high-alarm-limit`)}" d:transform-anchor="center-center" d:hidden="f108(`low-warning-limit`) and `subdrawing_dynamics` = 1" d:transform="translate(0 {if(`subdrawing_dynamics`, scale(`low-warning-limit`, 0, 100, 0, -140), 0)})" y:stroke="{colors[25]}" y:vector-effect="non-scaling-stroke" y:shape-rendering="crispEdges" d:object-name="Low Warning Limit" />
+    <s:line x1="21" y1="70" x2="15" y2="70" y:stroke-width="{f109(`high-alarm-limit`)}" d:transform-anchor="center-center" d:hidden="f110(`low-alarm-limit`) and `subdrawing_dynamics` = 1" d:transform="translate(0 {if(`subdrawing_dynamics`, scale(`low-alarm-limit`, 0, 100, 0, -140), 0)})" y:stroke="{colors[24]}" y:vector-effect="non-scaling-stroke" y:shape-rendering="crispEdges" d:object-name="Low Alarm Limit" />
+    <s:line x1="15" y1="70" x2="21" y2="70" d:transform-anchor="center-center" y:stroke-width="{f112(`high-alarm-limit`)}" d:hidden="f113(`high-alarm-limit`) and `subdrawing_dynamics` = 1" d:transform="translate(0 {if(`subdrawing_dynamics`, scale(`high-alarm-limit`, 0, 100, 0, -140), 0)})" y:stroke="{if(`subdrawing_dynamics`, f111(`high-alarm-limit`), colors[30])}" y:vector-effect="non-scaling-stroke" y:shape-rendering="crispEdges" d:object-name="High Alarm Limit" />
+  </d:body>
+</d:document>

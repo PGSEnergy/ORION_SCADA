@@ -1,0 +1,242 @@
+; Function:    BGU_UPD_NTC.TXT
+; Version:     1.0 (Build 12.5.2010) 
+; Parameters:  
+; Return data:
+; Description: Creates voltage level process objects for Line Indicators, Generators and Transformers.
+;              Updates the NTC related attributes to CD-attribute
+;              Sets line indicators to manual state (index 10) if not colored by DMS
+;----------------------------------------------------------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author   Description
+;12.5.2010  1.0      TiLi     Initial version
+;10.09.2010 1.0      TiLi     Status is resetted after reading language files
+;29.10.2010 1.0      TiLi     Line indicator set to manual state (index 10)
+;15.11.2010 1.0      TiLi     Line indicator set to manual state (index 10), if not colored by MT
+;18.3.2013         TiLi     ID 17246
+;----------------------------------------------------------------------------------------------------------------------------------------------------
+
+#local l_Last_Object = "", l_P_Objects = list()
+#local t_LN = "", i_IX = 0, t_OX, i, j,  i_Count = 1
+#local t_number_Of_Windings = ""
+#local t_RX_Generator = "BCHTCIXPCD"
+#local t_RX_Line_Indicator = "BCHMTCXFCD"
+#local t_RX_Trafo = "%%T*"
+#local t_Free_Chars = pad("%", 20)
+#local l_PO_Definition_AI_Template = list(IU = 1, SS = 1, PT = 9, SN = "1_1", ST = "kV", OI = "", OX = "", DX = "9", RX = "")
+#local l_PO_Definition_DI_Template = list(IU = 1, SS = 1, PT = 6, OI = "", OX = "", DX = "6", RX = "", OV = 5, AE = 0, AN = "", AA = 2, AF = 0, EH = "", HE = 0, HA = 1)
+#local l_PO_Definition = list()
+#local l_CD = list()
+#local l_Trafo_Conf = do(BGU_CREATEDB:C,"SAGR_INST/SAI_TRI_2.DAT", "GET_DEFAULTS")
+#local l_Generator_Conf = do(BGU_CREATEDB:C,"SAGR_INST/SAI_GEN.DAT", "GET_DEFAULTS")
+#local l_Line_Indicator_Conf = do(BGU_CREATEDB:C,"SAGR_INST/SAI_LIND.DAT", "GET_DEFAULTS")
+#local i_Index = 50000
+#local i_Line_Ind_Primary_Index = 10 
+
+#if length(path("sagr_lang")) == 0 #then #path sagr_lang +no_create, /SA_LIB/BASE/BBONE/LANG0
+#do read_text("sagr_lang/sai_tr2s.txt") ;creates variable FPI_SPOC containing the texts for OX - attribute
+#do read_text("sagr_lang/sai_gen.txt") ;creates variable BCI_GEN containing the texts for OX - attribute
+#do read_text("sagr_lang/sai_lind.txt") ;creates variable BCI_LIND containing the texts for OX - attribute
+
+#if data_type(%FPI_SPOC.PRIMARY_VOLTAGE_LEVEL) == "NONE" #then #set FPI_SPOC:VPRIMARY_VOLTAGE_LEVEL = "Primary Voltage Level"
+#if data_type(%FPI_SPOC.SECONDARY_VOLTAGE_LEVEL) == "NONE" #then #set FPI_SPOC:VSECONDARY_VOLTAGE_LEVEL = "Secondary Voltage Level"
+#if data_type(%FPI_SPOC.TERTIARY_VOLTAGE_LEVEL) == "NONE" #then #set FPI_SPOC:VTERTIARY_VOLTAGE_LEVEL = "Tertiary Voltage Level"
+#if data_type(%FPI_SPOC.QUATERNARY_VOLTAGE_LEVEL) == "NONE" #then #set FPI_SPOC:VQUATERNARY_VOLTAGE_LEVEL = "Quaternary Voltage Level"
+#if data_type(%BCI_GEN.VOLTAGE_LEVEL) == "NONE" #then #set BCI_GEN:VVOLTAGE_LEVEL = "Voltage Level"
+#if data_type(%BCI_GEN.GENERATOR_INDICATION) == "NONE" #then #set BCI_GEN:VGENERATOR_INDICATION = "Generator indication"
+#if data_type(%BCI_GEN.GENERATOR_STATE) == "NONE" #then #set BCI_GEN:VGENERATOR_STATE = "Generator state"
+#if data_type(%BCI_LIND.VOLTAGE_LEVEL) == "NONE" #then #set BCI_LIND:VVOLTAGE_LEVEL = "Voltage Level"
+
+@s = status
+
+;create scale "1_1"
+#if not application_object_exists(0,"X", "1_1") #then #create 1_1:X = list(SA = 0)
+
+#loop   ;1
+   
+   ;query process object from PDB
+   l_P_objects = application_object_list(-
+      0,-
+      "IX",-
+      "A",-
+      "FORWARD",-
+      l_Last_Object,-
+      "LN <> ""BNCC*"" and (RX==""'t_Free_Chars''t_RX_Generator'"" or RX == ""'t_Free_Chars''t_RX_Line_Indicator'"" or RX == ""'t_Free_Chars''t_RX_Trafo'"")",-
+      vector("RX"))
+   
+   ;Name of the last object needed for next query, if more than 10 000 were found
+   #if l_P_objects.Count > 0 #then l_Last_Object  = list(LN = l_P_objects.LN(length(l_P_objects.LN)),IX = l_P_objects.IX(length(l_P_objects.IX)))
+   
+   #loop_with i = 1 .. l_P_objects.Count   ;2
+   
+      #if l_P_objects.LN(i) <> t_LN #then #block
+      
+         t_LN = l_P_objects.LN(i)
+         i_IX = l_P_objects.IX(i)
+         l_CD = 't_LN':PCD
+         
+         #if substr(l_P_objects.RX(i), 23, 1) == "T" #then #block
+
+            #if not attribute_exists(l_CD, "PRIMARY_VOLTAGE_LEVEL") #then #block
+
+               l_CD = merge_attributes(l_Trafo_Conf, l_CD)
+               #set 't_LN':PCD = l_CD
+
+            #block_end
+            
+            #if attribute_exists(l_CD, "TRANSFORMER_TYPE") #then #block
+               #if l_CD.Transformer_Type == "TR2" #then i_Count = 2
+               #else_if l_CD.Transformer_Type == "TR3"  #then i_Count = 3
+               #else_if l_CD.Transformer_Type == "TR4"  #then i_Count = 4
+               #else i_Count = 2
+            #block_end
+            #else #block
+               #if application_object_exists(0,"IX", list(LN=t_LN, IX=248)) #then i_Count = 3 ;passive node for winding 3 in LIB4
+               #else i_Count = 2
+            #block_end
+               
+            #loop_with j = i_Index .. i_Index + (i_Count - 1)
+          
+               #if not application_object_exists(0,"IX", list(LN=t_LN, IX=j)) #then #block
+                  
+                  #case j
+
+                     #when i_Index t_OX = %FPI_SPOC.PRIMARY_VOLTAGE_LEVEL
+                     #when (i_Index + 1) t_OX = %FPI_SPOC.SECONDARY_VOLTAGE_LEVEL
+                     #when (i_Index + 2) t_OX = %FPI_SPOC.TERTIARY_VOLTAGE_LEVEL
+                     #when (i_Index + 3) t_OX = %FPI_SPOC.QUATERNARY_VOLTAGE_LEVEL
+                     
+                  #case_end
+
+                  l_PO_Definition = merge_attributes(l_PO_Definition_AI_Template, list(-
+                     OI = 't_LN':poi'i_IX',-
+                     RX = pad(" ", 20) + "FPTAVRXVOL",-
+                     OX = t_OX))
+
+                  #create 't_LN':p'j' = l_PO_Definition
+
+               #block_end
+
+            #loop_end
+            
+         #block_end
+         #else_if substr(l_P_objects.RX(i), 21, 10) == t_RX_Generator #then #block     
+       
+            #if not application_object_exists(0,"IX", list(LN=t_LN, IX=i_Index)) #then #block
+            
+               l_CD = merge_attributes(l_Generator_Conf, l_CD)
+               #set 't_LN':PCD = l_CD
+               
+               l_PO_Definition = merge_attributes(l_PO_Definition_AI_Template, list(-
+                  OI = 't_LN':poi'i_IX',-
+                  OX = %BCI_GEN.VOLTAGE_LEVEL,-
+                  RX = pad(" ", 20) + "BCHTCIXVOL"))
+               
+               #create 't_LN':p'i_Index' = l_PO_Definition
+
+            #block_end
+            
+            #loop_with j = 10 .. 11          
+               #if not application_object_exists(0,"IX", list(LN=t_LN, IX=j)) #then #block
+                  #case j                     
+                     #when 10 #block
+                        l_PO_Definition = merge_attributes(l_PO_Definition_AI_Template, list(-
+                           OI = 't_LN':poi'i_IX',-
+                           RX = pad(" ", 20) + "FPEGENIGIF",-
+                           OX = %BCI_GEN.GENERATOR_INDICATION,-
+                           OV = 1))
+                     #block_end
+                     #when 11 #block
+                        l_PO_Definition = merge_attributes(l_PO_Definition_DI_Template, list(- 
+                           OI = 't_LN':poi'i_IX',-
+                           OX = %BCI_GEN.GENERATOR_STATE,-
+                           RX = pad(" ", 20) + "FPEGENIGST",-
+                           AE = 1,-
+                           AN = "BGU_SET_GENERATOR_ON_OFF",-
+                           AA = 2,-
+                           AF = 1,-
+                           EH = "SAGR_FORM5FPDI1_1",-
+                           HE = 1,-
+                           OV = 2))
+                     #block_end
+                  #case_end
+                  
+                  #create 't_LN':p'j' = l_PO_Definition
+
+               #block_end
+            #loop_end
+         #block_end
+         #else_if substr(l_P_objects.RX(i), 21, 10) == t_RX_Line_Indicator #then #block   
+          
+            #if not application_object_exists(0,"IX", list(LN=t_LN, IX=i_Index)) #then #block
+            
+               l_CD = merge_attributes(l_Line_Indicator_Conf, l_CD)
+                           
+               #set 't_LN':PCD = l_CD
+               
+               l_PO_Definition = merge_attributes(l_PO_Definition_AI_Template, list(-
+                  OI = 't_LN':poi'i_IX',-
+                  OX = %BCI_LIND.VOLTAGE_LEVEL,-
+                  RX = pad(" ", 20) + "BCHMTCXVOL"))
+               
+               #create 't_LN':p'i_Index' = l_PO_Definition
+            
+            #block_end
+            
+            #loop_with j = 11 .. 13
+          
+               #if not application_object_exists(0,"IX", list(LN=t_LN, IX=j)) #then #block
+                  
+                  l_PO_Definition = merge_attributes(l_PO_Definition_DI_Template, list(-
+                     OI = 't_LN':poi'i_IX'))
+                  
+                  #case j                     
+                     #when 11 #block
+                        l_PO_Definition = merge_attributes(l_PO_Definition_DI_Template, list(-
+                           OI = 't_LN':poi'i_IX',-
+                           OX = %BCI_LIND.POWER_FLOW,-
+                           RX = pad(" ", 20) + "BCHMTCIPFD",-
+                           AE = 1,-
+                           AN = "BGU_SET_POWER_FLOW_DIRECTION",-
+                           AF = 1))                           
+                        #if 't_LN':pos'i_Line_Ind_Primary_Index' < 10 #then #block
+                           #if 't_LN':pov'i_Line_Ind_Primary_Index' < 0 #then l_PO_Definition.OV = 5
+                           #else_if 't_LN':pov'i_Line_Ind_Primary_Index' == 0 #then l_PO_Definition.OV = 2
+                           #else  l_PO_Definition.OV = 4
+                        #block_end
+                     #block_end
+                     #when 12 #block
+                        l_PO_Definition = merge_attributes(l_PO_Definition_DI_Template, list(-
+                           OI = 't_LN':poi'i_IX',-
+                           OX = %BCI_LIND.POWER_FLOW_LOCAL,-
+                           RX = pad(" ", 20) + "BCHMTCIPFL"))
+                     #block_end
+                     #when 13 #block
+                        l_PO_Definition = merge_attributes(l_PO_Definition_DI_Template, list(-
+                           OI = 't_LN':poi'i_IX',-
+                           OX = %BCI_LIND.POWER_FLOW_REMOTE,-
+                           RX = pad(" ", 20) + "BCHMTCIPFR",-
+                           IU = 0))
+                     #block_end
+                  #case_end                    
+                  
+                  #create 't_LN':p'j' = l_PO_Definition
+               
+               #block_end
+               
+            #loop_end
+            
+            #if application_object_exists(0,"IX", list(LN=t_LN, IX=10)) #then #block
+               #if attribute_exists(l_CD,"LINE_INDICATOR_COLORED_BY") #then #block
+                  #if l_CD.LINE_INDICATOR_COLORED_BY <> "MT" and 't_LN':PIU10 == 1 and 't_LN':PUN10 == 0 and 't_LN':PSS10 > 1 #then #set 't_LN':PSS10 = 1
+               #block_end
+            #block_end
+         
+         #block_end
+         
+      #block_end 
+   
+   #loop_end   ;2
+   
+   #if NOT(l_P_objects.More) #then #loop_exit
+
+#loop_end   ;1

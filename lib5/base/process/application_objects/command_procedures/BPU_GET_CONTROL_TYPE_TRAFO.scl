@@ -1,0 +1,39 @@
+;Function: BPU_GET_CONTROL_TYPE_TRAFO:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_get_control_type_trafo.scl
+;Version: 1.0
+;Parameters: t_select_ln (LN of the controlled object), t_sta_type (protocol), t_filter (filter for dtabase query)
+;Return data: : control_type, text 
+;Description: Decides the control type for the action based on the protocol and number of found process objects
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument t_select_ln, t_sta_type, t_filter
+#local l_POs, t_control_type = ""
+
+l_POs = application_object_list(0, "IX", "I",  "F", t_select_ln, "RX==""'t_Filter'""", vector("PT"))
+#case l_POs.COUNT
+   #when 1 #block
+      #if l_POs.PT(1) == 5 #then #block
+         #case t_sta_type
+            #when "LON", "SPA", "ANSI", "PROC", "IEC61850" t_control_type = "DIR-BO"
+            #otherwise t_control_type = "SEC-BO"
+         #case_end
+      #block_end
+      #else_if l_POs.PT(1) == 11 #then t_control_type = "DIR-AO"
+   #block_end
+   #when 2 #block
+      t_control_type = "SEC-2BO"
+   #block_end
+   #when 4 #block
+      t_control_type = "SEC-4BO"
+   #block_end
+   #when 5 #block
+      t_control_type = "SEC-5AO"
+   #block_end
+   #when 7 #block
+      t_control_type = "DIR-BO"
+   #block_end
+#case_end
+
+#return t_control_type

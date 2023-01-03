@@ -1,0 +1,40 @@
+#local libs, f5_use = VECTOR(), I, fmod_path, s, e_state = ERROR_STATE
+@HOST = SCIL_HOST
+
+#IF HOST:VNAME == "MAIN" #THEN #BLOCK
+
+    @GLOBAL_PATHS=LIST()
+    #CASE substr(SYS:BPR, 1, 7)
+        #WHEN "SYS_600"  #BLOCK
+			@GLOBAL_PATHS = LIST(-
+			B5_BBONE = VECTOR("/LIB5/BASE/BBONE/USE"))
+        #BLOCK_END
+	#CASE_END
+
+	#RETURN %GLOBAL_PATHS
+#BLOCK_END
+
+
+;    #CASE substr(SYS:BPR, 1, 7)
+;        #WHEN "SYS_600"  #BLOCK
+;			#ERROR IGNORE
+;			s = STATUS
+;			fmod_path = FM_SCIL_DIRECTORY("/lib5/fmod")
+;			s = STATUS
+;			#ERROR 'e_state'
+;			#IF s == 0 #THEN #BLOCK
+;				libs = DIRECTORY_MANAGER("LIST", fmod_path)
+				f5_use = APPEND(f5_use, FM_SCIL_REPRESENT(FM_COMBINE(fmod_path, libs))) + "/USE"
+;			#BLOCK_END
+;
+;			@GLOBAL_PATHS = LIST(-
+;			B5_USE = VECTOR("/LIB5/BASE/BBONE/USE", "/LIB5/BASE/PROCESS/USE"),-
+;			F5_USE = f5_use)
+;        #BLOCK_END
+;        
+;        #WHEN "COM_500" #BLOCK
+;            @GLOBAL_PATHS = LIST()
+;        #BLOCK_END
+;    #CASE_END
+;    #RETURN %GLOBAL_PATHS
+;#BLOCK_END

@@ -1,0 +1,13 @@
+;File:        Get_Err_Str.scl
+;Parameters:  SCIL status code
+;Description: Returns SCIL error text
+;------------------------------------
+
+#argument i_Status_Code
+
+#local t_Mnemonic = status_code_name(i_Status_Code)
+
+#if t_Mnemonic == "" #then t_Mnemonic =  "Unknown status code"
+
+#return t_Mnemonic
+

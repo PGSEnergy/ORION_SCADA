@@ -1,0 +1,68 @@
+;Function: FDU_SET_SIMULATION_SWITCH:C
+;Source file: sc/lib5/fmod/pipeline/application_objects/command_procedures/fdu_symbol_simulation.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute), l_data,  simulated_value = text/integer
+;Return data:
+;Description:
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data, t_LN, simulate_value
+#local i_IX, l_value_convention, t_indication_value
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_FDU_SET_SIMULATION_SWITCH"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+         @REDIRECTED = true                                                                        
+         i_ArgCnt = argument_count                                                                 
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+         #loop_end                                                                                 
+         #return 't_Redirect_Command' ;;;;;                                                        
+      #block_end                                                                                   
+   #block_end                                                                                      
+   #else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+
+;define value convention for process data
+#if data_type(simulate_value) == "TEXT" #then t_indication_value = simulate_value
+#else_if data_type(simulate_value) == "INTEGER" #then #block
+   l_value_convention = do(bpu_get_indications_switch:c, l_object_info)
+   
+   #if attribute_exists(l_value_convention.position_indication, "ov_'simulate_value'") #then -
+      t_indication_value = l_value_convention.position_indication.ov_'simulate_value'
+   #else t_indication_value = "NOT_DEFINED"
+#block_end
+#else t_indication_value = ""
+
+;image for display simulation
+#if attribute_exists(l_data.all_objects, "indication_image_ix") #then #block
+   i_IX = l_data.all_objects.indication_image_ix
+   #if upper_case(substr(l_object_info.type_pf, 1 , 6)) == "FDI_VA" #then #block 
+      #case t_indication_value
+         #when "INTERMEDIATE" #set 't_LN':pov'i_IX' = 5
+         #when "OPEN"  #set 't_LN':pov'i_IX' = 7
+         #when "CLOSED"  #set 't_LN':pov'i_IX' = 3
+         #when "FAULTY"  #set 't_LN':pov'i_IX' = 2
+      #case_end
+   #block_end
+   #else #block
+      #case t_indication_value
+         #when "INTERMEDIATE" #set 't_LN':pov'i_IX' = 5
+         #when "OPEN"  #set 't_LN':pov'i_IX' = 3
+         #when "CLOSED"  #set 't_LN':pov'i_IX' = 4
+         #when "FAULTY"  #set 't_LN':pov'i_IX' = 5
+      #case_end
+   #block_end
+#block_end

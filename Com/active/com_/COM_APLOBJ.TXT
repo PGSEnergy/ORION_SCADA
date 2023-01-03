@@ -1,0 +1,1195 @@
+﻿; This is the text file for creating command procedures and time channels for COM500 applications. 
+;
+; SYS600 10.2.0
+; 
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+;-------------------------------------------------------------------------------------
+
+
+#ERROR CONTINUE
+
+;******************* COMMON COMMAND PROCEDURES AND EVENT CHANNELS ***********************************
+
+;create command procedure for revision information
+@C_SEARCH = FETCH(0,"C","COM_REVDTA")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_REVDTA:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 1,-
+         CM = COM_OBJTXT:VC_REVDTA_COMMENT,-
+        IN = READ_TEXT("COM_/COM_REVDTA.TXT"))
+#BLOCK_END
+
+;create command procedure for application initialization
+@C_SEARCH = FETCH(0,"C","COM_COMINI")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_COMINI:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 1,-
+         CM = COM_OBJTXT:VC_COMINI_COMMENT,-
+       IN = READ_TEXT("COM_/COM_COMINI.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_COMINI.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_COMINI:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for application initialization after switchover
+@C_SEARCH = FETCH(0,"C","COM_COMINI_H")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_COMINI_H:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 1,-
+         CM = COM_OBJTXT:VC_COMINI_H_COMMENT,-
+       IN = READ_TEXT("COM_/COM_COMINI_H.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_COMINI_H.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_COMINI_H:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for creating COM 500 restart objects
+@C_SEARCH = FETCH(0,"C","COM_DCNET")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_DCNET:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 1,-
+         CM = COM_OBJTXT:VC_DCNET_COMMENT,-
+       IN = READ_TEXT("COM_/COM_DCNET.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_DCNET.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_DCNET:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for reading general application information
+@C_SEARCH = FETCH(0,"C","COM_RDGEN")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_RDGEN:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 1,-
+         CM = COM_OBJTXT:VC_RDGEN_COMMENT,-
+       IN = READ_TEXT("COM_/COM_RDGEN.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_RDGEN.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_RDGEN:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for reading cross-reference tables to RAM
+@C_SEARCH = FETCH(0,"C","COM_RDXREF")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_RDXREF:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 1,-
+         CM = COM_OBJTXT:VC_RDXREF_COMMENT,-
+       IN = READ_TEXT("COM_/COM_RDXREF.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_RDXREF.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_RDXREF:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for NET database initialization
+@C_SEARCH = FETCH(0,"C","COM_NETINI")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_NETINI:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 1,-
+         CM = COM_OBJTXT:VC_NETINI_COMMENT,-
+       IN = READ_TEXT("COM_/COM_NETINI.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_NETINI.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_NETINI:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for NET database initialization after switchover
+@C_SEARCH = FETCH(0,"C","COM_NETINI_H")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_NETINI_H:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 1,-
+         CM = COM_OBJTXT:VC_NETINI_H_COMMENT,-
+       IN = READ_TEXT("COM_/COM_NETINI_H.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_NETINI_H.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_NETINI_H:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for marked signals initialization
+@C_SEARCH = FETCH(0,"C","COM_INIT")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_INIT:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 1,-
+         CM = COM_OBJTXT:VC_INIT_COMMENT,-
+       IN = READ_TEXT("COM_/COM_INIT.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_INIT.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_INIT:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for marking COM 500 databse initialised
+@C_SEARCH = FETCH(0,"C","COM_DBSTA")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_DBSTA:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 11,-
+         CM = COM_OBJTXT:VC_DBSTA_COMMENT,-
+       IN = READ_TEXT("COM_/COM_DBSTA.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_DBSTA.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_DBSTA:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+#ELSE #BLOCK
+   #IF COM_DBSTA:CPQ == 1 #THEN #SET COM_DBSTA:CPQ = 11
+#BLOCK_END 
+
+;create command procedure for general interrogation
+@C_SEARCH = FETCH(0,"C","COM_GENINT")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_GENINT:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 11,-
+         CM = COM_OBJTXT:VC_GENINT_COMMENT,-
+       IN = READ_TEXT("COM_/COM_GENINT.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_GENINT.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_GENINT:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for counter interrogation
+@C_SEARCH = FETCH(0,"C","COM_CNTINT")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_CNTINT:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 11,-
+         CM = COM_OBJTXT:VC_CNTINT_COMMENT,-
+       IN = READ_TEXT("COM_/COM_CNTINT.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_CNTINT.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_CNTINT:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for reading of user data
+@C_SEARCH = FETCH(0,"C","COM_RDDATA")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_RDDATA:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 1,-
+         CM = COM_OBJTXT:VC_RDDATA_COMMENT,-
+       IN = READ_TEXT("COM_/COM_RDDATA.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_RDDATA.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_RDDATA:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for reset process command
+@C_SEARCH = FETCH(0,"C","COM_RESPRC")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_RESPRC:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 1,-
+         CM = COM_OBJTXT:VC_RESPRC_COMMENT,-
+       IN = READ_TEXT("COM_/COM_RESPRC.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_RESPRC.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_RESPRC:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create event channel for group alarm value checking
+@A_SEARCH = FETCH(0,"A","COM_GRPAL")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE COM_GRPAL:A = LIST(-
+        CM = COM_OBJTXT:VE_GRPAL_COMMENT,-
+        OT = "C",-
+        ON = "COM_GRPAL")
+
+;create command procedure for group alarm value checking  
+@C_SEARCH = FETCH(0,"C","COM_GRPAL")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_GRPAL:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 1,-
+         CM = COM_OBJTXT:VC_GRPAL_COMMENT,-
+       IN = READ_TEXT("COM_/COM_GRPAL.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_GRPAL.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_GRPAL:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for sending group alarm values 
+@C_SEARCH = FETCH(0,"C","COM_GRPSND")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_GRPSND:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 1,-
+         CM = COM_OBJTXT:VC_GRPSND_COMMENT,-
+       IN = READ_TEXT("COM_/COM_GRPSND.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_GRPSND.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_GRPSND:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for handling suspended stations
+@C_SEARCH = FETCH(0,"C","COM_SUSSTA")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_SUSSTA:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 1,-
+         CM = COM_OBJTXT:VC_SUSSTA_COMMENT,-
+       IN = READ_TEXT("COM_/COM_SUSSTA.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_SUSSTA.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_SUSSTA:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for handling suspended nodes
+@C_SEARCH = FETCH(0,"C","COM_SUSNOD")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_SUSNOD:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 1,-
+         CM = COM_OBJTXT:VC_SUSNOD_COMMENT,-
+       IN = READ_TEXT("COM_/COM_SUSNOD.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_SUSNOD.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_SUSNOD:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for handling host events
+@C_SEARCH = FETCH(0,"C","COM_SUSHOST")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_SUSHOST:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 1,-
+         CM = COM_OBJTXT:VC_SUSHOST_COMMENT,-
+       IN = READ_TEXT("COM_/COM_SUSHOST.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_SUSHOST.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_SUSHOST:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for logging capabilities
+@C_SEARCH = FETCH(0,"C","COM_LOG")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_LOG:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 0,-
+         CM = COM_OBJTXT:VC_LOG_COMMENT,-
+       IN = READ_TEXT("COM_/COM_LOG.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_LOG.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_LOG:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create time channel for pending indication timeout handling
+@T_SEARCH = FETCH(0,"T","COM_PNDIND")
+#IF T_SEARCH:VIU == -1 #THEN #CREATE COM_PNDIND:T = LIST(-
+          IU = 1,-
+          CY = (0,2),-
+          SU = (0,0),-
+          SY = (0,CLOCK),-
+          CM = COM_OBJTXT:VT_PNDIND_COMMENT)
+
+;create command procedure for pending indication timeout handling
+@C_SEARCH = FETCH(0,"C","COM_PNDIND")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_PNDIND:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 1,-
+         TC = "COM_PNDIND",-
+         CM = COM_OBJTXT:VC_PNDIND_COMMENT,-
+       IN = READ_TEXT("COM_/COM_PNDIND.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_PNDIND.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_PNDIND:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+
+;create command procedure for reseting CPI command selection flags
+@C_SEARCH = FETCH(0,"C","COM_RESSEL")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_RESSEL:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 1,-
+         CM = COM_OBJTXT:VC_RESSEL_COMMENT,-
+       IN = READ_TEXT("COM_/COM_RESSEL.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_RESSEL.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_RESSEL:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;attach command procedure COM_SUSSTA to the event channel APL_EVENT
+@A_SEARCH = FETCH(0,"A","APL_EVENT")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE APL_EVENT:A = LIST(-
+        OT = "C",-
+        ON = "COM_SUSSTA")   
+#ELSE #BLOCK
+   #IF APL_EVENT:AON == "" OR APL_EVENT:AON == "BNU_SUSSTA" #THEN -
+   #MODIFY APL_EVENT:A = LIST(-
+         OT = "C",-
+         ON = "COM_SUSSTA")
+   #ELSE_IF APL_EVENT:AON <> "COM_SUSSTA" #THEN #BLOCK
+      #IF LENGTH(SELECT(APL_EVENT:ASN,"==""COM_SUSSTA""")) == 0 #THEN #BLOCK
+         @OBJ_NAMES = APPEND(APL_EVENT:ASN,"COM_SUSSTA")
+         @OBJ_TYPES = APPEND(APL_EVENT:AST,"C")
+         #MODIFY APL_EVENT:A = LIST(-
+                              SN = %OBJ_NAMES,-
+                              ST = %OBJ_TYPES)
+      #BLOCK_END
+   #BLOCK_END
+#BLOCK_END
+
+;attach command procedure COM_SUSHOST to the event channel APL_EVENT
+@A_SEARCH = FETCH(0,"A","APL_EVENT")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE APL_EVENT:A = LIST(-
+        OT = "C",-
+        ON = "COM_SUSHOST")   
+#ELSE #BLOCK
+   #IF APL_EVENT:AON == "" #THEN -
+   #MODIFY APL_EVENT:A = LIST(-
+         OT = "C",-
+         ON = "COM_SUSHOST")
+   #ELSE_IF APL_EVENT:AON <> "COM_SUSHOST" #THEN #BLOCK
+      #IF LENGTH(SELECT(APL_EVENT:ASN,"==""COM_SUSHOST""")) == 0 #THEN #BLOCK
+         @OBJ_NAMES = APPEND(APL_EVENT:ASN,"COM_SUSHOST")
+         @OBJ_TYPES = APPEND(APL_EVENT:AST,"C")
+         #MODIFY APL_EVENT:A = LIST(-
+                              SN = %OBJ_NAMES,-
+                              ST = %OBJ_TYPES)
+      #BLOCK_END
+   #BLOCK_END
+#BLOCK_END
+
+;attach command procedure COM_SUSNOD to the event channel SYS_EVENT
+@A_SEARCH = FETCH(0,"A","SYS_EVENT")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE SYS_EVENT:A = LIST(-
+        OT = "C",-
+        ON = "COM_SUSNOD")   
+#ELSE #BLOCK
+   #IF SYS_EVENT:AON == "" #THEN -
+   #MODIFY SYS_EVENT:A = LIST(-
+         OT = "C",-
+         ON = "COM_SUSNOD")
+   #ELSE_IF SYS_EVENT:AON <> "COM_SUSNOD" #THEN #BLOCK
+      #IF LENGTH(SELECT(SYS_EVENT:ASN,"==""COM_SUSNOD""")) == 0 #THEN #BLOCK
+         @OBJ_NAMES = APPEND(SYS_EVENT:ASN,"COM_SUSNOD")
+         @OBJ_TYPES = APPEND(SYS_EVENT:AST,"C")
+         #MODIFY SYS_EVENT:A = LIST(-
+                              SN = %OBJ_NAMES,-
+                              ST = %OBJ_TYPES)
+      #BLOCK_END
+   #BLOCK_END
+#BLOCK_END
+
+;create event channel for receiving and sending transparent spa messages
+@A_SEARCH = FETCH(0,"A","COM_TRPSPA")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE COM_TRPSPA:A = LIST(-
+        CM = COM_OBJTXT:VE_TRPSPA_COMMENT,-
+        OT = "C",-
+        ON = "COM_TRPSPA")
+
+;create command procedure receiving and sending transparent spa messages
+@C_SEARCH = FETCH(0,"C","COM_TRPSPA")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_TRPSPA:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 15,-
+         CM = COM_OBJTXT:VC_TRPSPA_COMMENT,-
+       IN = READ_TEXT("COM_/COM_TRPSPA.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_TRPSPA.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_TRPSPA:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for unknown command address
+@C_SEARCH = FETCH(0,"C","COM_DSUN")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_DSUN:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 2,-
+         CM = COM_OBJTXT:VC_DSUN_COMMENT,-
+       IN = READ_TEXT("COM_/COM_DSUN.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_DSUN.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_DSUN:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;attach command procedure COM_DSUN to the event channel UNDEF_PROC
+@A_SEARCH = FETCH(0,"A","UNDEF_PROC")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE UNDEF_PROC:A = LIST(-
+        OT = "C",-
+        ON = "COM_DSUN")   
+#ELSE #BLOCK
+   #IF UNDEF_PROC:AON == "" #THEN #BLOCK
+      #MODIFY UNDEF_PROC:A = LIST(-
+         OT = "C",-
+         ON = "COM_DSUN")
+   #BLOCK_END
+   #ELSE_IF UNDEF_PROC:AON <> "COM_DSUN" #THEN #BLOCK
+      #IF LENGTH(SELECT(UNDEF_PROC:ASN,"==""COM_DSUN""")) == 0 #THEN #BLOCK
+         @OBJ_NAMES = APPEND(UNDEF_PROC:ASN,"COM_DSUN")
+         @OBJ_TYPES = APPEND(UNDEF_PROC:AST,"C")
+         #MODIFY UNDEF_PROC:A = LIST(-
+                              SN = %OBJ_NAMES,-
+                              ST = %OBJ_TYPES)
+      #BLOCK_END
+   #BLOCK_END
+#BLOCK_END
+
+;******************* PROTOCOL-SPECIFIC COMMAND PROCEDURES AND EVENT CHANNELS ***********************************
+
+;create command procedure for configuring RP570S line and station
+@C_SEARCH = FETCH(0,"C","COM_RPSCR")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_RPSCR:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 2,-
+         CM = COM_OBJTXT:VC_RPSCR_COMMENT,-
+       IN = READ_TEXT("COM_/COM_RPSCR.TXT"))
+#BLOCK_END
+
+;create command procedure for configuring IEC 870-5-101S line and station
+@C_SEARCH = FETCH(0,"C","COM_101SCR")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_101SCR:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 2,-
+         CM = COM_OBJTXT:VC_101SCR_COMMENT,-
+       IN = READ_TEXT("COM_/COM_101SCR.TXT"))
+#BLOCK_END
+
+;create command procedure for configuring IEC 870-5-104S line and station
+@C_SEARCH = FETCH(0,"C","COM_104SCR")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_104SCR:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 2,-
+         CM = COM_OBJTXT:VC_104SCR_COMMENT,-
+       IN = READ_TEXT("COM_/COM_104SCR.TXT"))
+#BLOCK_END
+
+;create command procedure for configuring DNP 3.0S line and station
+@C_SEARCH = FETCH(0,"C","COM_DNPSCR")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_DNPSCR:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 2,-
+         CM = COM_OBJTXT:VC_DNPSCR_COMMENT,-
+       IN = READ_TEXT("COM_/COM_DNPSCR.TXT"))
+#BLOCK_END
+
+;create command procedure for DI attribute switching (RP570S)
+@C_SEARCH = FETCH(0,"C","COM_RPSDI")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_RPSDI:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 2,-
+         CM = COM_OBJTXT:VC_RPSDI_COMMENT,-
+       IN = READ_TEXT("COM_/COM_RPSDI.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_RPSDI.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_RPSDI:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for DI attribute switching (CPI)
+@C_SEARCH = FETCH(0,"C","COM_CPIDI")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_CPIDI:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 2,-
+         CM = COM_OBJTXT:VC_CPIDI_COMMENT,-
+       IN = READ_TEXT("COM_/COM_CPIDI.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_CPIDI.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_CPIDI:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+
+;create event channel for handling RP570S system messages
+@A_SEARCH = FETCH(0,"A","COM_RPSS")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE COM_RPSS:A = LIST(-
+        CM = COM_OBJTXT:VE_RPSS_COMMENT,-
+        OT = "C",-
+        ON = "COM_RPSS")
+
+;create event channel for handling RP570S synchronization
+@A_SEARCH = FETCH(0,"A","COM_RPSY")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE COM_RPSY:A = LIST(-
+        CM = COM_OBJTXT:VE_RPSY_COMMENT,-
+        OT = "C",-
+        ON = "COM_RPSY")
+
+;create event channel for handling CPI system messages
+@A_SEARCH = FETCH(0,"A","COM_CPISS")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE COM_CPISS:A = LIST(-
+        CM = COM_OBJTXT:VE_CPISS_COMMENT,-
+        OT = "C",-
+        ON = "COM_CPISS")
+
+;create event channel for handling unknown DNP commands
+@A_SEARCH = FETCH(0,"A","COM_DNPSS")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE COM_DNPSS:A = LIST(-
+        CM = COM_OBJTXT:VE_DNPSS_COMMENT,-
+        OT = "C",-
+        ON = "COM_DNPSS")
+
+;create command procedure for handling RP570S system messages
+@C_SEARCH = FETCH(0,"C","COM_RPSS")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_RPSS:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 2,-
+         CM = COM_OBJTXT:VC_RPSS_COMMENT,-
+         IN = READ_TEXT("COM_/COM_RPSS.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_RPSS.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_RPSS:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for handling RP570S synchronization
+@C_SEARCH = FETCH(0,"C","COM_RPSY")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_RPSY:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 2,-
+         CM = COM_OBJTXT:VC_RPSY_COMMENT,-
+         IN = READ_TEXT("COM_/COM_RPSY.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_RPSY.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_RPSY:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for handling CPI system messages
+@C_SEARCH = FETCH(0,"C","COM_CPISS")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_CPISS:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 2,-
+         CM = COM_OBJTXT:VC_CPISS_COMMENT,-
+         IN = READ_TEXT("COM_/COM_CPISS.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_CPISS.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_CPISS:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for handling unknown DNP commands
+@C_SEARCH = FETCH(0,"C","COM_DNPSS")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_DNPSS:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 2,-
+         CM = COM_OBJTXT:VC_DNPSS_COMMENT,-
+         IN = READ_TEXT("COM_/COM_DNPSS.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_DNPSS.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_DNPSS:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for loading FTABS to a RP570S protocol converter
+@C_SEARCH = FETCH(0,"C","COM_RPSFT")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_RPSFT:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 2,-
+         CM = COM_OBJTXT:VC_RPSFT_COMMENT,-
+         IN = READ_TEXT("COM_/COM_RPSFT.TXT"))
+#BLOCK_END
+
+;create event channel for handling IEC101S system commands
+@A_SEARCH = FETCH(0,"A","COM_IESS")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE COM_IESS:A = LIST(-
+        CM = COM_OBJTXT:VE_IESS_COMMENT,-
+        OT = "C",-
+        ON = "COM_IESS")
+
+;create command procedure for handling IEC101S system commands
+@C_SEARCH = FETCH(0,"C","COM_IESS")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_IESS:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 2,-
+         CM = COM_OBJTXT:VC_IESS_COMMENT,-
+       IN = READ_TEXT("COM_/COM_IESS.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_IESS.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_IESS:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create event channel for handling IEC101S application commands
+@A_SEARCH = FETCH(0,"A","COM_IESA")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE COM_IESA:A = LIST(-
+        CM = COM_OBJTXT:VE_IESA_COMMENT,-
+        OT = "C",-
+        ON = "COM_IESA")
+
+;create command procedure for handling IEC101S application commands
+@C_SEARCH = FETCH(0,"C","COM_IESA")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_IESA:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 2,-
+         CM = COM_OBJTXT:VC_IESA_COMMENT,-
+         IN = READ_TEXT("COM_/COM_IESA.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_IESA.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_IESA:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for sending end of initialization to a IEC101S NCC
+@C_SEARCH = FETCH(0,"C","COM_IESEI")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_IESEI:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 2,-
+         CM = COM_OBJTXT:VC_IESEI_COMMENT,-
+         IN = READ_TEXT("COM_/COM_IESEI.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_IESEI.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_IESEI:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for handling IEC101S/IEC104S file transfer
+@C_SEARCH = FETCH(0,"C","COM_IEFT")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_IEFT:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 15,-
+         CM = COM_OBJTXT:VC_IEFT_COMMENT,-
+         IN = READ_TEXT("COM_/COM_IEFT.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_IEFT.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_IEFT:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for reseting GI data in IEC101/104 queues of PC_NET 
+@C_SEARCH = FETCH(0,"C","COM_IEGICL")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_IEGICL:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 11,-
+         CM = COM_OBJTXT:VC_IEGICL_COMMENT,-
+         IN = READ_TEXT("COM_/COM_IEGICL.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_IEGICL.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_IEGICL:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;*******COMMAND PROCEDURES AND EVENT CHANNELS FOR THE UPSTREAM DIRECTION (COM --> NCC)***************
+
+;create command procedure for decoding upstream cross-reference information (input objects)
+@C_SEARCH = FETCH(0,"C","COM_USXREF")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_USXREF:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 9,-
+         CM = COM_OBJTXT:VC_USXREF_COMMENT,-
+       IN = READ_TEXT("COM_/COM_USXREF.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_USXREF.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_USXREF:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create command procedure for decoding upstream cross-reference information (output objects)
+@C_SEARCH = FETCH(0,"C","COM_USOXR")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_USOXR:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 0,-
+         PQ = 0,-
+         CM = COM_OBJTXT:VC_USOXR_COMMENT,-
+       IN = READ_TEXT("COM_/COM_USOXR.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_USOXR.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_USOXR:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+#ELSE #BLOCK
+   #SET COM_USOXR:CPQ = 0
+   #SET COM_USOXR:CPQ = 0
+#BLOCK_END   
+   
+;create command procedure for decoding upstream cross-reference information (output objects)
+@C_SEARCH = FETCH(0,"C","COM_USXREF")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_USXREF:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 0,-
+         PQ = 0,-
+         CM = COM_OBJTXT:VC_USXREF_COMMENT,-
+       IN = READ_TEXT("COM_/COM_USXREF.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_USXREF.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_USXREF:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+#ELSE #BLOCK
+   #SET COM_USXREF:CPQ = 0
+   #SET COM_USXREF:CPE = 0
+#BLOCK_END
+   
+;create command procedure for AI process objects (upstream direction)
+@C_SEARCH = FETCH(0,"C","COM_USAI")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_USAI:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 9,-
+         CM = COM_OBJTXT:VC_USAI_COMMENT,-
+       IN = READ_TEXT("COM_/COM_USAI.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_USAI.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_USAI:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+#ELSE #SET COM_USAI:CPQ = 9
+
+;create event channel for AI process objects (upstream direction)
+@A_SEARCH = FETCH(0,"A","COM_USAI")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE COM_USAI:A = LIST(-
+        CM = COM_OBJTXT:VE_USAI_COMMENT,-
+        OT = "C",-
+        ON = "COM_USAI")
+
+;create command procedure for BI process objects (upstream direction)
+@C_SEARCH = FETCH(0,"C","COM_USBI")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_USBI:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 8,-
+         CM = COM_OBJTXT:VC_USBI_COMMENT,-
+       IN = READ_TEXT("COM_/COM_USBI.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_USBI.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_USBI:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+#ELSE #SET COM_USBI:CPQ = 8
+
+;create event channel for BI process objects (upstream direction)
+@A_SEARCH = FETCH(0,"A","COM_USBI")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE COM_USBI:A = LIST(-
+        CM = COM_OBJTXT:VE_USBI_COMMENT,-
+        OT = "C",-
+        ON = "COM_USBI")
+
+;create command procedure for DI process objects (upstream direction)
+@C_SEARCH = FETCH(0,"C","COM_USDI")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_USDI:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 10,-
+         CM = COM_OBJTXT:VC_USDI_COMMENT,-
+       IN = READ_TEXT("COM_/COM_USDI.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_USDI.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_USDI:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+#ELSE #SET COM_USDI:CPQ = 10
+
+;create event channel for DI process objects (upstream direction)
+@A_SEARCH = FETCH(0,"A","COM_USDI")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE COM_USDI:A = LIST(-
+        CM = COM_OBJTXT:VE_USDI_COMMENT,-
+        OT = "C",-
+        ON = "COM_USDI")
+
+;create command procedure for DB process objects (upstream direction)
+@C_SEARCH = FETCH(0,"C","COM_USDB")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_USDB:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 7,-
+         CM = COM_OBJTXT:VC_USDB_COMMENT,-
+       IN = READ_TEXT("COM_/COM_USDB.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_USDB.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_USDB:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+#ELSE #SET COM_USDB:CPQ = 7
+
+;create event channel for DB process objects (upstream direction)
+@A_SEARCH = FETCH(0,"A","COM_USDB")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE COM_USDB:A = LIST(-
+        CM = COM_OBJTXT:VE_USDB_COMMENT,-
+        OT = "C",-
+        ON = "COM_USDB")
+
+;create command procedure for PC process objects (upstream direction)
+@C_SEARCH = FETCH(0,"C","COM_USPC")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_USPC:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 12,-
+         CM = COM_OBJTXT:VC_USPC_COMMENT,-
+       IN = READ_TEXT("COM_/COM_USPC.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_USPC.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_USPC:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+#ELSE #SET COM_USPC:CPQ = 12
+
+;create event channel for PC process objects (upstream direction)
+@A_SEARCH = FETCH(0,"A","COM_USPC")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE COM_USPC:A = LIST(-
+        CM = COM_OBJTXT:VE_USPC_COMMENT,-
+        OT = "C",-
+        ON = "COM_USPC")
+
+;create command procedure for BS process objects (upstream direction)
+@C_SEARCH = FETCH(0,"C","COM_USBS")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_USBS:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 12,-
+         CM = COM_OBJTXT:VC_USBS_COMMENT,-
+       IN = READ_TEXT("COM_/COM_USBS.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_USBS.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_USBS:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+#ELSE #SET COM_USBS:CPQ = 12
+
+;create event channel for BS process objects (upstream direction)
+@A_SEARCH = FETCH(0,"A","COM_USBS")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE COM_USBS:A = LIST(-
+        CM = COM_OBJTXT:VE_USBS_COMMENT,-
+        OT = "C",-
+        ON = "COM_USBS")
+
+;create command procedure for forwarding command terminations
+@C_SEARCH = FETCH(0,"C","COM_IECTRM")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_IECTRM:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 2,-
+         CM = COM_OBJTXT:VC_IECTRM_COMMENT,-
+       IN = READ_TEXT("COM_/COM_IECTRM.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_IECTRM.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_IECTRM:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create event channel for forwarding command terminations
+@A_SEARCH = FETCH(0,"A","COM_IECTRM")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE COM_IECTRM:A = LIST(-
+        CM = COM_OBJTXT:VE_IECTRM_COMMENT,-
+        OT = "C",-
+        ON = "COM_IECTRM")
+
+;create event channel for BO process objects (upstream direction)
+@A_SEARCH = FETCH(0,"A","COM_USBO")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE COM_USBO:A = LIST(-
+        CM = COM_OBJTXT:VE_USBO_COMMENT,-
+        OT = "C",-
+        ON = "COM_USBO")
+
+;create command procedure for BO process objects (upstream direction)
+@C_SEARCH = FETCH(0,"C","COM_USBO")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_USBO:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 15,-
+         CM = COM_OBJTXT:VC_USBO_COMMENT,-
+       IN = READ_TEXT("COM_/COM_USBO.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_USBO.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_USBO:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create event channel for AO process objects (upstream direction)
+@A_SEARCH = FETCH(0,"A","COM_USAO")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE COM_USAO:A = LIST(-
+        CM = COM_OBJTXT:VE_USAO_COMMENT,-
+        OT = "C",-
+        ON = "COM_USAO")
+
+;create command procedure for AO process objects (upstream direction)
+@C_SEARCH = FETCH(0,"C","COM_USAO")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_USAO:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 15,-
+         CM = COM_OBJTXT:VC_USAO_COMMENT,-
+       IN = READ_TEXT("COM_/COM_USAO.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_USAO.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_USAO:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create time channel for file transfer (upstream direction)
+@T_SEARCH = FETCH(0,"T","COM_USFT")
+#IF T_SEARCH:VIU == -1 #THEN #CREATE COM_USFT:T = LIST(-
+          IU = 1,-
+          CY = (0,15),-
+          SU = (0,0),-
+          SY = (0,CLOCK),-
+          CM = COM_OBJTXT:VT_USFT_COMMENT)
+
+;create command procedure for file transfer (upstream direction)
+@C_SEARCH = FETCH(0,"C","COM_USFT")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_USFT:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 15,-
+         TC = "COM_USFT",-
+         CM = COM_OBJTXT:VC_USFT_COMMENT,-
+       IN = READ_TEXT("COM_/COM_USFT.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_USFT.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_USFT:C = LIST(CP = TMP:VCODE)
+#BLOCK_END          
+
+;create command procedure for OPC Event process objects (upstream direction)
+@C_SEARCH = FETCH(0,"C","COM_USOE")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_USOE:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 16,-
+         CM = COM_OBJTXT:VC_USOE_COMMENT,-
+       IN = READ_TEXT("COM_/COM_USOE.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_USOE.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_USOE:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;create event channel for OPC Event process objects (upstream direction)
+@A_SEARCH = FETCH(0,"A","COM_USOE")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE COM_USOE:A = LIST(-
+        CM = COM_OBJTXT:VE_USOE_COMMENT,-
+        OT = "C",-
+        ON = "COM_USOE")
+
+;****** COMMAND PROCEDURES AND EVENT CHANNELS FOR THE DOWNSTREAM DIRECTION (NCC--> COM)***************
+
+;create command procedure for decoding downstream cross-reference information 
+@C_SEARCH = FETCH(0,"C","COM_DSXREF")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_DSXREF:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 0,-
+         PQ = 0,-
+         CM = COM_OBJTXT:VC_DSXREF_COMMENT,-
+       IN = READ_TEXT("COM_/COM_DSXREF.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_DSXREF.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_DSXREF:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+#ELSE #BLOCK
+   #SET COM_DSXREF:CPQ = 0
+   #SET COM_DSXREF:CPE = 0
+#BLOCK_END
+   
+;create command procedure for command authority checking 
+@C_SEARCH = FETCH(0,"C","COM_AUTHCH")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_AUTHCH:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 0,-
+         PQ = 0,-
+         CM = COM_OBJTXT:VC_AUTHCH_COMMENT,-
+       IN = READ_TEXT("COM_/COM_AUTHCH.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_AUTHCH.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_AUTHCH:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+#ELSE #BLOCK
+   #SET COM_AUTHCH:CPQ = 0
+   #SET COM_AUTHCH:CPE = 0
+#BLOCK_END   
+   
+;create command procedure for AO process objects (downstream direction)
+@C_SEARCH = FETCH(0,"C","COM_DSAO")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_DSAO:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 14,-
+         CM = COM_OBJTXT:VC_DSAO_COMMENT,-
+       IN = READ_TEXT("COM_/COM_DSAO.TXT",1,2000))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_DSAO.TXT",1,2000))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_DSAO:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+#ELSE #SET COM_DSAO:CPQ = 14
+
+;create event channel for AO process objects (downstream direction)
+@A_SEARCH = FETCH(0,"A","COM_DSAO")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE COM_DSAO:A = LIST(-
+        CM = COM_OBJTXT:VE_DSAO_COMMENT,-
+        OT = "C",-
+        ON = "COM_DSAO")
+
+;create command procedure for BO process objects (downstream direction)
+@C_SEARCH = FETCH(0,"C","COM_DSBO")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_DSBO:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 13,-
+         CM = COM_OBJTXT:VC_DSBO_COMMENT,-
+       IN = READ_TEXT("COM_/COM_DSBO.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_DSBO.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_DSBO:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+#ELSE #SET COM_DSBO:CPQ = 13
+
+;create event channel for BO process objects (downstream direction)
+@A_SEARCH = FETCH(0,"A","COM_DSBO")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE COM_DSBO:A = LIST(-
+        CM = COM_OBJTXT:VE_DSBO_COMMENT,-
+        OT = "C",-
+        ON = "COM_DSBO")
+
+;create command procedure for BO command handling (downstream direction)
+@C_SEARCH = FETCH(0,"C","COM_BOCMD")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_BOCMD:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 0,-
+         PQ = 0,-
+         CM = COM_OBJTXT:VC_BOCMD_COMMENT,-
+       IN = READ_TEXT("COM_/COM_BOCMD.TXT",1,2000))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_BOCMD.TXT",1,2000))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_BOCMD:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+#ELSE #BLOCK
+   #SET COM_DSBO:CPQ = 0
+   #SET COM_DSBO:CPE = 0   
+#BLOCK_END
+
+;create event channel for DO process objects (downstream direction)
+@A_SEARCH = FETCH(0,"A","COM_DSDO")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE COM_DSDO:A = LIST(-
+        CM = COM_OBJTXT:VE_DSDO_COMMENT,-
+        OT = "C",-
+        ON = "COM_DSDO")
+
+;create command procedure for DI process objects (downstream direction)
+@C_SEARCH = FETCH(0,"C","COM_DSDO")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_DSDO:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 1,-
+         PQ = 14,-
+         CM = COM_OBJTXT:VC_DSDO_COMMENT,-
+       IN = READ_TEXT("COM_/COM_DSDO.TXT"))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_DSDO.TXT"))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_DSDO:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+#ELSE #SET COM_DSDO:CPQ = 14
+
+;create command procedure for command blocking (downstream direction)
+@C_SEARCH = FETCH(0,"C","COM_DSCMDBLK")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE COM_DSCMDBLK:C = LIST(-   
+         IU = 1,-
+         MO = 1,-
+         PE = 0,-
+         PQ = 0,-
+         CM = COM_OBJTXT:VC_DSCMDBLK_COMMENT,-
+       IN = READ_TEXT("COM_/COM_DSCMDBLK.TXT",1,2000))
+   @TMP = COMPILE(READ_TEXT("COM_/COM_DSCMDBLK.TXT",1,2000))
+   #IF TMP:VSTATUS == 0 #THEN #MODIFY COM_DSCMDBLK:C = LIST(CP = TMP:VCODE)
+#BLOCK_END
+
+;******************* SCALE OBJECTS FOR SCALING ANALOG VALUES ***********************************
+
+   
+@SCALE_SEARCH=FETCH(0,"X","1_1")
+#IF SCALE_SEARCH:VIU == -1 #THEN #CREATE 1_1:X = LIST(SA = 0)
+
+#LOOP_WITH I = 1..4    
+   @SCALE_SEARCH=FETCH(0,"X","COM_AIU16'I'")
+   #IF SCALE_SEARCH:VIU == -1 #THEN #BLOCK
+     #CREATE COM_AIU16'I':X = LIST(SA = 1, SC = (-32767,32767,-32767,32767))
+   #BLOCK_END
+   @SCALE_SEARCH=FETCH(0,"X","COM_AIRP'I'")
+   #IF SCALE_SEARCH:VIU == -1 #THEN #BLOCK
+     #CREATE COM_AIRP'I':X = LIST(SA = 1, SC = (-2000,2000,-2000,2000))
+   #BLOCK_END         
+#LOOP_END    
+
+
+
+
+
+
+

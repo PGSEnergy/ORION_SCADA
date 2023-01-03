@@ -1,0 +1,28 @@
+;CM =Interface for Monitor Pro Reports, Get quick report descriptions
+; Function:    SAGR_REPORTS_GET_QUICK_REPORT_DESCRIPTIONS:C
+; Version:     3.0 (build 2.3.2012)
+; Parameters:  all object names
+; Return data: formatted report object comment, used as tool tip
+; Description: Get quick report descriptions
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#local i, t_LN = "", t_CM = "", t_ST = ""
+@output = vector()
+
+#loop_with i = 1..length(%ArgumentList.OBJECTS)
+   t_LN=  %ArgumentList.OBJECTS(i)
+   #if attribute_exists(%l_ReportObjects.OBJ_'t_LN',"CM") #then t_CM = %l_ReportObjects.OBJ_'t_LN'.CM
+   #else t_CM=""
+   #if t_CM == "" #then t_CM = "'t_LN'"
+   
+   #if attribute_exists(%l_ReportObjects.OBJ_'t_LN',"ST") #then t_ST = %l_ReportObjects.OBJ_'t_LN'.ST
+   #else t_ST=""
+
+   #if t_ST <> "" #then -
+         t_CM = t_CM + ", " + t_ST
+   @output(i) = t_CM 
+#loop_end
+
+

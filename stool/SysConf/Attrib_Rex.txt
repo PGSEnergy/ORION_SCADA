@@ -1,0 +1,69 @@
+#CREATE REX_ATTR_NR:V = LIST(DATA_TYPE = "INTEGER",-
+              MIN_VALUE = 1,-
+              MAX_VALUE = 127)
+
+#CREATE REX_ATTR_NN:V = LIST(DATA_TYPE = "INTEGER",-
+                             MIN_VALUE = 1,-
+                             MAX_VALUE = 127)
+
+#CREATE REX_ATTR_RM:V = LIST(DATA_TYPE = "TEXT",-
+                             MIN_LENGTH = 1,-
+                             MAX_LENGTH = 1,-
+                             SPECIAL_STRINGS = ("2","7"))
+
+#CREATE REX_ATTR_SN:V = LIST(DATA_TYPE = "INTEGER",-
+                             MIN_VALUE = 1,-
+                             MAX_VALUE = 127)
+
+#CREATE REX_ATTR_UT:V = LIST(DATA_TYPE = "INTEGER",-
+                             MIN_VALUE = 0,-
+                             MAX_VALUE = 1)
+
+#CREATE REX_ATTR_RX:V = LIST(DATA_TYPE = "INTEGER",-
+                             MIN_VALUE = 1,-
+                             MAX_VALUE = 4)
+
+#CREATE REX_ATTR_MI:V = LIST(DATA_TYPE = "INTEGER",-
+                             MIN_VALUE = 1001,-
+                             MAX_VALUE = 1127)
+
+#CREATE REX_ATTR_UN:V = LIST(DATA_TYPE = "INTEGER",-
+                             MIN_VALUE = 0,-
+                             MAX_VALUE = 65535)
+
+#CREATE REX_ATTR_EF:V = LIST(DATA_TYPE = "INTEGER",-
+                             MIN_VALUE = 0,-
+                             MAX_VALUE = 127)
+
+#CREATE REX_ATTR_CHANNEL1:V = LIST(DATA_TYPE = "INTEGER",-
+                                   MIN_VALUE = 0,-
+                                   MAX_VALUE = 999)
+
+#CREATE REX_ATTR_CHANNEL2:V = LIST(DATA_TYPE = "INTEGER",-
+                                   MIN_VALUE = 0,-
+                                   MAX_VALUE = 999)
+
+#CREATE REX_ATTR_DATA1:V = LIST(DATA_TYPE = "INTEGER",-
+                                MIN_VALUE = 1,-
+                                MAX_VALUE = 999999)
+
+#CREATE REX_ATTR_DATA2:V = LIST(DATA_TYPE = "INTEGER",-
+                                MIN_VALUE = 1,-
+                                MAX_VALUE = 999999)
+
+#CREATE REX_ATTR_ADDRESS:V = LIST(DATA_TYPE = "INTEGER",-
+                                  MIN_VALUE = 0,-
+                                  MAX_VALUE = 65535)
+
+#CREATE REX_ATTR_FORMAT:V = LIST(DATA_TYPE = "INTEGER",-
+                                 DEFAULT_VALUE = 1,-
+                                 SPECIAL_VALUES = (1,2,3,4),-
+                                 SPECIAL_STRINGS = ("Bits","Hexadecimal","Real","Longinteger"))
+
+#CREATE REX_ATTR_CATEGORY:V = LIST(-
+                     DATA_TYPE = "INTEGER",-
+                     DEFAULT_VALUE = 1,-
+                     SPECIAL_VALUES = ("I","O","S","V","M","C","F","T","D","L","B"),-
+                     SPECIAL_STRINGS = ("(I) Input Data","(O) Output Data","(S) Setting Values",-
+                     "(V) Variables","(M) Memory Data","(C) Slave Status","(F) Slave Identification",-
+                     "(T) Time","(D) Date and Time","(L) Last Events","(B) Last Events from Backup Buffer"))

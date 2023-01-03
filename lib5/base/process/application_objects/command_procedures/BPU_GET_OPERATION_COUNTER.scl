@@ -1,0 +1,74 @@
+;Function: BPU_GET_OPERATION_COUNTER:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_get_operation_counter.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute), l_data
+;Return data: : LIST(IN_USE = TRUE | FALSE,  COUNTER_VALUE = integer, CAN_RESET = TRUE | FALSE, STATUS=integer, err_description=text)
+;Description:
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data
+#local l_result = list(IN_USE = false,  COUNTER_VALUE = 0, COUNTER_LIMIT = 0, CAN_RESET = true, status = 0, err_description="")
+#local t_LN, i_IX = 0,    l_Attributes = list()
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_GET_OPERATION_COUNTER"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+         @REDIRECTED = true                                                                        
+         i_ArgCnt = argument_count                                                                 
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+         #loop_end                                                                                 
+         #return 't_Redirect_Command' ;;;;;                                                        
+      #block_end                                                                                   
+   #block_end                                                                                      
+   #else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+#if attribute_exists(l_data, "indication_db_ix") #then #block ;switch devices
+
+   i_IX = l_data.indication_db_ix
+   t_LN = l_object_info.p_object_ln
+   
+   l_attributes = application_object_attributes(0, "IX", list(ln = vector(t_LN), IX = vector(i_IX)), vector("IU", "SS", "CE", "CL", "CO", "CV"))
+   
+   #if l_attributes.ce(1) == 1 #then l_result.in_use = true
+   l_result.counter_value = l_attributes.cv(1)
+   l_result.counter_limit = l_attributes.cl(1)
+   
+   #if l_attributes.iu(1) == 0 or l_attributes.ss(1) == 0 #then l_result.can_reset = false
+   
+#block_end
+
+#else_if attribute_exists(l_data, "counter_ix") #then #block ;trafo
+
+   i_IX = l_data.counter_ix
+   t_LN = l_object_info.p_object_ln
+  
+   #if 't_LN':ppt'i_IX' == 9 #then #block
+      l_attributes = application_object_attributes(0, "IX", list(ln = vector(t_LN), IX = vector(i_IX)), vector("IU", "SS", "UN", "OS", "OV", "HI"))
+      
+      #if (l_attributes.iu(1) == 0 or l_attributes.ss(1) == 0) or (l_attributes.ss(1) > 1 and l_attributes.un(1) <> 0) #then #block
+         l_result.can_reset = false
+      #block_end
+      
+      #if l_attributes.iu(1) == 1 #then l_result.in_use = true
+      
+      #if l_result.in_use #then #block
+         #if l_attributes.os(1) < 10 #then l_result.counter_value = round(l_attributes.ov(1))
+         l_result.counter_limit = round(l_attributes.hi(1))
+      #block_end
+   #block_end
+#block_end
+
+#return l_result

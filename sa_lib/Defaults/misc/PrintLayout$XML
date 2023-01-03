@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+	<PrintLayout Name="BasicLayout" InUse="1" Version="5">
+		<!-- Configuration possibilities for item placement:
+			- Vertical (placement): Numeric value (line number relative to current font) or values Top / Bottom
+			- Horizontal (placement): Numeric value (indent relative to current font) or values Left / Center / Right -->
+
+		<!-- Configuration possibilities for text items:
+			- Bold / Italic: Value 1 or True for enabling, 0 or False for disabling the style
+			- Case: Value Upper for uppercase, Lower for lowercase
+			- Color: RGB (0-255,0-255,0-255), for example 255,0,255
+			- FontFamily: Family Font family definition (by default LayoutFormat - FontFamily is used)
+			- FontSize: Font size definition (by default LayoutFormat - FontSize is used) -->
+
+		<!-- Configuration possibilities for image items:
+			- Width: Width definition (absolute or proportional)
+			- Height: Height definition (absolute or proportional)
+			- If Width or Height is not defined, proportional size (relative to current font) is used -->
+
+		<!-- SystemInfo consists of SYS:BNN and SYS:BCX attributes -->
+		<LayoutItem Type="Text" Name="SystemInfo" Vertical="Top" Horizontal="Left" Bold="0" Italic="0" Case="" Color="0,0,0" FontFamily="" FontSize="" />
+		<LayoutItem Type="Text" Name="PageNumber" Vertical="Top" Horizontal="Center" Bold="0" Italic="0" Case="" Color="0,0,0" FontFamily="" FontSize="" />
+		<LayoutItem Type="Text" Name="PrintedDate" Vertical="Top" Horizontal="Right" Bold="0" Italic="0" Case="" Color="0,0,0" FontFamily="" FontSize="" />
+		<LayoutItem Type="Text" Name="ProductName" Vertical="0" Horizontal="Left" Bold="1" Italic="0" Case="" Color="0,0,0" FontFamily="" FontSize="" />
+		<LayoutItem Type="Text" Name="ToolDisplay" Vertical="0" Horizontal="Center" Bold="1" Italic="0" Case="" Color="0,0,0" FontFamily="" FontSize="" />
+		<LayoutItem Type="Text" Name="ApplicationName" Vertical="0" Horizontal="Right" Bold="1" Italic="0" Case="" Color="0,0,0" FontFamily="" FontSize="" />
+		<LayoutItem Type="Text" Name="CustomerName" Vertical="2" Horizontal="Left" Bold="1" Italic="0" Case="" Color="0,0,0" FontFamily="" FontSize="" />
+		<!-- CustomerLogo is searched from folders [application path]\par\apl\misc and \sc\sa_lib\defaults\misc -->
+		<LayoutItem Type="Image" Name="CustomerLogo" Vertical="2" Horizontal="Right" Width="0" Height="3" />
+		<LayoutItem Type="Text" Name="CustomerSite" Vertical="3" Horizontal="Left" Bold="0" Italic="0" Case="" Color="0,0,0" FontFamily="" FontSize="" />
+		<LayoutItem Type="Text" Name="Preconfiguration" Vertical="5" Horizontal="Center" Bold="1" Italic="0" Case="" Color="0,0,0" FontFamily="" FontSize="" />
+		<LayoutItem Type="Text" Name="DataHeader" Vertical="7" Horizontal="Center" Bold="1" Italic="0" Case="" Color="0,0,0" FontFamily="" FontSize="" />
+		<!-- DataArea includes possibility to configure Legend visibility (printed on the last page) -->
+		<LayoutItem Type="Text" Name="DataArea" Legend="1" Vertical="8" Horizontal="Left" Bold="0" Italic="0" Case="" FontFamily="" FontSize="" />
+		<LayoutItem Type="Text" Name="ToolDisplayInfo1" Vertical="Bottom" Horizontal="Left" Bold="0" Italic="0" Case="" Color="0,0,0" FontFamily="" FontSize="" />
+		<LayoutItem Type="Text" Name="ToolDisplayInfo2" Vertical="Bottom" Horizontal="Right" Bold="0" Italic="0" Case="" Color="0,0,0" FontFamily="" FontSize="" />
+
+		<!-- Custom texts can be added using CustomItem prefix for the name of an text item:
+			- Text data should include one of the following items:
+				- Static string (no localization support)
+				- Path to the resource file and resource string table ID divided by comma (use RES_STR: prefix).
+				  Path to the resource file should be of format [path]\[ISO6391LangCode]\File_[ISO6391LangCode].dll in order to get localized results
+				- String ID of the text to be get from SCIL database (use SCIL_STR: prefix) -->
+		<!-- <LayoutItem Type="Text" Name="CustomItemMyTextItem" Vertical="4" Horizontal="6" Bold="0" Italic="0" Case="" Color="0,0,0" FontFamily="" FontSize="">RES_STR:C:\sc\prog\sa_lib\en\FrameWindow_EN.dll,127</LayoutItem> -->
+
+		<!-- Custom images can be added using CustomItem prefix for the name of an image item:
+			- Image data should include path to the image file -->
+		<!-- <LayoutItem Type="Image" Name="CustomItemMyImageItem" Vertical="4" Horizontal="Left" Width="6" Height="0">C:\WINNT\Greenstone.bmp</LayoutItem> -->
+	</PrintLayout>
+
+	<LayoutFormat Name="BasicFormat" InUse="1" Version="5">
+		<FormatItem Name="FontFamily">Arial</FormatItem>
+		<FormatItem Name="FontSize">10</FormatItem>
+		<FormatItem Name="TopMargin">15</FormatItem>
+		<FormatItem Name="BottomMargin">15</FormatItem>
+		<FormatItem Name="LeftMargin">10</FormatItem>
+		<FormatItem Name="RightMargin">10</FormatItem>
+		<FormatItem Name="SplitterColor">230,230,230</FormatItem>
+	</LayoutFormat>
+</root>

@@ -1,0 +1,140 @@
+﻿; This command procedure is used for command authority checking in a COM application 
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @LN, IX, logical name and index of the input processs object
+;         @OUTPUT_OBJECT_LNS, vector, logical names of the output processs objects
+;         @OUTPUT_OBJECT_LNS, vector, indexes of the output processs objects
+;         APL:BSV(20), general parameters
+;         APL:BSV(21), NCC cross-reference table
+; OUTPUT: @CONTROLS_ALLOWED, integer, 0 = not authorized, 1 = authorized, 
+;         -1 = error, -2 = not authorized command source
+;         @NCC_PROTOCOL, protocol of the NCC sending the command 
+;         @NCC_SUBPROTOCOL, subprotocol, valid only for CPI NCCs
+;         @NCC_STA_NUMBER, STA object number of the NCC                            
+;-------------------------------------------------------------------------------------
+
+#LOCAL COMMAND_USER_NAME
+
+#ERROR CONTINUE
+
+;initialize variables
+@LR_CONTROLS_ALLOWED = 0
+@STA_CONTROLS_ALLOWED = 0
+
+;reset status
+@S = STATUS
+
+;read general information and NCC xref table
+@GEN_INFO = APL:BSV(20)
+@NCC_XREF_TABLE = APL:BSV(21)
+
+;find the command source of the incoming signal
+@NCC_STA_NUMBER = APL:BST('LN':PUN'IX')
+@NCC_XREF_TABLE = APL:BSV(21)
+#IF DATA_TYPE(%NCC_XREF_TABLE) == "VECTOR" AND LENGTH(%NCC_XREF_TABLE) > 0 #THEN #BLOCK
+   #LOOP_WITH NCC_NUMBER = 1..LENGTH(%NCC_XREF_TABLE)
+      @NCC = %NCC_XREF_TABLE(%NCC_NUMBER)
+      #IF %NCC(1) == %NCC_STA_NUMBER #THEN #BLOCK
+         @NCC_PROTOCOL = %NCC(2)
+         @NCC_SUBPROTOCOL = %NCC(10)
+         @CMD_SOURCE = %NCC(3)
+         #LOOP_EXIT
+      #BLOCK_END
+   #LOOP_END
+#BLOCK_END
+
+;output object logical names and indexes (input from COM_DSXREF:C)
+@OUT_LN = %OUTPUT_OBJECT_LNS(1)
+@OUT_IX = %OUTPUT_OBJECT_IXS(1)
+
+;check the value of the station L/R switch and validity of the command source, if required
+#IF GEN_INFO:VSTATION_LR_CHECK_IN_USE OR GEN_INFO:VCOMMAND_SOURCE_CHECK_IN_USE #THEN #BLOCK
+   #IF GEN_INFO:VSTATION_LR_CHECK_IN_USE #THEN #BLOCK
+      ;station L/R switch object hard coded
+      #IF LENGTH(GEN_INFO:VHARD_CODED_STA_LR_OBJECT_LN) > 0 AND GEN_INFO:VHARD_CODED_STA_LR_OBJECT_IX <> 0 #THEN #BLOCK
+         @LR_LN = GEN_INFO:VHARD_CODED_STA_LR_OBJECT_LN
+         @LR_IX = GEN_INFO:VHARD_CODED_STA_LR_OBJECT_IX
+         @LR_PT = 'LR_LN':PPT'LR_IX'   
+         #ERROR IGNORE
+         @S = STATUS
+         @LR_VALUE = 'LR_LN':P'LR_IX'
+         @S = STATUS
+         #ERROR CONTINUE
+         #IF %S == 0 #THEN #BLOCK
+            #IF %LR_PT ==3 #THEN #BLOCK
+               #IF %LR_VALUE == 1 #THEN @LR_CONTROLS_ALLOWED = 0 ;local
+               #ELSE @LR_CONTROLS_ALLOWED = 1 ;remote 
+            #BLOCK_END     
+            #ELSE #BLOCK
+               #IF %LR_VALUE == 2 OR %LR_VALUE == 3 #THEN @LR_CONTROLS_ALLOWED = 1
+               #ELSE @LR_CONTROLS_ALLOWED = 0        
+           #BLOCK_END
+         #BLOCK_END      
+         #ELSE @LR_CONTROLS_ALLOWED = -1
+      #BLOCK_END
+      ;find station L/R switch object by the station name
+      #ELSE #BLOCK
+         @STA_NAME = SUBSTR('OUT_LN':POI'OUT_IX',GEN_INFO:VOI_STA_NAME_START,GEN_INFO:VOI_STA_NAME_LENGTH)
+         @STA_SEARCH = SELECT(GEN_INFO:VSTA_LR_OBJECT_STA_NAMES,"==%STA_NAME")
+         #IF LENGTH(%STA_SEARCH) == 0 #THEN @LR_CONTROLS_ALLOWED = 0
+         #ELSE #BLOCK
+            @IND = %STA_SEARCH(1)
+            @LR_LN = GEN_INFO:VSTA_LR_OBJECT_LNS(%IND)
+            @LR_IX = GEN_INFO:VSTA_LR_OBJECT_IXS(%IND)
+            @LR_PT = 'LR_LN':PPT'LR_IX' 
+            @LR_VALUE = 'LR_LN':P'LR_IX'
+            #IF 'LR_LN':POS'LR_IX' == 10 #THEN @LR_CONTROLS_ALLOWED = 0
+            #ELSE #BLOCK
+               #IF %LR_PT ==3 #THEN #BLOCK
+                  #IF %LR_VALUE == 1 #THEN @LR_CONTROLS_ALLOWED = 0 ;local
+                  #ELSE @LR_CONTROLS_ALLOWED = 1 ;remote 
+               #BLOCK_END 
+               #ELSE #BLOCK    
+                  #IF 'LR_LN':P'LR_IX' == 2 OR %LR_VALUE == 3 #THEN @LR_CONTROLS_ALLOWED = 1
+                  #ELSE @LR_CONTROLS_ALLOWED = 0
+               #BLOCK_END
+            #BLOCK_END
+         #BLOCK_END
+      #BLOCK_END
+      @S = STATUS
+   #BLOCK_END
+   #ELSE @LR_CONTROLS_ALLOWED = 1
+   #IF GEN_INFO:VCOMMAND_SOURCE_CHECK_IN_USE #THEN #BLOCK
+      ;check the validity of the command source by the station name
+      @STA_NAME = SUBSTR('OUT_LN':POI'OUT_IX',GEN_INFO:VOI_STA_NAME_START,GEN_INFO:VOI_STA_NAME_LENGTH)
+      @STA_SEARCH = SELECT(GEN_INFO:VSTA_LR_OBJECT_STA_NAMES,"==%STA_NAME")
+      #IF LENGTH(%STA_SEARCH) == 0 #THEN @STA_CONTROLS_ALLOWED = 0
+      #ELSE #BLOCK
+         @IND = %STA_SEARCH(1)
+         @SOURCE_SEARCH = SELECT(GEN_INFO:VSTA_LR_OBJECT_CMD_SOURCES(%IND),"==%CMD_SOURCE")
+         #IF LENGTH(%SOURCE_SEARCH) > 0 #THEN @STA_CONTROLS_ALLOWED = 1
+         #ELSE @STA_CONTROLS_ALLOWED = 2
+      #BLOCK_END
+      @S = STATUS
+   #BLOCK_END
+   #ELSE @STA_CONTROLS_ALLOWED = 1
+   #IF %S <> 0 #THEN @CONTROLS_ALLOWED = -1
+   #ELSE_IF %LR_CONTROLS_ALLOWED == 1 AND %STA_CONTROLS_ALLOWED == 1 #THEN @CONTROLS_ALLOWED = 1
+   #ELSE_IF %LR_CONTROLS_ALLOWED == 1 AND %STA_CONTROLS_ALLOWED == 2 #THEN @CONTROLS_ALLOWED = 2
+   #ELSE @CONTROLS_ALLOWED = 0
+#BLOCK_END
+#ELSE @CONTROLS_ALLOWED = 1
+
+COMMAND_USER_NAME = SET_EVENT_LIST_USER_NAME(%NCC(3))
+
+
+
+
+
+
+
+
+
+
+
+
+
+

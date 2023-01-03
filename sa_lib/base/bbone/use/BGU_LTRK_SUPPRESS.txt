@@ -1,0 +1,20 @@
+;*********************************************************************
+;Information for suppressing event tracking events
+;from the system where the operation was made.
+;
+;This is called from command procedure BGU_LTRK_EVENT:C
+;
+;You can add information from your system to the VECTOR
+;
+;*********************************************************************
+;Uncomment the code below to take it in use
+
+;#return VECTOR(-
+;   LIST(-
+;      ORIGINATOR_ID = "c0a802b1",-           ;MAC address of the event tracking data
+;      EVENT_LIST_ID = "Station control",-    ;User name in the Event List, if empty ORIGINATOR_ID is used
+;      SUPPRESS_EVENTS = TRUE),-              ;suppress event tracking events from Event List from this MAC address
+;    LIST(-
+;      ORIGINATOR_ID = "",-
+;      EVENT_LIST_ID = "",-
+;      SUPPRESS_EVENTS = FALSE))

@@ -1,0 +1,27 @@
+﻿; This command procedure is used for switching the DI attribute
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @COM_RP_STA_NUMBER, number of the STA object of the NCC (protocol converter)
+;         @RT,@RM
+;
+;------------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+@ENABLE_LOGGING = COM_GENVAR:PBZ(3)
+
+;set DI to 1
+#IF STA'COM_RP_STA_NUMBER':SDI <> 1 #THEN #SET STA'COM_RP_STA_NUMBER':SDI = 1
+
+#IF %ENABLE_LOGGING #THEN #BLOCK
+   @TIME = HR_CLOCK
+   @RT = TIMES(TIME:VCL)
+   @RM = ROUND(TIME:VUS/1000)      
+   @INFO="'rt':'rm',CPIDI,'COM_RP_STA_NUMBER',,,MODBUS/CPI DI set to 1,,,,,,,,,,,,,,,,"
+   #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+   #ELSE #DO COM_LOG:CIN 
+#BLOCK_END
+

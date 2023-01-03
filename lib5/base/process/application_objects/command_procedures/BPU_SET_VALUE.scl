@@ -1,0 +1,21 @@
+;Sets value to given process object attribute 
+#local -
+   t_LN,-
+   i_IX,-
+   t_Attr,-
+   new_value,-
+   s
+   
+#if argument_count < 4 #then #return -
+   list(status = 210, err_description = status_code_name(210))
+   
+t_LN = argument(1)
+i_IX = argument(2)
+t_Attr = argument(3)
+new_value = argument(4)
+
+s = status
+#error ignore
+#set 't_LN':P't_Attr''i_IX' = new_value
+s = status
+#return list(status = s, err_description = status_code_name(s))

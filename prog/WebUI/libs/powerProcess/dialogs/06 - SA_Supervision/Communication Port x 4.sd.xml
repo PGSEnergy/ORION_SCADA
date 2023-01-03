@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="SAVersionInfo" content="1" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Communication Port x 4" />
+    <d:meta name="dv-custom-attribute|SAVersionInfo" content="1" />
+    <d:meta name="dv-custom-attribute|SATopology" content="" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="Communication" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="port-1-status" default="0" />
+    <d:variable type="external" name="port-2-status" default="0" />
+    <d:variable type="external" name="port-3-status" default="0" />
+    <d:variable type="external" name="port-4-status" default="0" />
+  </d:head>
+  <d:body x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <d:view name="06 - SA_Supervision/Communication Port.sd" s:transform="translate(-8,0) scale(1,1)" d:object-name="Port 1">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="status-color" value="`port-1-status`" />
+      <d:meta name="dv-variable-mapping|Status Color" content="Port 1 Status" />
+    </d:view>
+    <d:view name="06 - SA_Supervision/Communication Port.sd" s:transform="translate(-2.680,0.020) scale(1,1)" d:object-name="Port 2">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="status-color" value="`port-2-status`" />
+      <d:meta name="dv-variable-mapping|Status Color" content="Port 2 Status" />
+    </d:view>
+    <d:view name="06 - SA_Supervision/Communication Port.sd" s:transform="translate(2.640,0) scale(1,1)" d:object-name="Port 3">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="status-color" value="`port-3-status`" />
+      <d:meta name="dv-variable-mapping|Status Color" content="Port 3 Status" />
+    </d:view>
+    <d:view name="06 - SA_Supervision/Communication Port.sd" s:transform="translate(8.020,0) scale(1,1)" d:object-name="Port 4">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="status-color" value="`port-4-status`" />
+      <d:meta name="dv-variable-mapping|Status Color" content="Port 4 Status" />
+    </d:view>
+  </d:body>
+</d:document>

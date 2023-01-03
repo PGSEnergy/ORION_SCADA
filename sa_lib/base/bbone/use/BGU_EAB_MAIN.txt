@@ -1,0 +1,1269 @@
+;Command procedure: SAGR_EAB_MAIN:C
+; Parameters: t_Method_Name, name of the method to execute
+;             i_AEB_Handle, handle of interface
+; Description: Used for transferring the data from/to list based applications.
+; Return data: INTEGER, the status of method execution
+;              < 0 (negative), the method was not executed successfully
+;              >= 0 (zero or positive), the method was executed successfully
+; ----------------------------------------------------------------------------
+
+#argument t_Method_Name
+#local i_Command_Status, i_Session, i_Depth, i_Index, i_IX, i_length
+#local l_Previous_Query, l_Command_Status, l_Command_Status_2
+#local t_Comment_Text, t_Event_ID, t_LN
+#local v_trdObjs
+#local nameVect, toAppend, att, idx
+#local dir1, dir2, dir1_tag
+#local v_GAO_SortByOX = vector(), l_GAO_SortByOX = list(), v_GAO_SortByOI = vector(), l_GAO_SortByOI = list()
+#local v_PLN=VECTOR(), v_PIX=VECTOR() , tmp_vec=VECTOR()  ;ID 16123 HoDa
+
+#local argCnt, tRedirectProc, tRedirectCommand, iArgLoop
+
+;ID 15727 3.01.2013 DT  
+#local t_defTC,t_defLF
+#local i_defLF,i_tmp
+#local b_defFTU_TA_fileFlag=TRUE
+
+tRedirectProc="APLMOD_EAB_MAIN"
+#if APPLICATION_OBJECT_EXISTS(0,"C",tRedirectProc) AND -
+DATA_TYPE(%REDIRECTED)=="NONE" #then #block
+   #if 'tRedirectProc':CIU==1 #then #block
+      @REDIRECTED=TRUE
+      argCnt=ARGUMENT_COUNT
+      tRedirectCommand="DO('tRedirectProc':C"
+      #loop_with iArgLoop=1..argCnt
+         tRedirectCommand=tRedirectCommand+",argument('iArgLoop')"
+         #if iArgLoop==argCnt #then #block
+            tRedirectCommand=tRedirectCommand+")"
+         #block_end
+      #loop_end
+      #return 'tRedirectCommand'
+   #block_end
+#block_end
+
+#if SYS:BDM == 1 #then #block
+   @t_Trace_Method = t_Method_Name
+   @i_Trash=trace_begin("TRACE_SAGR_EAB_MAIN_'t_Trace_Method'.txt")
+   #on error #block
+      @i_Trash=trace_end
+      @i_Error_Status = status
+      @i_Console_Status = console_output(times + " SAGR_EAB_MAIN:C error when executing 't_Trace_Method': 'i_Error_Status' - " + status_code_name(%i_Error_Status))
+      #error raise %i_Error_Status ;Pass status to caller (OPC client)
+      #return -1
+   #block_end
+   i_Command_Status = console_output(times + " SAGR_EAB_MAIN:C running method 't_Trace_Method'...")
+#block_end
+
+;ID 15727 3.01.2013 DT  Added "GET_ALL_OBJECTS"
+;Define temporary path (for this context only) for trend configuration file:
+#case upper_case(t_Method_Name)
+   #when "GET_DATALOGS","READ_TREND_VALUES","GET_ALL_OBJECTS" #block
+      dir2=fm_represent(fm_scil_directory("/sa_lib/base/bbone/use"))
+      #path TRENDCONF + NO_CREATE, 'dir2' 
+      dir1_tag=fm_application_directory("APLMOD4/USE")
+      #if directory_manager("EXISTS", dir1_tag) #then #block
+         dir1=fm_represent(dir1_tag)
+         #path TRENDCONF + NO_CREATE, 'dir1'
+      #block_end
+   #block_end
+#case_end
+
+#case upper_case(t_Method_Name)
+   #when "ACKNOWLEDGE_ALARM", "ACKNOWLEDGE_MULTIPLE_ALARMS" #block
+      @wpAuthConfFile="par/apl/WP_AUTHORITY.txt"
+      @allowControl=TRUE
+      @v_Args = argument(2)
+      #if FILE_MANAGER("EXISTS",FM_APPLICATION_FILE(%wpAuthConfFile)) #then #block
+         @allowControl=FALSE
+         @wpName = %v_Args(3)
+         @statusCheck=status
+         #error ignore
+         @wpAuthConf=evaluate(read_text(FM_REPRESENT(FM_APPLICATION_FILE(%wpAuthConfFile))))
+         #error stop
+         @statusCheck=status
+         #if %statusCheck==0 #then #block
+            #if ATTRIBUTE_EXISTS(%wpAuthConf,"ALLOWED") #then #block
+               @allowedWorkplaces=%wpAuthConf.ALLOWED
+               #if length(select(%allowedWorkplaces,"==""'wpName'"""))>0 #then #block
+                  @allowControl=TRUE
+               #block_end
+            #block_end
+         #block_end
+         #if NOT %allowControl #then #block
+            @denyReason=times + " " + apl:bna + ": Alarm acknowledgement denied from workstation 'wpName'"
+            @trash=console_output(%denyReason)
+         #block_end
+      #block_end
+      #if %allowControl #then #block
+         #if t_Method_Name=="ACKNOWLEDGE_MULTIPLE_ALARMS" #then #block
+            @v_ACKN_LN = %v_Args(1)
+            @v_ACKN_IX = %v_Args(2)            
+            #loop_with ack_i=1..length(%v_ACKN_LN)
+               @ACKN_LN = %v_ACKN_LN(%ack_i)
+               @ACKN_IX = %v_ACKN_IX(%ack_i)
+               #if %ACKN_LN<>"" #then #block
+                  #IF 'ACKN_LN':PPT >= 100 #THEN #SET 'ACKN_LN':PAR = 1 ; free type process objects
+                     #ELSE #SET 'ACKN_LN':PAR'ACKN_IX' = 1 ; usual process objects               
+               #block_end
+            #loop_end
+         #block_end
+         #else #block
+            @ACKN_LN = %v_Args(1)
+            @ACKN_IX = %v_Args(2)
+            #IF 'ACKN_LN':PPT >= 100 #THEN #SET 'ACKN_LN':PAR = 1 ; free type process objects
+               #ELSE #SET 'ACKN_LN':PAR'ACKN_IX' = 1 ; usual process objects
+         #block_end
+      #block_end
+   #block_end
+
+   #when "GET_APPLICATION_ALARMS" #block
+      @v_Return_Attributes = argument(2)
+      @l_Alarm_Counts = application_alarm_count(0, argument(5))
+      @l_Result = application_alarm_list(0, argument(3), %v_Return_Attributes, "", argument(5), argument(4))
+      @l_Result = merge_attributes(%l_Result, list(active_count = %l_Alarm_Counts.active_noack + %l_Alarm_Counts.active_acked + %l_Alarm_Counts.active_unacked, -
+                                                 fleeting_count = %l_Alarm_Counts.fleeting, -
+                                                 unacked_count = %l_Alarm_Counts.active_unacked + %l_Alarm_Counts.fleeting))
+      #if sys:bdm==1 #then @st=write_text("PICT/TRACE_DUMP_GET_APLICATION_ALARMS.TXT", DUMP(%l_Result))
+      #return %l_Result
+   #block_end
+
+   #when "GET_ALARMS" #block
+      @count = argument(2)
+      #if %count <= 0 #then @count = 1000
+      @l_Result = application_alarm_list(0, "ALARMS", VECTOR("AL","LN","IX","YT","YM","OI","TX"), "", "AR==0 AND OS < 10", %count)
+      #return %l_Result.alarms
+   #block_end
+   
+   #when "GET_ALARM_INDICATION_STATE" #block
+     @NEW_ALARMS = APPLICATION_ALARM_COUNT(0,"")
+     #IF %NEW_ALARMS.STATUS == 0 #THEN #BLOCK
+      #IF %NEW_ALARMS.ACTIVE_UNACKED > 0 #THEN #RETURN 2
+      #IF %NEW_ALARMS.ACTIVE_ACKED > 0 #THEN #RETURN 1
+     #BLOCK_END
+     #RETURN 0
+   #block_end
+
+   #when "GET_APPLICATION_FOLDER" #return FM_REPRESENT(FM_APPLICATION_DIRECTORY)
+
+   #when "GET_BLOCKINGS" #block
+
+   ;create the query condition to match the blocking list view and initialize
+   @COUNT = 0
+   @TMP_COND
+   @COND = ""
+     
+   @ShowAll = FALSE
+   @RequestedAttributes = argument(3)
+   #if Data_Type(argument(4)) == "BOOLEAN" #then #block
+      @ShowAll = argument(4)
+   #block_end
+   @AttributesToFetch = %RequestedAttributes;
+
+     #if not %ShowAll #then #block
+        @VectArgument = argument(2)
+        @BBU_BLOCKCOM = list(-
+          SHOW_UPDATE_BLOCKED = %VectArgument(1),-
+          SHOW_CONTROL_BLOCKED = %VectArgument(2),-
+          SHOW_ALARM_BLOCKED = %VectArgument(3),-
+          SHOW_EVENT_BLOCKED = %VectArgument(4),-
+          SHOW_PRINTOUT_BLOCKED = %VectArgument(5),-
+          SHOW_REPROC_BLOCKED = %VectArgument(6))
+          
+        ;compose the condition string
+        #IF BBU_BLOCKCOM:VSHOW_UPDATE_BLOCKED AND BBU_BLOCKCOM:VSHOW_CONTROL_BLOCKED #THEN #BLOCK
+          @TMP_COND = "(UB == 1)"
+          @COUNT = 1
+        #BLOCK_END
+        #ELSE_IF BBU_BLOCKCOM:VSHOW_UPDATE_BLOCKED AND NOT BBU_BLOCKCOM:VSHOW_CONTROL_BLOCKED #THEN #BLOCK
+          @TMP_COND = "(UB == 1 AND PT <> 5 AND PT <> 7 AND PT <> 11)"
+          @COUNT = 1
+        #BLOCK_END
+        #ELSE_IF NOT BBU_BLOCKCOM:VSHOW_UPDATE_BLOCKED AND BBU_BLOCKCOM:VSHOW_CONTROL_BLOCKED #THEN #BLOCK
+          @TMP_COND = "(UB == 1 AND (PT == 5 OR PT == 7 OR PT == 11))"
+          @COUNT = 1
+        #BLOCK_END
+        #IF BBU_BLOCKCOM:VSHOW_ALARM_BLOCKED #THEN #BLOCK
+          #IF %COUNT > 0 #THEN #BLOCK
+            @TMP_COND = %TMP_COND + " OR (AB == 1)"
+          #BLOCK_END
+          #ELSE #BLOCK
+            @TMP_COND = "(AB == 1)"
+          #BLOCK_END
+          @COUNT = %COUNT + 1
+        #BLOCK_END
+        #IF BBU_BLOCKCOM:VSHOW_EVENT_BLOCKED #THEN #BLOCK
+          #IF %COUNT > 0 #THEN #BLOCK
+            @TMP_COND = %TMP_COND + " OR (HB == 1)"
+          #BLOCK_END
+          #ELSE #BLOCK
+            @TMP_COND = "(HB == 1)"
+          #BLOCK_END
+          @COUNT = %COUNT + 1
+        #BLOCK_END
+        #IF BBU_BLOCKCOM:VSHOW_PRINTOUT_BLOCKED #THEN #BLOCK
+          #IF %COUNT > 0 #THEN #BLOCK
+            @TMP_COND = %TMP_COND + " OR (PB == 1)"
+          #BLOCK_END
+          #ELSE #BLOCK
+            @TMP_COND = "(PB == 1)"
+          #BLOCK_END
+          @COUNT = %COUNT + 1
+        #BLOCK_END
+        #IF BBU_BLOCKCOM:VSHOW_REPROC_BLOCKED #THEN #BLOCK
+          #IF %COUNT > 0 #THEN #BLOCK
+            @TMP_COND = %TMP_COND + " OR (XB == 1)"
+          #BLOCK_END
+          #ELSE #BLOCK
+            @TMP_COND = "(XB == 1)"
+          #BLOCK_END
+        #BLOCK_END
+        @COND = "(" + %TMP_COND + ") AND "
+     #BLOCK_END
+      ;the final condition (exclude internal objects)
+      @t_RX_Condition (RX<>"*XMEV*" and RX<>"*XIND*" and RX<>"*XVOL*")          ;### HoDa ID 16126
+      @COND = %COND + "IU==1 AND " + %t_RX_Condition                            ;ID 16126
+      ;### @COND = %COND + "IU==1 AND RX <> ""%%%%%%%%%%%%%%%%%%%%%%%%%%X*"""   ;prior ID 16126
+
+     #if argument(5) <> "" #then #block
+      @COND = "(" + %COND + ") AND (" + argument(5) + ")"
+     #block_end
+
+     #return APPLICATION_OBJECT_LIST(0, "IX", "A", "F", "", %COND, %attributesToFetch, MAX_VECTOR_LENGTH)
+   #block_end
+
+   #when "GET_SIGNALS" #block
+      ;the final condition (exclude internal objects)
+      @COND = "IU==1 AND RX <> ""%%%%%%%%%%%%%%%%%%%%%%%%%%X*"""
+      #if argument(3) <> "" #then #block
+         @COND = "(" + %COND + ") AND (" + argument(3) + ")"
+      #block_end
+      #return APPLICATION_OBJECT_LIST(0, "IX", "A", "F", "", %COND, argument(2), MAX_VECTOR_LENGTH)
+   #block_end
+   
+   #when "GET_EVENT_INFO" #block
+      @v_Args = argument(2)
+      @a = history_database_manager("OPEN")
+      @session = a:vsession
+      @a = history_database_manager("SET_PERIOD", %session, %v_Args(2), %v_Args(3))
+      #if %a.DATE_COUNT > 0 #then #block
+         @query_from = 0
+         #if %v_Args(1) <> "" #then @query_from = evaluate(%v_Args(1)) ; Identifier comes in format "VECTOR(1,22,823868266,265)"
+         @a = history_database_manager("READ", %session, %query_from)
+         #if ATTRIBUTE_EXISTS(%a.data, "EX") #then #block
+             @comment_structure=separate(%a.data.EX,"#")
+             #if length(%comment_structure)==3 #then #block
+               @a.data.EX=%comment_structure(3)
+            #block_end
+            @a=MERGE_ATTRIBUTES(%a,LIST(COUNT=1,ID=VECTOR(%v_Args(1))))
+         #block_end
+      #block_end
+      @b = history_database_manager("CLOSE", %session)
+      #return %a
+   #block_end
+   
+   #when "GET_EVENTS" #block
+      @v_Args = argument(2)
+      @a = history_database_manager("OPEN")
+      @session = a:vsession
+      @a = history_database_manager("SET_PERIOD", %session, %v_Args(7), %v_Args(8))
+      #if %a.STATUS == 0 #then #block
+         #if %a.DATE_COUNT > 0 #then #block
+            @query_from = 0
+            #if %v_Args(1) <> "" #then @query_from = evaluate(%v_Args(1)) ; Identifier comes in format "VECTOR(1,22,823868266,265)"
+            @direction = %v_Args(2)
+            @length = %v_Args(3)
+            @a = history_database_manager("SET_DIRECTION", %session, %direction)
+            @query_attributes = %v_Args(6)
+            @unknown_attribute = find_element(%query_attributes, "UTC_TIME")
+            #if %unknown_attribute > 0 #then #block
+               @query_attributes = delete_element(%query_attributes, %unknown_attribute)
+            #block_end
+            @unknown_attribute = find_element(%query_attributes, "CU")
+            #if %unknown_attribute > 0 #then #block
+               @query_attributes = delete_element(%query_attributes, %unknown_attribute)
+            #block_end
+            @a = history_database_manager("SET_ATTRIBUTES", %session, %query_attributes)
+            #if %v_Args(9) <> "" #then #block
+               @a = history_database_manager("SET_CONDITION", %session, %v_Args(9))
+            #block_end
+            @a = history_database_manager("SET_ORDER", %session, %v_Args(4))
+            @a = history_database_manager("SET_TIMEOUT", %session, %v_Args(5))
+            @a = history_database_manager("QUERY", %session, %length, %query_from)
+            @event_part = vector()
+            @idnew = vector()
+            @first = ""
+            #if %a.COUNT > 0 #then #block
+               @event_part = %a.data.mx
+               #loop_with i = 1 .. %a.COUNT
+                  ; HDB ID conversion
+                  @dumped_id = dump(%a.ID(%i))
+                  @idnew(%i) = %dumped_id(1)
+               #loop_end
+               #if find_element(%v_Args(6), "UTC_TIME") > 0 #then #block
+                  @v_UTC_Time = sys_to_utc_time(%a.data.et)
+                  @v_All_UTC_Times = vector()
+                  #loop_with i = 1 .. length(%v_UTC_Time)
+                     @v_All_UTC_Times(%i) = %v_UTC_Time(%i).CL
+                  #loop_end
+                  #modify a:v = list(UTC_TIME = %v_All_UTC_Times, UTC_TIME_M = %a.data.em)
+               #block_end
+               #if find_element(%v_Args(6), "CU") > 0 #then #block
+                  @user_name = USM_USER_NAME
+                  @custColFileContents=VECTOR()
+                  #if %user_name<>"" #then #block
+                     @custColFileName="PAR/'user_name'/EVENT/EVENT_LIST_CUSTOM_FIELD.TXT"
+                     #if FILE_MANAGER("EXISTS",FM_APPLICATION_FILE(%custColFileName)) #then #block
+                        @custColFileContents=READ_TEXT(fm_represent(fm_application_file(%custColFileName)))
+                     #block_end
+                  #block_end
+                  #if length(%custColFileContents)==0 #then #block
+                     @custColFileName="PAR/APL/EVENT/EVENT_LIST_CUSTOM_FIELD.TXT"
+                     #if FILE_MANAGER("EXISTS",FM_APPLICATION_FILE(%custColFileName)) #then #block
+                        @custColFileContents=READ_TEXT(fm_represent(fm_application_file(%custColFileName)))
+                     #block_end
+                  #block_end
+                  #if length(%custColFileContents)<>0 #then #block
+                     @cust_att_do_status=status
+                     @e_state=error_state
+                     #error ignore
+                     @cust_att_do_result=do(%custColFileContents,%a.DATA)
+                     #error 'e_state'
+                     @cust_att_do_status=status
+                     #if %cust_att_do_status<>0 AND (length(%a.DATA.LN)>0) #then #block
+                        @cust_att_do_result(1..length(%a.DATA.LN))=status_code_name(%cust_att_do_status)
+                     #block_end
+                     @a=MERGE_ATTRIBUTES(%a,LIST(DATA=MERGE_ATTRIBUTES(%a.data, list(CU=%cust_att_do_result))))
+                  #block_end
+               #block_end
+               #if find_element(%v_Args(6), "EX") > 0 #then #block
+               @picked_comments=select(%a.data.EX,"<>""""")
+               #loop_with loop_EX=1..length(%picked_comments) 
+                   @comment_structure=separate(%a.data.EX(%picked_comments(%loop_EX)),"#")
+                   @success=FALSE
+                   #if length(%comment_structure)==3 #then #block
+                   @a.data.EX(%picked_comments(%loop_EX))=%comment_structure(3)
+                   #block_end
+               #loop_end
+               #block_end
+               #if %direction == "FORWARD" #then #block
+                  @a.LAST = dump(%idnew(%a.COUNT),255)
+                  @first = dump(%idnew(1),255)
+               #block_end
+               #else #block
+                  @a.LAST = dump(%idnew(1),255)
+                  @first = dump(%idnew(%a.COUNT),255)
+               #block_end
+            #block_end
+            #else #block
+               @a.LAST = dump(%a.LAST,255)
+            #block_end
+            #modify a:v = list(EVENT = %event_part,ID = %idnew, FIRST = %first)
+         #block_end ; END EVENTS FOUND BLOCK 
+      #block_end
+      @b = history_database_manager("CLOSE", %session)
+      #if sys:bdm==1 #then @st=write_text("PICT/TRACE_DUMP_EVENT_DATA.TXT", DUMP(%A,10000))
+      #return %a
+   #block_end
+
+   #when "GET_WEBUI_EVENTS" #block
+      @v_Args = argument(2)
+      @a = history_database_manager("OPEN")
+      @session = a:vsession
+      @a = history_database_manager("SET_PERIOD", %session, %v_Args(6), %v_Args(7))
+      #if %a.STATUS == 0 #then #block
+         #if %a.DATE_COUNT > 0 #then #block
+            @query_from = 0
+            #if %v_Args(1) <> "" #then @query_from = evaluate(%v_Args(1)) ; Identifier comes in format "VECTOR(1,22,823868266,265)"
+            @direction = %v_Args(2)
+            @length = %v_Args(3)
+            @a = history_database_manager("SET_DIRECTION", %session, %direction)
+            @query_attributes = %v_Args(5)
+            @a = history_database_manager("SET_ATTRIBUTES", %session, %query_attributes)
+            #if %v_Args(8) <> "" #then #block
+               @a = history_database_manager("SET_CONDITION", %session, %v_Args(8))
+            #block_end
+            @a = history_database_manager("SET_ORDER", %session, "LOG")
+            @a = history_database_manager("SET_TIMEOUT", %session, %v_Args(4))
+            @a = history_database_manager("QUERY", %session, %length, %query_from)
+            @event_part = vector()
+            @idnew = vector()
+            @first = ""
+            #if %a.COUNT > 0 #then #block
+               @event_part = %a.data.mx
+               #loop_with i = 1 .. %a.COUNT
+                  ; HDB ID conversion
+                  @dumped_id = dump(%a.ID(%i))
+                  @idnew(%i) = %dumped_id(1)
+               #loop_end
+               #if find_element(%v_Args(5), "EX") > 0 #then #block
+               @picked_comments=select(%a.data.EX,"<>""""")
+               #loop_with loop_EX=1..length(%picked_comments) 
+                   @comment_structure=separate(%a.data.EX(%picked_comments(%loop_EX)),"#")
+                   @success=FALSE
+                   #if length(%comment_structure)==3 #then #block
+                   @a.data.EX(%picked_comments(%loop_EX))=%comment_structure(3)
+                   #block_end
+               #loop_end
+               #block_end
+               #if %direction == "FORWARD" #then #block
+                  @a.LAST = dump(%idnew(%a.COUNT),255)
+                  @first = dump(%idnew(1),255)
+               #block_end
+               #else #block
+                  @a.LAST = dump(%idnew(1),255)
+                  @first = dump(%idnew(%a.COUNT),255)
+               #block_end
+            #block_end
+            #else #block
+               @a.LAST = dump(%a.LAST,255)
+            #block_end
+            #modify a:v = list(EVENT = %event_part,ID = %idnew, FIRST = %first)
+         #block_end
+      #block_end
+      @b = history_database_manager("CLOSE", %session)
+      #return %a
+   #block_end
+
+   #when "FILE_UPDATED" #block
+      l_Command_Status = shadow_file(argument(2))
+      #return l_Command_Status.STATUS
+   #block_end
+   
+    #when "GET_LOCALIZED_ATTRIBUTES" #block
+      @Attributes = VECTOR()
+      @ReturnAttributes = VECTOR()
+      @Index = 1
+      @type = argument(2)
+      #if %type == 1 #then #block
+         @Attributes = ("ALARM_STATUS","STATUS_TEXT")
+      #block_end
+      #Else_if %type == 2 #then #block
+         @Attributes = ("STATUS","UTC_TIME","EVENT","CU")
+      #block_end
+      #Else_if %type == 3 #then #block
+         @Attributes = VECTOR("CONTROL")
+      #block_end
+      #Else_if %type == 4 #then #block
+         @Attributes = ("LEG","HRV","YAX","MIN","MAX","SUM","AVG")
+      #block_end
+      #Else_if %type == 5 #then #block
+         @Attributes = ("LEG","DSM","NSM", "PLD","CTL","HRV","YAX","MIN","MAX","SUM","AVG")
+      #Block_end
+      #Else_if %type == 6 #then #block ; UAL
+         @Attributes = ("EVENT_ID","UAL_TIME","SOE", "USER","SEVERITY","EVENT_TEXT","SOURCE","SENDER_IP","EXTRA_INFO", "LOG_TIME")
+      #Block_end
+      #loop_with j = 1 .. length(%Attributes)
+         @id = "SAGR_EAB_" + %Attributes(%j)
+         @result = translation(%id)
+         #if %result == %id #then @result = %Attributes(%j)
+            @ReturnAttributes(%Index) = LIST(NAME=%Attributes(%j), DESC=%result)
+            @Index = %Index + 1
+      #loop_end
+      #return %ReturnAttributes
+   #block_end
+
+   #when "GET_D_ATTRIBUTES" #block
+      @Attributes = VECTOR()
+      @Index = 1
+      @A = OBJECT_ATTRIBUTE_INFO(0, "D")
+      #loop_with j = 1 .. Length(%A)
+         #If Find_Element(%A(%j).ACCESS, "READ") <> 0 #then #block
+            @id = "SYS_ATTR_APL_D_" + %A(%j).SHORT_NAME
+            @result = translation(%id)
+            #if %result == %id OR %result == "" #then @result=%A(%j).LONG_NAME
+            @Attributes(%Index) = LIST(NAME=%A(%j).SHORT_NAME, DESC=%result)
+            @Index = %Index + 1
+         #block_end
+      #loop_end
+      #return %Attributes
+   #block_end
+
+   #when "GET_T_ATTRIBUTES" #block
+      @Attributes = VECTOR()
+      @Index = 1
+      @A = OBJECT_ATTRIBUTE_INFO(0, "T")
+      #loop_with j = 1 .. Length(%A)
+         #If Find_Element(%A(%j).ACCESS, "READ") <> 0 #then #block
+            @id = "SYS_ATTR_APL_T_" + %A(%j).SHORT_NAME
+            @result = translation(%id)
+            #if %result == %id OR %result == "" #then @result=%A(%j).LONG_NAME
+            @Attributes(%Index) = LIST(NAME=%A(%j).SHORT_NAME, DESC=%result)
+            @Index = %Index + 1
+         #block_end
+      #loop_end
+      #return %Attributes
+   #block_end
+   
+   #when "GET_P_ATTRIBUTES" #block
+      @Attributes = VECTOR()
+      @Index = 1
+      @Event = argument(2)
+      @PTs = VECTOR(0, "BI", "BO", "DI", "DO", "AI", "AO", "DB", "PC", "BS", "FT", "OE", "NT")
+      #loop_with i = 1 .. Length(%PTs)
+         @A = OBJECT_ATTRIBUTE_INFO(0, "P", %PTs(%i))
+         #loop_with j = 1 .. Length(%A)
+            #If %Event or Find_Element(%A(%j).ACCESS, "READ") <> 0 #then #block
+               @id = "SYS_ATTR_APL_P_" + %A(%j).SHORT_NAME
+               @result = translation(%id)
+               #if %result == %id OR %result == "" #then @result=%A(%j).LONG_NAME
+               @Attributes(%Index) = LIST(NAME=%A(%j).SHORT_NAME, DESC=%result)
+               @Index = %Index + 1
+            #block_end
+         #loop_end
+      #loop_end
+      @result = translation("SYS_ATTR_APL_P_OV")
+      #if %result == "SYS_ATTR_APL_P_OV" OR %result == "" #then @result="Object Value"
+      @Attributes(%Index) = LIST(NAME="OV", DESC=%result)
+      #return %Attributes
+   #block_end
+
+   #when "GET_P_ATTRIBUTES_WITH_TYPE" #block
+      @Attributes = VECTOR()
+      @Index = 1
+      @Event = argument(2)
+      @PTs = VECTOR(0, "BI", "BO", "DI", "DO", "AI", "AO", "DB", "PC", "BS", "FT", "OE", "NT")
+      #loop_with i = 1 .. Length(%PTs)
+         @A = OBJECT_ATTRIBUTE_INFO(0, "P", %PTs(%i))
+         #loop_with j = 1 .. Length(%A)
+            #If %Event or Find_Element(%A(%j).ACCESS, "READ") <> 0 #then #block
+               @id = "SYS_ATTR_APL_P_" + %A(%j).SHORT_NAME
+               @result = translation(%id)
+               #if %result == %id OR %result == "" #then @result=%A(%j).LONG_NAME
+               @Attributes(%Index) = LIST(NAME=%A(%j).SHORT_NAME, DESC=%result, TYPE=%A(%j).VALUE_TYPE)
+               @Index = %Index + 1
+            #block_end
+         #loop_end
+      #loop_end
+      @result = translation("SYS_ATTR_APL_P_OV")
+      #if %result == "SYS_ATTR_APL_P_OV" OR %result == "" #then @result="Object Value"
+      @Attributes(%Index) = LIST(NAME="OV", DESC=%result, TYPE="ANY")
+      #return %Attributes
+   #block_end
+   
+   #when "GET_ATTRIBUTE_TYPE" #block
+      @t_attributeName=argument(2)      
+      #error ignore
+      @l_attributeInfo = object_attribute_info(0,"P",0,%t_attributeName)
+      #error stop
+      #if status<>0 #then #block
+         #case %t_attributeName
+            #when "CL","GT","CE","AZ","SZ","LA","NV",-
+            "AG","BC","CO","CV","SE","ZE","SP" -
+            #block
+               @t_attributeType = "INTEGER"      
+            #block_end
+            #when "OV","HI","HO","HW","LI","LO","LW","ZD" #block
+               @t_attributeType = "NUMERIC"      
+            #block_end
+            #when "UTC_TIME" #block
+               @t_attributeType = "TIME"      
+            #block_end
+            #otherwise @t_attributeType = "TEXT"      
+         #case_end
+      #block_end
+      #else #block
+         @t_attributeType = %l_attributeInfo.VALUE_TYPE
+      #block_end
+      #return %t_attributeType
+
+   #block_end
+   
+   #when "GET_APPLICABLE_OIS" #block
+      #error stop
+      @PROCESS_OBJECTS = APL:BOI
+      @OI_INFORMATION  = %PROCESS_OBJECTS.LEVELS
+      @RequestedLevel = argument(2)
+      @offset = 1
+      #loop_with i = 1 .. %RequestedLevel - 1
+         @offset = %offset + %OI_INFORMATION(%i).width
+      #loop_end
+      @l_Previous_Query = application_object_list(0, "IX", "A", "F", "", argument(3), vector("OI"), MAX_VECTOR_LENGTH)
+      @l_Previous_Query.OI = edit(remove_duplicates(substr(%l_Previous_Query.OI,%offset,%OI_INFORMATION(%RequestedLevel).width)),"RIGHT_TRIM")
+      @qr=delete_element(%l_Previous_Query.OI, select(edit(%l_Previous_Query.OI, "COLLAPSE"), "=="""""))
+      #return pick(%qr, sort(upper_case(%qr)))
+   #block_end
+
+   #when "GET_COMMENT","GET_COMMENT_WITH_INFO" #block
+      @args = argument(2)
+      #if sys:bdm==1 #then @trash=write_text("PICT/TRACE_GET_COMMENT_DUMP_HDB_ID.TXT", dump(%args))
+      @v_Event_ID=evaluate(%args(1))
+      l_Command_Status = history_database_manager("OPEN")
+      i_Session = l_Command_Status.SESSION
+      l_Command_Status = history_database_manager("SET_PERIOD", i_Session, %args(2), %args(3))
+      l_Command_Status = history_database_manager("SET_ATTRIBUTES", i_Session, vector("EX"))
+      l_Command_Status = history_database_manager("READ", i_Session, %v_Event_ID)
+      l_Command_Status_2 = history_database_manager("CLOSE", i_Session)
+      @comment_string=l_Command_Status.DATA.EX
+      @comment_structure=separate(%comment_string,"#")
+      @success=FALSE
+      @USER="-"
+      @EDIT_TIME=TYPE_CAST(0,"TIME")
+      #if length(%comment_structure)==3 #then #block
+         @check=status
+         @e_state=error_state
+         #error ignore
+         @edit_time=type_cast(dec_scan(%comment_structure(2)),"TIME")
+         #error 'e_state'
+         @check=status
+         #if %check==0 #then #block
+            @success=TRUE
+            @USER=%comment_structure(1)
+            @comment_string=%comment_structure(3)
+         #block_end
+      #block_end
+      #if t_Method_Name=="GET_COMMENT" #then #block
+         #return %comment_string
+      #block_end
+      #else #block
+         #return LIST(USER=%USER, TIME=%EDIT_TIME, COMMENT=%COMMENT_STRING)
+      #block_end
+   #block_end
+
+   #when "GET_LANGUAGE" #return APL:BLA
+
+   #when "GET_OI_STRINGS" #block
+      @APL_BOI = apl:boi
+      @v_OI_Strings = vector()
+      @v_OI_Strings(1 .. 5) = translation("SAGR_EAB_OI_NONE")
+      #loop_with i_Depth = 1 .. %APL_BOI.DEPTH
+         @id = "SAGR_EAB_OI'i_Depth'" 
+         @result = translation(%id)
+         #if %result == %id OR %result == "" OR %result == "OI 'i_Depth'" #then @result = %APL_BOI.LEVELS(i_Depth).TITLE
+         @v_OI_Strings(i_Depth) = %result
+      #loop_end
+      #return %v_OI_Strings
+   #block_end
+
+   #when "BLOCK_OBJECT" #block
+ 
+      @v_Args = argument(2)
+      @BLOCK_LN = %v_Args(7)
+      @BLOCK_IX = %v_Args(8)
+      #CREATE BBU_TEMPOBJ:V = LIST(-
+         LN = %BLOCK_LN,-
+         IX = %BLOCK_IX,-
+         OI = 'BLOCK_LN':POI'BLOCK_IX',-
+         OX = 'BLOCK_LN':POX'BLOCK_IX',-
+         PT = 'BLOCK_LN':PPT'BLOCK_IX',-
+         LD = 'BLOCK_LN':PLD'BLOCK_IX',-
+         UN = 'BLOCK_LN':PUN'BLOCK_IX',-
+         SS = 'BLOCK_LN':PSS'BLOCK_IX',-
+         AB = type_cast(%v_Args(1),"INTEGER"),-
+         UB = type_cast(%v_Args(2),"INTEGER"),-
+         CB = type_cast(%v_Args(3),"INTEGER"),-
+         HB = type_cast(%v_Args(4),"INTEGER"),-
+         PB = type_cast(%v_Args(5),"INTEGER"),-
+         XB = type_cast(%v_Args(6),"INTEGER"))
+         
+      @B_UPDATE_SET = FALSE
+      @B_CONTROL_SET = FALSE
+      @B_ALARM_SET = FALSE
+      @B_HISTORY_SET = FALSE
+      @B_PRINTOUT_SET = FALSE
+      @B_REPROCESING_SET = FALSE
+
+      ;initialize
+      #CREATE UPDATE_OBJECTS:V = LIST()
+      @EVENT_ATTRS = VECTOR()
+      @EVENT_OFFSETS = VECTOR()
+      @TMP
+      @BL_LN
+      @BL_IX 
+      @PB_CHANGED = FALSE
+      @HE_CHANGED = FALSE
+      @HB_CHANGED = FALSE
+      @LD_CHANGED = FALSE
+      @TMP_LD = 'BLOCK_LN':PLD'BLOCK_IX'
+      
+      ;collect changed blocking attributes and event text offsets
+      #CASE BBU_TEMPOBJ:VPT
+         #WHEN 5,7,11 #BLOCK      
+            #IF 'BLOCK_LN':PUB'BLOCK_IX' <> BBU_TEMPOBJ:VUB #THEN @B_CONTROL_SET = TRUE
+         #BLOCK_END
+         #OTHERWISE #BLOCK
+            #IF 'BLOCK_LN':PUB'BLOCK_IX' <> BBU_TEMPOBJ:VUB #THEN @B_UPDATE_SET = TRUE
+         #BLOCK_END
+      #CASE_END
+      #IF 'BLOCK_LN':PAB'BLOCK_IX' <> BBU_TEMPOBJ:VAB #THEN @B_ALARM_SET = TRUE
+      #IF 'BLOCK_LN':PHB'BLOCK_IX' <> BBU_TEMPOBJ:VHB #THEN @B_HISTORY_SET = TRUE
+      #IF 'BLOCK_LN':PPB'BLOCK_IX' <> BBU_TEMPOBJ:VPB #THEN @B_PRINTOUT_SET = TRUE
+      #IF 'BLOCK_LN':PXB'BLOCK_IX' <> BBU_TEMPOBJ:VXB #THEN @B_REPROCESING_SET = TRUE
+      
+      ;prevent events and printouts from the target object
+      @BL_LN = BBU_TEMPOBJ:VLN
+      @BL_IX = BBU_TEMPOBJ:VIX
+      #IF NOT %v_Args(9) #THEN #BLOCK
+         #IF 'BL_LN':PHE'BL_IX' == 1 #THEN #BLOCK
+            @HE_CHANGED = TRUE
+            #SET 'BL_LN':PHE'BL_IX' = 0
+         #BLOCK_END
+      #BLOCK_END
+      #ELSE #BLOCK
+         #IF 'BLOCK_LN':PHB'BLOCK_IX' == 1 AND NOT %B_HISTORY_SET #THEN #BLOCK
+            #IF 'BL_LN':PHE'BL_IX' == 1 #THEN #BLOCK
+               @TMP_CHANGED = TRUE
+               #SET 'BL_LN':PHE'BL_IX' = 0
+            #BLOCK_END
+            @HB_CHANGED = TRUE
+            #SET 'BL_LN':PHB'BL_IX' = 0
+            #IF %TMP_CHANGED #THEN #SET 'BL_LN':PHE'BL_IX' = 1
+         #BLOCK_END
+      #BLOCK_END
+      
+      #IF NOT %v_Args(10) #THEN #BLOCK
+         @TMP_CHANGED = FALSE
+         #IF 'BL_LN':PLD'BL_IX' <> 0 #THEN #BLOCK
+            #IF 'BL_LN':PHE'BL_IX' == 1 #THEN #BLOCK
+               @TMP_CHANGED = TRUE
+               #SET 'BL_LN':PHE'BL_IX' = 0
+            #BLOCK_END
+            @LD_CHANGED = TRUE
+            #SET 'BL_LN':PLD'BL_IX' = 0
+            #IF %TMP_CHANGED #THEN #SET 'BL_LN':PHE'BL_IX' = 1
+         #BLOCK_END
+      #BLOCK_END
+      #ELSE #BLOCK
+         #IF 'BLOCK_LN':PPB'BLOCK_IX' == 1 AND NOT %B_PRINTOUT_SET #THEN #BLOCK
+            #IF 'BL_LN':PHE'BL_IX' == 1 #THEN #BLOCK
+               @TMP_CHANGED = TRUE
+               #SET 'BL_LN':PHE'BL_IX' = 0
+            #BLOCK_END
+            @PB_CHANGED = TRUE
+            #SET 'BL_LN':PPB'BL_IX' = 0
+            #IF %TMP_CHANGED #THEN #SET 'BL_LN':PHE'BL_IX' = 1
+         #BLOCK_END
+      #BLOCK_END
+      
+      #IF %B_HISTORY_SET #THEN #BLOCK
+         #IF BBU_TEMPOBJ:VHB == 0 #THEN #BLOCK
+            #SET 'BBU_TEMPOBJ:VLN':PHB'BBU_TEMPOBJ:VIX' = BBU_TEMPOBJ:VHB
+            @EVENT_ATTRS = APPEND(%EVENT_ATTRS,BBU_TEMPOBJ:VHB)
+            @EVENT_OFFSETS = APPEND(%EVENT_OFFSETS,6)
+         #BLOCK_END
+      #BLOCK_END
+      #IF %B_UPDATE_SET #THEN #BLOCK
+         #SET 'BBU_TEMPOBJ:VLN':PUB'BBU_TEMPOBJ:VIX' = BBU_TEMPOBJ:VUB
+         @EVENT_ATTRS = APPEND(%EVENT_ATTRS,BBU_TEMPOBJ:VUB)
+         @EVENT_OFFSETS = APPEND(%EVENT_OFFSETS,0)
+         #IF BBU_TEMPOBJ:VUB == 0 #THEN #BLOCK
+            #IF (BBU_TEMPOBJ:VSS == 2 OR BBU_TEMPOBJ:VSS == 3) AND BBU_TEMPOBJ:VUN <> 0 #THEN #BLOCK
+               @TMP = BBU_TEMPOBJ:VLN
+               #SET UPDATE_OBJECTS:VSSS'TMP' = VECTOR(BBU_TEMPOBJ:VIX)
+            #BLOCK_END
+            #ELSE #BLOCK
+               ;simulated process
+               @TMP_LN = BBU_TEMPOBJ:VLN
+               @TMP_IX = BBU_TEMPOBJ:VIX
+               @TMP_HE='TMP_LN':PHE'TMP_IX'
+               @TMP_PB='TMP_LN':PPB'TMP_IX'
+               @TMP_SS='TMP_LN':PSS'TMP_IX'
+               #IF %TMP_HE<>0 #THEN #SET 'TMP_LN':PHE'TMP_IX'=0
+               #IF %TMP_PB<>1 #THEN #SET 'TMP_LN':PPB'TMP_IX'=1
+               #IF 'TMP_LN':POS'TMP_IX' == 10 #THEN #SET 'TMP_LN':PSS'TMP_IX'=1
+               #SET 'TMP_LN':POV'TMP_IX' = 'TMP_LN':POV'TMP_IX'
+               #IF %TMP_SS<>1 #THEN #SET 'TMP_LN':PSS'TMP_IX'=%TMP_SS
+               #IF %TMP_PB<>1 #THEN #SET 'TMP_LN':PPB'TMP_IX'=%TMP_PB
+               #IF %TMP_HE<>0 #THEN #SET 'TMP_LN':PHE'TMP_IX'=%TMP_HE
+            #BLOCK_END
+         #BLOCK_END
+      #BLOCK_END
+
+      #CASE BBU_TEMPOBJ:VPT
+       #WHEN 5,7,11 #BLOCK
+         #IF %B_CONTROL_SET #THEN #BLOCK
+            #SET 'BBU_TEMPOBJ:VLN':PUB'BBU_TEMPOBJ:VIX' = BBU_TEMPOBJ:VUB
+            @EVENT_ATTRS = APPEND(%EVENT_ATTRS,BBU_TEMPOBJ:VUB)
+            @EVENT_OFFSETS = APPEND(%EVENT_OFFSETS,2)
+         #BLOCK_END
+       #BLOCK_END
+      #CASE_END
+      #IF %B_ALARM_SET #THEN #BLOCK
+        #SET 'BBU_TEMPOBJ:VLN':PAB'BBU_TEMPOBJ:VIX' = BBU_TEMPOBJ:VAB
+        @EVENT_ATTRS = APPEND(%EVENT_ATTRS,BBU_TEMPOBJ:VAB)
+        @EVENT_OFFSETS = APPEND(%EVENT_OFFSETS,4)
+      #BLOCK_END
+      #IF %B_PRINTOUT_SET #THEN #BLOCK
+        #SET 'BBU_TEMPOBJ:VLN':PPB'BBU_TEMPOBJ:VIX' = BBU_TEMPOBJ:VPB
+        @PB_CHANGED = FALSE
+        @EVENT_ATTRS = APPEND(%EVENT_ATTRS,BBU_TEMPOBJ:VPB)
+        @EVENT_OFFSETS = APPEND(%EVENT_OFFSETS,8)
+      #BLOCK_END
+      #IF %B_REPROCESING_SET #THEN #BLOCK
+        #SET 'BBU_TEMPOBJ:VLN':PXB'BBU_TEMPOBJ:VIX' = BBU_TEMPOBJ:VXB
+        @EVENT_ATTRS = APPEND(%EVENT_ATTRS,BBU_TEMPOBJ:VXB)
+        @EVENT_OFFSETS = APPEND(%EVENT_OFFSETS,10)
+      #BLOCK_END
+      #IF %B_HISTORY_SET #THEN #BLOCK
+         #IF BBU_TEMPOBJ:VHB == 1 #THEN #BLOCK
+            #SET 'BBU_TEMPOBJ:VLN':PHB'BBU_TEMPOBJ:VIX' = BBU_TEMPOBJ:VHB
+            @EVENT_ATTRS = APPEND(%EVENT_ATTRS,BBU_TEMPOBJ:VHB)
+            @EVENT_OFFSETS = APPEND(%EVENT_OFFSETS,6)
+         #BLOCK_END
+      #BLOCK_END
+         
+      ;when update-deblocking, execute updating command procedure
+      #IF LENGTH(LIST_ATTR(%UPDATE_OBJECTS)) > 0 #THEN #BLOCK
+         #ERROR CONTINUE
+         @TMP_TIMEOUT_ORIGINAL = TIMEOUT(1000)
+         #EXEC BGU_UPDATE:C (@UPDATE_OBJECTS=%UPDATE_OBJECTS)
+         ;return net timeout
+         @TMP_TIMEOUT_ORIGINAL = TIMEOUT(%TMP_TIMEOUT_ORIGINAL)
+      #BLOCK_END
+      
+      ;enable events and printouts from target object, if disabled
+      #IF (NOT %v_Args(10) OR %PB_CHANGED) OR (%v_Args(9) AND %HB_CHANGED) #THEN #BLOCK
+         #IF 'BL_LN':PHE'BL_IX' == 1 #THEN #BLOCK
+            @HE_CHANGED = TRUE
+            #SET 'BL_LN':PHE'BL_IX' = 0
+         #BLOCK_END
+      #BLOCK_END
+      
+      #IF %PB_CHANGED #THEN #SET 'BL_LN':PPB'BL_IX' = 1
+      #IF %HB_CHANGED #THEN #SET 'BL_LN':PHB'BL_IX' = 1
+      #IF %LD_CHANGED #THEN #SET 'BL_LN':PLD'BL_IX' = %TMP_LD
+      #IF %HE_CHANGED #THEN #SET 'BL_LN':PHE'BL_IX' = 1
+
+   #block_end
+
+   #when "SET_COMMENT","SET_COMMENT_WITH_INFO" #block
+      @args = argument(2)
+      t_Event_ID = %args(1) ; Argument is vector, whose first item is event ID, second is comment text
+      #if sys:bdm==1 #then @trash=write_text("PICT/TRACE_SET_COMMENT_DUMP_HDB_ID.TXT", dump(%args))
+      t_Comment_Text = %args(2)
+      #if upper_case(t_Method_Name)=="SET_COMMENT_WITH_INFO" and t_Comment_Text <> "" #then #block
+        @USER=""
+        #if length(%args)>2 #then @USER=%args(3)
+        @TIME_NOW=clock
+        @TIME_STRING=type_cast(%TIME_NOW,"INTEGER")
+        @TIME_STRING="'TIME_STRING'"
+        t_Comment_Text="'USER'#'TIME_STRING'#'t_Comment_Text'"
+      #block_end
+      @v_Event_ID = evaluate(t_Event_ID) ; Identifier comes in format "VECTOR(1,22,823868266,265)"
+      #if sys:bdm==1 #then @st=write_Text("pict/TRACE_DUMP_EVENT_ID.TXT", dump(%v_Event_ID))
+      l_Command_Status = history_database_manager("OPEN")
+      i_Session = l_Command_Status.SESSION
+      l_Command_Status = history_database_manager("SET_PERIOD", i_Session, %args(4), %args(5))
+      l_Command_Status = history_database_manager("SET_COMMENT", i_Session, %v_Event_ID, t_Comment_Text)   
+      l_Command_Status = history_database_manager("CLOSE", i_Session)
+      #return l_Command_Status.STATUS
+   #block_end
+
+   #when "GET_OI_DEPTH" #block
+      @boi = apl:boi
+      #return %boi.DEPTH
+   #block_end
+
+    #when "GET_APPLICATION_OI_STRUCTURE" #block
+      @APL_BOI = apl:boi
+      #loop_with i_Depth = 1 .. %APL_BOI.DEPTH
+         @id = "SAGR_EAB_OI'i_Depth'" 
+         @result = translation(%id)
+         #if %result == %id OR %result == "" OR %result == "OI 'i_Depth'" #then @result = %APL_BOI.LEVELS(i_Depth).TITLE
+         @APL_BOI.LEVELS(i_Depth).TITLE = %result
+      #loop_end 
+      #return %APL_BOI
+   #block_end
+   
+   #when "GET_DATALOGS" #block
+      i_Command_Status = do(READ_TEXT("TRENDCONF/BGU_TA_SETUP.TXT"))
+      i_Length = application_object_count(0,"D","A","F","", "LN==""FTU_TRD*""")
+     
+     ;ID:16801 Time Channel 10s added 10.10.2011 HoDa
+      #if (i_Length < FTU_SETUP:vNUMBER_OF_DATALOGS) or not application_object_exists(0,"T","FTU_TRT10") #then #block
+         ; Data objects Not initialized. We create them and time channels here
+         i_Command_Status = do(READ_TEXT("SAGR_LANG/SAI_TA_OBJEC.TXT"))
+         i_Command_Status = do(READ_TEXT("SAGR_BBONE/BGU_TA_CREAT.TXT"))
+      #block_end
+
+      v_trdObjs = vector
+      i_Length = FTU_SETUP:vNUMBER_OF_DATALOGS
+
+      ;Compose name vector:
+      nameVect(1..i_Length)=0          ;Create vector with elements 0,0,0,0 ...
+      nameVect=select(nameVect,"")       ;Convert to vector with elements 1,2,3,4,...  
+      toAppend(1..i_Length)="FTU_TRD"   ;Create vector with elements "FTU_TRD","FTU_TRD",...
+      nameVect=toAppend+dec(nameVect,0) ;Create vector with elements "FTU_TRD1","FTU_TRD2",...
+      att=application_object_attributes(0,"D",nameVect,("IU","IN","TC","LF","VT","LN"))
+      
+      ;Create datalog information vector
+      #loop_with idx=1..length(nameVect)
+         v_trdObjs(idx)= -
+            LIST(-
+            IU=att.IU(idx),-
+            IN=att.IN(idx),-
+            TC=att.TC(idx),-
+            LF=att.LF(idx),-
+            VT=att.VT(idx),-
+            LN=att.LN(idx))
+      #loop_end
+
+      #return v_trdObjs
+   #block_end
+
+   #when "GET_DATALOGS_NO_CREATE" #block
+      v_trdObjs = application_object_list(0,"D","" ,"","","LN==""FTU_TRD*"" AND IU == 1 AND IN <>""""",("IU","IN","TC","LF","VT","LN"))
+
+      #loop_with counter = 1 .. v_trdObjs.COUNT                      ;ID 16123 HoDa
+         tmp_vec=SEPARATE(v_trdObjs.IN(%counter),":")
+         v_PLN = APPEND(v_PLN,tmp_vec(1))
+         v_PIX = APPEND(v_PIX,DEC_SCAN(SUBSTR(tmp_vec(2),4)))
+      #loop_end         
+   
+      v_trdObjs= merge_attributes(v_trdObjs,application_object_attributes(0,"IX_AND_UP",LIST(LN=v_PLN,IX=v_PIX),VECTOR("OI","OX")))
+      v_trdObjs.OI=SPREAD(v_trdObjs.OI, select(GET_STATUS(v_trdObjs.OI), "<>0"), "???") ;ID 17162 DT
+      v_trdObjs.OX=SPREAD(v_trdObjs.OX, select(GET_STATUS(v_trdObjs.OX), "<>0"), "???") ;ID 17162 DT
+      #return v_trdObjs 
+   #block_end
+
+   #when "SET_DATALOG" #block
+      @ags = argument(2)
+      @i_log = %ags(1)
+      @i_iu  = %ags(2)
+      #if 'i_iu' == 1 #then #block
+         @i_tc  = %ags(4)
+         @t_tc  = "FTU_TRT'i_tc'"
+         @t_in  = %ags(3)
+         @i_lf  = %ags(5)
+      #block_end
+      #else #block
+         @t_tc  = ""
+         @t_in  = ""
+         @i_lf  = 0
+      #block_end
+
+      #modify FTU_TRD'i_log':D = LIST(-
+                        IU = 'i_iu',-
+                        TC = %t_tc,-
+                        LF = 'i_lf',-
+                        IN = %t_in)
+      #return 0
+   #block_end
+
+   #when "CLEAR_DATALOG" #block
+      @ags = argument(2)
+      #if data_type(%ags) <> "VECTOR" #then @i_log = %ags
+      #else @i_log = %ags(1)
+      #set FTU_TRD'i_log':DLR = 0
+      #set FTU_TRD'i_log':DOV = 0 ; ID 9393
+      #return 0
+   #block_end
+
+   #when "GET_OBJECT_ID" #block
+      @args = argument(2)
+      t_LN = %args(1)
+      i_IX = %args(2)
+      #return 't_LN':POI'i_IX'
+   #block_end
+
+   #when "GET_OBJECT_TEXT" #block
+      @args = argument(2)
+      t_LN = %args(1)
+      i_IX = %args(2)
+      #return 't_LN':POX'i_IX' 
+   #block_end
+
+   #when "UPDATE_TREND_VALUE" #block
+      @args = argument(2)
+      @i_log = %args(1)
+      @i_index = %args(2)
+      @_ov = %args(3)
+      @code = DATA_STORE(0, "FTU_TRD'i_log'", LIST(ov=vector(%_ov), os=vector(9)), vector(%i_index))
+      #return %code
+   #block_end
+
+   #when "READ_TREND_VALUES" #block
+      @args = argument(2)
+      #if data_type(%args) <> "VECTOR" #then @i_log = %args
+      #else @i_log = %args(1)
+
+      i_Command_Status = do(READ_TEXT("TRENDCONF/BGU_TA_SETUP.TXT"))
+
+      @l_query = DATA_FETCH(0, "FTU_TRD'i_log'", 1, 1, FTU_SETUP:VMAX_LENGTH_OF_LOGS)
+
+      @min_idx = 0
+      @max_idx = 0
+      @vlow = 0
+      @vhigh = 0
+      @sum = 0
+      @mean = 0
+      @sum = 0
+      @mean = 0
+      #if length(l_query:Vix) >= 1 #then #block
+         @_v_tmp = SELECT(get_status(l_query:Vov), ">=10")
+         @def_value = 0
+         #if FTU_TRD'i_log':dVT == "REAL" #then @def_value = 0.0
+         #set l_query:Vov = SPREAD(l_query:Vov, %_v_tmp, %def_value)
+         @min_idx = low_index(l_query:Vov)
+         @max_idx = high_index(l_query:Vov)
+         @vlow = l_query:Vov(%min_idx)
+         @vhigh = l_query:Vov(%max_idx)
+         @sum = sum(l_query:Vov)
+         @mean = mean(l_query:Vov)
+         @sum = %sum(1)
+         @mean = %mean(1)
+      #block_end
+      #modify l_query:V = list(-
+              vt = FTU_TRD'i_log':dVT,-
+              idxmin = %min_idx,-
+              idxmax = %max_idx,-
+              vmax = %vhigh,-
+              vmin = %vlow,-
+              vaver = %mean,-
+              vsum = %sum)
+      
+      #return %l_query
+
+   #block_end
+   #when "GET_ALL_OBJECTS" #block
+                                                                                        
+      i_Command_Status = do(READ_TEXT("TRENDCONF/BGU_TA_SETUP.TXT"));ID 15727 3.01.2013 DT (Added TC and LF default values from BGU_TA_SETUP file) 
+                          
+      l_Previous_Query = application_object_list(0,"IX","OI","","*","OI<>"""" and OI<> "" *""",vector("OI","OX","RX","PT"),MAX_VECTOR_LENGTH)
+      v_GAO_SortByOX = sort(upper_case(l_Previous_Query.OX))                            ;ID 15960 16.11.2010 HoDa
+
+      l_GAO_SortByOX = LIST(-
+                   LN=pick(l_Previous_Query.LN,v_GAO_SortByOX), IX=pick(l_Previous_Query.IX,v_GAO_SortByOX), OI=pick(l_Previous_Query.OI,v_GAO_SortByOX),-
+                   OX=pick(l_Previous_Query.OX,v_GAO_SortByOX), RX=pick(l_Previous_Query.RX,v_GAO_SortByOX), PT=pick(l_Previous_Query.PT,v_GAO_SortByOX))
+
+      ;clear not needed variables
+      v_GAO_SortByOX = vector()
+      l_previous_query = list()
+
+      v_GAO_SortByOI = sort(upper_case(l_GAO_SortByOX.OI))                             ;ID 15767 2.12.2010 HoDa
+
+      ;************* Retrieve & Validate TC from BGU_TA_SETUP ***************          ;ID 15727 3.01.2013 DT                                                                       ;ID 15727 3.01.2013 DT 
+      t_defTC=EDIT(UPPER_CASE(FTU_SETUP:vDEFAULT_TIME_CHANNEL),"COLLAPSE")
+      #if length(t_defTC)>0 and LOCATE(t_defTC,"FTU_TRT") == 1 #then #block
+         t_defTC=SUBSTR(t_defTC,8,0)
+         i_tmp=length(t_defTC)
+         #if i_tmp>0 and i_tmp < 4 #then  #block
+            #loop_with i=1..length(t_defTC)
+               i_tmp=ASCII_CODE(substr(t_defTC,%i,1))
+               #if i_tmp <48 or i_tmp >57 #then #block
+                  b_defFTU_TA_fileFlag=FALSE
+                  #loop_exit
+               #block_end
+            #loop_end
+            #if(BINARY_SEARCH(VECTOR(10,30,60,120,300,600),DEC_SCAN(t_defTC))==0) #then b_defFTU_TA_fileFlag = FALSE    
+         #block_end
+         #else b_defFTU_TA_fileFlag = FALSE 
+      #block_end
+      #else b_defFTU_TA_fileFlag=FALSE
+      #if b_defFTU_TA_fileFlag ==FALSE  #then #block
+         @ss=CONSOLE_OUTPUT("Invalid default time channel definition in BGU_TA_SETUP file.Please correct. Factory default 30s used.","I","TRND")
+         t_defTC="30" ;set default
+      #block_end          
+      ;************* Retrieve & Validate LF from BGU_TA_SETUP ***************
+      b_defFTU_TA_fileFlag=TRUE
+      i_defLF=FTU_SETUP:vDEFAULT_LOG_FUNCTION
+      i_tmp=length(EDIT(DEC(i_defLF),"COLLAPSE"))
+      #if i_tmp == 1 #then #block
+          i_tmp=ASCII_CODE(EDIT(DEC(i_defLF),"COLLAPSE"))
+          #if i_tmp <48 OR i_tmp >52  #then b_defFTU_TA_fileFlag=FALSE
+      #block_end
+      #else b_defFTU_TA_fileFlag=FALSE
+      #if b_defFTU_TA_fileFlag== FALSE #then #block
+        i_defLF=0
+        @ss=CONSOLE_OUTPUT("Invalid default logging function definition in BGU_TA_SETUP file.Please correct. Factory default 0-DIRECT used.","I","TRND")
+      #block_end
+      
+      #return LIST(LN=pick(l_GAO_SortByOX.LN,v_GAO_SortByOI), IX=pick(l_GAO_SortByOX.IX,v_GAO_SortByOI), OI=pick(l_GAO_SortByOX.OI,v_GAO_SortByOI),-
+                   OX=pick(l_GAO_SortByOX.OX,v_GAO_SortByOI), RX=pick(l_GAO_SortByOX.RX,v_GAO_SortByOI), PT=pick(l_GAO_SortByOX.PT,v_GAO_SortByOI),-
+                   DTC=DEC_SCAN(t_defTC),DLF=i_defLF)     
+   #block_end
+   
+   #when "GET_OI_SETTINGS" #block
+      ; Read OI information
+      @b_OI_Defined = FALSE
+      #if length(apl:bsv) >= 15 #then #block
+         #if data_type(apl:bsv15) == "LIST" #then #block
+            @b_OI_Defined = TRUE
+            @APL_BSV15 = APL:BSV(15)
+         #block_end
+      #block_end
+
+      #if not %b_OI_Defined #then #block
+         @APL_BSV15 = LIST(Process_Objects = LIST(-
+            OI = LIST(Title1 = VECTOR("Substation"), Title2 = VECTOR("Bay"), Title3 = VECTOR("Device"), Title4 = VECTOR(""), Title5 = VECTOR(""),-
+               Length1 = 10, Length2 = 15,Length3 = 5, Length4 = 0, Length5 = 0,-
+               Field1 = VECTOR("STA"), Field2 = VECTOR("BAY"), Field3 = VECTOR("DEV"), Field4 = VECTOR(""), Field5 = VECTOR("")),-
+            OX = LIST(Title1 = VECTOR("Object text"), Length1 = 30)))
+      #block_end
+
+      @OI_INFORMATION  = %APL_BSV15.PROCESS_OBJECTS.OI
+
+      @OI_STARTS       =   (1,-
+         1+OI_INFORMATION:VLENGTH1,-
+         1+OI_INFORMATION:VLENGTH1+OI_INFORMATION:VLENGTH2,-
+         1+OI_INFORMATION:VLENGTH1+OI_INFORMATION:VLENGTH2+OI_INFORMATION:VLENGTH3,-
+         1+OI_INFORMATION:VLENGTH1+OI_INFORMATION:VLENGTH2+OI_INFORMATION:VLENGTH3+OI_INFORMATION:VLENGTH4)
+      
+      @OI_LENGTHS      = (-
+         OI_INFORMATION:VLENGTH1,-
+         OI_INFORMATION:VLENGTH2,-
+         OI_INFORMATION:VLENGTH3,-
+         OI_INFORMATION:VLENGTH4,-
+         OI_INFORMATION:VLENGTH5)
+      #modify APL_BSV15:V=LIST(OI_STARTS=%OI_STARTS, OI_LENGTHS=%OI_LENGTHS)      
+      #return %APL_BSV15
+   #block_end
+   
+   #when "READ_REPORT_VALUES" #block
+   
+      #create l_query:V = list
+      #create column1:V = list
+      #create column2:V = list
+      #create column3:V = list
+      #create column4:V = list
+      
+      #if minute < 3 #then @i_NrOfValues = 20
+      #else @i_NrOfValues = 1 + trunc(minute / 3)
+      
+      #loop_with i=0..%i_NrOfValues-1
+         @min = round(minute * %i / (%i_NrOfValues - 1))
+         @vRT(%i+1) = pack_time(year, month, day, hour, %min, 0)
+      #loop_end
+      
+      @i_Min = 50
+      @i_Max = 150
+      
+      @vos(1..20) = 0
+      
+      @apl_bsv11 = apl:bsv(11)
+      
+      #loop_with i = 1 .. 4
+         @v_Report_Value = random(%i_Min, %i_Max)
+         #if data_type(apl_bsv11:vreport_data_'i') == "NONE" #then #set apl_bsv11:vreport_data_'i'(1..20) = 0
+         #set apl_bsv11:vreport_data_'i'(%i_NrOfValues) = %v_Report_Value
+      #loop_end
+      
+      #set apl:bsv(11) = %apl_bsv11
+      
+      #loop_with i = 1 .. 4
+         @idxmin_'i' = low_index(apl_bsv11:vreport_data_'i')
+         @vmin_'i' = apl_bsv11:vreport_data_'i'(%idxmin_'i')
+         @idxmax_'i' = high_index(apl_bsv11:vreport_data_'i')
+         @vmax_'i' = apl_bsv11:vreport_data_'i'(%idxmax_'i')
+         @vsum_info1_'i' = sum(apl_bsv11:vreport_data_'i')
+         @vsum_info2_'i' = mean(apl_bsv11:vreport_data_'i')
+         @vsum_info3_'i' = low(apl_bsv11:vreport_data_'i')
+         @vsum_info4_'i' = high(apl_bsv11:vreport_data_'i')
+         
+         #modify Column'i':V=list(-
+                       idxmin = %idxmin_'i',-
+                       idxmax = %idxmax_'i',-
+                       vov = apl_bsv11:vreport_data_'i',-
+                       vos = %vos,-
+                       vrt = %vRT,-
+                       vmax = %vmax_'i',-
+                       vmin = %vmin_'i',-
+                       vsum_info1 = %vsum_info1_'i'(1),-
+                       vsum_info2 = %vsum_info2_'i'(1),-
+                       vsum_info3 = %vsum_info3_'i'(1),-
+                       vsum_info4 = %vsum_info4_'i'(1))
+                       
+         #set l_query:VColumn'i' = %Column'i'            
+      
+      #loop_end
+      
+      #return %l_query
+   #block_end
+   #when "GET_COLOR_RULE_PREDEFINITIONS" #block
+      @v_output=VECTOR()
+      #if argument(2)=="ALARM" #then #block
+         @v_output=VECTOR(-
+            VECTOR(TRANSLATION("SAGR_EAB_COLOR_RULE_DEF_INACT_UNACK"), "AL == 0 AND AS > 0",   "000000"),-    ;"Inactive unacknowledged alarms"
+            VECTOR(TRANSLATION("SAGR_EAB_COLOR_RULE_DEF_INACT_ACK"),   "AL == 0 AND AS == 0",  "008000"),-    ;"Inactive acknowledged alarms"
+            VECTOR(TRANSLATION("SAGR_EAB_COLOR_RULE_DEF_ACT_UNACK"),   "AL == 1 AND AR == 0",  "ff0000"),-    ;"Active unacknowledged alarms"
+            VECTOR(TRANSLATION("SAGR_EAB_COLOR_RULE_DEF_ACT_ACK"),     "AL == 1 AND AR == 1",  "0000ff") -    ;"Active acknowledged alarms"
+         )
+      #block_end
+      #else #if argument(2)=="EVENT" #then #block
+         @v_output=VECTOR(-
+            VECTOR(TRANSLATION("SAGR_EAB_COLOR_RULE_DEF_ALARM"),       "AL > 0",              "ff0000"),-     ;"Alarming"
+            VECTOR(TRANSLATION("SAGR_EAB_COLOR_RULE_DEF_STATUS_NOK"),  "OS <> 0",             "ff00ff"),-     ;"Status not OK"
+            VECTOR(TRANSLATION("SAGR_EAB_COLOR_RULE_DEF_PROCESS_CON"), "UN <> 0 AND SS >= 2", "00ff00"),-     ;"Object connected to process"
+            VECTOR(TRANSLATION("SAGR_EAB_COLOR_RULE_DEF_SIMULATED"),   "UN==0 OR SS<2",       "0000ff") -     ;"Simulated object"
+         )
+      #block_end
+      #return %v_output
+   #block_end
+   #when "GET_FUNCTION_MAPPING" #block
+      @v_output=LIST( -
+         RX=VECTOR( -
+            "Q%",- ; 1
+            "QB",- ; 2
+            "QD",- ; 3
+            "QE",- ; 4
+            "QF",- ; 5
+            "QL",- ; 6
+            "QM",- ; 7
+            "Q3",- ; 8
+            "QT",- ; 9
+            "TA",- ;10
+            "F%",- ;11
+            "PM",- ;12
+            "W%",- ;13
+            "XT" - ;14
+         ), -
+         DESC=VECTOR( -
+            TRANSLATION("SAGR_EAB_FUNCTION_1"),-   ;Switching Device ; 1
+            TRANSLATION("SAGR_EAB_FUNCTION_2"),-   ;Breakers         ; 2
+            TRANSLATION("SAGR_EAB_FUNCTION_3"),-   ;Disconnectors    ; 3
+            TRANSLATION("SAGR_EAB_FUNCTION_4"),-   ;Earth switches   ; 4
+            TRANSLATION("SAGR_EAB_FUNCTION_5"),-   ;Fuse Switches    ; 5 
+            TRANSLATION("SAGR_EAB_FUNCTION_6"),-   ;Load-breaking sw.; 6
+            TRANSLATION("SAGR_EAB_FUNCTION_7"),-   ;Fault-making sw. ; 7
+            TRANSLATION("SAGR_EAB_FUNCTION_8"),-   ;Three-state sw.  ; 8
+            TRANSLATION("SAGR_EAB_FUNCTION_9"),-   ;Trucks           ; 9
+            TRANSLATION("SAGR_EAB_FUNCTION_10"),-  ;Transformers     ;10
+            TRANSLATION("SAGR_EAB_FUNCTION_11"),-  ;Relays           ;11
+            TRANSLATION("SAGR_EAB_FUNCTION_12"),-  ;Measurements     ;12
+            TRANSLATION("SAGR_EAB_FUNCTION_13"),-  ;Supervision      ;13
+            TRANSLATION("SAGR_EAB_FUNCTION_14")-   ;Tagout           ;14
+         ) -
+      )
+      #return %v_output
+   #block_end
+   #when "GET_ALARM_CLASS_MAPPING" #block
+      @v_output=LIST( -
+         AC=VECTOR( -
+            "1",- 
+            "2",- 
+            "3",- 
+            "4",- 
+            "5",- 
+            "6",- 
+            "7" - 
+         ), -
+         DESC=VECTOR( -
+            TRANSLATION("SYS_AC_ST_1"),-   ;Alarm Class 1
+            TRANSLATION("SYS_AC_ST_2"),-   ;Alarm Class 2
+            TRANSLATION("SYS_AC_ST_3"),-   ;Alarm Class 3
+            TRANSLATION("SYS_AC_ST_4"),-   ;Alarm Class 4
+            TRANSLATION("SYS_AC_ST_5"),-   ;Alarm Class 5
+            TRANSLATION("SYS_AC_ST_6"),-   ;Alarm Class 6
+            TRANSLATION("SYS_AC_ST_7")-    ;Alarm Class 7
+         ) -
+      )
+      #return %v_output
+   #block_end
+   #when "GET_OBJECT_ATTRIBUTES" #block
+      @v_Args=argument(2)
+      @l_Return_Value=application_object_attributes(0,"IX_AND_UP", -
+            LIST(LN=%v_Args(1),IX=%v_Args(2)),%v_Args(3))
+      #if sys:bdm == 1 #then @st=write_text("PICT/TRACE_DUMP_SAGR_EAB_MAIN_OBJECT_ATTRIBUTES.TXT", DUMP(%l_Return_Value))      
+      #return %l_Return_Value
+   #block_end   
+   
+   #when "SET_SIGNAL_VALUE" #block
+      @LN = argument(2)
+      @IX = argument(3)
+      @Attr = argument(4)
+      #set 'LN':P'Attr''IX'=argument(5)
+      @res = 'LN':P'Attr''IX'
+      @T=console_output("'LN':P'Attr''IX' => 'res'")
+      #return status
+   #block_end
+   
+#case_end

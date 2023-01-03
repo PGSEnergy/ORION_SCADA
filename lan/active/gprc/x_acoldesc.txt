@@ -1,0 +1,42 @@
+;GRAPHICS, APPLICATION COLOR DESCRIPTIONS
+
+#CREATE X_ACOLDESC:V = LIST(-
+SCOPE_OF_SETTINGS   = "SYSTEM",-
+NUMBER_OF_COLORS    = 10,-
+USAGE_AREA1         = "Color 1",-
+RGB_VALUES1         = (  0,  0,  0),-
+USAGE_AREA2         = "Color 2",-
+RGB_VALUES2         = (  0,  0,100),-
+USAGE_AREA3         = "Color 3",-
+RGB_VALUES3         = (  0,100,  0),-
+USAGE_AREA4         = "Color 4",-
+RGB_VALUES4         = (  0,100,100),-
+USAGE_AREA5         = "Color 5",-
+RGB_VALUES5         = (100,  0,  0),-
+USAGE_AREA6         = "Color 6",-
+RGB_VALUES6         = (100,  0,100),-
+USAGE_AREA7         = "Color 7",-
+RGB_VALUES7         = (100,100,  0),-
+USAGE_AREA8         = "Color 8",-
+RGB_VALUES8         = (100,100,100),-
+USAGE_AREA9         = "Color 9",-
+RGB_VALUES9         = ( 50, 50, 50),-
+USAGE_AREA10        = "Color 10",-
+RGB_VALUES10        = ( 75, 75, 75))
+
+#DO READ_TEXT("GPRC/X_SGETDISP.TXT")
+#ERROR IGNORE
+#DO READ_TEXT("PICT/USER_COL.TXT")
+@S = STATUS
+#DO READ_TEXT("PICT/'USER_NAME'_U.RGB")
+#IF STATUS <> 0 #THEN #DO READ_TEXT("PICT/'STATION'_U.RGB")
+#IF STATUS <> 0 #THEN #DO READ_TEXT("PICT/DEFAUL_U.RGB")
+@S = STATUS
+#ERROR STOP
+
+
+
+
+
+
+

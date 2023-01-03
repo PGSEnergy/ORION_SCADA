@@ -1,0 +1,61 @@
+﻿; This command procedure is used for reading cross-reference tables from text 
+; files to free type process objects in a COM500 application 
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+;--------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+;names of the cross-reference files
+@XREF_FILES = ("COM_XRNCC1.TXT","COM_XRCMD1.TXT","COM_XRCMD2.TXT")
+
+;check if the cross-reference file exists
+;if so, set the contents of the file to apl:bsv
+#LOOP_WITH FILE = 1..LENGTH(%XREF_FILES)
+   @FILE_NAME = %XREF_FILES(%FILE)   
+   #ERROR IGNORE
+   @S = STATUS
+   @TEST = READ_TEXT("COM_PATH/'FILE_NAME'",1,1)
+   @S = STATUS
+   #ERROR CONTINUE
+   @BSV_INDEXES = (21,26,27)
+   #IF %S == 0 #THEN #BLOCK
+      #SET APL:BSV(%BSV_INDEXES(%FILE)) = EVALUATE(READ_TEXT("COM_PATH/'FILE_NAME'",1,10000))
+      #IF %FILE == 2 OR %FILE == 3 #THEN #BLOCK
+         #IF %FILE == 2 #THEN @BSV_INDEX = 26
+         #ELSE @BSV_INDEX = 27  
+         @COMMAND_VECTOR = APL:BSV(%BSV_INDEX)
+         #LOOP_WITH I = 1..LENGTH(%COMMAND_VECTOR)
+            @SIGNAL_VECTOR = %COMMAND_VECTOR(%I)
+            #IF LENGTH(%SIGNAL_VECTOR) > 0 #THEN #BLOCK
+               @SIGNAL_HANDLING_VECTOR = %SIGNAL_VECTOR(4)
+               #IF LENGTH(%SIGNAL_VECTOR(4)) == 4 #THEN #BLOCK
+                  #LOOP_WITH J = 5..8
+                     @SIGNAL_HANDLING_VECTOR(%J) = 0   
+                  #LOOP_END
+               #BLOCK_END
+               @SIGNAL_VECTOR(4) = %SIGNAL_HANDLING_VECTOR  
+               @COMMAND_VECTOR(%I) = %SIGNAL_VECTOR
+            #BLOCK_END
+         #LOOP_END
+         #SET APL:BSV(%BSV_INDEX) = %COMMAND_VECTOR
+         #IF %BSV_INDEX == 26 #THEN @WRITE_VECTOR = WRITE_TEXT("COM_PATH/COM_XRCMD1.TXT", DUMP(APL:BSV(%BSV_INDEX)))
+         #ELSE @WRITE_VECTOR = WRITE_TEXT("COM_PATH/COM_XRCMD2.TXT", DUMP(APL:BSV(%BSV_INDEX)))
+      #BLOCK_END
+      #IF %FILE == 1 #THEN #BLOCK
+         @NCC_VECTOR = APL:BSV(21)
+         #IF LENGTH(%NCC_VECTOR) == 4 #THEN #BLOCK
+            #LOOP_WITH I=5..8
+               @NCC_VECTOR(%I) = VECTOR()
+            #LOOP_END
+            #SET APL:BSV(21) = %NCC_VECTOR
+            @WRITE_VECTOR = WRITE_TEXT("COM_PATH/COM_XRNCC1.TXT", DUMP(APL:BSV(21)))
+         #BLOCK_END
+      #BLOCK_END
+   #BLOCK_END      
+#LOOP_END
+
+

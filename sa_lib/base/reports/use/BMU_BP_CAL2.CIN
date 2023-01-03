@@ -1,0 +1,54 @@
+; Function:    BMU_BP_CAL2:C
+; Version:     3.0.3 (Build 06.04.2013)
+; Parameters:  t_ObjectNames 
+;              T1 - start time
+;              T2 - end time (not obl.)
+; Return data: none
+; Description: Calculate period values (Part 2), CP and CB
+;-------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;6.4.2013   3.0.3    HoDa   ID: 17235
+;-------------------------------------------------------------------------------
+#local i, i_Status = status, cot, v_ObjNamesCalc = vector(),-
+       l_Now,l_Previous,b_SummertimeSwitch = false,b_WintertimeSwitch = false
+
+#error ignore
+
+#if BMU_GLOBAL:CCS==1 #then #do BMU_GLOBAL:CCP
+#else #do BMU_GLOBAL:C
+
+;*** 01.06.2009 HoDa ID 13897  DST detection
+l_Now      = local_time
+l_Previous = local_time_add(l_Now, -60 - %BP_Delay)                             ;*** check if previous sampling executed in WT
+#if l_Now.DS and not l_Previous.DS #then b_SummertimeSwitch = true              ;*** now we have ST, previous was in WT
+#if not l_Now.DS and l_Previous.DS #then b_WintertimeSwitch = true              ;*** now we have WT, previous was in ST
+
+v_ObjNamesCalc = substr(%L_Calculation.Order_BP,5,0)                            ;*** all operations to be done in base period, ID: 17235 
+#loop_with i = 1..length(v_ObjNamesCalc)                                        ;*** to keep the order as defined in ROConfig.tool
+   @t_ObjectName = v_ObjNamesCalc(i)
+   #if find_element(%v_ObjectNames,%t_ObjectName)>0 #then #block                ;*** check if this object needs to be handled in this period
+      @l_ReportObject = %l_ReportObjects.OBJ_'t_ObjectName'
+   
+      @T1 = CLOCK - (%l_ReportObject.BP + %BP_Delay)
+      #if b_SummertimeSwitch #then @T1 = %T1 - 3600
+      #if b_WintertimeSwitch #then @T1 = %T1 + 3600
+      @T2
+   
+      #if BMU_BP_IND:CCS==1 #then #do BMU_BP_IND:CCP
+      #else #do BMU_BP_IND:C
+   
+      #if attribute_exists(%l_ReportObject,"CalcData") #then #block
+         #DO %l_ReportObject.CalcData                                           ;*** MUST contaion DATAIN and OPER var. declaration
+         #if BMU_BP_SUM2:CCS==1 #then #do BMU_BP_SUM2:CCP
+         #else #do BMU_BP_SUM2:C
+      #block_end
+      #else -
+         cot = console_output("BMU_BP_CAL2:C - Report Object: 't_ObjectName' - Calculation operation is missing.","E","MREP")
+   #block_end
+#loop_end
+
+#exec BMU_BP_CLBK:C                                                             ;*** execute the callback method
+
+i_Status = status
+#if i_Status <> 0 #then cot = console_output("BMU_BP_CAL2:C - SCIL Error='i_Status'","E","MREP") 

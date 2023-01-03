@@ -1,0 +1,32 @@
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Mikko Ripatti/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">ReportEnabled</Parameter>
+		<Parameter name="Caption">objectTypeCaption</Parameter>
+		<Parameter name="Description">objectTypeDesc</Parameter>
+		<Parameter name="Group">Communication</Parameter>
+		<Parameter name="Type">REPORTENABLED</Parameter>
+		<Parameter name="IconFileName">ReportEnabled.ico</Parameter>
+		<Parameter name="Tools"></Parameter>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+			        <Condition type="PCMObjectType">ReportControlBlock, ReportControlBlock 3.4</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+	<Properties type="PropertyDefinitions">
+		<Property name="max" category="[010] Report Enabled">
+			<Value>1</Value>
+			<DescID>maxDesc</DescID>
+			<CaptionID>max</CaptionID>
+			<Values type="numerical"/>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>max</AttributeName>
+		</Property>
+	</Properties>
+</ObjectType>

@@ -1,0 +1,177 @@
+; Function:    SAGR_TAGOUT_HIST:C
+; Version:     1.0 (Build 23.04.2009) 
+; Parameters:  PO Section LN:PIX; changed Attribute
+; Return data: -
+; Description: Event/History generation for Tagout 
+;----------------------------------------------------------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;23.04.2009 1.0      HoDa   final clean-up, ready to test
+;-------------------------------------------------------------------------------------------------------
+#local tAction=%tAction,tSection=%tSection,tTagoutID=%tTagoutID,tAttrName="",vAttrNames=vector(),tOI=%tOI
+#local tActiveClass,lAttrNames=List(),vClassAttrNames,vClassAttrTitles
+#local tAttrTitle="?",tAttrValue="?",vLogEntry=vector(""),iDBError=0,iDBHandle,lDBData,lHistorySettings=LIST()
+#local tOwnerName="unknown",tOwnerTitle="Owner",vTOActionText=vector(),vAMActionText=vector(),vTOActionTitle=vector()
+#local tSeparator=", ",tActionText="",tOX="",tPrefixOX="Tagout:",iOV=-1,iOS=0,iIXTagoutLogInd = 50,tLN=%tLN
+#local bHistoryEnabled=true,vHistoryEnabled
+#local bAttrHistoryEnabled=false
+#local i,i1,i2,t,v,l,x,cot,iStatus,bEnableDebugging=sys:bdm==1
+
+#if upper_case(tAction) == "EDIT_ATTR" or -
+    upper_case(tAction) == "ADD_TAGOUT"      #then vAttrNames(1)=%tAttrName
+#if upper_case(tAction) == "REMOVE_ATTR"     #then vAttrNames=   %vAttrNames
+#if upper_case(tAction) == "REMOVE_TAGOUT"   #then tOwnerName=   %tAttrName
+
+#if bEnableDebugging #then -
+   x=trace_begin("TRACE_TAGOUT_HIST_'tAction'.txt")
+
+#if not application_object_exists(0,"H","SAGR_TAGOUT_HIST") #then -
+   #create SAGR_TAGOUT_HIST:H=List(VC=4,ST=vector("Attr. changed","Attr. removed","new","removed"))       ;ST values will be defined with ToEdit
+
+#if application_object_exists(0,"IX",List(LN="'tLN'",IX='iIXTagoutLogInd')) #then #block
+   iDBError = 0
+   #if 'tLN':PEH'iIXTagoutLogInd' == "SYS_DI" #then #set 'tLN':PEH'iIXTagoutLogInd'= "SAGR_TAGOUT_HIST"
+#block_end
+#else iDBError = 104
+;----------------------------- open Class database --------------------------------------------------------------------------------------------------
+#if iDBError == 0 #then #block
+
+   x= DATA_MANAGER("OPEN", "apl_/APL_Tagout.sdb")
+   #if x.status <> 0 #then iDBError= x.Status
+   #else #block
+      iDBHandle = x.handle
+      lDBData = DATA_MANAGER("GET", iDBHandle,"Classes","Names")  
+      #if lDBData.status == 0 #then v = lDBData.value  
+      #else iDBError= 108 
+      lDBData = DATA_MANAGER("GET", iDBHandle,"Classes","ActiveClass")  
+      #if lDBData.status == 0 #then i = lDBData.value
+      #if i<= length(v) #then tActiveClass=v(i)
+      #else iDBError= 109
+      #if iDBError == 0 #then #block                                                                                                                       
+         lDBData = DATA_MANAGER("GET", iDBHandle,"Settings","HISTORY","bEnabled","Value")
+         #if lDBData.status == 0 #then bHistoryEnabled = lDBData.value ==1 
+      #block_end
+
+      lDBData = DATA_MANAGER("GET", iDBHandle,"Settings","History")  
+      #if lDBData.status == 0 #then #block
+         lHistorySettings = lDBData.value
+         iStatus=Status
+         #error ignore
+         tSeparator      = lHistorySettings.tColumnSeparator.Value
+         tPrefixOX       = lHistorySettings.tPrefixObjectText.Value
+         vTOActionText   = lHistorySettings.vTOActionText.vListData(2)
+         vTOActionTitle  = lHistorySettings.vTOActionText.vListData(1)       ;needed to select the text from vTOActionText
+         vAMActionText   = lHistorySettings.vAMActionText.vListData(2)
+         iStatus=Status
+         #if iStatus <> 0 #then iDBError=109
+      #block_end
+      #else iDBError= 110
+   #block_end
+#block_end
+
+;----------------------------- read Tagout attribute values -----------------------------------------------------------------------------------------
+#if iDBError == 0 #then #block
+   lDBData = DATA_MANAGER("GET", iDBHandle,tActiveClass,"ATTRIBUTES","NAMES")
+   #if lDBData.status == 0 #then vClassAttrNames = lDBData.value 
+   #else iDBError = 106
+
+   lDBData = DATA_MANAGER("GET", iDBHandle,tActiveClass,"ATTRIBUTES","TITLES")
+   #if lDBData.status == 0 #then vClassAttrTitles = lDBData.value 
+   #else iDBError = 106
+
+   lDBData = DATA_MANAGER("GET", iDBHandle,tActiveClass,"ATTRIBUTES","HISTORY")
+   #if lDBData.status == 0 #then vHistoryEnabled = lDBData.value 
+   #else iDBError = 106
+
+   #case upper_case(tAction)
+      #when "EDIT_ATTR","REMOVE_ATTR" #block
+         #if iDBError ==0 #then #block
+            i1=1
+            #loop_with i=1..length(vAttrNames)
+               tAttrName = vAttrNames(i)
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout History, Action='tAction', Class='tActiveClass', Section = 'tSection', ID = 'tTagoutID', Attr = 'tAttrName'")
+               v= select(vClassAttrNames,"==""'tAttrName'""")
+               #if length(v)==1 #then #block
+                  i2=v(1)
+                  #if vHistoryEnabled(i2)==1 #then #block
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout History enabled, Attr = 'tAttrName'")
+                     lDBData = DATA_MANAGER("GET", iDBHandle,tSection,tTagoutID,"OWNER")  
+                     #if lDBData.status == 0 #then tOwnerName = lDBData.value
+                     
+                     t = upper_case(tAction)
+                     v=pick(vTOActionText,select(upper_case(vTOActionTitle),"==""'t'"""))
+                     #if length(v)==0 #then tActionText=tAction
+                     #else tActionText=v(1)
+                     
+                     tAttrTitle=vClassAttrTitles(i2)
+                     
+                     lDBData = DATA_MANAGER("GET", iDBHandle,tSection,tTagoutID,tAttrName)  
+                     #if lDBData.status == 0 #then tAttrValue = lDBData.value 
+                     #if substr(tAttrName,1,3)=="AM_" #then-
+                        #if tAttrValue=="X"#then tAttrValue = vAMActionText(1)
+                        #else tAttrValue = vAMActionText(2)
+                     
+                     tOX= tPrefixOX+tOwnerName+tSeparator+tAttrTitle+tSeparator+tAttrValue
+                     i1=i1+1          
+                     
+                     #if tAction=="EDIT_ATTR" #then iOV=0
+                     #else iOV=1
+                     iStatus = status
+                     #error ignore
+                     #set 'tLN':POX'iIXTagoutLogInd'=tOX
+                     #set 'tLN':P'iIXTagoutLogInd'=List(OV='iOV',OS=iOS)
+                     iStatus = status
+                     #if iStatus <> 0 #then cot = console_output(times+" Tagout: History activation error: 'iStatus'")
+                          
+                  #block_end
+               #block_end
+            #loop_end
+         #block_end
+      #block_end
+
+      #when "ADD_TAGOUT" #block
+         #if iDBError ==0 #then #block
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout History, Action='tAction', Class='tActiveClass', Section = 'tSection', ID = 'tTagoutID', Attr = 'tAttrName'")
+            lDBData = DATA_MANAGER("GET", iDBHandle,tSection,tTagoutID,"OWNER")  
+            #if lDBData.status == 0 #then tOwnerName = lDBData.value 
+
+            v= select(vClassAttrNames,"==""OWNER""")
+            #if length(v)==1 #then #block
+               i2=v(1)
+               tOwnerTitle =  vClassAttrTitles(i2)              
+            #block_end
+
+            tOX= tPrefixOX+tSeparator+tOwnerTitle+" "+tOwnerName
+            iOV=2
+         #block_end
+      #block_end
+
+      #when "REMOVE_TAGOUT" #block
+         #if iDBError ==0 #then #block
+
+            v= select(vClassAttrNames,"==""OWNER""")
+            #if length(v)==1 #then #block
+               i2=v(1)
+               tOwnerTitle =  vClassAttrTitles(i2)              
+            #block_end
+
+            tOX= tPrefixOX+tSeparator+tOwnerTitle+" "+tOwnerName
+            iOV=3
+         #block_end
+      #block_end
+   #case_end
+#block_end
+
+#if iOV >1 #then #block
+   iStatus = status
+   #error ignore
+   #set 'tLN':POX'iIXTagoutLogInd'=tOX
+   #set 'tLN':P'iIXTagoutLogInd'=List(OV=iOV,OS=iOS)
+   iStatus = status
+   #if iStatus <> 0 #then cot = console_output(times+" Tagout: History activation error: 'iStatus'")
+#block_end
+
+#if bEnableDebugging #then x=trace_end
+
+x = DATA_MANAGER("CLOSE", iDBHandle)
+

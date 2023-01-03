@@ -1,0 +1,301 @@
+;Function: BPU_CALCULATE_STATE_MEAS:C
+;Source file: sc/lib5/base/process/use/bpu_calculate_state_meas.scl
+;Version: 1.0
+;Parameters: 
+;Return data: 
+;Description: 
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data, i_session
+#local i, v_messages = vector(), i_count = 0, v_general_messages = vector(), l_index_data = list(), i_max_number_of_measurements = 4
+#local i_sta_LR_Authorized, l_connection_state = list, l_Objects, i_color_index = 0, b_Alarming = false
+#local t_LN, v_IX = vector(0), i_IX, i_tmp_IX, l_tmp_objects = vector, v_titles = vector, t_title, l_lr_check = list(), l_value_convention = list()
+#local l_result = list(objects= vector(), MESSAGES = vector(), status = 0, err_description = "")
+#local v_attributes = vector("UN", "SS", "IU", "DP", "SZ", "LI", "LW", "HW", "HI", "MV", "MQ", "XV", "XQ", "OV", "RQ", "OS", "AL", "AR", "AZ",-
+   "SU", "SB", "OF", "OR", "BL", "UB", "AB", "HB", "PB", "XB", "PT", "HO", "LO"), t_procedure
+#local l_object_data = list(), l_default_data = list(-
+   index = 0,-
+   folder_title = 0,-
+   setpoint = false,-
+   setpoint_controllable = true,-
+   alarming = false,-
+   acknowledged = true,-
+   color_index = 0,-
+   messages = vector(),-
+   value = 0,-
+   value_rt = "",-
+   decimal_places = 0,-
+   status = 0,-
+   err_description = "",-
+   low_alarm = -1,-
+   low_warning = -1,-
+   high_warning = -1,-
+   high_alarm = -1,-
+   min_value= 0,-
+   min_value_rt = "",-
+   max_value = 0,-
+   max_value_rt = "",-
+   high_output = 0,-
+   low_output = 0)
+
+t_LN = l_object_info.p_object_ln
+l_objects = l_data.all_objects
+
+;define value convention for process data
+t_procedure =  l_object_info.type_info.command_procedures.get_indications_meas
+l_value_convention = do('t_procedure':c, l_object_info, l_Objects)
+
+;check configured measurements
+#loop_with i = 1 .. i_max_number_of_measurements
+   #if attribute_exists(l_object_info, "type_meas_'i'") #then #block
+      #if l_object_info.type_meas_'i' <> "" #then #block
+         i_tmp_IX = dec_scan(substr(l_object_info.type_meas_'i', 7, 0))
+         #if application_object_exists(0, "IX", list(ln="'t_LN'", ix = i_tmp_IX)) #then #block   
+            #if argument_count > 3 #then #block ;index of measurement comes as an argument
+               #if i_tmp_IX == argument(4) #then #block
+                  v_IX(1) = i_tmp_IX
+                  v_titles(1) = l_object_info.folder_'i'_title
+                  #loop_exit
+               #block_end
+            #block_end
+            #else #block ;check all configured indexes
+               i_count = i_count + 1
+               v_IX(i_count) = i_tmp_IX
+               v_titles(i_count) = l_object_info.folder_'i'_title
+            #block_end
+         #block_end
+      #block_end
+   #block_end
+   #else #loop_exit
+#loop_end
+
+i_count = 0
+
+;Station L/R switch
+l_lr_check = do(bpu_resolve_sta_lr_authority:c, l_Objects, v_general_messages, i_count, false)
+#if data_type(l_lr_check) == "LIST" #then #block
+   #if attribute_exists(l_lr_check, "count") and attribute_exists(l_lr_check, "messages") and attribute_exists(l_lr_check, "disable_all") #then #block
+      i_count = l_lr_check.count
+      v_general_messages = l_lr_check.messages
+     #if l_lr_check.disable_all #then l_default_data.setpoint_controllable = false
+   #block_end
+#block_end
+
+;Bay L/R switch
+l_lr_check = do(bpu_resolve_bay_lr_authority:c, l_Objects, l_value_convention, v_general_messages, i_count, false)
+#if data_type(l_lr_check) == "LIST" #then #block
+   #if attribute_exists(l_lr_check, "count") and attribute_exists(l_lr_check, "messages") and attribute_exists(l_lr_check, "disable_all") #then #block
+      i_count = l_lr_check.count
+      v_general_messages = l_lr_check.messages
+      #if l_lr_check.disable_all #then l_default_data.setpoint_controllable = false
+   #block_end
+#block_end
+
+;reset messages counter
+i_count = 0 
+
+;get the data from process database index by index
+#loop_with i = 1 .. length(v_IX)
+   i_count = 0
+   l_object_data = l_default_data
+   i_IX = v_IX(i)
+   ;get attribute values from process database
+   l_index_data = application_object_attributes(0, "IX", list(ln =vector("'t_LN'"), ix = vector(i_IX)), v_attributes)
+  
+   l_object_data = merge_attributes(l_object_data, list(index = i_IX, decimal_places = l_index_data.dp(1)))
+   
+   #if v_titles(i) == "" #then l_object_data = merge_attributes(l_object_data, list(folder_title = 't_LN':ptx'i_IX'))
+   #else l_object_data = merge_attributes(l_object_data, list(folder_title = v_titles(i)))
+   
+   
+   #if l_index_data.SS(1) > 0 and l_index_data.IU(1) > 0 #then #block
+      ;setpoint
+      #if l_index_data.pt(1) == 11 #then l_object_data.setpoint = true
+      
+      #if not l_object_data.setpoint #then #block
+        ;if limit supervision is in MicroSCADA set limits else delete related attributes
+        #if l_index_data.sz(1) == 1 #then #block
+          l_object_data = merge_attributes(l_object_data,-
+            list(low_alarm = l_index_data.li(1),-
+            low_warning = l_index_data.lw(1),-
+            high_warning = l_index_data.hw(1),-
+            high_alarm = l_index_data.hi(1)))
+        #block_end
+        #else l_object_data = delete_attribute(l_object_data, vector("low_alarm", "low_warning", "high_warning", "high_alarm"))
+      #block_end
+      #else #block
+        l_object_data = merge_attributes(l_object_data,-
+          list(high_output = l_index_data.ho(1),-
+          low_output = l_index_data.lo(1)))
+        l_object_data = delete_attribute(l_object_data, vector("low_alarm", "low_warning", "high_warning", "high_alarm"))
+      #block_end
+        
+      ;minimum value
+      #if get_status(l_index_data.mv(1)) < 10 #then #block
+        l_object_data.min_value= l_index_data.mv(1)
+        l_object_data.min_value_rt = timems(l_index_data.mq(1))
+      #block_end
+      
+      ;maximum value
+      #if get_status(l_index_data.xv(1)) < 10 #then #block
+        l_object_data.max_value= l_index_data.xv(1)
+        l_object_data.max_value_rt = timems(l_index_data.xq(1))
+      #block_end
+      
+      ;object value
+      #if l_index_data.os(1) < 10 #then #block
+        l_object_data.value = l_index_data.ov(1)
+        l_object_data.value_rt = timems(l_index_data.rq(1))
+      #block_end
+      
+      ;object status
+      #case l_index_data.os(1)
+        #when 1 #block
+          i_count = i_count + 1
+          l_object_data.messages(i_count) = translation("Value invalid")
+          #if l_object_data.color_index == 0 #then l_object_data.color_index = 39
+        #block_end
+        #when 2 #block
+          i_count = i_count + 1
+          l_object_data.messages(i_count) = translation("Value obsolete")
+          #if l_object_data.color_index == 0 #then l_object_data.color_index = 39
+        #block_end
+        #when 3 #block
+          i_count = i_count + 1
+          l_object_data.messages(i_count) = translation("Value not synchronized")
+          #if l_object_data.color_index == 0 #then l_object_data.color_index = 50
+        #block_end
+        #when 10 #block
+          i_count = i_count + 1
+          l_object_data.messages(i_count) = translation("Value not sampled")
+          l_object_data.value = "?"
+          #if l_object_data.color_index == 0 #then l_object_data.color_index = 38
+        #block_end
+      #case_end
+
+      #if l_index_data.os(1) < 10 #then #block
+        ;alarming, acknowledged
+        #if l_index_data.al(1) == 1 and l_index_data.ar(1) == 1 #then #block 
+          i_count = i_count + 1
+          l_object_data.messages(i_count) = translation("Alarming, acknowledged")
+          l_object_data.alarming = true
+          #if l_object_data.color_index == 0 #then #block
+            #if not l_object_data.setpoint #then #block
+               #if l_index_data.az(1) == 1 #then l_object_data.color_index = 24
+               #else_if l_index_data.az(1) == 2 #then l_object_data.color_index = 28
+               #else l_object_data.color_index = 45
+            #block_end
+            #else l_object_data.color_index = 45
+          #block_end
+        #block_end
+
+        ;alarming, not acknowledged
+        #if l_index_data.ar(1) == 0 #then #block 
+          i_count = i_count + 1
+          l_object_data.messages(i_count) = translation("Alarming, not acknowledged")
+          l_object_data.alarming = true
+          l_object_data.acknowledged = false
+          #if l_object_data.color_index == 0 #then #block
+            #if not l_object_data.setpoint #then #block
+               #if l_index_data.az(1) == 1 #then l_object_data.color_index = 24
+               #else_if l_index_data.az(1) == 2 #then l_object_data.color_index = 28
+               #else l_object_data.color_index = 45
+            #block_end
+            #else l_object_data.color_index = 45
+          #block_end
+        #block_end
+      #block_end
+
+      ;warning
+      #if not l_object_data.setpoint #then #block
+        #if l_object_data.color_index == 0 and l_index_data.az(1) == 3 #then l_object_data.color_index = 25
+        #else_if l_object_data.color_index == 0 and l_index_data.az(1) == 4 #then l_object_data.color_index = 27
+      #block_end
+      
+      ;substituted, internal
+      #if l_index_data.su(1) == 1 #then #block
+        i_count = i_count + 1
+        l_object_data.messages(i_count) = translation("values substituted by control application")
+        #if l_object_data.color_index == 0 #then l_object_data.color_index = 43 
+      #block_end
+
+      ;substituted, external
+      #if l_index_data.sb(1) == 1 #then #block
+        i_count = i_count + 1
+        l_object_data.messages(i_count) = translation("Values substituted by control device")
+        #if l_object_data.color_index == 0 #then l_object_data.color_index = 43
+      #block_end
+
+      ;overflow
+      #if l_index_data.of(1) == 1 or l_index_data.or(1) == 1 #then #block
+        i_count = i_count + 1
+        l_object_data.messages(i_count) = translation("Overflow")
+      ;   #if l_object_data.color_index == 0 #then l_object_data.color_index = 38
+      #block_end
+
+      ;device blocking
+      #if l_index_data.bl(1) == 1 #then #block
+        i_count = i_count + 1
+        l_object_data.messages(i_count) = translation("Value blocked by control device")
+        #if l_object_data.color_index == 0 #then l_object_data.color_index = 34
+      #block_end
+
+      ;update blocked
+      #if l_index_data.ub(1) == 1 #then #block
+        i_count = i_count + 1
+        l_object_data.messages(i_count) = translation("Update blocked")
+      #block_end
+
+      ;alarm blocked
+      #if l_index_data.ab(1) == 1 #then #block
+        i_count = i_count + 1
+        l_object_data.messages(i_count) = translation("Alarm blocked")
+        #if l_object_data.color_index == 0 #then l_object_data.color_index = 34
+      #block_end
+
+      ;history blocked
+      #if l_index_data.hb(1) == 1 #then #block
+        i_count = i_count + 1
+        l_object_data.messages(i_count) = translation("Event blocked")
+        #if l_object_data.color_index == 0 #then l_object_data.color_index = 34
+      #block_end
+
+      ;printout blocked
+      #if l_index_data.pb(1) == 1 #then #block
+        i_count = i_count + 1
+        l_object_data.messages(i_count) = translation("Printout blocked")
+        #if l_object_data.color_index == 0 #then l_object_data.color_index = 34
+      #block_end
+
+      ;action blocked
+      #if l_index_data.xb(1) == 1 #then #block
+        i_count = i_count + 1
+        l_object_data.messages(i_count) = translation("Action blocked")
+        #if l_object_data.color_index == 0 #then l_object_data.color_index = 34
+      #block_end
+      
+      ;indication not connected to process
+      #if not (l_index_data.ss(1) > 1 and l_index_data.un(1) <> 0) #then #block
+        i_count = i_count + 1
+        l_object_data.messages(i_count) = translation("Object is simulated")
+        #if l_object_data.color_index == 0 #then l_object_data.color_index = 37
+      #block_end
+
+      ;object value normal
+      #if l_object_data.color_index == 0 #then #block
+        l_object_data.color_index = 32
+        i_count = i_count + 1
+        l_object_data.messages(i_count) = translation("Normal")
+      #block_end
+      
+   #block_end
+   
+   l_tmp_objects(i) = l_object_data
+
+#loop_end
+
+l_result = list(objects= l_tmp_objects, MESSAGES = v_general_messages, status = 0, err_description = "")
+
+#return l_result

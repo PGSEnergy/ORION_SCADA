@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="SAObjectType" content="Bay" />
+    <d:variable type="external" name="control" default="''" />
+    <d:meta name="dv-custom-attribute|ABB SA Symbols" content="v1.0" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Bay" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="Authorization Switch" />
+    <d:meta name="dv-custom-attribute|SAOpenVSCILOnClickVso" content="B5_USE/BPU_DLG_ENG.VSO@1MAIN@2@31SGTS:-1" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="position" default="0" />
+    <d:variable type="external" name="status-color" default="0" />
+    <d:variable type="external" name="text" default="''" />
+    <d:mapping name="f1" parameters="value">
+      <d:step value="colors[109]" when="value &lt;= 0.500" />
+      <d:step value="colors[18]" when="value &lt;= 1.500" />
+      <d:step value="colors[26]" when="value &lt;= 2.500" />
+      <d:otherwise value="colors[109]" />
+    </d:mapping>
+  </d:head>
+  <d:body n:LN="{LN(control)}" n:IX="{IX(control)}" x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <d:view name="00 - Common/Button - Raw.sd" s:transform="translate(0,0) scale(0.500,1)" d:object-name="Button - Raw">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="status-color" value="`status-color`" />
+      <d:parameter name="show-status-color" value="1" />
+      <d:meta name="dv-variable-mapping|Status Color" content="Status Color" />
+      <d:meta name="dv-variable-mapping|Show Status Color" content="1.0" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node1" />
+    </d:view>
+    <s:linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="i2" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(208, 208, 208)" offset="0" />
+      <s:stop stop-color="{if(`subdrawing_dynamics`, f1(`position`), subdrawing_color)}" offset="1" />
+    </s:linearGradient>
+    <s:rect width="19" height="18" x="-9.500" y="-9" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="url(#i2)" y:fill-rule="evenodd" y:stroke="none" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Position" />
+    <s:text font-family="MS Sans Serif" font-size="6.689" fill="rgb(0, 0, 0)" x="0" y="0" text-anchor="middle" dominant-baseline="central" d:textScaleAdjustment="true" d:transform-anchor="center-center" y:fill="rgb(0, 0, 0)" y:fill-rule="evenodd" d:object-name="2 Chars">{if(`subdrawing_dynamics`, format('%f', `text`), 'XX')}</s:text>
+  </d:body>
+</d:document>

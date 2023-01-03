@@ -1,0 +1,29 @@
+;********************************************************************
+; Copyright Hitachi Power Grids. All rights reserved.
+; File       : SAI_TRAIDX.TXT
+; Type       : Include file
+; Function   : Define logical names for the object indexes used for the LIB510 transformer
+; Input para.: Variables .ID and '.ID'_PICTURE_FUNCTION_CONF must already be defined
+; Output     : New attributes appended (or existing attr. modified to '.ID'_PICTURE_FUNCTION_CONF
+
+#MODIFY 'ID'_PICTURE_FUNCTION_CONF:V = LIST( -
+	TOPO_OBJECT_SWITCH1_IX      	= 240,-
+	TOPO_OBJECT_SWITCH2_IX      	= 241,-
+	TOPO_OBJECT_SWITCH3_IX      	= 242,-
+	TOPO_OBJECT_PASSIVE_NODE1_IX	= 246,-
+	TOPO_OBJECT_PASSIVE_NODE2_IX	= 247,-
+	TOPO_OBJECT_COLOR1_IX		= 250,-
+	TOPO_OBJECT_COLOR2_IX		= 251,-
+	TOPO_OBJECT_SWITCH6_IX      	= 253,-
+	TOPO_OBJECT_SWITCH7_IX      	= 254)
+
+#CASE 'ID'_PICTURE_FUNCTION_CONF:VTRANSFORMER_TYPE
+  #WHEN "TR3" #BLOCK
+    #MODIFY 'ID'_PICTURE_FUNCTION_CONF:V = LIST( -
+         TOPO_OBJECT_SWITCH4_IX      	= 243,-
+         TOPO_OBJECT_SWITCH5_IX      	= 244,-
+         TOPO_OBJECT_PASSIVE_NODE3_IX	= 248,-
+         TOPO_OBJECT_COLOR3_IX		= 252,-
+         TOPO_OBJECT_SWITCH8_IX      	= 255)
+  #BLOCK_END
+#CASE_END

@@ -1,0 +1,464 @@
+;------------------------------------------------------------------------------------------------------------
+; Rev.
+; 0.00     2006.05.31  ;ob    Zusätzliche gemeinsame Objekte (additional common objects):
+;                             Störung (BI: 70),
+;                             Fern/Ort (BI: 71, 72 - DB: 371)
+;                             Hand/Automatik (BI: 73, 74 - DB:373 - BO: 75, 76 )
+;
+;Übergabe: %ACO_FAULTY_ENABLED, %ACO_LOCAL_REMOTE_ENABLED, ...
+;          %ACO_AUTO_MANUAL_ENABLED, %ACO_AUTO_MANUAL_CMD_ENABLED                   - Objekte einzeln wählbar
+;          %ACO_LOCAL_REMOTE_IND_TYPE, %ACO_AUTO_MANUAL_IND_TYPE,                   - jeweils BI, 2BI oder DB
+;          %ACO_STATION_TYPE                                                        - Für Bestimmung DX
+;          %ACO_RX                                                                  - Attribut RX (complete)
+;          %ACO_OX_PREFIX_1, %ACO_OX_PREFIX_2       (OX = PREFIX_1 + PREFIX_2 + OX) - Attribut OX
+;          %OBJ_IDENT                                                               - Attribut OI
+;          %OBJ_BASE_NO                                                             - Objektvariable Basisnr.
+;------------------------------------------------------------------------------------------------------------
+
+;read object texts
+#CREATE DEI_ACO:V = LIST(-
+   FAULTY         = "Faulty",-
+   REMOTE         = "Remote",-
+   LOCAL          = "Local",-
+   LR_MODE        = "L/R-switch",- ;
+   AUTO           = "Automatic",-
+   MANUAL         = "Hand",-
+   AM_MODE        = "A/H-Operation mode")
+
+;create needed scales, command procedures and event channels
+@A_NAME = "FDU_ACO_BI22BI"
+@A_SEARCH = FETCH(0, "A", %A_NAME)  ;create event channel for BI to 2BI updating command procedure
+#IF A_SEARCH:VIU == -1 #THEN #BLOCK
+  #CREATE 'A_NAME':A = LIST(-
+       CM = "ACO: Additional Common Objects  ;ob",-
+       OT = "C",-
+       ON = %A_NAME)
+#BLOCK_END
+@A_NAME = "FDU_ACO_DB22BI"
+@A_SEARCH = FETCH(0, "A", %A_NAME)  ;create event channel for DB to 2BI updating command procedure
+#IF A_SEARCH:VIU == -1 #THEN #BLOCK
+  #CREATE 'A_NAME':A = LIST(-
+       CM = "ACO: Additional Common Objects  ;ob",-
+       OT = "C",-
+       ON = %A_NAME)
+#BLOCK_END
+
+@C_NAME = "FDU_ACO_BI22BI"
+@C_SEARCH = FETCH(0, "C", %C_NAME)  ;create command procedure for BI to 2BI updating
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+  #CREATE 'C_NAME':C = LIST(-
+       IU = 1,-
+       MO = 1,-
+       CM = "ACO - BI to 2BI updating",-
+       IN = ("#case %ix",-
+             "  #when 71, 72  @ix_dest = 143 - %ix  ;local/remote",-
+             "  #when 73, 74  @ix_dest = 147 - %ix  ;auto/manual",-
+             "#case_end",-
+             "#if ''ln'':pUN''ix_dest''==0 #then #set ''ln'':p''ix_dest'' = list( OV=1-%OV, OS=%OS)"))
+#BLOCK_END
+@C_NAME = "FDU_ACO_DB22BI"
+@C_SEARCH = FETCH(0, "C", %C_NAME)  ;create command procedure for DB to 2BI updating
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+  #CREATE 'C_NAME':C = LIST(-
+       IU = 1,-
+       MO = 1,-
+       CM = "ACO - DB to 2BI updating",-
+       IN = ("@ix_dest1 = %ix - 300",-
+             "@ix_dest2 = %ix_dest1 + 1  ;LSB - local (72) resp. automatic (74)",-
+             "#case %ov",-
+             "  #when 0 #block",-
+             "    #set ''ln'':p''ix_dest2'' = list( OV=0, OS=%os)",-
+             "    #set ''ln'':p''ix_dest1'' = list( OV=0, OS=%os)",-
+             "  #block_end",-
+             "  #when 1, 2 #block",-
+             "    #if substr( ''ln'':pEH''ix'', length(''ln'':pEH''ix''), 1 )==""X"" #then #block  ;swap",-
+             "      #set ''ln'':p''ix_dest1'' = list( OV=2-%ov, OS=%os)",-
+             "      #set ''ln'':p''ix_dest2'' = list( OV=%ov-1, OS=%os)",-
+             "    #block_end",-
+             "    #else #block",-
+             "      #set ''ln'':p''ix_dest2'' = list( OV=2-%ov, OS=%os)",-
+             "      #set ''ln'':p''ix_dest1'' = list( OV=%ov-1, OS=%os)",-
+             "    #block_end",-
+             "  #block_end",-
+             "  #otherwise #block  ;3",-
+             "    #set ''ln'':p''ix_dest2'' = list( OV=1, OS=%os)",-
+             "    #set ''ln'':p''ix_dest1'' = list( OV=1, OS=%os)",-
+             "  #block_end",-
+             "#case_end"))
+#BLOCK_END
+
+@C_NAME = "FDU_UPDATE"
+@C_SEARCH = FETCH(0, "C", %C_NAME)  ;command procedure for updating objects from the process
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+  #CREATE 'C_NAME':C = LIST(-
+       IU = 1,-
+       MO = 1,-
+       CM = FPI_ME:VUPDATE_COMMENT,-
+       IN = ("",-
+             "#DO READ_TEXT(""B5_USE/BPU_UPDATE.TXT"")"))
+#BLOCK_END
+
+;initialize variables
+@DX
+#loop_with aco_jx_= %OBJ_BASE_NO..%OBJ_BASE_NO+8
+  @P_OBJ'aco_jx_' = list()
+#loop_end
+@ACO_RX = substr( %ACO_RX, 1, length(%ACO_RX) - 4 )  ;cut last 4 characters in RX
+
+;up to 5 binary inputs, 2 double binaries and 2 binary outputs ----------------------------------------------
+#CASE %ACO_STATION_TYPE
+  #WHEN "SPA" #BLOCK
+    @DX(%OBJ_BASE_NO..%OBJ_BASE_NO+4)   = "N7S"
+    @DX(%OBJ_BASE_NO+5..%OBJ_BASE_NO+6) = "N7D"
+    @DX(%OBJ_BASE_NO+7..%OBJ_BASE_NO+8) = "N1"
+  #BLOCK_END
+  #WHEN "IEC101", "IEC103" #BLOCK
+    @DX(%OBJ_BASE_NO..%OBJ_BASE_NO+4)   = "C3"
+    @DX(%OBJ_BASE_NO+5..%OBJ_BASE_NO+6) = "C12"
+    @DX(%OBJ_BASE_NO+7..%OBJ_BASE_NO+8) = "C5"
+  #BLOCK_END
+  #WHEN "ANSI" #BLOCK
+    @DX(%OBJ_BASE_NO..%OBJ_BASE_NO+4)   = "3"
+    @DX(%OBJ_BASE_NO+5..%OBJ_BASE_NO+6) = "12"
+    @DX(%OBJ_BASE_NO+7..%OBJ_BASE_NO+8) = "5"
+  #BLOCK_END
+  #WHEN "RTU" #BLOCK
+    @DX(%OBJ_BASE_NO..%OBJ_BASE_NO+4)   = "I7S"
+    @DX(%OBJ_BASE_NO+5..%OBJ_BASE_NO+6) = "I7D"
+    @DX(%OBJ_BASE_NO+7..%OBJ_BASE_NO+8) = "I1"
+  #BLOCK_END
+  #WHEN "RTU_E" #BLOCK
+    @DX(%OBJ_BASE_NO..%OBJ_BASE_NO+4)   = "R7S"
+    @DX(%OBJ_BASE_NO+5..%OBJ_BASE_NO+6) = "R7D"
+    @DX(%OBJ_BASE_NO+7..%OBJ_BASE_NO+8) = "R1"
+  #BLOCK_END
+  #WHEN "MODBUS_RTU" #BLOCK
+    @DX(%OBJ_BASE_NO..%OBJ_BASE_NO+4)   = "I7S"
+    @DX(%OBJ_BASE_NO+5..%OBJ_BASE_NO+6) = "I7D"
+    @DX(%OBJ_BASE_NO+7..%OBJ_BASE_NO+8) = "I1"
+  #BLOCK_END
+#CASE_END
+
+#if %ACO_FAULTY_ENABLED #then #block
+  @aco_obj_nr = %OBJ_BASE_NO
+  #MODIFY P_OBJECTS:V = LIST(P_OBJ'aco_obj_nr' = LIST(-  ;--- STÖRUNG ---
+          IX = 70,-                                      ;index = 70
+          PT = 3,-                                       ;process object type = BI
+          DX = %DX(%aco_obj_nr),-                        ;directive text
+          BI = 0,-                                       ;object value = 0
+          OI = %OBJ_IDENT,-                              ;substation & bay name
+          OX = %ACO_OX_PREFIX_1 + %ACO_OX_PREFIX_2 + dei_aco:vFAULTY,-  ;object text
+          IU = 1,-                                       ;in use = yes
+          SS = 1,-                                       ;switch state = manual
+          EE = 1,-                                       ;event enable = yes
+          HE = 1,-                                       ;history enabled = yes
+          HA = 1,-                                       ;history activation = new value
+          HF = 0,-                                       ;history at first update = no
+          HL = BIT_MASK(15),-                            ;history log number = 15
+          EH = "FD_FORM5_3_0",-                          ;event handling object
+          RC = 1,-                                       ;receipt = acknowledgement required
+          AB = 0,-                                       ;alarm blocking = no
+          AC = 1,-                                       ;alarm class = 1 (enabled)
+          AG = 1,-                                       ;alarming value = 1
+          AD = 0,-                                       ;alarm delay = 0
+          PD = 0,-                                       ;picture device = none
+          PI = "",-                                      ;alarm picture
+          PF = "",-                                      ;physical format for printout
+          RI = 0,-                                       ;dynamic texts for printout
+          PA = 1,-                                       ;printout activation = new value
+          PU = 0,-                                       ;picture/ printout at first update = no
+          LD = 0,-                                       ;listing device
+          AN = "",-                                      ;action name
+          AE = 0,-                                       ;action disabled
+          AA = 2,-                                       ;action activation = update
+          AF = 1,-                                       ;action at first update = yes
+          RX = %ACO_RX + "EPOS" ))                       ;data acquisition unit and group information
+#block_end
+
+#if %ACO_LOCAL_REMOTE_ENABLED #then #block
+  @aco_bi_he = 1
+  @aco_bi_ae = 0
+  #if %ACO_LOCAL_REMOTE_IND_TYPE=="DB" #then #block
+    @aco_bi_he = 0
+    @aco_obj_nr = %OBJ_BASE_NO + 5
+    #MODIFY P_OBJECTS:V = LIST(P_OBJ'aco_obj_nr' = LIST(-;--- FERN / ORT ---
+          IX = 371,-                                     ;index = 371
+          PT = 12,-                                      ;process object type = DB
+          DX = %DX(%aco_obj_nr),-                        ;directive text
+          DB = 2,-                                       ;object value = 2
+          NV = 4,-                                       ;normal value = none
+          OI = %OBJ_IDENT,-                              ;substation & bay name
+          OX = %ACO_OX_PREFIX_1 + %ACO_OX_PREFIX_2 + dei_aco:vLR_MODE,-  ;object text
+          IU = 1,-                                       ;in use = yes
+          SS = 1,-                                       ;switch state = manual
+          EE = 1,-                                       ;event enable = yes
+          HE = 1,-                                       ;history enable = yes
+          HA = 1,-                                       ;history activation = new value
+          HF = 0,-                                       ;history at first update = no
+          HL = BIT_MASK(15),-                            ;history log number = 15
+          EH = "FD_FORM5_12_1",-                         ;event handling object
+          RC = 0,-                                       ;receipt = acknowledgement not required
+          AB = 0,-                                       ;alarm blocking = no
+          AC = 0,-                                       ;alarm class = disabled
+          LA = 0,-                                       ;alarm activation = none
+          AD = 0,-                                       ;alarm delay = 0
+          PD = 0,-                                       ;picture device = none
+          PI = "",-                                      ;alarm picture
+          PF = "",-                                      ;physical format for printout
+          RI = 0,-                                       ;dynamic texts for printout
+          PA = 1,-                                       ;printout activation = new value
+          PU = 0,-                                       ;picture/ printout at first update = no
+          LD = 0,-                                       ;listing device
+          AN = "FDU_ACO_DB22BI",-                        ;action name
+          AE = 1,-                                       ;action enabled
+          AA = 1,-                                       ;action activation = new value
+          AF = 1,-                                       ;action at first update = yes
+          RX = %ACO_RX + "ILRS" ))                       ;data acquisition unit and group information
+  #block_end
+  #else_if %ACO_LOCAL_REMOTE_IND_TYPE=="BI" #then #block
+    @aco_bi_ae = 1
+  #block_end
+
+  @aco_obj_nr = %OBJ_BASE_NO + 1
+  #MODIFY P_OBJECTS:V = LIST(P_OBJ'aco_obj_nr' = LIST(-  ;--- FERN ---
+          IX = 71,-                                      ;index = 71
+          PT = 3,-                                       ;process object type = BI
+          DX = %DX(%aco_obj_nr),-                        ;directive text
+          BI = 1,-                                       ;object value = 1
+          OI = %OBJ_IDENT,-                              ;substation & bay name
+          OX = %ACO_OX_PREFIX_1 + %ACO_OX_PREFIX_2 + dei_aco:vREMOTE,-  ;object text
+          IU = 1,-                                       ;in use = yes
+          SS = 1,-                                       ;switch state = manual
+          EE = 1,-                                       ;event enable = yes
+          HE = %aco_bi_he,-                              ;history enabled
+          HA = 1,-                                       ;history activation = new value
+          HF = 0,-                                       ;history at first update = no
+          HL = BIT_MASK(15),-                            ;history log number = 15
+          EH = "FD_FORM5_3_0",-                          ;event handling object
+          RC = 1,-                                       ;receipt = acknowledgement required
+          AB = 0,-                                       ;alarm blocking = no
+          AC = 0,-                                       ;alarm class = 0 (disabled)
+          AG = 1,-                                       ;alarming value = 1
+          AD = 0,-                                       ;alarm delay = 0
+          PD = 0,-                                       ;picture device = none
+          PI = "",-                                      ;alarm picture
+          PF = "",-                                      ;physical format for printout
+          RI = 0,-                                       ;dynamic texts for printout
+          PA = 1,-                                       ;printout activation = new value
+          PU = 0,-                                       ;picture/ printout at first update = no
+          LD = 0,-                                       ;listing device
+          AN = "FDU_ACO_BI22BI",-                        ;action name
+          AE = %aco_bi_ae,-                              ;action disabled / enabled
+          AA = 1,-                                       ;action activation = new value
+          AF = 1,-                                       ;action at first update = yes
+          RX = %ACO_RX + "EPOS" ))                       ;data acquisition unit and group information
+
+  @aco_obj_nr = %OBJ_BASE_NO + 2
+  #MODIFY P_OBJECTS:V = LIST(P_OBJ'aco_obj_nr' = LIST(-  ;--- ORT ---
+          IX = 72,-                                      ;index = 72
+          PT = 3,-                                       ;process object type = BI
+          DX = %DX(%aco_obj_nr),-                        ;directive text
+          BI = 0,-                                       ;object value = 0
+          OI = %OBJ_IDENT,-                              ;substation & bay name
+          OX = %ACO_OX_PREFIX_1 + %ACO_OX_PREFIX_2 + dei_aco:vLOCAL,-  ;object text
+          IU = 1,-                                       ;in use = yes
+          SS = 1,-                                       ;switch state = manual
+          EE = 1,-                                       ;event enable = yes
+          HE = %aco_bi_he,-                              ;history enabled
+          HA = 1,-                                       ;history activation = new value
+          HF = 0,-                                       ;history at first update = no
+          HL = BIT_MASK(15),-                            ;history log number = 15
+          EH = "FD_FORM5_3_0",-                          ;event handling object
+          RC = 1,-                                       ;receipt = acknowledgement required
+          AB = 0,-                                       ;alarm blocking = no
+          AC = 0,-                                       ;alarm class = 0 (disabled)
+          AG = 1,-                                       ;alarming value = 1
+          AD = 0,-                                       ;alarm delay = 0
+          PD = 0,-                                       ;picture device = none
+          PI = "",-                                      ;alarm picture
+          PF = "",-                                      ;physical format for printout
+          RI = 0,-                                       ;dynamic texts for printout
+          PA = 1,-                                       ;printout activation = new value
+          PU = 0,-                                       ;picture/ printout at first update = no
+          LD = 0,-                                       ;listing device
+          AN = "FDU_ACO_BI22BI",-                        ;action name
+          AE = %aco_bi_ae,-                              ;action disabled / enabled
+          AA = 1,-                                       ;action activation = new value
+          AF = 1,-                                       ;action at first update = yes
+          RX = %ACO_RX + "EPOS" ))                       ;data acquisition unit and group information
+#block_end  ;%ACO_LOCAL_REMOTE_ENABLED
+
+#if %ACO_AUTO_MANUAL_ENABLED #then #block
+  @aco_bi_he = 1
+  @aco_bi_ae = 0
+  #if %ACO_AUTO_MANUAL_IND_TYPE=="DB" #then #block
+    @aco_bi_he = 0
+    @aco_obj_nr = %OBJ_BASE_NO + 6
+    #MODIFY P_OBJECTS:V = LIST(P_OBJ'aco_obj_nr' = LIST(-;--- HAND / AUTOMATIK ---
+          IX = 373,-                                     ;index = 373
+          PT = 12,-                                      ;process object type = DB
+          DX = %DX(%aco_obj_nr),-                        ;directive text
+          DB = 2,-                                       ;object value = 2
+          NV = 4,-                                       ;normal value = none
+          OI = %OBJ_IDENT,-                              ;substation & bay name
+          OX = %ACO_OX_PREFIX_1 + %ACO_OX_PREFIX_2 + dei_aco:vAM_MODE,-  ;object text
+          IU = 1,-                                       ;in use = yes
+          SS = 1,-                                       ;switch state = manual
+          EE = 1,-                                       ;event enable = yes
+          HE = 1,-                                       ;history enable = yes
+          HA = 1,-                                       ;history activation = new value
+          HF = 0,-                                       ;history at first update = no
+          HL = BIT_MASK(15),-                            ;history log number = 15
+          EH = "FD_FORM5_12_8",-                         ;event handling object
+          RC = 0,-                                       ;receipt = acknowledgement not required
+          AB = 0,-                                       ;alarm blocking = no
+          AC = 0,-                                       ;alarm class = disabled
+          LA = 0,-                                       ;alarm activation = none
+          AD = 0,-                                       ;alarm delay = 0
+          PD = 0,-                                       ;picture device = none
+          PI = "",-                                      ;alarm picture
+          PF = "",-                                      ;physical format for printout
+          RI = 0,-                                       ;dynamic texts for printout
+          PA = 1,-                                       ;printout activation = new value
+          PU = 0,-                                       ;picture/ printout at first update = no
+          LD = 0,-                                       ;listing device
+          AN = "FDU_ACO_DB22BI",-                        ;action name
+          AE = 1,-                                       ;action enabled
+          AA = 1,-                                       ;action activation = new value
+          AF = 1,-                                       ;action at first update = yes
+          RX = %ACO_RX + "ILRS" ))                       ;data acquisition unit and group information
+  #block_end
+  #else_if %ACO_AUTO_MANUAL_IND_TYPE=="BI" #then #block
+    @aco_bi_ae = 1
+  #block_end
+
+  @aco_obj_nr = %OBJ_BASE_NO + 3
+  #MODIFY P_OBJECTS:V = LIST(P_OBJ'aco_obj_nr' = LIST(-  ;--- HAND ---
+          IX = 73,-                                      ;index = 73
+          PT = 3,-                                       ;process object type = BI
+          DX = %DX(%aco_obj_nr),-                        ;directive text
+          BI = 1,-                                       ;object value = 0
+          OI = %OBJ_IDENT,-                              ;substation & bay name
+          OX = %ACO_OX_PREFIX_1 + %ACO_OX_PREFIX_2 + dei_aco:vMANUAL,-  ;object text
+          IU = 1,-                                       ;in use = yes
+          SS = 1,-                                       ;switch state = manual
+          EE = 1,-                                       ;event enable = yes
+          HE = %aco_bi_he,-                              ;history enabled
+          HA = 1,-                                       ;history activation = new value
+          HF = 0,-                                       ;history at first update = no
+          HL = BIT_MASK(15),-                            ;history log number = 15
+          EH = "FD_FORM5_3_0",-                          ;event handling object
+          RC = 1,-                                       ;receipt = acknowledgement required
+          AB = 0,-                                       ;alarm blocking = no
+          AC = 0,-                                       ;alarm class = 0 (disabled)
+          AG = 1,-                                       ;alarming value = 1
+          AD = 0,-                                       ;alarm delay = 0
+          PD = 0,-                                       ;picture device = none
+          PI = "",-                                      ;alarm picture
+          PF = "",-                                      ;physical format for printout
+          RI = 0,-                                       ;dynamic texts for printout
+          PA = 1,-                                       ;printout activation = new value
+          PU = 0,-                                       ;picture/ printout at first update = no
+          LD = 0,-                                       ;listing device
+          AN = "FDU_ACO_BI22BI",-                        ;action name
+          AE = %aco_bi_ae,-                              ;action disabled / enabled
+          AA = 1,-                                       ;action activation = new value
+          AF = 1,-                                       ;action at first update = yes
+          RX = %ACO_RX + "EPOS" ))                       ;data acquisition unit and group information
+
+  @aco_obj_nr = %OBJ_BASE_NO + 4
+  #MODIFY P_OBJECTS:V = LIST(P_OBJ'aco_obj_nr' = LIST(-  ;--- AUTOMATIK ---
+          IX = 74,-                                      ;index = 74
+          PT = 3,-                                       ;process object type = BI
+          DX = %DX(%aco_obj_nr),-                        ;directive text
+          BI = 0,-                                       ;object value = 0
+          OI = %OBJ_IDENT,-                              ;substation & bay name
+          OX = %ACO_OX_PREFIX_1 + %ACO_OX_PREFIX_2 + dei_aco:vAUTO,-  ;object text
+          IU = 1,-                                       ;in use = yes
+          SS = 1,-                                       ;switch state = manual
+          EE = 1,-                                       ;event enable = yes
+          HE = %aco_bi_he,-                              ;history enabled
+          HA = 1,-                                       ;history activation = new value
+          HF = 0,-                                       ;history at first update = no
+          HL = BIT_MASK(15),-                            ;history log number = 15
+          EH = "FD_FORM5_3_0",-                          ;event handling object
+          RC = 1,-                                       ;receipt = acknowledgement required
+          AB = 0,-                                       ;alarm blocking = no
+          AC = 0,-                                       ;alarm class = 0 (disabled)
+          AG = 1,-                                       ;alarming value = 1
+          AD = 0,-                                       ;alarm delay = 0
+          PD = 0,-                                       ;picture device = none
+          PI = "",-                                      ;alarm picture
+          PF = "",-                                      ;physical format for printout
+          RI = 0,-                                       ;dynamic texts for printout
+          PA = 1,-                                       ;printout activation = new value
+          PU = 0,-                                       ;picture/ printout at first update = no
+          LD = 0,-                                       ;listing device
+          AN = "FDU_ACO_BI22BI",-                        ;action name
+          AE = %aco_bi_ae,-                              ;action disabled / enabled
+          AA = 1,-                                       ;action activation = new value
+          AF = 1,-                                       ;action at first update = yes
+          RX = %ACO_RX + "EPOS" ))                       ;data acquisition unit and group information
+
+  #if %ACO_AUTO_MANUAL_CMD_ENABLED #then #block
+    @aco_bo_obj
+    @aco_obj_nr = %OBJ_BASE_NO + 7
+    @aco_bo_obj = LIST(-                                 ;--- HAND (Befehl) ---
+          IX = 75,-                                      ;index = 75
+          PT = 5,-                                       ;process object type = BO
+          DX = %DX(%aco_obj_nr),-                        ;directive text
+          OI = %OBJ_IDENT,-                              ;substation & bay name
+          OX = %ACO_OX_PREFIX_1 + %ACO_OX_PREFIX_2 + dei_aco:vMANUAL,-  ;object text
+          IU = 1,-                                       ;in use = yes
+          SS = 1,-                                       ;switch state = manual
+          EE = 1,-                                       ;event enable = yes
+          HE = 1,-                                       ;history enable = yes
+          HA = 2,-                                       ;history activation = update
+          HF = 1,-                                       ;history at first update = yes
+          HL = BIT_MASK(15),-                            ;history log number = 15
+          EH = "SAGR_FORM5FPBO1_9",-                     ;event handling object
+          PF = "",-                                      ;physical format for printout
+          RI = 0,-                                       ;dynamic texts for printout
+          PA = 2,-                                       ;printout activation = update
+          PU = 1,-                                       ;picture/ printout at first update = yes
+          LD = 0,-                                       ;listing device
+          RX = %ACO_RX + "COBC")                         ;data acquisition unit and group information
+    #case %ACO_STATION_TYPE
+      #when "IEC101" #modify aco_bo_obj:v = LIST(-
+          TY = 45)                                       ;type identification (ASDU) 45 = single command, 46 = double command
+      #when "IEC103" #modify aco_bo_obj:v = LIST(-
+          TY = 0)                                        ;type identification (ASDU) 20 = general command
+    #case_end
+    #MODIFY P_OBJECTS:V = LIST(P_OBJ'aco_obj_nr' = %aco_bo_obj)
+
+    @aco_bo_obj
+    @aco_obj_nr = %OBJ_BASE_NO + 8
+    @aco_bo_obj = LIST(-                                 ;--- AUTOMATIK (Befehl) ---
+          IX = 76,-                                      ;index = 76
+          PT = 5,-                                       ;process object type = BO
+          DX = %DX(%aco_obj_nr),-                        ;directive text
+          OI = %OBJ_IDENT,-                              ;substation & bay name
+          OX = %ACO_OX_PREFIX_1 + %ACO_OX_PREFIX_2 + dei_aco:vAUTO,-  ;object text
+          IU = 1,-                                       ;in use = yes
+          SS = 1,-                                       ;switch state = manual
+          EE = 1,-                                       ;event enable = yes
+          HE = 1,-                                       ;history enable = yes
+          HA = 2,-                                       ;history activation = update
+          HF = 1,-                                       ;history at first update = yes
+          HL = BIT_MASK(15),-                            ;history log number = 15
+          EH = "SAGR_FORM5FPBO1_10",-                    ;event handling object
+          PF = "",-                                      ;physical format for printout
+          RI = 0,-                                       ;dynamic texts for printout
+          PA = 2,-                                       ;printout activation = update
+          PU = 1,-                                       ;picture/ printout at first update = yes
+          LD = 0,-                                       ;listing device
+          RX = %ACO_RX + "COBC")                         ;data acquisition unit and group information
+    #case %ACO_STATION_TYPE
+      #when "IEC101" #modify aco_bo_obj:v = LIST(-
+          TY = 45)                                       ;type identification (ASDU) 45 = single command, 46 = double command
+      #when "IEC103" #modify aco_bo_obj:v = LIST(-
+          TY = 0)                                        ;type identification (ASDU) 20 = general command
+    #case_end
+    #MODIFY P_OBJECTS:V = LIST(P_OBJ'aco_obj_nr' = %aco_bo_obj)
+  #block_end  ;%ACO_AUTO_MANUAL_CMD_ENABLED
+#block_end  ;%ACO_AUTO_MANUAL_ENABLED

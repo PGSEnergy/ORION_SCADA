@@ -1,0 +1,36 @@
+;CM =Interface for Monitor Pro Reports, returns the data for the laod duration curve
+; Function:    SAGR_REPORTS_GET_LOAD_DURATION_VALUES:C 
+; Version:     3.0 (build 2.3.2012)
+; Parameters:  Conf_Name="xxxx",Time_From,Time_To
+; Return data: PAGEx=LIST(COL1=VECTOR(data),COLy=VECTOR(data),.....
+;                          COL_TOTALS1=LIST(MAX_COLOR= LIST(RGB),MAX_SYMBOL ,MAX_VALUE
+;                                           MEAN_COLOR=LIST(RGB),MEAN_SYMBOL,MEAN_VALUE
+;                                           MIN_COLOR= LIST(RGB),MIN_SYMBOL ,MIN_VALUE
+;                                           SUM_COLOR= LIST(RGB),SUM_SYMBOL, SUM_VALUE
+;                          COL_TOTALSy=LIST(),....
+;                          OS1=VECTOR(OSData),OSy=VECTOR(OSData),....
+;                          TIME=VECTOR(TimeData)
+;                          TIME_INTERVALL=xxxxx [seconds]
+; Description: create Load Duration data curve only
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#local i_C = 0, i_P = 0, l_PageData = list(), v_SortedIndexes = vector()
+
+#if SAGR_Reports_Get_Values:ccs == 1 #then -
+      #do SAGR_Reports_Get_Values:ccp
+#else #do SAGR_Reports_Get_Values:c
+
+#loop_with i_P = 1..%l_PageConf.PAGE_COUNT
+   l_PageData = list()
+   l_PageData = %Output.Page'i_P'
+   #loop_with i_C = 1..%l_PageConf.PAGE'i_P'.COLUMN_COUNT
+      v_SortedIndexes = sort(l_PageData.COL'i_C')
+      l_PageData.COL'i_C' = reverse(pick(l_PageData.COL'i_C',v_SortedIndexes))
+      l_PageData.OS'i_C'  = reverse(pick(l_PageData.OS'i_C' ,v_SortedIndexes))
+
+   #loop_end
+   #modify OUTPUT:V = list(PAGE'i_P' = l_PageData)
+   
+#loop_end

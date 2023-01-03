@@ -1,0 +1,41 @@
+#if Mon:bDT == "VS" #then #block
+
+   .set ROOT._busy = TRUE
+   @i_LW_Status__ = status
+   #error ignore
+      .load Root\MW = Vs_Dialog("Sys_Tool/TestDlg.vso","Test_Dialog")
+   #error stop
+
+   #if status == 941 #then #block ; PICO_WINDOW_ALREADY_EXISTS
+
+      #loop_with i_LW__ = 1 .. 50
+
+         #error ignore
+         @i_LW_Status__ = status
+         @t_LW_DLG__ = "ndl_LW'i_LW__'"
+         .create 't_LW_DLG__' = vs_notice_dialog(-
+            _title = "Lan_Watch.scl",-
+            _text = "Test Dialog is already opened to this context.",-
+            _has_ok = true,-
+            _modal = true,-
+            _close_notify = (".SET THIS._OPEN = FALSE", ".DELETE THIS"))
+
+         #if status == 0 #then #loop_exit
+
+      #loop_end
+   
+      't_LW_DLG__'._place("ROOT","PLACE_CENTER","PLACE_CENTER")
+      .set 't_LW_DLG__'._open = true
+
+   #block_end
+
+#block_end
+#else #block
+
+   !WIN_CREATE ROOT/WATCH
+   !WIN_POS ROOT/WATCH (58,31)
+   !WIN_PIC ROOT/WATCH LAN_WATCH2
+   !WIN_LEVEL ROOT/WATCH ON_TOP
+   !SHOW ROOT/WATCH
+
+#block_end

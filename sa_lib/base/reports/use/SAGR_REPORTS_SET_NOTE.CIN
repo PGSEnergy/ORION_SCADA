@@ -1,0 +1,26 @@
+;CM = Interface for Monitor Pro Reports, Set/archive/delete comments (notes)
+; Function:    SAGR_REPORTS_SET_NOTE:C
+; Version:     3.0 (Build 2.3.2012)
+; Parameters:  Conf_Name,Time_From,Note_Text
+; Return data: 
+; Description: 
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#local x_,-
+      t_DisplayConfName = upper_case(%ArgumentList.CONF_NAME),-
+      i_TimeValue = %ArgumentList.TIME_FROM, t_MRKW_ID = "",-
+      t_Note      = %ArgumentList.NOTE_TEXT
+
+i_TimeValue = type_cast(i_TimeValue,"INTEGER")
+
+t_MRKW_ID = "ID_'i_TimeValue'"      
+
+#if data_type(t_Note) <> "TEXT" #then #return
+       
+;*** don't add, if note is an empty string, that's the delete method
+#if length(edit(t_Note,"COLLAPSE")) >0 #then -
+   x_ = write_parameter("REPORTS/'t_DisplayConfName'.mno", "Report Comments", t_MRKW_ID, "x" + t_Note)
+#else -
+   x_ = delete_parameter("REPORTS/'t_DisplayConfName'.mno", "Report Comments", t_MRKW_ID)

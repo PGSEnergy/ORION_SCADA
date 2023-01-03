@@ -1,0 +1,101 @@
+﻿; This command procedure is used for decoding cross-reference information
+; in the upstream direction in a COM application 
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @XREF_INDEX, cross-reference table pointer of the pobj, integer
+;         @COM_EXCLUSIVE_STA_NUMBER, STA number of a NCC given when executed manually
+; OUTPUT: @NCC_STA_NUMBERS , STA numbers of the NCCs, vector
+;         @NCC_PROTOCOLS, protocols of the NCCs, vector
+;         @NCC_ADDRESSES, addresses of the NCCs, vector
+;         @NCC_OPERATION_MODES, operation modes of the NCCs, vector   
+;--------------------------------------------------------------------------
+
+#LOCAL TABLE_NUMBER, TABLE_INDEX, NCC_XREF_TABLE
+#LOCAL DOWNSTREAM_XREF_TABLE, SIGNAL_VECTOR
+
+#ERROR CONTINUE
+
+;initialise
+@NCC_NUMBERS = VECTOR()
+@NCC_STA_NUMBERS = VECTOR()
+@NCC_PROTOCOLS = VECTOR()
+@NCC_ADDRESSES = VECTOR()
+@NCC_OPERATION_MODES = VECTOR()
+@COMMAND_TYPE = 0
+@OUTPUT_OBJECT_LNS = ""
+@OUTPUT_OBJECT_IXS = 0
+
+;general parameters
+@GEN_INFO = APL:BSV(20)
+
+;find matching input process objects and collect NCC data
+#IF %XREF_INDEX <> 0 #THEN #BLOCK ; 1
+   @NCC_XREF_TABLE = APL:BSV(21)
+   @COM_OBJECTS = APPLICATION_OBJECT_LIST(0,"IX","A","F","","TI == %XREF_INDEX AND IU == 1 AND (PT==3 OR PT==6 OR PT==9 OR PT==12) AND LN == ""BNCC_*""",("UN","OA"),GEN_INFO:VMAX_NCC_COUNT)
+   #IF COM_OBJECTS:VCOUNT > 0 #THEN #BLOCK ; 2
+      #LOOP_WITH OBJ = 1..(COM_OBJECTS:VCOUNT) ; 3         
+         @NCC_STA_NUMBERS = APPEND(%NCC_STA_NUMBERS,COM_OBJECTS:VUN(%OBJ))
+         @NCC_ADDRESSES = APPEND(%NCC_ADDRESSES,COM_OBJECTS:VOA(%OBJ))
+         #LOOP_WITH NCC = 1..LENGTH(%NCC_XREF_TABLE) ; 4
+            @NCC_DATA = %NCC_XREF_TABLE(%NCC)
+            #IF LENGTH(%NCC_DATA) > 0 #THEN #BLOCK ; 5
+               #IF LENGTH(%NCC_DATA) == 4 #THEN @NCC_DATA(5) = 0
+               #IF %NCC_DATA(1) == COM_OBJECTS:VUN(%OBJ) #THEN #BLOCK ; 6
+                  @NCC_NUMBERS = APPEND(%NCC_NUMBERS,%NCC)
+                  @NCC_PROTOCOLS = APPEND(%NCC_PROTOCOLS,%NCC_DATA(2))
+                  @NCC_OPERATION_MODES = APPEND(%NCC_OPERATION_MODES,%NCC_DATA(5))
+               #BLOCK_END ; 6
+            #BLOCK_END ; 5                    
+         #LOOP_END ; 4
+      #LOOP_END ; 3   
+   #BLOCK_END ; 2
+   ;if STA number given as input (manual execution), exclude other NCCs
+   #IF DATA_TYPE(%COM_EXCLUSIVE_STA_NUMBER) == "INTEGER" #THEN #BLOCK
+      @SEL = SELECT(%NCC_STA_NUMBERS,"==%COM_EXCLUSIVE_STA_NUMBER")
+      #IF LENGTH(%SEL) > 0 #THEN #BLOCK
+         #IF LENGTH(%NCC_STA_NUMBERS) >= %SEL(1) #THEN #BLOCK
+            @NCC_NUMBERS = VECTOR(%NCC_NUMBERS(%SEL(1)))
+            @NCC_STA_NUMBERS = VECTOR(%NCC_STA_NUMBERS(%SEL(1)))
+            @NCC_PROTOCOLS = VECTOR(%NCC_PROTOCOLS(%SEL(1)))
+            @NCC_OPERATION_MODES = VECTOR(%NCC_OPERATION_MODES(%SEL(1)))
+            @NCC_ADDRESSES = VECTOR(%NCC_ADDRESSES(%SEL(1)))
+         #BLOCK_END
+      #BLOCK_END
+      #ELSE #BLOCK
+         @NCC_NUMBERS = VECTOR()
+         @NCC_STA_NUMBERS = VECTOR()
+         @NCC_PROTOCOLS = VECTOR()
+         @NCC_OPERATION_MODES = VECTOR()
+         @NCC_ADDRESSES = VECTOR()
+      #BLOCK_END
+   #BLOCK_END   
+#BLOCK_END ; 1
+
+;calculate table number and index
+TABLE_NUMBER = %XREF_INDEX DIV GEN_INFO:VDOWNSTREAM_XREF_TABLE_LENGTH
+TABLE_INDEX = %XREF_INDEX MOD GEN_INFO:VDOWNSTREAM_XREF_TABLE_LENGTH
+#IF TABLE_INDEX == 0 #THEN #BLOCK
+   TABLE_NUMBER = TABLE_NUMBER - 1
+   TABLE_INDEX = GEN_INFO:VDOWNSTREAM_XREF_TABLE_LENGTH
+#BLOCK_END
+
+;read in the cross-reference tables
+NCC_XREF_TABLE = APL:BSV(21)
+DOWNSTREAM_XREF_TABLE = APL:BSV(26+TABLE_NUMBER)
+#IF DATA_TYPE(DOWNSTREAM_XREF_TABLE) == "VECTOR" #THEN SIGNAL_VECTOR = DOWNSTREAM_XREF_TABLE(TABLE_INDEX)
+
+;collect xref information to vectors
+#IF LENGTH(SIGNAL_VECTOR) >= 4 #THEN #BLOCK
+    @COMMAND_TYPE = SIGNAL_VECTOR(1)
+    @OUTPUT_OBJECT_LNS = SIGNAL_VECTOR(2)
+    @OUTPUT_OBJECT_IXS = SIGNAL_VECTOR(3)
+    @OUTPUT_SIGNAL_HANDLINGS = SIGNAL_VECTOR(4)
+#BLOCK_END
+
+
+
+
+

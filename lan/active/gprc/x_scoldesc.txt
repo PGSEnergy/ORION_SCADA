@@ -1,0 +1,93 @@
+;GRAPHICS, SYSTEM COLOR DESCRIPTIONS
+
+#CREATE X_SCOLDESC:V = LIST(-
+SCOPE_OF_SETTINGS   = "SYSTEM",-
+NUMBER_OF_COLORS    = 38,-
+USAGE_AREA1         = "1 - Normal background",-
+RGB_VALUES1         = ( 60, 65, 80),-
+USAGE_AREA2         = "2 - Function keys",-
+RGB_VALUES2         = ( 75, 80, 95),-
+USAGE_AREA3         = "3 - Lowered fields",-
+RGB_VALUES3         = ( 54, 57, 71),-
+USAGE_AREA4         = "4 - Background for dynamics",-
+RGB_VALUES4         = (  0,  0,  0),-
+USAGE_AREA5         = "5 - Background for dialogs",-
+RGB_VALUES5         = ( 65, 70, 85),-
+USAGE_AREA6         = "6 - Lowered fields in dialogs",-
+RGB_VALUES6         = ( 59, 62, 76),-
+USAGE_AREA7         = "7 - Pressed function keys",-
+RGB_VALUES7         = ( 60, 63, 76),-
+USAGE_AREA8         = "8 - Top shadow",-
+RGB_VALUES8         = ( 77, 84,100),-
+USAGE_AREA9         = "9 - Bottom shadow",-
+RGB_VALUES9         = ( 42, 45, 56),-
+USAGE_AREA10        = "10 - Top shadow, function keys",-
+RGB_VALUES10        = ( 95, 95, 95),-
+USAGE_AREA11        = "11 - Bottom shadow, function keys",-
+RGB_VALUES11        = ( 52, 56, 66),-
+USAGE_AREA12        = "12 - Top shadow, dialogs",-
+RGB_VALUES12        = ( 84, 91,100),-
+USAGE_AREA13        = "13 - bottom shadow, dialogs",-
+RGB_VALUES13        = ( 45, 48, 59),-
+USAGE_AREA14        = "14 - Foreground, normal",-
+RGB_VALUES14        = (  0,  0,  0),-
+USAGE_AREA15        = "15 - Foreground, dynamics",-
+RGB_VALUES15        = (100,100,100),-
+USAGE_AREA16        = "16 - Alarm",-
+RGB_VALUES16        = ( 90, 10, 10),-
+USAGE_AREA17        = "17 - Warning",-
+RGB_VALUES17        = ( 90,100,  0),- ;(100,80,0)before
+USAGE_AREA18        = "18 - Border, motif",-
+RGB_VALUES18        = (  0,  0,  0),-
+USAGE_AREA19        = "19 - Highlight, motif",-
+RGB_VALUES19        = (  0,  0,  0),-
+USAGE_AREA20        = "20 - Trough, motif",-
+RGB_VALUES20        = (  0,  0,  0),-
+USAGE_AREA21        = "21 - Process 1",-
+RGB_VALUES21        = (  0,  0,  0),-
+USAGE_AREA22        = "22 - Process 2",-
+RGB_VALUES22        = (  0,  0,  0),-
+USAGE_AREA23        = "23 - Process 3",-
+RGB_VALUES23        = (  0,  0,  0),-
+USAGE_AREA24        = "24 - Process 4",-
+RGB_VALUES24        = (  0,  0,  0),-
+USAGE_AREA25        = "25 - Dimmed on keys",-
+RGB_VALUES25        = ( 56, 54, 59),-
+USAGE_AREA26        = "26 - Dimmed on normal",-
+RGB_VALUES26        = ( 45, 45, 48),-
+USAGE_AREA27        = "27 - Selected object",-
+RGB_VALUES27        = (100,100,100),-
+USAGE_AREA28        = "28 - Control blocked",-
+RGB_VALUES28        = ( 40, 30, 20),-
+USAGE_AREA29        = "29 - Manually entered",-
+RGB_VALUES29        = (  0,100,100),-
+USAGE_AREA30        = "30 - Not updating",-
+RGB_VALUES30        = (100,  0,100),-
+USAGE_AREA31        = "31 - Historical data",-
+RGB_VALUES31        = ( 43, 33, 23),-
+USAGE_AREA32        = "32 - Normal, dynamics",-
+RGB_VALUES32        = ( 10, 45, 10),-
+USAGE_AREA33        = "33 - Dynamic line color, Passive",-
+RGB_VALUES33        = (100,100,100),-
+USAGE_AREA34        = "34 - Dynamic line color, Grounded",-
+RGB_VALUES34        = ( 100,100, 0),-
+USAGE_AREA35        = "35 - Dynamic line color, Feeder",-
+RGB_VALUES35        = (100,  0,100),-
+USAGE_AREA36        = "36 - Dynamic line color, Active",-
+RGB_VALUES36        = (100,  0,  0),-
+USAGE_AREA37        = "37 - Dynamic line color, Unknown",-
+RGB_VALUES37        = (100,  0,100),-
+USAGE_AREA38        = "38 - Substituted",-
+RGB_VALUES38        = (  0,  0,100))
+
+
+#DO READ_TEXT("GPRC/X_SGETDISP.TXT")
+#ERROR IGNORE
+@S = STATUS
+#DO READ_TEXT("PICT/'USER_NAME'_M.RGB")
+#IF STATUS <> 0 #THEN #DO READ_TEXT("PICT/'STATION'_M.RGB")
+#IF STATUS <> 0 #THEN #DO READ_TEXT("PICT/DEFAUL_M.RGB")
+@S = STATUS
+#ERROR STOP
+
+

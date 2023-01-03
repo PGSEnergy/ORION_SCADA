@@ -1,0 +1,1220 @@
+#local argCnt, tRedirectProc, tRedirectCommand, iArgLoop
+tRedirectProc="APLMOD_BAYLR"
+#if APPLICATION_OBJECT_EXISTS(0,"C",tRedirectProc) AND -
+DATA_TYPE(%REDIRECTED)=="NONE" #then #block
+   #if 'tRedirectProc':CIU==1 #then #block
+      @REDIRECTED=TRUE
+      argCnt=ARGUMENT_COUNT
+      tRedirectCommand="DO('tRedirectProc':C"
+      #loop_with iArgLoop=1..argCnt
+         tRedirectCommand=tRedirectCommand+",argument('iArgLoop')"
+         #if iArgLoop==argCnt #then #block
+            tRedirectCommand=tRedirectCommand+")"
+         #block_end
+      #loop_end
+      #return 'tRedirectCommand'
+   #block_end
+#block_end
+
+#if sys:bdm==1 #then @b_enable_debugging=true
+#else @b_enable_debugging=false
+
+@PF_ID=argument(1)
+@i_Description=%PF_ID
+@COMMAND_SELECTOR=argument(2) ;Defines the command 
+#if %b_enable_debugging #then #block
+   @i_Trash=trace_begin("TRACE_BGU_BAYLR_'COMMAND_SELECTOR'.txt")
+   #on error #block
+      #if %b_enable_debugging #then #block
+         @i_Stat=status
+         @i_Trash=console_output(times + " BGU_BAYLR:C error when executing 'i_Description': 'i_Stat'. " + -
+         "Trace created to PICT/TRACE_BGU_BAYLR_'COMMAND_SELECTOR'.txt")
+         @i_Trash=trace_end
+         @enable_debugging=false
+      #block_end
+      #return
+   #block_end
+   ;@i_Trash=console_output(times + " BGU_BAYLR:C object LN is 'i_Description'...")        
+#block_end
+
+@VIDEO_NR=apl:ban
+@ConfPath=path("APL_")
+@ConfPath=%ConfPath(1)
+@ConfPath=substr(%ConfPath,1, length(%ConfPath)-4)
+@ConfPath=%ConfPath+"POBJCONF"
+@FileNameIs="'ConfPath'"
+;@L_XXX_PICTURE_FUNCTION_CONF=evaluate(read_text(%ConfPath+"\'PF_ID'.dat"))
+@L_XXX_PICTURE_FUNCTION_CONF='PF_ID':pcd
+#if length(%L_XXX_PICTURE_FUNCTION_CONF) == 0 #then @L_XXX_PICTURE_FUNCTION_CONF=evaluate(read_text(%ConfPath+"\'PF_ID'.dat"))
+
+;TYPE PICTURE FUNCTION:
+@L_XXX= LIST(-
+     OBJECT_LN                = UPPER_CASE(L_XXX_PICTURE_FUNCTION_CONF:VP_OBJECT_LN),-
+     BAY_LR_OBJ_IX            = 10,-
+     BAY_LR_DIS_CMD_IX        = 11,-
+     BAY_LR_LOC_CMD_IX        = 12,-
+     BAY_LR_REM_CMD_IX        = 13,-
+     BAY_LR_RES_CMD_IX        = 14,-
+     EXT_HW_INTRL_IX          = 15,-
+     EXT_SW_INTRL_IX          = 16,-
+     EXT_SW_INTRL_CMD_IX      = 17,-
+     INT_INTRL_IX             = 18,-
+     INT_INTRL_CMD_IX         = 22,-
+     BLOCKINGS_IX             = 23,-
+     SEL_ON_MON_IX            = 21,-
+     BAY_OP_OBJ_IX            = 22,-
+     BAY_OP_NOT_IN_USE_CMD_IX = 23,-
+     BAY_OP_STATION_CMD_IX    = 24,-
+     BAY_OP_REMOTE_CMD_IX     = 25,-
+     BAY_OP_STA_REM_CMD_IX    = 26,-
+     BAY_MLT_OBJECT_IX        = 30,-
+     BAY_LR_VALUES            = VECTOR(),-
+     BAY_LR_CONTROL_VALUES    = VECTOR(),-
+     BAY_LR_CONTROL_DISABLED_VALUES = VECTOR(),-
+     -;BAY_LABEL                = L_XXX_PICTURE_FUNCTION_CONF:VBAY_LABEL,-
+     STATION_TYPE             = L_XXX_PICTURE_FUNCTION_CONF:VSTATION_TYPE,-
+     CONTROL_DIALOG           = L_XXX_PICTURE_FUNCTION_CONF:VCONTROL_DIALOG,-
+     CONTROL_DIALOG_WINDOW    = L_XXX_PICTURE_FUNCTION_CONF:VCONTROL_DIALOG_WINDOW,-
+     BAY_LR_IN_USE            = L_XXX_PICTURE_FUNCTION_CONF:VBAY_LR_IN_USE,-
+     IND_DOUBLE_BINARY        = L_XXX_PICTURE_FUNCTION_CONF:VIND_DOUBLE_BINARY,-
+     LR_REMOTELY_CONTROLLABLE = L_XXX_PICTURE_FUNCTION_CONF:VLR_REMOTELY_CONTROLLABLE,-
+     INDICATION_IXS           = VECTOR(10))
+     
+#IF L_XXX_PICTURE_FUNCTION_CONF:VSTATION_TYPE == "IEC61850" #THEN #BLOCK
+   #MODIFY L_XXX:V = LIST(-
+      BAY_LR_LOC_CMD_IX = L_XXX:VBAY_LR_DIS_CMD_IX,-
+      BAY_LR_REM_CMD_IX = L_XXX:VBAY_LR_DIS_CMD_IX,-
+      BAY_LR_RES_CMD_IX = L_XXX:VBAY_LR_DIS_CMD_IX)
+#BLOCK_END
+
+#IF %L_XXX.IND_DOUBLE_BINARY #THEN #BLOCK
+  #CASE %L_XXX.STATION_TYPE
+    #WHEN "ANSI" #MODIFY L_XXX:V = LIST(BAY_LR_EV_OBJ_IX = 110, INDICATION_IXS = VECTOR(10,110))
+    #WHEN "PROC" #MODIFY L_XXX:V = LIST(BAY_LR_EV_OBJ_IX = 110, BAY_LR_EV2_OBJ_IX = 108, INDICATION_IXS = VECTOR(10,110,108))
+  #CASE_END
+#BLOCK_END
+
+#IF ATTRIBUTE_EXISTS(%L_XXX_PICTURE_FUNCTION_CONF, "BAY_LR_POLARITY") #THEN -
+  #MODIFY L_XXX:V = LIST(BAY_LR_POLARITY = L_XXX_PICTURE_FUNCTION_CONF:VBAY_LR_POLARITY)
+#ELSE #MODIFY L_XXX:V = LIST(BAY_LR_POLARITY = "NONE")
+
+;INIT VARIABLES:
+;picture names for subdialogs
+@CMD_CONFIRMATION_DIALOG = "F_USE/FPU_BAY2B"
+@UPDATE_DATA_DIALOG      = "F_USE/FPU_BAY2C"
+@BLOCKINGS_DIALOG        = "F_USE/FPU_BAY2D"
+@RELAY_TOOL_DIALOG       = "F_USE/FPU_BAY2E"
+@MESSAGE_DIALOG          = "F_USE/FPU_BAY2F"
+@INTERLOCKING_DIALOG     = "F_USE/FPU_BAY2G"
+@ALARM_STATE_DIALOG      = "F_USE/FPU_BAY2H"
+@ALARM_DROP_DOWN_LIST    = "F_USE/FPU_BAY2I"
+
+;initialize variables
+@COMMAND_EXECUTED = FALSE
+@MY_SESSION       = 0    
+@OLD_INDICATION_LA= ""
+@OLD_INDICATION_AG= ""
+
+;check the usage of object identification (OI) -attribute
+@S = STATUS
+@POINTER_STA  = 0
+@POINTER_BAY  = 0
+@POINTER_DEV  = 0
+#ERROR IGNORE
+@APL_BSV15      = APL:BSV15
+@PROCESSOBJECTS = APL_BSV15:VPROCESS_OBJECTS
+@OI             = PROCESSOBJECTS:VOI
+#LOOP_WITH I = 1 .. 30
+  #IF DATA_TYPE(OI:VLENGTH'I')=="INTEGER" #THEN #BLOCK  
+    @OI_LENGTH'I' = OI:VLENGTH'I'
+    ;if field in use
+    #IF %OI_LENGTH'I' > 0 #THEN #BLOCK  
+      @NR_OF_FIELDS = %I
+      @OI_FIELD'I'  = OI:VFIELD'I'
+      #IF      LENGTH(SELECT(%OI_FIELD'I',"==""STA"""))>0 #THEN @POINTER_STA = %I
+      #ELSE_IF LENGTH(SELECT(%OI_FIELD'I',"==""BAY"""))>0 #THEN @POINTER_BAY = %I
+      #ELSE_IF LENGTH(SELECT(%OI_FIELD'I',"==""DEV"""))>0 #THEN @POINTER_DEV = %I
+    #BLOCK_END
+  #BLOCK_END
+  #ELSE #LOOP_EXIT
+#LOOP_END
+#error stop
+
+;set defaults if APL:BSV15 not correctly defined
+@S = STATUS
+#IF %S <> 0 #THEN #BLOCK
+  @OI_LENGTH1   = 10
+  @OI_LENGTH2   = 15
+  @OI_LENGTH3   = 5
+  @OI_LENGTH4   = 0
+  @OI_LENGTH5   = 0
+  @POINTER_STA  = 1
+  @POINTER_BAY  = 2
+  @POINTER_DEV  = 3
+  @NR_OF_FIELDS = 3
+#BLOCK_END
+
+;set starting points of OI-attribute for station, bay and device
+@START_OF_STA = 1
+@START_OF_BAY = 1
+@START_OF_DEV = 1
+
+;station
+#LOOP_WITH I = 1 .. %POINTER_STA
+  #IF %I > 1 #THEN #BLOCK
+    @PREVIOUS_FIELD = %I - 1
+    @START_OF_STA = %START_OF_STA + %OI_LENGTH'PREVIOUS_FIELD'
+  #BLOCK_END
+#LOOP_END
+
+;bay
+#LOOP_WITH I = 1 .. %POINTER_BAY
+  #IF %I > 1 #THEN #BLOCK
+    @PREVIOUS_FIELD = %I - 1
+    @START_OF_BAY = %START_OF_BAY + %OI_LENGTH'PREVIOUS_FIELD'
+  #BLOCK_END
+#LOOP_END
+
+;device
+#IF %POINTER_DEV > 0 #THEN #BLOCK
+  #LOOP_WITH I = 1 .. %POINTER_DEV
+    #IF %I > 1 #THEN #BLOCK
+      @PREVIOUS_FIELD = %I - 1
+      @START_OF_DEV = %START_OF_DEV + %OI_LENGTH'PREVIOUS_FIELD'
+    #BLOCK_END
+  #LOOP_END
+#BLOCK_END
+#ELSE @START_OF_DEV = 0
+
+;check how the object identification (OI) -attribute should be shown
+@S = STATUS
+#ERROR IGNORE
+@APL_BSV11        = APL:BSV11
+@SHOW_OI_FROM     = APL_BSV11:VB_SHOW_OI_FROM
+@SHOW_OI_LENGTH   = APL_BSV11:VB_SHOW_OI_LENGTH
+#error stop
+
+;set defaults if APL:BSV11 not correctly defined
+@S = STATUS
+#IF %S <> 0 #THEN #BLOCK
+  @SHOW_OI_FROM   = 1
+  @SHOW_OI_LENGTH = 30
+#BLOCK_END
+
+;READ CONFIGURATION DATA:
+
+;initialize variables
+@BAY_LR_OBJ_IX       = 0
+@BAY_LR_DIS_CMD_IX   = 0
+@BAY_LR_LOC_CMD_IX   = 0
+@BAY_LR_REM_CMD_IX   = 0
+@BAY_LR_RES_CMD_IX   = 0
+@EXT_HW_INTRL_IX     = 0
+@EXT_SW_INTRL_IX     = 0
+@EXT_SW_INTRL_CMD_IX = 0
+@INT_INTRL_IX        = 0
+@INT_INTRL_CMD_IX    = 0
+@BLOCKINGS_IX        = 0
+@SEL_ON_MON_IX       = 0
+@BAY_LR_EV_OBJ_IX    = 0
+@BAY_LR_EV2_OBJ_IX   = 0
+@BAY_LR_OBJ_IX        = 0
+@BAY_MLT_OBJECT_IX    = 0
+
+;configuration data is red from the picture function
+#error stop
+@TYPE_PF                  = L_XXX_PICTURE_FUNCTION_CONF:VTYPE_PF
+@STATION_NAME             = L_XXX_PICTURE_FUNCTION_CONF:VSTATION_NAME
+@BAY_NAME                 = L_XXX_PICTURE_FUNCTION_CONF:VBAY_NAME
+@SPECIAL_IDENTIFIER_1     = L_XXX_PICTURE_FUNCTION_CONF:VSPECIAL_IDENTIFIER_1
+@SPECIAL_IDENTIFIER_2     = L_XXX_PICTURE_FUNCTION_CONF:VSPECIAL_IDENTIFIER_2
+@SPECIAL_IDENTIFIER_3     = L_XXX_PICTURE_FUNCTION_CONF:VSPECIAL_IDENTIFIER_3
+;@BAY_LABEL                = L_XXX_PICTURE_FUNCTION_CONF:VBAY_LABEL
+@STATION_TYPE             = L_XXX_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+@AUTHORIZATION_GROUP      = L_XXX_PICTURE_FUNCTION_CONF:VAUTHORIZATION_GROUP
+@CONTROL_DIALOG           = L_XXX_PICTURE_FUNCTION_CONF:VCONTROL_DIALOG 
+@CONTROL_DIALOG_WINDOW    = L_XXX_PICTURE_FUNCTION_CONF:VCONTROL_DIALOG_WINDOW
+@BAY_LR_IN_USE            = L_XXX_PICTURE_FUNCTION_CONF:VBAY_LR_IN_USE       
+@IND_DOUBLE_BINARY        = L_XXX_PICTURE_FUNCTION_CONF:VIND_DOUBLE_BINARY       
+@LR_REMOTELY_CONTROLLABLE = L_XXX_PICTURE_FUNCTION_CONF:VLR_REMOTELY_CONTROLLABLE
+@EVENT_RECORDING          = L_XXX_PICTURE_FUNCTION_CONF:VEVENT_RECORDING
+
+#IF DATA_TYPE(L_XXX_PICTURE_FUNCTION_CONF:VIND_ANALOG_INPUT) <> "NONE" #THEN -
+   @IND_ANALOG_INPUT = L_XXX_PICTURE_FUNCTION_CONF:VIND_ANALOG_INPUT
+#ELSE -
+   @IND_ANALOG_INPUT = FALSE
+
+@INDICATION_IXS   = %L_XXX.INDICATION_IXS
+
+@BAY_LR_OBJ_LN            = UPPER_CASE(L_XXX_PICTURE_FUNCTION_CONF:VP_OBJECT_LN)
+@BAY_LR_DIS_CMD_LN        = UPPER_CASE(L_XXX_PICTURE_FUNCTION_CONF:VP_OBJECT_LN)
+@BAY_LR_LOC_CMD_LN        = UPPER_CASE(L_XXX_PICTURE_FUNCTION_CONF:VP_OBJECT_LN)
+@BAY_LR_REM_CMD_LN        = UPPER_CASE(L_XXX_PICTURE_FUNCTION_CONF:VP_OBJECT_LN)
+@BAY_LR_RES_CMD_LN        = UPPER_CASE(L_XXX_PICTURE_FUNCTION_CONF:VP_OBJECT_LN)
+@EXT_HW_INTRL_LN          = UPPER_CASE(L_XXX_PICTURE_FUNCTION_CONF:VP_OBJECT_LN)
+@EXT_SW_INTRL_LN          = UPPER_CASE(L_XXX_PICTURE_FUNCTION_CONF:VP_OBJECT_LN)
+@EXT_SW_INTRL_CMD_LN      = UPPER_CASE(L_XXX_PICTURE_FUNCTION_CONF:VP_OBJECT_LN)
+@INT_INTRL_LN             = UPPER_CASE(L_XXX_PICTURE_FUNCTION_CONF:VP_OBJECT_LN)
+@INT_INTRL_CMD_LN         = UPPER_CASE(L_XXX_PICTURE_FUNCTION_CONF:VP_OBJECT_LN)
+@BLOCKINGS_LN             = UPPER_CASE(L_XXX_PICTURE_FUNCTION_CONF:VP_OBJECT_LN)
+@SEL_ON_MON_LN            = UPPER_CASE(L_XXX_PICTURE_FUNCTION_CONF:VP_OBJECT_LN)
+@BAY_LR_EV_OBJ_LN         = UPPER_CASE(L_XXX_PICTURE_FUNCTION_CONF:VP_OBJECT_LN)
+@BAY_LR_EV2_OBJ_LN        = UPPER_CASE(L_XXX_PICTURE_FUNCTION_CONF:VP_OBJECT_LN)
+@BAY_OP_OBJ_LN            = UPPER_CASE(L_XXX_PICTURE_FUNCTION_CONF:VP_OBJECT_LN)
+@BAY_MLT_OBJECT_LN        = UPPER_CASE(L_XXX_PICTURE_FUNCTION_CONF:VP_OBJECT_LN)
+
+;added to rev 4.0.3
+@CONTROL_TYPE = "DIR_BO"
+#IF DATA_TYPE(L_XXX_PICTURE_FUNCTION_CONF:VCMD_PARAMETER) <> "NONE" #THEN -
+   @COMMAND_PARAMETER     = L_XXX_PICTURE_FUNCTION_CONF:VCMD_PARAMETER
+;command parameter not defined
+#ELSE @COMMAND_PARAMETER  = -1
+
+;bay local/remote-switch indication
+@BAY_LR_OBJ_IX = %INDICATION_IXS(1)
+#IF LENGTH(%INDICATION_IXS)>1 #THEN @BAY_LR_EV_OBJ_IX = %INDICATION_IXS(2)
+#IF LENGTH(%INDICATION_IXS)>2 #THEN @BAY_LR_EV2_OBJ_IX = %INDICATION_IXS(3)
+
+@BAY_LR_DIS_CMD_IX        = %L_XXX.BAY_LR_DIS_CMD_IX
+@BAY_LR_LOC_CMD_IX        = %L_XXX.BAY_LR_LOC_CMD_IX
+@BAY_LR_REM_CMD_IX        = %L_XXX.BAY_LR_REM_CMD_IX
+@BAY_LR_RES_CMD_IX        = %L_XXX.BAY_LR_RES_CMD_IX
+@EXT_HW_INTRL_IX          = %L_XXX.EXT_HW_INTRL_IX
+@EXT_SW_INTRL_IX          = %L_XXX.EXT_SW_INTRL_IX
+@EXT_SW_INTRL_CMD_IX      = %L_XXX.EXT_SW_INTRL_CMD_IX
+@INT_INTRL_IX             = %L_XXX.INT_INTRL_IX
+@INT_INTRL_CMD_IX         = %L_XXX.INT_INTRL_CMD_IX
+@BLOCKINGS_IX             = %L_XXX.BLOCKINGS_IX
+@SEL_ON_MON_IX            = %L_XXX.SEL_ON_MON_IX
+@BAY_OP_OBJ_IX            = %L_XXX.BAY_OP_OBJ_IX
+@BAY_OP_NOT_IN_USE_CMD_IX = %L_XXX.BAY_OP_NOT_IN_USE_CMD_IX
+@BAY_OP_STATION_CMD_IX    = %L_XXX.BAY_OP_STATION_CMD_IX
+@BAY_OP_REMOTE_CMD_IX     = %L_XXX.BAY_OP_REMOTE_CMD_IX
+@BAY_OP_STA_REM_CMD_IX    = %L_XXX.BAY_OP_STA_REM_CMD_IX
+@BAY_MLT_OBJECT_IX        = %L_XXX.BAY_MLT_OBJECT_IX
+
+;define proper window for the dialog
+;.MODIFY FPU_BAY_DI=LIST(WINDOW_NAME = %CONTROL_DIALOG_WINDOW)
+
+;define texts to be shown on the dialog and database queries
+@DB_CHECK=FETCH(0,"P","'BAY_LR_OBJ_LN'",'BAY_LR_OBJ_IX')
+
+@OI_NAME1 = ""
+@OI_NAME2 = ""
+@OI_NAME3 = ""
+@OI_NAME4 = ""
+@OI_NAME5 = ""
+@NR_OF_SPECIAL_FIELD = 0
+;read object identification from database
+#IF DB_CHECK:VIU<>-1 #THEN #BLOCK
+  @FIELD_STARTING = 1
+  @BAY_LR_OBJ_OI = 'BAY_LR_OBJ_LN':POI'BAY_LR_OBJ_IX'
+  #LOOP_WITH I = 1 .. %POINTER_BAY
+    #IF      %I == %POINTER_STA #THEN @STATION_NAME = EDIT(SUBSTR(%BAY_LR_OBJ_OI,%FIELD_STARTING,%OI_LENGTH'I'),"RIGHT_TRIM")
+    #ELSE_IF %I == %POINTER_BAY #THEN @BAY_NAME     = EDIT(SUBSTR(%BAY_LR_OBJ_OI,%FIELD_STARTING,%OI_LENGTH'I'),"RIGHT_TRIM")
+    #ELSE #BLOCK
+      @NR_OF_SPECIAL_FIELD = %NR_OF_SPECIAL_FIELD + 1
+      @SPECIAL_IDENTIFIER_'NR_OF_SPECIAL_FIELD' = EDIT(SUBSTR(%BAY_LR_OBJ_OI,%FIELD_STARTING,%OI_LENGTH'I'),"RIGHT_TRIM")
+    #BLOCK_END
+    @FIELD_STARTING = %FIELD_STARTING + %OI_LENGTH'I'
+    @TEST = 'FIELD_STARTING'
+  #LOOP_END
+#BLOCK_END
+
+@NR_OF_SPECIAL_FIELD = 0
+#LOOP_WITH I = 1 .. %POINTER_BAY
+  #IF      %I == %POINTER_STA #THEN @OI_NAME'I' = %STATION_NAME
+  #ELSE_IF %I == %POINTER_BAY #THEN @OI_NAME'I' = %BAY_NAME
+  #ELSE #BLOCK
+    @NR_OF_SPECIAL_FIELD = %NR_OF_SPECIAL_FIELD + 1
+    @OI_NAME'I' = %SPECIAL_IDENTIFIER_'NR_OF_SPECIAL_FIELD'
+  #BLOCK_END
+#LOOP_END
+
+@FIELD_STARTING        = 1
+@FIELD_ENDING          = 0
+@OBJECT_IDENTIFICATION = ""
+#LOOP_WITH I = 1 .. %POINTER_BAY
+  @FIELD_ENDING   = %FIELD_ENDING + %OI_LENGTH'I'
+  #IF %FIELD_STARTING >= %SHOW_OI_FROM AND %FIELD_ENDING < (%SHOW_OI_FROM + %SHOW_OI_LENGTH) #THEN #BLOCK
+    @OBJECT_IDENTIFICATION = %OBJECT_IDENTIFICATION + %OI_NAME'I' + "   "
+  #BLOCK_END
+  @FIELD_STARTING = %FIELD_STARTING + %OI_LENGTH'I'
+#LOOP_END
+
+;show object identification & bay label 
+;.GC : FG=("M",14), FT=("M",2)
+;#IF %OBJECT_IDENTIFICATION<>"" AND %BAY_LABEL<>"" #THEN .TEXT 32,100,%OBJECT_IDENTIFICATION+ "   ("+%BAY_LABEL+")"
+;#ELSE_IF %OBJECT_IDENTIFICATION<>"" #THEN %TEXT 32,100,%OBJECT_IDENTIFICATION
+;#ELSE_IF %BAY_LABEL<>"" #THEN .TEXT 32,100,"("+%BAY_LABEL+")"
+
+;trim station name for queries
+@STATION_NAME_TRIMMED = ""
+#LOOP_WITH I=1..%START_OF_STA
+  #IF %I > 1 #THEN @STATION_NAME_TRIMMED = %STATION_NAME_TRIMMED + "%"
+#LOOP_END
+@STATION_NAME_TRIMMED = %STATION_NAME_TRIMMED + SUBSTR(%STATION_NAME,1,%OI_LENGTH'POINTER_STA')
+
+;trim bay name for queries
+@BAY_NAME_TRIMMED = ""
+#LOOP_WITH I=1..(1+(%START_OF_BAY-(%START_OF_STA+%OI_LENGTH'POINTER_STA')))
+  #IF %I > 1 #THEN @BAY_NAME_TRIMMED = %BAY_NAME_TRIMMED + "%"
+#LOOP_END
+@BAY_NAME_TRIMMED = %BAY_NAME_TRIMMED + SUBSTR(%BAY_NAME,1,%OI_LENGTH'POINTER_BAY')
+
+
+;VERIFY DATABASE:
+
+;check that all necessary objects exist
+
+;initialize variables
+@STA_LR_OBJECT               = FALSE
+@STA_LR_REQUIRED             = TRUE
+@FOUND_INDEXES               = VECTOR()
+@BAY_LR_OBJ                  = FALSE
+@BAY_LR_DIS_CMD              = FALSE
+@BAY_LR_LOC_CMD              = FALSE
+@BAY_LR_REM_CMD              = FALSE
+@BAY_LR_RES_CMD              = FALSE
+@EXT_HW_INTRL                = FALSE
+@EXT_SW_INTRL                = FALSE
+@EXT_SW_INTRL_CMD            = FALSE
+@INT_INTRL                   = FALSE
+@INT_INTRL_CMD               = FALSE
+@BLOCKINGS                   = FALSE
+@SEL_ON_MON                  = FALSE
+@BAY_LR_EV_OBJ               = FALSE
+@BAY_LR_EV2_OBJ              = FALSE
+@POSITION_INDICATION_MISSING = FALSE
+@CONTROL_OBJECTS_MISSING     = FALSE
+@BAY_OP_OBJ                  = FALSE
+@BAY_MLT_OBJECT               = FALSE
+
+
+;search for the process objects within station and bay
+#IF %STATION_NAME<>"" AND %BAY_LR_OBJ_LN<>"" #THEN #BLOCK
+  ;search objects by hard coded information
+      ;searching station objects by using the hard coded logical name (LN)
+      
+      ;read hard coded LNs from picture function
+      @S = STATUS
+      #ERROR IGNORE
+      'PF_ID'.U_OTHER_OBJECTS
+      @HARD_CODED_INFO = %L_XXX_OTHER_OBJECTS
+      @STA_LN = HARD_CODED_INFO:VSTATION_LN
+      #error stop
+      @S = STATUS
+      
+      ;if any hard coded information has been defined
+      #IF %S==0 #THEN #BLOCK
+      
+        ;station local/remote-switch
+        #IF (DATA_TYPE(%STA_LN)=="TEXT" OR (DATA_TYPE(%STA_LN)=="VECTOR" AND LENGTH(%STA_LN)==1)) #THEN #BLOCK
+          ;if station local/remote-switch not required
+          #IF DATA_TYPE(%STA_LN)=="TEXT" #THEN #BLOCK
+            #IF %STA_LN=="NONE" #THEN @STA_LR_REQUIRED = FALSE
+          #BLOCK_END
+          #ELSE #BLOCK
+            #IF %STA_LN(1)=="NONE" #THEN @STA_LR_REQUIRED = FALSE
+            @STA_LN = %STA_LN(1)
+          #BLOCK_END
+          #IF %STA_LR_REQUIRED AND %STA_LN<>"" #THEN #BLOCK
+            
+            @L_OBJECTS = APPLICATION_OBJECT_LIST(0, "IX", "I", "F", %STA_LN, "RX==""%%%%%%%%%%%%%%%%%%%%%%ASTAILRS*""",vector("IU"))
+            #IF %L_OBJECTS.COUNT > 0 #THEN #BLOCK
+               #LOOP_WITH I = 1 .. %L_OBJECTS.COUNT
+                  #IF %L_OBJECTS.IU(%I) == 1 #THEN #BLOCK                    
+                     #MODIFY RESULT_LIST:V=LIST(STA_LR_OBJECT_LN = %L_OBJECTS.LN(%I))
+                     #MODIFY RESULT_LIST:V=LIST(STA_LR_OBJECT_IX = %L_OBJECTS.IX(%I))
+                  #BLOCK_END
+               #LOOP_END
+            #BLOCK_END
+            
+          #BLOCK_END
+        #BLOCK_END
+      #BLOCK_END
+
+  ;search objects by checking the complete process object database
+  #IF (NOT %STA_LR_OBJECT AND %STA_LR_REQUIRED) #THEN #BLOCK
+  
+      ;search for objects by checking the complete process object database
+      @l_Station = APPLICATION_OBJECT_LIST(0, "IX",  "OI", "", "'STATION_NAME_TRIMMED'", "RX==""%%%%%%%%%%%%%%%%%%%%%%ASTAILRS*""")
+      #IF %L_STATION.COUNT > 0 #THEN #BLOCK
+         @TMP_LN = %L_STATION.LN(1)
+         @TMP_IX = %L_STATION.IX(1)
+      #BLOCK_END
+  
+  #BLOCK_END
+#BLOCK_END
+
+;search for the process objects related to the picture function itself
+@L_OBJECTS = APPLICATION_OBJECT_LIST(0, "IX", "I", "F", %BAY_LR_OBJ_LN)
+
+#LOOP_WITH I=1.. %L_OBJECTS.COUNT
+   #IF      %BAY_LR_OBJ_IX       == %L_OBJECTS.IX(%I) #THEN @BAY_LR_OBJ       = TRUE
+   #ELSE_IF %BAY_LR_EV_OBJ_IX    == %L_OBJECTS.IX(%I) #THEN @BAY_LR_EV_OBJ    = TRUE
+   #ELSE_IF %BAY_LR_EV2_OBJ_IX   == %L_OBJECTS.IX(%I) #THEN @BAY_LR_EV2_OBJ   = TRUE
+   #ELSE_IF %BAY_LR_DIS_CMD_IX   == %L_OBJECTS.IX(%I) #THEN @BAY_LR_DIS_CMD   = TRUE
+   #ELSE_IF %BAY_LR_LOC_CMD_IX   == %L_OBJECTS.IX(%I) #THEN @BAY_LR_LOC_CMD   = TRUE
+   #ELSE_IF %BAY_LR_REM_CMD_IX   == %L_OBJECTS.IX(%I) #THEN @BAY_LR_REM_CMD   = TRUE
+   #ELSE_IF %BAY_LR_RES_CMD_IX   == %L_OBJECTS.IX(%I) #THEN @BAY_LR_RES_CMD   = TRUE
+   #ELSE_IF %EXT_HW_INTRL_IX     == %L_OBJECTS.IX(%I) #THEN @EXT_HW_INTRL     = TRUE
+   #ELSE_IF %EXT_SW_INTRL_IX     == %L_OBJECTS.IX(%I) #THEN @EXT_SW_INTRL     = TRUE
+   #ELSE_IF %EXT_SW_INTRL_CMD_IX == %L_OBJECTS.IX(%I) #THEN @EXT_SW_INTRL_CMD = TRUE
+   #ELSE_IF %INT_INTRL_IX        == %L_OBJECTS.IX(%I) #THEN @INT_INTRL        = TRUE
+   #ELSE_IF %INT_INTRL_CMD_IX    == %L_OBJECTS.IX(%I) #THEN @INT_INTRL_CMD    = TRUE
+   #ELSE_IF %BLOCKINGS_IX        == %L_OBJECTS.IX(%I) #THEN @BLOCKINGS        = TRUE
+   #ELSE_IF %SEL_ON_MON_IX       == %L_OBJECTS.IX(%I) #THEN @SEL_ON_MON       = TRUE
+   #ELSE_IF %BAY_MLT_OBJECT_IX   == %L_OBJECTS.IX(%I) #THEN @BAY_MLT_OBJECT    = TRUE 
+#LOOP_END
+
+;check operator place switch
+@OP_CHECK=FETCH(0,"P","'BAY_OP_OBJ_LN'",'BAY_OP_OBJ_IX')
+#IF OP_CHECK:VIU > 0 #THEN #BLOCK
+   #IF SUBSTR('BAY_OP_OBJ_LN':PRX'BAY_OP_OBJ_IX', 23, 8) == "ABAYIOPS" #THEN @BAY_OP_OBJ = TRUE
+#BLOCK_END
+
+#CASE %STATION_TYPE
+  #WHEN "ANSI" #BLOCK
+    #IF %IND_DOUBLE_BINARY #THEN #BLOCK
+      #IF NOT %BAY_LR_OBJ OR NOT %BAY_LR_EV_OBJ #THEN @POSITION_INDICATION_MISSING = TRUE
+    #BLOCK_END
+    #ELSE #BLOCK
+      #IF NOT %BAY_LR_OBJ #THEN @POSITION_INDICATION_MISSING = TRUE
+    #BLOCK_END
+  #BLOCK_END
+  #WHEN "PROC" #BLOCK
+    #IF %IND_DOUBLE_BINARY #THEN #BLOCK
+      #IF NOT %BAY_LR_OBJ OR NOT %BAY_LR_EV_OBJ OR NOT %BAY_LR_EV2_OBJ #THEN @POSITION_INDICATION_MISSING = TRUE
+    #BLOCK_END
+    #ELSE #BLOCK
+      #IF NOT %BAY_LR_OBJ #THEN @POSITION_INDICATION_MISSING = TRUE
+    #BLOCK_END
+  #BLOCK_END
+  #OTHERWISE #BLOCK
+    #IF NOT %BAY_LR_OBJ #THEN @POSITION_INDICATION_MISSING = TRUE
+  #BLOCK_END
+#CASE_END
+
+;DEFINE CURRENT STATE:
+;checks the current state for the bay local/remote-switch indication(s)
+#CASE %STATION_TYPE
+  #WHEN "ANSI" #BLOCK
+    ;single binary
+    #IF NOT %POSITION_INDICATION_MISSING AND NOT %IND_DOUBLE_BINARY #THEN #BLOCK
+      ;switching state (SS)
+      #IF 'BAY_LR_OBJ_LN':PSS'BAY_LR_OBJ_IX'>1 #THEN @I_CONNECTION_SS=1
+      #ELSE @I_CONNECTION_SS=0
+      ;station address (UN)
+      #IF 'BAY_LR_OBJ_LN':PUN'BAY_LR_OBJ_IX'<>0 #THEN @I_CONNECTION_UN=1
+      #ELSE @I_CONNECTION_UN=0
+      ;status (OS)
+      @INDICATION_STATUS='BAY_LR_OBJ_LN':POS'BAY_LR_OBJ_IX'
+      ;blocked (BL)
+      @I_CONNECTION_BL='BAY_LR_OBJ_LN':PBL'BAY_LR_OBJ_IX'
+      ;substituted, external (SB)
+      @I_CONNECTION_SB='BAY_LR_OBJ_LN':PSB'BAY_LR_OBJ_IX'
+      ;substituted, internal (SU)
+      @I_CONNECTION_SU='BAY_LR_OBJ_LN':PSU'BAY_LR_OBJ_IX'
+      ;value (OV)
+      #IF %INDICATION_STATUS<10 #THEN @INDICATION_STATE ='BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'
+      #ELSE @INDICATION_STATE = 0
+    #BLOCK_END
+    ;double binary
+    #ELSE_IF NOT %POSITION_INDICATION_MISSING AND %IND_DOUBLE_BINARY #THEN #BLOCK
+      ;switching state (SS)
+      #IF 'BAY_LR_EV_OBJ_LN':PSS'BAY_LR_EV_OBJ_IX'>1 #THEN @I_CONNECTION_SS=1
+      #ELSE @I_CONNECTION_SS=0
+      ;station address (UN)
+      #IF 'BAY_LR_EV_OBJ_LN':PUN'BAY_LR_EV_OBJ_IX'<>0 #THEN @I_CONNECTION_UN=1
+      #ELSE @I_CONNECTION_UN=0
+      ;status (OS)
+      @INDICATION_STATUS='BAY_LR_EV_OBJ_LN':POS'BAY_LR_EV_OBJ_IX'
+      ;blocked (BL)
+      @I_CONNECTION_BL='BAY_LR_EV_OBJ_LN':PBL'BAY_LR_EV_OBJ_IX'
+      ;substituted, external (SB)
+      @I_CONNECTION_SB='BAY_LR_EV_OBJ_LN':PSB'BAY_LR_EV_OBJ_IX'
+      ;substituted, internal (SU)
+      @I_CONNECTION_SU='BAY_LR_EV_OBJ_LN':PSU'BAY_LR_EV_OBJ_IX'
+      ;value (OV)
+      #IF %INDICATION_STATUS<10 #THEN @INDICATION_STATE ='BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'
+      #ELSE @INDICATION_STATE = 0
+    #BLOCK_END
+    ;process object(s) does not exist
+    #ELSE #BLOCK
+      @I_CONNECTION_SS  =0
+      @I_CONNECTION_UN  =0
+      @INDICATION_STATUS=10
+      @I_CONNECTION_BL  =0
+      @I_CONNECTION_SB  =0     
+      @I_CONNECTION_SU  =0
+      @INDICATION_STATE =0
+    #BLOCK_END
+  #BLOCK_END
+
+  #WHEN "PROC" #BLOCK
+    ;single binary
+    #IF NOT %POSITION_INDICATION_MISSING AND NOT %IND_DOUBLE_BINARY #THEN #BLOCK
+      ;switching state (SS)
+      #IF 'BAY_LR_OBJ_LN':PSS'BAY_LR_OBJ_IX'>1 #THEN @I_CONNECTION_SS=1
+      #ELSE @I_CONNECTION_SS=0
+      ;station address (UN)
+      #IF 'BAY_LR_OBJ_LN':PUN'BAY_LR_OBJ_IX'<>0 #THEN @I_CONNECTION_UN=1
+      #ELSE @I_CONNECTION_UN=0
+      ;status (OS)
+      @INDICATION_STATUS='BAY_LR_OBJ_LN':POS'BAY_LR_OBJ_IX'
+      ;blocked (BL)
+      @I_CONNECTION_BL='BAY_LR_OBJ_LN':PBL'BAY_LR_OBJ_IX'
+      ;substituted, external (SB)
+      @I_CONNECTION_SB='BAY_LR_OBJ_LN':PSB'BAY_LR_OBJ_IX'
+      ;substituted, internal (SU)
+      @I_CONNECTION_SU='BAY_LR_OBJ_LN':PSU'BAY_LR_OBJ_IX'
+      ;value (OV)
+      #IF %INDICATION_STATUS<10 #THEN @INDICATION_STATE ='BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'
+      #ELSE @INDICATION_STATE = 0
+    #BLOCK_END
+    ;double binary
+    #ELSE_IF NOT %POSITION_INDICATION_MISSING AND %IND_DOUBLE_BINARY #THEN #BLOCK
+      ;switching state (SS)
+      #IF 'BAY_LR_EV_OBJ_LN':PSS'BAY_LR_EV_OBJ_IX'>1 AND -
+          'BAY_LR_EV2_OBJ_LN':PSS'BAY_LR_EV2_OBJ_IX'>1 #THEN @I_CONNECTION_SS=1
+      #ELSE_IF 'BAY_LR_EV_OBJ_LN':PSS'BAY_LR_EV_OBJ_IX'<2 AND -
+          'BAY_LR_EV2_OBJ_LN':PSS'BAY_LR_EV2_OBJ_IX'<2 #THEN @I_CONNECTION_SS=0
+      #ELSE @I_CONNECTION_SS=-1
+      ;station address (UN)
+      #IF 'BAY_LR_EV_OBJ_LN':PUN'BAY_LR_EV_OBJ_IX'<>0 AND -
+          'BAY_LR_EV2_OBJ_LN':PUN'BAY_LR_EV2_OBJ_IX'<>0 #THEN @I_CONNECTION_UN=1
+      #ELSE_IF 'BAY_LR_EV_OBJ_LN':PUN'BAY_LR_EV_OBJ_IX'==0 AND -
+          'BAY_LR_EV2_OBJ_LN':PUN'BAY_LR_EV2_OBJ_IX'==0 #THEN @I_CONNECTION_UN=0
+      #ELSE @I_CONNECTION_UN=-1
+      ;status (OS)
+      @INDICATION_STATUS=MAX('BAY_LR_EV_OBJ_LN':POS'BAY_LR_EV_OBJ_IX','BAY_LR_EV2_OBJ_LN':POS'BAY_LR_EV2_OBJ_IX')
+      ;blocked (BL)
+      @I_CONNECTION_BL=MAX('BAY_LR_EV_OBJ_LN':PBL'BAY_LR_EV_OBJ_IX','BAY_LR_EV2_OBJ_LN':PBL'BAY_LR_EV2_OBJ_IX')
+      ;substituted, external (SB)
+      @I_CONNECTION_SB=MAX('BAY_LR_EV_OBJ_LN':PSB'BAY_LR_EV_OBJ_IX','BAY_LR_EV2_OBJ_LN':PSB'BAY_LR_EV2_OBJ_IX')
+      ;substituted, internal (SU)
+      @I_CONNECTION_SU=MAX('BAY_LR_EV_OBJ_LN':PSU'BAY_LR_EV_OBJ_IX','BAY_LR_EV2_OBJ_LN':PSU'BAY_LR_EV2_OBJ_IX')
+      ;value (OV)
+      #IF %INDICATION_STATUS<10 #THEN @INDICATION_STATE ='BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'
+      #ELSE @INDICATION_STATE = 0
+    #BLOCK_END
+    ;process object(s) does not exist
+    #ELSE #BLOCK
+      @I_CONNECTION_SS  =0
+      @I_CONNECTION_UN  =0
+      @INDICATION_STATUS=10
+      @I_CONNECTION_BL  =0
+      @I_CONNECTION_SB  =0
+      @I_CONNECTION_SU  =0
+      @INDICATION_STATE =0
+    #BLOCK_END
+  #BLOCK_END
+
+  #OTHERWISE #BLOCK
+    #IF NOT %POSITION_INDICATION_MISSING #THEN #BLOCK
+      ;switching state (SS)
+      #IF 'BAY_LR_OBJ_LN':PSS'BAY_LR_OBJ_IX'>1 #THEN @I_CONNECTION_SS=1
+      #ELSE @I_CONNECTION_SS=0
+      ;station address (UN)
+      #IF 'BAY_LR_OBJ_LN':PUN'BAY_LR_OBJ_IX'<>0 #THEN @I_CONNECTION_UN=1
+      #ELSE @I_CONNECTION_UN=0
+      ;status (OS)
+      @INDICATION_STATUS='BAY_LR_OBJ_LN':POS'BAY_LR_OBJ_IX'
+      ;blocked (BL)
+      @I_CONNECTION_BL='BAY_LR_OBJ_LN':PBL'BAY_LR_OBJ_IX'
+      ;substituted, external (SB)
+      @I_CONNECTION_SB='BAY_LR_OBJ_LN':PSB'BAY_LR_OBJ_IX'
+      ;substituted, internal (SU)
+      @I_CONNECTION_SU='BAY_LR_OBJ_LN':PSU'BAY_LR_OBJ_IX'
+      ;value (OV)
+      #IF %INDICATION_STATUS<10 #THEN @INDICATION_STATE ='BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'
+      #ELSE @INDICATION_STATE = 0
+    #BLOCK_END
+    ;process object(s) does not exist
+    #ELSE #BLOCK
+      @I_CONNECTION_SS  =0
+      @I_CONNECTION_UN  =0
+      @INDICATION_STATUS=10
+      @I_CONNECTION_BL  =0
+      @I_CONNECTION_SB  =0
+      @I_CONNECTION_SU  =0
+      @INDICATION_STATE =0
+    #BLOCK_END
+  #BLOCK_END
+#CASE_END
+
+#IF %LR_REMOTELY_CONTROLLABLE AND NOT %CONTROL_OBJECTS_MISSING #THEN #BLOCK
+  ;checks the current state for the control objects
+  #CASE %IND_DOUBLE_BINARY
+    ;control with four output objects
+    #WHEN TRUE #BLOCK
+      ;switching state (SS)
+      #IF 'BAY_LR_DIS_CMD_LN':PSS'BAY_LR_DIS_CMD_IX'>1 AND -
+          'BAY_LR_LOC_CMD_LN':PSS'BAY_LR_LOC_CMD_IX'>1 AND -
+          'BAY_LR_REM_CMD_LN':PSS'BAY_LR_REM_CMD_IX'>1 AND -
+          'BAY_LR_RES_CMD_LN':PSS'BAY_LR_RES_CMD_IX'>1 #THEN @O_CONNECTION_SS=1
+      #ELSE_IF 'BAY_LR_DIS_CMD_LN':PSS'BAY_LR_DIS_CMD_IX'<2 AND -
+          'BAY_LR_LOC_CMD_LN':PSS'BAY_LR_LOC_CMD_IX'<2 AND -
+          'BAY_LR_REM_CMD_LN':PSS'BAY_LR_REM_CMD_IX'<2 AND -
+          'BAY_LR_RES_CMD_LN':PSS'BAY_LR_RES_CMD_IX'<2 #THEN @O_CONNECTION_SS=0
+      #ELSE @O_CONNECTION_SS=-1
+      ;station address (UN)
+      #IF 'BAY_LR_DIS_CMD_LN':PUN'BAY_LR_DIS_CMD_IX'<>0 AND -
+          'BAY_LR_LOC_CMD_LN':PUN'BAY_LR_LOC_CMD_IX'<>0 AND -
+          'BAY_LR_REM_CMD_LN':PUN'BAY_LR_REM_CMD_IX'<>0 AND -
+          'BAY_LR_RES_CMD_LN':PUN'BAY_LR_RES_CMD_IX'<>0 #THEN @O_CONNECTION_UN=1
+      #ELSE_IF 'BAY_LR_DIS_CMD_LN':PUN'BAY_LR_DIS_CMD_IX'==0 AND -
+          'BAY_LR_LOC_CMD_LN':PUN'BAY_LR_LOC_CMD_IX'==0 AND -
+          'BAY_LR_REM_CMD_LN':PUN'BAY_LR_REM_CMD_IX'==0 AND -
+          'BAY_LR_RES_CMD_LN':PUN'BAY_LR_RES_CMD_IX'==0 #THEN @O_CONNECTION_UN=0
+      #ELSE @O_CONNECTION_UN=-1
+    #BLOCK_END
+
+    ;control with two output objects
+    #WHEN FALSE #BLOCK
+      ;switching state (SS)
+      #IF %STATION_TYPE <> "IEC61850" #THEN #BLOCK
+         #IF 'BAY_LR_LOC_CMD_LN':PSS'BAY_LR_LOC_CMD_IX'>1 AND -
+             'BAY_LR_REM_CMD_LN':PSS'BAY_LR_REM_CMD_IX'>1 #THEN @O_CONNECTION_SS=1
+         #ELSE_IF 'BAY_LR_LOC_CMD_LN':PSS'BAY_LR_LOC_CMD_IX'<2 AND -
+             'BAY_LR_REM_CMD_LN':PSS'BAY_LR_REM_CMD_IX'<2 #THEN @O_CONNECTION_SS=0
+         #ELSE @O_CONNECTION_SS=-1
+         ;station address (UN)
+         #IF 'BAY_LR_LOC_CMD_LN':PUN'BAY_LR_LOC_CMD_IX'<>0 AND -
+             'BAY_LR_REM_CMD_LN':PUN'BAY_LR_REM_CMD_IX'<>0 #THEN @O_CONNECTION_UN=1
+         #ELSE_IF 'BAY_LR_LOC_CMD_LN':PUN'BAY_LR_LOC_CMD_IX'==0 AND -
+             'BAY_LR_REM_CMD_LN':PUN'BAY_LR_REM_CMD_IX'==0 #THEN @O_CONNECTION_UN=0
+         #ELSE @O_CONNECTION_UN=-1
+      #block_end
+      #ELSE #BLOCK
+         #IF 'BAY_LR_DIS_CMD_LN':PSS'BAY_LR_DIS_CMD_IX'>1  #THEN @O_CONNECTION_SS=1
+         #ELSE_IF 'BAY_LR_DIS_CMD_LN':PSS'BAY_LR_DIS_CMD_IX'<2 #THEN @O_CONNECTION_SS=0
+         #ELSE @O_CONNECTION_SS=-1
+         ;station address (UN)
+         #IF 'BAY_LR_DIS_CMD_LN':PUN'BAY_LR_DIS_CMD_IX'<>0 #THEN @O_CONNECTION_UN=1
+         #ELSE_IF 'BAY_LR_DIS_CMD_LN':PUN'BAY_LR_DIS_CMD_IX'==0 #THEN @O_CONNECTION_UN=0
+         #ELSE @O_CONNECTION_UN=-1
+      #BLOCK_END  
+    #BLOCK_END
+  #CASE_END
+#BLOCK_END
+;process object(s) does not exist
+#ELSE #BLOCK
+  @O_CONNECTION_SS  =0
+  @O_CONNECTION_UN  =0
+#BLOCK_END
+
+;;create messages based on the current state
+;CREATE_MESSAGES
+
+;remotely controllable bay local/remote-switch
+#IF %LR_REMOTELY_CONTROLLABLE #THEN #BLOCK
+  #CASE %IND_DOUBLE_BINARY
+    #WHEN TRUE #BLOCK
+      #IF NOT %BAY_LR_DIS_CMD OR NOT %BAY_LR_LOC_CMD OR NOT %BAY_LR_REM_CMD OR NOT %BAY_LR_RES_CMD #THEN @CONTROL_OBJECTS_MISSING = TRUE
+    #BLOCK_END
+    #WHEN FALSE #BLOCK
+      #IF %STATION_TYPE == "IEC61850" #THEN #BLOCK
+         #IF NOT %BAY_LR_DIS_CMD #THEN @CONTROL_OBJECTS_MISSING = TRUE
+      #BLOCK_END
+      #ELSE #BLOCK
+         #IF NOT %BAY_LR_LOC_CMD OR NOT %BAY_LR_REM_CMD #THEN @CONTROL_OBJECTS_MISSING = TRUE
+      #BLOCK_END
+    #BLOCK_END
+  #CASE_END
+#BLOCK_END
+
+@IND_NOT_CONNECTED_BV = FALSE
+#IF (%O_CONNECTION_SS ==1 AND %O_CONNECTION_UN ==1) AND NOT (%I_CONNECTION_SS ==1 AND %I_CONNECTION_UN ==1) #THEN #BLOCK
+  @IND_NOT_CONNECTED_BV = TRUE
+#BLOCK_END
+
+@NOT_CONNECTED_BV = FALSE
+#IF NOT (%O_CONNECTION_SS ==1 AND %O_CONNECTION_UN ==1) AND NOT (%I_CONNECTION_SS ==1 AND %I_CONNECTION_UN ==1) #THEN #BLOCK
+  @NOT_CONNECTED_BV = TRUE
+#BLOCK_END
+
+#CASE %COMMAND_SELECTOR
+   #WHEN "OBJECT_INFO" #BLOCK
+      @RESULT_LIST=LIST(-
+         IND_DOUBLE_BINARY        = %IND_DOUBLE_BINARY,-
+         IND_ANALOG_INPUT         = %IND_ANALOG_INPUT,-
+         BAY_LR_OBJ_LN            = %BAY_LR_OBJ_LN,-
+         BAY_LR_OBJ_IX            = %BAY_LR_OBJ_IX,-
+         BAY_LR_DIS_CMD_IX        = %L_XXX.BAY_LR_DIS_CMD_IX,-
+         BAY_LR_LOC_CMD_IX        = %L_XXX.BAY_LR_LOC_CMD_IX,-
+         BAY_LR_REM_CMD_IX        = %L_XXX.BAY_LR_REM_CMD_IX,-
+         BAY_LR_RES_CMD_IX        = %L_XXX.BAY_LR_RES_CMD_IX,-
+         BAY_LR_VALUES            = VECTOR(),-
+         BAY_LR_CONTROL_VALUES    = VECTOR(),-
+         BAY_LR_CONTROL_DISABLED_VALUES = VECTOR(),-
+         EXT_HW_INTRL_IX          = %L_XXX.EXT_HW_INTRL_IX,-
+         EXT_SW_INTRL_IX          = %L_XXX.EXT_SW_INTRL_IX,-
+         EXT_SW_INTRL_CMD_IX      = %L_XXX.EXT_SW_INTRL_CMD_IX,-
+         INT_INTRL_IX             = %L_XXX.INT_INTRL_IX,-
+         INT_INTRL_CMD_IX         = %L_XXX.INT_INTRL_CMD_IX,-
+         BLOCKINGS_IX             = %L_XXX.BLOCKINGS_IX,-
+         SEL_ON_MON_IX            = %L_XXX.SEL_ON_MON_IX,-
+         NOT_CONNECTED_BV         = %NOT_CONNECTED_BV)
+         
+         #IF %BAY_OP_OBJ #THEN #BLOCK
+            #MODIFY RESULT_LIST:V = LIST(-
+               BAY_OP_OBJ_LN = %BAY_OP_OBJ_LN,-
+               BAY_OP_OBJ_IX = %BAY_OP_OBJ_IX)
+         #BLOCK_END
+         
+         #IF %BAY_MLT_OBJECT #THEN #BLOCK
+            #MODIFY RESULT_LIST:V = LIST(-
+               BAY_MLT_OBJECT_IX        = %L_XXX.BAY_MLT_OBJECT_IX,-
+               BAY_MLT_OBJECT_LN        = %BAY_MLT_OBJECT_LN)
+         #BLOCK_END
+      
+      #modify RESULT_LIST:V=LIST(R1_SENSITIVE = FALSE, R2_SENSITIVE = FALSE, R3_SENSITIVE = FALSE, R4_SENSITIVE = FALSE)  
+      #if %LR_REMOTELY_CONTROLLABLE #then #block
+         
+         #if %IND_ANALOG_INPUT #then #block
+            #if 'BAY_LR_OBJ_LN':PIU'BAY_LR_DIS_CMD_IX' > 0 #then #block
+               #modify RESULT_LIST:V=LIST(R1_SENSITIVE = FALSE)
+               #modify RESULT_LIST:V=LIST(R2_SENSITIVE = FALSE)
+               #modify RESULT_LIST:V=LIST(R3_SENSITIVE = FALSE)
+               #modify RESULT_LIST:V=LIST(R4_SENSITIVE = FALSE)
+            #block_end
+         #block_end
+         #else_if %IND_DOUBLE_BINARY #then #block
+            #if 'BAY_LR_OBJ_LN':PIU'BAY_LR_DIS_CMD_IX' > 0 #then #modify RESULT_LIST:V=LIST(R1_SENSITIVE = TRUE)
+            #if 'BAY_LR_OBJ_LN':PIU'BAY_LR_LOC_CMD_IX' > 0 #then #modify RESULT_LIST:V=LIST(R2_SENSITIVE = TRUE)
+            #if 'BAY_LR_OBJ_LN':PIU'BAY_LR_REM_CMD_IX' > 0 #then #modify RESULT_LIST:V=LIST(R3_SENSITIVE = TRUE)
+            #if 'BAY_LR_OBJ_LN':PIU'BAY_LR_RES_CMD_IX' > 0 #then #modify RESULT_LIST:V=LIST(R4_SENSITIVE = TRUE)
+         #block_end
+         #else #block
+            #if 'BAY_LR_OBJ_LN':PIU'BAY_LR_LOC_CMD_IX' > 0 #then #block
+               #modify RESULT_LIST:V=LIST(R1_SENSITIVE = FALSE)
+               #modify RESULT_LIST:V=LIST(R2_SENSITIVE = TRUE)
+               #modify RESULT_LIST:V=LIST(R3_SENSITIVE = TRUE)
+               #modify RESULT_LIST:V=LIST(R4_SENSITIVE = TRUE)
+            #block_end
+         #block_end
+      #block_end
+      #else #block
+      #block_end
+      #error ignore                
+        ;read default convention for known IEDs
+        @tmpDO = ""
+        @valueConvention = LIST(THIS_SYSTEM_NAME = "", SIGNALS = VECTOR())
+        @tmpIN = separate('BAY_LR_OBJ_LN':PIN'BAY_LR_OBJ_IX', ".")
+        #if length(%tmpIN) > 1 #then @tmpDO = %tmpIN(length(%tmpIN) -1)                    
+        
+        @applicationFile = "aplmod4/use/BGU_U_LR_VALUE_CONVENTION.TXT"
+        @systemFile = "/sa_lib/base/bbone/use/BGU_U_LR_VALUE_CONVENTION.TXT"
+        #if file_manager("EXISTS", fm_application_file(%applicationFile)) #then -
+           @tmpRes = do(read_text(fm_application_file(%applicationFile)), %tmpDO, %BAY_LR_OBJ_LN, %BAY_LR_OBJ_IX)
+        #else_if file_manager("EXISTS", fm_scil_file(%systemFile)) #then -
+           @tmpRes = do(read_text(fm_scil_file(%systemFile)), %tmpDO, %BAY_LR_OBJ_LN, %BAY_LR_OBJ_IX)
+        
+        #if data_type(%tmpRes) == "VECTOR" and length(%tmpRes) > 0 #then @valueConvention.SIGNALS = %tmpRes
+      
+       @bayCD = 'PF_ID':PCD
+       @s = status
+       @tmpRes = do(%bayCD.U_LR_VALUE_CONVENTION)
+       #if data_type(%tmpRes.THIS_SYSTEM_NAME) == "TEXT" #then @valueConvention = merge_attributes(%valueConvention, list(THIS_SYSTEM_NAME = %tmpRes.THIS_SYSTEM_NAME))
+       #if data_type(%tmpRes.SIGNALS) == "VECTOR" #then @valueConvention = merge_attributes(%valueConvention, list(SIGNALS = %tmpRes.SIGNALS))
+       @s = status
+       #if %s == 0 or length(%valueConvention.SIGNALS) > 0 #then #block
+           #if argument_count > 2 #then @tmp = set_language(argument(3))
+           #if data_type(%valueConvention) == "LIST" #then #block
+              @i_IX = %result_list.BAY_LR_OBJ_IX
+              @t_EH = 'PF_ID':PEH'i_IX'
+              @i_VL = 't_EH':HVL
+              #modify RESULT_LIST:V=LIST(BAY_LR_VALUES = 't_EH':HSX)
+              #loop_with i = 1 .. length(%valueConvention.SIGNALS)
+                 ;#if attribute_exists(%valueConvention.SIGNALS(%i), "CONTROL_VALUE") and attribute_exists(%valueConvention.SIGNALS(%i), "CONTROL_INDEX")#then #block
+                 #if data_type(%valueConvention.SIGNALS(%i).CONTROL_POSITION) == "TEXT" AND data_type(%valueConvention.SIGNALS(%i).CONTROL_VALUE) == "INTEGER" and data_type(%valueConvention.SIGNALS(%i).CONTROL_INDEX) == "INTEGER" #then #block   
+                    @state= ""
+                    @controlLN = %PF_ID
+                    @value = %valueConvention.SIGNALS(%i).CONTROL_VALUE
+                    @index = %valueConvention.SIGNALS(%i).CONTROL_INDEX
+                    @state = %valueConvention.SIGNALS(%i).CONTROL_POSITION
+                    #if data_type(%valueConvention.SIGNALS(%i).CONTROL_LN) == "TEXT" #then #block
+                       #if length(%valueConvention.SIGNALS(%i).CONTROL_LN) > 0 #then @controlLN = %valueConvention.SIGNALS(%i).CONTROL_LN
+                    #block_end
+                    @result_list.BAY_LR_CONTROL_VALUES = -
+                       append(%result_list.BAY_LR_CONTROL_VALUES, LIST(VALUE=%value, LN = %controlLN, INDEX =%index, STATE = %state))
+                 #block_end
+                 
+                 #if data_type(%valueConvention.SIGNALS(%i).CONTROL_PLACES) == "VECTOR" #then #block
+                    #if length(%valueConvention.SIGNALS(%i).CONTROL_PLACES) == 1 AND (%valueConvention.SIGNALS(%i).CONTROL_PLACES(1) == "OFF" or %valueConvention.SIGNALS(%i).CONTROL_PLACES(1) == "LOCAL") #then -
+                     @result_list.BAY_LR_CONTROL_DISABLED_VALUES = append(%result_list.BAY_LR_CONTROL_DISABLED_VALUES, %valueConvention.SIGNALS(%i).VALUE)
+                 #block_end
+                 
+              #loop_end
+           #block_end
+       #block_end
+      #return %RESULT_LIST
+   #BLOCK_END
+   #WHEN "EXECUTE" #BLOCK
+      @BAY_LR_OPERATION = argument(3)
+
+      #IF %b_enable_debugging #then @i_Trash=console_output(times + " BGU_BAYLR:C command is 'BAY_LR_OPERATION'...")        
+      ;key execute
+      
+      ;
+      #CASE %BAY_LR_OPERATION
+         #WHEN "OP_NOT_IN_USE","OP_STATION","OP_REMOTE","OP_STA_REM" #BLOCK
+            @BAY_LR_OBJ_LN = %BAY_OP_OBJ_LN
+            @BAY_LR_OBJ_IX = %BAY_OP_OBJ_IX
+         #BLOCK_END
+      #CASE_END
+      
+      ;no alarm for new indication (it is set back in exit program)
+      @TMP_EE='BAY_LR_OBJ_LN':PEE'BAY_LR_OBJ_IX'
+      @TMP_HE='BAY_LR_OBJ_LN':PHE'BAY_LR_OBJ_IX'
+      @TMP_PB='BAY_LR_OBJ_LN':PPB'BAY_LR_OBJ_IX'
+      @TMP_AB='BAY_LR_OBJ_LN':PAB'BAY_LR_OBJ_IX'
+      #IF %TMP_EE<>0 #THEN #SET 'BAY_LR_OBJ_LN':PEE'BAY_LR_OBJ_IX'=0
+      #IF %TMP_HE<>0 #THEN #SET 'BAY_LR_OBJ_LN':PHE'BAY_LR_OBJ_IX'=0
+      #IF %TMP_PB<>1 #THEN #SET 'BAY_LR_OBJ_LN':PPB'BAY_LR_OBJ_IX'=1
+      #IF %TMP_AB<>1 #THEN #SET 'BAY_LR_OBJ_LN':PAB'BAY_LR_OBJ_IX'=1
+      
+      #IF %IND_DOUBLE_BINARY #THEN #BLOCK
+        #CASE %BAY_LR_OPERATION
+          #WHEN "DISABLED" #SET 'BAY_LR_OBJ_LN':PLA'BAY_LR_OBJ_IX' = 14
+          #WHEN "LOCAL"    #SET 'BAY_LR_OBJ_LN':PLA'BAY_LR_OBJ_IX' = 13
+          #WHEN "REMOTE"   #SET 'BAY_LR_OBJ_LN':PLA'BAY_LR_OBJ_IX' = 11
+          #WHEN "RESERVED" #SET 'BAY_LR_OBJ_LN':PLA'BAY_LR_OBJ_IX' = 7
+        #CASE_END
+      #BLOCK_END
+      
+      #IF NOT %IND_DOUBLE_BINARY #THEN #BLOCK
+        #CASE %BAY_LR_OPERATION
+          #WHEN "LOCAL"    #SET 'BAY_LR_OBJ_LN':PAG'BAY_LR_OBJ_IX' = 1 
+          #WHEN "REMOTE"   #SET 'BAY_LR_OBJ_LN':PAG'BAY_LR_OBJ_IX' = 0
+        #CASE_END
+      #BLOCK_END
+      
+      #IF %TMP_AB<>1 #THEN #SET 'BAY_LR_OBJ_LN':PAB'BAY_LR_OBJ_IX'= %TMP_AB
+      #IF %TMP_PB<>1 #THEN #SET 'BAY_LR_OBJ_LN':PPB'BAY_LR_OBJ_IX'= %TMP_PB
+      #IF %TMP_HE<>0 #THEN #SET 'BAY_LR_OBJ_LN':PHE'BAY_LR_OBJ_IX'= %TMP_HE
+      #IF %TMP_EE<>0 #THEN #SET 'BAY_LR_OBJ_LN':PEE'BAY_LR_OBJ_IX'= %TMP_EE
+      
+      @EXECUTE_LN = ""
+      @EXECUTE_IX = ""
+      @COMMAND_EXECUTED = TRUE
+      
+      @CMD_TYPE          = %CONTROL_TYPE
+      @STA_TYPE          = %STATION_TYPE
+      @COMMAND_PARAMETER = %COMMAND_PARAMETER
+      @EXECUTE_VALUE     = 1         ;%BAY_LR_SET_VALUE
+      
+      #ERROR IGNORE
+      #CASE %BAY_LR_OPERATION
+        #WHEN "DISABLED" #BLOCK
+          @EXECUTE_LN = %BAY_LR_DIS_CMD_LN
+          @EXECUTE_IX = %BAY_LR_DIS_CMD_IX
+        #BLOCK_END
+        #WHEN "LOCAL" #BLOCK
+          #IF %IND_DOUBLE_BINARY OR %L_XXX.STATION_TYPE <> "IEC61850" #THEN #BLOCK
+             @EXECUTE_LN = %BAY_LR_LOC_CMD_LN
+             @EXECUTE_IX = %BAY_LR_LOC_CMD_IX
+          #BLOCK_END
+          #ELSE #BLOCK
+             @EXECUTE_LN = %BAY_LR_DIS_CMD_LN
+             @EXECUTE_IX = %BAY_LR_DIS_CMD_IX
+             @EXECUTE_VALUE = 1
+          #BLOCK_END
+        #BLOCK_END
+        #WHEN "REMOTE" #BLOCK
+          #IF %IND_DOUBLE_BINARY  OR %L_XXX.STATION_TYPE <> "IEC61850" #THEN #BLOCK
+             @EXECUTE_LN = %BAY_LR_REM_CMD_LN
+             @EXECUTE_IX = %BAY_LR_REM_CMD_IX
+          #BLOCK_END
+          #ELSE #BLOCK
+             @EXECUTE_LN = %BAY_LR_DIS_CMD_LN
+             @EXECUTE_IX = %BAY_LR_DIS_CMD_IX
+             @EXECUTE_VALUE = 0
+          #BLOCK_END
+        #BLOCK_END
+        #WHEN "RESERVED" #BLOCK
+          @EXECUTE_LN = %BAY_LR_RES_CMD_LN
+          @EXECUTE_IX = %BAY_LR_RES_CMD_IX
+        #BLOCK_END
+        #WHEN "OP_NOT_IN_USE" #BLOCK
+           @EXECUTE_LN = %BAY_OP_OBJ_LN
+           @EXECUTE_IX = %BAY_OP_NOT_IN_USE_CMD_IX
+        #BLOCK_END
+        #WHEN "OP_STATION" #BLOCK
+           @EXECUTE_LN = %BAY_OP_OBJ_LN
+           @EXECUTE_IX = %BAY_OP_STATION_CMD_IX
+        #BLOCK_END
+        #WHEN "OP_REMOTE" #BLOCK
+           @EXECUTE_LN = %BAY_OP_OBJ_LN
+           @EXECUTE_IX = %BAY_OP_REMOTE_CMD_IX 
+        #BLOCK_END
+        #WHEN "OP_STA_REM" #BLOCK
+           @EXECUTE_LN = %BAY_OP_OBJ_LN
+           @EXECUTE_IX = %BAY_OP_STA_REM_CMD_IX
+        #BLOCK_END
+        #WHEN "BAY_TO_STATION" #BLOCK
+            @EXECUTE_LN = %BAY_OP_OBJ_LN
+            @EXECUTE_IX = 23
+            @EXECUTE_VALUE = 1
+        #BLOCK_END
+        #WHEN "BAY_TO_NCC" #BLOCK
+            @EXECUTE_LN = %BAY_OP_OBJ_LN
+            @EXECUTE_IX = 23
+            @EXECUTE_VALUE = 0
+        #BLOCK_END
+        #WHEN "CUSTOM" #BLOCK
+            @EXECUTE_LN = argument(6)
+            @EXECUTE_IX = argument(5)
+            @EXECUTE_VALUE = argument(4)
+            @tt = 'EXECUTE_VALUE'
+        #BLOCK_END
+      #CASE_END
+        
+      ;execute the actual set command
+      #ERROR IGNORE
+      #DO READ_TEXT("/sa_lib/base/bbone/use/BGU_SW_EXE.TXT")
+      #ERROR STOP
+
+      ;if operation successful 
+      @COMMAND_EXECUTED = FALSE
+      #IF %NACK == 0 #THEN #BLOCK
+        @COMMAND_EXECUTED = TRUE
+      #BLOCK_END
+      ;operation failed
+      #ELSE #BLOCK
+       
+        #EXEC 'BAY_LR_OBJ_LN':E'BAY_LR_OBJ_IX'
+      #BLOCK_END
+
+      ;simulation if not connected to the process
+      #IF %NOT_CONNECTED_BV AND NOT %POSITION_INDICATION_MISSING #THEN #BLOCK
+        #IF 'BAY_LR_OBJ_LN':PUB'BAY_LR_OBJ_IX'==0 #THEN #BLOCK
+          #ERROR IGNORE
+          #CASE %BAY_LR_OPERATION
+            #WHEN "DISABLED" #BLOCK
+              #IF %STATION_TYPE == "ANSI" #THEN #BLOCK
+                #SET 'BAY_LR_EV_OBJ_LN':POV'BAY_LR_EV_OBJ_IX'=0
+                #SET 'BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'=0
+              #BLOCK_END
+              #ELSE_IF (%STATION_TYPE == "RTU" OR %STATION_TYPE == "RTU_E") AND %EVENT_RECORDING #THEN #BLOCK
+                @EVENT_REC_IX=%BAY_LR_OBJ_IX+100
+                #SET 'BAY_LR_OBJ_LN':POV'EVENT_REC_IX'=0
+                #SET 'BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'=0
+              #BLOCK_END
+              #ELSE_IF %STATION_TYPE == "PROC" #THEN #BLOCK
+                #SET 'BAY_LR_EV_OBJ_LN':POV'BAY_LR_EV_OBJ_IX'=0
+                #SET 'BAY_LR_EV2_OBJ_LN':POV'BAY_LR_EV2_OBJ_IX'=0
+                #SET 'BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'=0
+              #BLOCK_END
+              #ELSE #SET 'BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'=0
+            #BLOCK_END
+            #WHEN "LOCAL" #BLOCK
+              ;double indication
+              #IF %IND_DOUBLE_BINARY #THEN #BLOCK
+                #IF %STATION_TYPE == "ANSI" #THEN #BLOCK
+                  #SET 'BAY_LR_EV_OBJ_LN':POV'BAY_LR_EV_OBJ_IX'=1
+                  #SET 'BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'=1
+                #BLOCK_END
+                #ELSE_IF (%STATION_TYPE == "RTU" OR %STATION_TYPE == "RTU_E") AND %EVENT_RECORDING #THEN #BLOCK
+                  @EVENT_REC_IX=%BAY_LR_OBJ_IX+100
+                  #SET 'BAY_LR_OBJ_LN':POV'EVENT_REC_IX'=1
+                  #SET 'BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'=1
+                #BLOCK_END
+                #ELSE_IF %STATION_TYPE == "PROC" #THEN #BLOCK
+                  #SET 'BAY_LR_EV_OBJ_LN':POV'BAY_LR_EV_OBJ_IX'=0
+                  #SET 'BAY_LR_EV2_OBJ_LN':POV'BAY_LR_EV2_OBJ_IX'=1
+                  #SET 'BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'=1
+                #BLOCK_END
+                #ELSE #SET 'BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'=1
+              #BLOCK_END
+              ;single indication
+              #ELSE #BLOCK
+                #IF (%STATION_TYPE == "RTU" OR %STATION_TYPE == "RTU_E") AND %EVENT_RECORDING #THEN #BLOCK
+                  @EVENT_REC_IX=%BAY_LR_OBJ_IX+100
+                  #IF %L_XXX.BAY_LR_POLARITY == "L1" #THEN #BLOCK
+                    #SET 'BAY_LR_OBJ_LN':POV'EVENT_REC_IX'=1
+                    #SET 'BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'=1
+                  #BLOCK_END
+                  #ELSE #BLOCK
+                    #SET 'BAY_LR_OBJ_LN':POV'EVENT_REC_IX'=0
+                    #SET 'BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'=0
+                  #BLOCK_END
+                #BLOCK_END
+                #ELSE_IF %STATION_TYPE == "IEC61850" OR %L_XXX.BAY_LR_POLARITY == "L1" #THEN #SET 'BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'=1
+                #ELSE #SET 'BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'=0
+              #BLOCK_END
+            #BLOCK_END
+            #WHEN "REMOTE" #BLOCK
+              ;double indication
+              #IF %IND_DOUBLE_BINARY #THEN #BLOCK
+                #IF %STATION_TYPE == "ANSI" #THEN #BLOCK
+                  #SET 'BAY_LR_EV_OBJ_LN':POV'BAY_LR_EV_OBJ_IX'=2
+                  #SET 'BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'=2
+                #BLOCK_END
+                #ELSE_IF (%STATION_TYPE == "RTU" OR %STATION_TYPE == "RTU_E") AND %EVENT_RECORDING #THEN #BLOCK
+                  @EVENT_REC_IX=%BAY_LR_OBJ_IX+100
+                  #SET 'BAY_LR_OBJ_LN':POV'EVENT_REC_IX'=2
+                  #SET 'BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'=2
+                #BLOCK_END
+                #ELSE_IF %STATION_TYPE == "PROC" #THEN #BLOCK
+                  #SET 'BAY_LR_EV_OBJ_LN':POV'BAY_LR_EV_OBJ_IX'=1
+                  #SET 'BAY_LR_EV2_OBJ_LN':POV'BAY_LR_EV2_OBJ_IX'=0
+                  #SET 'BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'=2
+                #BLOCK_END
+                #ELSE #SET 'BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'=2
+              #BLOCK_END
+              ;single indication
+              #ELSE #BLOCK
+                #IF (%STATION_TYPE == "RTU" OR %STATION_TYPE == "RTU_E") AND %EVENT_RECORDING #THEN #BLOCK
+                  @EVENT_REC_IX=%BAY_LR_OBJ_IX+100
+                  #IF %L_XXX.BAY_LR_POLARITY == "L1" #THEN #BLOCK
+                    #SET 'BAY_LR_OBJ_LN':POV'EVENT_REC_IX'=0
+                    #SET 'BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'=0
+                  #BLOCK_END
+                  #ELSE #BLOCK
+                    #SET 'BAY_LR_OBJ_LN':POV'EVENT_REC_IX'=1
+                    #SET 'BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'=1
+                  #BLOCK_END
+                #BLOCK_END
+                #ELSE_IF %STATION_TYPE == "IEC61850" OR %L_XXX.BAY_LR_POLARITY == "L1" #THEN #SET 'BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'=0
+                #ELSE #SET 'BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'=1
+              #BLOCK_END
+            #BLOCK_END
+            #WHEN "RESERVED" #BLOCK
+              #IF %STATION_TYPE == "ANSI" #THEN #BLOCK
+                #SET 'BAY_LR_EV_OBJ_LN':POV'BAY_LR_EV_OBJ_IX'=3
+                #SET 'BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'=3
+              #BLOCK_END
+              #ELSE_IF (%STATION_TYPE == "RTU" OR %STATION_TYPE == "RTU_E") AND %EVENT_RECORDING #THEN #BLOCK
+                @EVENT_REC_IX=%BAY_LR_OBJ_IX+100
+                #SET 'BAY_LR_OBJ_LN':POV'EVENT_REC_IX'=3
+                #SET 'BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'=3
+              #BLOCK_END
+              #ELSE_IF %STATION_TYPE == "PROC" #THEN #BLOCK
+                #SET 'BAY_LR_EV_OBJ_LN':POV'BAY_LR_EV_OBJ_IX'=1
+                #SET 'BAY_LR_EV2_OBJ_LN':POV'BAY_LR_EV2_OBJ_IX'=1
+                #SET 'BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'=3
+              #BLOCK_END
+              #ELSE #SET 'BAY_LR_OBJ_LN':POV'BAY_LR_OBJ_IX'=3
+            #BLOCK_END
+          #CASE_END
+          #error stop
+        #BLOCK_END
+      #BLOCK_END
+       
+       #IF NOT ('BAY_OP_OBJ_LN':PUN'BAY_OP_OBJ_IX' <> 0 AND 'BAY_OP_OBJ_LN':PSS'BAY_OP_OBJ_IX'>1) #THEN #BLOCK
+         #IF 'BAY_OP_OBJ_LN':PUB'BAY_OP_OBJ_IX' == 0 #THEN #BLOCK
+            #CASE %BAY_LR_OPERATION
+               #WHEN "OP_NOT_IN_USE" #BLOCK
+                  #SET 'BAY_LR_OBJ_LN':POV'BAY_OP_OBJ_IX'=0
+               #BLOCK_END
+               #WHEN "OP_STATION" #BLOCK
+                  #SET 'BAY_LR_OBJ_LN':POV'BAY_OP_OBJ_IX'=1
+               #BLOCK_END
+               #WHEN "OP_REMOTE" #BLOCK
+                  #SET 'BAY_LR_OBJ_LN':POV'BAY_OP_OBJ_IX'=2
+               #BLOCK_END
+               #WHEN "OP_STA_REM" #BLOCK
+                  #SET 'BAY_LR_OBJ_LN':POV'BAY_OP_OBJ_IX'=3
+               #BLOCK_END
+               #WHEN "BAY_TO_STATION" #BLOCK
+                  #SET 'BAY_LR_OBJ_LN':POV'BAY_OP_OBJ_IX'=1
+               #BLOCK_END
+               #WHEN "BAY_TO_NCC" #BLOCK
+                  #SET 'BAY_LR_OBJ_LN':POV'BAY_OP_OBJ_IX'=0
+               #BLOCK_END
+            #CASE_END
+         #BLOCK_END
+       #BLOCK_END    
+   #BLOCK_END
+   #WHEN "UPDATE_DATA" #BLOCK
+      
+      @UPDATE_OBJECTS = LIST
+      @OI_FILTER = 'BAY_LR_OBJ_LN':POI'BAY_LR_OBJ_IX'
+      @PT_FILTER = "(PT == 3 OR PT == 6 OR PT == 9 OR PT == 12 OR PT == 13 OR PT == 14)"
+      @RX_FILTER = "%%%%%%%%%%%%%%%%%%%%%%%%%%X*"
+      
+      
+      ;query GI process objects from PDB      
+      @ATTR_IN = application_object_list(0, "IX", "A", "FORWARD", "", "IU > 0 AND RX <> ""'RX_FILTER'"" AND OI == ""'OI_FILTER'*"" AND 'PT_FILTER'", vector("SS","UN","HE", "PB"))     
+   
+      #LOOP_WITH I=1 .. %ATTR_IN.COUNT
+        @TMP_LN=ATTR_IN:VLN('I')
+        @TMP_IX=ATTR_IN:VIX('I')
+        ;if connected to process
+        #IF (ATTR_IN:VSS('I')==2 OR ATTR_IN:VSS('I')==3) AND ATTR_IN:VUN('I')<>0 #THEN #BLOCK
+          @SSS'TMP_LN' = VECTOR()
+          @SSS'TMP_LN'=APPEND(%SSS'TMP_LN',%TMP_IX)
+          #MODIFY UPDATE_OBJECTS:V=LIST(SSS'TMP_LN'=%SSS'TMP_LN')
+        #BLOCK_END
+        ;simulated process
+        #ELSE_IF 'TMP_LN':POS'TMP_IX'==2 #THEN #BLOCK
+          #IF ATTR_IN:VHE('I')<>0 #THEN #SET 'TMP_LN':PHE'TMP_IX'=0
+          #IF ATTR_IN:VPB('I')<>1 #THEN #SET 'TMP_LN':PPB'TMP_IX'=1
+          #SET 'TMP_LN':POV'TMP_IX' = 'TMP_LN':POV'TMP_IX'
+          #IF ATTR_IN:VPB('I')<>1 #THEN #SET 'TMP_LN':PPB'TMP_IX'=ATTR_IN:VPB('I')
+          #IF ATTR_IN:VHE('I')<>0 #THEN #SET 'TMP_LN':PHE'TMP_IX'=ATTR_IN:VHE('I')
+        #BLOCK_END
+      #LOOP_END
+      
+      @RX_FILTER = PAD("%",  26) + "CGIT"
+      ;query process object from PDB      
+      @ATTR_IN_GI = application_object_list(0, "IX", "A", "FORWARD", "", "IU > 0 AND SS > 1 AND UN <> 0 AND OI == ""'OI_FILTER'*"" AND RX ==""'RX_FILTER'*""", vector("SS","UN","HE", "PB"))
+      
+      @GI_OBJECTS = VECTOR
+      #LOOP_WITH I = 1 .. %ATTR_IN_GI.COUNT
+         @GI_OBJECTS(LENGTH(%GI_OBJECTS) + 1) =  %ATTR_IN_GI.LN(%I) + ":P" + DEC(%ATTR_IN_GI.IX(%I),0)
+      #LOOP_END
+      
+      #EXEC BGU_UPDATE:C (@UPDATE_OBJECTS=%UPDATE_OBJECTS, @GI_OBJECTS=%GI_OBJECTS )
+       
+   #BLOCK_END
+   #WHEN "SELECT_ON_MONITOR" #BLOCK
+      ;store the current state of status (OS), update blocking (UB) and value (OV)
+      @OS='SEL_ON_MON_LN':POS'SEL_ON_MON_IX'
+      @UB='SEL_ON_MON_LN':PUB'SEL_ON_MON_IX'
+      #ERROR IGNORE
+      @OV='SEL_ON_MON_LN':POV'SEL_ON_MON_IX'
+      #ERROR STOP
+      
+      ;if object not updated
+      #IF %OS==10 #THEN #BLOCK
+        #IF %UB==1 #THEN #SET 'SEL_ON_MON_LN':PUB'SEL_ON_MON_IX'=0
+        #MODIFY 'SEL_ON_MON_LN':P'SEL_ON_MON_IX'=LIST(OV=1,RT=CLOCK,HI=0)
+        @MY_SESSION = 1
+        #IF %UB==1 #THEN #SET 'SEL_ON_MON_LN':PUB'SEL_ON_MON_IX'=1
+      #BLOCK_END
+      ;object value exists (OS<10)
+      #ELSE #BLOCK
+        #IF %UB==1 #THEN #SET 'SEL_ON_MON_LN':PUB'SEL_ON_MON_IX'=0
+        @OV='SEL_ON_MON_LN':POV'SEL_ON_MON_IX'
+        #IF %OV<0 #THEN #BLOCK
+          #MODIFY 'SEL_ON_MON_LN':P'SEL_ON_MON_IX'=LIST(OV=1,RT=CLOCK,HI=0)
+          @MY_SESSION = 1
+        #BLOCK_END
+        #ELSE #BLOCK                                           
+          #MODIFY 'SEL_ON_MON_LN':P'SEL_ON_MON_IX'=LIST(OV=%OV+1,RT=CLOCK,HI=0)
+          @MY_SESSION = %OV + 1
+        #BLOCK_END
+        #IF %UB ==1 #THEN #SET 'SEL_ON_MON_LN':PUB'SEL_ON_MON_IX'=1
+      #BLOCK_END
+      ;#return 'SEL_ON_MON_LN':POV'SEL_ON_MON_IX'
+      #return %MY_SESSION
+      
+   #BLOCK_END
+   #WHEN "UNSELECT_ON_MONITOR" #BLOCK
+ ;     @MY_SESSION=argument(3)
+      @MY_SESSION=0
+      @UB='SEL_ON_MON_LN':PUB'SEL_ON_MON_IX'
+      @OV='SEL_ON_MON_LN':POV'SEL_ON_MON_IX'
+      #IF %OV <= 0 #THEN @OV = 1
+      
+      #IF %UB ==1 #THEN #SET 'SEL_ON_MON_LN':PUB'SEL_ON_MON_IX'=0
+      #MODIFY 'SEL_ON_MON_LN':P'SEL_ON_MON_IX'=LIST(OV=%OV-1,RT=CLOCK,HI=%MY_SESSION)
+      ;#MODIFY 'SEL_ON_MON_LN':P'SEL_ON_MON_IX'=LIST(OV=MAX(%OV-1,0),RT=CLOCK)
+      #IF %UB ==1 #THEN #SET 'SEL_ON_MON_LN':PUB'SEL_ON_MON_IX'=1   
+      #return 
+   #BLOCK_END
+#CASE_END

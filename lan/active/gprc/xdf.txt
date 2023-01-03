@@ -1,0 +1,17 @@
+DRAW_FIELD
+
+.PEND ON
+.PUSH
+#DO SYS_GPRC:VCALC_SHADOW
+.GC : FU = "COPY", LS = "SOLID", LW = 0
+#IF %CC(1) > 0 #THEN #BLOCK
+   .GC : FG = ("M",%CC(1))
+   .BOX %X,%Y,%W,%H,FILL
+#BLOCK_END
+.GC : FG = ("M",%CC(2))
+.POLYLINE %X1,%Y1,FILL
+.GC : FG = ("M",%CC(3))
+.POLYLINE %X2,%Y2,FILL
+.POP
+.PEND OFF
+

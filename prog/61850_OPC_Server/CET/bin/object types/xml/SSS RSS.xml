@@ -1,0 +1,228 @@
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Mikko Ripatti/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+  <Parameters type="InterfaceDefinition">
+    <Parameter name="ObjectType">SSS RSS</Parameter>
+    <Parameter name="Caption">RSS</Parameter>
+    <Parameter name="Description">objectTypeDesc</Parameter>
+    <Parameter name="Group">Data objects</Parameter>
+    <Parameter name="Type">DO</Parameter>
+    <Parameter name="IconFileName">RSS.ico</Parameter>
+    <Parameter name="Tools">OnlineDiagnosticsDataObject</Parameter>
+    <Parameter name="DataServers" />
+    <Parameter name="Verbs" />
+    <Parameter name="Visible">True</Parameter>
+    <Parameter name="CanInherit">False</Parameter>
+    <Parameter name="ParentControlConditions">
+      <Structure name="COMMUNICATION">
+        <Condition type="PCMObjectType">SSS LN, SSS LLN0</Condition>
+      </Structure>
+    </Parameter>
+  </Parameters>
+  <Parameters type = "DynamicPropertyLists">
+		<Parameter name="SubType">
+			<List value="UPDATE" properties="OpcPath, OpcPath2, UpdateRate, UpdateRate2 ,SubType, GoodValue, BadValue, GoodValue2, BadValue2"/>
+			<List value="TIMER" properties="OpcPath, OpcPath2, UpdateRate, UpdateRate2, SubType, TimeOut, TimeOut2, GoodValue,  GoodValue2, BadValue, BadValue2"/>
+		</Parameter>
+  </Parameters>
+  <Parameters type="SCLExport">
+    <Export name="sclXML">DOISCL</Export>
+    <Export name="sAddr">
+		<ConfigurationProperties>SubType</ConfigurationProperties>
+			<List value="UPDATE" properties="OpcPath, OpcPath2, UpdateRate, UpdateRate2 ,SubType, GoodValue, BadValue, GoodValue2, BadValue2"/>
+			<List value="TIMER" properties="OpcPath, OpcPath2, UpdateRate, UpdateRate2, SubType, TimeOut, TimeOut2, GoodValue,  GoodValue2, BadValue, BadValue2"/>
+    </Export>
+  </Parameters>
+  <Properties type="PropertyDefinitions">
+
+<Property name="61850-Type" category="[010] Basic">
+      <Value>RSS</Value>
+      <DescID>61850-TypeDesc</DescID>
+      <CaptionID>61850-Type</CaptionID>
+      <Values type="singleChoice">
+        <Enum textID="ACD" value="ACD" />
+        <Enum textID="ACT" value="ACT" />
+        <Enum textID="APC" value="APC" />
+        <Enum textID="ASG" value="ASG" />
+        <Enum textID="BCR" value="BCR" />
+        <Enum textID="BSC" value="BSC" />
+        <Enum textID="CMV" value="CMV" />
+        <Enum textID="CSD" value="CSD" />
+        <Enum textID="CURVE" value="CURVE" />
+        <Enum textID="DEL" value="DEL" />
+        <Enum textID="DPC" value="DPC" />
+        <Enum textID="DPS" value="DPS" />
+        <Enum textID="DPL" value="DPL" />
+        <Enum textID="HDEL" value="HDEL" />
+        <Enum textID="HMV" value="HMV" />
+        <Enum textID="HWYE" value="HWYE" />
+        <Enum textID="INC" value="INC" />
+        <Enum textID="ING" value="ING" />
+        <Enum textID="INS" value="INS" />
+        <Enum textID="ISC" value="ISC" />
+        <Enum textID="LPL" value="LPL" />
+        <Enum textID="MV" value="MV" />
+        <Enum textID="RSS" value="RSS" />
+        <Enum textID="SAV" value="SAV" />
+        <Enum textID="SEC" value="SEC" />
+        <Enum textID="SEQ" value="SEQ" />
+        <Enum textID="SPC" value="SPC" />
+        <Enum textID="SPG" value="SPG" />
+        <Enum textID="SPS" value="SPS" />
+        <Enum textID="WYE" value="WYE" />
+      </Values>
+      <DataType>System.String</DataType>
+      <HelpKey />
+      <Access>RRR</Access>
+      <AttributeName />
+    </Property>
+    <Property name="DOISCL" category="[010] Basic">
+      <Value>&lt;DOI xmlns=&quot;http://www.iec.ch/61850/2003/SCL&quot; name=&quot;Health&quot; desc=&quot;Health&quot;&gt;&lt;DAI name=&quot;stValA&quot; valKind=&quot;Set&quot; &gt;&lt;Val&gt;0&lt;/Val&gt;&lt;/DAI&gt;&lt;DAI name=&quot;stValB&quot; valKind=&quot;Set&quot;&gt;&lt;Val&gt;0&lt;/Val&gt;&lt;/DAI&gt;&lt;DAI name=&quot;d&quot; sAddr=&quot;null, null, 0, 0, TIMER, 0, ,&quot; valKind=&quot;Set&quot;&gt;&lt;Val&gt;Health&lt;/Val&gt;&lt;/DAI&gt;&lt;/DOI&gt;</Value>
+      <DescID>DOSCLDesc</DescID>
+      <CaptionID>DOISCL</CaptionID>
+      <Values type="string" />
+      <DataType>System.String</DataType>
+      <HelpKey />
+      <Access>HHH</Access>
+      <AttributeName>DOISCL</AttributeName>
+    </Property>
+    <Property name="OpcPath" category="[011] stValA">
+      <Value>null</Value>
+      <DescID>OpcPathDesc</DescID>
+      <CaptionID>OpcPath</CaptionID>
+      <Values type="string" />
+      <DataType>System.String</DataType>
+      <HelpKey />
+      <Access>WWW</Access>
+      <AttributeName/>
+    </Property>
+    	<Property name="UpdateRate" category="[011] stValA">
+			<Value>0</Value>
+			<DescID>UpdateRateDesc</DescID>
+			<CaptionID>UpdateRate</CaptionID>
+			<Values type="numerical">
+				<Min>0</Min>
+				<Max>65355</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+    <Property name="SubType" category="[010] Basic">
+      <Value>TIMER</Value>
+      <DescID>TypeDesc</DescID>
+      <CaptionID>Type</CaptionID>
+      <Values type="singleChoice">
+        <Enum textID="Timer" value="TIMER" />
+		<Enum textID="Update" value="UPDATE"/>
+      </Values>
+      <DataType>System.String</DataType>
+      <HelpKey />
+      <Access>WWW</Access>
+      <AttributeName />
+    </Property>
+    <Property name="GoodValue" category="[011] stValA">
+			<Value></Value>
+			<DescID>GoodValueDesc</DescID>
+			<CaptionID>GoodValue</CaptionID>
+			<Values type="string" />
+      <DataType>System.String</DataType>
+
+			<HelpKey/>
+			<Access>WWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="BadValue" category="[011] stValA">
+			<Value></Value>
+			<DescID>BadValueDesc</DescID>
+			<CaptionID>BadValue</CaptionID>
+			<Values type="string" />
+      <DataType>System.String</DataType>
+
+			<HelpKey/>
+			<Access>WWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="TimeOut" category="[011] stValA">
+			<Value>0</Value>
+			<DescID>TimeOutDesc</DescID>
+			<CaptionID>TimeOut</CaptionID>
+			<Values type="numerical">
+				<Min>0</Min>
+				<Max>65355</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		  <Property name="DOType" category="[010] Basic">
+      <Value>RSS</Value>
+      <DescID>DOTypeDesc</DescID>
+      <CaptionID>DOType</CaptionID>
+      <Values type="string" />
+      <DataType>System.String</DataType>
+      <HelpKey />
+      <Access>HHH</Access>
+      <AttributeName>DOType</AttributeName>
+    </Property>
+        <Property name="OpcPath2" category="[012] stValB">
+      <Value>null</Value>
+      <DescID>OpcPath2Desc</DescID>
+      <CaptionID>OpcPath2</CaptionID>
+      <Values type="string" />
+      <DataType>System.String</DataType>
+      <HelpKey />
+      <Access>WWW</Access>
+      <AttributeName/>
+    </Property>
+    	<Property name="UpdateRate2" category="[012] stValB">
+			<Value>0</Value>
+			<DescID>UpdateRate2Desc</DescID>
+			<CaptionID>UpdateRate2</CaptionID>
+			<Values type="numerical">
+				<Min>0</Min>
+				<Max>65355</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="GoodValue2" category="[012] stValB">
+			<Value></Value>
+			<DescID>GoodValue2Desc</DescID>
+			<CaptionID>GoodValue2</CaptionID>
+			<Values type="string" />
+      <DataType>System.String</DataType>
+
+			<HelpKey/>
+			<Access>WWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="BadValue2" category="[012] stValB">
+			<Value></Value>
+			<DescID>BadValue2Desc</DescID>
+			<CaptionID>BadValue2</CaptionID>
+			<Values type="string" />
+      <DataType>System.String</DataType>
+
+			<HelpKey/>
+			<Access>WWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="TimeOut2" category="[012] stValB">
+			<Value>0</Value>
+			<DescID>TimeOut2Desc</DescID>
+			<CaptionID>TimeOut2</CaptionID>
+			<Values type="numerical">
+				<Min>0</Min>
+				<Max>65355</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+	 </Properties>
+</ObjectType>

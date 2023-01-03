@@ -1,0 +1,1302 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2008 sp1 (http://www.altova.com) by XMLSpy 2008 Professional Ed., Installed for 3 users (ABB Automation) -->
+<Root id="GeneralPhaseMapping">
+	<AETemplateName>General Phase Tripping</AETemplateName>
+	<!--format of this file is:
+<LNClass name="[LNClass of ln]">
+	<DO cdc = "[61850-Type of DO]" name = "[Caption of DO]">
+		<[Event Property Name]>[Event name]</[Event Property Name]>
+		...
+	</DO>
+...
+</LNClass>
+...
+-->
+	<LNClass name="LLN0">
+		<DO cdc="SPS" name="Loc">
+			<MappedEvent>BAYLRSwitch</MappedEvent>
+		</DO>
+	</LNClass>
+	<LNClass name="CSWI">
+		<DO cdc="DPC" name="Pos">
+			<MappedEvent>SwitchPosition</MappedEvent>
+			<MappedCommandEvent>SwitchOperation</MappedCommandEvent>
+		</DO>
+	</LNClass>
+	<LNClass name="PDIF">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PDIR">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PDIS">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PDOP">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PDUP">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PFRC">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PHAR">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PHIZ">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PIOC">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PMRI">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PMSS">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="POPF">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PPAM">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PSCH">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PSDE">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PTOC">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PTOF">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PTOV">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PTRC">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="AlmThm">
+			<GeneralIMappedEvent>AlarmStatus</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="AlmThm1">
+			<GeneralIMappedEvent>AlarmStatus</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="AlmThm2">
+			<GeneralIMappedEvent>AlarmStatus</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PTTR">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="AlmThm">
+			<GeneralIMappedEvent>AlarmStatus</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="AlmThm1">
+			<GeneralIMappedEvent>AlarmStatus</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="AlmThm2">
+			<GeneralIMappedEvent>AlarmStatus</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PTUC">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PTUF">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PTUV">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PUPF">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PTUF">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PVOC">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PVPH">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="PZSU">
+		<DO cdc="ACD" name="Str">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str1">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACD" name="Str2">
+			<GeneralIMappedEvent>StartSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="Op2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+	<LNClass name="RBRF">
+		<DO cdc="ACT" name="OpEx">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="OpEx1">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+		<DO cdc="ACT" name="OpEx2">
+			<GeneralIMappedEvent>TripSignalFromGeneral</GeneralIMappedEvent>
+			<PhsAIMappedEvent/>
+			<PhsBIMappedEvent/>
+			<PhsCIMappedEvent/>
+			<NeutIMappedEvent/>
+		</DO>
+	</LNClass>
+</Root>

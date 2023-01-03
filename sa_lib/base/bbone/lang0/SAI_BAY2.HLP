@@ -1,0 +1,435 @@
+COMMON BAY OBJECTS
+
+1. Environmental requirements
+
+In order for the bay to have full functionality,
+the following components need to be installed:
+
+SA-LIB
+
+   - Station
+
+It is also possible to configure the bay to operate
+without station standard function.
+
+2. Configurable attributes
+
+It is important to configure attributes in the order
+of appearance since setting one attribute may
+enable/disable and/or reset another attribute
+later.
+
+STATION_NAME
+
+A selector type of an editable combo box to
+select or enter the name of the substation. As a
+default, the maximum length of the text is 9
+characters. The selection list shows up to ten
+latest entries.
+
+The configurable attribute is being read directly
+from the process object database if there is any
+process object linked to the selected bay picture
+function. Therefore, the configurable attribute
+within a standard function has meaning only when the
+process objects have not been created.
+
+This text will be used as a substation identifier of
+the common bay objects on event list, alarm list,
+printout, database query, etc. It is very important
+that this text is similar to all objects within the
+same substation.
+
+BAY_NAME
+
+A selector type of an editable combo box to
+select or enter the name of the bay (feeder). As a
+default, the maximum length of the text is 14
+characters. The selection list shows up to ten
+latest entries.
+
+The configurable attribute is being read directly
+from the process object database if there is any
+process object linked to the selected bay picture
+function. Therefore, the configurable attribute
+within a standard function has meaning only when the
+process objects have not been created.
+
+This text will be used as a bay (feeder) identifier
+of the common bay objects on event list, alarm
+list, printout, database query, etc. It is very
+important that this text is similar to all objects
+within the same bay (feeder).
+
+P_OBJECT_LN
+
+The logical name of the database process objects.
+The maximum length of the text is 10 characters.
+Allowed characters are the letters A-Z, all
+digits and the underscore (_).
+
+The logical names of process objects have to be
+unique throughout the entire system, that is,
+different objects cannot have the same logical
+name. Therefore, it is very important to have a
+proper naming convention for the process object
+database.
+
+Certain naming convention is also required to speed
+up the opening time of the main dialogs. With the
+predefined naming convention it is possible to
+collect all station and bay related database
+objects without searching through the complete
+database. Therefore, it is advised to use the
+following naming convention:
+
+   - The first three characters identify the
+     substation
+   - The following four characters identify the bay
+   - The last three characters can be freely used to
+     identify the source of the signal, i.e. device,
+     unit, etc.
+
+The following list is presented as an example of
+the proper naming convention within one bay. The
+station name is Green Bay and the bay name is HA12
+Downtown:
+
+   - GRB, station
+   - GRBHA12BAY, bay
+   - GRBHA12Q0, circuit breaker Q0
+   - GRBHA12Q1, truck Q1
+   - GRBHA12Q9, earth switch Q9
+   - GRBHA12CT, measurements/current transformer
+   - GRBHA12VT, measurements/voltage
+     transformer
+   - GRBHA12ALA, alarm indicator
+   - GRBHA12AR, auto-reclosing tag
+   - GRBHA12TRP, tripping tag
+   - GRBHA12R1, feeder terminal or protection
+     unit 1
+   - GRBHA12R2, feeder terminal or protection
+     unit 1
+   - GRBHA12LS1, line segment 1 of busbar
+     coloring
+   - GRBHA12LS2, line segment 2 of busbar
+     coloring
+   - GRBHA12LS3, line segment 3 of busbar
+     coloring
+   - GRBHA12LI, line indicator of busbar
+     coloring
+
+STATION_TYPE
+
+A selector type of a combo box to select the
+station type of the objects.
+
+The database process objects will be created for
+the station type defined here. The list of supported
+protocols is as follows:
+
+   - SPA
+   - ANSI
+   - LON
+   - RP570
+   - RP570 with FTABs
+   - IEC 870-5-101
+   - IEC 870-5-103
+   - ICCP
+   - DNP 3.0
+   - MODBUS RTU
+   - IEC 61850-8
+   - PROCOL
+
+CMD_PARAMETER
+
+A selector type of a combo box to select the
+command parameter for control method. This
+attribute has meaning only if IEC 870-5-101 or
+DNP 3.0 or ICCP protocol is selected, otherwise this
+attribute is being disabled. The supported control
+parameters are:
+
+  - Double command (TY = 46)
+  - Single command (TY = 45)
+
+for IEC 870-5-101 protocol and ICCP and
+
+  - Direct
+  - Direct-No ack.
+
+for DNP 3.0 protocol.
+
+OUTPUT_STATUS
+
+An ON/OFF type of a toggle button to select
+whether there is need for output status process
+objects with the DNP 3.0 protocol. If
+STATION_TYPE is other than DNP 3.0, the
+configurable attribute is being disabled, and the
+value has no meaning.
+
+AUTHORIZATION_GROUP
+
+A selector type of an editable combo box to
+select the authorization group for the object. The
+maximum length of the text is 63 characters. The
+given text has to be usable as a SCIL list
+attribute name (see SCIL manual). The contents
+of the selection list is taken from the existing
+authorization groups.
+
+NOTE! The name may not be composed of two
+letters followed by a number.
+
+The attribute needs to be defined, if the object is
+wanted to be included in some authorization group.
+The authorization level of each user to this group
+can be defined afterwards by the system manager with
+User Management pictures.
+
+BAY_LR_IN_USE
+
+An ON/OFF type of a toggle button to select if
+the bay local/remote-switch is in use, i.e. a
+physical switch exists.
+
+As a default the bay local/remote-switch is in
+use.
+
+It is typical that if RTU 200 or RTU 210 is used
+as a remote terminal unit, there is no bay
+local/remote-switches at bay level. The
+control authority of a single bay is determined by
+using station local/remote-switch only.
+
+The process object for bay local/remote-switch is
+created regardless of the selection. If the bay
+local/remote-switch is NOT in use, the process
+object should be left as it is created, i.e.
+switching state (SS) to manual and value (DB)
+as 2 (remote).
+
+OPERATOR_PLACE_HANDLING
+
+This setting enables the check of authorized
+control location (SCS/NCC) for a bay. Depending on the
+selection, a different kind of set of process objects are
+are created. The following options are available:
+
+ None:
+ Bay-specific control authority not used
+		
+ MicroSCADA Internal:
+ Internal switch for operator place selection in MicroSCADA
+ process database. In bay control dialog the following operator
+ places are availabe:
+	
+  - None, control prevented both in SCS and NCC
+  - Station, authority at station
+  - Remote, authority at NCC
+  - Both, authority at Station and NCC
+	
+ Loc and LocSta:
+ Only available for IEC61850-8 protocol. The operation place indication
+ is received from IED. In bay control dialog the following the
+ operator places are availabe:
+	
+  - Station, authority at station
+  - NCC, authority at NCC
+
+MULTILEVEL_CONTROL
+
+Only available for IEC61850-8 protocol. This setting enables the multilevel
+control checking in control dialogs. This means that in certain L/R switch
+conditions it is possible to control both from SCS and NCC.
+
+BAY_LR_POLARITY
+
+The polarity of the bay local/remote-switch
+input signal.
+
+IND_DOUBLE_BINARY
+
+An ON/OFF type of a toggle button to select,
+if the type of the bay local/remote-switch
+indication is double binary. This selection is being
+disabled and it has no meaning if the bay
+local/remote-switch is not in use, i.e.
+BAY_LR_IN_USE is not set.
+
+Depending on the actual field device, the
+indication of the local/remote-switch is sent either
+as a single binary (0/1) or as a double binary
+(0/1/2/3) format.
+
+   Binary input:
+
+      0 - local
+      1 - remote
+
+   Double binary input:
+
+      0 - disabled (=control totally blocked)
+      1 - local
+      2 - remote
+      3 - none
+
+LR_REMOTELY_CONTROLLABLE
+
+An ON/OFF type of a toggle button to select if
+the bay local/remote-switch can be controlled
+remotely by SCS/MicroSCADA. This selection is
+being disabled and it has no meaning if the bay
+local/remote-switch in not in use, i.e.
+BAY_LR_IN_USE is not set.
+
+As a default, bay local/remote-switch is defined
+as manually controllable only.
+
+It is typical that if there is a remote control for
+bay local/remote- switch, shift to local can be
+done remotely, whereas shift from local to remote
+has to be performed locally. This can be achieved
+by setting the attribute SS (switching state) of the
+local command process object to OFF (0). By
+setting the SS-attribute to 0, the relevant
+radio-button on dialog will become insensitive for
+shifting.
+
+EVENT_RECORDING
+
+An ON/OFF type of a toggle button to select
+whether there is need for event recording process
+objects with the RP 570 protocol. If
+STATION_TYPE is other than RTU 2xx or RTU
+2xx/FTABs, the configurable attribute is being
+disabled, and the value has no meaning.
+
+With the RP 570 the time stamp from process device
+comes into the event recording process object. If no
+accurate time stamp is needed or available, or the
+device is emulating the RP 570 without an event
+recording possibility, do not set this attribute ON.
+
+3. Configurable attributes with Process Object
+Tool
+
+THE DATABASE OBJECTS WILL NOT BE
+CREATED UNTIL THE PROCESS OBJECT
+TOOL HAS BEEN USED TO CREATE THEM.
+
+Based on the configuration made with the Standard
+Configuration Tool, the Process Object Tool
+(POT) creates a set of process objects among those
+that have been listed below.
+
+Bay local/remote-switch state indication
+
+   - Obligatory
+   - The (disabled) /local/remote-switch is used to
+     determine whether the control to the bay objects
+     is allowed locally or remotely.
+   - Index 10, DB
+
+Bay local/remote-switch to Disabled command
+
+   - Obligatory if local/remote-switch is remotely
+     controllable and the indication type of the
+     bay local/remote-switch is double indication
+   - Used for sending the command Disabled to the
+     local/remote- switch (no control locally
+     or remotely).
+   - Index 11, BO
+
+Bay local/remote-switch to Local command
+
+   - Obligatory if local/remote-switch is remotely
+     controllable
+   - Used for sending Local command to the
+     local/remote- switch (bay control to the
+     panel).
+   - Index 12, BO
+
+Bay local/remote-switch to Remote command
+
+   - Obligatory if local/remote-switch is remotely
+     controllable
+   - Used for sending Remote command to the
+     local/remote- switch (bay control to
+     SCS/NCS).
+   - Index 13, BO
+
+Bay local/remote-switch to Reserved command
+
+   - Obligatory if local/remote-switch is remotely
+     controllable and the indication type of the
+     bay local/remote-switch is double indication
+   - Used for sending Reserved command to the
+     local/remote- switch (special/project
+     specific meaning).
+   - Index 14, BO
+
+External interlocking ON/OFF (HW) indication
+
+   - Optional
+   - The external interlocking on/off (HW)-ind. is
+     meant as an ON/OFF type of an indication for
+     the hardware switch of the interlocking
+     function.
+   - Index 15, BI
+
+External interlocking ON/OFF (SW) indication
+
+   - Optional
+   - The command for external interlocking on/off
+     (SW)-ind. is meant as an ON/OFF-type of
+     indication for the software switch of the
+     interlocking function.
+   - Index 16, BI
+
+External interlocking ON/OFF command
+
+   - Optional
+   - The command for external interlocking on/off
+     is an output object which can be used to
+     remotely enable/disable interlocking
+     function of the control unit.
+   - Index 17, BO
+
+Internal interlocking ON/OFF indication
+
+   - Optional
+   - The indication internal interlocking on/off is
+     meant as an ON/OFF type of indication of the
+     internal interlocking functions. By disabling
+     internal interlocking there will not be any
+     interlocking checking in the control dialogs
+     during operation.
+   - Index 18, BI
+
+Internal interlocking ON/OFF command
+
+   - Optional
+   - The command internal interlocking on/off is an
+     object which is defined to internally control
+     the state of the indication internal
+     interlocking on/off.
+   - Index 19, BO
+
+Bay blockings indication
+
+   - Optional
+   - The indication bay blockingsis an internal
+     object which is meant for generating events and
+     printouts of the bay blockings.
+   - Index 20, AI
+
+Indication Bay selected on monitor
+
+   - Optional
+   - Internal tag that shows if the bay dialog is
+     being selected on different pictures and
+     monitors
+   - Index 21, AI
+

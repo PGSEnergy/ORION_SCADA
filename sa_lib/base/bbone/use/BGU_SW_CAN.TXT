@@ -1,0 +1,67 @@
+; This program is used as an cancellation service for medium voltage switching device picture
+; functions
+;
+; DO NOT EDIT!
+;
+; In:  %CANCEL_LN,    text, The name of the cancel object
+;      %CANCEL_IX,    int,  The index of the cancel object
+;      %CANCEL_VALUE, int,  The set value for cancel
+;      %STA_TYPE,     text, The station type (SPA/ANSI/LON/LONMARK/RTU/RTU_E/IEC101/IEC103/MODBUS_RTU ...)
+;      %CMD_TYPE,     text, The control type (SEC-4BO/SEC-2BO/SEC-2DO/SEC-BO/DIR-BO/AO ...)
+;
+; Out: %NACK,         int,  The status code of the operation
+;---------------------------------------------------------------------------------------------
+
+;initialize output variable
+@NACK
+
+#IF DATA_TYPE(%CANCEL_VALUE) == "NONE" #THEN @CANCEL_VALUE = 1
+
+;case for each control type
+@NACK = STATUS         
+#CASE %CMD_TYPE
+  ;secured control with four binary outputs
+  #WHEN "SEC-5BO", "SEC-5AO", "SEC-4BO" #BLOCK
+    #CASE %STA_TYPE
+      #WHEN "IEC101", "ICCP" #SET 'CANCEL_LN':P'CANCEL_IX'=LIST(OV=1, CT=8,  OG=SYS:BSA)
+      #WHEN "IEC103" #SET 'CANCEL_LN':P'CANCEL_IX'=LIST(OV=1, CT=20, OG=SYS:BSA)
+      #WHEN "IEC61850" #SET 'CANCEL_LN':P'CANCEL_IX'= %CANCEL_VALUE
+      #WHEN "DNP_30" @TMP ;#SET 'CANCEL_LN':P'CANCEL_IX'=LIST(OV=%CANCEL_VALUE,SE=0)
+      #OTHERWISE #BLOCK
+         #SET 'CANCEL_LN':P'CANCEL_IX'=1
+      #BLOCK_END
+    #CASE_END
+  #BLOCK_END
+
+  ;secured control with single binary output
+  #WHEN "SEC-BO" #BLOCK
+    #CASE %STA_TYPE
+      #WHEN "IEC101", "ICCP" #SET 'CANCEL_LN':PSE'CANCEL_IX'=LIST(SE=0, CT=8,  OG=SYS:BSA)
+      #WHEN "IEC103"      #SET 'CANCEL_LN':PSE'CANCEL_IX'=LIST(SE=0, CT=20, OG=SYS:BSA)
+      #WHEN "DNP_30"      @TMP ;#SET 'CANCEL_LN':PSE'CANCEL_IX'=LIST(SE=0, TY=3, QL=2)
+      #WHEN "RTU","RTU_E" #SET 'CANCEL_LN':PSE'CANCEL_IX'=0
+      #WHEN "MODBUS_RTU"  #SET 'CANCEL_LN':PSE'CANCEL_IX'=0 
+      #WHEN "LON" #BLOCK
+         @COMMAND_LIST=LIST(SE=0, CT=8,  OG=SYS:BSA) 
+         #if data_type(%QUALIFIER)<>"NONE" #then #MODIFY COMMAND_LIST:V=LIST(QL=%QUALIFIER)
+         #SET 'CANCEL_LN':PSE'CANCEL_IX'=%COMMAND_LIST
+      #BLOCK_END
+      #OTHERWISE #BLOCK
+        #SET 'CANCEL_LN':PSE'CANCEL_IX'=0
+      #BLOCK_END
+    #CASE_END
+  #BLOCK_END
+
+  ;secured control with single analog output
+  #WHEN "AO" #BLOCK
+    #CASE %STA_TYPE
+      #WHEN "IEC101", "ICCP" #SET 'CANCEL_LN':P'CANCEL_IX'=LIST(OV=%CANCEL_VALUE, CT=8,  OG=SYS:BSA)
+      #WHEN "IEC103"  #SET 'CANCEL_LN':P'CANCEL_IX'=LIST(OV=%CANCEL_VALUE, CT=20, OG=SYS:BSA)
+      #WHEN "DNP_30"  @TMP ;#SET 'CANCEL_LN':P'CANCEL_IX'=LIST(OV=%CANCEL_VALUE,SE=0)
+      #OTHERWISE #BLOCK
+          #SET 'CANCEL_LN':POV'CANCEL_IX'=%CANCEL_VALUE
+      #BLOCK_END
+    #CASE_END
+  #BLOCK_END
+#CASE_END
+@NACK = STATUS         

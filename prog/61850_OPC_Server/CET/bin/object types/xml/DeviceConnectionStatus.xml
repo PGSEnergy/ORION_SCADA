@@ -1,0 +1,121 @@
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Mikko Ripatti/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">DeviceConnectionStatus</Parameter>
+		<Parameter name="Caption">objectTypeCaption</Parameter>
+		<Parameter name="Description">objectTypeDesc</Parameter>
+		<Parameter name="Group">Event Classes</Parameter>
+		<Parameter name="Type">EVENT</Parameter>
+		<Parameter name="IconFileName">ae.ico</Parameter>
+		<Parameter name="Tools"/>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="Visible">True</Parameter>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="PCMObjectType">DeviceConnectionEventGroup</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+	<Parameters type="SCLExport">
+		<Export name="CDATA">BaseType, ConnectionLostMessage, SeverityOfConnectionLost, ConnectionLostAckReq, ConnectionOKMessage, ConnectionOKAckReq, SendSimpleEvent</Export>
+	</Parameters>
+	<Properties type="PropertyDefinitions">
+		<Property name="OPCObjectType" category="[010] Basic">
+			<Value>Event Class</Value>
+			<DescID>OPCObjectTypeDesc</DescID>
+			<CaptionID>OPCObjectType</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHR</Access>
+			<AttributeName>OPCObjectType</AttributeName>
+		</Property>
+		<Property name="BaseType" category="[010] Basic">
+			<Value>DeviceConnectionStatus</Value>
+			<DescID>BaseTypeDesc</DescID>
+			<CaptionID>BaseType</CaptionID>
+			<Values type="singleChoice">
+				<Enum textID="Discrete Indication" value="DiscInd"/>
+				<Enum textID="Limit Supervision" value="MVLevelBase"/>
+				<Enum textID="Trip Event" value="Trip"/>
+				<Enum textID="Advanced Discrete Indication" value="Discrete"/>
+				<Enum textID="Device Connection Status" value="DeviceConnectionStatus"/>
+				<Enum textID="Advanced Limit Supervision" value="Level"/>
+				<Enum textID="Quality Texts" value="Quality Texts"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="ConnectionLostMessage" category="[010] Basic">
+			<Value>Device Connection Lost</Value>
+			<DescID>ConnectionLostMessageDesc</DescID>
+			<CaptionID>ConnectionLostMessage</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="ConnectionOKMessage" category="[010] Basic">
+			<Value>Connection OK</Value>
+			<DescID>ConnectionOKMessageDesc</DescID>
+			<CaptionID>ConnectionOKMessage</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="SeverityOfConnectionLost" category="[010] Basic">
+			<Value>1</Value>
+			<DescID>SeverityOfConnectionLostDesc</DescID>
+			<CaptionID>SeverityOfConnectionLost</CaptionID>
+			<Values type="numerical">
+				<Min>1</Min>
+				<Max>1000</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="ConnectionOKAckReq" category="[010] Basic">
+			<Value>False</Value>
+			<DescID>ConnectionOKAckReqDesc</DescID>
+			<CaptionID>ConnectionOKAckReq</CaptionID>
+			<Values type="boolean">
+      </Values>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="ConnectionLostAckReq" category="[010] Basic">
+			<Value>True</Value>
+			<DescID>ConnectionLostAckReqDesc</DescID>
+			<CaptionID>ConnectionLostAckReq</CaptionID>
+			<Values type="boolean">
+      </Values>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="SendSimpleEvent" category="[010] Basic">
+			<Value>True</Value>
+			<DescID>SendSimpleEventDesc</DescID>
+			<CaptionID>SendSimpleEvent</CaptionID>
+			<Values type="boolean">
+      </Values>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+	</Properties>
+</ObjectType>

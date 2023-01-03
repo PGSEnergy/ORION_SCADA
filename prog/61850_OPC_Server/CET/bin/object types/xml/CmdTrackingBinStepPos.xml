@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Markku Hamarila/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">BINSTEPPOS</Parameter>
+		<Parameter name="Caption">objectTypeCaption</Parameter>
+		<Parameter name="Description">objectTypeDesc</Parameter>
+		<Parameter name="Group">Event Classes</Parameter>
+		<Parameter name="Type">EVENT</Parameter>
+		<Parameter name="IconFileName">ae.ico</Parameter>
+		<Parameter name="Tools"/>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="Visible">True</Parameter>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="PCMObjectType">BINSTEPPOSEventGroup</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+	<Parameters type="SCLExport">
+		<Export name="CDATA">BaseType, OperateLowerMsg, OperateHigherMsg, OperateStopMsg, OperationFailedMsg, NormalSeverity, FailedSeverity</Export>
+	</Parameters>
+	<Properties type="PropertyDefinitions">
+			<Property name="OPCObjectType" category="[010] Basic">
+			<Value>Command Tracking</Value>
+			<DescID>OPCObjectTypeDesc</DescID>
+			<CaptionID>OPCObjectType</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHR</Access>
+			<AttributeName>OPCObjectType</AttributeName>
+		</Property>
+	<Property name="BaseType" category="[010] Basic">
+			<Value>BINSTEPPOS</Value>
+			<DescID>BaseTypeDesc</DescID>
+			<CaptionID>BaseType</CaptionID>
+			<Values type="singleChoice">
+				<Enum textID="BinaryStepPosition" value="BINSTEPPOS"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RRR</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="NormalSeverity" category="[010] Basic">
+			<Value>10</Value>
+			<DescID>NormalSeverityDesc</DescID>
+			<CaptionID>NormalSeverity</CaptionID>
+			<Values type="numerical">
+				<Min>1</Min>
+				<Max>1000</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="FailedSeverity" category="[010] Basic">
+			<Value>100</Value>
+			<DescID>FailedSeverityDesc</DescID>
+			<CaptionID>FailedSeverity</CaptionID>
+			<Values type="numerical">
+				<Min>1</Min>
+				<Max>1000</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName/>
+		</Property>
+
+
+		<Property name="OperateLowerMsg" category="[010] Basic">
+			<Value>Operate lower</Value>
+			<DescID>OperateLowerMsgDesc</DescID>
+			<CaptionID>OperateLowerMsg</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="OperateHigherMsg" category="[010] Basic">
+			<Value>Operate higher</Value>
+			<DescID>OperateHigherMsgDesc</DescID>
+			<CaptionID>OperateHigherMsg</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="OperateStopMsg" category="[010] Basic">
+			<Value>Operate stop</Value>
+			<DescID>OperateStopMsgDesc</DescID>
+			<CaptionID>OperateStopMsg</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+
+
+		<Property name="OperationFailedMsg" category="[010] Basic">
+			<Value>Operation failed</Value>
+			<DescID>OperationFailedMsgDesc</DescID>
+			<CaptionID>OperationFailedMsg</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+
+	</Properties>
+</ObjectType>

@@ -1,0 +1,556 @@
+﻿;SSS IED Communication Object Model and Object References generator
+
+#local SSS_OR = VECTOR()              ;SSS object references model
+#local SSS_OR_IX = 1
+#local SSS_PO_LN
+#local SSS_PO_IX
+#local SSS_PO_apl_number
+#local ln
+#local ix
+#local pt
+#local datapoint_type
+#local own_main_apl_number
+#local PO_TYPE
+#local stations
+#local nodes
+#local node_lookup
+#local node_line_id
+#local node_line_protocol
+#local sta_number
+#local sta_dec
+#local sta_type
+#local line
+#local line_nr
+#local sys_equipment
+#local line_container = VECTOR()
+#local line_container_count
+#local com_node
+#local node_container
+#local containers
+#local id
+#local node
+#local sys_node
+#local equipments = VECTOR()
+#local equipment_counter
+#local equipment_array = VECTOR()
+#local links
+#local link_counter = 1
+#local ied_communication
+#local time_out
+#local protocol_type
+#local line_protocol_number
+#local internal_name
+#local visible_name
+#local i_status
+#local i
+
+#local object_reference
+#local root_container_name
+#local sys_node_container_name
+#local node_container_name
+
+#local sta_internal_name 
+#local sta_object_reference 
+
+#local host
+#local host_apl
+
+#local max_line_number = 21
+#local UNKNOWN_LINE = 21
+#local UNKNOWN_PROTOCOL = 99 
+
+#local iattributes = VECTOR()
+
+iattributes(1) = list (name = "path",            ValueAttribute = "OI")
+iattributes(2) = list (name = "name",            ValueAttribute = "IL[DEV]")
+iattributes(3) = list (name = "customer_text",   ValueAttribute = "TX")
+iattributes(4) = list (name = "state",           ValueAttribute = "SX")
+iattributes(5) = list (name = "update_blocked",  ValueAttribute = "UB")
+iattributes(6) = list (name = "alarm_blocked",   ValueAttribute = "AB")
+iattributes(7) = list (name = "event_blocked",   ValueAttribute = "HB")
+iattributes(8) = list (name = "printout_blocked",ValueAttribute = "PB")
+iattributes(9) = list (name = "active",          ValueAttribute = "AL")
+iattributes(10) = list (name = "acknowledged",   ValueAttribute = "AR")
+iattributes(11) = list (name = "severity",       ValueAttribute = "AV")
+
+
+;************************************************** IED COMMUNICATION MODEL ****************************************************************
+
+;All protocols should be added here
+
+
+PO_TYPE(51) = "IEC 61850-8-1 Server"
+
+PO_TYPE(1) = "ANSI X3.28 Full Duplex or ACP"
+PO_TYPE(2) = "ANSI X3.28 Half Duplex (HF)"
+PO_TYPE(4) = "ASCII"
+PO_TYPE(7) = "RP570/1"
+PO_TYPE(9) = "P214"
+PO_TYPE(12) = "LCU500"
+PO_TYPE(13) = "ADLP180 Master"
+PO_TYPE(14) = "SPA Master"
+PO_TYPE(15) = "General ASCII"
+PO_TYPE(16) = "RP570 Slave"
+PO_TYPE(17) = "RCOM"
+PO_TYPE(18) = "Westinghouse F4F"
+PO_TYPE(23) = "ABB Alpha meter"
+PO_TYPE(24) = "General PLC"
+PO_TYPE(25) = "Modbus RTU master"
+PO_TYPE(26) = "IEC 61107"
+PO_TYPE(27) = "LON"
+PO_TYPE(28) = "Integrated link"
+PO_TYPE(29) = "IEC 60870-5-101 Unbalanced slave"
+PO_TYPE(30) = "IEC 60870-5-101 Balanced slave"
+PO_TYPE(31) = "IEC 60870-5-101 Unbalanced master"
+PO_TYPE(32) = "IEC 60870-5-101 Balanced master"
+PO_TYPE(33) = "IEC 60870-5-103 Unbalanced master"
+PO_TYPE(35) = "DNP V3.00 slave protocol"
+PO_TYPE(43) = "DNP V3.00 master protocol"
+PO_TYPE(44) = "IEC 60870-5-104 master"
+PO_TYPE(45) = "IEC 60870-5-104 slave"
+
+PO_TYPE(71) = "IEC61850-8-1 client"
+PO_TYPE(72) = "IEC61850-8-1 server"
+PO_TYPE(73) = "Modbus slave"
+
+PO_TYPE(99) = "UNKNOWN"
+
+root_container_name = "communication"
+
+;Reduce NET communcation timeout
+time_out = TIMEOUT(1000)
+#ERROR STOP
+
+;Get all STA objects configured in this SYS that are connected to this application
+stations = BASE_SYSTEM_OBJECT_LIST("STA", "AP==APL:BBM")
+
+;
+; Create equipment containers for each SYS node and add Application data containers in them
+;
+;
+equipments = VECTOR()
+equipment_counter=1
+
+;Initialize lookup table for found nodes
+node_lookup(1..MAX_NODE_NUMBER)= 0
+
+
+;Initialize table for lines in COM (PC-NET) nodes
+node_line_id(1..MAX_NODE_NUMBER*max_line_number) = ""
+node_line_protocol(1..MAX_NODE_NUMBER*max_line_number) = UNKNOWN_PROTOCOL
+
+
+;Add STA objects as IED equipments
+
+#IF stations.count > 0 #THEN #BLOCK
+
+	#LOOP_WITH i = 1 .. stations.count
+	 sta_number = stations.BM(i) 
+	 sta_type = STA'sta_number':BST
+
+	 node = STA'sta_number':BND
+	 host = STA'sta_number':BHS
+	 host_apl = host.APL
+	 #if (node==0) OR (host_apl <> 0) #THEN #BLOCK    ;Mirrored stations or stations mapped to NOD 0
+	   #IF host_apl <> 0 #THEN node = APL'host_apl':BND
+	   #ELSE node=SYS:BND
+	   #if node==0 #THEN node = SYS:BND
+	   line_nr = UNKNOWN_LINE
+	 #BLOCK_END
+	 #ELSE #BLOCK
+		i_Status = status
+		#error ignore
+		   line_nr = STA'sta_number':SLI
+		#error stop
+		i_Status = status
+		#if i_Status <> 0 #then line_nr = UNKNOWN_LINE
+	 #BLOCK_END
+	 #IF line_nr == 0 #THEN line_nr = UNKNOWN_LINE
+	 
+	 #IF line_nr <> UNKNOWN_LINE #THEN #BLOCK
+		 ;Try to detect the protocol for PC-NET protocols
+		 i_Status = status
+		 #error ignore
+		 line_protocol_number = NET'node':SPO'line_nr'
+		 #error stop
+		 i_Status = status
+		 #if i_Status <> 0 #then line_protocol_number = UNKNOWN_PROTOCOL
+	 #BLOCK_END
+	 #ELSE line_protocol_number = UNKNOWN_PROTOCOL
+
+	 protocol_type = line_protocol_number   
+	 node_line_protocol(max_line_number * node + line_nr) = protocol_type
+
+
+	 internal_name = "IED"+"'sta_number'"
+	 object_reference = root_container_name + "." + internal_name
+
+     #IF sta_number < 10000 #THEN #BLOCK
+      sta_dec = sta_number / 10000
+      ln = "SYS_S" + SUBSTR("'sta_dec'",3,4) + "I"
+     #BLOCK_END
+     #ELSE #BLOCK
+      ln = "SYS_S" + "'sta_number'" + "I"   
+     #BLOCK_END
+	 ix = 210
+	 
+	 visible_name = "'sta_type'" + " IED " + "'sta_number'"   ;Use this as visible name if no communication_state process object found
+	 
+	 i_Status = status
+     #error ignore
+     pt= 'ln':PPT'ix'
+     #error stop
+     i_Status = status
+     #if i_Status == 0 #then #BLOCK  ;Process object exists
+	    visible_name = 'ln':POI'ix'    ;Use communication state process object OI as visible name for the equipment
+	 #BLOCK_END
+
+	 equipments(i) = LIST( -
+								  identifier = -
+									 LIST( - 
+										   id = object_reference, -
+										   internal_name = internal_name, -
+										   type = "'sta_type'" + "_IED", -
+										   visible_name = visible_name -
+										 ), -
+								  datapoints = ("communication_state", "group_alarm_state"), -
+								  containers = VECTOR() -                                             
+						   )
+	 node_lookup(node) =  node
+	 node_line_id(max_line_number * node + line_nr) = "NOD"+"'node'"+"."+"'line_nr'"
+	  
+	 ;Add SSS object references for datapoints
+	 
+	 object_reference = root_container_name + "." + internal_name
+	 datapoint_type = "communication_state"
+
+	 i_Status = status
+	 #error ignore
+	 pt= 'LN':PPT'IX'
+	 #error stop
+	 i_Status = status
+	 #if i_Status == 0 #then #BLOCK  ;Process object exists
+
+		   
+		SSS_OR(SSS_OR_IX) = LIST(name = object_reference + "." + datapoint_type, value = LIST(-
+																					  DataPointType = datapoint_type, -
+																					  ObjectReference = object_reference, -
+																					  LN = ln, -
+																					  IX = ix, -
+																					  PT = 'pt', -
+																					  ValueAttribute = "OV", -
+																					  Attributes = iattributes -
+																				  ) -
+								   ) 
+								   
+		SSS_OR_IX = SSS_OR_IX + 1 
+
+	 #BLOCK_END  
+	 
+	 
+	 SSS_OR(SSS_OR_IX) = LIST(name = object_reference + ".group_alarm_state", value = LIST(-
+																				   DataPointType = "group_alarm_state", -
+																				   ObjectReference = object_reference, -
+																				   LN = ln, -
+																				   ValueAttribute = "GS" -
+																			   ) -
+								)                           
+	 SSS_OR_IX = SSS_OR_IX + 1                                                              
+	 
+
+	 
+	 
+
+	#LOOP_END
+#BLOCK_END
+#ELSE #BLOCK
+    i=0
+#BLOCK_END
+
+
+sys_equipment = i + 1
+
+;Add SYS node and PC-NET and other containers
+
+node = SYS:BND
+internal_name = "SYS"+"'node'"
+object_reference = root_container_name + "." + internal_name
+sys_node_container_name = internal_name
+
+ln = "SYS_N" + SUBSTR("0000", 1, 4 - LENGTH("'node'")) + "'node'" + "I"
+ix = 10
+	 
+visible_name = "SYS NOD " + "'node'"   ;Use this as visible name if no communication_state process object found
+	 
+i_Status = status
+#error ignore
+pt= 'ln':PPT'ix'
+#error stop
+i_Status = status
+#if i_Status == 0 #then #BLOCK  ;Process object exists
+  visible_name = 'ln':POI'ix'    ;Use communication state process object OI as visible name for the equipment
+#BLOCK_END
+
+
+sys_node = LIST( -
+                  id = object_reference,-
+                  internal_name = internal_name,-
+                  type = "SYS_SERVER", -
+                  visible_name = visible_name - 
+               )
+
+equipments(sys_equipment) = LIST( - 
+                                    identifier = sys_node, -
+                                    datapoints = VECTOR("group_alarm_state", "communication_state"), -
+                                    containers = VECTOR() -
+                                  )
+
+;Add SSS object references for application SSS datapoints
+
+;Node group alam state
+SSS_OR(SSS_OR_IX) = LIST(name = object_reference + ".group_alarm_state", value = LIST(-
+                                                                               DataPointType = "group_alarm_state", -
+                                                                               ObjectReference = object_reference , -
+                                                                               LN = "SYS_N" + SUBSTR("0000", 1, 4 - LENGTH("'node'")) + "'node'" + "I", -
+                                                                               ValueAttribute = "GS" -
+                                                                          ) -
+                            )                           
+SSS_OR_IX = SSS_OR_IX + 1   
+   
+;Node communication state
+
+datapoint_type = "communication_state"
+
+i_Status = status
+#error ignore
+pt= 'LN':PPT'IX'
+#error stop
+i_Status = status
+#if i_Status == 0 #then #BLOCK  ;Process object exists
+
+   
+   SSS_OR(SSS_OR_IX) = LIST(name = object_reference + "." + datapoint_type, value = LIST(-
+                                                                                  DataPointType = datapoint_type, -
+                                                                                  ObjectReference = object_reference, -
+                                                                                  LN = ln, -
+                                                                                  IX = ix, -
+                                                                                  PT = 'pt', -
+                                                                                  ValueAttribute = "OV", -
+                                                                                  Attributes = iattributes -
+                                                                              ) -
+                               ) 
+                               
+    SSS_OR_IX = SSS_OR_IX + 1 
+
+#BLOCK_END  
+
+#LOOP_WITH node = 1 .. MAX_NODE_NUMBER
+
+ #IF node_lookup(node) <> 0 #THEN #BLOCK
+                                       
+    node_container_name = "NOD"+"'node'"									   
+    ;Add line containers to COM node container
+    line_container = VECTOR()
+    line_container_count = 1
+    
+    #LOOP_WITH line_nr = 1..max_line_number
+       #IF node_line_id(max_line_number * node + line_nr) <> "" #THEN #BLOCK
+         protocol_type = node_line_protocol(max_line_number * node + line_nr)
+
+         #IF protocol_type == 71 #THEN #BLOCK  ;IEC61850 client
+			internal_name = "line"+"'line_nr'"    
+			visible_name = "Subnetwork"
+		 #BLOCK_END
+         #ELSE #BLOCK
+			internal_name = "line"+"'line_nr'"
+			#IF line_nr == UNKNOWN_LINE #THEN #BLOCK
+			   visible_name = "Line X" 
+			#BLOCK_END
+			#ELSE #BLOCK
+			   visible_name = "Line 'line_nr'"
+			#BLOCK_END
+		 #BLOCK_END
+       
+       node_container_name = "NOD"+"'node'"
+  
+       object_reference = root_container_name + "." + sys_node_container_name + "." + node_container_name + "." + internal_name
+       node_line_id(max_line_number * node + line_nr) = object_reference
+  
+         line = LIST( -
+                        id = object_reference,-
+                        internal_name = "'internal_name'",-
+						visible_name = visible_name,-
+                        type = PO_TYPE(protocol_type) -
+                     )
+         line_container(line_container_count) = LIST(-
+                                                         identifier = line, -
+                                                         datapoints = VECTOR(), -
+                                                         containers = VECTOR() -
+                                                       )
+         line_container_count = line_container_count + 1
+         
+                            
+       #BLOCK_END
+    #LOOP_END  
+	
+   object_reference = root_container_name + "." + sys_node_container_name + "." + node_container_name
+   internal_name = node_container_name
+   
+   ln = "SYS_N" + SUBSTR("0000", 1, 4 - LENGTH("'node'")) + "'node'" + "I"
+   ix = 10
+	 
+	visible_name = "NOD " + "'node'"   ;Use this as visible name if no communication_state process object found
+		 
+	i_Status = status
+	#error ignore
+	pt= 'ln':PPT'ix'
+	#error stop
+	i_Status = status
+	#if i_Status == 0 #then #BLOCK  ;Process object exists
+	  visible_name = 'ln':POI'ix'    ;Use communication state process object OI as visible name for the equipment
+	#BLOCK_END
+   
+   
+    com_node = LIST( -
+                     id = object_reference,-
+                     internal_name = internal_name,-
+                     type = "COMMUNICATION_NODE", -
+                     visible_name = visible_name - 
+                    )
+    node_container = LIST( -
+                              identifier = com_node, -
+                              datapoints = ("communication_state", "group_alarm_state"), -
+                              containers = line_container -
+                           )
+    
+    equipments(sys_equipment).containers = APPEND(equipments(sys_equipment).containers,-
+                                             VECTOR(node_container) )
+    
+    ;Node group alam state
+   SSS_OR(SSS_OR_IX) = LIST(name = object_reference + ".group_alarm_state", value = LIST(-
+                                                                               DataPointType = "group_alarm_state", -
+                                                                               ObjectReference = object_reference, -
+                                                                               LN = "SYS_N" + SUBSTR("0000", 1, 4 - LENGTH("'node'")) + "'node'" + "I", -
+                                                                               ValueAttribute = "GS" -
+                                                                           ) -
+                            )                           
+   SSS_OR_IX = SSS_OR_IX + 1   
+   
+   ;Node communication state
+   
+   datapoint_type = "communication_state"
+   
+   i_Status = status
+   #error ignore
+   pt= 'LN':PPT'IX'
+   #error stop
+   i_Status = status
+   #if i_Status == 0 #then #BLOCK  ;Process object exists
+   
+      
+      SSS_OR(SSS_OR_IX) = LIST(name = object_reference + "." + datapoint_type, value = LIST(-
+                                                                                     DataPointType = datapoint_type, -
+                                                                                     ObjectReference = object_reference, -
+                                                                                     LN = ln, -
+                                                                                     IX = ix, -
+                                                                                     PT = 'pt', -
+                                                                                     ValueAttribute = "OV", -
+                                                                                     Attributes = iattributes -
+                                                                                 ) -
+                                  ) 
+                                  
+       SSS_OR_IX = SSS_OR_IX + 1 
+   
+   #BLOCK_END
+          
+ #BLOCK_END
+#LOOP_END
+
+;
+; Create links between containers 
+;
+;
+
+
+links = VECTOR()
+link_counter=1
+
+;Loop again through stations to create links
+
+#LOOP_WITH i = 1 .. stations.count
+ sta_number = stations.BM(i) 
+ sta_type = STA'sta_number':BST
+ 
+ node = STA'sta_number':BND
+ host = STA'sta_number':BHS
+ host_apl = host.APL
+ #if (node==0) OR (host_apl <> 0) #THEN #BLOCK    ;Mirrored stations or stations mapped to NOD 0
+   #IF host_apl <> 0 #THEN node = APL'host_apl':BND
+   #ELSE node=SYS:BND
+   #if node==0 #THEN node = SYS:BND
+   line_nr = UNKNOWN_LINE
+ #BLOCK_END
+ #ELSE #BLOCK
+	i_Status = status
+	#error ignore
+	   line_nr = STA'sta_number':SLI
+	#error stop
+	i_Status = status
+	#if i_Status <> 0 #then line_nr = UNKNOWN_LINE
+ #BLOCK_END
+ #IF line_nr == 0 #THEN line_nr = UNKNOWN_LINE
+ 
+ sta_internal_name = "IED"+"'sta_number'"
+ sta_object_reference = root_container_name + "." + sta_internal_name
+ 
+ links(link_counter) = LIST( - 
+                                    identifier = LIST( -
+                                                       id = node_line_id(max_line_number * node + line_nr) + "_IED"+"'sta_number'" , - 
+                                                       internal_name = node_line_id(max_line_number * node + line_nr) + "_IED"+"'sta_number'", - 
+                                                       type="COMM_LINE", -
+                                                       visible_name=""), -
+                                    source = node_line_id(max_line_number * node + line_nr), -
+                                    target = sta_object_reference -
+                             )
+ link_counter = link_counter + 1
+
+#LOOP_END
+
+
+;
+; Create the top level communications container
+;
+;
+
+#IF stations.count > 0 #THEN #BLOCK
+   
+   #LOOP_WITH i=1..length(equipments)
+      equipment_array(i) = equipments(i).identifier.id
+   #LOOP_END
+
+#BLOCK_END
+
+containers = VECTOR( -
+                      LIST(-
+                              identifier = LIST( -
+                                                 id="communication", - 
+                                                 internal_name = root_container_name, - 
+                                                 type="COMMUNICATION", -
+                                                 visible_name="Communication"), -
+                              datapoints = VECTOR(), -
+                              equipments = equipment_array, -
+                              containers = VECTOR() -
+                           ) -
+                   )
+
+
+; Merge all to IED Communication model
+                
+ied_communication = LIST( - 
+                      name = "communications", -
+                      containers = containers, -
+                      equipments = equipments, -
+                      links = links - 
+                     )
+                  
+#RETURN LIST(object_model=ied_communication, object_references=SSS_OR)

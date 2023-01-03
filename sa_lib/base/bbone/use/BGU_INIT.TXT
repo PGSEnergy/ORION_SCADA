@@ -1,0 +1,101 @@
+; This file is executed by EABListComm object when a session is started.
+;
+; This file does following:
+; - Checks if revision of the installed SW module is higher than  
+;   revision of SW module whose installation scripts were previously executed. Previous revision
+;   is stored in SA_LIB_REV:C command procedure. Revision of installed SW module revision is stored in 
+;   file /SA_LIB/BASE/BBONE/USE/BGU_SA_LIB_REV.TXT.
+; - If SW module revision is newer, runs all text files in directory /SA_LIB/BASE/BBONE/INIT.
+;   The files are supposed to contain SCIL code.
+;
+; Procedure can handle version numbers from "0.0.0" to "99.99.99". Version number can 
+; contain 1 to 3 parts (e.g. "1", "1.0" or "1.2.3")
+#local E_STATE, LOCK_PATH, CHECK_LOCK, C_SEARCH, TXT_RUNNING_REVISION
+#local ADD_ON_NEEDS_UPDATE, TARGET, FILETAGS, FILENAMES, DO_RESULT, DO_STATUS
+#local DIRECTORY_NAME, TXT_INSTALLED_REVISION, FNAME, ST, ERROR_TEXT
+#local VCT_RUNNING_REVISION, VCT_INSTALLED_REVISION, INT_RUNNING_REVISION, TRASH
+#local INT_INSTALLED_REVISION, TAG, FILES_TO_RUN, I_FILES_TO_RUN, I
+
+E_STATE=ERROR_STATE
+
+;Set lock:
+LOCK_PATH=path("pict")
+LOCK_PATH=LOCK_PATH(1)
+CHECK_LOCK=FILE_LOCK_MANAGER("LOCK", "'lock_path'\BGU_INIT")
+#if CHECK_LOCK=="LOCKED" #THEN #RETURN
+
+;Get SW module revision from command procedure (when installation was run last time)
+C_SEARCH = FETCH(0,"C","SA_LIB_REV")
+#IF C_SEARCH.IU <> -1 #THEN #BLOCK
+   TXT_RUNNING_REVISION= DO(SA_LIB_REV:C)
+#BLOCK_END
+#ELSE TXT_RUNNING_REVISION= "0"
+
+;Check update need of add-on packages:
+;Loop through files in \sc\sa_lib\base\bbone\init_check.
+;If any of files in INIT_CHECK returns TRUE, set  ADD_ON_NEEDS_UPDATE to TRUE.
+;This will force re-run of init scripts
+ADD_ON_NEEDS_UPDATE=FALSE
+TARGET = fm_scil_directory("/sa_lib/base/BBONE/init_check")
+#if DIRECTORY_MANAGER("EXISTS", TARGET) #then #block
+   FILETAGS = FILE_MANAGER("LIST", TARGET)
+   DIRECTORY_NAME=FM_REPRESENT(TARGET)
+   FILENAMES = FM_REPRESENT(FILETAGS)
+   #error continue
+   #loop_with i=1..length(FILENAMES)
+      FNAME=FILENAMES(i)
+      DO_RESULT=do(read_text(DIRECTORY_NAME+"\"+FNAME))
+      DO_STATUS=status
+      #if DATA_TYPE(DO_RESULT)<>"BOOLEAN" #then #block
+         TRASH=console_output(times  + " " + apl:bna + " BGU_INIT.TXT: Wrong data type returned by 'DIRECTORY_NAME'\'FNAME'. Data type of return value should be BOOLEAN")
+         DO_RESULT=FALSE
+      #block_end
+      #if DO_STATUS<>0 #then #block
+         ERROR_TEXT=STATUS_CODE_NAME(DO_STATUS)
+         ST=console_output(times  + " " + apl:bna + " BGU_INIT.TXT: Error in INIT_CHECK file 'DIRECTORY_NAME'\'FNAME' (Error code 'do_status', 'error_text')")
+      #block_end
+      ADD_ON_NEEDS_UPDATE=DO_RESULT OR ADD_ON_NEEDS_UPDATE
+   #loop_end
+   #error 'E_STATE'
+#block_end
+;Get revision of installed SW module:
+TXT_INSTALLED_REVISION=DO(READ_TEXT("/SA_LIB/BASE/BBONE/USE/BGU_SA_LIB_REV.TXT"))
+
+VCT_RUNNING_REVISION=set_status(sum(append(dec_scan(SEPARATE(TXT_RUNNING_REVISION, ".")),(0,0))*(10000,100,1)),0)
+VCT_INSTALLED_REVISION=set_status(sum(append(dec_scan(SEPARATE(TXT_INSTALLED_REVISION, ".")),(0,0))*(10000,100,1)),0)
+
+INT_RUNNING_REVISION=VCT_RUNNING_REVISION(1)
+INT_INSTALLED_REVISION=VCT_INSTALLED_REVISION(1)
+
+#IF (INT_INSTALLED_REVISION > INT_RUNNING_REVISION) OR ADD_ON_NEEDS_UPDATE #THEN #BLOCK
+   ;ST=console_output("Update Executed")
+   ;ST=console_output("Running revision int= 'INT_RUNNING_REVISION'")
+   ;ST=console_output("Installed revision int= 'INT_INSTALLED_REVISION'")
+   TAG = FM_DIRECTORY(PARSE_FILE_NAME("/SA_LIB/BASE/BBONE/INIT"))
+   FILES_TO_RUN=fm_represent(file_manager("LIST", TAG))
+   ST=console_output(times  + " " + apl:bna + " BGU_INIT.TXT: Running update scripts...")
+   #error continue
+   #loop_with i_FILES_TO_RUN=1..length(FILES_TO_RUN)
+      TRASH=do(read_text("/SA_LIB/BASE/BBONE/INIT/" + FILES_TO_RUN(I_FILES_TO_RUN)))
+      ST=status
+      #if ST<>0 #then #block
+         FNAME=FILES_TO_RUN(I_FILES_TO_RUN)         
+         ERROR_TEXT=STATUS_CODE_NAME(ST)
+         ST=console_output(times  + " " + apl:bna + " BGU_INIT.TXT: Error in script 'fname' (Error code 'st', 'error_text')")
+      #block_end
+   #loop_end   
+   #error stop
+   ST=console_output(times  + " " + apl:bna + " BGU_INIT.TXT: Done.")
+   ;create command procedure for revision information...
+   C_SEARCH = FETCH(0,"C","SA_LIB_REV")
+   #IF C_SEARCH.IU == -1 #THEN #BLOCK
+      #CREATE SA_LIB_REV:C = LIST(-   
+            IU = 1,-
+            MO = 1,-
+            CM = "Procedure for SA_LIB update",-
+            IN = READ_TEXT("/SA_LIB/BASE/BBONE/USE/BGU_SA_LIB_REV.TXT"))
+   #BLOCK_END
+   ;...or modify existing procedure:
+   #ELSE #MODIFY SA_LIB_REV:C=LIST(IN = READ_TEXT("/SA_LIB/BASE/BBONE/USE/BGU_SA_LIB_REV.TXT"))
+#BLOCK_END
+CHECK_LOCK=FILE_LOCK_MANAGER("UNLOCK", "'lock_path'\BGU_INIT")

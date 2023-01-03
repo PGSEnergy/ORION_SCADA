@@ -1,0 +1,341 @@
+#local Objects = list(COUNT = 0), objRef, objRefSplitted, console, i, salibIndexes = vector, overrideList = list()
+#local attrOS = 0, attrOX = "", attrMT = "", attrOI,  attrUS = translation("Unknown"), attrOV = 0
+#local AplBOI = APL:BOI, start = 1, startBAY = 0, startDEV = 0, levelBAY = 0, levelDEV = 0, cmdValue = ""
+#local controlMask = vector(0,0,0,0), eventLN = "BGU_LTRK_EVENT", eventIX = 10, cmdArgs, tmpCause = "", timeString = ""
+#local Ltrk = list(-
+   ServiceType = list(-
+      EVENT_0 = translation("Unknown"),-
+      EVENT_1 = translation("Associate"),-
+      EVENT_2 = translation("Abort"),-
+      EVENT_3 = translation("Release"),-
+      EVENT_4 = translation("GetServerDirectory"),-
+      EVENT_5 = translation("GetLogicalDeviceDirectory"),-
+      EVENT_6 = translation("GetAllDataValues"),-
+      EVENT_7 = translation("GetDataValues"),-
+      EVENT_8 = translation("SetDataValues"),-
+      EVENT_9 = translation("GetDataDirectory"),-
+      EVENT_10 = translation("GetDataDefinition"),-
+      EVENT_11 = translation("GetDataSetValues"),-
+      EVENT_12 = translation("SetDataSetValues"),-
+      EVENT_13 = translation("CreateDataSet"),-
+      EVENT_14 = translation("DeleteDataSet"),-
+      EVENT_15 = translation("GetDataSetDirectory"),-
+      EVENT_16 = translation("SelectActiveSG"),-
+      EVENT_17 = translation("SelectEditSG"),-
+      EVENT_18 = translation("SetEditSGValue"),-
+      EVENT_19 = translation("ConfirmEditSGValues"),-
+      EVENT_20 = translation("GetEditSGValue"),-
+      EVENT_21 = translation("GetSGCBValues"),-
+      EVENT_22 = translation("Report"),-
+      EVENT_23 = translation("GetBRCBValues"),-
+      EVENT_24 = translation("SetBRCBValues"),-
+      EVENT_25 = translation("GetURCBValues"),-
+      EVENT_26 = translation("SetURCBValues"),-
+      EVENT_27 = translation("GetLCBValues"),-
+      EVENT_28 = translation("SetLCBValue"),-
+      EVENT_29 = translation("QueryLogByTime"),-
+      EVENT_30 = translation("QueryLogAfter"),-
+      EVENT_31 = translation("GetLogStatus"),-
+      EVENT_32 = translation("SendGOOSEMessage"),-
+      EVENT_33 = translation("GetGoCBValues"),-
+      EVENT_34 = translation("SetGoCBValues"),-
+      EVENT_35 = translation("GetGoReference"),-
+      EVENT_36 = translation("GetGOOSEElementNumber"),-
+      EVENT_37 = translation("SendMSVMessage"),-
+      EVENT_38 = translation("GetMSVCBValues"),-
+      EVENT_39 = translation("SetMSVCBValues"),-
+      EVENT_40 = translation("SendUSVMessage"),-
+      EVENT_41 = translation("GetUSVCBValues"),-
+      EVENT_42 = translation("SetUSVCBValues"),-
+      EVENT_43 = translation("Select"),-
+      EVENT_44 = translation("SelectWithValue"),-
+      EVENT_45 = translation("Cancel"),-
+      EVENT_46 = translation("Operate"),-
+      EVENT_47 = translation("CommandTermination"),-
+      EVENT_48 = translation("TimeActivatedOperate"),-
+      EVENT_49 = translation("GetFile"),-
+      EVENT_50 = translation("SetFile"),-
+      EVENT_51 = translation("DeleteFile"),-
+      EVENT_52 = translation("GetFileAttributValues"),-
+      EVENT_53 = translation("TimeSynchronisation"),-
+      EVENT_54 = translation("InternalChange")),-
+   ServiceError = list(-
+      EVENT_0 = translation("no-error"),-
+      EVENT_1 = translation("instance-not-available"),-
+      EVENT_2 = translation("instance-in-use"),-
+      EVENT_3 = translation("access-violation"),-
+      EVENT_4 = translation("access-not-allowed-in-current-state"),-
+      EVENT_5 = translation("parameter-value-inappropriate"),-
+      EVENT_6 = translation("parameter-value-inconsistent"),-
+      EVENT_7 = translation("class-not-supported"),-
+      EVENT_8 = translation("instance-locked-by-other-client"),-
+      EVENT_9 = translation("control-must-be-selected"),-
+      EVENT_10 = translation("type-conflict"),-
+      EVENT_11 = translation("failed-due-to-communications-constraint"),-
+      EVENT_12 = translation("failed-due-to-server-constraint")),-
+   AddCause = list(-
+      EVENT__35 = translation("Not-expected-final-position"),- ;negative values
+      EVENT__34 = translation("Switch-in-bad-state"),-
+      EVENT__33 = translation("Switch-returned-to-initial-position"),-
+      EVENT__32 = translation("Persistant-intermediate-state"),-
+      EVENT__31 = translation("Switch-not-start-moving"),-
+      EVENT__30 = translation("Long-operation-time"),-
+      EVENT__25 = translation("Blocked-for-close-command"),-
+      EVENT__24 = translation("Blocked-for-open-command"),-
+      EVENT__23 = translation("Blocked-for-command"),-
+      EVENT__22 = translation("Wrong-CTL-model"),- ;negative values
+      EVENT_0 = translation("Unknown"),-
+      EVENT_1 = translation("Not-supported"),-
+      EVENT_2 = translation("Blocked-by-switching-hierarchy"),-
+      EVENT_3 = translation("Select-failed"),-
+      EVENT_4 = translation("Invalid-position"),-
+      EVENT_5 = translation("Position-reached"),-
+      EVENT_6 = translation("Parameter-change-in-execution"),-
+      EVENT_7 = translation("Step-limit"),-
+      EVENT_8 = translation("Blocked-by-Mode"),-
+      EVENT_9 = translation("Blocked-by-process"),-
+      EVENT_10 = translation("Blocked-by-interlocking"),-
+      EVENT_11 = translation("Blocked-by-synchrocheck"),-
+      EVENT_12 = translation("Command-already-in-execution"),-
+      EVENT_13 = translation("Blocked-by-health"),-
+      EVENT_14 = translation("1-of-n-control"),-
+      EVENT_15 = translation("Abortion-by-cancel"),-
+      EVENT_16 = translation("Time-limit-over"),-
+      EVENT_17 = translation("Abortion-by-trip"),-
+      EVENT_18 = translation("Object-not-selected"),-
+      EVENT_19 = translation("Object-already-selected"),-
+      EVENT_20 = translation("No-access-authority"),-
+      EVENT_21 = translation("Ended-with-overshoot"),-
+      EVENT_22 = translation("Abortion-due-to-deviation"),-
+      EVENT_23 = translation("Abortion-by-communication-loss"),-
+      EVENT_24 = translation("Blocked-by-command"),-
+      EVENT_25 = translation("None"),-
+      EVENT_26 = translation("Locked-by-other-client"),-
+      EVENT_27 = translation("Inconsistent-parameters")))
+
+#local Event, attrUN = 'LN':PUN'IX', systems = vector, s
+#local enableDebugging = (SYS:BDM == 1)
+
+#if enableDebugging #then #block
+   @Trash=trace_begin("PICT/TRACE_BGU_LTRK_EVENT.txt")
+   #on error #block
+      @Trash = trace_end
+      #return
+   #block_end
+#block_end
+
+Event = evaluate(type_cast(%OV, "TEXT"))
+
+#if Event.originatorID <> "" #then #block
+   s = status
+   #if application_object_exists(0, "C", "BGU_LTRK_SUPPRESS") #then #block
+      #error ignore      
+      systems = do(BGU_LTRK_SUPPRESS:CIN)
+      s = status
+      #if s <> 0 #then console = console_output("BGU_LTRK_EVENT:C Error when reading data from BGU_LTRK_SUPPRESS:C ('s')")
+   #block_end
+   #if s ==  0 #then #block
+      #if data_type(systems) == "VECTOR" #then #block
+         #loop_with i = 1 .. length(systems)
+            #if data_type(systems(i)) == "LIST" #then #block
+               #if systems(i).ORIGINATOR_ID == Event.originatorID #then #block
+                  #if systems(i).SUPPRESS_EVENTS #then #return
+                  #if systems(i).EVENT_LIST_ID <> "" #then Event.originatorID = systems(i).EVENT_LIST_ID
+               #block_end
+            #block_end
+         #loop_end
+      #block_end
+   #block_end 
+#block_end
+#error stop
+
+;create common process object for event handling. This is used if 
+;service tracking related process object is not found from process database
+#if not application_object_exists(0, "IX", list(LN = eventLN, IX = 10)) #then - 
+   #create 'eventLN':P10 = list(-
+      IU = 1,-
+      SS = 1,-
+      RX = "                    BSWASYSITRK",-
+      PT = 9,-
+      DX = "E6",-
+      SN = "1_1",-
+      HE = 1,-
+      HA = 2,-
+      HF = 1) 
+
+#case Event.CDC
+   #when "CTS" #block      
+      ;interlocking bypass, synchrocheck bypass, test command
+      #if Event.check(2) == 0 #then controlMask(2) = 1
+      #if Event.check(1) == 0 #then controlMask(3) = 2
+      #if Event.test #then controlMask(4) = 3
+      
+      attrOV = bit_mask(controlMask(1), controlMask(2), controlMask(3), controlMask(4))
+      
+      #if attrOV == 1 #then cmdArgs = ""
+      #else_if attrOV == 3 #then cmdArgs = " " + translation("with Int. bypass")
+      #else_if attrOV == 5 #then cmdArgs = " " + translation("with Synch. bypass")
+      #else_if attrOV == 7 #then cmdArgs = " " + translation("with Int. & Synch. bypass")
+      #else_if attrOV == 9 #then cmdArgs = " " + translation("with Test")
+      #else_if attrOV == 11 #then cmdArgs = " " + translation("with Int. bypass & Test")
+      #else_if attrOV == 13 #then cmdArgs = " " + translation("with Synch. bypass & Test")
+      #else_if attrOV == 15 #then cmdArgs = " " + translation("with Int. bypass & Synch. bypass & Test")
+      #else cmdArgs = ""
+      
+      ;command direction
+      #case data_type(Event.ctlVal)
+         #when "BOOLEAN" #block
+            #if Event.ctlVal #then cmdValue = translation("ON")
+            #else cmdValue = translation("OFF")
+         #block_end
+         #when "INTEGER", "REAL" #block
+            cmdValue = "'Event.ctlVal'"
+         #block_end
+      #case_end
+      
+      ;object status
+      #if Event.t(3) or Event.t(4) #then attrOS = 3
+      
+      ;Define execution status text status to Event Text in the Event List
+      #if Event.errorCode == 0 and Event.respAddCause == 0 #then attrMT = translation("Done") + cmdArgs
+      #else attrMT = translation("FAIL") + cmdArgs
+      
+      #if Event.ServiceType == 47 #then attrMT = attrMT + " " + translation("Cmd. Termination")
+      
+      #if Event.respAddCause <> 0 #then #block
+         #if Event.respAddCause < 0 #then tmpCause = "_" + dec(abs(Event.respAddCause), 0)
+         #else tmpCause = Event.respAddCause
+         #if attribute_exists(Ltrk.AddCause, "EVENT_'tmpCause'") #then -
+            attrMT = attrMT + ", " + Ltrk.AddCause.EVENT_'tmpCause'
+         #else -
+            attrMT = attrMT + ", " + "'Event.respAddCause'"
+      #block_end
+      
+      #if Event.errorCode <> 0 #then #block
+         #if attribute_exists(Ltrk.ServiceError, "EVENT_'Event.errorCode'") #then -
+            attrMT = attrMT + ", " + Ltrk.ServiceError.EVENT_'Event.errorCode'
+         #else -
+           attrMT = attrMT + ", " + "'Event.errorCode'"
+      #block_end          
+      
+      ;search process objects based on objRef
+      objRef = separate(Event.objRef, "/")
+      #if length(objRef) > 1 #then #block
+         objRef = objRef(2)
+         Objects = application_object_list(0, "IX", "U", "", attrUN, "IN == ""*'objRef'*""", vector("OI", "RX"))
+      #block_end
+      #else objRef = "OBJECT REFERENCE NOT FOUND"
+      #if Objects.COUNT > 0 #then #block
+         eventLN = Objects.LN(1)
+         eventIX = Objects.IX(1)
+         #if data_type(Event.ctlVal) == "BOOLEAN" #then #block
+               salibIndexes = select(Objects.RX, "==""*FP%%%%C*""", "WILDCARDS")
+               #if length(salibIndexes) > 0 #then #block
+                  salibIndexes = pick(Objects.IX, salibIndexes)
+                  #case length(salibIndexes)
+                     #when 1 #block
+                        eventIX = salibIndexes(1)
+                        #if attribute_exists(Ltrk.ServiceType, "EVENT_'Event.ServiceType'") #then -
+                           attrOX = 'eventLN':POX'eventIX' + " " + Ltrk.ServiceType.EVENT_'Event.ServiceType' + " " + cmdValue
+                        #else -
+                           attrOX = 'eventLN':POX'eventIX' + " " + "'Event.ServiceType'" + " " + cmdValue
+                        overrideList = merge_attributes(overrideList, list(-
+                           OX = attrOX))
+                     #block_end
+                     #when 2 #block
+                        #if Event.ctlVal #then eventIX = salibIndexes(2)
+                        #else eventIX = salibIndexes(1)
+                        #if attribute_exists(Ltrk.ServiceType, "EVENT_'Event.ServiceType'") #then -
+                           attrOX = 'eventLN':POX'eventIX' + " " + Ltrk.ServiceType.EVENT_'Event.ServiceType'
+                        #else -
+                           attrOX = 'eventLN':POX'eventIX' + " " + "'Event.ServiceType'"
+                        overrideList = merge_attributes(overrideList, list(-
+                           OX = attrOX))
+                     #block_end
+                     #when 5 #block
+                        #if Event.ctlVal and (Event.ServiceType == 43 or Event.ServiceType == 44) #then eventIX = salibIndexes(2)
+                        #else_if not Event.ctlVal and (Event.ServiceType == 43 or Event.ServiceType == 44) #then eventIX = salibIndexes(1)
+                        #else_if Event.ctlVal and (Event.ServiceType == 46 or Event.ServiceType == 47) #then eventIX = salibIndexes(4)
+                        #else_if not Event.ctlVal and (Event.ServiceType == 46 or Event.ServiceType == 47) #then eventIX = salibIndexes(3)
+                        #else_if Event.ServiceType == 45 #then eventIX = salibIndexes(5)
+                     #block_end
+                  #case_end
+               #block_end
+               attrOI = 'eventLN':POI'eventIX'
+         #block_end       
+      #block_end
+      #else #block         
+         attrOX = translation("Command")
+         
+         #if attribute_exists(Ltrk.ServiceType, "EVENT_'Event.ServiceType'") #then -
+            attrOX = attrOX + " " + Ltrk.ServiceType.EVENT_'Event.ServiceType' + " " + cmdValue
+         #else -
+            attrOX = attrOX + " " + "'Event.ServiceType'" + " " + cmdValue
+         
+         #loop_with i = 1 .. AplBOI.DEPTH
+            #if i > 1 #then start = start + AplBOI.levels(i - 1).width
+            #if AplBOI.levels(i).NAME == "BAY" #then #block
+              startBAY = start
+              levelBAY = i
+            #block_end
+            #else_if AplBOI.levels(i).NAME == "DEV" #then #block
+               startDEV = start
+               levelDEV = i
+            #block_end
+         #loop_end
+         #if length(objRef) < AplBOI.levels(levelDEV).width #then -
+            attrOI = pad(" ", startDEV - 1) + objRef
+         #else #block
+            objRefSplitted = separate(objRef, ".")
+            attrOI = pad(" ", startBay - 1) + substr(objRefSplitted(1), 1, AplBOI.levels(levelBAY).width) + collect(objRefSplitted(2..), ".")
+         #block_end
+         overrideList = merge_attributes(overrideList, list(-
+            OI = attrOI,-
+            OX = attrOX))
+      #block_end
+      
+      #if Event.originatorID <> "" #then attrUS = Event.originatorID
+      
+      timeString = type_cast(clock, "INTEGER") 
+      timeString = "'timeString'"
+      
+      overrideList = merge_attributes(overrideList, list(-
+         OV = attrOV,-
+         OS = attrOS,-
+         US = attrUS,-
+         ET = clock(Event.t(1) - 252460800),-
+         EM = round(Event.t(2)/1000),-
+         EX = "'attrUS'#'timeString'#" + translation("Service tracking event from:") + " " + Event.originatorID))
+      
+      console = generate_history_event(eventLN, eventIX, attrMT, overrideList)
+      
+   #block_end
+   #when "CST" #block
+      
+;;      #if attribute_exists(Ltrk.ServiceType, "EVENT_'Event.ServiceType'") #then -
+;;            attrOX = Ltrk.ServiceType.EVENT_'Event.ServiceType'
+;;      #if Event.errorCode <> 0 #then #block
+;;         #if attribute_exists(Ltrk.ServiceError, "EVENT_'Event.errorCode'") #then -
+;;            attrOX = attrOX + ", " + Ltrk.ServiceError.EVENT_'Event.errorCode'
+;;         #else -
+;;           attrOX = attrOX + ", " + "'Event.errorCode'"
+;;      #block_end      
+;;      attrMT = Event.objRef
+;;      #if Event.originatorID <> "" #then attrUS = Event.originatorID
+;;      
+;;      attrOI = 'ln':poi'ix'
+;;            
+;;      overrideList = merge_attributes(overrideList, list(-
+;;         OI = attrOI,-
+;;         OX = ATTROX,-
+;;         US = attrUS,-
+;;         ET = clock(Event.t(1) - 252460800),-
+;;         EM = round(Event.t(2)/1000),-
+;;         EX = translation("Service tracking event from:") + " " + Event.originatorID))
+;;      console = generate_history_event(eventLN, eventIX, attrMT, overrideList)
+      
+   #block_end
+   #otherwise ;console = console_output("BGU_LTRK_EVENT:C Not supported CDC in service tracking event")
+#case_end
+
+#if enableDebugging #then @Trash = trace_end

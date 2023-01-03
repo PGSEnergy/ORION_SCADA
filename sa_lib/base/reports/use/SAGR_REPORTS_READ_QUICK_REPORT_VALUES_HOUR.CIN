@@ -1,0 +1,157 @@
+;CM =Interface for Monitor Pro Reports, Read Quick report values for type hour
+; Function:    SAGR_REPORTS_READ_QUICK_REPORT_VALUES_HOUR:C
+; Version:     3.0.6 (build 13.11.2013)
+; Parameters:  OBJECTS (all Object names)              
+;              REPORT_TYPE  (HOUR,DAY_15...)               
+;              TIME_INTERVAL (60,120,180)               
+;              TIME_FROM, TIME_TO                  
+; Return:      PAGE1=list( 
+;                  Col1=vector(value1,value2,..)
+;                  ColX=vector(value1,value2,..)
+;                  Col_Totals1=list(Mean, Max,.. Status/Value)
+;                  OS1=vector(OS value 1, OS value 2,..)
+;                  OSX=vector(OS value 1, OS value 2,..)
+;                  Time=vector(time 1, time 2,...)
+;                  Time_Interval
+; Description: Read quick report values for report type hour.
+;              No calculation needed, Data fetch can be done in one command
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;13.11.2013 3.06     HoDa   Summary information values from SCIL
+;--------------------------------------------------------------------------------------------------
+#local i,c, v_ = vector(), i_OS = 0, i_Status = Status, cot,-
+       i_FirstDOIndex = 1, i_LastDOIndex  = 1, i_DataCount = 1,-
+       b_TimeColumnOK = FALSE, b_SP_HistoryExists = false, b_SP_ReadCondition = false,-
+		 b_IsInsideHistory = false,-
+		 i_FirstYear = 2012, t_ObjectName = "",-
+		 v_IX = vector(), v_OV = vector(), i_SumStatus = 0,-
+		 i_MeanValue = 0, i_SumValue = 0, i_MinValue = 0, i_MaxValue = 0
+
+#error ignore
+@Report_Type= "NONE"
+@Quick_Report = true
+@OUTPUT=list()
+@REPORT_TYPE="HOUR"
+
+@T1=%Argumentlist.TIME_FROM
+@T2=%Argumentlist.TIME_TO
+
+#if data_type(%T1)<>"TIME" OR data_type(%T2)<>"TIME" #then #return
+
+#if SAGR_REPORTS_CALCDATARANGE:ccs == 1 #then -
+      #do SAGR_REPORTS_CALCDATARANGE:ccp   ;calculate the used data range 
+#else #do SAGR_REPORTS_CALCDATARANGE:c
+
+@START_TIME = %T1
+@END_TIME   = %T2
+
+@QUICK_REPORT_OBJECTS = %Argumentlist.OBJECTS
+@OUTPUT = list()
+@COL_TIME = vector()
+;*** Read and calculate report values
+@PAGE_DATA = list()
+#loop_with c = 1 .. length(%QUICK_REPORT_OBJECTS)
+
+   @COL'c' = vector()
+   t_ObjectName = %QUICK_REPORT_OBJECTS(c)
+
+   @l_ReportObject    = %l_ReportObjects.OBJ_'t_ObjectName'
+   b_SP_HistoryExists = %l_ReportObject.SP_HL > 0 and (%l_ReportObject.ID <> "MP") and (%l_ReportObject.ID <> "CP")
+;   @DEBUG="bSamplingHistory='bSamplingHistory'/bBasePeriodHistory='bBasePeriodHistory'"
+   i_DataCount = min(%DATA_LENGTH,%MAX_COUNT)
+   #loop_with i = 1 .. 1
+      @T1 = %START_TIME
+      @T2 = %END_TIME
+      @T1 = %T1 + 30
+      @T2 = %T2 - 30
+
+      #if b_SP_HistoryExists #then #block
+         #if BMU_SP_IND:CCS == 1 #then #do BMU_SP_IND:CCP
+         #else #do BMU_SP_IND:C
+      #block_end
+
+      #if b_SP_HistoryExists #then #block
+         b_IsInsideHistory = (%T1 > CLOCK - %l_ReportObject.SP_HL * 24 * 3600)
+         b_SP_ReadCondition= (%TIME_INTERVAL == %l_ReportObject.sp) AND b_IsInsideHistory
+      #block_end
+      #else b_SP_ReadCondition = false
+
+      #if b_SP_ReadCondition #then #block
+         @RESULT
+         @DATA_ID = t_ObjectName
+
+         #if BMU_SP_READ:CCS==1 #then #do BMU_SP_READ:CCP
+         #else #do BMU_SP_READ:C
+			
+         i_Status = status
+         @RESULT = DATA:VOV
+         i_Status = status
+         i_FirstDOIndex = 1
+         i_LastDOIndex  = data:vle
+         #if i_Status <> 0 #then -
+               @COL'c'(i_FirstDoIndex .. i_LastDOIndex) = set_status(vector(0), i_Status)
+         #else @COL'c'(i_FirstDOIndex .. i_LastDOIndex) = %RESULT * 1.0
+
+      #block_end
+      #else @COL'c'(1 .. i_DataCount) = set_status(vector(0), 11)               ;*** Shows as empty in report
+      @DATA
+      @RESULT      
+   #loop_end
+   #if not b_TimeColumnOK and (%TIME_INTERVAL == %l_ReportObject.sp) #then #block
+      #loop_with i = 1 .. i_DataCount
+         @COL_TIME(i) = %START_TIME + (i - 1) * %TIME_INTERVAL
+      #loop_end
+      b_TimeColumnOK = TRUE
+   #block_end
+   
+   v_IX    = select(get_status(%COL'c'),"==3")
+   @COL'c' = spread(%COL'c', v_IX, set_status(pick(%COL'c', v_IX), 0))
+
+   #if length(%v_RemoveOS) > 0 #then #block
+      #loop_with i = 1 .. length(%v_RemoveOS)
+         i_OS = %v_RemoveOS(i)
+         v_IX = select(get_status(%COL'c'),"=='i_OS'")
+         @COL'c' = spread(%COL'c', v_IX, set_status(pick(%COL'c', v_IX),0))
+      #loop_end
+   #block_end
+   ;define column values
+   #modify PAGE_DATA:V = list(COL'c' = %COL'c', OS'c' = get_status(%COL'c'))
+
+	;Calculate summary information values
+	v_IX = select(get_status(%COL'c'),"==9")                               		  ;*** replace OS=9 with OS=0, only values with OS = 0 will be used for summary calculation
+	@COL'c' = spread(%COL'c', v_IX, set_status(pick(%COL'c',v_IX),0))
+	v_IX = select(get_status(%COL'c'),"==1")                               		  ;*** replace OS=1 with OS=0, only values with OS = 0 will be used for summary calculation
+	@COL'c' = spread(%COL'c', v_IX, set_status(pick(%COL'c',v_IX),0))
+
+	v_OV = %COL'c'
+	
+	v_IX = select(get_status(v_OV),">0")
+	#if length(v_IX) == length(v_OV) #then #block                       			  ;*** no valid data exists for summary calculation
+		i_SumStatus = 10
+		v_OV(1) = 0
+	#block_end
+	#else #block
+		i_SumStatus = 0                                                  
+		v_IX = select(get_status(v_OV),"==0")						  	     				  ;*** pick all valid data
+		v_OV = pick(v_OV, v_IX)
+	#block_end
+	
+	v_ = mean(v_OV)
+   i_MeanValue = v_(1)
+	v_ = sum(v_OV)
+   i_SumValue  = v_(1)
+	v_ = low(v_OV)
+   i_MinValue = v_(1)
+	v_ = high(v_OV)
+   i_MaxValue  = v_(1)
+
+   #modify PAGE_DATA:V = list(COL_TOTALS'c' = list(SumInfoValue1 = i_SumValue,  SumInfoValue1_Status = i_SumStatus,-
+                                                   SumInfoValue2 = i_MeanValue, SumInfoValue2_Status = i_SumStatus,-
+                                                   SumInfoValue3 = i_MinValue,  SumInfoValue3_Status = i_SumStatus,-
+                                                   SumInfoValue4 = i_MaxValue,  SumInfoValue4_Status = i_SumStatus,-
+																	SumInfoValue5 = 0,  SumInfoValue5_Status = 11,-
+																	SumInfoValue6 = 0,  SumInfoValue6_Status = 11))
+#loop_end
+
+#modify OUTPUT:V = list(PAGE1 = %PAGE_DATA, TIME_INTERVAL = %TIME_INTERVAL, TIME = %COL_TIME)

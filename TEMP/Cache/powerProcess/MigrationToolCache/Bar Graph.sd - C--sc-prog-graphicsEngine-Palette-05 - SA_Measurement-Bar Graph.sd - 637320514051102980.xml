@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view comment="" box="-500.0 -500.0 500.0 500.0" scale="0.0" delay="0" minortickspacing="1" middletickspacing="1" majortickspacing="1" import_filename="C:/sc/prog/graphicsEngine/Palette/05 - SA_Measurement" pathname="C:/sc/prog/graphicsEngine/Palette/05 - SA_Measurement" filename="Bar Graph.sd" usetooltip="0">
+  <searchpath>
+    <dir idx="1" dname="C:/sc/prog/graphicsEngine/Palette"/>
+    <dir idx="2" dname="C:/sc/prog/graphicsEngine/etc"/>
+    <dir idx="3" dname="C:/sc/prog/graphicsEngine/lib"/>
+    <dir idx="4" dname="C:/sc/prog/graphicsEngine/lib/views"/>
+    <dir idx="5" dname="C:/sc/prog/graphicsEngine/lib/fonts"/>
+    <dir idx="6" dname="C:/sc/prog/graphicsEngine/lib/Templates"/>
+    <dir idx="7" dname="C:/sc/prog/graphicsEngine/lib/Templates/drawings"/>
+    <dir idx="8" dname="views"/>
+    <dir idx="9" dname="drawings"/>
+    <dir idx="10" dname="datafiles"/>
+    <dir idx="11" dname="layouts"/>
+    <dir idx="12" dname="images"/>
+    <dir idx="13" dname="icons"/>
+    <dir idx="14" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\etc"/>
+    <dir idx="15" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\fonts"/>
+    <dir idx="16" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\views"/>
+    <dir idx="17" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\drawings"/>
+    <dir idx="18" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\templates_sftext"/>
+    <dir idx="19" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\templates_sftext\drawings"/>
+    <dir idx="20" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\templates"/>
+    <dir idx="21" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\templates\drawings"/>
+    <dir idx="22" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\datafiles"/>
+    <dir idx="23" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\layouts"/>
+    <dir idx="24" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\images"/>
+    <dir idx="25" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\icons"/>
+  </searchpath>
+  <datasources>
+    <dps id="dps-2504cd0" type="memory" format="binary" name="default.mem">
+      <dp id="dp-24fb3b0" type="float" name="Value" rows="1" columns="1" delimiter="" global="1" initval="0.0" strinitval=""/>
+      <dp id="dp-2501b50" type="float" name="Status Color" rows="1" columns="1" delimiter="" global="1" initval="0.0" strinitval=""/>
+      <dp id="dp-24fbb58" type="float" name="Low Alarm" rows="1" columns="1" delimiter="" global="1" initval="0.0" strinitval=""/>
+      <dp id="dp-24fbd60" type="float" name="Low Warning" rows="1" columns="1" delimiter="" global="1" initval="0.0" strinitval=""/>
+      <dp id="dp-24fbf68" type="float" name="High Warning" rows="1" columns="1" delimiter="" global="1" initval="0.0" strinitval=""/>
+      <dp id="dp-24fc170" type="float" name="High Alarm" rows="1" columns="1" delimiter="" global="1" initval="0.0" strinitval=""/>
+    </dps>
+    <dps id="dps-2505600" type="function" format="binary" name="default.fcn" behavior="FDSeval" openfcn="Initialize" readfcn="Read" closefcn="Terminate" writefcn="" createdpsfcn="" destroydpsfcn="" savedpsfcn="" restoredpsfcn="" customdpsfcn="">
+      <openfcnarg idx="1" text="i=0"/>
+      <readfcnarg idx="1" text="i=i+1"/>
+      <dp id="dp-24fc3a0" type="float" name="MinFormula" rows="1" columns="1" delimiter="" global="0" initval="0.0" strinitval="" selectfcn="Read Data Source Value" wselectfcn="" createdpfcn="" destroydpfcn="" customdpfcn="">
+        <selectfcnarg idx="1" text="$2-0.1*($1-$2)"/>
+        <selectfcnarg idx="2" dp="dp-24fc170"/>
+        <selectfcnarg idx="3" dp="dp-24fbb58"/>
+        <reqselectfcnarg idx="1" expression=""/>
+        <reqselectfcnarg idx="2" Value="$1"/>
+        <reqselectfcnarg idx="3" Value="$2"/>
+      </dp>
+      <dp id="dp-24fc5a8" type="float" name="MaxFormula" rows="1" columns="1" delimiter="" global="0" initval="0.0" strinitval="" selectfcn="Read Data Source Value" wselectfcn="" createdpfcn="" destroydpfcn="" customdpfcn="">
+        <selectfcnarg idx="1" text="$1+0.1*($1-$2)"/>
+        <selectfcnarg idx="2" dp="dp-24fc170"/>
+        <selectfcnarg idx="3" dp="dp-24fbb58"/>
+        <reqselectfcnarg idx="1" expression=""/>
+        <reqselectfcnarg idx="2" Value="$1"/>
+        <reqselectfcnarg idx="3" Value="$2"/>
+      </dp>
+    </dps>
+  </datasources>
+  <graphics layer="1073741823" lod="all" invisible="0" foregroundcolor="empty" backgroundcolor="23">
+    <sk name="V_CDVObjectInternals" type="external" size="0" value="0"/>
+    <sk name="V_CDVBASECLASS_NAME" type="string" size="0" value="CDVViewWrapper"/>
+    <sk name="V_CDVBASECLASSHDR_NAME" type="string" size="0" value="DVViewWrapper.h"/>
+    <sk name="SAObjectType" type="string" size="0" value="Measurement Bar"/>
+    <sk name="SASuperType" type="string" size="0" value="Measurement"/>
+    <sk name="SARepresentation" type="string" size="0" value="Bar Graph"/>
+    <sk name="ToolLauncherProgId" type="string" size="0" value="ControlDlgs.Launcher"/>
+    <sk name="DV_RULE_SCRIPT_NAME" type="string" size="0" value="\sc\prog\graphicsEngine\etc\SYS600_scripts.bas"/>
+    <sk name="SANoRotate" type="string" size="0" value=""/>
+    <sk name="DV_SEARCH_PATH" type="string" size="0" value="C:\SC\APL\MAIN\PICT;C:\SC\APL\MAIN\AplMod4\Palette;C:\sc\prog\graphicsengine\Palette;C:\sc\prog\graphicsengine\etc;C:\sc\prog\graphicsengine\lib;C:\sc\prog\graphicsengine\lib\views;C:\sc\prog\graphicsengine\lib\fonts;C:\sc\prog\graphicsengine\lib\Templates;C:\sc\prog\graphicsengine\lib\templates\drawings;C:\sc\prog\graphicsengine\support"/>
+    <sk name="DV_SA_REV_INFO" type="string" size="0" value="1"/>
+    <line id="go-2c30000" drname="Frame Top" layer="1073741823" lod="all" invisible="0" foregroundcolor="16" backgroundcolor="empty" linewidth="1" strokewidth="0.0" linetype="1" capstyle="butt" joinstyle="miter" dashmode="empty" bfg="empty" bbg="empty" bfreq="0">
+      <pt x="-500.0" y="500.0"/>
+      <pt x="500.0" y="500.0"/>
+    </line>
+    <line id="go-2c30070" drname="Frame Left" layer="1073741823" lod="all" invisible="0" foregroundcolor="16" backgroundcolor="empty" linewidth="2" strokewidth="0.0" linetype="1" capstyle="butt" joinstyle="miter" dashmode="empty" bfg="empty" bbg="empty" bfreq="0">
+      <pt x="-500.0" y="500.0"/>
+      <pt x="-500.0" y="-500.0"/>
+    </line>
+    <line id="go-2c300e0" drname="Frame Bottom" layer="1073741823" lod="all" invisible="0" foregroundcolor="17" backgroundcolor="empty" linewidth="3" strokewidth="0.0" linetype="1" capstyle="butt" joinstyle="miter" dashmode="empty" bfg="empty" bbg="empty" bfreq="0">
+      <pt x="-500.0" y="-500.0"/>
+      <pt x="500.0" y="-500.0"/>
+    </line>
+    <line id="go-2c30150" drname="Frame Right" layer="1073741823" lod="all" invisible="0" foregroundcolor="17" backgroundcolor="empty" linewidth="1" strokewidth="0.0" linetype="1" capstyle="butt" joinstyle="miter" dashmode="empty" bfg="empty" bbg="empty" bfreq="0">
+      <pt x="500.0" y="500.0"/>
+      <pt x="500.0" y="-500.0"/>
+    </line>
+    <dg id="go-2c6fff8" format="Solid Bar" drname="Graph" layer="1073741823" lod="all" invisible="0" foregroundcolor="17" backgroundcolor="251" databackgroundcolor="19" bevelbar="1" frametype="none" samples="1" scrollamount="0" timestart="0.0" timeincrement="0.0" titlecolor="129" titlefont="Arial 1 0 0 120 1.743467523343651e-39 9.300833604569097e+26 -1.0" tlabelcolor="113" tlabelfont="Arial 0 1 0 80 1.743467523343651e-39 9.300833604569097e+26 -1.0" tticlabelcolor="0" tticlabelfont="Arial 0 0 0 80 1.743467523343651e-39 9.300833604569097e+26 -1.0" d1labelcolor="17" d1ticlabelcolor="115" d2labelcolor="17" d2ticlabelcolor="125" plist="" gridcolor="15" gridlinetype="empty" legend="none" yaxislabeldir="horizontal" context="0" outline="0" opaque="1" timegrid="0" valuegrid="0" ttics="0" d1tics="1" d2tics="1" rolltics="1" pitchtics="1" vtics="0" tticlabels="1" d1ticlabels="1" d2ticlabels="1" rollticlabels="1" pitchticlabels="1" vticlabels="0" minttics="0" mind1tics="0" mind2tics="0" minvtics="0" numvalues="1">
+      <pt x="-500.0" y="500.0"/>
+      <pt x="500.0" y="-500.0"/>
+      <dgvar num="1" low="0.0" high="1.0" rangedplo="#dp-24fc3a0" rangedphi="#dp-24fc5a8" log="0" labelcolor="99" labelfont="Arial 0 1 0 80 1.743467523343651e-39 9.300833604569097e+26 -1.0" ticlabelcolor="0" ticlabelfont="{Times New Roman} 0 0 0 80 1.743467523343651e-39 9.300833604569097e+26 -1.0" name="Value" linetype="empty" linewidth="1" marker="dot">
+        <ttentry normalized="0" threshold="0.0" color="2"/>
+        <ttentry normalized="0" threshold="0.0" color="198"/>
+        <ttentry normalized="0" threshold="0.0" color="3"/>
+        <ttentry normalized="0" threshold="0.0" color="198"/>
+        <ttentry normalized="32767" threshold="1.0" color="2"/>
+        <refdp dp="#dp-24fb3b0" varinfo="default.mem:Value"/>
+      </dgvar>
+    </dg>
+    <subdrawing id="go-2deffc8" drname="Sampled Indication" layer="1073741823" lod="all" invisible="0" foregroundcolor="31" backgroundcolor="empty" filename="Sampled Indication.sd" dynamicflag="enabled" processrules="1" xscale="1.0" yscale="1.0" angle="0.0" bfg="empty" bbg="empty" bfreq="0">
+      <pt x="0.0" y="0.0"/>
+      <dfs id="dfs-2d30040" erasemethod="redrawdelayed" erasecolor="empty" xformanchor="center-center">
+        <dy id="dy-39-2d30040" type="subdrawing" rangelow="0.0" rangehigh="0.0" dprangelow="0.0" dprangehigh="255.0">
+          <refdp dp="#dp-2501b50" varinfo="default.mem:Status Color"/>
+          <thresholdtable id="tt-2db00e0" type="sd" dytype="subdrawing" dprangelow="0.0" dprangehigh="255.0">
+            <ttentry normalized="-1" threshold="-1.0" sdfilename="Sampled Indication.sd"/>
+            <ttentry normalized="4819" threshold="37.501373291015625" sdfilename="Not Sampled Indication Wide.sd"/>
+            <ttentry normalized="4947" threshold="38.497467041015625" sdfilename="Sampled Indication.sd"/>
+          </thresholdtable>
+        </dy>
+      </dfs>
+    </subdrawing>
+  </graphics>
+</view>
+

@@ -1,0 +1,64 @@
+; Function:    BMU_BP_UPDATE:C
+; Version:     3.0. (Build 23.02.2012)
+; Parameters:  %v_ObjectNames of type MP or SP_HL = 0
+; Return data: none
+; Description: Update period values, 
+;              for Group ID MP and M% with sampling history length=0
+;-------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;-------------------------------------------------------------------------------
+#local i,j, i_Status = status, cot, trash,-
+       t_Instruction = "", i_InstructionValue = 0
+#error ignore
+
+#if BMU_GLOBAL:CCS==1 #then #do BMU_GLOBAL:CCP
+#else #do BMU_GLOBAL:C
+
+#loop_with i = 1..length(%v_ObjectNames)                                        ;*** to keep the order as defined in ROConfig.tool
+   @t_ObjectName = %v_ObjectNames(i)
+   #if application_object_exists(0,"D",%t_ObjectName) #then #block
+      @l_ReportObject = %l_ReportObjects.OBJ_'t_ObjectName'
+   
+      #if not %b_StartUpdate #then #block                                       ;*** start and end time
+         @T1 = clock - (%l_ReportObject.BP + %BP_Delay)
+         @T2
+         #if BMU_BP_IND:CCS==1 #then #do BMU_BP_IND:CCP
+         #else #do BMU_BP_IND:C
+      #block_end   
+      t_Instruction = 't_ObjectName''YE1':DIN
+      #if t_Instruction > "" #then #block
+         i_Status = status
+         trash = 't_Instruction'
+         i_Status = status
+   
+         #if 't_ObjectName''YE1':DLR < 't_ObjectName''YE1':DHR #then -
+            #set 't_ObjectName''YE1':DLR = 't_ObjectName''YE1':DHR
+   
+         #if i_Status < 10 #then #block
+            #loop_with j = %IP1..%IP2
+               i_Instructionvalue = 't_Instruction'
+               #set 't_ObjectName''YE1':DOV(j..j) = i_InstructionValue
+               #set 't_ObjectName''YE1':DRT = clock
+            #loop_end
+         #block_end
+         #else #block
+            #loop_with I = %IP1..%IP2
+               #set 't_ObjectName''YE1':DOS(%I..%I) = get_status('t_Instruction')
+               #set 't_ObjectName''YE1':DRT = CLOCK
+            #loop_end
+            cot = console_output("BMU_BP_UPDATE:C - Report object 't_ObjectName' - Execute instruction error = 'i_Status'","E","MREP") 
+         #block_end
+      #block_end
+      #else #block
+         #loop_with I = %IP1..%IP2
+            #set 't_ObjectName''YE1':DOS(%I..%I) = 10
+            #set 't_ObjectName''YE1':DRT = CLOCK
+         #loop_end
+      #block_end
+   #block_end
+   #else -
+      cot = console_output("BMU_BP_UPDATE:C  - Report object 't_ObjectName' is missing.","E","MREP")
+#loop_end
+i_Status = status
+#if i_Status <> 0 #then cot = console_output("BMU_BP_UPDATE:C - Report object 't_ObjectName' - SCIL Error='i_Status'","E","MREP") 

@@ -1,0 +1,30 @@
+﻿; This command procedure is used for handling suspended LAN nodes in a COM application
+; This command procedure is activated by event channel SYS_EVENT
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @SOURCE_NR, number of the node, integer
+;         @EVENT, event causing the activation
+;
+; OUTPUT  @SOURCE, source of the event, text
+;         @SOURCE_NR, number of the station, integer
+;         @EVENT, communication state of the station, text 
+;---------------------------------------------------------------------------------------
+
+#IF %SOURCE == "NOD" #THEN #BLOCK
+   @LINK_NRO = NOD'SOURCE_NR':BLI
+   #IF %LINK_NRO > 0 #THEN @LINK_TYPE = LIN'LINK_NRO':BLT
+   #ELSE @LINK_TYPE = "NONE"
+   #IF %LINK_TYPE == "LAN" #THEN #BLOCK 
+      @STA_LIST = BASE_SYSTEM_OBJECT_LIST("STA","ND=='SOURCE_NR'",("BM","CS"))
+      #IF %EVENT == "LOST" #THEN #BLOCK
+         #LOOP_WITH i = 1..LENGTH(STA_LIST:VBM) 
+            @BM = STA_LIST:VBM(%i)
+            @CS = STA_LIST:VCS(%i)
+            #EXEC COM_SUSSTA:C (@SOURCE = "UN", @SOURCE_NR = %BM, @EVENT=%CS)  
+         #LOOP_END
+      #BLOCK_END
+   #BLOCK_END
+#BLOCK_END

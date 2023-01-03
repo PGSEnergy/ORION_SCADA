@@ -1,0 +1,947 @@
+;;tracing optionality
+@a1=argument(1)
+@a2=argument(2)
+#if SYS:BDM == 1 #then #block
+   @b_traced=true
+   @afile="pict/trace_bgu_apldata_"+%a2+"_"+%a1+".txt"
+   @aTrace=trace_begin(%afile)
+#block_end
+#else @b_traced=false
+;;tracing
+
+@arg_cmd_type=1
+@arg_cmd=2
+@arg_value=3
+@en_cons_out=%b_traced
+
+@vBbone=PATH("BBONE")
+@bIsLibApp=false
+
+#do read_text("sagr_bbone/path5.txt")
+
+;do some initializations
+@NOT_SAVED(1)=FALSE
+@VALID_PIC=FALSE
+@VALID_PIC1=FALSE
+@VALID_TIME=FALSE
+@VALID_TIME1=FALSE
+@DIAL_CHANGE=FALSE
+@APPLICATION_LANG_CHANGED=FALSE
+@TIME_CHANGED=FALSE
+@REPORT_SETTINGS_CHANGED=FALSE
+
+;tags for saving conditions
+@b_SignificantSettingChanged = false
+@b_UpdateOldDs = false
+@b_UpdateNewDs = false
+@b_SavingCancelled=false
+
+;read old settings before doing anything
+;read current apl_set.txt and sys_set.txt
+@APL_ID=APL:BNA
+@S=STATUS
+
+#if %bIsLibApp==true #then #block
+   @APL_SET=EVALUATE(READ_TEXT("B_USE/BGU_SETA.TXT"))
+   @SYS_SET=EVALUATE(READ_TEXT("B_USE/BGU_SETB.TXT"))
+#block_end
+#else #block
+    @APL_SET=EVALUATE(READ_TEXT("/SA_LIB/BASE/BBONE/USE/BGU_SETA.TXT"))
+    @SYS_SET=EVALUATE(READ_TEXT("/SA_LIB/BASE/BBONE/USE/BGU_SETB.TXT"))
+#block_end
+
+#ERROR IGNORE
+@APL_TMP=EVALUATE(READ_TEXT("APL_/APL_SET.TXT"))
+#LOOP_WITH I = 1 .. LENGTH(%APL_TMP)
+   @APL_SET(%I) = %APL_TMP(%I)
+#LOOP_END
+@SYS_TMP=EVALUATE(READ_TEXT("/SYS/ACTIVE/SYS_/SYS_SET.TXT"))
+#LOOP_WITH I = 1 .. LENGTH(%SYS_TMP)
+   @SYS_SET(%I) = %SYS_TMP(%I)
+#LOOP_END
+#ERROR CONTINUE
+#DO %APL_SET(1)
+#DO %APL_SET(9)
+#DO %APL_SET(10)
+@LOG_TIME1=%LOGIN_TIME
+
+#case argument(%arg_cmd)  
+   #when "GETTABLE_ATTRIBUTES" #block
+        #case argument(%arg_cmd_type) 
+            #when "GET" #block 
+                  @tmp=vector("APPLICATION_OWNER","FIRST_PICTURE","APPLICATION_LOGO","SYSTEM_NAME","PRODUCT_INFO",-
+                              "LOGOUT_DURATION","APPLICATION_LANGUAGE","ADD_WHEN_SUMMER","DAYLIGHT_SAVING_TIME_IN_USE",-
+                              "HANDLED_BY_APL","MAPPED_APPLICATIONS","SUMMER_TIME","WINTER_TIME","CLOSE_DIALOG_AFTER_OPERATION",-
+                              "SHOW_OI_FROM","SHOW_OI_LENGTH","HD_SPACE_ALARM","OBJPRES_SWITCH_DEVICE","MEASUREMENT_COLORS",-
+                              "AUTHORIZED_CONTROL_CENTER","PRINT_USER_ON_EXECUTION","APPLICATION_LANGUAGES","CONTROL_TIMEOUT",-
+                              "LOGIN_SESSION_LENGTH","OI_STRINGS","OI_LENGTHS","OI_START_POINTS")
+                  @index=SORT(%tmp)
+                  @gettableNames=PICK(%tmp,%index)
+      
+                  #if %b_traced #then @aTrace=trace_end
+                  #return %gettableNames
+            #block_end
+        #case_end
+   #block_end 
+   #when "SETTABLE_ATTRIBUTES" #block
+        #case argument(%arg_cmd_type) 
+            #when "GET" #block 
+                  @tmp=vector("APPLICATION_OWNER","FIRST_PICTURE","APPLICATION_LOGO","SYSTEM_NAME",-
+                              "LOGOUT_DURATION","APPLICATION_LANGUAGE","ADD_WHEN_SUMMER","DAYLIGHT_SAVING_TIME_IN_USE",-
+                              "HANDLED_BY_APL","SUMMER_TIME","WINTER_TIME","CLOSE_DIALOG_AFTER_OPERATION",-
+                              "SHOW_OI_FROM","SHOW_OI_LENGTH","HD_SPACE_ALARM","OBJPRES_SWITCH_DEVICE","MEASUREMENT_COLORS",-
+                              "AUTHORIZED_CONTROL_CENTER","PRINT_USER_ON_EXECUTION","CONTROL_TIMEOUT",-
+                              "LOGIN_SESSION_LENGTH")
+                  @index=SORT(%tmp)
+                  @settableNames=PICK(%tmp,%index)
+                  #if %b_traced #then @aTrace=trace_end   
+                  #return %settableNames
+            #block_end
+        #case_end
+   #block_end       
+   #when "APPLICATION_OWNER" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+      
+            ;@aplbsv11=apl:bsv(11)
+            @LICENSE_INFO = LICENSE_MANAGER("GET","SYSTEM")
+            @APL_OWNER=LICENSE_INFO:VCUSTOMER
+     
+
+            #if %b_traced #then @aTrace=trace_end
+            #return %APL_OWNER
+         #block_end
+         #when "SET" #block
+            @l_tmp=apl:bsv(11)
+            #set l_tmp:vB_APPLICATION_OWNER=argument(%arg_value)
+            #set apl:bsv(11)=%l_tmp
+            
+            @B_APPLICATION_OWNER=("@TMP=APL:BSV11",-
+            "#SET TMP:VB_APPLICATION_OWNER=""'l_tmp:vB_APPLICATION_OWNER'""",-
+            "#SET APL:BSV11=%TMP")
+            @APL_SET(3)=%B_APPLICATION_OWNER
+
+            #if %en_cons_out #then @st=console_output(times+" APL_DATA: apl:bsv(11).B_APPLICATION_OWNER set to 'l_tmp:vB_APPLICATION_OWNER'")
+         #block_end
+      #case_end
+   #block_end
+   #when "FIRST_PICTURE" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+            @aplbsv11=apl:bsv(11)
+            #if %b_traced #then @aTrace=trace_end 
+            #return %aplbsv11.B_FIRST_PICTURE
+         #block_end
+         #when "SET" #block
+            @l_tmp=apl:bsv(11)
+            @s_tmpPic=argument(%arg_value)+".PIC"
+            ;we need to check if the file is valid
+            #error ignore
+               @read_pic=READ_TEXT(%s_tmpPic)
+            #error stop
+            @test=STATUS
+   
+            ;check if picture exist or path is correct
+            #if %test==5007 OR (%test>270 AND %test<400) OR %test==5027 #then #block
+                #if %b_traced #then @aTrace=trace_end
+                #return (%test,sTATUS_CODE_NAME(%test))
+
+            #block_end
+            #else #block
+                #set l_tmp:vB_FIRST_PICTURE=%s_tmpPic
+                #set apl:bsv(11)=%l_tmp
+                
+                @B_FIRST_PICTURE=("@TMP2=APL:BSV11",-
+                "#SET TMP2:VB_FIRST_PICTURE=""'l_tmp:vB_FIRST_PICTURE'""",-
+                "#SET APL:BSV11=%TMP2")
+                @APL_SET(6)=%B_FIRST_PICTURE
+                
+                #if %en_cons_out #then @st=console_output(times+" APL_DATA: apl:bsv(11).B_FIRST_PICTURE set to 'l_tmp:vB_FIRST_PICTURE'")
+            #block_end
+         #block_end
+      #case_end
+   #block_end
+   #when "APPLICATION_LOGO" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+            @aplbsv11=apl:bsv(11)
+            #if %b_traced #then @aTrace=trace_end
+            #return %aplbsv11.B_APPLICATION_LOGO
+         #block_end
+         #when "SET" #block
+            @l_tmp=apl:bsv(11)
+            @s_tmpPic=argument(%arg_value)+".PIC"
+            ;we need to check if the file is valid
+            #error ignore
+               @read_pic=READ_TEXT(%s_tmpPic)
+            #error stop
+            @test=STATUS
+   
+            ;check if picture exist or path is correct
+            #if %test==5007 OR (%test>270 AND %test<400) OR %test==5027 #then #block
+               #if %b_traced #then @aTrace=trace_end
+               #return (%test,sTATUS_CODE_NAME(%test))
+
+            #block_end
+            #else #block   
+                #set l_tmp:vB_APPLICATION_LOGO=%s_tmpPic
+                #set apl:bsv(11)=%l_tmp
+                
+                @B_APPLICATION_LOGO=("@TMP2=APL:BSV11",-
+                "#SET TMP2:VB_APPLICATION_LOGO=""'l_tmp:vB_APPLICATION_LOGO'""",-
+                "#SET APL:BSV11=%TMP2")
+                @APL_SET(7)=%B_APPLICATION_LOGO
+   
+                #if %en_cons_out #then @st=console_output(times+" APL_DATA: apl:bsv(11).B_APPLICATION_LOGO set to 'l_tmp:vB_APPLICATION_LOGO'")
+            #block_end
+         #block_end
+      #case_end
+   #block_end
+   #when "SYSTEM_NAME" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+            #if %b_traced #then @aTrace=trace_end 
+            #return sys:bcx
+         #block_end
+         #when "SET" #block
+            @s_tmpSYSBCX=argument(%arg_value)
+            @SYS_SET(5)="#SET SYS:BCX=""'s_tmpSYSBCX'"""  
+            #set sys:bcx=%s_tmpSYSBCX
+            #if %en_cons_out #then @st=console_output(times+" APL_DATA: sys:bcx set to 's_tmpSYSBCX'")
+         #block_end
+      #case_end
+   #block_end
+   #when "PRODUCT_INFO" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+            #if %b_traced #then @aTrace=trace_end 
+            #return read_text("BBONE/bgu_prod.txt")
+         #block_end
+         ;Read only, no SET possibility
+      #case_end
+   #block_end
+   #when "LOGOUT_DURATION" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+            #if %b_traced #then @aTrace=trace_end
+            #return apl:bsv(6)
+         #block_end
+         #when "SET" #block
+            @unsorted=argument(%arg_value)
+            
+            @INDEX=SORT(%UNSORTED)
+            @SET_TMP=REVERSE(PICK(%UNSORTED,%INDEX))
+            
+            #LOOP_WITH I=1..5
+               @SLNTH'I'=%SET_TMP(%I)
+            #LOOP_END
+            
+            #set apl:bsv(6)=('SLNTH1','SLNTH2','SLNTH3','SLNTH4','SLNTH5')
+            @APL_SET(4)= "#SET APL:BSV(6)=('SLNTH1','SLNTH2','SLNTH3','SLNTH4','SLNTH5')"
+            #if %en_cons_out #then @st=console_output(times+" APL_DATA: apl:bsv(6) (lockout duration) set to 'SLNTH1','SLNTH2','SLNTH3','SLNTH4','SLNTH5'")
+         #block_end
+      #case_end
+   #block_end
+   #when "LOGIN_ONCE_PER_WORKSTATION" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+            @aplbsv11=apl:bsv(11)
+            #if %b_traced #then @aTrace=trace_end
+            #return %aplbsv11.B_LOGIN_ONCE_PER_WORKSTATION
+         #block_end
+         #when "SET" #block
+         
+            @l_tmp=apl:bsv(11)
+            @LOGIN_ONLY_ONCE=argument(%arg_value)
+            #set l_tmp:vB_LOGIN_ONCE_PER_WORKSTATION=%LOGIN_ONLY_ONCE
+            #set apl:bsv(11)=%l_tmp
+            
+            @B_LOGIN_ONLY_ONCE=("@TMP=APL:BSV11",-
+            "#SET TMP:VB_LOGIN_ONCE_PER_WORKSTATION='LOGIN_ONLY_ONCE'",-
+            "#SET APL:BSV11=%TMP")
+            @APL_SET(16)=%B_LOGIN_ONLY_ONCE
+
+            #if %en_cons_out #then @st=console_output(times+" APL_DATA: apl:bsv(11).B_LOGIN_ONCE_PER_WORKSTATION set to 'l_tmp:vB_LOGIN_ONCE_PER_WORKSTATION'")
+         #block_end
+      #case_end
+   #block_end
+   #when "APPLICATION_LANGUAGE" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+            @aplbsv11=apl:bsv(11)
+            #if %b_traced #then @aTrace=trace_end
+            #return %aplbsv11.B_APPLICATION_LANGUAGE
+         #block_end
+         #when "SET" #block
+
+           @APPLICATION_LANG_CHANGED=TRUE
+
+           @apl_LS=argument(%arg_value)
+
+           @l_tmp=apl:bsv(11)
+           #set l_tmp:vB_APPLICATION_LANGUAGE=%apl_LS
+           #set apl:bsv(11)=%l_tmp
+            
+
+           @B_APPLICATION_LANGUAGE=("@TMP1=APL:BSV11",-
+           "#SET TMP1:VB_APPLICATION_LANGUAGE='apl_LS'",-
+           "#SET APL:BSV11=%TMP1")
+           @APL_SET(5)=%B_APPLICATION_LANGUAGE
+
+           ; now calculate the lang identifier based on the number...
+
+           @t_File = "/lib4/base/bbone/use/bgu_lxref.txt"
+ 
+           ;set default in case of errors
+            @v_Contents = vector("0,EN,English")
+ 
+           ;read file
+           #error ignore
+                  @v_Contents = read_text("'t_File'")
+           #error stop
+  
+           @langIdentifiers=vector()
+           #loop_with id = 1 .. length(%v_Contents)
+               @langIdentifiers(%id)=separate(%v_Contents(%id),",")
+           #loop_end
+
+           #loop_with langElem= 1 .. length(%langIdentifiers)
+               @langId=%langIdentifiers(%langElem)
+               #if length(%langId)==3 #then #block
+                   #if %langId(1)==argument(%arg_value) #then #block
+                       @APL_L2=%langId(2)
+                       #SET APL:BLA=%APL_L2
+                   #block_end         
+               #block_end
+           #loop_end
+ 
+
+
+
+            #if %en_cons_out #then @st=console_output(times+" APL_DATA: apl:bsv(11).B_APPLICATION_LANGUAGE set to 'l_tmp:vB_APPLICATION_LANGUAGE'")
+         #block_end
+      #case_end
+   #block_end
+   #when "ADD_WHEN_SUMMER" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+        
+            @sysbsv11=sys:bsv(11)
+         #if %b_traced #then @aTrace=trace_end
+            #return %sysbsv11.B_ADD_WHEN_SUMMER
+         #block_end
+         #when "SET" #block
+            @l_tmp=sys:bsv(11)
+            #set l_tmp:vB_ADD_WHEN_SUMMER=argument(%arg_value)
+            #set sys:bsv(11)=%l_tmp
+            #if %en_cons_out #then @st=console_output(times+" APL_DATA: sys:bsv(11).B_ADD_WHEN_SUMMER set to 'l_tmp:vB_ADD_WHEN_SUMMER'")
+         #block_end
+      #case_end
+   #block_end
+   #when "MAPPED_APPLICATIONS" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+            ;check application mapping
+            @v_MappedApplications = select(apl:bap,"<>0")
+            @list_items=vector()
+            
+            ;number of the current application
+            @i_ThisApplicationNumber = apl:ban
+            
+            ;set combo values
+            @j = 1
+            #loop_with i = 0 .. length(%v_MappedApplications)
+              
+               ;own application if first loop
+               #if %i == 0 #then @i_LogicalNr = 0
+               ;set logical number according to the application mapping
+               #else #block
+                  #if length(%v_MappedApplications) > 0 #then -
+                     @i_LogicalNr = %v_MappedApplications(%i)
+                  #else - 
+                     #loop_exit
+               #block_end
+               
+               ;condition of the application
+               #if %i <> 0 #then @v_TmpFys = pick(apl:bap,vector(%i_LogicalNr))
+               #else @v_TmpFys(1) = 0
+               @i_TmpFys = %v_TmpFys(1)
+               @t_ApplicationName = apl'i_TmpFys':bna
+               @i_ApplicationNumber = apl'i_TmpFys':ban
+               @t_TranslationType = apl'i_TmpFys':btt
+               @t_ApplicationState = apl'i_TmpFys':bas
+               
+               ;local and hot applications
+               #if %t_TranslationType == "LOCAL" and  %t_ApplicationState == "HOT" #then #block
+                  
+                  ;form drop-down list value
+                  #if %i_ThisApplicationNumber == %i_ApplicationNumber #then -
+                     @t_TmpName = "*" + %t_ApplicationName + "  ('i_ApplicationNumber')"
+                  #else -
+                     @t_TmpName = " " + %t_ApplicationName + "  ('i_ApplicationNumber')"
+                  
+                  ;set drop-down list value if not already exist
+                  #if length(select(%list_items,"==%t_TmpName")) == 0 #then #block
+                     @list_items(%j) = %t_TmpName
+                     @j = %j + 1
+                  #block_end
+                  
+               #block_end 
+            #loop_end   
+         
+         
+         
+            #if %b_traced #then @aTrace=trace_end 
+            #return %list_items
+         #block_end
+         ;Read only, no SET possibility
+      #case_end
+   #block_end
+   #when "DAYLIGHT_SAVING_TIME_IN_USE" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+            @sysbsv11=sys:bsv(11)
+            #if %b_traced #then @aTrace=trace_end
+            #return %sysbsv11.B_DAYLIGHT_SAVING_TIME_IN_USE
+         #block_end
+         #when "SET" #block
+
+       ; PH 30-8-2004 ID(9422): Automatic daylight saving changes doesn't work
+            ;crete needed command procedures & time channels
+       ;;;#if LENGTH(PATH("BBONE"))>0 #then #do read_text("bbone/bgu_dst.scl")
+       #do read_text("sagr_bbone/bgu_dst.scl")
+
+            @l_tmp=sys:bsv(11)
+            
+
+            @i_DaylightFunctionInUse1=  l_tmp:vB_DAYLIGHT_SAVING_TIME_IN_USE
+            @i_DaylightFunctionInUse = argument(%arg_value)
+            
+            
+            #if %i_DaylightFunctionInUse <> %i_DaylightFunctionInUse1 #then #block
+               @b_winter_time=("@tmp=sys:bsv11",-
+                   "#set tmp:vb_winter_time=0",-
+                   "#set sys:bsv11=%tmp")
+               @sys_set(1)=%b_winter_time
+               
+               @b_summer_time=("@tmp=sys:bsv11",-
+                   "#set tmp:vb_summer_time=0",-
+                   "#set sys:bsv11=%tmp")
+               @sys_set(2)=%b_summer_time
+               
+               @in_use=("@tmp=sys:bsv11",-
+                           "#set tmp:vb_daylight_saving_time_in_use='i_DaylightFunctionInUse'",-
+                           "#set sys:bsv11=%tmp")
+               @sys_set(6)=%in_use
+               
+               @i_DaylightFunctionInUse1 = %i_DaylightFunctionInUse
+
+               @fetch_t = fetch(%i_HandApl,"T","BGU_DST1")
+          #if fetch_t:viu <> -1 #then #block   
+          #set BGU_DST1:TIU=%i_DaylightFunctionInUse
+               #block_end
+   
+            #block_end
+            #if %en_cons_out #then @st=console_output(times+" APL_DATA: sys:bsv(11).B_DAYLIGHT_SAVING_TIME_IN_USE set to 'i_DaylightFunctionInUse'")
+         #block_end
+      #case_end
+   #block_end
+   #when "HANDLED_BY_APL" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+                       ;check application mapping
+            @v_MappedApplications = select(apl:bap,"<>0")
+            
+            ;number of the current application
+            @i_ThisApplicationNumber = apl:ban
+            
+             @sysbsv11=sys:bsv(11)
+             @i_HandledByApplication1=%sysbsv11.B_HANDLED_BY_APL   
+             
+             
+            ;set combo values
+            @j = 1
+            #loop_with i = 0 .. length(%v_MappedApplications)
+              
+               ;own application if first loop
+               #if %i == 0 #then @i_LogicalNr = 0
+               ;set logical number according to the application mapping
+               #else #block
+                  #if length(%v_MappedApplications) > 0 #then -
+                     @i_LogicalNr = %v_MappedApplications(%i)
+                  #else - 
+                     #loop_exit
+               #block_end
+               
+               ;condition of the application
+               #if %i <> 0 #then @v_TmpFys = pick(apl:bap,vector(%i_LogicalNr))
+               #else @v_TmpFys(1) = 0
+               @i_TmpFys = %v_TmpFys(1)
+               @t_ApplicationName = apl'i_TmpFys':bna
+               @i_ApplicationNumber = apl'i_TmpFys':ban
+               @t_TranslationType = apl'i_TmpFys':btt
+               @t_ApplicationState = apl'i_TmpFys':bas
+               
+               ;local and hot applications
+               #if %t_TranslationType == "LOCAL" and  %t_ApplicationState == "HOT" #then #block
+                  
+                  ;form drop-down list value
+                  #if %i_ThisApplicationNumber == %i_ApplicationNumber #then -
+                     @t_TmpName = "*" + %t_ApplicationName + "  ('i_ApplicationNumber')"
+                  #else -
+                     @t_TmpName = " " + %t_ApplicationName + "  ('i_ApplicationNumber')"
+                  
+                
+                  
+                  ;if application is handling the daylight saving time show execution times
+                  #if (%i_ApplicationNumber == %i_HandledByApplication1) or -
+                  (%i == 0 and %i_HandledByApplication1 == 0) #then #block
+                     #if %b_traced #then @aTrace=trace_end 
+                     #return %t_tmpName
+                  #block_end
+               #block_end 
+            #loop_end
+            
+            ;if no matches found return empty string
+            #if %b_traced #then @aTrace=trace_end 
+            #return ""
+
+         #block_end
+         #when "SET" #block
+            @l_tmp=sys:bsv(11)
+            @i_HandledByApplication1=l_tmp:vB_HANDLED_BY_APL
+            @value =argument(%arg_value)
+            @i_Par1 = locate(%value,"(")
+            @i_Par2 = locate(%value,")") - 1
+            @i_HandledByApplication = dec_scan(substr(%value,%i_Par1+1,%i_Par2 - %i_Par1))
+            ;handled by application
+            #if %i_HandledByApplication <> %i_HandledByApplication1 #then #block
+               @handled_by=("@tmp=sys:bsv11",-
+                  "#set tmp:vb_handled_by_apl='i_HandledByApplication'",-
+                  "#set sys:bsv11=%tmp")
+               @sys_set(3)=%handled_by
+              
+               @i_HandledByApplication1 = %i_HandledByApplication
+               #set l_tmp:vB_HANDLED_BY_APL=%i_HandledByApplication1
+               #set sys:bsv(11)=%l_tmp
+
+
+               ;check application mapping
+   
+               ;init variables for report procedure search
+               @b_FmuSummerFound = false
+               @b_FmuWinterFound = false
+               
+               @i_HandledByFys = %i_HandledByApplication1
+               #if %i_HandledByFys == -1 #then @t_Applications = "All"
+               #else @t_Applications = "Not Handling"
+               @i_HandledByLog = 0
+               
+               @Tmp = select(apl:bap,"==%i_HandledByFys")
+               #if length(%tmp) > 0 #then @i_HandledByLog = %Tmp(1)
+               #else @i_HandledByLog = 0
+               
+               @v_MappedApl = select(apl:bap,"<>0")
+               #loop_with i = 0 .. length(%v_MappedApl)
+                  #if %i == 0 #then @log_nr = 0
+                  #else @log_nr = %v_MappedApl(%i)
+                  ;only local and hot applications
+                  #if %i <> 0 #then @v_TmpFys = pick(apl:bap,vector(%log_nr))
+                  #else @v_TmpFys(1) = 0
+                  @i_TmpFys = %v_TmpFys(1)
+                  #if (apl'i_TmpFys':bas == "HOT" and apl'i_TmpFys':btt=="LOCAL") #then #block
+                     #if (apl:'log_nr'ban <> apl:'i_HandledByLog'ban or %t_Applications == "All") #then #block
+                        @summer = fetch('log_nr',"T","BGU_SUMMER")
+                        @winter = fetch('log_nr',"T","BGU_WINTER")
+                        #if summer:viu > 0 or winter:viu > 0 #then #block
+                           #set bgu_summer:'log_nr'ciu = 0
+                           #set bgu_winter:'log_nr'ciu = 0
+                           #set bgu_summer:'log_nr'tiu = 0
+                           #set bgu_winter:'log_nr'tiu = 0
+                        #block_end
+                        ;new system
+                        @dst1 = fetch('log_nr',"T","BGU_DST1")
+                        #if dst1:viu > 0 #then #block
+                           #set bgu_dst1:'log_nr'tiu = 0
+                        #block_end 
+                     #block_end
+                  #block_end
+               #loop_end
+               
+               @i_HandApl = %i_HandledByApplication1
+               #do read_text("b_use/bgu_dst.scl")
+
+            #block_end
+            
+            
+
+            #if %en_cons_out #then @st=console_output(times+" APL_DATA: sys:bsv(11).B_HANDLED_BY_APL set to 'l_tmp:vB_HANDLED_BY_APL'")
+         #block_end
+      #case_end
+   #block_end
+   #when "SUMMER_TIME" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+            @sysbsv11=sys:bsv(11)
+            #if %b_traced #then @aTrace=trace_end
+            #return %sysbsv11.B_SUMMER_TIME
+         #block_end
+         #when "SET" #block
+            @l_tmp=sys:bsv(11)
+            #set l_tmp:vB_SUMMER_TIME=argument(%arg_value)
+            #set sys:bsv(11)=%l_tmp
+            #if %en_cons_out #then @st=console_output(times+" APL_DATA: sys:bsv(11).B_SUMMER_TIME set to 'l_tmp:vB_SUMMER_TIME'")
+         #block_end
+      #case_end
+   #block_end
+   #when "WINTER_TIME" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+            @sysbsv11=sys:bsv(11)
+            #if %b_traced #then @aTrace=trace_end
+            #return %sysbsv11.B_WINTER_TIME
+         #block_end
+         #when "SET" #block
+            @l_tmp=sys:bsv(11)
+            #set l_tmp:vB_WINTER_TIME=argument(%arg_value)
+            #set sys:bsv(11)=%l_tmp
+            #if %en_cons_out #then @st=console_output(times+" APL_DATA: sys:bsv(11).B_WINTER_TIME set to 'l_tmp:vB_WINTER_TIME'")
+         #block_end
+      #case_end
+   #block_end
+   #when "CLOSE_DIALOG_AFTER_OPERATION" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+            @aplbsv11=apl:bsv(11)
+            #if %b_traced #then @aTrace=trace_end
+            #return %aplbsv11.B_CLOSE_DIALOG_AFTER_OPERATION
+         #block_end
+         #when "SET" #block
+            @l_tmp=apl:bsv(11)
+            @CLOSE_DIALOG=argument(%arg_value)
+            #set l_tmp:vB_CLOSE_DIALOG_AFTER_OPERATION=%CLOSE_DIALOG
+            #set apl:bsv(11)=%l_tmp
+            
+            @B_CLOSE_DIAL=("@TMP2=APL:BSV11",-
+            "#SET TMP2:VB_CLOSE_DIALOG_AFTER_OPERATION ='CLOSE_DIALOG'",-
+            "#SET APL:BSV11=%TMP2")
+            @APL_SET(11)=%B_CLOSE_DIAL
+            
+            
+            #if %en_cons_out #then @st=console_output(times+" APL_DATA: apl:bsv(11).B_CLOSE_DIALOG_AFTER_OPERATION set to 'l_tmp:vB_CLOSE_DIALOG_AFTER_OPERATION'")
+         #block_end
+      #case_end
+   #block_end
+   #when "SHOW_OI_FROM" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+            @aplbsv11=apl:bsv(11)
+            #if %b_traced #then @aTrace=trace_end
+            #return %aplbsv11.B_SHOW_OI_FROM
+         #block_end         
+         #when "SET" #block
+            @OI_FROM=argument(%arg_value)
+            @l_tmp=apl:bsv(11)
+            #set l_tmp:vB_SHOW_OI_FROM=argument(%OI_FROM)
+            #set apl:bsv(11)=%l_tmp
+            
+            @B_OI_FROM=("@TMP2=APL:BSV11",-
+            "#SET TMP2:VB_SHOW_OI_FROM ='OI_FROM'",-
+            "#SET APL:BSV11=%TMP2")
+            @APL_SET(13)=%B_OI_FROM
+            
+            
+            #if %en_cons_out #then @st=console_output(times+" APL_DATA: apl:bsv(11).B_SHOW_OI_FROM set to 'l_tmp:vB_SHOW_OI_FROM'")
+         #block_end
+      #case_end   
+   #block_end
+   #when "SHOW_OI_LENGTH" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+            @aplbsv11=apl:bsv(11)
+            #if %b_traced #then @aTrace=trace_end 
+            #return %aplbsv11.B_SHOW_OI_LENGTH
+         #block_end
+         #when "SET" #block
+            @OI_LENGTH=argument(%arg_value)
+            @l_tmp=apl:bsv(11)
+            #set l_tmp:vB_SHOW_OI_LENGTH=%OI_LENGTH
+            #set apl:bsv(11)=%l_tmp
+            
+             @B_OI_LENGTH=("@TMP2=APL:BSV11",-
+            "#SET TMP2:VB_SHOW_OI_LENGTH ='OI_LENGTH'",-
+            "#SET APL:BSV11=%TMP2")
+            @APL_SET(14)=%B_OI_LENGTH
+            
+            
+            #if %en_cons_out #then @st=console_output(times+" APL_DATA: apl:bsv(11).B_SHOW_OI_LENGTH set to 'l_tmp:vB_SHOW_OI_LENGTH'")
+         #block_end
+      #case_end   
+   #block_end
+   #when "HD_SPACE_ALARM" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+            #if %b_traced #then @aTrace=trace_end 
+            #return B_HDS:PLI10
+         #block_end
+         #when "SET" #block             
+            ;;;#DO READ_TEXT("BBONE/PATH4.TXT")
+            ;;;#DO READ_TEXT("BBONE/BGU_HDS.TXT")
+            @LOW_ALARM=argument(%arg_value)
+            #DO READ_TEXT("SAGR_BBONE/BGU_HDS.TXT")
+            #DO BGU_HDS:C
+            #if %en_cons_out #then @st=console_output(times+" APL_DATA: B_HDS:PLI10 (Hard disk space alarm limit) set to 'LOW_ALARM'")
+         #block_end
+      #case_end
+   #block_end
+   #when "OBJPRES_SWITCH_DEVICE" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+            @aplbsv11=apl:bsv(11)
+            #if %b_traced #then @aTrace=trace_end
+            #return %aplbsv11.OBJECT_PRESENTATION.SWITCH_DEVICE
+         #block_end
+         #when "SET" #block
+            @l_tmp=apl:bsv(11)
+            @l_tmp.OBJECT_PRESENTATION.SWITCH_DEVICE=argument(%arg_value)
+            #set apl:bsv(11)=%l_tmp
+            @argval=argument(%arg_value)
+            #if %en_cons_out #then @st=console_output(times+" APL_DATA: apl:bsv(11).OBJECT_PRESENTATION.SWITCH_DEVICE set to 'argval'")
+         #block_end
+      #case_end   
+   #block_end
+   #when "AUTHORIZED_CONTROL_CENTER" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+            #if %b_traced #then @aTrace=trace_end
+            #return apl:bsv(3)
+         #block_end
+         #when "SET" #block            
+            @argval=argument(%arg_value)
+            #if %argval==0 #then @APL_SET(8)="#SET APL:BSV3=0"            
+            #if %argval==1 #then @APL_SET(8)="#SET APL:BSV3=1"   
+            #set apl:bsv(3)=%argval
+            #if %en_cons_out #then @st=console_output(times+" APL_DATA: apl:bsv(3).AUTHORIZED_CONTROL_CENTER set to 'argval'")
+         #block_end
+      #case_end   
+   #block_end
+   #when "PRINT_USER_ON_EXECUTION" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+            @aplbsv11=apl:bsv(11)
+            #if %b_traced #then @aTrace=trace_end
+            #return %aplbsv11.B_PRINT_USER_ON_EXECUTION
+         #block_end
+         #when "SET" #block
+            @PRINT_EXECUTION=argument(%arg_value)
+            
+            @PRINT_EXEC=("@TMP2=APL:BSV11",-
+            "#SET TMP2:VB_PRINT_USER_ON_EXECUTION='PRINT_EXECUTION'",-
+            "#SET APL:BSV11=%TMP2")
+            @APL_SET(12)=%PRINT_EXEC           
+   
+            @l_tmp=apl:bsv(11)
+            #set l_tmp:vB_PRINT_USER_ON_EXECUTION=%PRINT_EXECUTION
+            #set apl:bsv(11)=%l_tmp
+            
+            #if %en_cons_out #then @st=console_output(times+" APL_DATA: apl:bsv(11).B_PRINT_USER_ON_EXECUTION set to 'l_tmp:vB_PRINT_USER_ON_EXECUTION'")
+         #block_end
+      #case_end   
+   #block_end
+   #when "CONTROL_TIMEOUT" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+            @aplbsv11=apl:bsv(11)
+            #if %b_traced #then @aTrace=trace_end
+            #return %aplbsv11.B_CONTROL_TIMEOUT
+         #block_end
+         #when "SET" #block
+            @CONTROL_TIMEOUT=argument(%arg_value)
+            @l_tmp=apl:bsv(11)
+            #set l_tmp:vB_CONTROL_TIMEOUT=%CONTROL_TIMEOUT
+            #set apl:bsv(11)=%l_tmp
+            
+            @CNTR_EXEC=("@TMP2=APL:BSV11",-
+            "#SET TMP2:VB_CONTROL_TIMEOUT='CONTROL_TIMEOUT'",-
+            "#SET APL:BSV11=%TMP2")
+            @APL_SET(19)=%CNTR_EXEC
+            
+   
+            #if %en_cons_out #then @st=console_output(times+" APL_DATA: apl:bsv(11).B_CONTROL_TIMEOUT set to 'l_tmp:vB_CONTROL_TIMEOUT'")
+         #block_end
+      #case_end   
+   #block_end
+   #when "MEASUREMENT_COLORS" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+            @aplbsv11=apl:bsv(11)
+            #if %b_traced #then @aTrace=trace_end
+            #return %aplbsv11.B_MEAS_COLORS
+         #block_end
+         #when "SET" #block
+            @l_tmp=apl:bsv(11)
+            #set l_tmp:vB_MEAS_COLORS=argument(%arg_value)
+            #set apl:bsv(11)=%l_tmp
+            #if %en_cons_out #then @st=console_output(times+" APL_DATA: apl:bsv(11).B_MEAS_COLORS set to 'l_tmp:vB_MEAS_COLORS'")
+         #block_end
+      #case_end   
+   #block_end   
+   #when "LOGIN_SESSION_LENGTH" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+            @aplbsv2=apl:bsv(2)
+            #if %b_traced #then @aTrace=trace_end
+            #return %aplbsv2
+         #block_end
+         #when "SET" #block
+            @l_tmp=argument(%arg_value)
+            #if data_type(%l_tmp) == "INTEGER" #then @l_tmp = dec(%l_tmp, 1)
+            #set apl:bsv(2)=%l_tmp
+            @APL_SET(2)="#SET APL:BSV2='l_tmp'"
+            #if %l_tmp=="255" #then #block
+                @APL_SET(1)="@LOGIN_TIME=1"
+            #block_end
+            #else #block
+                @APL_SET(1)="@LOGIN_TIME='l_tmp'"
+            #block_end
+            #if %en_cons_out #then @st=console_output(times+" APL_DATA: apl:bsv(2) set to 'l_tmp'")
+         #block_end
+      #case_end
+   #block_end
+   #when "APPLICATION_LANGUAGES" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+              @t_File = "/lib4/base/bbone/use/bgu_lxref.txt"
+
+             ;set default in case of errors
+              @v_Contents = vector("0,EN,English")
+
+              ;read file
+              #error ignore
+                  @v_Contents = read_text("'t_File'")
+              #error stop
+
+              @langIdentifiers=vector()
+              #loop_with id = 1 .. length(%v_Contents)
+                   @langIdentifiers(%id)=separate(%v_Contents(%id),",")
+              #loop_end
+              #if %b_traced #then @aTrace=trace_end
+              #return %langIdentifiers
+         #block_end         
+      #case_end   
+   #block_end
+   #when "OI_STRINGS"    #block
+      #case argument(%arg_cmd_type)
+          #when "GET" #block
+               @b_OI_Located = FALSE
+
+               #if length(apl:bsv) >= 15 #then #block
+
+                  #if data_type(apl:bsv15) == "LIST" #then #block
+                       @l_OI_Settings = apl:bsv15
+                       #if length(locate(list_attr(%l_OI_Settings), "PROCESS_OBJECTS")) > 0 #then #block
+                            #if length(locate(list_attr(%l_OI_Settings.PROCESS_OBJECTS), "OI")) > 0 #then #block
+                                @v_OI_Strings = vector()
+                                @v_OI_Strings(1 .. 5) = "(None)" ; NOTE! Text to localize
+                                #loop_with i_Depth = 1 .. 5
+                                     #if length(locate(list_attr(%l_OI_Settings.PROCESS_OBJECTS.OI), "LENGTH'i_Depth'")) > 0 #then #block
+                                          #if %l_OI_Settings.PROCESS_OBJECTS.OI.LENGTH'i_Depth' > 0 #then @v_OI_Strings(%i_Depth) = %l_OI_Settings.PROCESS_OBJECTS.OI.TITLE'i_Depth'(1)
+                                     #block_end
+                                #loop_end
+                                @b_OI_Located = TRUE
+                            #block_end
+                       #block_end
+                   #block_end
+               #block_end
+               #if %b_OI_Located #then #block
+                   #if %b_traced #then @aTrace=trace_end  
+           #return %v_OI_Strings
+                #block_end
+               #else #block
+                   #if %b_traced #then @aTrace=trace_end
+                   #return (-1, "OI definitions not found")
+               #block_end
+   
+         #block_end
+      #case_end
+   #block_end ;when
+   #when "OI_LENGTHS" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+           @APL_BSV15      = APL:BSV15
+           @PROCESSOBJECTS = APL_BSV15:VPROCESS_OBJECTS
+           @OI             = PROCESSOBJECTS:VOI
+           @OI_LENGTHS     = VECTOR()
+            #LOOP_WITH I = 1 .. 30
+               #IF DATA_TYPE(OI:VLENGTH'I')=="INTEGER" #THEN #BLOCK  
+                  @OI_LENGTHS(%I) = OI:VLENGTH'I'
+                  @OI_LENGTH'I' = OI:VLENGTH'I'                  
+                #BLOCK_END                
+                #ELSE #LOOP_EXIT
+           #LOOP_END
+           
+           #if %b_traced #then @aTrace=trace_end 
+           #return %OI_LENGTHS
+         #block_end         
+      #case_end   
+   #block_end
+   #when "OI_START_POINTS" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block
+              @APL_BSV15      = APL:BSV15
+              @PROCESSOBJECTS = APL_BSV15:VPROCESS_OBJECTS
+              @OI             = PROCESSOBJECTS:VOI
+              @OI_LENGTHS     = VECTOR()
+              #LOOP_WITH I = 1 .. 30
+                  #IF DATA_TYPE(OI:VLENGTH'I')=="INTEGER" #THEN #BLOCK  
+                     @OI_LENGTHS(%I) = OI:VLENGTH'I'
+                     @OI_LENGTH'I' = OI:VLENGTH'I'                  
+                   #BLOCK_END                
+                   #ELSE #LOOP_EXIT
+              #LOOP_END
+              @START_POINT(1)=1
+              #LOOP_WITH I=2..5
+                  @START_POINT(%I)=%START_POINT(%I-1)+%OI_LENGTHS(%I-1)
+              #LOOP_END
+              #if %b_traced #then @aTrace=trace_end
+              #RETURN %START_POINT   
+   
+         #block_end         
+      #case_end   
+   #block_end
+   #when "SAGR_EXEC" #block
+      #case argument(%arg_cmd_type) 
+         #when "GET" #block         
+            #if %b_traced #then @aTrace=trace_end
+            #return PATH("SAGR_EXEC")
+         #block_end
+      #case_end
+   #block_end
+#case_end ;case
+
+;;save changes if "SET" command
+
+#if argument(%arg_cmd_type) == "SET" #then #block
+
+   #LOOP_WITH I=1..LENGTH(%APL_SET)
+      #error ignore
+      #DO %APL_SET(%I)
+      #error continue
+   #LOOP_END
+   
+   #LOOP_WITH I=1..LENGTH(%SYS_SET)
+      #DO %SYS_SET(%I)
+   #LOOP_END
+
+   @APL_ID=APL:BNA
+   @WRITE_STATUS=WRITE_TEXT("APL_/APL_SET.TXT",DUMP(%APL_SET),0)
+   
+    @WRITE_STATUS=WRITE_TEXT("/SYS/ACTIVE/SYS_/SYS_SET.TXT",DUMP(%SYS_SET),0)
+      
+   #IF %APPLICATION_LANG_CHANGED #THEN #BLOCK
+      #IF FILE_MANAGER("EXISTS", FM_SCIL_FILE("B_USE/BGU_PRPATH.TXT")) #THEN #DO READ_TEXT("B_USE/BGU_PRPATH.TXT")
+   #BLOCK_END
+
+#block_end
+
+#if %b_traced #then @aTrace=trace_end

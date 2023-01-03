@@ -1,0 +1,80 @@
+USER MANAGEMENT
+
+1. General
+
+The User Management tool is for defining user
+authorities. In Substation Monitoring Systems
+(SMS)the authority for tools can be defined. In
+MicroSCADa Pro applications the standard functions in
+process pictures can be freely grouped in
+authorization groups. This means that an user can
+have different authorization levels for different
+apparatus. Also users can be defined to have
+different authorization levels for different
+substations etc.
+
+If a tool or standard function uses authorisation
+group that is not included in the authorisation
+definitions, then authorization level from
+GENERAL group is used. That is why the
+GENERAL group can not be removed.
+
+The authorization levels used:
+
+View (0)
+   Not authorized to make operations
+
+Control (1)
+   Authorized to make operations
+
+Engineering (2)
+   All rigths, but user definition
+
+Reserved (3)
+   Reserved for future
+
+Reserved (4)
+   Reserved for future
+
+(System manager (5) - All rights)
+
+NOTICE! The modifications will not became
+active until saved from the User Management
+picture!
+
+2. Functionality
+
+2.1 Main View
+
+The user levels of the selected user are displayed.
+The levels can be directly modified (the system
+managers GENERAL level can not be changed).
+This is done by selecting the authorisation group(s)
+from the list and then selecting the new
+authorisation level with the combobox below the
+list.
+
+The language for the user can be given, default is
+English (0).
+
+The following subdialogs can be reached from the
+Tools menu:
+
+   - Add User
+   - Remove User
+   - Add Authorization Group
+   - Remove Authorization Group
+   - Define View Monitor
+   - Change Password
+   - Edit password policy
+
+(More information of the subdialogs can be seen from
+the subdialogs.)
+
+You can disable emergency password by pressing 
+Ctrl + R in User Management main window. Using this
+function requires system manager authority.
+Note that after emergency password has been disabled,
+it is not possible to use emergency password for
+logging in if user name or password of system manager
+has been lost. 

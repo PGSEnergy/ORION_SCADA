@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ObjectTypes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+<ObjectType>
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">IEC61850 Subnetwork</Parameter>
+		<Parameter name="Caption">IEC61850 Subnetwork</Parameter>
+		<Parameter name="Description">IEC61850 Subnetwork</Parameter>
+		<Parameter name="Group">IEC61850</Parameter>
+		<Parameter name="Type">SubNetwork</Parameter>
+		<Parameter name="IconFileName">bus.ico</Parameter>
+		<Parameter name="Tools">OnlineDiagnosticsSubnetworkIec61850</Parameter>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="Visible">True</Parameter>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="PCMObjectType">IEC61850 OPC Server, IEC61850 OPC Server 3.5</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+	<Parameters type="SCLExport">
+		<Export name="CDATA">DeviceName, InUse, TCPKeepaliveTimeout, SystemEventLevel, GOOSE_NIC_GUID</Export>
+		<Export name="Addresses">IP, OSI-TSEL, OSI-SSEL, OSI-PSEL, OSI-AP_Title, OSI_AE_Qualifier</Export>
+	</Parameters>
+	<Properties type="PropertyDefinitions">
+		<Property name="OPCObjectType" category="[010] Basic">
+			<Value>8-MMS</Value>
+			<DescID>OPCObjectTypeDesc</DescID>
+			<CaptionID>OPCObjectType</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>OPCObjectType</AttributeName>
+		</Property>
+		<Property name="IP" category="[020] Communication Port">
+			<Value>127.0.0.1</Value>
+			<DescID>IP Address for communication channel. Dotted decimal or DNS name to be used</DescID>
+			<CaptionID>IP Address</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>IP</AttributeName>
+		</Property>
+		<Property name="OSI-TSEL" category="[020] Communication Port">
+			<Value>00000001</Value>
+			<DescID>OSI transport selector as defined in IEC 61850-8-1</DescID>
+			<CaptionID>OSI Transport Selector</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName>OSI-TSEL</AttributeName>
+		</Property>
+		<Property name="OSI-SSEL" category="[020] Communication Port">
+			<Value>0001</Value>
+			<DescID>OSI session selector as defined in IEC 61850-8-1</DescID>
+			<CaptionID>OSI Session Selector</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName>OSI-SSEL</AttributeName>
+		</Property>
+		<Property name="OSI-PSEL" category="[020] Communication Port">
+			<Value>0001</Value>
+			<DescID>OSI presentation selector as defined in IEC 61850-8-1</DescID>
+			<CaptionID>OSI Presentation Selector</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName>OSI-PSEL</AttributeName>
+		</Property>
+		<Property name="OSI_AE_Qualifier" category="[020] Communication Port">
+			<Value>23</Value>
+			<DescID>OSI ACSE AP qualifier as defined in IEC 61850-8-1</DescID>
+			<CaptionID>OSI ACSE AP Qualifier</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName>OSI-AE-Qualifier</AttributeName>
+		</Property>
+		<Property name="OSI-AP_Title" category="[020] Communication Port">
+			<Value>1,3,9999,23</Value>
+			<DescID>OSI ACSE AE title value as defined in IEC 61850-8-1</DescID>
+			<CaptionID>OSI ACSE AE Title Value</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName>OSI-AP-Title</AttributeName>
+		</Property>
+		<Property name="DeviceName" category="[020] Communication Port">
+			<Value>ETH0</Value>
+			<DescID>DeviceNameDesc</DescID>
+			<CaptionID>DeviceName</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName>SD</AttributeName>
+		</Property>
+		<Property name="GOOSE_NIC_GUID" category="[020] Communication Port">
+			<Value>\Device\NPF_{00000000-0000-0000-0000-000000000000}</Value>
+			<DescID>NIC used by GOOSE</DescID>
+			<CaptionID>GOOSE NIC</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey></HelpKey>
+			<Access>HHR</Access>
+			<AttributeName>GOOSE_NIC_GUID</AttributeName>
+		</Property>
+
+		<Property name="TCPKeepaliveTimeout" category="[030] Communication Control">
+			<Value>15</Value>
+			<DescID>TCP/IP Keepalive time-out in seconds</DescID>
+			<CaptionID>TCP/IP Keepalive Time-out</CaptionID>
+			<Values type="numerical">
+				<Min>1</Min>
+				<Max>3600</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>HWW</Access>
+			<AttributeName>TCPKeepaliveTimeout</AttributeName>
+		</Property>
+		<Property name="InUse" category="[010] Basic">
+			<Value>1</Value>
+			<DescID>Controls if the device communication is initially in use or not</DescID>
+			<CaptionID>In Use</CaptionID>
+			<Values type="singleChoice">
+				<Enum value="1" textID="In Use"/>
+				<Enum value="0" textID="Not In Use"/>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>InUse</AttributeName>
+		</Property>
+		<Property name="SystemEventLevel" category="[030] Communication Control">
+			<Value>0</Value>
+			<DescID>SystemEventLevelDesc</DescID>
+			<CaptionID>SystemEventLevel</CaptionID>
+			<Values type="singleChoice">
+				<Enum value="0" textID="Level0"/>
+				<Enum value="1" textID="Level1"/>
+				<Enum value="2" textID="Level2"/>
+				<Enum value="3" textID="Level3"/>
+				<Enum value="4" textID="Level4"/>
+				<Enum value="5" textID="Level5"/>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>HWW</Access>
+			<AttributeName>SystemEventLevel</AttributeName>
+		</Property>
+	</Properties>
+</ObjectType>
+</ObjectTypes>

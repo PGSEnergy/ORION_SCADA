@@ -1,0 +1,62 @@
+;return error to UI because it was not possible to set simulation off
+;Source file: sc/lib5/base/process/use/bpu_bpu_set_simulation_meas.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute), l_simulation = list(in_use = true | false,  simulated_value = real/integer), IX (optional)
+;Return data:
+;Description:
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_simulation
+#local l_result = list(status = 0, err_description=""), b_input_ok = true
+#local t_LN, i_IX = 0,    l_Attributes = list(), i_update, i_ss = 2, v_update_objects = vector()
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_SET_SIMULATION_MEAS"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+         @REDIRECTED = true                                                                        
+         i_ArgCnt = argument_count                                                                 
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+         #loop_end                                                                                 
+         #return 't_Redirect_Command' ;;;;;                                                        
+      #block_end                                                                                   
+   #block_end                                                                                      
+   #else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+
+i_IX = argument(3)
+t_LN = l_object_info.p_object_ln
+
+l_Attributes = application_object_attributes(0, "IX", list(ln = vector(t_LN), IX = vector(i_IX)), vector("SS", "UN", "OS", "OV", "EE", "HE", "PB"))
+
+#if l_simulation.in_use #then #block
+   #if l_Attributes.un(1) <> 0 and l_Attributes.ss(1) > 1 #then #block
+      #set 't_LN':prx'i_IX' = substr('t_LN':prx'i_IX', 1, 62) + dec('t_LN':pss'i_IX', 0)            
+   #block_end
+   #modify 't_LN':p'i_IX' = list(ov = l_simulation.simulated_value, ss = 1)
+#block_end
+#else #block
+   #if l_Attributes.un(1) > 0 #then #block
+      #if substr('t_LN':prx'i_IX', 63, 1) <> " " #then i_ss = dec_scan(substr('t_LN':prx'i_IX', 63, 1))
+      #modify 't_LN':p'i_IX' = list(ss = i_ss)      
+      v_update_objects(length(v_update_objects) + 1) = list(LN = t_LN, IX = i_IX)
+      #exec bpu_update:c (@update_objects = v_update_objects)
+   #block_end  
+#block_end
+
+;return error to UI because it was not possible to set simulation off
+#if not l_simulation.in_use and length(v_update_objects) == 0 #then l_result.status = -1
+
+#return l_result

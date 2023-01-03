@@ -1,0 +1,138 @@
+
+INDICATION_TYPE
+
+A selector type of a combo box to select the type
+of the position indication process object(s). As a
+default, the process object type is defined as a
+double indication (DB).
+
+The purpose of this configurable attribute is to
+support other data type than double indication as
+the position indication of the device. The
+supported data types are:
+
+  - Double indication (DB)
+  - Single indication (BI)
+  - 2 x Single indications (2 x BI)
+  - Analog input (AI)
+
+MOTORIZED
+
+An ON/OFF type of a toggle button to select if
+the device is motorized and remotely controllable
+by SCS/MicroSCADA. As a default, the device
+is defined as a motorized object.
+
+By selecting Motorized option, the Process Object
+Tool (POT) will create a set of process objects
+for control purpose and all configurable
+attributes related to control are being enabled.
+
+CONTROL_TYPE
+
+A selector type of a combo box to select the
+control method and the type of the control process
+object(s). If the configurable attribute
+MOTORIZED is not selected, this attribute is being
+disabled, and the value has no meaning.
+
+The purpose of this configurable attribute is to
+support other control methods and process object
+types than the conventional one. The
+conventional control method depends very much on
+the configurable attribute STATION_TYPE since
+there is a certain default method for each
+protocol to control  device. The
+supported control methods are:
+
+  - Secured command with four binary outputs (Open
+    select, Close select, Execute, Cancel)
+  - Secured command with two binary outputs (Open
+    execute, Close execute)
+  - Secured command with two digital outputs (Open
+    execute, Close execute; pulse length
+    configurable)
+  - Secured command with a single binary output
+    (*) (Open select/Close
+    select/Execute/Cancel)
+  - Secured command with a single analog output
+    (Open select, Close select, Execute, ancel or
+    Open execute/Close execute)
+  - Direct command with a single binary output
+    (Open execute/Close execute)
+
+CMD_PARAMETER
+
+A selector type of a combo box to select the
+command parameter for control method. This
+attribute has meaning only if IEC 870-5-101 or
+DNP 3.0 protocol is selected, otherwise this
+attribute is being disabled. The supported control
+parameters are:
+
+  - Double command (TY = 46)
+  - Single command (TY = 45)
+
+for IEC 870-5-101 protocol
+
+CONTROL_PULSE_LENGTH
+
+An input field for integer value to set the pulse
+length of the control pulses. The configurable
+attribute is being enabled if the attribute
+MOTORIZED is set and CONTROL_TYPE is secured
+control with two digital outputs.
+
+CONTROL_BITS
+
+A vector type of an input field for integer
+values to specify the bits to be used to send a
+control command to the  device. The
+configurable attribute is being enabled if the
+attribute MOTORIZED is set and
+CONTROL_TYPE is a secured control with an
+analog output.
+
+There is a need to specify two or four elements for
+that vector. If two elements are being specified,
+the first element represents the bit for Open
+execute, while the second element is for Close
+execute. When four elements are used, the first
+represents the bit for Open select, the second
+represents Close select, the third represents
+Execute and the fourth represents Cancel.
+
+The bit vector shall be given to the SCT in the
+following way: (0,1) or (9,10,11,8)
+
+AUTO_MANUAL_IND_TYPE
+
+A selector type of a combo box to select the type
+of the auto/manual indication process object(s). As a
+default, the process object type is defined as a
+Indication with two binary inputs.
+
+AUTO_MANUAL_CMD_ENABLED
+
+An ON/OFF type of a toggle button to select whether the
+auto/manual state is remotely controllable or not.
+
+AUTO_MANUAL_CMD_TYPE
+
+A selector type of a combo box to select the
+control method and the type of the auto/manual
+control process object(s).
+
+BAY_LR_POLARITY
+
+The polarity of the bay local/remote-switch
+input signal.
+
+OBJECT_TYPE_DESCRIPTION
+
+A selector type of a combo box to select the lib object type for the object. The lib object
+type can be used to configure:
+  - Index convention of process objects.
+  - Value semantic of process objects.
+  - Predefined custom methods.
+  - Object specific process object.

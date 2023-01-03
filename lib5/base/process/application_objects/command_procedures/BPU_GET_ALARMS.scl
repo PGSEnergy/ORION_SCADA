@@ -1,0 +1,171 @@
+;Function: BPU_GET_ALARMS:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_get_alarms.scl
+;Version: 1.0
+;Parameters:  OBJECT_INFO (content of CD-attribute)
+;Return data: LIST(STATUS=0, err_description="", ALARM_OBJECTS=VECTOR(LIST (LN = "0", IX = 0, ALARM_STATE = 0, SIGNAL_TEXT="")))
+;Description: Searhes process objects that can cause alarm and return their alarm state
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info
+#local l_Result = LIST(STATUS=0, err_description="", ALARM_OBJECTS=VECTOR(), All_Alarms= vector())
+#local l_ois, t_Filter, l_Objects, RX1, RX2, RX3, RX4, i, t_LN, i_IX, i_alarm_state = 0, max_nr_of_alarms = 8
+#local t_OI, i_show_oi_from_level, v_Show_oi_from_char = vector(1), j, t_tmp_string = "", l_Actual_Alarm
+#local l_Default_Alarm = list(-
+   alarm_id = "",-
+   data_address = "",-
+   object_path_text = 3,-
+   object_text = 4,-
+   severity = list(-
+      name = "",-
+      value = 0,-
+      sub_severity = 0),- 
+   sub_severity = 0,-
+   type = "",-
+   state_text = "",-
+   state_value = 0,-
+   active = false,-
+   suppressed = false,-
+   shelved = false,-
+   acknowledged = false,-
+   confirmed = true,-
+   ack_required = false,-
+   acknowledged_by = "",-
+   activation_time = "",-
+   nactivation_time = "",-
+   acknowledged_time = "",-
+   confirmation_time ="")
+
+;****************************************************************************************************
+;redirect command if application specific command procedure is found                               ;*
+#local t_Redirect_Proc = "APLMOD5_BPU_GET_ALARMS"                                                  ;*
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    ;*
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            ;*
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 ;*
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  ;*
+         @REDIRECTED = true                                                                        ;*
+         i_ArgCnt = argument_count                                                                 ;*
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        ;*
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" ;*
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       ;*
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     ;*
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    ;*
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        ;*
+         #loop_end                                                                                 ;*
+         #return 't_Redirect_Command' ;;;;;                                                        ;*
+      #block_end                                                                                   ;*
+   #block_end                                                                                      ;*
+   #else #delete REDIRECTED:V                                                                      ;*
+#block_end                                                                                         ;*
+;****************************************************************************************************
+;MAIN START
+
+;LIB process objects based on LIB RX-attribute convention (%==free character)
+RX1 = pad("%",26) + "I%%%"      ;indications (e.g. breaker indication or interlocking signal)
+RX2 = pad("%",26) + "E%%%"      ;event recording (RP570 protocol)
+RX3 = pad("%",26) + "M%%%"      ;measurements
+RX4 = pad("%",26) + "X%%%"      ;internal signals (e.g. selected on monitor)
+
+t_Filter = "IU==1 AND SS > 0 AND AC > 0 AND OS < 10 AND ((RX==""'RX1'"" OR RX==""'RX2'"" OR RX==""'RX3'"") OR ((PT==3 OR PT==6 OR PT==9 OR PT==12 OR PT==13 OR PT==14) AND RX<>""'RX4'""))"
+#if attribute_exists(l_object_info, "device_name") #then #block
+   l_Objects =  application_object_list(0, "IX", "I", "F", l_object_info.p_object_ln, t_Filter, vector("TX", "IE", "OX", "SX", "RC", "OV", "AC", "AB"))
+   ;add linked object if alarm indicator
+   #if l_object_info.type_pf == "SAGR_AI" or l_object_info.type_pf == "FPI_AI" #then #block
+      #loop_with i = 1 .. max_nr_of_alarms
+         #if l_object_info.type_of_signal'i' == "LINK" #then #block
+            t_LN = l_object_info.LINK_SIGNAL'i'_TO_LN
+            i_IX = l_object_info.LINK_SIGNAL'i'_TO_IX
+            #if application_object_exists(0, "IX", list(ln = t_LN, ix = i_IX ))  #then #block
+               #if 't_LN':piu'i_IX' == 1 and 't_LN':pss'i_IX' > 0 and 't_LN':pac'i_IX' > 0 #then #block
+                  l_Objects.count = l_Objects.count + 1
+                  l_Objects.LN(l_Objects.count) = t_LN
+                  l_Objects.IX(l_Objects.count) = i_IX
+                  l_Objects.TX(l_Objects.count) = 't_LN':ptx'i_IX'
+               #block_end
+            #block_end
+         #block_end
+      #loop_end
+   #block_end
+#block_end
+#else #block
+   l_ois = do(bpu_trim_oi_for_query:c, l_object_info)
+   t_LN = l_object_info.p_object_ln
+   #if l_object_info.type_info.object_level == "STA" #then #block ;substr('t_ln':prx10,23,8) == "ASTAILRS" #then #block
+      t_OI = l_ois.station_name_trimmed
+      i_show_oi_from_level = l_ois.level_sta
+   #block_end
+   #else_if l_object_info.type_info.object_level == "BAY" #then #block ;substr('t_ln':prx10,23,8) == "ABAYILRS" #then #block
+      t_OI = l_ois.bay_name_trimmed
+      i_show_oi_from_level = l_ois.level_bay
+   #block_end
+   #else_if substr('t_LN':prx10,23,8) == "AGRPILRS" #then #block
+      #if l_object_info.special_identifier_1 <> "" #then #block
+         t_OI = l_ois.special_identifier_1_trimmed
+         i_show_oi_from_level = l_ois.level_special_1
+      #block_end
+      #if l_object_info.special_identifier_2 <> "" #then #block
+         t_OI = l_ois.special_identifier_2_trimmed
+         i_show_oi_from_level = l_ois.level_special_2
+      #block_end
+      #if l_object_info.special_identifier_3 <> "" #then #block
+         t_OI = l_ois.special_identifier_3_trimmed
+         i_show_oi_from_level = l_ois.level_special_3
+      #block_end
+   #block_end
+   
+   l_Objects = application_object_list(0, "IX",  "OI", "", "'t_OI'*", t_Filter, vector("TX", "OI", "IE", "OX", "SX", "RC", "OV", "AC", "AB"))
+   
+   #loop_with i = 1 .. l_Objects.count
+      t_tmp_string = ""
+      #loop_with j = i_show_oi_from_level + 1 .. length(l_Objects.ie(i))
+         t_tmp_string = t_tmp_string + l_Objects.ie(i)(j)
+         #if j <> length(l_Objects.ie(i)) #then t_tmp_string = t_tmp_string + " "
+      #loop_end
+
+      #if  t_tmp_string <> "" #then l_Objects.tx(i) = t_tmp_string + ": " + l_Objects.tx(i)
+   #loop_end
+#block_end
+
+#loop_with i = 1 .. l_objects.COUNT
+   
+   l_Actual_Alarm = l_Default_Alarm
+   t_LN = l_objects.ln(i)
+   i_IX = l_objects.ix(i)
+   
+   #if l_objects.rc(i) == 1 #then l_Actual_Alarm.ack_required = true
+   l_Actual_Alarm.object_path_text = collect(l_objects.IE(i), ".")
+   l_Actual_Alarm.state_text = l_objects.SX(i)
+   l_Actual_Alarm.state_value = l_objects.OV(i)
+   l_Actual_Alarm.severity = l_objects.AC(i)
+   l_Actual_Alarm.data_address = l_objects.LN(i) + ":" + dec(l_objects.IX(i), 0)  
+   l_Actual_Alarm.suppressed = (l_objects.AB(i) == 1)
+   
+   i_alarm_state = 0
+   #if 't_LN':pos'i_IX' < 10 #then #block
+      #if 't_LN':par'i_IX' == 0 #then #block
+         #if 't_LN':pal'i_IX' == 1 #then #block
+            i_alarm_state = 1
+            l_Actual_Alarm.active = true
+            l_Actual_Alarm.acknowledged = false
+         #block_end
+         #else #block
+            i_alarm_state = 3
+            l_Actual_Alarm.active = false
+            l_Actual_Alarm.acknowledged = false
+         #block_end
+      #block_end
+      #else_if 't_LN':par'i_IX'== 1 #then #block
+         #if 't_LN':pal'i_IX'== 1 #then #block
+            i_alarm_state = 2
+            l_Actual_Alarm.active = true
+            l_Actual_Alarm.acknowledged = true
+         #block_end
+      #block_end
+      l_result.alarm_objects(i) = list(LN = l_objects.ln(i), IX = l_objects.ix(i), SIGNAL_TEXT = l_objects.tx(i), ALARM_STATE = i_alarm_state)
+      l_result.All_Alarms(i) = l_Actual_Alarm
+   #block_end
+   
+#loop_end
+
+#return l_Result

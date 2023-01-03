@@ -1,0 +1,700 @@
+;Function: BPU_CALCULATE_STATE_TRAFO:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_calculate_state_trafo.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute),  l_data, session number of control dialog, i_session, session number of dialog
+;Return data:
+;Description: Calculates state of main tab and messages related to the object
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data
+#local i, j, t_Attr, v_Attrs, indication_state,  t_Type, b_check_rest = true, l_connection_state
+#local v_messages = vector(), i_count = 0, b_disable_all = false, l_Objects,  l_capabilities = list(), l_cdm_actual_value
+#local i_sta_LR_Authorized, v_attributes, t_attribute, t_Convention_Attribute, v_PT = ("", "3", "9", "12")
+#local t_LN = l_object_info.p_object_ln, l_WP_Auth = list(), i_type, t_procedure = "", l_lr_check = list, v_indexes = vector
+#local l_value_convention = list(), t_value, t_indication_value = "", i_Val, l_user_interlocking, s, i_tmp_number, t_tmp_ln, i_tmp_ix
+#local i_session = 1, b_bay_mlt_allows = false, t_bay_ln, i_bay_ix, v_reasons = vector(), t_control_point
+#local b_sta_lr_allows, b_bay_sr_allows, b_sw_sr_allows
+#local l_result = list(-
+   REFERENCE_VOLTAGE_PRESENT = true,-
+   REFERENCE_VOLTAGE_ENABLED = true,-
+   COUNTER_PRESENT = true,-
+   COUNTER_VALUE = -1,-
+   COUNTER_LIMIT = 0,-
+   COUNTER_ENABLED = true,-
+   RAISE_ENABLED = true,-
+   LOWER_ENABLED = true,-
+   AUTO_ENABLED = true,-
+   MANUAL_ENABLED = true,-
+   AUTO_SELECTED = true,-
+   MANUAL_SELECTED = true,-
+   SINGLE_PARALLEL_PRESENT = true,-
+   SINGLE_ENABLED = true,-
+   PARALLEL_ENABLED = true,-
+   SINGLE_SELECTED = true,-
+   PARALLEL_SELECTED = true,-
+   MASTER_SLAVE_PRESENT = true,-
+   MASTER_ENABLED = true,-
+   SLAVE_ENABLED = true,-
+   MASTER_SELECTED = true,-
+   SLAVE_SELECTED = true,-
+   MESSAGES = vector())
+
+
+#local v_control_inhibit_reasons = vector
+
+#local l_cdm_default_value = list(-
+   data_quality = 196608,-
+   timestamp = list())
+
+#local l_cdm_authority = list(-
+   control_permitted = true,-
+   level_permitted = true,-
+   control_inhibit_reason = vector())
+
+#local l_data_points = list(-
+   tap_changer_max_position_value = list(),-
+   tap_changer_min_position_value = list(),-
+   raise_blocked = list(),-
+   lower_blocked = list(),-
+   allow_raise = list(),-
+   allow_lower = list(),-
+   tap_value_raise_or_lower_command = list(),-
+   auto_manual_set_operation_mode_command = list(),-
+   reference_voltage_set_value_command = list(),-
+   co_operation_mode_set_value_command = list(),-
+   co_operation_role_set_value_command = list(),-
+   forced_clear_pending_selections_command = list(),-
+   user_authorized = list())
+
+#local l_default_capabilities = list(-
+   Basic = list(-
+      DATAPOINTS = vector(-
+         "tap_position",-
+         "tap_changer_max_position_value",-
+         "tap_changer_min_position_value"),-
+      AUTHORIZED = FALSE),-
+   Operation = list(-
+      DATAPOINTS = vector(-
+         "tap_value_raise_or_lower_command"),-
+      AUTHORIZED = FALSE),-
+   OperationAutomatic = list(-
+      DATAPOINTS = vector(-
+         "auto_manual_operation_mode",-
+         "auto_manual_set_operation_mode_command",-
+         "voltage",-
+         "reference_voltage",-
+         "reference_voltage_set_value_command"),-
+      AUTHORIZED = FALSE),-
+   OperationParallel = list(-
+      DATAPOINTS = vector(-
+         "co_operation_mode",-
+         "co_operation_mode_set_value_command",-
+         "co_operation_role",-
+         "co_operation_role_set_value_command"),-
+      AUTHORIZED = FALSE),-
+   OperationRestrictionProcess = list(-
+      DATAPOINTS = vector(-
+         "raise_blocked",-
+         "lower_blocked"),-
+      AUTHORIZED = FALSE))
+      
+#local l_ctrl_inhibit_reason = list(-
+   tap_position = list(-
+      control_point = "tap_value_raise_or_lower_command",-
+      inhibit_reasons = vector()),-
+   auto_manual_operation_mode = list(-
+      control_point = "auto_manual_set_operation_mode_command",-
+      inhibit_reasons = vector()),-
+   co_operation_mode = list(-
+      control_point = "co_operation_mode_set_value_command",-
+      inhibit_reasons = vector()),-
+   co_operation_role = list(-
+      control_point = "co_operation_role_set_value_command",-
+      inhibit_reasons = vector()),-
+   reference_voltage = list(-
+      control_point = "reference_voltage_set_value_command",-
+      inhibit_reasons = vector()),-   
+   forced_clear_pending_selections = list(-
+      control_point = "forced_clear_pending_selections_command",-
+      inhibit_reasons = vector()))
+
+l_Objects = l_data.all_objects
+
+;object state os, ss, un, ub ...
+t_procedure =  l_object_info.type_info.command_procedures.define_trafo_state
+l_connection_state = do('t_procedure':c, l_object_info, l_Objects)
+
+;define value convention for process data
+t_procedure =  l_object_info.type_info.command_procedures.get_indications_trafo
+l_value_convention = do('t_procedure':c, l_object_info, l_Objects)
+
+;workplace authority
+l_WP_Auth = do(BPU_WP_AUTHORITY:C)
+#if not l_WP_Auth.allowed #then #block
+   i_count = i_count + 1
+   v_messages(i_count) = l_WP_Auth.error_message
+   b_disable_all = true
+#block_end
+
+;multilevel control
+#if attribute_exists(l_objects, "bay_multilevel_control_ix") #then #block
+   t_bay_ln = l_objects.bay_multilevel_control_ln
+   i_bay_ix = l_objects.bay_multilevel_control_ix
+   #if 't_bay_ln':pos'i_bay_ix' <> 10 #then -
+      b_bay_mlt_allows = ('t_bay_ln':pov'i_bay_ix' == 1)
+#block_end
+
+;Bay S/R switch
+b_bay_sr_allows = true
+#if attribute_exists(l_objects, "bay_op_object_ln") #then #block
+   t_bay_ln = l_objects.bay_op_object_ln
+   #if 't_bay_ln':pos'l_objects.bay_op_object_ix' <> 10 #then #block
+      #if ('t_bay_ln':pov'l_objects.bay_op_object_ix' == 1 and apl:bsv(3) == 0) or ('t_bay_ln':pov'l_objects.bay_op_object_ix' == 0 and apl:bsv(3) == 1) #then b_bay_sr_allows = false
+   #block_end
+#block_end
+
+;Switch S/R switch
+b_sw_sr_allows = true
+#if attribute_exists(l_objects, "sw_locsta_ix") #then #block
+   #if 't_LN':pos'l_objects.sw_locsta_ix' <> 10 #then #block
+      #if ('t_LN':pov'l_objects.sw_locsta_ix' == 1 and apl:bsv(3) == 0) or ('t_LN':pov'l_objects.sw_locsta_ix' == 0 and apl:bsv(3) == 1) #then b_sw_sr_allows = false
+   #block_end
+#block_end
+
+#if not b_bay_mlt_allows #then #block
+   ;Station L/R switch
+   b_sta_lr_allows = true
+   #if not(((b_bay_sr_allows and attribute_exists(l_objects, "bay_op_object_ln")) or (b_sw_sr_allows and attribute_exists(l_objects, "sw_locsta_ix"))) and apl:bsv(3) == 1) #then #block
+      l_lr_check = do(bpu_resolve_sta_lr_authority:c, l_Objects, v_messages, i_count, b_disable_all)
+      #if data_type(l_lr_check) == "LIST" #then #block
+         #if attribute_exists(l_lr_check, "count") and attribute_exists(l_lr_check, "messages") and attribute_exists(l_lr_check, "disable_all") #then #block
+            i_count = l_lr_check.count
+            v_messages = l_lr_check.messages
+            b_disable_all = l_lr_check.disable_all
+            #if l_lr_check.lr_message.custom_value <> 0 #then #block
+               l_cdm_authority.level_permitted = false
+               v_control_inhibit_reasons = append(-
+                  v_control_inhibit_reasons, l_lr_check.lr_message)
+               b_sta_lr_allows = false
+            #block_end
+         #block_end
+      #block_end
+   #block_end
+
+   ;Bay L/R switch
+   l_lr_check = do(bpu_resolve_bay_lr_authority:c, l_Objects, l_value_convention, v_messages, i_count, b_disable_all)
+   #if data_type(l_lr_check) == "LIST" #then #block
+      #if attribute_exists(l_lr_check, "count") and attribute_exists(l_lr_check, "messages") and attribute_exists(l_lr_check, "disable_all") #then #block
+         i_count = l_lr_check.count
+         v_messages = l_lr_check.messages
+         b_disable_all = l_lr_check.disable_all
+         #if l_lr_check.lr_message.custom_value <> 0 #then #block
+            l_cdm_authority.level_permitted = false
+            v_control_inhibit_reasons = append(-
+               v_control_inhibit_reasons, l_lr_check.lr_message)
+         #block_end
+      #block_end
+   #block_end
+
+   ;Bay S/R switch
+   #if not((b_sta_lr_allows or (b_sw_sr_allows and attribute_exists(l_objects, "sw_locsta_ix"))) and apl:bsv(3) == 1) #then #block
+      #if not b_bay_sr_allows #then #block
+         i_count = i_count + 1
+         v_messages(i_count) = translation("Bay operator place switch inhibits control")
+         b_disable_all = true
+         l_cdm_authority.level_permitted = false
+         v_control_inhibit_reasons = append(-
+            v_control_inhibit_reasons, list(value = 0, custom_value = 1050, custom_text = v_messages(i_count)))
+      #block_end
+   #block_end
+   
+   ;Switch S/R switch
+   #if not((b_sta_lr_allows or (b_bay_sr_allows and attribute_exists(l_objects, "bay_op_object_ln"))) and apl:bsv(3) == 1) #then #block
+      #if not b_sw_sr_allows #then #block
+         i_count = i_count + 1
+         v_messages(i_count) = translation("Switch S/R switch inhibits control")
+         b_disable_all= true
+         l_cdm_authority.level_permitted = false
+         v_control_inhibit_reasons = append(-
+            v_control_inhibit_reasons, list(value = 0, custom_value = 1018, custom_text = v_messages(i_count)))
+      #block_end
+   #block_end
+#block_end
+
+;logical node L/R switch
+#if attribute_exists(l_objects, "sw_loc_ix") #then #block
+   #if 't_LN':pos'l_objects.sw_loc_ix' <> 10 #then #block
+      i_val = 't_LN':pov'l_objects.sw_loc_ix'
+      #if attribute_exists(l_value_convention.logical_node_loc, "ov_'i_val'") #then t_value = l_value_convention.logical_node_loc.ov_'i_val'
+      #else t_value = "NOT_DEFINED"
+      #if t_value == "LOCAL" #then #block
+         i_count = i_count + 1
+         b_disable_all = true
+         l_cdm_authority.level_permitted = false
+         v_control_inhibit_reasons = append(-
+            v_control_inhibit_reasons, list(value = 2))
+      #block_end
+   #block_end
+#block_end
+
+#case l_object_info.operation_mode
+   #when "SINGLE" #block
+      l_result.SINGLE_PARALLEL_PRESENT = false
+      l_result.MASTER_SLAVE_PRESENT = false
+   #block_end
+   #when "NRP", "MCC" #block
+      l_result.SINGLE_PARALLEL_PRESENT = true
+      l_result.MASTER_SLAVE_PRESENT = false
+   #block_end
+   #when "M_S" #block
+      l_result.SINGLE_PARALLEL_PRESENT = false
+      l_result.MASTER_SLAVE_PRESENT = true
+   #block_end
+#case_end
+
+#if l_connection_state.reference_voltage.indication_missing and l_connection_state.reference_voltage.control_missing #then -
+   l_result.REFERENCE_VOLTAGE_PRESENT = false
+
+v_attributes = list_attr(l_connection_state)
+#loop_with i = 1 .. length(v_attributes)
+   t_attribute = v_attributes(i)
+   b_check_rest = true
+   #case t_attribute
+      #when "CO_OPERATION_MODE" b_check_rest = l_result.SINGLE_PARALLEL_PRESENT
+      #when "CO_OPERATION_ROLE" b_check_rest = false ;l_result.MASTER_SLAVE_PRESENT
+      #when "COUNTER" #block
+         l_result.counter_value = l_connection_state.counter.indication_state
+         l_result.counter_limit =l_connection_state.counter.limit
+         #if data_type(l_result.counter_value) == "TEXT" #then b_check_rest = false
+      #block_end
+      #when "REFERENCE_VOLTAGE" b_check_rest = l_result.REFERENCE_VOLTAGE_PRESENT
+      #when "MASTER", "FOLLOWER" b_check_rest = l_result.MASTER_SLAVE_PRESENT
+   #case_end
+
+   #if  b_check_rest #then #block
+      ;indication states
+      #if not l_connection_state.'t_attribute'.indication_missing #then #block
+
+         #if not (l_connection_state.'t_attribute'.attr_states.i_connection_ss == -1 or l_connection_state.'t_attribute'.attr_states.i_connection_iu == -1) #then #block
+            #if l_connection_state.'t_attribute'.attr_states.i_connection_os < 10 #then #block
+               indication_state = l_connection_state.'t_attribute'.indication_state
+               t_Type = ""
+               t_indication_value = ""
+
+               t_Convention_Attribute = t_attribute + "_" + dec(l_connection_state.'t_attribute'.pt, 0)
+               #if attribute_exists(l_value_convention, t_Convention_Attribute) #then #block
+                  #if attribute_exists(l_value_convention.'t_Convention_Attribute', "TYPE") #then t_Type = l_value_convention.'t_Convention_Attribute'.type
+               #block_end
+
+               #case t_Type
+                  #when "INTEGER", "REAL" #block
+                     t_indication_value = indication_state
+                  #block_end
+                  #otherwise #block
+                     #if attribute_exists(l_value_convention.'t_Convention_Attribute', "ov_'indication_state'") #then -
+                        t_indication_value = l_value_convention.'t_Convention_Attribute'.ov_'indication_state'
+                     #else t_indication_value = "NOT_DEFINED"
+                  #block_end
+               #case_end
+
+               #case t_attribute
+                  #when "TAP_POSITION" #block
+                     l_capabilities = merge_attributes(l_capabilities, list(basic = l_default_capabilities.basic))
+                     l_capabilities = merge_attributes(l_capabilities, list(operation = l_default_capabilities.operation))
+                     #if t_indication_value <= l_object_info.min_position #then l_result.LOWER_ENABLED = false
+                     #else_if t_indication_value >= l_object_info.max_position #then l_result.RAISE_ENABLED = false
+                  #block_end
+                  #when "AUTO_MANUAL_OPERATION_MODE" #block
+                     l_capabilities = merge_attributes(l_capabilities, list(OperationAutomatic = l_default_capabilities.OperationAutomatic))
+                     #case t_indication_value
+                        #when "AUTO" #block
+                           l_result.AUTO_SELECTED = true
+                           l_result.MANUAL_SELECTED = false
+                           l_result.RAISE_ENABLED = false
+                           l_result.LOWER_ENABLED = false
+                        #block_end
+                        #when "MANUAL" #block
+                           l_result.MANUAL_SELECTED = true
+                           l_result.AUTO_SELECTED = false
+                        #block_end
+                        #when "INTERMEDIATE", "FAULTY", "NOT_DEFINED" #block
+                           l_result.AUTO_SELECTED = false
+                           l_result.MANUAL_SELECTED = false
+                           l_result.RAISE_ENABLED = false
+                           l_result.LOWER_ENABLED = false
+                           l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons = append(-
+                              l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons, list(-
+                                 value = 0, custom_value = 1051, custom_text = translation("Object state not supported") + " (" + lower_case(t_indication_value) + ")"))
+                        #block_end
+                     #case_end
+                  #block_end
+                  #when "CO_OPERATION_MODE" #block
+                     l_capabilities = merge_attributes(l_capabilities, list(OperationParallel = l_default_capabilities.OperationParallel))
+                     v_indexes = select(l_capabilities.operationparallel.datapoints, "==""MasterFollower*""", "WILDCARDS")
+                     l_capabilities.operationparallel.datapoints = delete_element(l_capabilities.operationparallel.datapoints, v_indexes)
+                     #case t_indication_value
+                        #when "SINGLE" #block
+                           l_result.SINGLE_SELECTED = true
+                           l_result.PARALLEL_SELECTED = false
+                        #block_end
+                        #when "PARALLEL" #block
+                           l_result.PARALLEL_SELECTED = true
+                           l_result.SINGLE_SELECTED = false
+                           l_result.RAISE_ENABLED = false
+                           l_result.LOWER_ENABLED = false
+                           l_result.AUTO_ENABLED = false
+                           l_result.MANUAL_ENABLED = false
+                        #block_end
+                        #when "INTERMEDIATE", "FAULTY", "NOT_DEFINED" #block
+                           l_result.SINGLE_SELECTED = false
+                           l_result.PARALLEL_SELECTED = false
+                           l_result.RAISE_ENABLED = false
+                           l_result.LOWER_ENABLED = false
+                           l_result.AUTO_ENABLED = false
+                           l_result.MANUAL_ENABLED = false                           
+                           l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons = append(-
+                              l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons, list(-
+                                 value = 0, custom_value = 1051, custom_text = translation("Object state not supported") + " (" + lower_case(t_indication_value) + ")"))
+                        #block_end
+                        #when "NOT_DEFINED" #block
+                           i_count = i_count + 1
+                           v_messages(i_count) = l_connection_state.'t_attribute'.text + ": " + translation("Object state not supported")
+                           l_result.SINGLE_SELECTED = false
+                           l_result.PARELLEL_SELECTED = false
+                        #block_end
+                     #case_end
+                  #block_end
+                  #when "CO_OPERATION_ROLE" #block
+                     #if  l_result.MASTER_SLAVE_PRESENT #then #block
+                        #case t_indication_value
+                           #when "MASTER" #block
+                              l_result.MASTER_SELECTED = true
+                              l_result.SLAVE_SELECTED = false
+                           #block_end
+                           #when "SLAVE" #block
+                              l_result.SLAVE_SELECTED = true
+                              l_result.MASTER_SELECTED = false
+                           #block_end
+                           #when "INTERMEDIATE", "FAULTY", "NOT_DEFINED" #block
+                              l_result.MASTER_SELECTED = false
+                              l_result.SLAVE_SELECTED = false                          
+                              l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons = append(-
+                                 l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons, list(-
+                                    value = 0, custom_value = 1051, custom_text = translation("Object state not supported") + " (" + lower_case(t_indication_value) + ")"))
+                           #block_end
+                        #case_end
+                     #block_end
+                  #block_end
+                  #when "MASTER" #block
+                     l_capabilities = merge_attributes(l_capabilities, list(OperationParallel = l_default_capabilities.OperationParallel))
+                     v_indexes = select(l_capabilities.operationparallel.datapoints, "==""CoOpMode*""", "WILDCARDS")
+                     l_capabilities.operationparallel.datapoints = delete_element(l_capabilities.operationparallel.datapoints, v_indexes)
+                     #case t_indication_value
+                        #when "" #block
+                           l_result.MASTER_SELECTED = false
+                        #block_end
+                        #when "MASTER" #block
+                           l_result.MASTER_SELECTED = true
+                           l_result.SLAVE_SELECTED = false
+                        #block_end
+                        #when "NOT_DEFINED" #block
+                           i_count = i_count + 1
+                           v_messages(i_count) = l_connection_state.'t_attribute'.text + ": " + translation("Object state not supported")
+                           l_result.MASTER_SELECTED = false
+                           l_result.SLAVE_SELECTED = false
+                        #block_end
+                     #case_end
+                  #block_end
+                  #when "FOLLOWER" #block
+                     #case t_indication_value
+                        #when "" #block
+                           l_result.SLAVE_SELECTED = false
+                        #block_end
+                        #when "FOLLOWER" #block
+                           l_result.MASTER_SELECTED = false
+                           l_result.SLAVE_SELECTED = true
+                        #block_end
+                        #when "NOT_DEFINED" #block
+                           i_count = i_count + 1
+                           v_messages(i_count) = l_connection_state.'t_attribute'.text + ": " + translation("Object state not supported")
+                           l_result.MASTER_SELECTED = false
+                           l_result.SLAVE_SELECTED = false
+                        #block_end
+                     #case_end
+                  #block_end
+               #case_end
+            #block_end
+            #else #block
+               i_count = i_count + 1
+               v_messages(i_count) = translation("Object status: Not sampled")
+               b_disable_all = true               
+               #if attribute_exists(l_ctrl_inhibit_reason, t_attribute) #then -
+                  l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons = append(-
+                     l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons, list(value = 0, custom_value = 1002, custom_text = v_messages(i_count)))
+            #block_end
+         #block_end
+         #else #block
+            i_count = i_count + 1
+            v_messages(i_count) = l_connection_state.'t_attribute'.text + ": " + translation("Object is not in use or switch state is off")
+         #block_end
+         ;not connected to process
+         #if not (l_connection_state.'t_attribute'.attr_states.o_connection_ss == 1 and l_connection_state.'t_attribute'.attr_states.o_connection_un == 1) and -
+         not (l_connection_state.'t_attribute'.attr_states.i_connection_ss == 1 and l_connection_state.'t_attribute'.attr_states.i_connection_un == 1) #then #block
+            i_count = i_count + 1
+            v_messages(i_count) = l_connection_state.'t_attribute'.text + ": " + translation("Object is simulated")
+         #block_end
+      #block_end
+      #else #block
+         i_count = i_count + 1
+         v_messages(i_count) = translation("Indication object(s) missing")
+         b_disable_all = true
+         #if attribute_exists(l_ctrl_inhibit_reason, t_attribute) #then -
+            l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons = append(-
+               l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons, list(value = 0, custom_value = 1003, custom_text = v_messages(i_count)))
+      #block_end
+
+      ;control object missing
+      #if l_connection_state.'t_attribute'.control_missing and not l_connection_state.'t_attribute'.ind_only #then #block
+         i_count = i_count + 1
+         v_messages(i_count) = translation("Control objects missing")
+         b_disable_all = true
+         #if attribute_exists(l_ctrl_inhibit_reason, t_attribute) #then -
+            l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons = append(-
+               l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons, list(value = 0, custom_value = 1019, custom_text = v_messages(i_count)))
+      #block_end
+
+      #if not l_connection_state.'t_attribute'.indication_missing and not l_connection_state.'t_attribute'.control_missing #then #block
+
+         ;substituted, internal
+         #if l_connection_state.'t_attribute'.attr_states.i_connection_su == 1 #then #block
+            i_count = i_count + 1
+            v_messages(i_count) = l_connection_state.'t_attribute'.text + ": " + translation("Values substituted by control application")
+         #block_end
+
+         ;substituted, external
+         #if l_connection_state.'t_attribute'.attr_states.i_connection_sb == 1 #then #block
+            i_count = i_count + 1
+            v_messages(i_count) = l_connection_state.'t_attribute'.text + ": " + translation("Values substituted by control device")
+         #block_end
+
+         ;discrepancy in position indication objects (if input objects not all in same state)
+         #if l_connection_state.'t_attribute'.attr_states.i_connection_ss == -1 or l_connection_state.'t_attribute'.attr_states.i_connection_un == -1 #then #block
+            i_count = i_count + 1
+            v_messages(i_count) = translation("Discrepancy in indication objects")
+            b_disable_all = true
+            #if attribute_exists(l_ctrl_inhibit_reason, t_attribute) #then -
+               l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons = append(-
+                  l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons, list(value = 0, custom_value = 1024, custom_text = v_messages(i_count)))
+         #block_end
+
+         ;discrepancy in command objects (if output objects not all in same state)
+         #if not l_connection_state.'t_attribute'.ind_only #then #block
+            #if l_connection_state.'t_attribute'.attr_states.o_connection_ss == -1 or l_connection_state.'t_attribute'.attr_states.o_connection_un == -1 #then #block
+               i_count = i_count + 1
+               v_messages(i_count) = translation("Discrepancy in command objects")
+               b_disable_all = true
+              #if attribute_exists(l_ctrl_inhibit_reason, t_attribute) #then -
+                  l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons = append(-
+                     l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons, list(value = 0, custom_value = 1025, custom_text = v_messages(i_count)))
+            #block_end
+            #else #block
+               ;object not controllable
+               #if not (l_connection_state.'t_attribute'.attr_states.o_connection_ss == 1 and l_connection_state.'t_attribute'.attr_states.o_connection_un == 1) and -
+                (l_connection_state.'t_attribute'.attr_states.i_connection_ss == 1 and l_connection_state.'t_attribute'.attr_states.i_connection_un == 1) #then #block
+                  i_count = i_count + 1
+                  v_messages(i_count) = translation("Device not remotely controllable")
+                  b_disable_all = true
+                  #if attribute_exists(l_ctrl_inhibit_reason, t_attribute) #then -
+                     l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons = append(-
+                        l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons,  list(value = 0, custom_value = 1026, custom_text = v_messages(i_count)))
+               #block_end
+            #block_end
+         #block_end
+
+         ;indication not connected to process
+         #if (l_connection_state.'t_attribute'.attr_states.o_connection_ss == 1 and l_connection_state.'t_attribute'.attr_states.o_connection_un == 1) and -
+         not (l_connection_state.'t_attribute'.attr_states.i_connection_ss == 1 and l_connection_state.'t_attribute'.attr_states.i_connection_un == 1) #then #block
+            i_count = i_count + 1
+            v_messages(i_count) = translation("Indication not connected to process")
+            b_disable_all = true
+         #if attribute_exists(l_ctrl_inhibit_reason, t_attribute) #then -
+            l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons = append(-
+               l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons, list(value = 0, custom_value = 1027, custom_text = v_messages(i_count)))
+         #block_end
+
+      #block_end
+
+      ;command objects not connected to process
+      #if not l_connection_state.'t_attribute'.ind_only #then #block
+         #if (l_connection_state.'t_attribute'.attr_states.o_connection_ss == 0 or l_connection_state.'t_attribute'.attr_states.o_connection_un == 0) and -
+          (l_connection_state.'t_attribute'.attr_states.i_connection_ss == 1 and l_connection_state.'t_attribute'.attr_states.i_connection_un == 1) #then #block
+            i_count = i_count + 1
+            v_messages(i_count) = translation("Control objects not connected to process")
+            b_disable_all = true
+            #if attribute_exists(l_ctrl_inhibit_reason, t_attribute) #then -
+               l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons = append(-
+                  l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons, list(value = 0, custom_value = 1029, custom_text = v_messages(i_count)))
+         #block_end
+
+         ;control blocked
+         #if not l_connection_state.'t_attribute'.control_missing #then #block
+            #if l_connection_state.'t_attribute'.attr_states.o_connection_ub == 1 #then #block
+               i_count = i_count + 1
+               v_messages(i_count) = translation("Control blocked")
+               b_disable_all = true
+               #if attribute_exists(l_ctrl_inhibit_reason, t_attribute) #then -
+                  l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons = append(-
+                     l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons, list(value = 0, custom_value = 1030, custom_text = v_messages(i_count)))
+            #block_end
+         #block_end
+      #block_end
+
+      #if not l_connection_state.'t_attribute'.indication_missing #then #block
+         ;blocked by device
+         #if l_connection_state.'t_attribute'.attr_states.i_connection_bl == 1 #then #block
+            i_count = i_count + 1
+            v_messages(i_count) = l_connection_state.'t_attribute'.text + ": " + translation("Signal blocked by control device")
+         #block_end
+
+         ;status
+         #case l_connection_state.'t_attribute'.attr_states.i_connection_os
+            #when 1 #block
+               i_count = i_count + 1
+               v_messages(i_count) = translation("Position indication invalid")
+               b_disable_all = true
+              #if attribute_exists(l_ctrl_inhibit_reason, t_attribute) #then -
+                  l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons = append(-
+                     l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons, list(value = 0, custom_value = 1040, custom_text = v_messages(i_count)))
+            #block_end
+            #when 2 #block
+               i_count = i_count + 1
+               v_messages(i_count) = translation("Position indication obsolete")
+               b_disable_all = true
+              #if attribute_exists(l_ctrl_inhibit_reason, t_attribute) #then -
+                  l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons = append(-
+                     l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons, list(value = 0, custom_value = 1041, custom_text = v_messages(i_count)))
+            #block_end
+            #when 3 #block
+               i_count = i_count + 1
+               v_messages(i_count) = l_connection_state.'t_attribute'.text + ": " + translation("Position indication not time synchronized")
+            #block_end
+         #case_end
+
+         ;update blocked
+         #if l_connection_state.'t_attribute'.attr_states.i_connection_ub == 1 #then #block
+            i_count = i_count + 1
+            v_messages(i_count) = translation("Update blocked")
+            b_disable_all = true
+            #if attribute_exists(l_ctrl_inhibit_reason, t_attribute) #then -
+               l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons = append(-
+                  l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons, list(value = 0, custom_value = 1042, custom_text = v_messages(i_count)))
+         #block_end
+         ;alarm blocked
+         #if l_connection_state.'t_attribute'.attr_states.i_connection_ab == 1 #then #block
+            i_count = i_count + 1
+            v_messages(i_count) = l_connection_state.'t_attribute'.text + ": " + translation("Alarm blocked")
+         #block_end
+         ;event blocked
+         #if l_connection_state.'t_attribute'.attr_states.i_connection_hb == 1 #then #block
+            i_count = i_count + 1
+            v_messages(i_count) = l_connection_state.'t_attribute'.text + ": " + translation("Event blocked")
+         #block_end
+         ;printout blocked
+         #if l_connection_state.'t_attribute'.attr_states.i_connection_pb == 1 #then #block
+            i_count = i_count + 1
+            v_messages(i_count) = l_connection_state.'t_attribute'.text + ": " + translation("Printout blocked")
+         #block_end
+         ;action blocked
+         #if l_connection_state.'t_attribute'.attr_states.i_connection_xb == 1 #then #block
+            i_count = i_count + 1
+            v_messages(i_count) = l_connection_state.'t_attribute'.text + ": " + translation("Action blocked")
+         #block_end
+      #block_end
+   #block_end
+#loop_end
+
+;both directions blocked by device
+#if attribute_exists(l_objects, "ext_cntr_blk_ix") #then #block
+   #if 't_ln':pos'l_objects.ext_cntr_blk_ix' <> 10 #then #block
+      i_val = trunc('t_LN':pov'l_Objects.ext_cntr_blk_ix')
+      i_type = 't_ln':ppt'l_objects.ext_cntr_blk_ix' ;3 (BI) or 9 (AI)
+      #if attribute_exists(l_value_convention.ext_blocked_'i_type', "ov_'i_val'") #then -
+         t_value = l_value_convention.ext_blocked_'i_type'.ov_'i_val'
+      #else t_value = "NOT_DEFINED"
+      #if t_value == "BLOCKED" #then #block
+            i_count = i_count + 1
+            v_messages(i_count) = translation("Object is externally blocked")
+            b_disable_all = true
+            v_control_inhibit_reasons = append(-
+               v_control_inhibit_reasons, list(value = 0, custom_value = 1033, custom_text = v_messages(i_count)))
+      #block_end
+   #block_end
+#block_end
+
+;user not authorized
+#if attribute_exists( l_object_info, "authorization_group") #then #block
+   #if not do(bpu_user_authorized:c, l_object_info, 1) #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Not authorized to control")
+      b_disable_all = true
+      l_cdm_authority.control_permitted = false
+      v_control_inhibit_reasons = append(-
+         v_control_inhibit_reasons, list(value = 0, custom_value = 1022, custom_text = v_messages(i_count)))
+   #block_end
+#block_end
+
+;selected on another monitor
+#if i_session > 1 #then #block
+   i_count = i_count + 1
+   v_messages(i_count) = translation("Selected on another monitor")
+   b_disable_all = true
+   v_control_inhibit_reasons = append(-
+      v_control_inhibit_reasons, list(value = 0, custom_value = 1039, custom_text = v_messages(i_count)))
+#block_end
+
+#if b_disable_all #then #block
+   v_attributes = pick(list_attr(l_result), select(list_attr(l_result), "==""*_ENABLED""", "WILDCARDS"))
+   #loop_with i = 1 .. length(v_attributes)
+      t_attribute = v_attributes(i)
+         l_result.'t_attribute' = false
+   #loop_end
+#block_end
+
+l_cdm_actual_value = merge_attributes(l_cdm_default_value, list(value = l_result.lower_enabled, timestamp = sys_time))
+l_data_points.allow_lower = l_cdm_actual_value
+
+l_cdm_actual_value = merge_attributes(l_cdm_default_value, list(value = l_result.raise_enabled, timestamp = sys_time))
+l_data_points.allow_raise = l_cdm_actual_value
+
+l_cdm_actual_value = merge_attributes(l_cdm_default_value, list(value = l_object_info.min_position, timestamp = sys_time))
+l_data_points.tap_changer_min_position_value = l_cdm_actual_value
+
+l_cdm_actual_value = merge_attributes(l_cdm_default_value, list(value = l_object_info.max_position, timestamp = sys_time))
+l_data_points.tap_changer_max_position_value = l_cdm_actual_value
+
+l_result = merge_attributes(l_result, list(MESSAGES = v_messages))
+
+l_cdm_authority.control_inhibit_reason = v_control_inhibit_reasons
+
+v_attributes = list_attr(l_ctrl_inhibit_reason)
+
+#loop_with i = 1 .. length(v_attributes)
+   v_reasons = vector
+   t_attribute = v_attributes(i)
+   t_control_point = l_ctrl_inhibit_reason.'t_attribute'.control_point
+   v_reasons = l_ctrl_inhibit_reason.'t_attribute'.inhibit_reasons
+   #if attribute_exists(l_data_points, t_control_point) #then -
+      l_data_points.'t_control_point' = list(-
+         control_permitted = l_cdm_authority.control_permitted and (length(v_reasons) == 0),-
+         level_permitted = l_cdm_authority.level_permitted,-
+         control_inhibit_reason = append(l_cdm_authority.control_inhibit_reason, v_reasons))
+#loop_end
+
+l_result = merge_attributes(l_result, l_data_points)
+l_result = merge_attributes(l_result, list(capabilities = l_capabilities))
+
+l_result = merge_attributes(l_result, list(datapoints = list_attr(l_result)))
+
+#return l_result

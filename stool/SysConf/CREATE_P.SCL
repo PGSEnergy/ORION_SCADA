@@ -1,0 +1,480 @@
+; File: Create_P.scl(t_Station_Type, [v_Devices], i_This_NET)
+; Parameters: t_Station_Type, name of station type, e.g. REX
+;             [v_Devices], numbers of the devices, which need creation of signal engineering data
+;             i_This_NET, number of the NET into which station is connected
+; Description: Constructs SCIL -level clauses for signal engineering part of configuration.
+; -----------------------------------------------------------------------------------------------
+
+#argument t_Station_Type
+
+#local v_Devices = vector(0),-
+       t_Attribute_Mapping_Key_Name,-
+       l_System_Configuration_Data = SYS:BSV(2),-
+       t_Lon_File = l_System_Configuration_Data.t_System_Configuration_File,-
+       b_NET_Number_Passed = FALSE,-
+       i_This_NET,-
+       l_Read,-
+       t_Points_File,-
+       v_Point_Attribute_Indices,-
+       b_Create_All = FALSE,-             ;THIS FLAG IS USED NOWHERE???
+       v_Event_Point_Attribute_Indices,-
+       v_Station_B_Attribute_Indices,-
+       i_Station_B_ND,-
+       i_Station_B_ST,-
+       i_Device_Number,-
+       b_Device_Found,-
+       b_Station_Type_OK,-                ;THIS FLAG IS USED NOWHERE???
+       v_Station_Numbers,-
+       v_ND,-
+       v_ST,-
+       i_Current_Station,-
+       v_Station_Object,-
+       v_Point_Numbers,-
+       v_Suggested_Numbers,-
+       v_Concatenated_Numbers,-
+       i_Current_Point,-
+       t_Current_Point_Value,-
+       v_Point_Object,-
+       v_Event_Point_Object,-
+       i_Current_Event_Point,-
+       t_Current_Event_Point_Value,-
+       v_Shadowed_Point_Object,-
+       v_Default_Order,-
+       t_Current_Attribute,-
+       i_Current_Index,-
+       v_Default_Attr_Order,-
+       t_Type,-
+       v_Split_Data,-
+       t_Current_Attr_Value,-
+       i_Split_Element_Low,-
+       i_Split_Element_High,-
+       t_Split_Contents,-
+       v_Shadowed_Event_Point_Object,-
+       v_COMM_Index,-
+       i,j,k,n,i_found,-
+       b_Continue=FALSE,-
+       v_Fields,ii,i2
+
+#if argument_count == 2 #then v_Devices = argument(2)
+
+#if argument_count == 3 #then #block
+
+   #if data_type(argument(2)) == "VECTOR" #then v_Devices = argument(2)
+   i_This_NET = argument(3)
+   b_NET_Number_Passed = TRUE
+
+#block_end
+
+l_Read = read_parameter(t_Lon_File, "POINTS", "'t_Station_Type'_Points_File")
+#if l_Read.status == 0 #then t_Points_File = l_Read.value
+#else_if l_Read.status == status_code("SCIL_KEY_DOES_NOT_EXIST") #then t_Points_File = "sys_/Signals.ini"
+
+t_Attribute_Mapping_Key_Name = "'t_Station_Type'_Device_Point_Attributes"
+l_Read = read_parameter(t_Points_File, "ATTRIBUTE_MAPPING", t_Attribute_Mapping_Key_Name)
+#if l_Read.status == 0 #then v_Point_Attribute_Indices = separate(l_Read.value, ",")
+#else_if l_Read.status == status_code("FILE_DOES_NOT_EXIST") #then v_Point_Attribute_Indices = vector()
+
+; Locate station numbers from signal configuration file per station type
+#if length(v_Devices) > 0 #then #if v_Devices(1) == 0 #then #block
+   v_Devices = do (%Gv_SCT_Mgr__, "GetObjNrs", "NET_DEVICES_'t_Station_Type'", t_Points_File)
+   #if v_Devices(1) == 0 #then v_Devices = vector()
+   b_Create_All = TRUE
+#block_end
+
+#if length(v_Devices) > 0 #then #block
+
+   #if t_Station_Type == "SPA" #then #block
+      ;Comment field COMM
+      v_COMM_Index = find_element(v_Point_Attribute_Indices, "COMM")
+      #if v_COMM_Index > 0 #then #block
+         v_Point_Attribute_Indices = delete_element(v_Point_Attribute_Indices, v_COMM_Index)
+      #block_end
+      
+      l_Read = read_parameter(t_Points_File, "ATTRIBUTE_MAPPING", "SPA_Event_Point_Attributes")
+      #if l_Read.status == 0 #then v_Event_Point_Attribute_Indices = separate(l_Read.value, ",")
+   #block_end
+   
+   v_Station_B_Attribute_Indices = do (%Gv_SCT_Mgr__, "GetObjAttrs", "BASE_SYSTEM_STATION")
+   i_Station_B_ND = find_element(v_Station_B_Attribute_Indices, "ND")
+   i_Station_B_ST = find_element(v_Station_B_Attribute_Indices, "ST")
+   
+   v_Station_Numbers = do (%Gv_SCT_Mgr__, "GetObjNrs", "BASE_SYSTEM_STATION")
+   #if v_Station_Numbers(1) == 0 #then v_Station_Numbers = vector()
+   
+   v_ND = vector()
+   v_ST = vector()
+   
+   #loop_with i = 1 .. length(v_Station_Numbers)
+   
+      i_Current_Station = v_Station_Numbers(i)
+      l_Read = read_parameter(t_Lon_File, "STATIONS", "Station_B_'i_Current_Station'")
+   
+      #if l_Read.status == 0 #then #block
+   
+         v_Station_Object = separate(l_Read.value, ",")
+ 
+         #if substr(l_Read.VALUE, length(l_Read.VALUE), 1) == "-" #then #block
+   
+            #if substr(l_Read.VALUE, length(l_Read.VALUE) - 1, 1) == "," #then v_Station_Object = v_Station_Object(1 .. length(v_Station_Object) - 1)
+    
+            #else_if substr(l_Read.VALUE, length(l_Read.VALUE) - 1, 1) == "+" #then b_Continue = TRUE
+   
+            #loop_with i2 = 2 .. 10000
+   
+               l_Read = read_parameter(t_Lon_File, "STATIONS", "Station_B_'i_Current_Station'_'i2'")
+   
+               #if l_Read.STATUS == 0 #then #block
+   
+                  v_Fields = separate(l_Read.VALUE, ",")
+   
+                  #loop_with ii = 1 .. length(v_Fields)
+                     #if b_Continue #then #block
+                        v_Station_Object(length(v_Station_Object)) = -
+                        substr(v_Station_Object(length(v_Station_Object)),1,length(v_Station_Object(length(v_Station_Object))) - 3 ) + substr(v_Fields(ii),2,length(v_Fields(ii))-1)
+                        b_Continue = FALSE
+                     #block_end
+                     #else #block
+                        v_Station_Object(length(v_Station_Object) + 1) = v_Fields(ii)
+                     #block_end
+                  #loop_end
+   
+                  #if substr(l_Read.VALUE, length(l_Read.VALUE), 1) == "-" #then #block
+   
+                     #if substr(l_Read.VALUE, length(l_Read.VALUE) - 1, 1) == "," #then v_Station_Object = v_Station_Object(1 .. length(v_Station_Object) - 1)
+                     
+                     #else_if substr(l_Read.VALUE, length(l_Read.VALUE) - 1, 1) == "+" #then b_Continue = TRUE
+   
+                  #block_end
+   
+               #block_end
+               #else #loop_exit
+   
+            #loop_end
+   
+         #block_end
+         
+         v_ND(i) = dec_scan(v_Station_Object(i_Station_B_ND))
+         v_ST(i) = v_Station_Object(i_Station_B_ST)
+         
+      #block_end
+   
+   #loop_end
+   
+#block_end
+
+#loop_with n = 1 .. length(v_Devices)
+
+   i_Device_Number = v_Devices(n)
+
+   b_Device_Found = FALSE
+   b_Station_Type_OK = FALSE
+   
+   k = 1
+   #loop (not b_Device_Found) and (k > 0)
+      
+      k = find_element(v_Station_Numbers, i_Device_Number, k)
+      
+      #if k > 0 #then #block
+      
+         #if b_NET_Number_Passed #then b_Device_Found = (v_ND(k) == i_This_NET)
+         #else b_Device_Found = TRUE
+         #if b_Device_Found #then #block
+            b_Station_Type_OK = (v_ST(k) == t_Station_Type)
+         #block_end
+         k = k + 1
+         
+      #block_end
+      
+   #loop_end
+
+   #if b_Device_Found #then #block
+
+      v_Point_Numbers = vector()
+      v_Suggested_Numbers = do (%Gv_SCT_Mgr__, "GetObjNrs", "NET_POINTS_'t_Station_Type'", (t_Points_File, i_Device_Number))
+      #if t_Station_Type == "DNP" #then #block
+         #if v_Suggested_Numbers(1) <> -1 #then v_Point_Numbers = v_Suggested_Numbers
+      #block_end
+      #else_if v_Suggested_Numbers(1) <> 0 #then v_Point_Numbers = v_Suggested_Numbers
+
+      v_Concatenated_Numbers = v_Point_Numbers
+
+      #loop_with i = 1 .. length(v_Concatenated_Numbers)
+
+         i_Current_Point = v_Concatenated_Numbers(i)
+         v_Point_Object = vector()
+         l_Read = read_parameter(t_Points_File, "'t_Station_Type'_DEVICE_POINTS", "Device_'i_Device_Number'_Point_'i_Current_Point'")
+         #if l_Read.status == 0 #then v_Point_Object = separate(l_Read.value, ",")
+
+         ;---------------------------------------------------------------------------------------
+         ;   MSC defect report 10-3.2
+         ;   We should check whether "COMM" attribute has been read from
+         ;   the configuration file and delete it in this case because there is 
+         ;   no mapping between this configuration attribute and real object.
+         ;   Only for SPA Points.
+         ;
+         #if t_Station_Type == "SPA" #then #block
+            #if v_COMM_Index > 0 #then #block
+                v_Point_Object = delete_element(v_Point_Object, v_COMM_Index)
+            #block_end
+         #block_end
+        ;
+        ;   End of MSC
+        ;--------------------------------------------------------------------------------------
+
+         v_Event_Point_Object = vector()
+
+         i_Current_Event_Point = v_Point_Numbers(i)
+
+         #if t_Station_Type == "SPA" #then #block
+
+            l_Read = read_parameter(t_Points_File, "'t_Station_Type'_DEVICE_POINTS", "Device_'i_Device_Number'_Event_'i_Current_Event_Point'")
+
+            #if l_Read.status == 0 #then v_Event_Point_Object = separate(l_Read.value, ",")
+
+         #block_end
+
+         #case t_Station_Type
+
+            #when "REX" #block
+
+               v_Default_Order = ("TYPE", "CHA1", "CHA2", "CATE", "DAT1", "DAT2", "FORM", "ADDR")
+               v_Shadowed_Point_Object = v_Point_Object            
+
+               #loop_with j = 1 .. length(v_Point_Object)
+
+                  t_Current_Attribute = v_Default_Order(j)
+                  i_Current_Index = find_element(v_Point_Attribute_Indices, t_Current_Attribute)
+                  t_Current_Point_Value = v_Shadowed_Point_Object(i_Current_Index)
+                  v_Point_Object(j) = t_Current_Point_Value
+
+               #loop_end
+
+               @v_Create_Block(length(%v_Create_Block) + 1) = "#set sta'i_Device_Number':ssp'i_Current_Point'=(" + collect(v_Point_Object, ",") + ")"
+             
+            #block_end
+
+            #when "PLC" #block
+
+               v_Default_Order = ("ALLO", "FIOA", "LAOA", "TYPE", "BASE", "FORM", "INTE", "DEAD", "BITC","NOMI","PERC")
+               v_Shadowed_Point_Object = v_Point_Object            
+
+               #loop_with j = 1 .. length(v_Point_Object)
+
+                  t_Current_Attribute = v_Default_Order(j)
+                  i_Current_Index = find_element(v_Point_Attribute_Indices, t_Current_Attribute)
+                  t_Current_Point_Value = v_Shadowed_Point_Object(i_Current_Index)
+                  v_Point_Object(j) = t_Current_Point_Value
+
+               #loop_end
+
+               @v_Create_Block(length(%v_Create_Block) + 1) = "#set sta'i_Device_Number':stp'i_Current_Point'=(" + collect(v_Point_Object, ",") + ")"
+
+            #block_end
+
+            #when "DNP" #block
+
+               v_Default_Order = ("PI", "NUMTYPE", "VAR", "FIRST", "LAST")
+               v_Shadowed_Point_Object = v_Point_Object            
+
+               #loop_with j = 1 .. length(v_Point_Object)
+
+                  t_Current_Attribute = v_Default_Order(j)
+                  i_Current_Index = find_element(v_Point_Attribute_Indices, t_Current_Attribute)
+                  t_Current_Point_Value = v_Shadowed_Point_Object(i_Current_Index)
+                  v_Point_Object(j) = t_Current_Point_Value
+
+               #loop_end
+
+               @v_Create_Block(length(%v_Create_Block) + 1) = "#set sta'i_Device_Number':sdp'i_Current_Point'=(" + collect(v_Point_Object, ",") + ")"
+
+            #block_end
+
+            #when "STA" #block
+            
+               v_Default_Order = ("TYPE", "CODI", "STAD", "LENG", "ACTY", "BLFO", "TIST", "SPL1", "SPL2", "SPL3", "SPL4", "SPL5")
+               v_Default_Attr_Order = ("dt", "co", "ad", "le", "at", "bf", "ts", "sl", "sl", "sl", "sl", "sl")
+
+               v_Shadowed_Point_Object = v_Point_Object            
+
+               #if i_Current_Point > 5 #then #block
+
+                  #case dec_scan(v_Point_Object(1))
+
+                     #when 1 t_Type = "BI"
+                     #when 2 t_Type = "BO"
+                     #when 3 t_Type = "AI"
+                     #when 4 t_Type = "AO"
+                     #when 5 t_Type = "TD"
+
+                  #case_end
+
+                  @v_Create_Block(length(%v_Create_Block) + 1) = "#set sta'i_Device_Number':smr'i_Current_Point'=""C't_Type'"""
+
+               #block_end
+
+               v_Split_Data = vector()
+
+               #loop_with j = 1 .. length(v_Point_Object)
+
+                  t_Current_Attribute = v_Default_Order(j)
+                  i_Current_Index = find_element(v_Point_Attribute_Indices, t_Current_Attribute)
+                  t_Current_Point_Value = v_Shadowed_Point_Object(i_Current_Index)
+                  t_Current_Attr_Value = v_Default_Attr_Order(i_Current_Index)
+
+                  #if j > 7 #then #block
+
+                     v_Split_Data = append(v_Split_Data, t_Current_Point_Value)
+
+                     #if j == 12 #then #block
+
+                        i_Split_Element_Low = i_Current_Point * 100 + 1
+                        i_Split_Element_High = i_Current_Point * 100 + 5
+                        t_Split_Contents = collect(v_Split_Data, ",")
+
+                        @v_Create_Block(length(%v_Create_Block) + 1) = "#set sta'i_Device_Number':s't_Current_Attr_Value'('i_Split_Element_Low'..'i_Split_Element_High')=('t_Split_Contents')"
+
+                     #block_end
+
+                  #block_end
+                  #else #block
+
+                     @v_Create_Block(length(%v_Create_Block) + 1) = "#set sta'i_Device_Number':s't_Current_Attr_Value''i_Current_Point'='t_Current_Point_Value'"
+                     
+                  #block_end
+
+               #loop_end
+
+            #block_end
+
+            #when "LMK" #block
+
+               ; Type 2 = Analog Input Definition
+               ; Type 3 = Structure Input Point Definition
+               ; Type 4 = Digital Output Definition
+               ; Type 5 = Analog Output Definition
+               ; Type 6 = Digital Input Point Definition
+               v_Default_Order = ("TYPE", "NVIX", "LONT", "TEXT", "SVNT", "ADDR", "DEAD")
+               v_Shadowed_Point_Object = v_Point_Object            
+
+               #loop_with j = 1 .. length(v_Point_Object)
+
+                  t_Current_Attribute = v_Default_Order(j)
+                  i_Current_Index = find_element(v_Point_Attribute_Indices, t_Current_Attribute)
+                  t_Current_Point_Value = v_Shadowed_Point_Object(i_Current_Index)
+                  v_Point_Object(j) = t_Current_Point_Value
+
+               #loop_end
+
+               #case v_Point_Object(1)
+
+                  #when "3" #block
+
+                     v_Point_Object = delete_element(v_Point_Object, 3)
+                     v_Point_Object = delete_element(v_Point_Object, 6)
+
+                  #block_end
+
+                  #when "4", "5", "6" v_Point_Object = delete_element(v_Point_Object, 7)
+
+               #case_end
+
+               @v_Create_Block(length(%v_Create_Block) + 1) = "#set sta'i_Device_Number':slp'i_Current_Point'=(" + collect(v_Point_Object, ",") + ")"
+
+            #block_end
+
+            #when "SPA" #block
+
+               ; Type 0 = Indication
+               ; Type 1 = Digital Input
+               ; Type 2 = Analog Input
+               ; Type 3 = Digital Setpoint
+               ; Type 4 = Analog Setpoint
+               ; Type 5 = Object Command
+               ; Type 6 = Pulse Counter
+               ; Type 22 = LON/SPA Analog Input
+
+               #if length(v_Point_Object) > 0 and length(v_Point_Numbers) >= i #then #block
+
+                  v_Default_Order = ("TYPE", "CHA1", "CHA2", "CATE", "DAT1", "DAT2", "FORM", "ADDR", "BITY", "BITR", "UPDA", "DEAD")
+                  v_Shadowed_Point_Object = v_Point_Object            
+
+                  #loop_with j = 1 .. length(v_Point_Object)
+
+                     t_Current_Attribute = v_Default_Order(j)
+                     i_Current_Index = find_element(v_Point_Attribute_Indices, t_Current_Attribute)
+                     t_Current_Point_Value = v_Shadowed_Point_Object(i_Current_Index)
+
+                  #loop_end
+
+                  #if length(v_Point_Object) > 0 #then #block
+
+                     #case v_Point_Object(1)
+
+                        #when "1" #block
+
+                           v_Point_Object = delete_element(v_Point_Object, select(v_Point_Attribute_Indices, "==""BITY"" OR ==""BITR"" OR ==""UPDA"""))
+                           v_Point_Object = append(v_Point_Object, "1")
+
+                        #block_end
+
+                        #when "3", "4", "5" v_Point_Object = delete_element(v_Point_Object, select(v_Point_Attribute_Indices, "==""BITY"" OR ==""BITR"" OR ==""UPDA"" OR ==""DEAD"""))
+                        #when "22" v_Point_Object = v_Point_Object(1 .. 7)
+
+                     #case_end
+
+                     @v_Create_Block(length(%v_Create_Block) + 1) = "#set sta'i_Device_Number':ssp'i_Current_Point'=(" + collect(v_Point_Object, ",") + ")"
+
+                  #block_end
+
+               #block_end
+
+               #if length(v_Event_Point_Object) > 0 #then #block
+
+                  v_Default_Order = ("TYPE", "CHA1", "CHA2", "BITS", "SIGN", "EVNR", "EVAL", "EVE1", "EVE2", "EVE3", "EVE4", "EVE5", "EVE6")
+                  v_Shadowed_Event_Point_Object = v_Event_Point_Object            
+
+                  #loop_with k = 1 .. length(v_Event_Point_Object)
+
+                     t_Current_Attribute = v_Default_Order(k)
+                     i_Current_Index = find_element(v_Event_Point_Attribute_Indices, t_Current_Attribute)
+                     t_Current_Event_Point_Value = v_Shadowed_Event_Point_Object(i_Current_Index)
+                     v_Event_Point_Object(k) = t_Current_Event_Point_Value
+
+                  #loop_end
+                
+                  v_Event_Point_Object = delete_element(v_Event_Point_Object, select(v_Event_Point_Object, "=="""""))
+                  ;AAa 04.09.2003 Defect report ID7824
+                  i_found = find_element(v_Event_Point_Object, """""")
+                  #loop i_found > 0 
+                     v_Event_Point_Object = delete_element(v_Event_Point_Object, i_found)
+                     i_found = find_element(v_Event_Point_Object, """""")
+                  #loop_end
+                  ;
+                  #if length(v_Event_Point_Object) > 0 #then #block
+                  
+                     @v_Create_Block(length(%v_Create_Block) + 1) = "#set sta'i_Device_Number':sed'i_Current_Event_Point'=(" + collect(v_Event_Point_Object, ",") + ")"
+                    
+                  #block_end
+
+               #block_end
+
+            #block_end
+
+         #case_end
+         
+      #loop_end
+      
+      #if t_Station_Type == "STA" #then #block
+         #if length(v_Concatenated_Numbers) < 5 #then #block
+            #loop_with i_Delete_MR = length(v_Concatenated_Numbers) + 1 .. 5
+            
+               @v_Create_Block(length(%v_Create_Block) + 1) = "#set sta'i_Device_Number':smr'i_Delete_MR'=""D"""
+
+            #loop_end
+         #block_end
+      #block_end
+
+   #block_end
+
+#loop_end
+

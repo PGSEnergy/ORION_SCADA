@@ -1,0 +1,63 @@
+;CM =Interface for Monitor Pro Reports, Evaluate the report page column setup
+; Function:    SAGR_REPORTS_GET_COLUMN_SETUP:C 
+; Version:     3.0.1.2 (build 21.8.2012)
+; Parameters:  Conf_Name="xxxx"
+; Return data: PAGEx=LIST(COL1=LIST(Allow_Manual_Tagging
+;                                   Data="object_name"
+;                                   Decimals=x ,Editable=false/true, Operation=""
+;                                   Title="column title"  
+;                                   Column_Count(1..8(max.))
+;                                   Title = "page title"
+; Description: read the page configuration data from selected conf.file
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#local i,j, b_ = false, l_PageObject = list(), l_PageConf = list(),-
+       l_ColumnConf = list(), t_PageConfName = "", t_ObjectName="",-
+		 i_TimeInterval = 15*60,-
+       t_DisplayConfName = %ArgumentList.Conf_Name
+
+@output = vector()
+
+#if sagr_reports_getDatFile:ccs == 1 #then -
+      b_ = do(sagr_reports_getDatFile:ccp,t_DisplayConfName)
+#else b_ = do(sagr_reports_getDatFile:c,  t_DisplayConfName)   
+
+#if not b_ #then #return
+
+#case %REPORT_TYPE
+   #when "HOUR"   i_TimeInterval = 3*60                                         ;*** 3 minutes
+   #when "DAY_10" i_TimeInterval = 10*60                                        ;*** 10 minutes   ID 16109 HoDa
+   #when "DAY_15" i_TimeInterval = 15*60                                        ;*** 15 minutes
+   #when "DAY_30" i_TimeInterval = 30*60                                        ;*** 30 minutes
+   #when "DAY_60" i_TimeInterval = 3600                                         ;*** 60 minutes
+   #when "WEEK"   i_TimeInterval = 86400 ; 24 hours
+   #when "MONTH"  i_TimeInterval = 86400 ; 24 hours
+   #when "YEAR"   i_TimeInterval = 0
+#case_end
+
+t_PageConfName = %l_DisplayConf.COLUMN_CONFIG_DATA_FILE
+l_PageObject = %l_PageObjects.OBJ_'t_PageConfName'
+#loop_with i = 1 .. l_PageObject.Page_Count
+	l_PageConf = l_PageObject.Page'i'
+	#loop_with j = 1 .. l_PageConf.Column_Count
+		l_ColumnConf = l_PageConf.Column'j'
+		#if substr(%REPORT_TYPE,1,3) <> "DAY" #then -					 				  ;*** not DAY_xx Report ->not editable
+			l_ColumnConf.Editable = false
+		#else_if data_type(l_ColumnConf.Data) <> "TEXT" #then -						  ;*** Vector of Report Objects->not editable
+			l_ColumnConf.Editable = false
+		#else_if l_ColumnConf.Data == "" #then -								  			  ;*** no Report Object ->not editable
+			l_ColumnConf.Editable = false
+		#else_if l_ColumnConf.Editable == true #then #block
+			t_ObjectName = l_ColumnConf.data
+			#if %l_ReportObjects.OBJ_'t_ObjectName'.BP <> i_TimeInterval #then -
+				l_ColumnConf.Editable = false
+		#block_end
+		l_PageConf.Column'j' = l_ColumnConf
+	#loop_end
+	l_PageObject.Page'i' = l_PageConf
+#loop_end
+
+@output = l_PageObject
+

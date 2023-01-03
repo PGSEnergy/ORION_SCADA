@@ -1,0 +1,95 @@
+;Function: BPU_CHECK_LR_AUTHORITY:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_check_lr_authority.scl
+;Version: 1.0
+;Parameters: LN, IX
+;Return data: -2 = not authorized control center, -1 = error, 0 = not authorized, 1 = authorized 
+;Description: local/remote-switch authorization
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument lr_object_ln, lr_object_ix
+
+#local -
+   command_source_id = apl:bna,-
+   controls_allowed = - 1,-
+   command_source_type,-
+   tmp_lr,-
+   tmp_cx,-
+   b_is_bay_op_switch,-
+   s = status,-
+   check1,-
+   check2
+ 
+#if apl:bsv3 > 0 #then command_source_type="LOCAL"
+#else command_source_type="REMOTE"
+
+#error ignore
+;if station local/remote-switch is not sampled, it is considered as a local state
+#if 'lr_object_ln':pos'lr_object_ix' == 10 #then tmp_lr = 0
+#else tmp_lr = 'lr_object_ln':pov'lr_object_ix'
+tmp_cx = 'lr_object_ln':pcx'lr_object_ix'
+b_is_bay_op_switch = (substr('lr_object_ln':prx'lr_object_ix', 21, 10) == "FPABAYIOPS")
+
+#if substr('lr_object_ln':prx'lr_object_ix', 21, 10) == "FPAPLAILRS" #then #block
+   ;switch polarity for pipeline STA L/R
+   #if 'lr_object_ln':ppt'lr_object_ix' == 3 #then tmp_lr = abs(tmp_lr - 1)
+#block_end
+      
+;if command source type is local (SCS)
+#if command_source_type == "LOCAL" #then #block
+   ;if station local/remote-switch is in "station"
+   #if (tmp_lr == 1 and 'lr_object_ln':ppt'lr_object_ix' == 12) or (tmp_lr == 1 and 'lr_object_ln':ppt'lr_object_ix' == 3) #then #block
+      ;check if command source is on the list of authorized control centers
+      check1=separate(tmp_cx,"/")
+      check2=select(check1,"==""'command_source_id'""")
+      #if length(check2) <> 0 #then controls_allowed = 1
+      #else controls_allowed = -2
+   #block_end
+   ;if station local/remote-switch is in "reserved" then always authorized
+   #else_if tmp_lr == 3 #then #block
+      #if b_is_bay_op_switch #then #block
+         ;check if command source is on the list of authorized control centers
+         check1=separate(tmp_cx,"/")
+         check2=select(check1,"==""'command_source_id'""")
+         #if length(check2) <> 0 #then controls_allowed = 1
+         #else controls_allowed = -2 
+      #block_end
+      #else #block
+         #if tmp_lr == 3 #then controls_allowed = 1
+      #block_end
+   #block_end
+   ;if station local/remote-switch is in "other"
+   #else controls_allowed = 0
+#block_end
+
+;if command source type is remote (NCC)
+#if command_source_type == "REMOTE" #then #block
+   ;if station local/remote-switch is in "remote"
+   #if (tmp_lr == 2 and 'lr_object_ln':ppt'lr_object_ix' == 12) or (tmp_lr == 0 and 'lr_object_ln':ppt'lr_object_ix'== 3) #then #block
+      ;check if command source is on the list of authorized control centers
+      check1 = separate(tmp_cx,"/")
+      check2 = select(check1,"==""'command_source_id'""")
+      #if length(check2) <> 0 #then controls_allowed = 1
+      #else controls_allowed = -2
+   #block_end
+   ;if station local/remote-switch is in "reserved" then always authorized
+   #else_if tmp_lr == 3 #then #block
+      #if substr('lr_object_ln':prx'lr_object_ix', 21, 10) == "FPABAYIOPS" #then #block
+         ;check if command source is on the list of authorized control centers
+         check1 = separate(tmp_cx,"/")
+         check2 = select(check1,"==""'command_source_id'""")
+         #if length(check2) <> 0 #then controls_allowed = 1
+         #else controls_allowed = -2 
+      #block_end
+      #else controls_allowed = 1
+   #block_end
+   ;if station local/remote-switch is in "other"
+   #else controls_allowed = 0
+#block_end
+
+;in case of errors
+s = status
+#if s <> 0 #then controls_allowed = -1
+
+#return controls_allowed

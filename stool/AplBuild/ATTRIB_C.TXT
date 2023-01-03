@@ -1,0 +1,89 @@
+;************************************ ATTRIB_C.TXT ********************************************
+;************************************ SR
+
+;Defines the limit properties of MicroScada Command Procedure attributes (excluding read-only).
+
+;Command Procedure
+
+@MAX_INTEGER = 2147483647
+
+#CREATE ATTRIB_CLN:V = LIST(DATA_TYPE = "TEXT",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = max_object_name_length)
+         
+#CREATE ATTRIB_CFI:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = - %MAX_INTEGER,-
+         MAX_VALUE = %MAX_INTEGER)
+
+#CREATE ATTRIB_CFX:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_CIN:V = LIST(DATA_TYPE = "VECTOR",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = max_vector_length,-
+         EDATA_TYPE = "TEXT",-
+         EMIN_LENGTH = 0,-
+         EMAX_LENGTH = max_text_length)
+
+#CREATE ATTRIB_CIU:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_CPE:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_CPQ:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 30)  ;(APL0:BPQ)
+
+#CREATE ATTRIB_CTS:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_CTC:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = max_object_name_length)
+
+#CREATE ATTRIB_CEP:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 255,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 255)
+
+#CREATE ATTRIB_CSE:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_CHN:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 399)
+
+#CREATE ATTRIB_CMO:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_CCM:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_CON:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+         
+
+

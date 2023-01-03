@@ -1,0 +1,510 @@
+;************************************ ATTRIB_P.TXT ********************************************
+;************************************ SR
+
+;Defines the limit properties of MicroScada Process Object attributes (excluding read-only).
+
+;Process Object
+
+@MIN_INTEGER = -2147483647 ;min_integer + 1
+@MAX_INTEGER = max_integer
+@MIN_REAL = -1.7*(10**38)
+@MAX_REAL = 1.7*10**38
+
+
+#CREATE ATTRIB_PAA:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         ALLOWED = vector(0,1,2,3,4,5,6,10,11,12,13,14,15),-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 15)
+
+#CREATE ATTRIB_PAB:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_PAC:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 7)
+
+#CREATE ATTRIB_PAD:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 65535)
+
+#CREATE ATTRIB_PAE:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_PAF:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_PAG:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 5)
+
+#CREATE ATTRIB_PAH:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_PAI:V = LIST(DATA_TYPE = "REAL",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = %MIN_REAL,-
+         MAX_VALUE = %MAX_REAL)
+
+#CREATE ATTRIB_PAN:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = max_object_name_length)
+
+#CREATE ATTRIB_PAO:V = LIST(DATA_TYPE = "REAL",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = %MIN_REAL,-
+         MAX_VALUE = %MAX_REAL)
+
+#CREATE ATTRIB_PAR:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_PBC:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 16,-
+         MIN_VALUE = 1,-
+         MAX_VALUE = 32)
+
+#CREATE ATTRIB_PBI:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_PBO:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_PBS:V = LIST(DATA_TYPE = "BIT_STRING",-
+         DEFAULT_VALUE = BIT_SCAN("0"),-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = max_bit_string_length)
+
+#CREATE ATTRIB_PCE:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_PCL:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = %MIN_INTEGER,-
+         MAX_VALUE = %MAX_INTEGER)
+
+#CREATE ATTRIB_PCV:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = %MIN_INTEGER,-
+         MAX_VALUE = %MAX_INTEGER)
+
+#CREATE ATTRIB_PCX:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_PDB:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 3)
+
+#CREATE ATTRIB_PDI:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 65535)
+
+#CREATE ATTRIB_PDO:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 65535)
+
+#CREATE ATTRIB_PDP:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = -1,-
+         MIN_VALUE = -1,-
+         MAX_VALUE = 10)
+
+#CREATE ATTRIB_PDX:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 10)
+
+#CREATE ATTRIB_PEE:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_PEH:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = max_object_name_length)
+         
+#CREATE ATTRIB_PES:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_PFF:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 4)
+
+#CREATE ATTRIB_PFI:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = %MIN_INTEGER,-
+         MAX_VALUE = %MAX_INTEGER)
+
+#CREATE ATTRIB_PFN:V = LIST(DATA_TYPE = "BYTE_STRING",-
+         DEFAULT_VALUE = PACK_STR(VECTOR(),"BYTE_STRING"),-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_PFX:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 63)
+
+#CREATE ATTRIB_PGI:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = %MIN_INTEGER,-
+         MAX_VALUE = %MAX_INTEGER)
+
+#CREATE ATTRIB_PGP:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = max_object_name_length)
+                  
+#CREATE ATTRIB_PHA:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         ALLOWED = vector(0,1,2,3,4,5,6,10,11,12,13,14,15),-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 15)
+
+#CREATE ATTRIB_PHB:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_PHE:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_PHF:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_PHH:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_PHI:V = LIST(DATA_TYPE = "REAL",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = %MIN_REAL,-
+         MAX_VALUE = %MAX_REAL)
+
+#CREATE ATTRIB_PHL:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 65535)
+
+#CREATE ATTRIB_PHO:V = LIST(DATA_TYPE = "REAL",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = %MIN_REAL,-
+         MAX_VALUE = %MAX_REAL)
+
+#CREATE ATTRIB_PHW:V = LIST(DATA_TYPE = "REAL",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = %MIN_REAL,-
+         MAX_VALUE = %MAX_REAL)
+
+#CREATE ATTRIB_PIG:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_PIN:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_PIR:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_PIU:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_PIX:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = max_process_object_index)
+
+#if SYS:BRE > " 9.3" #then -
+   #CREATE ATTRIB_PLA:V = LIST(DATA_TYPE = "INTEGER",-
+            DEFAULT_VALUE = 0,-
+            MIN_VALUE = 0,-
+            MAX_VALUE = %MAX_INTEGER)
+#else -
+   #CREATE ATTRIB_PLA:V = LIST(DATA_TYPE = "INTEGER",-
+            DEFAULT_VALUE = 0,-
+            MIN_VALUE = 0,-
+            MAX_VALUE = 15)
+
+#CREATE ATTRIB_PLD:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 65535)
+
+#CREATE ATTRIB_PLF:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = max_picture_name_length)
+
+#CREATE ATTRIB_PLI:V = LIST(DATA_TYPE = "REAL",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = %MIN_REAL,-
+         MAX_VALUE = %MAX_REAL)
+         
+#CREATE ATTRIB_PLN:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = max_object_name_length)
+
+#CREATE ATTRIB_PLO:V = LIST(DATA_TYPE = "REAL",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = %MIN_REAL,-
+         MAX_VALUE = %MAX_REAL)
+
+#CREATE ATTRIB_PLW:V = LIST(DATA_TYPE = "REAL",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = %MIN_REAL,-
+         MAX_VALUE = %MAX_REAL)
+
+#CREATE ATTRIB_PMV:V = LIST(DATA_TYPE = "REAL",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = %MIN_REAL,-
+         MAX_VALUE = %MAX_REAL)
+
+#CREATE ATTRIB_PNV:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 4,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 4)
+
+#CREATE ATTRIB_POA:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = %MAX_INTEGER)
+
+#CREATE ATTRIB_POB:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 16,- 
+         MIN_VALUE = 0,-
+         MAX_VALUE = 16)
+         
+#CREATE ATTRIB_POE:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 255)
+
+#CREATE ATTRIB_POG:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 65535)
+
+#CREATE ATTRIB_POI:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 63)
+
+#CREATE ATTRIB_PON:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_POT:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,- 
+         MIN_VALUE = 0,-
+         MAX_VALUE = 2)
+
+#CREATE ATTRIB_POX:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 63)
+
+#CREATE ATTRIB_PPA:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         ALLOWED = vector(0,1,2,3,4,5,6,10,11,12,13,14,15),-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 15)
+
+#CREATE ATTRIB_PPB:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_PPC:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = %MAX_INTEGER)
+
+#CREATE ATTRIB_PPD:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 65535)
+
+#CREATE ATTRIB_PPF:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = max_picture_name_length)
+
+#CREATE ATTRIB_PPH:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_PPI:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = max_picture_name_length)
+
+#CREATE ATTRIB_PPO:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+         
+#CREATE ATTRIB_PPU:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+         
+#CREATE ATTRIB_PQL:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 65535)         
+
+#CREATE ATTRIB_PRC:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_PRI:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = %MIN_INTEGER,-
+         MAX_VALUE = %MAX_INTEGER)
+
+#CREATE ATTRIB_PRX:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 63)
+
+#CREATE ATTRIB_PSE:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_PSC:V = LIST(DATA_TYPE = "REAL",-
+         DEFAULT_VALUE = 1,-
+         MIN_VALUE = %MIN_REAL,-
+         MAX_VALUE = %MAX_REAL)
+
+#CREATE ATTRIB_PSN:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = max_object_name_length)
+
+#CREATE ATTRIB_PSS:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 3)
+
+#CREATE ATTRIB_PST:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 10)
+
+#CREATE ATTRIB_PSU:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_PSX:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 1023)
+         
+#CREATE ATTRIB_PSZ:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+         
+#CREATE ATTRIB_PTH:V = LIST(DATA_TYPE = "REAL",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = %MAX_REAL)
+         
+#CREATE ATTRIB_PTI:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 0)
+         
+#CREATE ATTRIB_PTY:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 65535)
+
+#CREATE ATTRIB_PTX:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 1023)
+#CREATE ATTRIB_PUB:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_PUN:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = max_station_number)
+
+#CREATE ATTRIB_PWC:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 7)
+
+#CREATE ATTRIB_PWR:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_PXB:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+#CREATE ATTRIB_PXV:V = LIST(DATA_TYPE = "REAL",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = %MIN_REAL,-
+         MAX_VALUE = %MAX_REAL)
+
+#CREATE ATTRIB_PZD:V = LIST(DATA_TYPE = "REAL",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = %MAX_REAL)
+
+#CREATE ATTRIB_PZE:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)

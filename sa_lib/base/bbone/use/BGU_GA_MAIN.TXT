@@ -1,0 +1,153 @@
+; Function:    SAGR_GA_MAIN:C
+; Version:     1.0 (Build 17.03.2009) 
+; Parameters:  LN,IX,Method
+; Return data: -
+; Description: 
+;--------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;
+;---------------------------------------------------------------------------------------------
+#local lGA_SDB,lGroupData,vSections,x,cot,l_AplObj=lIST()
+#local v_Path, t_Path, t_GroupPo, l_ChangeState, b_AR_Changed = FALSE, b_AL_Changed = FALSE,-
+       b_Child_All_Ackn = TRUE, v_Member, t_LN, t_IX, l_Settings
+#error ignore
+
+#if sys:bdm==1 #then #block
+   @i_Trash=trace_begin("TRACE_SAGR_GA_METHOD_'Method'_'LN'_'IX'.txt")
+   @xs=sys_time
+   @cot = console_output("_________________________________________________________________________" )
+#block_end
+
+lGA_SDB = DATA_MANAGER("OPEN", "APL_/APL_GrpAl.sdb")
+
+#IF lGA_SDB.STATUS <> 0 #THEN #BLOCK
+   cot = CONSOLE_OUTPUT(TIMES + " GROUP ALARM database open failed: " + DEC(lGA_SDB.STATUS))
+   #RETURN
+#BLOCK_END
+
+l_Settings = DATA_MANAGER("GET", lGA_SDB.HANDLE, "SETTINGS")
+#IF l_Settings.STATUS <> 0 #THEN #BLOCK
+   l_Settings = LIST (ACKGROUP = FALSE, ACKCHILDREN = FALSE, RESETWITHAB = FALSE)
+   #if sys:bdm==1 #then cot = CONSOLE_OUTPUT(TIMES + " Reading Group Alarm Ack settings failed (Not fatal, both ack types set to false)")
+#BLOCK_END
+#ELSE l_Settings = l_Settings.VALUE
+                                                                                                                       #if sys:bdm==1 #then cot = CONSOLE_OUTPUT(TIMES +" SAGR_GA_MAIN Method: 'METHOD' for 'LN':P'IX'")
+#IF %METHOD == "ACKGROUP" AND l_Settings.ACKCHILDREN and 'LN':PAR'IX' == 1 #THEN #BLOCK
+      v_Path = 'LN':PCD
+      v_Path = v_Path.PATH
+      #IF LENGTH(v_Path) == 1 #THEN lGroupData = DATA_MANAGER("GET", lGA_SDB.HANDLE, v_Path(1))   
+      #ELSE #BLOCK
+         t_Path = COLLECT("""" + DELETE_ELEMENT(v_Path, 1) + """", ",")
+         lGroupData = evaluate("DATA_MANAGER(""GET"", lGA_SDB.HANDLE, v_Path(1),"+ t_Path + ")")
+      #BLOCK_END
+      
+      #IF lGroupData.STATUS <> 0 #THEN #BLOCK
+         lGroupData = DATA_MANAGER("CLOSE", lGA_SDB.HANDLE)
+         #RETURN
+      #BLOCK_END
+      lGroupData = lGroupData.VALUE
+      
+      #LOOP_WITH I = 1 .. LENGTH(lGroupData.MEMBERS)
+         v_Member = SEPARATE(lGroupData.MEMBERS(%I), ":")
+
+         #IF LENGTH(v_Member) == 2 #THEN #BLOCK
+            t_LN = v_Member(1)
+            t_IX = v_Member(2)
+         #BLOCK_END
+         #ELSE #BLOCK
+            t_LN = %LN + v_Member(1)
+            t_IX = "10"
+         #BLOCK_END
+         #IF not application_object_exists(0,"IX",List(LN="'t_LN'",IX='t_IX')) #then -
+            cot = CONSOLE_OUTPUT(TIMES + " GROUP ALARM member 't_LN':P't_IX' does not exist. Correct the Group Alarm data base.")
+         #ELSE_IF 't_LN':PAR't_IX' == 0 #THEN #BLOCK
+                                                                                                                       #if sys:bdm==1 #then cot=CONSOLE_OUTPUT(TIMES +" Acking " + lGroupData.MEMBERS(%I))
+            #SET 't_LN':PAR't_IX' = 1         
+         #BLOCK_END
+      #LOOP_END
+#BLOCK_END
+#ELSE_IF %METHOD == "ACKGROUP"  and 'LN':PAR'IX' == 1 #THEN #BLOCK
+;this part is needed because GA should always reflect the group state, Ackn. of GA against group state will here reset AR
+   t_GroupPo = %LN
+   l_AplObj=APPLICATION_OBJECT_LIST(0,"IX","A","F","'t_GroupPo'","IX==10",Vector("AL","AR"),1)
+   #IF l_AplObj.COUNT == 0 #then                             cot = CONSOLE_OUTPUT(TIMES + " GROUP ALARM: object 't_GroupPo':P10 does not exist. FATAL ERROR")
+   #ELSE #BLOCK
+      #if sys:bdm==1 or SAGR_GA_CALCGROUPSTATE:CCS==0 #then-
+            l_ChangeState = DO(SAGR_GA_CALCGROUPSTATE:C, lGA_SDB.HANDLE, t_GroupPo)
+      #else l_ChangeState = DO(SAGR_GA_CALCGROUPSTATE:CCP, lGA_SDB.HANDLE, t_GroupPo) 
+      #IF l_ChangeState.ERROR <> 0 #THEN #BLOCK
+         lGroupData = DATA_MANAGER("CLOSE", lGA_SDB.HANDLE)
+         #RETURN
+      #BLOCK_END
+
+      #IF l_AplObj.AL(1) <> l_ChangeState.AL #THEN -
+         #SET 't_GroupPo':P10 = l_ChangeState.AL
+     
+      #IF not l_ChangeState.b_All_Ackn AND l_AplObj.AR(1) == 1 #THEN -
+         #SET 't_GroupPo':PAR10 = 0
+   #BLOCK_END
+
+#BLOCK_END
+#ELSE_IF %METHOD == "MAIN" #THEN #BLOCK
+   lGroupData = DATA_MANAGER("GET", lGA_SDB.HANDLE, %LN + ":" + DEC(%IX, 0))
+   #IF lGroupData.STATUS <> 0 OR ATTRIBUTE_EXISTS(lGroupData.VALUE, "PATH") == FALSE #THEN #BLOCK
+      lGroupData = DATA_MANAGER("CLOSE", lGA_SDB.HANDLE)
+      #RETURN
+   #BLOCK_END
+   
+   #LOOP_WITH I = 1 .. LENGTH(lGroupData.VALUE.PATH)
+      v_Path = SEPARATE(lGroupData.VALUE.PATH(%I), ",")
+   
+      l_ChangeState = LIST()
+      #LOOP_WITH J = 1 .. LENGTH(v_Path)
+         t_GroupPo = "BGU_" + REPLACE(COLLECT(v_Path(1 .. LENGTH(v_Path) - %J + 1),","),",", "")
+         l_AplObj=APPLICATION_OBJECT_LIST(0,"IX","A","F","'t_GroupPo'","IX==10",Vector("OS","IU","AL","AR"),1)
+         #IF l_AplObj.COUNT == 0 #then                             cot = CONSOLE_OUTPUT(TIMES + " GROUP ALARM: object 't_GroupPo':P10 does not exist. FATAL ERROR")
+         #ELSE_IF l_AplObj.IU(1) == 0 or l_AplObj.OS(1) <> 0 #then cot = CONSOLE_OUTPUT(TIMES + " GROUP ALARM: object 't_GroupPo':P10 not in use or object state not ok")
+         #ELSE #BLOCK
+            #if sys:bdm==1 or SAGR_GA_CALCGROUPSTATE:CCS==0 #then-
+                  l_ChangeState = DO(SAGR_GA_CALCGROUPSTATE:C, lGA_SDB.HANDLE, t_GroupPo)
+            #else l_ChangeState = DO(SAGR_GA_CALCGROUPSTATE:CCP, lGA_SDB.HANDLE, t_GroupPo) 
+            #IF l_ChangeState.ERROR <> 0 #THEN #BLOCK
+               lGroupData = DATA_MANAGER("CLOSE", lGA_SDB.HANDLE)
+               #RETURN
+            #BLOCK_END
+                                                                                                                       #if sys:bdm==1 #then cot = CONSOLE_OUTPUT(TIMES + " 't_GroupPo' AL: " + DEC('t_GroupPo':PAL10, 0) + " ChangeState " + COLLECT(DUMP(l_ChangeState), ","))
+            #IF l_AplObj.AL(1) <> l_ChangeState.AL #THEN #BLOCK
+               #SET 't_GroupPo':P10 = l_ChangeState.AL
+               b_AL_Changed = TRUE
+            #BLOCK_END
+            
+           ; ok, it's possible to add the additional condition below to the if statement, if the top to bottom ack isn't used
+           ; AND 't_GroupPo':PAR10 == 0     
+           
+            #IF l_ChangeState.b_All_Ackn AND l_Settings.ACKGROUP and b_Child_All_Ackn #THEN #BLOCK
+               #SET 't_GroupPo':PAR10 = 1
+               b_AR_Changed = TRUE
+            #BLOCK_END
+            
+            #IF not(l_ChangeState.b_All_Ackn and b_Child_All_Ackn) AND l_AplObj.AR(1) == 1 #THEN #BLOCK
+               #SET 't_GroupPo':PAR10 = 0
+               b_AR_Changed = TRUE
+            #BLOCK_END
+            #IF NOT b_AL_Changed AND NOT b_AR_Changed #THEN #LOOP_EXIT ; No need to check parent groups if there was no change at this level.
+            b_Child_All_Ackn   = b_Child_All_Ackn and l_ChangeState.b_All_Ackn
+         #BLOCK_END
+      #LOOP_END
+   #LOOP_END
+#BLOCK_END
+
+x = DATA_MANAGER("CLOSE", lGA_SDB.HANDLE)
+#if sys:bdm==1 #then #block
+   @i_Trash=trace_end
+   @xE = sys_time
+   @xD = sys_time_interval(%xs,%xe)
+   @s = dec(xD:vs,2)
+   @ms = "000"+edit(dec(xD:vms),"COLLAPSE")
+   @ms=substr(%ms,length(%ms)-2,3)
+   @t=edit("["+dec(xD:vs,2)+"."+%ms+"]","COLLAPSE")
+   @cot = console_output(times+" SAGR_GA_MAIN:C 't' 'Method'" )
+   @cot = console_output("_________________________________________________________________________" )
+#block_end
+

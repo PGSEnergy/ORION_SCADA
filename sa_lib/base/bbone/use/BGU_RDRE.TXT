@@ -1,0 +1,28 @@
+#local argCnt, tRedirectProc, tRedirectCommand, iArgLoop
+tRedirectProc="APLMOD_RDRE"
+#if APPLICATION_OBJECT_EXISTS(0,"C",tRedirectProc) AND -
+DATA_TYPE(%REDIRECTED)=="NONE" #then #block
+   #if 'tRedirectProc':CIU==1 #then #block
+      @REDIRECTED=TRUE
+      argCnt=ARGUMENT_COUNT
+      tRedirectCommand="DO('tRedirectProc':C"
+      #loop_with iArgLoop=1..argCnt
+         tRedirectCommand=tRedirectCommand+",argument('iArgLoop')"
+         #if iArgLoop==argCnt #then #block
+            tRedirectCommand=tRedirectCommand+")"
+         #block_end
+      #loop_end
+      #return 'tRedirectCommand'
+   #block_end
+#block_end
+
+#if 'ln':pov'ix' == 1 #then #block
+   @v_Nodes = separate('ln':pin'ix',".")
+   #if length(%v_nodes) > 1 #then #block 
+      @t_ied = %v_nodes(2)
+      @t_task = "RDRE_Upload_" + "'t_ied'"
+      @i_Stat = ops_call("\sc\prog\pcm_client\PCMcmd.exe /start RDRE")
+      @i_Stat = ops_call("\sc\prog\pcm_client\PCMcmd.exe /RunTask RDRE 't_task'")
+      @i_Stat = ops_call("\sc\prog\pcm_client\PCMcmd.exe /stop RDRE" )
+   #block_end
+#block_end

@@ -1,0 +1,55 @@
+; Function:    BMU_CYCLE:C
+; Version:     3.0 (build 23.02.2012)
+; Parameters:  none
+; Return data: none
+; Description: Start procedure for sampled and period values cyclic trigger  BMU_CYCLE:T
+;-------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;-------------------------------------------------------------------------------
+#local i, cot, i_Status = status,-
+       e_UpdateTime = clock, i_UpdateCheckInterval = 60, i_Period = 0,-
+       v_SP_ObjectNames = vector(), v_BP_ObjectNames = vector()
+       
+#error ignore
+
+#if BMU_GLOBAL:CCS==1 #then #DO BMU_GLOBAL:CCP
+#else #DO BMU_GLOBAL:C
+
+;*** Remove possible inaccuracy after time channel launch (theoretical case, might happen if there is heavy system load):
+e_UpdateTime = e_UpdateTime - e_UpdateTime mod i_UpdateCheckInterval
+
+;*** Find sampling periods in e_UpdateTime that need update 
+v_SP_ObjectNames = VECTOR()
+#loop_with i = 1..length(%Sampling_Periods)
+   #if (e_UpdateTime MOD %Sampling_Periods(i)) == 0 #then #block
+      i_Period = %Sampling_Periods(i)                                           ;*** The period in question must be collected:
+      #if attribute_exists(%l_PeriodData,"SP_'i_Period'") #then -
+         v_SP_ObjectNames = append(v_SP_ObjectNames,%l_PeriodData.SP_'i_Period')
+   #block_end
+#loop_end
+
+;*** Find base periods in e_UpdateTime that need update 
+v_BP_ObjectNames = VECTOR()
+#loop_with i = 1..length(%Base_Periods)
+   #if (e_UpdateTime MOD %Base_Periods(i)) == 0 #then #block
+      i_Period = %Base_Periods(i)                                               ;*** The period in question must be collected:
+      #if attribute_exists(%l_PeriodData,"BP_'i_Period'") #then -
+         v_BP_ObjectNames = append(v_BP_ObjectNames,%l_PeriodData.BP_'i_Period')
+   #block_end
+#loop_end
+
+;v_SP_ObjectNames = pick(v_SP_ObjectNames,select(v_SP_ObjectNames,"==""03*""","WILDCARDS"))
+#if length(v_SP_ObjectNames)> 0 #then #block
+   #do BMU_SP_UpdateInstruction:C                                               ;*** perform the update once for all, even with the risk that for some entries it shouldn't be done
+   #exec_after %SP_DELAY BMU_SP_CAL1:C (@v_ObjectNames = v_SP_ObjectNames)
+#block_end
+
+;v_BP_ObjectNames = pick(v_BP_ObjectNames,select(v_BP_ObjectNames,"==""03*""","WILDCARDS"))
+#if length(v_BP_ObjectNames)> 0 #then #block
+   #do BMU_BP_UpdateInstruction:C                                               ;*** perform the update once for all, even with the risk that for some entries it shouldn't be done
+   #exec_after %BP_DELAY BMU_BP_CAL1:C (@v_ObjectNames = v_BP_ObjectNames)
+#block_end
+
+i_Status = status
+#if i_Status <> 0 #then cot = console_output("BMU_CYCLE:C - SCIL Error='i_Status'","E","MREP") 

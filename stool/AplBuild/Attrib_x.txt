@@ -1,0 +1,25 @@
+;************************************ ATTRIB_X.TXT ********************************************
+;************************************ SR 4.9.1996  ********************************************
+
+;Defines the limit properties of MicroScada Scale object attributes (excluding read-only).
+
+;Scale Object
+
+#CREATE ATTRIB_XLN:V = LIST(DATA_TYPE = "TEXT",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 63)
+
+#CREATE ATTRIB_XSC:V = LIST(DATA_TYPE = "VECTOR",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 100,-
+         EDATA_TYPE = ("REAL","INTEGER"),-
+         EMIN_VALUE = 0,-
+         EMAX_VALUE = 1.7*10**38)
+
+#CREATE ATTRIB_XSA:V = LIST(DATA_TYPE = "INTEGER",-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 2)
+  
+         
+
+

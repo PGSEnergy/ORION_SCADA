@@ -1,0 +1,89 @@
+;Function: BPU_VALUE_EXECUTE_BAY:C
+;Source file: sc/lib5/base/process/application_objects/bpu_value_select_bay.scl
+;Version: 1.0
+;Parameters:  l_object_info (contents of CD-attribute),  search_result, L/R type, clicked option button value (0..3)
+;Return data: list(status = integer, err_description = text)
+;Description: Prepares select command for OFF (open)
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data, t_type, i_value
+#local t_LN, i_IX = 0, i_status, i_sim_value
+
+#local l_result = list(status = 0, err_description = "")
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_VALUE_SELECT_STA"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+         @REDIRECTED = true                                                                        
+         i_ArgCnt = argument_count                                                                 
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+         #loop_end                                                                                 
+         #return 't_Redirect_Command' ;;;;;                                                        
+      #block_end                                                                                   
+   #block_end                                                                                      
+   #else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+
+t_LN = l_object_info.p_object_ln
+i_sim_value = i_value
+
+#if l_object_info.ind_double_binary or l_object_info.ind_analog_input #then #block
+   #case i_value
+      #when 0 #block
+         #if attribute_exists(l_data.all_objects, "bay_lr_dis_cmd_ix") #then i_ix = l_data.all_objects.bay_lr_dis_cmd_ix
+      #block_end
+       #when 1 #block
+         #if attribute_exists(l_data.all_objects, "bay_lr_loc_cmd_ix") #then i_ix = l_data.all_objects.bay_lr_loc_cmd_ix
+      #block_end
+      #when 2 #block
+         #if attribute_exists(l_data.all_objects, "bay_lr_rem_cmd_ix") #then i_ix = l_data.all_objects.bay_lr_rem_cmd_ix
+      #block_end
+      #when 3 #block
+         #if attribute_exists(l_data.all_objects, "bay_lr_res_cmd_ix") #then i_ix = l_data.all_objects.bay_lr_res_cmd_ix
+      #block_end
+   #case_end
+#block_end
+#else #block
+    #if l_object_info.bay_lr_polarity == "L1" #then i_sim_value = abs(i_value - 1)
+    #case i_value
+      #when 0 #block         
+         #if attribute_exists(l_data.all_objects, "bay_lr_loc_cmd_ix") #then i_ix = l_data.all_objects.bay_lr_loc_cmd_ix
+      #block_end
+       #when 1 #block
+         #if attribute_exists(l_data.all_objects, "bay_lr_rem_cmd_ix") #then i_ix = l_data.all_objects.bay_lr_rem_cmd_ix
+      #block_end
+   #case_end
+#block_end
+
+#if i_IX > 0 #then #block
+   #error ignore
+   i_status = status
+   #set 't_LN':pov'i_IX' = 1
+   i_status = status
+   #if i_status <> 0 #then #block
+      l_result.status = i_status
+      l_result.err_description = status_code_name(i_status)
+   #block_end
+   #else #block
+      #if attribute_exists(l_data.all_objects, "bay_lr_obj_ix") #then #block
+         i_IX = l_data.all_objects.bay_lr_obj_ix
+         #if not ('t_LN':pss'i_IX' > 1 and 't_LN':pun'i_IX' <> 0) #then -
+            #set 't_LN':pov'i_IX' = i_sim_value
+      #block_end
+   #block_end
+#block_end
+
+#return l_result

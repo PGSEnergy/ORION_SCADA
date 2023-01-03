@@ -1,0 +1,463 @@
+@t_user_name=UPPER_CASE(argument(1))
+@debug="'t_user_name'"
+
+@t_pw_indicator=argument(2)
+@i_workplace_manager=argument(3)
+@t_login_node=argument(4)
+#if argument_count>4 #then @i_window_handle=argument(5)
+#else @i_window_handle=0
+#if argument_count > 5 #then @instance_id=argument(6)
+#else @instance_id = ""
+
+@lang_nr=0
+#if %t_login_node=="Server" #then @t_login_node=sys:bnn
+@debug="'t_login_node'"
+;read product name
+@l_product_name = read_parameter("cmd_tool/bgu_product.ini", "General", "Product_name_")
+#if l_product_name:vstatus > 0 #then #set l_product_name:vvalue = "Error"
+#set l_product_name:vvalue = upper_case(l_product_name:vvalue)
+
+;reset apl:bsv and sys:bsv when first login occurs. ID: 16276
+@s = status
+#error ignore
+@check = data_type(apl:bsv(100))
+@s = status
+
+#if %s <> 0 #then #block
+
+   @SESSION_COUNT=50
+
+   @login_count_ln="SAGR_L_CNT"
+   @output=application_object_list(0,"IX","A","","","LN==""'login_count_ln'""", vector("LN","IX"))
+   #loop_with i=1..length(%output.LN)
+      @reset_LN=%output.LN(%i)
+      @reset_IX=%output.IX(%i)
+      #set 'reset_LN':POV'reset_IX'=0
+   #loop_end
+   #loop_with i=100..100 + %SESSION_COUNT
+      #set apl:bsv(%i)=0
+   #loop_end
+   #loop_with i=101..150
+      #set SYS:BSV(%i)=""
+   #loop_end
+   
+#block_end
+
+@GO_ON=FALSE
+@PASSWORD="INVALID"
+@b_startup_tools_shown_on_console = true
+@product_name = l_product_name:vvalue
+@product_key = l_product_name:vvalue ;own attribute because product name might be same for HSI8xx and SMS
+@t_title = l_product_name:vvalue
+@i_index_of_system_variable = -1
+@t_system_description = ""
+@t_system_id = "SA_LIB:"+APL:BNA+":"+%t_user_name
+
+@USER=upper_case(%t_user_name)
+@t_OX=translation("SAGR_Login_User")+": "+%USER
+
+@i_closing_time=-1
+@MON_BSV=vector(0,0,0,0,0,0,0,0,0,0,LIST())                     
+
+@v_product_id = separate(%t_system_id, ":")
+
+#if length(%v_product_id)==3 #then #block
+
+   #if %v_product_id(1)=="SA_LIB" #then #block
+       @product_key="SA_LIB"
+       @t_system_description=edit(%v_product_id(2), "TRIM")       
+   #block_end
+   
+#block_end
+
+#if %t_system_id <> "" #then #block
+   
+   ;Clean up unused session data in SYS:BSV:
+   #loop_with i = 101 .. 150
+      #if length(SYS:BSV)<%i #then #loop_exit
+           
+      #if data_type(sys:bsv(%i)) == "LIST" #then #block 
+         @x_sv = sys:bsv(%i)
+         #if attribute_exists(%x_sv,"KEEPALIVE_TIMESTAMP") #then #block
+            #if %x_sv.KEEPALIVE_TIMESTAMP < (CLOCK-10*60) #then #block 
+               ;If timestamp is older than 10 min
+               #SET SYS:BSV(%i)=""
+               #if attribute_exists(%x_sv,"I_WORKPLACEMANAGER") #then #block
+                  #if %x_sv.I_WORKPLACEMANAGER>0 #then #block
+                     @trash=WORKPLACE_MANAGER("CLOSE", %x_sv.I_WORKPLACEMANAGER)
+                  #block_end
+               #block_end
+            #block_end
+         #block_end
+      #block_end
+   #loop_end
+ 
+   ;Clean up unused session data in APL:BSV:
+   #loop_with i = 100 .. 150
+      #if length(APL:BSV)<%i #then #loop_exit
+           
+      #if data_type(apl:bsv(%i)) == "LIST" #then #block 
+         @x_sv = apl:bsv(%i)
+         #if attribute_exists(%x_sv,"KEEPALIVE_TIMESTAMP") #then #block
+            #if %x_sv.KEEPALIVE_TIMESTAMP < (CLOCK-10*60) #then #block 
+               ;If timestamp is older than 10 min
+               #SET apl:BSV(%i)=0
+            #block_end
+         #block_end
+      #block_end
+   #loop_end
+        
+   ;create system variable that is used for parameter exchange between OIT and this monitor
+   #create l_lib:v = list(t_Status = "NO_ACTION",-
+                          t_Tool_Lock ="NO_ACTION",-
+                          t_System_ID = %t_system_id,-
+                          -;i_project_handle = -1,-
+                          x_return = "",-
+                          t_method_name = "",-
+                          v_arguments = vector(),-
+                          i_WorkplaceManager = %i_workplace_manager,-
+                          instance_id = %instance_id,-
+                          i_WindowHandle = %i_window_handle)
+
+     
+   ;try to find first free index
+   #if %i_index_of_system_variable == -1 #then #block
+      
+      #loop_with i = 101 .. 150
+         #modify l_lib:v=list(t_system_ID=%t_system_id+":"+"'i'") 
+         @a = STATUS
+         #error ignore
+            @x_system_variable = sys:bsv(%i)
+         #error stop
+         #if STATUS <> 0 #then @x_system_variable = ""
+        
+         #if data_type(%x_system_variable) <> "LIST" #then #block 
+            #set sys:bsv(%i) = %l_lib
+            @i_index_of_system_variable = %i
+            #loop_exit
+         #block_end       
+         
+      #loop_end
+      
+   #block_end ;try to find first free index
+   
+#block_end   ; AIP integration
+
+
+#if %i_index_of_system_variable == -1 #then #block
+   #return (-1,"Cannot allocate session id")
+#block_end
+
+
+@l_lib = sys:bsv(%i_index_of_system_variable)
+#modify l_lib:v = list(t_status = "READY", x_return = vector()) 
+#set sys:bsv(%i_index_of_system_variable) = %l_lib 
+
+
+;login to printer
+@OI_LENGTH1=10
+@OI_LENGTH2=15
+@OI_LENGTH3=5
+
+#ERROR IGNORE
+   @APL_BSV15      = APL:BSV15
+   @PROCESSOBJECTS = APL_BSV15:VPROCESS_OBJECTS
+   @OI             = PROCESSOBJECTS:VOI
+   @OI_LENGTH1     = OI:VLENGTH1
+   @OI_LENGTH2     = OI:VLENGTH2
+   @OI_LENGTH3     = OI:VLENGTH3
+#ERROR CONTINUE
+
+@T_SYSNAME = SUBSTR(SYS:BCX,1,%OI_LENGTH1-1)
+@OI = "'T_SYSNAME' 't_login_node'"
+
+@TEST=FETCH(0,"H","SAGR_LOGIN_MANAGER")
+@H_OBJ_CMD=""
+#IF TEST:VIU == -1 #THEN #BLOCK
+   @H_OBJ_CMD="#CREATE"
+#BLOCK_END
+#ELSE #IF TEST:VVC<=7 #THEN #BLOCK
+   @H_OBJ_CMD="#MODIFY"
+#BLOCK_END
+
+
+;first create the H object for LOGIN_MANAGER
+@TEST=FETCH(0,"H","SAGR_LOGIN_MANAGER")
+#IF %H_OBJ_CMD<>"" #THEN #BLOCK
+   'H_OBJ_CMD' SAGR_LOGIN_MANAGER:H = LIST(VC = 7,- 
+                                  VL = 0,-
+                                  ST = ("SAGR_Logout_State",-
+                                        "SAGR_Login_State",-
+                                        "SAGR_Login_Failed_State",-
+                                        "SAGR_Operation_Performed_State",-
+                                        "SAGR_Password_Policy_Changed",-
+                                        "SAGR_Password_Changed",-
+                                        "SAGR_Password_Change_Failed"))
+#BLOCK_END
+
+
+; create the H object for SAGR_MONITOR
+@TEST=FETCH(0,"H","SAGR_MONITOR")
+@H_OBJ_CMD=""
+#IF TEST:VIU == -1 #THEN #BLOCK
+   @H_OBJ_CMD="#CREATE"
+#BLOCK_END
+#ELSE #IF TEST:VVC<=7 #THEN #BLOCK
+   @H_OBJ_CMD="#MODIFY"
+#BLOCK_END
+
+#IF %H_OBJ_CMD<>"" #THEN #BLOCK
+   'H_OBJ_CMD' SAGR_MONITOR:H = LIST(VC = 4,-
+                                 VL = 0,-
+             MT =  VECTOR(),-
+             ST =  ("SAGR_Monitor_Event_0_State",-
+                    "SAGR_Monitor_Opened_State",-
+                    "SAGR_Monitor_Closed_State",-
+                    "SAGR_Monitor_Error_State") )
+#BLOCK_END
+
+
+;create login process object
+@CREATE_OBJ=FALSE
+@TEST=FETCH(0,"P","SAGR_LOGIN_MANAGER", %i_index_of_system_variable)
+#IF TEST:VIU == -1 #THEN #BLOCK
+   @CREATE_OBJ=TRUE
+#BLOCK_END
+#ELSE #IF TEST:VPT<>6 #THEN #BLOCK
+   #DELETE SAGR_LOGIN_MANAGER:P(%i_index_of_system_variable) 
+   @CREATE_OBJ=TRUE
+#BLOCK_END
+#IF %CREATE_OBJ #THEN #BLOCK
+   #CREATE SAGR_LOGIN_MANAGER:P(%i_index_of_system_variable) = LIST(-
+      DI=0,SS=1,IU=1,LD=2,PA=2,PU=1,HE=1,HA=2,HF=1,HL=BIT_MASK(15),-
+      PF = "FORM5SAGR1",EH="SAGR_LOGIN_MANAGER",PT=6)
+#BLOCK_END
+#MODIFY SAGR_LOGIN_MANAGER:P('i_index_of_system_variable')=LIST(PF = "FORM5SAGR1", OI= %OI,OX= %t_OX  )
+
+;----------------------- LOGIN EVENT -----------------------
+@login_LN="SAGR_LOGIN_MANAGER"
+@output=application_object_list(0,"IX","A","","","LN==""'login_LN'""", vector("LN","OI","OX"))
+@Found_IX=0
+@objectExists=FALSE
+#loop_with i=1..length(%output.LN)
+   #if %output.OI(%i)==%OI AND %output.OX(%i)==%t_OX #then #block
+      @Found_IX=%output.IX(%i)
+      @objectExists=TRUE
+   #block_end
+#loop_end
+#if %i_index_of_system_variable>0 #then #block
+   @L_LIB=MERGE_ATTRIBUTES(%L_LIB, LIST(LOGIN_OBJECT_INDEX=%Found_IX))
+#block_end
+#if %Found_IX==0 #then #block
+   #if length(%output.IX)<>0 #then #block
+      @Found_IX=%output.IX(length(%output.IX))+1
+   #block_end
+   #else @Found_IX=10
+#block_end
+#if NOT %objectExists #then #block
+   #CREATE 'login_LN':P(%Found_IX) = LIST(-
+   OI=%OI,DB=0,SS=1,IU=1,LD=2,PA=2,PU=1,HE=1,HA=2,HF=1,HL=BIT_MASK(15),-
+   PF = "FORM5SAGR1",EH="SAGR_LOGIN_MANAGER")
+#block_end 
+;----------------------- LOGIN COUNT -----------------------
+@login_count_ln="SAGR_L_CNT"
+@output=application_object_list(0,"IX","A","","","LN==""'login_count_ln'""", vector("LN","OI","OX"))
+@Found_count_IX=0
+@objectExists=FALSE
+#loop_with i=1..length(%output.LN)
+   #if %output.OI(%i)==%OI #then #block
+      @Found_count_IX=%output.IX(%i)
+      @objectExists=TRUE
+   #block_end
+#loop_end
+#if %Found_count_IX==0 #then #block
+   #if length(%output.IX)<>0 #then #block
+      @Found_count_IX=%output.IX(length(%output.IX))+1
+   #block_end
+   #else @Found_count_IX=10
+#block_end
+#if NOT %objectExists #then #block
+   #CREATE 'login_count_ln':P(%Found_count_IX) = LIST(-
+   PT=9,OI=%OI,AI=0,SS=1,IU=1,SN="1_1")
+#block_end 
+;-----------------------------------------------------------
+
+
+
+;evaluate the authorization definition file
+@AUTH_MAIN="ON"   ;initialized
+
+#MODIFY 'login_LN':P'Found_IX'=LIST(OX= %t_OX)
+
+; if there is no file we will create it, but
+; authorization if off bydefault
+
+     
+     ;if login only once per workstation
+     @apl_bsv11 = APL:BSV(11)
+     
+     @login_once_per_workstation = false
+     #ERROR IGNORE
+        @login_once_per_workstation = apl_bsv11:vb_login_once_per_workstation
+     #ERROR CONTINUE
+   
+    
+;check password
+#if %t_pw_indicator=="+" #then #block
+   @GO_ON=TRUE
+#block_end
+#else #block
+   @GO_ON=FALSE
+#block_end
+         
+#IF %GO_ON==FALSE #THEN #BLOCK
+   ;login failed to printer
+
+   ;SYS-4309: Don't add Event Display entry when control dialog is opened from DMS
+   ;#SET SAGR_LOGIN_MANAGER:PUB'i_index_of_system_variable'=0
+   ;#SET SAGR_LOGIN_MANAGER:POV'i_index_of_system_variable'=2
+   #if %i_window_handle <> 0 #then #block
+      #SET SAGR_LOGIN_MANAGER:PUB'i_index_of_system_variable'=0
+      #SET SAGR_LOGIN_MANAGER:POV'i_index_of_system_variable'=2
+   #block_end
+
+   #SET SYS:BSV(%i_index_of_system_variable)=""
+   #RETURN (-2, "User infromation is incorrect.")
+#BLOCK_END
+
+@common_module=evaluate(read_text("/sa_lib/base/bbone/use/BGU_COMMON.TXT",1,10000))
+; get the languge
+@lang_nr=do(-
+   %common_module,-
+   "GetUserLanguage",-
+   %t_user_name)
+
+@t_MonitorLanguage=""
+@t_monLanguage=do(-
+   %common_module,-
+   "ConvertLangNrToId",-
+   %lang_nr)
+#if %t_monLanguage=="EN" AND %lang_nr<>0 #then @lang_nr=0
+
+@MON_BSV(4)=%lang_nr
+
+; get authority levels and set them to mon:bsv(9)
+@MON_BSV(9) = do(-
+   %common_module,-
+   "GetDataForMonBsv9",-
+   %t_user_name)
+
+#MODIFY 'login_LN':P'Found_IX'=LIST(OX= %t_OX   )
+
+@t_user_name = UPPER_CASE(argument(1))
+
+@i_sysIndex=argument(4)
+
+; to printer and event list
+;#SET SAGR_LOGIN_MANAGER:POV'i_index_of_system_variable' = 1
+
+;SYS-4309: Don't add Event Display entry when control dialog is opened from DMS
+;#SET 'login_LN':PUB'Found_IX' = 0
+;#SET 'login_LN':POV'Found_IX' = 1
+#if %i_window_handle <> 0 #then #block
+   #SET 'login_LN':PUB'Found_IX' = 0
+   #SET 'login_LN':POV'Found_IX' = 1
+#block_end
+
+#SET 'login_count_ln':PUB'Found_count_IX' = 0
+#SET 'login_count_ln':PAI'Found_count_IX' = 'login_count_ln':PAI'Found_count_IX' + 1
+
+
+;set monitor variables for user (language,session length notify times)
+;predefine attributes to add to apl:bsv11
+@APL_BSV6=APL:BSV(6)
+
+;if the value isn't a vector this might not be a "lib" application
+;so lets initialize it...
+#if DATA_TYPE(%APL_BSV6)<>"VECTOR" #THEN #BLOCK
+   @APL_BSV6=VECTOR(50,30,12,10,5)
+#BLOCK_END
+
+@APL_BSV6=%APL_BSV6(1..5)
+@TMP = REVERSE(SORT(%APL_BSV6))
+@TMP = %TMP(1)
+@MON_BSV11=%mon_bsv(11)
+#MODIFY MON_BSV11:V=LIST(-
+      B_USERNAME = upper_case(%t_user_name) ,-
+      B_RESET_TIME  = CLOCK+(APL:BSV(2)*3600),-
+      B_NOTIFY_TIME = CLOCK+(APL:BSV(2)*3600)-%APL_BSV6('TMP')*60)
+
+
+;add the predefined attributes to MON:BSV(11)
+@mon_bsv(11) = %MON_BSV11
+
+  
+;Reads corresponding LANG code from cross reference file and set MON:BLA
+;to the language telled by MON:BSV(4)
+
+
+;Create a user specific definition directory and define user path
+@APL_BNA = APL:BNA
+@TMP_USER=upper_case(%t_user_name)
+
+
+;Let's check & create the whole path
+
+@vDirs=vector("/APL/'APL_BNA'","/APL/'APL_BNA'/PAR","/APL/'APL_BNA'/PAR/'TMP_USER'")
+@sUserDir=vector(0,"")
+ 
+#loop_with iVDirs = 1 .. 3
+  @sDir=%vDirs(%iVDirs)
+  @fmDir=fm_scil_directory(%sDir)
+  @bsDirExists=DIRECTORY_MANAGER("EXISTS", %fmDir)
+  @bsDirCreated=0
+  #if %bsDirExists==false #then #block
+      @bsDirCreated = DIRECTORY_MANAGER("CREATE", %fmDir)         
+  #block_end
+  #if %bsDirCreated<>0 #then #block
+      @sUserDir=vector(%bAplDirCreated,status_code_name(%bAplDirCreated))
+      #loop_exit
+  #block_end   
+  #else #block
+      @sUserdir=vector(0,fm_represent(%fmDir))
+  #block_end
+#loop_end
+
+
+@target = FM_APPLICATION_DIRECTORY("PAR/'TMP_USER'/alarm")
+#if NOT DIRECTORY_MANAGER("EXISTS", %target) #then #block
+   @result=DIRECTORY_MANAGER("CREATE", %target)
+#block_end
+
+
+@target = FM_APPLICATION_DIRECTORY("PAR/'TMP_USER'/alarm/filters")
+#if NOT DIRECTORY_MANAGER("EXISTS", %target) #then #block
+   @result=DIRECTORY_MANAGER("CREATE", %target)
+#block_end
+
+@target = FM_APPLICATION_DIRECTORY("PAR/'TMP_USER'/event")
+#if NOT DIRECTORY_MANAGER("EXISTS", %target) #then #block
+   @result=DIRECTORY_MANAGER("CREATE", %target)
+#block_end
+
+@target = FM_APPLICATION_DIRECTORY("PAR/'TMP_USER'/event/filters")
+#if NOT DIRECTORY_MANAGER("EXISTS", %target) #then #block
+   @result=DIRECTORY_MANAGER("CREATE", %target)
+#block_end
+
+@target = FM_APPLICATION_DIRECTORY("PAR/'TMP_USER'/block")
+#if NOT DIRECTORY_MANAGER("EXISTS", %target) #then #block
+   @result=DIRECTORY_MANAGER("CREATE", %target)
+#block_end
+
+@target = FM_APPLICATION_DIRECTORY("PAR/'TMP_USER'/block/filters")
+#if NOT DIRECTORY_MANAGER("EXISTS", %target) #then #block
+   @result=DIRECTORY_MANAGER("CREATE", %target)
+#block_end
+
+#MODIFY L_LIB:V = LIST(b_logged_in=TRUE,T_STATUS = "NO_ACTION", X_RETURN = VECTOR()) 
+#SET SYS:BSV(%I_INDEX_OF_SYSTEM_VARIABLE) = %L_LIB 
+@apl_bsv2=APL:BSV(2)
+@returnValue=(0, %t_user_name, %i_index_of_system_variable,%sUserdir , %t_monLanguage, %mon_bsv,%apl_bsv2, %lang_nr)
+@debug="lang_nr='lang_nr', t_monlanguage='t_monlanguage'"
+#RETURN %returnValue

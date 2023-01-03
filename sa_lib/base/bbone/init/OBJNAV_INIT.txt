@@ -1,0 +1,16 @@
+;@st=trace_begin("TRACE_INIT_OBJNAV.TXT")
+@C_SEARCH = FETCH(0,"C","SAGR_OBJNAV_MAIN")
+#IF C_SEARCH:VIU <> -1 #THEN #BLOCK
+   #DELETE SAGR_OBJNAV_MAIN:C 
+#BLOCK_END
+
+@CIN=TEXT_READ("/SA_LIB/BASE/BBONE/USE/OBJNAV_MAIN.TXT")
+#CREATE SAGR_OBJNAV_MAIN:C = LIST(-
+     IU = 1,-
+     MO = 1,-
+     PE = 0,-
+     PQ = 0,-
+     CM = "Interface for accessing applications and process objects",-
+     IN = %CIN.TEXT)
+@TMP = COMPILE(%CIN.TEXT)
+#IF TMP:VSTATUS == 0 #THEN #MODIFY SAGR_OBJNAV_MAIN:C = LIST(CP = TMP:VCODE)

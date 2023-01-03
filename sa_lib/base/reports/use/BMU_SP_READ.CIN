@@ -1,0 +1,37 @@
+; Function:    BMU_SP_READ:C
+; Version:     3.0. (Build 23.02.2012)
+; Parameters:  Data_ID - object name
+;              IS1, IS2, N1, NS (from BMU_SP_IND)
+; Return data: DATA - fetched values
+; Description: Read sampled values from db
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#local i_Status = status, cot,-
+       l_Data = list(), l_DF1 = list(), l_DF2 = list(),-
+       t_DO_LN = %Data_ID
+#error ignore
+
+#if application_object_exists(0,"D", t_DO_LN) #then #block
+   #if %IS2 >= %IS1 #then #block                                     ;*** data in one part
+      l_Data = data_fetch(0,t_DO_LN, %IS1, 1, %NS)
+   #block_end
+   #else #block                                                      ;*** data in two parts
+      l_DF1 = data_fetch(0,t_DO_LN,%IS1,1,%N1)
+      l_DF2 = data_fetch(0,t_DO_LN,   1,1,%IS2)
+      l_Data = LIST(-
+         OV = append(l_DF1.OV, l_DF2.OV), RT = append(l_DF1.RT, l_DF2.RT), -
+         OS = append(l_DF1.OS, l_DF2.OS), IX = append(l_DF1.IX, l_DF2.IX), -
+         LE = l_DF1.LE + l_DF2.LE)
+   #block_end
+#block_end
+#else cot = console_output("BMU_SP_READ:C - Data object 't_DO_LN':D missing.","E","MREP")      
+
+i_Status = status
+#if i_Status <> 0 #then cot = console_output("BMU_SP_READ:C - Report object 'Data_ID' - SCIL Error='iStatus'","E","MREP") 
+
+;*** return data
+@DATA = l_Data
+
+

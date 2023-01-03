@@ -1,0 +1,210 @@
+#if sys:bdm==1 #then @st=trace_begin("PICT/TRACE_INIT_EAB.TXT")
+@C_SEARCH = FETCH(0,"C","SAGR_EAB_MAIN")
+#IF C_SEARCH:VIU <> -1 #THEN #BLOCK
+   #DELETE SAGR_EAB_MAIN:C 
+#BLOCK_END
+
+@CIN=TEXT_READ("/SA_LIB/BASE/BBONE/USE/BGU_EAB_MAIN.TXT")
+#CREATE SAGR_EAB_MAIN:C = LIST(-
+     IU = 1,-
+     MO = 1,-
+     PE = 0,-
+     PQ = 0,-
+     CM = "Interface for Monitor Pro Lists and Trends",-
+     IN = %CIN.TEXT)
+@TMP = COMPILE(%CIN.TEXT)
+#IF TMP:VSTATUS == 0 #THEN #MODIFY SAGR_EAB_MAIN:C = LIST(CP = TMP:VCODE)
+
+;Create default files under the application:
+
+@target = FM_APPLICATION_DIRECTORY("PAR")
+#if NOT DIRECTORY_MANAGER("EXISTS", %target) #then #block
+   @result=DIRECTORY_MANAGER("CREATE", %target)
+#block_end
+
+@target = FM_APPLICATION_DIRECTORY("PAR/APL")
+#if NOT DIRECTORY_MANAGER("EXISTS", %target) #then #block
+   @result=DIRECTORY_MANAGER("CREATE", %target)
+#block_end
+
+@target = FM_APPLICATION_DIRECTORY("PAR/APL/alarm")
+#if NOT DIRECTORY_MANAGER("EXISTS", %target) #then #block
+   @result=DIRECTORY_MANAGER("CREATE", %target)
+#block_end
+@source = FM_DIRECTORY(PARSE_FILE_NAME("/sa_lib/defaults/alarm"))
+@result = DIRECTORY_MANAGER("COPY_CONTENTS", %source,%target,"","OMIT_DIRECTORIES","DONT_OVERWRITE")
+
+@target = FM_APPLICATION_DIRECTORY("PAR/APL/alarm/filters")
+#if NOT DIRECTORY_MANAGER("EXISTS", %target) #then #block
+   @result=DIRECTORY_MANAGER("CREATE", %target)
+#block_end
+
+@target = FM_APPLICATION_DIRECTORY("PAR/APL/event")
+#if NOT DIRECTORY_MANAGER("EXISTS", %target) #then #block
+   @result=DIRECTORY_MANAGER("CREATE", %target)
+#block_end
+@source = FM_DIRECTORY(PARSE_FILE_NAME("/sa_lib/defaults/event"))
+@result = DIRECTORY_MANAGER("COPY_CONTENTS", %source,%target,"","OMIT_DIRECTORIES","DONT_OVERWRITE")
+
+@target = FM_APPLICATION_DIRECTORY("PAR/APL/event/filters")
+#if NOT DIRECTORY_MANAGER("EXISTS", %target) #then #block
+   @result=DIRECTORY_MANAGER("CREATE", %target)
+#block_end
+
+@target = FM_APPLICATION_DIRECTORY("PAR/APL/block")
+#if NOT DIRECTORY_MANAGER("EXISTS", %target) #then #block
+   @result=DIRECTORY_MANAGER("CREATE", %target)
+#block_end
+@source = FM_DIRECTORY(PARSE_FILE_NAME("/sa_lib/defaults/block"))
+@result = DIRECTORY_MANAGER("COPY_CONTENTS", %source,%target,"","OMIT_DIRECTORIES","DONT_OVERWRITE")
+
+@target = FM_APPLICATION_DIRECTORY("PAR/APL/trend")
+#if NOT DIRECTORY_MANAGER("EXISTS", %target) #then #block
+   @result=DIRECTORY_MANAGER("CREATE", %target)
+#block_end
+@source = FM_DIRECTORY(PARSE_FILE_NAME("/sa_lib/defaults/trend"))
+#if DIRECTORY_MANAGER("EXISTS", %source) #then #block
+   @result = DIRECTORY_MANAGER("COPY_CONTENTS", %source,%target,"","OMIT_DIRECTORIES","DONT_OVERWRITE")
+#block_end
+
+@target = FM_APPLICATION_FILE("PAR/APL/trend/TrendPreconf.xml")
+   #if NOT FILE_MANAGER("EXISTS", %target) #then #block
+      @source = FM_APPLICATION_FILE("TrendPreconf.xml")
+         #if FILE_MANAGER("EXISTS", %source) #then #block
+         @target = FM_APPLICATION_DIRECTORY("PAR/APL/trend")
+      @result = FILE_MANAGER("MOVE", %source, %target)
+   #block_end
+#block_end
+
+@target = FM_APPLICATION_DIRECTORY("PAR/APL/report")
+#if NOT DIRECTORY_MANAGER("EXISTS", %target) #then #block
+   @result=DIRECTORY_MANAGER("CREATE", %target)
+#block_end
+
+@source = FM_DIRECTORY(PARSE_FILE_NAME("/sa_lib/defaults/report"))
+#if DIRECTORY_MANAGER("EXISTS", %source) #then #block
+   @result = DIRECTORY_MANAGER("COPY_CONTENTS", %source,%target,"","OMIT_DIRECTORIES","DONT_OVERWRITE")
+#block_end
+
+
+;This part of script does following:
+;For layout.ini in
+; \sc\apl\<application name>\PAR\<user name>\alarm:
+; 1) Remove column "Date"
+; 2) For column "Time", replace attribute TIME with YT  
+;For layout.ini in
+; \sc\apl\<application name>\PAR\<user name>\event:
+; 3) Remove column "Date"
+; 4) For column "Time", replace attribute TIME with ET  
+
+@parDirectoryTag = FM_APPLICATION_DIRECTORY("PAR")
+@parDirectoryName=FM_REPRESENT(%parDirectoryTag)
+@directoryTags = DIRECTORY_MANAGER("LIST", %parDirectoryTag)
+@directoryNames = FM_REPRESENT(%directoryTags)
+
+@target = FM_APPLICATION_DIRECTORY("PAR/APL/alarm")
+@fileTags = FILE_MANAGER("LIST", %target)
+@fileNames = FM_REPRESENT(%fileTags)
+@produceOutput = FALSE
+
+#loop_with i_dir = 1..length(%directoryNames)
+   #loop_with i_file = 1..length(%fileNames)
+      @searchParDirName=%directoryNames(%i_dir)
+      
+      ;Handle Alarm Display layout.ini files:
+      @searchDisplayDir="ALARM"
+      @replacementAttrForTime="YT"
+      @searchFileName="'parDirectoryname'\'searchParDirName'\'searchDisplayDir'\layout.ini"
+      #if FILE_MANAGER("EXISTS", FM_FILE(%searchFileName)) #then #block
+         @loopValue=1
+         #loop
+            @sectionName="Column'loopValue'"
+            @readParamResult=READ_PARAMETER(%searchFileName,%sectionName,"Attribute")
+            #if %readParamResult.STATUS <> 0 #then #loop_exit
+            #else #if %readParamResult.VALUE=="DATE" #then #block
+               @produceOutput = TRUE
+               ;Remove whole section
+               @readParamResult=DELETE_PARAMETER(%searchFileName,%sectionName)
+               ;Rename rest of columns correctly (shift column number one step back):
+               @parFileContents=READ_TEXT(%searchFileName)
+               @renameSectionNumber=%loopValue+1
+               #loop
+                  @sectionNameCheck="Column'renameSectionNumber'"
+                  @readParamResultCheck=READ_PARAMETER(%searchFileName,%sectionNameCheck,"Attribute")
+                  #if %readParamResultCheck.STATUS==0 #then #block
+                     ;The section exists. Rename this section from Column<n> to Column<n-1>
+                     @newColumnNumber=%renameSectionNumber-1
+                     @parFileContents(-
+                        FIND_ELEMENT(-
+                           %parFileContents,-
+                           "[Column'renameSectionNumber']",-
+                           1,"CASE_INSENSITIVE"))="[Column'newColumnNumber']"
+                  #block_end
+                  #else #loop_exit
+                  @renameSectionNumber=%renameSectionNumber+1
+               #loop_end
+               @loopValue=%loopValue-1 ;Because rest of columns will be shifted one step back
+               @trash=WRITE_TEXT(%searchFileName,%parFileContents)
+            #block_end
+            #else #if %readParamResult.VALUE=="TIME" #then #block
+               @produceOutput = TRUE
+               @writeParamResult=WRITE_PARAMETER(-
+               %searchFileName,%sectionName,"Attribute",%replacementAttrForTime)
+            #block_end
+            @loopValue=%loopValue+1
+         #loop_end
+      #block_end
+
+      ;Handle Event Display layout.ini files:
+      @searchDisplayDir="EVENT"
+      @replacementAttrForTime="ET"
+      @searchFileName="'parDirectoryname'\'searchParDirName'\'searchDisplayDir'\layout.ini"
+      #if FILE_MANAGER("EXISTS", FM_FILE(%searchFileName)) #then #block
+         @loopValue=1
+         #loop
+            @sectionName="Column'loopValue'"
+            @readParamResult=READ_PARAMETER(%searchFileName,%sectionName,"Attribute")
+            #if %readParamResult.STATUS <> 0 #then #loop_exit
+            #else #if %readParamResult.VALUE=="DATE" #then #block
+               @produceOutput = TRUE
+               ;Remove whole section
+               @readParamResult=DELETE_PARAMETER(%searchFileName,%sectionName)
+               ;Rename rest of columns correctly (shift column number one step back):
+               @parFileContents=READ_TEXT(%searchFileName)
+               @renameSectionNumber=%loopValue+1
+               #loop
+                  @sectionNameCheck="Column'renameSectionNumber'"
+                  @readParamResultCheck=READ_PARAMETER(%searchFileName,%sectionNameCheck,"Attribute")
+                  #if %readParamResultCheck.STATUS==0 #then #block
+                     ;The section exists. Rename this section from Column<n> to Column<n-1>
+                     @newColumnNumber=%renameSectionNumber-1
+                     @parFileContents(-
+                        FIND_ELEMENT(-
+                           %parFileContents,-
+                           "[Column'renameSectionNumber']",-
+                           1,"CASE_INSENSITIVE"))="[Column'newColumnNumber']"
+                  #block_end
+                  #else #loop_exit
+                  @renameSectionNumber=%renameSectionNumber+1
+               #loop_end
+               @loopValue=%loopValue-1 ;Because rest of columns will be shifted one step back
+               @trash=WRITE_TEXT(%searchFileName,%parFileContents)
+            #block_end
+            #else #if %readParamResult.VALUE=="TIME" #then #block
+               @produceOutput = TRUE
+               @writeParamResult=WRITE_PARAMETER(-
+               %searchFileName,%sectionName,"Attribute",%replacementAttrForTime)
+            #block_end
+            @loopValue=%loopValue+1
+         #loop_end
+      #block_end
+   #loop_end
+#loop_end
+
+#if %produceOutput #then #block
+   @appl_name_tmp=apl:bna
+   @trash=console_output(times+" 'appl_name_tmp' BGU_INIT_EAB.TXT: Updated Date and Time columns for Event- and Alarm display.")
+#block_end
+
+
+#if sys:bdm==1 #then @st=trace_end

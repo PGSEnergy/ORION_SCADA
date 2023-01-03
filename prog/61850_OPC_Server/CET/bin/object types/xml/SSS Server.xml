@@ -1,0 +1,229 @@
+<?xml version="1.0"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Markku Hamarila/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">SSS Server</Parameter>
+		<Parameter name="Caption">SSS Server</Parameter>
+		<Parameter name="Description">objectTypeDesc</Parameter>
+		<Parameter name="Group">SSS</Parameter>
+		<Parameter name="Type">OPCServer</Parameter>
+		<Parameter name="IconFileName">sss.ico</Parameter>
+		<Parameter name="Tools">DiagnosticAeClientServer,  OnlineDiagnosticsServerSSS</Parameter>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="PCMObjectType">GW 3.4, Computer Node 3.4, Computer Node 3.5</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+	<Parameters type="SCLExport">
+		<Export name="CDATA">UseQualityAndTimeAttributes, EnableOPCv2Optimizations, UseDescriptionAttribute, TreeDelimiter, AcceptedTreeDelimiter</Export>
+		<Export name="sclXML">DataTypeTemplatesSCL</Export>
+	</Parameters>
+	<Properties type="PropertyDefinitions">
+	<Property name="DataTypeTemplatesSCL" category="[010] Basic">
+			<Value>&lt;DataTypeTemplates&gt;
+	&lt;DOType id=&quot;SPS&quot; cdc=&quot;SPS&quot;&gt;
+		&lt;DA name=&quot;stVal&quot; fc=&quot;ST&quot; bType=&quot;BOOLEAN&quot; dchg=&quot;true&quot;/&gt;
+		&lt;DA name=&quot;q&quot; fc=&quot;ST&quot; bType=&quot;Quality&quot; qchg=&quot;true&quot;/&gt;
+		&lt;DA name=&quot;t&quot; fc=&quot;ST&quot; bType=&quot;Timestamp&quot;/&gt;
+		&lt;DA name=&quot;d&quot; fc=&quot;DC&quot; bType=&quot;VisString255&quot;/&gt;
+	&lt;/DOType&gt;
+	&lt;DOType id=&quot;DPS&quot; cdc=&quot;DPS&quot;&gt;
+		&lt;DA name=&quot;stVal&quot; fc=&quot;ST&quot; bType=&quot;INT8&quot; dchg=&quot;true&quot;/&gt;
+		&lt;DA name=&quot;q&quot; fc=&quot;ST&quot; bType=&quot;Quality&quot; qchg=&quot;true&quot;/&gt;
+		&lt;DA name=&quot;t&quot; fc=&quot;ST&quot; bType=&quot;Timestamp&quot;/&gt;
+		&lt;DA name=&quot;d&quot; fc=&quot;DC&quot; bType=&quot;VisString255&quot;/&gt;
+	&lt;/DOType&gt;
+	&lt;DOType id=&quot;ENS&quot; cdc=&quot;ENS&quot;&gt;
+		&lt;DA name=&quot;stVal&quot; fc=&quot;ST&quot; bType=&quot;INT32&quot; dchg=&quot;true&quot;/&gt;
+		&lt;DA name=&quot;q&quot; fc=&quot;ST&quot; bType=&quot;Quality&quot; qchg=&quot;true&quot;/&gt;
+		&lt;DA name=&quot;t&quot; fc=&quot;ST&quot; bType=&quot;Timestamp&quot;/&gt;
+		&lt;DA name=&quot;d&quot; fc=&quot;DC&quot; bType=&quot;VisString255&quot;/&gt;
+	&lt;/DOType&gt;
+	&lt;DOType id=&quot;INS&quot; cdc=&quot;INS&quot;&gt;
+		&lt;DA name=&quot;stVal&quot; fc=&quot;ST&quot; bType=&quot;INT32&quot; dchg=&quot;true&quot;/&gt;
+		&lt;DA name=&quot;q&quot; fc=&quot;ST&quot; bType=&quot;Quality&quot; qchg=&quot;true&quot;/&gt;
+		&lt;DA name=&quot;t&quot; fc=&quot;ST&quot; bType=&quot;Timestamp&quot;/&gt;
+		&lt;DA name=&quot;d&quot; fc=&quot;DC&quot; bType=&quot;VisString255&quot;/&gt;
+	&lt;/DOType&gt;
+	&lt;DOType id=&quot;MV&quot; cdc=&quot;MV&quot;&gt;
+		&lt;DA name=&quot;mag&quot; fc=&quot;MX&quot; bType=&quot;Struct&quot; type=&quot;AnalogueValue&quot; dchg=&quot;true&quot;/&gt;
+		&lt;DA name=&quot;q&quot; fc=&quot;MX&quot; bType=&quot;Quality&quot; qchg=&quot;true&quot;/&gt;
+		&lt;DA name=&quot;t&quot; fc=&quot;MX&quot; bType=&quot;Timestamp&quot;/&gt;
+		&lt;DA name=&quot;d&quot; fc=&quot;DC&quot; bType=&quot;VisString255&quot;/&gt;
+	&lt;/DOType&gt;
+	&lt;DOType id=&quot;DPL&quot; cdc=&quot;DPL&quot;&gt;
+		&lt;DA name=&quot;vendor&quot; fc=&quot;DC&quot; bType=&quot;VisString255&quot;/&gt;
+		&lt;DA name=&quot;hwRev&quot; fc=&quot;DC&quot; bType=&quot;VisString255&quot;/&gt;
+		&lt;DA name=&quot;swRev&quot; fc=&quot;DC&quot; bType=&quot;VisString255&quot;/&gt;
+		&lt;DA name=&quot;serNum&quot; fc=&quot;DC&quot; bType=&quot;VisString255&quot;/&gt;
+		&lt;DA name=&quot;model&quot; fc=&quot;DC&quot; bType=&quot;VisString255&quot;/&gt;
+		&lt;DA name=&quot;location&quot; fc=&quot;DC&quot; bType=&quot;VisString255&quot;/&gt;
+		&lt;DA name=&quot;d&quot; fc=&quot;DC&quot; bType=&quot;VisString255&quot;/&gt;
+	&lt;/DOType&gt;
+	&lt;DOType id=&quot;LPL_LN0&quot; cdc=&quot;LPL&quot;&gt;
+		&lt;DA name=&quot;vendor&quot; fc=&quot;DC&quot; bType=&quot;VisString255&quot;/&gt;
+		&lt;DA name=&quot;swRev&quot; fc=&quot;DC&quot; bType=&quot;VisString255&quot;/&gt;
+		&lt;DA name=&quot;configRev&quot; fc=&quot;DC&quot; bType=&quot;VisString255&quot;/&gt;
+		&lt;DA name=&quot;d&quot; fc=&quot;DC&quot; bType=&quot;VisString255&quot;/&gt;
+		&lt;DA name=&quot;ldNs&quot; fc=&quot;EX&quot; bType=&quot;VisString255&quot;/&gt;
+	&lt;/DOType&gt;
+	&lt;DOType id=&quot;LPL&quot; cdc=&quot;LPL&quot;&gt;
+		&lt;DA name=&quot;vendor&quot; fc=&quot;DC&quot; bType=&quot;VisString255&quot;/&gt;
+		&lt;DA name=&quot;swRev&quot; fc=&quot;DC&quot; bType=&quot;VisString255&quot;/&gt;
+		&lt;DA name=&quot;configRev&quot; fc=&quot;DC&quot; bType=&quot;VisString255&quot;/&gt;
+		&lt;DA name=&quot;d&quot; fc=&quot;DC&quot; bType=&quot;VisString255&quot;/&gt;
+	&lt;/DOType&gt;
+	&lt;DOType id=&quot;RSS&quot; cdc=&quot;RSS&quot;&gt;
+		&lt;DA name=&quot;stValA&quot; fc=&quot;ST&quot; bType=&quot;BOOLEAN&quot; dchg=&quot;true&quot;/&gt;
+		&lt;DA name=&quot;stValB&quot; fc=&quot;ST&quot; bType=&quot;BOOLEAN&quot; dchg=&quot;true&quot;/&gt;
+		&lt;DA name=&quot;q&quot; fc=&quot;ST&quot; bType=&quot;Quality&quot; qchg=&quot;true&quot;/&gt;
+		&lt;DA name=&quot;t&quot; fc=&quot;ST&quot; bType=&quot;Timestamp&quot;/&gt;
+		&lt;DA name=&quot;d&quot; fc=&quot;DC&quot; bType=&quot;VisString255&quot;/&gt;
+	&lt;/DOType&gt;
+	&lt;DOType id=&quot;INC&quot; cdc=&quot;INC&quot;&gt;
+			&lt;DA name=&quot;stVal&quot; fc=&quot;ST&quot; bType=&quot;INT32&quot; /&gt;
+			&lt;DA name=&quot;q&quot; fc=&quot;ST&quot; bType=&quot;Quality&quot;/&gt;
+			&lt;DA name=&quot;t&quot; fc=&quot;ST&quot; bType=&quot;Timestamp&quot;/&gt;
+			&lt;DA name=&quot;ctlModel&quot; fc=&quot;CF&quot; bType=&quot;Enum&quot; type=&quot;ctlModel&quot;&gt;
+				&lt;Val&gt;status-only&lt;/Val&gt;
+			&lt;/DA&gt;
+			&lt;DA name=&quot;d&quot; fc=&quot;DC&quot; bType=&quot;VisString255&quot;/&gt;
+		&lt;/DOType&gt;
+	&lt;DAType id=&quot;AnalogueValue&quot;&gt;
+		&lt;BDA name=&quot;f&quot; bType=&quot;FLOAT32&quot;/&gt;
+	&lt;/DAType&gt;
+	&lt;EnumType id=&quot;ctlModel&quot;&gt;
+		&lt;EnumVal ord=&quot;0&quot;&gt;status-only&lt;/EnumVal&gt;
+		&lt;EnumVal ord=&quot;1&quot;&gt;direct-with-normal-security&lt;/EnumVal&gt;
+		&lt;EnumVal ord=&quot;2&quot;&gt;sbo-with-normal-security&lt;/EnumVal&gt;
+		&lt;EnumVal ord=&quot;3&quot;&gt;direct-with-enhanced-security&lt;/EnumVal&gt;
+		&lt;EnumVal ord=&quot;4&quot;&gt;sbo-with-enhanced-security&lt;/EnumVal&gt;
+	&lt;/EnumType&gt;
+&lt;/DataTypeTemplates&gt;
+</Value>
+			<DescID>DataTypeTemplatesSCLDesc</DescID>
+			<CaptionID>DataTypeTemplatesSCL</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>DataTypeTemplatesSCL</AttributeName>
+		</Property>
+		<Property name="TreeDelimiter" category="[010] Basic">
+			<Value>\</Value>
+			<DescID>TreeDelimiterDesc</DescID>
+			<CaptionID>TreeDelimiter</CaptionID>
+			<Values type="string"/>
+			<DataType>System.Char</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName>TreeDelimiter</AttributeName>
+		</Property>
+		<Property name="AcceptedTreeDelimiter" category="[010] Basic">
+			<Value>\</Value>
+			<DescID>AcceptedTreeDelimiterDesc</DescID>
+			<CaptionID>AcceptedTreeDelimiter</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName>AcceptedTreeDelimiter</AttributeName>
+		</Property>
+		<Property name="ShortName" category="[010] Basic">
+			<Value>IEC61850</Value>
+			<DescID>ShortNameDesc</DescID>
+			<CaptionID>ShortName</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="InstanceNumber" category="[010] Basic">
+			<Value>0</Value>
+			<DescID>InstanceNumberDesc</DescID>
+			<CaptionID>InstanceNumber</CaptionID>
+			<Values type="numerical"/>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="ProgIDAE" category="[010] Basic">
+			<Value/>
+			<DescID>ProgIDAEDesc</DescID>
+			<CaptionID>ProgIDAE</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HRW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="ProgID" category="[010] Basic">
+			<Value/>
+			<DescID>ProgIDDesc</DescID>
+			<CaptionID>ProgID</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HRW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="OPCObjectType" category="[010] Basic">
+			<Value>OPC Server</Value>
+			<DescID>OPCObjectTypeDesc</DescID>
+			<CaptionID>OPCObjectType</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>OPCObjectType</AttributeName>
+		</Property>
+		<Property name="ProtocolName" category="[010] Basic">
+			<Value>SSS</Value>
+			<DescID>ProtocolNameDesc</DescID>
+			<CaptionID>ProtocolName</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="UseQualityAndTimeAttributes" category="[010] Basic">
+			<Value>True</Value>
+			<DescID>UseQualityAndTimeAttributesDesc</DescID>
+			<CaptionID>UseQualityAndTimeAttributes</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey>205</HelpKey>
+			<Access>HHW</Access>
+			<AttributeName>UseQualityAndTimeAttributes</AttributeName>
+		</Property>
+		<Property name="EnableOPCv2Optimizations" category="[010] Basic">
+			<Value>True</Value>
+			<DescID>EnableOPCv2OptimizationsDesc</DescID>
+			<CaptionID>EnableOPCv2Optimizations</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey>206</HelpKey>
+			<Access>HHW</Access>
+			<AttributeName>EnableOPCv2Optimizations</AttributeName>
+		</Property>
+		<Property name="UseDescriptionAttribute" category="[010] Basic">
+			<Value>True</Value>
+			<DescID>UseDescriptionAttributeDesc</DescID>
+			<CaptionID>UseDescriptionAttribute</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey>207</HelpKey>
+			<Access>HHW</Access>
+			<AttributeName>UseDescriptionAttribute</AttributeName>
+		</Property>
+		
+		
+	</Properties>
+</ObjectType>

@@ -1,0 +1,37 @@
+; This procedure handles Web UI OPC write in more secure way and authorizes each write separately.
+; Procedure is using hard coded user authorization group and level (i_required_Level > VIEWER).
+
+#local v_Args = vector(), i_required_Level = 0, t_Auth_Group = "MV_CONTROL"
+#local v_LNs = vector(), v_IXs = vector(), v_attributes = vector(), v_values = vector(), v_return_status = vector()
+#local iLoop, t_LN, i_IX, t_attribute, statusCheck
+v_Args = argument(1)
+#if length(v_Args) == 4 #then #block
+   v_LNs = v_Args(1)
+   v_IXs = v_Args(2)
+   v_attributes = v_Args(3)
+   v_values = v_Args(4)
+   #if (length(v_LNs) > 0) and (length(v_LNs) == length(v_IXs)) and (length(v_LNs) == length(v_attributes)) and (length(v_LNs) == length(v_values)) #then #block
+      #loop_with iLoop = 1 .. length(v_LNs)
+         t_LN = v_LNs(iLoop)
+         i_IX = v_IXs(iLoop)
+         t_attribute = v_attributes(iLoop)
+         #if USM_Authorization_Level_For_Object(t_auth_group, t_LN, i_IX) > i_required_Level #then #block
+            statusCheck = status
+            #error ignore
+            #set 't_LN':P't_attribute''i_IX' = v_values(iLoop)
+            #error stop
+            statusCheck = status
+            #if statusCheck == 0 #then #block
+               v_return_status = append(v_return_status, TRUE)
+            #block_end
+            #else #block
+               v_return_status = append(v_return_status, FALSE)
+            #block_end
+         #block_end
+         #else #block
+            v_return_status = append(v_return_status, FALSE)
+         #block_end
+      #loop_end
+   #block_end
+#block_end
+#return v_return_status

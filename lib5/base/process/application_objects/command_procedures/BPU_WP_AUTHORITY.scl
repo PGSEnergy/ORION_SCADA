@@ -1,0 +1,64 @@
+;Function: BPU_WP_AUTHORITY:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_wp_authority.scl
+;Version: 1.0
+;Parameters: 
+;Return data:
+;Description: check the authority for workplace 
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+
+#local wpAuthConfFile = "par/apl/WP_AUTHORITY.txt"
+#local allowControl = true, denyReason = "", statusCheck, wpAuthConf, allowedWorkplaces
+#local wpName
+
+;****************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_WP_AUTHORITY"                                       
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+         @REDIRECTED = true                                                                        
+         i_ArgCnt = argument_count                                                                 
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                      
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+         #loop_end                                                                                 
+         #return 't_Redirect_Command' ;;;;;                                                        
+      #block_end                                                                                   
+   #block_end                                                                                      
+   #else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;****************************************************************************************************
+;MAIN START
+
+#if FILE_MANAGER("EXISTS",FM_APPLICATION_FILE(wpAuthConfFile)) #then #block
+	allowControl=FALSE     
+	statusCheck = status
+	#error ignore
+	wpAuthConf=evaluate(read_text(FM_REPRESENT(FM_APPLICATION_FILE(wpAuthConfFile))))
+	#error stop
+	@statusCheck=status
+	#if statusCheck == 0 #then #block
+		#if ATTRIBUTE_EXISTS(wpAuthConf,"ALLOWED") #then #block
+			allowedWorkplaces = wpAuthConf.ALLOWED
+			#if environment("CLIENTNAME") <> "" #then wpName = environment("CLIENTNAME")
+			#else wpName = environment("COMPUTERNAME")
+			#if length(select(allowedWorkplaces,"==""'wpName'""")) > 0 #then #block
+				allowControl=TRUE
+			#block_end
+		#block_end
+	#block_end
+	#if NOT allowControl #then #block
+		denyReason = translation("Workplace not authorized")
+	#block_end
+#block_end
+
+#return list(-
+	ALLOWED = allowControl,-
+	ERROR_MESSAGE = denyReason)

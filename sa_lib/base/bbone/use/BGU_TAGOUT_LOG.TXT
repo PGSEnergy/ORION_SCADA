@@ -1,0 +1,196 @@
+; Function:    SAGR_TAGOUT_LOG:C
+; Version:     1.0 (Build 23.04.2009) 
+; Parameters:  PO Section LN:PIX; changed Attribute
+; Return data: -
+; Description: Logging for Tagout 
+;----------------------------------------------------------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;23.04.2009 1.0      HoDa   final clean-up, ready to test
+;22.04.2009 1.0      HoDa   use current system Date and Time instead of the attribute DATE and TIME value
+;28.01.2009 0.6      HoDa   LN:PIX section removed from log entry
+;-------------------------------------------------------------------------------------------------------
+#local tAction=%tAction,tSection=%tSection,tTagoutID=%tTagoutID,tAttrName="",vAttrNames=vector(),tOI=%tOI
+#local tActiveClass,lAttrNames=List(),vClassAttrNames,vClassAttrTitles
+#local tAttrTitle="?",tAttrValue="?",vLogEntry=vector(),iDBError=0,iDBHandle,lDBData,lLoggingSettings=LIST()
+#local tDate="",tTime="",tOwnerName="unknown",vTOActionText=vector(),vAMActionText=vector(),vTOActionTitle=vector()
+#local tYear=year,tSeparator=", ",tActionText="",iItemLength=30
+#local bLoggingEnabled=true,vLoggingEnabled
+#local bAttrLoggingEnabled=false,tLogFileName = "apl_/apl_tagout.log"
+#local i,i1,i2,t,v,l,x,cot,iStatus,bEnableDebugging=sys:bdm==1
+
+#if upper_case(tAction) == "EDIT_ATTR" or -
+    upper_case(tAction) == "ADD_TAGOUT"         #then vAttrNames(1)=%tAttrName
+#if upper_case(tAction) == "REMOVE_ATTR" #then vAttrNames=   %vAttrNames
+#if upper_case(tAction) == "REMOVE_TAGOUT"      #then tOwnerName=   %tAttrName
+
+#if bEnableDebugging #then -
+   x=trace_begin("TRACE_TAGOUT_LOG_'tAction'.txt")
+
+;----------------------------- open Class database --------------------------------------------------------------------------------------------------
+#if iDBError == 0 #then #block
+
+   x= DATA_MANAGER("OPEN", "apl_/APL_Tagout.sdb")
+   #if x.status <> 0 #then iDBError= x.Status
+   #else #block
+      iDBHandle = x.handle
+      lDBData = DATA_MANAGER("GET", iDBHandle,"Classes","Names")  
+      #if lDBData.status == 0 #then v = lDBData.value  
+      #else iDBError= 108 
+      lDBData = DATA_MANAGER("GET", iDBHandle,"Classes","ActiveClass")  
+      #if lDBData.status == 0 #then i = lDBData.value
+      #if i<= length(v) #then tActiveClass=v(i)
+      #else iDBError= 109
+      #if iDBError == 0 #then #block                                                                                                                       
+         lDBData = DATA_MANAGER("GET", iDBHandle,"Settings","LOGGING","bEnabled","Value")
+         #if lDBData.status == 0 #then bLoggingEnabled = lDBData.value ==1 
+      #block_end
+
+      lDBData = DATA_MANAGER("GET", iDBHandle,"Settings","Logging")  
+      #if lDBData.status == 0 #then #block
+         lLoggingSettings = lDBData.value
+         iStatus=Status
+         #error ignore
+         tSeparator      = lLoggingSettings.tColumnSeparator.Value
+         vTOActionText   = lLoggingSettings.vTOActionText.vListData(2)
+         vTOActionTitle  = lLoggingSettings.vTOActionText.vListData(1)       ;needed to select the text from vTOActionText
+         vAMActionText   = lLoggingSettings.vAMActionText.vListData(2)
+         iItemLength     = lLoggingSettings.iItemLength
+         iStatus=Status
+         #if iStatus <> 0 #then iDBError=109
+      #block_end
+      #else iDBError= 110
+   #block_end
+#block_end
+
+;----------------------------- read Tagout attribute values -----------------------------------------------------------------------------------------
+#if iDBError == 0 #then #block
+   lDBData = DATA_MANAGER("GET", iDBHandle,tActiveClass,"ATTRIBUTES","NAMES")
+   #if lDBData.status == 0 #then vClassAttrNames = lDBData.value 
+   #else iDBError = 106
+
+   lDBData = DATA_MANAGER("GET", iDBHandle,tActiveClass,"ATTRIBUTES","TITLES")
+   #if lDBData.status == 0 #then vClassAttrTitles = lDBData.value 
+   #else iDBError = 106
+
+   lDBData = DATA_MANAGER("GET", iDBHandle,tActiveClass,"ATTRIBUTES","LOGGING")
+   #if lDBData.status == 0 #then vLoggingEnabled = lDBData.value 
+   #else iDBError = 106
+
+   #case upper_case(tAction)
+      #when "EDIT_ATTR","REMOVE_ATTR" #block
+         #if iDBError ==0 #then #block
+            i1=1
+            #loop_with i=1..length(vAttrNames)
+               tAttrName = vAttrNames(i)
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout logging, Action='tAction', Class='tActiveClass', Section = 'tSection', ID = 'tTagoutID', Attr = 'tAttrName'")
+               v= select(vClassAttrNames,"==""'tAttrName'""")
+               #if length(v)==1 #then #block
+                  i2=v(1)
+                  #if vLoggingEnabled(i2)==1 #then #block
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout logging enabled, Attr = 'tAttrName'")
+                     bAttrLoggingEnabled = true 
+
+;following out commented lines of code cannot be used because it can happen that the DATE and/or the TIME attribute:
+;-  doesn't exist yet when a new Tagout will be added
+;-  doesn't exist anymore when a Tagout will be removed
+;                     lDBData = DATA_MANAGER("GET", iDBHandle,tSection,tTagoutID,"DATE")  
+;                     #if lDBData.status == 0 #then tDate = lDBData.value 
+;                     #else 
+                     tDate = date("FULL")
+                     
+;                     lDBData = DATA_MANAGER("GET", iDBHandle,tSection,tTagoutID,"TIME")  
+;                     #if lDBData.status == 0 #then tTime = lDBData.value +tSeparator
+;                     #else 
+                      tTime = tods+tSeparator                              ;22.04.2009
+                     
+                     lDBData = DATA_MANAGER("GET", iDBHandle,tSection,tTagoutID,"OWNER")  
+                     #if lDBData.status == 0 #then tOwnerName = lDBData.value 
+                     
+                     t = upper_case(tAction)
+                     v=pick(vTOActionText,select(upper_case(vTOActionTitle),"==""'t'"""))
+                     #if length(v)==0 #then tActionText=tAction
+                     #else tActionText=v(1)
+                     
+                     tAttrTitle=vClassAttrTitles(i2)
+                     
+                     lDBData = DATA_MANAGER("GET", iDBHandle,tSection,tTagoutID,tAttrName)  
+                     #if lDBData.status == 0 #then tAttrValue = lDBData.value 
+                     #if substr(tAttrName,1,3)=="AM_" #then-
+                        #if tAttrValue=="X"#then tAttrValue = vAMActionText(1)
+                        #else tAttrValue = vAMActionText(2)
+                     
+                     vLogEntry(i1)= tDate+" "+tTime+tOI+tSeparator+substr(tOwnerName,1,iItemLength)+tSeparator+-
+                                    substr(tActionText,1,iItemLength)+tSeparator+substr(tAttrTitle,1,iItemLength)+tSeparator+tAttrValue
+
+; if LN:IX section should be included release following 2 lines
+;                     vLogEntry(i1)= tDate+" "+tTime+tOI+" ["+tSection+"]"+tSeparator+substr(tOwnerName,1,iItemLength)+tSeparator+-
+;                                    substr(tActionText,1,iItemLength)+tSeparator+substr(tAttrTitle,1,iItemLength)+tSeparator+tAttrValue
+                     i1=i1+1               
+                  #block_end
+                  #else bAttrLoggingEnabled = bAttrLoggingEnabled or false                    
+               #block_end
+            #loop_end
+         #block_end
+      #block_end
+
+      #when "ADD_TAGOUT" #block
+         #if iDBError ==0 #then #block
+                                                                                                                                                     #if bEnableDebugging #then cot=console_output(times+" Tagout logging, Action='tAction', Class='tActiveClass', Section = 'tSection', ID = 'tTagoutID', Attr = 'tAttrName'")
+            lDBData = DATA_MANAGER("GET", iDBHandle,tSection,tTagoutID,"OWNER")  
+            #if lDBData.status == 0 #then tOwnerName = lDBData.value 
+             
+            t = upper_case(tAction)
+            v=pick(vTOActionText,select(upper_case(vTOActionTitle),"==""'t'"""))
+            #if length(v)==0 #then tActionText=tAction
+            #else tActionText=v(1)
+            tDate=date("FULL")
+            tTime=tods
+            vLogEntry(1)= tDate+" "+tTime+tSeparator+tOI+tSeparator+-
+                          substr(tOwnerName,1,iItemLength)+tSeparator+tActionText
+
+; if LN:IX section should be included release following 2 lines
+;            vLogEntry(1)= tDate+" "+tTime+tSeparator+tOI+" ["+tSection+"]"+tSeparator+-
+;                          substr(tOwnerName,1,iItemLength)+tSeparator+tActionText
+         #block_end
+      
+      #block_end
+
+      #when "REMOVE_TAGOUT" #block
+         t = upper_case(tAction)
+         v=pick(vTOActionText,select(upper_case(vTOActionTitle),"==""'t'"""))
+         #if length(v)==0 #then tActionText=tAction
+         #else tActionText=v(1)
+         tDate=date("FULL")
+         tTime=tods
+            vLogEntry(1)= tDate+" "+tTime+tSeparator+tOI+tSeparator+-
+                          substr(tOwnerName,1,iItemLength)+tSeparator+tActionText
+
+; if LN:IX section should be included release following 2 lines
+;            vLogEntry(1)= tDate+" "+tTime+tSeparator+tOI+" ["+tSection+"]"+tSeparator+-
+;                          substr(tOwnerName,1,iItemLength)+tSeparator+tActionText
+      #block_end
+   #case_end
+#block_end
+
+#if iDBError <> 0 #then #block
+   vLogEntry(1) = times+" Fatal apl_tagout.sdb read error (Error code = 'iDBError')!"
+   cot=console_output(times+" Tagout logging: fatal apl_/apl_tagout.sdb read error 'iDBError'")
+#block_end   
+
+#if length(vLogEntry)>0 #then #block
+   x=text_read("apl_/apl_tagout_'tYear'.log",1,1000000)
+   #if x.status==0 #then v=delete_element(x.Text,select(x.Text,"=="""""))
+   #else v=vector()
+   vLogEntry=insert_element(v,length(v)+1,vLogEntry)
+   iStatus=write_text("apl_/apl_tagout_'tYear'.log",vLogEntry,0)
+   #if iStatus <> 0 #then cot = console_output(times+" Tagout: Logging write error: 'iStatus'")
+#block_end
+#if bEnableDebugging #then #block
+   x=write_text("pict/trace_Tagout_Log_'tAction'_Dump_LogEntry.txt",dump(vLogEntry))
+   x=trace_end
+#block_end   
+
+x = DATA_MANAGER("CLOSE", iDBHandle)
+#exec RefreshToList:E1
+

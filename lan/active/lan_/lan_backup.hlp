@@ -1,0 +1,140 @@
+##1
+
+          BACKUP MANAGEMENT HELP
+
+   General info             ->                      REF:F:LAN_BACKUP.HLP:11
+   Installation             ->                      REF:F:LAN_BACKUP.HLP:12
+   Test                     ->                      REF:F:LAN_BACKUP.HLP:13
+   Use                      ->                      REF:F:LAN_BACKUP.HLP:14
+
+##11
+
+This tool is made for UNIX environment and it will
+not work in any other environment.
+
+This tool make a backup of a application, not of the
+whole microscada. In other word everything located
+under /USR/SC/APL/"your application". This means 
+that you always need a second backup of /USR/SC if
+you change SYS_BASCON.COM or other files located
+elsewhere.
+
+This backup make a shadow of the application to a
+other application (shadow application). In normal
+use the shadow application is passive. When the
+backup starts it removes all files in the shadowing
+application and after that it copies files from the 
+main application to the shadowing application. If
+some changes is made to files which is alredy copied
+it copies then again. When the copying is ready it 
+freases the shadow application and starts to copy the
+shadow application to the tape.
+
+
+##12
+
+
+Do following things:
+
+   Stop MicroSCADA
+
+   Do following modifications in your SYS_BASCON.COM
+
+      #SET SYS:VSH = 1
+
+      Modify your application
+      #SET APL:VPQ = 2  ;Set paralell queues to 2
+      #SET APL:VSN = 2  ;Shadowing application num.
+      #SET APL:VSW = 1  ;Watchdog application
+      #SET APL:VSC = 300;Shadowing connection time
+      #SET APL:VAP = (1,2);Application mapping
+
+
+      Create a application which will function as a
+      shadowing application (in example "VMKBCK")
+      #CREATE APL:V
+      #SET APL:VTT = "LOCAL"                          
+      #SET APL:VNA = "VMKBCK"
+      #SET APL:VAS = "COLD"
+      #SET APL:VSN = 1  ;Shadowing application num.
+      #SET APL:VSW = 1  ;Watchdog application
+      #SET APL:VAP = (2,1);Application mapping
+      #CREATE APL2:B = %APL
+
+
+      Create a NOD9
+      Create a NOD9  (Defining the application if
+                      not already created)
+      #CREATE NOD:V
+      #SET NOD:VLI = 1
+      #SET NOD:VSA = 209
+      #CREATE NOD9:B = %NOD
+
+   Start MicroSCADA
+
+   Enter Tool picture, Base system, and System
+   check if shadowing object manager is installed,
+   if not press the key install package. This will
+   create all commandprocedures needed for the
+   shadowing management.
+
+   Edit commandoprocedure SHADGLOBAL and insert
+   after ";user redifinition after following line"
+   the line @BCK_PROC = "BCK_AUTO_1"
+
+   Enter this backup tool again and it will create
+   all needed objects:
+   BCK_AUTO:C
+   BCK_AUTO_1:C
+   BACKUP:P2
+   BACKUP_1:T
+   BACKUP_2:T
+   BACKUP_3:T
+
+##13
+
+Klick the backup key and check the shadowing
+function that it is working correctly. Choose
+basesystem from the tool picture and check the
+shadowing on applications that they are sending
+and transmitting  correctly.
+
+
+If something has gone wrong it is possible to
+restore the picture and backup function (so you can
+try to take another backup if it didn't work
+correctly), do as follows:
+#SET BACKUP:PAI2 = 0 , change also the shadowing
+state to "NONE" if it was started.
+
+##14
+
+         How to USE the backup
+
+Auto Backup:
+   There is three time channels which can start the 
+   backup.
+
+     1.First day every month at 00:10 (once a month)
+     2.Every Friday at 18:01          (once a week)
+     3.Every day at 00:10             (once a day)
+
+   The time channel can be selected by clicking a
+   line. The automatic backup can be disabled by
+   clicking the key "IN USE" which will change to
+   "NOT IN USE". The time is possible to change by
+   editing the time channel (BACKUP_1..BACKUP_3)
+   throught the tool menu.
+
+Manual Backup:
+   Click the key BACKUP and after that YES.
+   The procedure will take about 1 1/2 hour with a
+   medium application with reporting.
+
+
+General
+   In the lower part of the tool is a window
+   which show different system messages. One window
+   show when the last backup is copied to tape. If
+   no backup is taken sinze system start this window
+   show the system start time.

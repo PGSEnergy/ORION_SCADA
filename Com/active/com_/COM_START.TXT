@@ -1,0 +1,24 @@
+﻿; This is the text file for making COM500 application start definitions
+;
+; SYS600 10.2.0
+;
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;   
+;--------------------------------------------------------------------------------------
+
+;execute application update script, if not executed before
+@TIME = CLOCK
+@NAME = APL:BNA
+@UPDT_TAG=(";## Executed by application 'NAME'",-
+          ";## at 'TIME', This is not executed again while these lines are here")
+#ERROR IGNORE
+@S=STATUS
+@UPDT_FILE = READ_TEXT("COM_/COM_UPDT.TXT",1,10000)
+#ERROR CONTINUE
+#IF STATUS == 0 #THEN #BLOCK
+   #IF LENGTH(SELECT(LOCATE(%UPDT_FILE,%UPDT_TAG(1)),"<>0")) == 0 #THEN #BLOCK
+      @UPDT_FILE = APPEND(%UPDT_TAG,%UPDT_FILE)
+      @WRITE = WRITE_TEXT("COM_/COM_UPDT.TXT",%UPDT_FILE)
+      #DO %UPDT_FILE
+   #BLOCK_END
+#BLOCK_END

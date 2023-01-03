@@ -1,0 +1,102 @@
+﻿;argument: VECTOR(LIST(LN="",IX = 'ix', COMMAND = 'action', VALUE = 'value')))
+;if LN = "NAME_NOT_FOUND", the item address was not resolved -> SUCCESS = FALSE
+
+;Actions
+;  ON, 
+;  OFF
+
+;Value
+; simulated value
+
+;returns vector(list(-
+;            value = 0,- ; Error code, 0 when success is true
+;            status_type = 0,- ; 0 = confirmation, 1 = termination (only 0 supported)
+;            success = TRUE | FALSE)))
+
+#argument v_Command
+
+#local v_Command_Response = vector(),-
+   l_Object_Info,-
+   l_Objects,-
+   t_LN,-
+   i_IX,-
+   i,-
+   l_Result,-
+   b_In_Use = false,-
+   i_Value,-
+   t_Authorization_Group = "SIMULATION_HANDLING",-
+   l_Add_Cause_Values,-
+   i_Response
+   
+l_Add_Cause_Values = do(BPU_ADD_CAUSE_VALUES:C)
+
+#loop_with i = 1 .. length(v_Command)
+   #if v_Command(i).LN <> "NAME_NOT_FOUND" #then #block      
+      t_LN = v_Command(i).LN
+      i_IX = v_Command(i).IX
+      l_Object_Info = do(BPU_CONTROL:C, "GET_OBJECT_INFO", t_LN, i_IX)
+      l_Objects = do(BPU_CONTROL:C, "SEARCH_OBJECTS", l_Object_Info)
+      
+      #if do(bpu_user_authorized:c, l_object_info, 1, t_Authorization_Group) #then #block
+      
+         #if  v_Command(i).COMMAND == "ON" #then #block
+            b_In_Use = true
+            i_Value = v_Command(i).VALUE
+         #block_end
+         #else #block
+            b_In_Use = false
+            i_Value = 0 ;dummy
+         #block_end
+             
+         ;switch devices and analog inputs and pulse counters supported
+         #if substr('t_LN':PRX'i_IX', 23, 1) == "Q" #then #block  
+            l_Result = do(BPU_SET_SIMULATION_SWITCH:C,-
+               l_Object_Info,-
+               l_Objects,-
+               list(in_use = b_In_Use,  simulated_value =  i_Value))
+            
+            #if l_Result.STATUS == 0 #then i_Response = l_Add_Cause_Values.NONE
+            #else i_Response = l_Add_Cause_Values.UNKNOWN
+            
+            v_Command_Response = append(v_Command_Response, list(-
+               value = i_Response,-
+               status_type = 0,-
+               success = l_Result.STATUS == 0))
+         #block_end
+         #else_if 't_LN':PPT'i_IX' == 9 or 't_LN':PPT'i_IX' == 13 #then #block
+            l_Result = do(BPU_SET_SIMULATION_MEAS:C,-
+               l_Object_Info,-
+               list(in_use = b_In_Use,  simulated_value = i_Value),-
+               i_IX)
+                           
+            #if l_Result.STATUS == 0 #then i_Response = l_Add_Cause_Values.NONE
+            #else i_Response = l_Add_Cause_Values.UNKNOWN
+            
+            v_Command_Response = append(v_Command_Response, list(-
+               value = i_Response,-
+               status_type = 0,-
+               success = l_Result.STATUS == 0))
+         #block_end
+         #else #block
+            v_Command_Response = append(v_Command_Response, list(-
+               value = l_Add_Cause_Values.NOT_SUPPORTED,-
+               status_type = 0,-
+               success = FALSE))
+         #block_end
+      #block_end
+      #else #block
+         v_Command_Response = append(v_Command_Response, list(-
+               value = l_Add_Cause_Values.NO_ACCESS_AUTHORITY,-
+               status_type = 0,-
+               success = FALSE))
+      #block_end
+   #block_end
+   #else #block
+      v_Command_Response = append(v_Command_Response, list(-
+         value = l_Add_Cause_Values.NOT_SUPPORTED,-
+         status_type = 0,-
+         success = FALSE))
+   #block_end        
+#loop_end
+
+#return v_Command_Response

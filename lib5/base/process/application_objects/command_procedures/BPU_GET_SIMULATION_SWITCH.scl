@@ -1,0 +1,90 @@
+;Function: BPU_GET_SIMULATION_SWITCH:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_get_simulation_switch.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute), IX (optional)
+;Return data:
+;Description:
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data
+#local l_result = list(IN_USE = false, SIMULATED_VALUE = -1, CAN_CHANGE = true, SIMULATION_ONLY = false, status = 0, err_description="")
+#local t_LN, i_IX = 0, l_value_convention, i_ov, t_Value = "NOT_DEFINED"
+#local l_connection_state, l_objects
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_GET_SIMULATION_SWITCH"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+         @REDIRECTED = true                                                                        
+         i_ArgCnt = argument_count                                                                 
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+         #loop_end                                                                                 
+         #return 't_Redirect_Command' ;;;;;                                                        
+      #block_end                                                                                   
+   #block_end                                                                                      
+   #else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+
+;found process objects and related objects
+l_objects = l_data.all_objects
+
+;object state os, ss, un, ub ...
+l_connection_state = do(bpu_define_switch_state:c, l_object_info, l_Objects)
+
+#if l_connection_state.i_connection_ss <> -1 and l_connection_state.i_connection_iu <> -1 #then #block
+   ;indication state
+   #if not l_connection_state.indication_missing #then #block
+   
+      #if l_connection_state.i_connection_os < 10 #then #block
+         
+         ;define value convention for process data
+         l_value_convention = do(bpu_get_indications_switch:c, l_object_info, l_Objects)
+         
+         #if attribute_exists(l_value_convention.position_indication, "ov_'l_connection_state.indication_state'") #then -
+            t_value = l_value_convention.position_indication.ov_'l_connection_state.indication_state'
+         #else t_value = "NOT_DEFINED"   
+         
+         #case t_value
+            #when "INTERMEDIATE" l_result.simulated_value = 0
+            #when "OPEN" l_result.simulated_value = 1
+            #when "CLOSED" l_result.simulated_value = 2
+            #when "FAULTY" l_result.simulated_value = 3
+            #when "NOT_DEFINED" #block
+               l_result.status = -1
+               l_result.status.err_description = translation("Value not supported") 
+            #block_end
+         #case_end
+         
+      #block_end
+      
+      ;simulation only
+      #if l_connection_state.i_connection_ss == 0 and l_connection_state.i_connection_un == 0 #then #block
+         l_result.in_use = true
+         l_result.simulation_only = true
+      #block_end
+      #else_if not (l_connection_state.i_connection_ss == 1 and l_connection_state.i_connection_un == 1) #then l_result.in_use = true
+      
+      ;update blocked
+      #if l_connection_state.i_connection_ub == 1 #then l_result.can_change = false
+         
+   #block_end
+   #else l_result.can_change = false
+#block_end
+#else #block
+   l_result.can_change = false
+   l_result.simulation_only = true
+#block_end
+
+#return l_result

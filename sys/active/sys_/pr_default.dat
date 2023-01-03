@@ -1,0 +1,61 @@
+; ************** Ver 1.0.1 ************************
+; Edited: 16.10.1996 / S-O Lund / ABB Transmit
+;
+; **************************************************
+; ************** Ver 1.0 **************************
+; 7.5.1996
+; By Peter Hellström
+; Following printers (printer emulations) supported
+; IBM proprinter, Epson, Epson FX, Fujitsu DPL24C
+; *************************************************
+;
+; ************** Ver 1.1 **************************
+; 21.9.2007
+; By Tarmo Laaksonen
+; *************************************************
+
+@SEQ = ""
+@SEQ(1) = (1,"NEW LINE",(10,13))
+@SEQ(2) = (2,"NEW PAGE",(12))
+@SEQ(3) = (6,"HORIZONTAL TABULATION",(9))
+@SEQ(4) = (7,"VERTICAL TABULATION",(11))
+@SEQ(5) = (102,"SELECT CONDENSED",(15))
+@SEQ(6) = (103,"UNSELECT CONDENSED",(18))
+@SEQ(7) = (105,"UNSELECT COMPRESSED",(18))
+
+
+@IX = ""
+@CM = ""
+@CS = ""
+#LOOP_WITH I=1..LENGTH(%SEQ)
+  @TMP = %SEQ(%I)
+  @IX(%I) = %TMP(1)
+  @CM(%TMP(1)) = %TMP(2)
+  @TMP1 = %TMP(3)
+  #IF DATA_TYPE(%TMP1)=="INTEGER" #THEN @TMP1(1)=%TMP1
+  @TMP1 = ASCII(%TMP1)
+  @CS(%TMP(1)) = PACK_STR(%TMP1,"TEXT")
+#LOOP_END
+
+@SEQ = ""
+@SEQ(1) = (1,"","-2")
+@SEQ(2) = (2,"","DATE: ")
+@SEQ(3) = (3,"","-5")
+@SEQ(4) = (4,"","DATE")
+@SEQ(5) = (5,"","                          PAGE: ")
+@SEQ(6) = (6,"","-1")
+@SEQ(7) = (7,"","-5")
+@SEQ(8) = (8,"","DEC(%PN)")
+
+@CMHF = ""
+@HF = ""
+#LOOP_WITH I=1..LENGTH(%SEQ)
+  @TMP = %SEQ(%I)
+  @IXHF(%I) = %TMP(1)
+  @CMHF(%I) = %TMP(2)
+  #ERROR IGNORE
+  @HF(%I) = DEC_SCAN(%TMP(3))
+  #IF STATUS <> 0 #THEN @HF(%I) = %TMP(3)
+#LOOP_END
+
+#ERROR STOP

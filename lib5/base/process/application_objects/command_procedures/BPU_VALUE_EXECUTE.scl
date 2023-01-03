@@ -1,0 +1,49 @@
+;Function: BPU_VALUE_EXECUTE:C
+;Source file: sc/lib5/base/process/application_objects/bpu_value_execute.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute),  search_result, L/R type, clicked option button value (0..3)
+;Return data: list(status = integer, err_description = text)
+;Description:
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data, i_value, i_IX
+
+#local l_result = list(status = 0, err_description = ""), t_LN, s
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_VALUE_EXECUTE"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+         @REDIRECTED = true                                                                        
+         i_ArgCnt = argument_count                                                                 
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+         #loop_end                                                                                 
+         #return 't_Redirect_Command' ;;;;;                                                        
+      #block_end                                                                                   
+   #block_end                                                                                      
+   #else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+
+t_LN = l_object_info.p_object_ln
+
+#if 't_LN':pss'i_IX' > 0 and 't_LN':piu'i_IX' > 0 #then #block
+   #error ignore
+   s = status
+   #set 't_LN':p'i_IX' = i_value
+   s = status
+   #if s <> 0 #then l_result = merge_attributes(l_result, list(status = s, err_description = translation(status_code_name(s))))
+#block_end
+
+#return l_result

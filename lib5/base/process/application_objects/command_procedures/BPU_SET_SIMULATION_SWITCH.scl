@@ -1,0 +1,148 @@
+;Function: BPU_SET_SIMULATION_SWITCH:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_set_simulation_switch.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute), l_simulation = list(in_use = true | false,  simulated_value = real/integer), IX (optional)
+;Return data:
+;Description:  
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data, l_simulation
+#local l_result = list(status = 0, err_description="", value = ""), l_value_convention
+#local v_LN, v_IX, t_LN, i_IX, l_Attributes = list(), i_update, i_ss = 2, v_update_objects = vector()
+#local l_objects, l_connection_state, i, t_value, i_db_val
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_SET_SIMULATION_SWITCH"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+         @REDIRECTED = true                                                                        
+         i_ArgCnt = argument_count                                                                 
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+         #loop_end                                                                                 
+         #return 't_Redirect_Command' ;;;;;                                                        
+      #block_end                                                                                   
+   #block_end                                                                                      
+   #else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+
+;found process objects and related objects
+l_objects = l_data.all_objects
+
+;object state os, ss, un, ub ...
+l_connection_state = do(bpu_define_switch_state:c, l_object_info, l_objects)
+
+#if not l_connection_state.indication_missing #then #block
+   
+   #case l_object_info.indication_type
+      #when "DB" #block
+         v_IX = vector(l_data.all_objects.indication_db_ix)
+         v_LN = vector(l_object_info.p_object_ln)
+      #block_end
+      #when "BI", "AI" #block
+         v_IX = vector(l_data.all_objects.indication_db_ix, l_data.all_objects.indication_up1_ix)
+         v_LN(1..2) = l_object_info.p_object_ln
+      #block_end
+      #when "2BI" #block
+         v_IX = vector(l_data.all_objects.indication_db_ix, l_data.all_objects.indication_up1_ix, l_data.all_objects.indication_up2_ix)
+         v_LN(1..3) = l_object_info.p_object_ln
+      #block_end
+      #otherwise #block
+         v_IX = vector(l_data.all_objects.indication_db_ix)
+         v_LN = vector(l_object_info.p_object_ln)
+      #block_end
+   #case_end
+
+   l_Attributes = application_object_attributes(0, "IX", list(ln = v_LN, IX = v_IX), vector("SS", "UN", "OS", "OV", "EE", "HE", "PB", "LN", "IX"))
+
+   #loop_with i = 1 .. length(v_LN)
+
+      t_LN = l_Attributes.ln(i)
+      i_IX = l_Attributes.ix(i)
+
+      #if l_simulation.in_use #then #block
+         #if l_Attributes.un(i) <> 0 and l_Attributes.ss(i) > 1 #then #block
+            #set 't_LN':prx'i_IX' = substr('t_LN':prx'i_IX', 1, 62) + dec('t_LN':pss'i_IX', 0)
+            #modify 't_LN':p'i_IX' = list(ss = 1)           
+         #block_end         
+      #block_end
+      #else #block
+         #if l_Attributes.un(i) > 0 #then #block
+            #if substr('t_LN':prx'i_IX', 63, 1) <> " " #then i_ss = dec_scan(substr('t_LN':prx'i_IX', 63, 1))
+            #modify 't_LN':p'i_IX' = list(ss = i_ss)
+            v_update_objects(length(v_update_objects) + 1) = list(LN = t_LN, IX = i_IX)
+         #block_end
+         
+         ;update process data in last loop
+         #if i == length(v_LN) #then #block
+            #if length(v_update_objects) > 0 #then #exec bpu_update:c (@update_objects = v_update_objects)
+            #else l_result.status = -1
+         #block_end
+      #block_end
+
+   #loop_end 
+ 
+   ;simulate position
+   #if l_simulation.in_use #then #block ;simulate position 
+      ;value convention for dialog: 0 = intermediate, 1 = open, 2 = closed, 3 = faulty
+      #case l_simulation.simulated_value
+         #when 0 t_value = "INTERMEDIATE"
+         #when 1 t_value = "OPEN"
+         #when 2 t_value = "CLOSED"
+         #when 3 t_value = "FAULTY"
+         #otherwise t_value = "NOT_DEFINED"
+      #case_end
+      
+      ;define value convention for process data
+      l_value_convention = do(bpu_get_indications_switch:c, l_object_info)
+      #loop_with i = 0 .. 3
+         #if attribute_exists(l_value_convention.position_indication, "ov_'i'") #then #block
+            #if l_value_convention.position_indication.ov_'i' == t_value #then i_db_val = i
+         #block_end
+      #loop_end
+      
+      #loop_with i = 1 .. length(v_LN)
+      
+         t_LN = l_Attributes.ln(i)
+         i_IX = l_Attributes.ix(i)
+         
+         #if i == 1 #then #set 't_LN':pov'i_IX' = i_db_val
+         #else #block
+            #case l_object_info.indication_type
+               #when "AI" #set 't_LN':pov'i_IX' = i_db_val
+               #when "BI" #block
+                  #if t_value <> "INTERMEDIATE" and t_value <> "FAULTY" #then #block
+                     #if t_value == "OPEN" and i_db_val == 2 #then #set 't_LN':pov'i_IX' = 0
+                     #else #set 't_LN':pov'i_IX' = 1
+                  #block_end
+               #block_end
+               #when "2BI" #block
+                  #if i == 2 #then #block
+                     #if (t_Value == "OPEN" and i_db_val == 2) or t_value == "FAULTY" #then #set 't_LN':pov'i_IX' = 1
+                     #else #set 't_LN':pov'i_IX' = 0
+                  #block_end
+                  #else #block                        
+                     #if (t_Value == "OPEN" and i_db_val == 2) or t_value == "INTERMEDIATE" #then #set 't_LN':pov'i_IX' = 0
+                     #else #set 't_LN':pov'i_IX' = 1
+                  #block_end
+               #block_end
+            #case_end
+         #block_end
+         
+      #loop_end
+      l_result.value = t_value
+   #block_end
+#block_end
+
+#return l_result

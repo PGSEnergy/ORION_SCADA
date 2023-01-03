@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema targetNamespace="http://www.iec.ch/61850/2003/SCLmaintenance" xmlns="http://www.iec.ch/61850/2003/SCLmaintenance" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified" version="0.1">
+	<xs:annotation>
+		<xs:documentation xml:lang="en">
+	                        COPYRIGHT IEC, 2003. Version 1.0. Release 2003/09/19.
+	                        This schema is for infomational purposes only, and is not normative!
+		</xs:documentation>
+	</xs:annotation>
+
+	<xs:simpleType name="tMOP">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="M"/>
+			<xs:enumeration value="O"/>
+			<xs:enumeration value="P"/>
+		</xs:restriction>
+	</xs:simpleType>
+	
+	<xs:attribute name="mop" type="tMOP"/>
+</xs:schema>

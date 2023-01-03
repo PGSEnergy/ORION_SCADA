@@ -1,0 +1,362 @@
+;create application start-up handling (APL_INIT_1)
+;read texts in
+#DO READ_TEXT("/SA_LIB/BASE/BBONE/LANG0/SAI_INIT.TXT")
+
+;create event chanel APL_INIT_1, if it does not exist already
+@TEST=FETCH(0,"A","APL_INIT_1")
+
+#IF TEST:VIU == -1 #THEN #BLOCK
+   #CREATE APL_INIT_1:A = LIST(-
+      IU = 1,-
+      LN = "APL_INIT_1",-
+      CM = SA_INIT:VAPL_INIT_1_CM,-
+      SN1= "SAGR_INIT_1",-
+      ST1= "C",-
+      ON = "APL_INIT_1",-
+      OT = "C")
+#BLOCK_END
+
+;if it exists, then add SAGR_INIT_1 execution to event channel
+#IF LENGTH(APL_INIT_1:ASN)<10 #THEN #BLOCK
+   #IF LENGTH(SELECT(APL_INIT_1:ASN,"==""SAGR_INIT_1"""))==0 #THEN #BLOCK
+      @TMP=LENGTH(APL_INIT_1:ASN)
+      @TMP2=APL_INIT_1:ASN
+      @TMP2(%TMP+1)="SAGR_INIT_1"
+      @TMP3=APL_INIT_1:AST
+      @TMP3(%TMP+1)="C"
+      #MODIFY APL_INIT_1:A=LIST(-
+                        SN=%TMP2,-
+                        ST=%TMP3)
+   #BLOCK_END
+#BLOCK_END
+#ELSE #BLOCK
+   #IF LENGTH(SELECT(APL_INIT_1:ASN,"==""SAGR_INIT_1"""))==0 #THEN #BLOCK
+      @TMP=LENGTH(APL_INIT_1:ASN)
+      @TMP2=APL_INIT_1:ASN
+      @TMP3=APL_INIT_1:AST
+      @i_Warning = console_output("WARNING Max. number of secondary objects exceeded in APL_INIT_1:A. Existing " + %TMP2(10) + ":" + %TMP3(10) + " replaced with SAGR_INIT_1:C.")
+      @TMP2(10)="SAGR_INIT_1"
+      @TMP3(10)="C"
+      #MODIFY APL_INIT_1:A=LIST(-
+                        SN=%TMP2,-
+                        ST=%TMP3)
+   #BLOCK_END
+#BLOCK_END
+
+;create SAGR_INIT_1:C, if it does not exist already
+@TEST=FETCH(0,"C","SAGR_INIT_1")
+
+#IF TEST:VIU == -1 #THEN #BLOCK
+   
+   #CREATE SAGR_INIT_1:C = LIST(-
+   IU = 1,-
+   TS = 1,-
+   CM = SA_INIT:VSAGR_INIT_1_CM,-
+   IN = (";This is executed when application gets hot",-
+         ";",-
+         ";execute SA LIB specific init scripts",-
+         "#DO READ_TEXT(""/SA_LIB/BASE/BBONE/USE/BGU_INIT.TXT"")",-
+         "#DO READ_TEXT(""/SA_LIB/BASE/BBONE/USE/BGU_INITC.TXT"")",-
+         "#DO READ_TEXT(""/SA_LIB/BASE/BBONE/USE/BGU_SAGR.TXT"")"))
+#BLOCK_END
+#ELSE_IF TEST:VIU == 1 #THEN #BLOCK
+   @CHECK = SELECT(LOCATE(SAGR_INIT_1:CIN,"#DO READ_TEXT(""/SA_LIB/BASE/BBONE/USE/BGU_INIT.TXT"")"),"<>0")
+   #IF LENGTH(%CHECK) == 0 #THEN #BLOCK
+      #MODIFY SAGR_INIT_1:C = LIST(-
+         IN = INSERT_ELEMENT(SAGR_INIT_1:CIN, 1, -
+              VECTOR(";execute BGU_INIT.TXT","#DO READ_TEXT(""/SA_LIB/BASE/BBONE/USE/BGU_INIT.TXT"")")))
+   #BLOCK_END
+   
+   @CHECK = SELECT(LOCATE(SAGR_INIT_1:CIN,"#DO READ_TEXT(""/SA_LIB/BASE/BBONE/USE/BGU_SAGR.TXT"")"),"<>0")
+   #IF LENGTH(%CHECK) == 0 #THEN #BLOCK
+      #MODIFY SAGR_INIT_1:C = LIST(-
+         IN = APPEND(SAGR_INIT_1:CIN, -
+              VECTOR("",";execute BGU_SAGR.TXT","#DO READ_TEXT(""/SA_LIB/BASE/BBONE/USE/BGU_SAGR.TXT"")")))
+   #BLOCK_END
+   @V_IN = SAGR_INIT_1:CIN
+   @CHECK = FIND_ELEMENT(%V_IN,  "#DO READ_TEXT(""/SA_LIB/BASE/BBONE/USE/BGU_LOGINRESET.TXT"")", 1,  "CASE_INSENSITIVE")
+   #IF %CHECK <> 0 #THEN #BLOCK
+     @V_IN = DELETE_ELEMENT(%V_IN, %CHECK)
+      #MODIFY SAGR_INIT_1:C = LIST(IN = %V_IN)
+   #BLOCK_END
+#BLOCK_END
+
+  
+@error_state_aplobj = error_state
+#error ignore
+   #DO SAGR_INIT_1:C
+#error 'error_state_aplobj'
+
+;create application start-up handling (APL_INIT_2)
+;create event chanel APL_INIT_2, if it does not exist already
+@TEST=FETCH(0,"A","APL_INIT_2")
+
+#IF TEST:VIU == -1 #THEN #BLOCK
+   #CREATE APL_INIT_2:A = LIST(-
+      IU = 1,-
+      LN = "APL_INIT_2",-
+      CM = SA_INIT:VAPL_INIT_2_CM,-
+      SN1= "SAGR_INIT_2",-
+      ST1= "C",-
+      ON = "APL_INIT_2",-
+      OT = "C")
+#BLOCK_END
+
+;if it exists, then add SAGR_INIT_2 execution to event channel
+#IF LENGTH(APL_INIT_2:ASN)<10 #THEN #BLOCK
+   #IF LENGTH(SELECT(APL_INIT_2:ASN,"==""SAGR_INIT_2"""))==0 #THEN #BLOCK
+      @TMP=LENGTH(APL_INIT_2:ASN)
+      @TMP2=APL_INIT_2:ASN
+      @TMP2(%TMP+1)="SAGR_INIT_2"
+      @TMP3=APL_INIT_2:AST
+      @TMP3(%TMP+1)="C"
+      #MODIFY APL_INIT_2:A=LIST(-
+                        SN=%TMP2,-
+                        ST=%TMP3)
+   #BLOCK_END
+#BLOCK_END
+#ELSE #BLOCK
+   #IF LENGTH(SELECT(APL_INIT_2:ASN,"==""SAGR_INIT_2"""))==0 #THEN #BLOCK
+      @TMP=LENGTH(APL_INIT_2:ASN)
+      @TMP2=APL_INIT_2:ASN
+      @TMP3=APL_INIT_2:AST
+      @i_Warning = console_output("WARNING Max. number of secondary objects exceeded in APL_INIT_1:A. Existing " + %TMP2(10) + ":" + %TMP3(10) + " replaced with SAGR_INIT_2:C.")
+      @TMP2(10)="SAGR_INIT_2"
+      @TMP3(10)="C"
+      #MODIFY APL_INIT_2:A=LIST(-
+                        SN=%TMP2,-
+                        ST=%TMP3)
+   #BLOCK_END
+#BLOCK_END
+
+;create SAGR_INIT_2:C, if it does not exist already
+@TEST=FETCH(0,"C","SAGR_INIT_2")
+
+#IF TEST:VIU == -1 #THEN #BLOCK
+   #CREATE SAGR_INIT_2:C = LIST(-
+      IU = 1,-
+      TS = 1,-
+      CM = SA_INIT:VSAGR_INIT_2_CM,-
+      IN = (";This is executed when application is set to hot and",-
+            ";the reporting has caught real time"))
+#BLOCK_END
+
+;create application start-up handling for take-over (SAGR_INIT_H)
+;create event channel APL_INIT_H, if it does not exist already
+@TEST=FETCH(0,"A","APL_INIT_H")
+
+#IF TEST:VIU == -1 #THEN #BLOCK
+   #CREATE APL_INIT_H:A = LIST(-
+      IU = 1,-
+      LN = "APL_INIT_H",-
+      CM = SA_INIT:VSAGR_INIT_H_CM,-
+      SN1= "SAGR_INIT_H",-
+      ST1= "C",-
+      ON = "APL_INIT_H",-
+      OT = "C")
+#BLOCK_END
+
+;if it exists, then add SAGR_INIT_H execution to event channel
+#IF LENGTH(APL_INIT_H:ASN)<10 #THEN #BLOCK
+   #IF LENGTH(SELECT(APL_INIT_H:ASN,"==""SAGR_INIT_H"""))==0 #THEN #BLOCK
+      @TMP=LENGTH(APL_INIT_H:ASN)
+      @TMP2=APL_INIT_H:ASN
+      @TMP2(%TMP+1)="SAGR_INIT_H"
+      @TMP3=APL_INIT_H:AST
+      @TMP3(%TMP+1)="C"
+      #MODIFY APL_INIT_H:A=LIST(-
+                        SN=%TMP2,-
+                        ST=%TMP3)
+   #BLOCK_END
+#BLOCK_END
+#ELSE #BLOCK
+   #IF LENGTH(SELECT(APL_INIT_H:ASN,"==""SAGR_INIT_H"""))==0 #THEN #BLOCK
+      @TMP=LENGTH(APL_INIT_H:ASN)
+      @TMP2=APL_INIT_H:ASN
+      @TMP3=APL_INIT_H:AST
+      @i_Warning = console_output("WARNING Max. number of secondary objects exceeded in APL_INIT_1:A. Existing " + %TMP2(10) + ":" + %TMP3(10) + " replaced with SAGR_INIT_H:C.")
+      @TMP2(10)="SAGR_INIT_H"
+      @TMP3(10)="C"
+      #MODIFY APL_INIT_H:A=LIST(-
+                        SN=%TMP2,-
+                        ST=%TMP3)
+   #BLOCK_END
+#BLOCK_END
+
+
+
+;create SAGR_INIT_H:C, if it does not exist already
+@TEST=FETCH(0,"C","SAGR_INIT_H")
+
+#IF TEST:VIU == -1 #THEN #BLOCK
+   #CREATE SAGR_INIT_H:C = LIST(-
+      IU = 1,-
+      TS = 1,-
+      CM = SA_INIT:VSAGR_INIT_H_CM,-
+      IN = (";This is executed after take-over in hot stand-by system",-
+            "",-
+            ";execute SA LIB specific BGU_INITC.TXT",-          
+            "#DO READ_TEXT(""/SA_LIB/BASE/BBONE/USE/BGU_INITC.TXT"")",- 
+            "#DO READ_TEXT(""/SA_LIB/BASE/BBONE/USE/BGU_SAGR.TXT"")"))
+
+#BLOCK_END
+#ELSE_IF TEST:VIU == 1 #THEN #BLOCK
+   @CHECK = SELECT(LOCATE(SAGR_INIT_H:CIN,"#DO READ_TEXT(""/SA_LIB/BASE/BBONE/USE/BGU_SAGR.TXT"")"),"<>0")
+   #IF LENGTH(%CHECK) == 0 #THEN #BLOCK
+      #MODIFY SAGR_INIT_H:C = LIST(-
+         IN = APPEND(SAGR_INIT_H:CIN, -
+              VECTOR("",";execute BGU_SAGR.TXT","#DO READ_TEXT(""/SA_LIB/BASE/BBONE/USE/BGU_SAGR.TXT"")")))
+   #BLOCK_END
+   
+   @V_IN = SAGR_INIT_H:CIN
+   @CHECK = FIND_ELEMENT(%V_IN,  "#DO READ_TEXT(""/SA_LIB/BASE/BBONE/USE/BGU_LOGINRESET.TXT"")", 1,  "CASE_INSENSITIVE")
+   #IF %CHECK <> 0 #THEN #BLOCK
+     @V_IN = DELETE_ELEMENT(%V_IN, %CHECK)
+      #MODIFY SAGR_INIT_H:C = LIST(IN = %V_IN)
+   #BLOCK_END
+#BLOCK_END
+
+
+;create APL_INIT_1:C, if it does not exist already
+@TEST=FETCH(0,"C","APL_INIT_1")
+
+#IF TEST:VIU == -1 #THEN #BLOCK
+   #CREATE APL_INIT_1:C = LIST(-
+      IU = 1,-
+      TS = 1,-
+      CM = SA_INIT:VSAGR_INIT_1_CM,-
+      IN = vector(";This is executed when application gets hot"))
+#BLOCK_END
+
+
+;create APL_INIT_1:C, if it does not exist already
+@TEST=FETCH(0,"C","APL_INIT_2")
+
+#IF TEST:VIU == -1 #THEN #BLOCK
+   #CREATE APL_INIT_2:C = LIST(-
+      IU = 1,-
+      TS = 1,-
+      CM = SA_INIT:VSAGR_INIT_2_CM,-
+      IN = vector(";This is executed when application gets hot"))
+#BLOCK_END
+
+
+;create APL_INIT_H:C, if it does not exist already
+@TEST=FETCH(0,"C","APL_INIT_H")
+
+#IF TEST:VIU == -1 #THEN #BLOCK
+   #CREATE APL_INIT_H:C = LIST(-
+      IU = 1,-
+      TS = 1,-
+      CM = SA_INIT:VSAGR_INIT_H_CM,-
+      IN = vector(";This is executed after take-over in hot stand-by system"))
+#BLOCK_END
+
+;
+;create event channel APL_CLOSE, if it does not exist already
+@TEST=FETCH(0,"A","APL_CLOSE")
+
+#IF TEST:VIU == -1 #THEN #BLOCK
+   #CREATE APL_CLOSE:A = LIST(-
+      IU = 1,-
+      LN = "APL_CLOSE",-
+      CM = SA_INIT:VSAGR_CLOSE_CM,-
+      SN1= "SAGR_INIT_1",-
+      ST1= "C",-
+      ON = "APL_CLOSE",-
+      OT = "C")
+#BLOCK_END
+
+;if it exists, then add SAGR_CLOSE execution to event channel
+#IF LENGTH(APL_CLOSE:ASN)<10 #THEN #BLOCK
+   #IF LENGTH(SELECT(APL_CLOSE:ASN,"==""SAGR_CLOSE"""))==0 #THEN #BLOCK
+      @TMP=LENGTH(APL_CLOSE:ASN)
+      @TMP2=APL_CLOSE:ASN
+      @TMP2(%TMP+1)="SAGR_CLOSE"
+      @TMP3=APL_CLOSE:AST
+      @TMP3(%TMP+1)="C"
+      #MODIFY APL_CLOSE:A=LIST(-
+                        SN=%TMP2,-
+                        ST=%TMP3)
+   #BLOCK_END
+#BLOCK_END
+#ELSE #BLOCK
+   #IF LENGTH(SELECT(APL_CLOSE:ASN,"==""SAGR_CLOSE"""))==0 #THEN #BLOCK
+      @TMP=LENGTH(APL_CLOSE:ASN)
+      @TMP2=APL_CLOSE:ASN
+      @TMP3=APL_CLOSE:AST
+      @i_Warning = console_output("WARNING Max. number of secondary objects exceeded in APL_CLOSE:A. Existing " + %TMP2(10) + ":" + %TMP3(10) + " replaced with SAGR_CLOSE:C.")
+      @TMP2(10)="SAGR_CLOSE"
+      @TMP3(10)="C"
+      #MODIFY APL_CLOSE:A=LIST(-
+                        SN=%TMP2,-
+                        ST=%TMP3)
+   #BLOCK_END
+#BLOCK_END
+
+;create APL_CLOSE:C, if it does not exist already
+@TEST=FETCH(0,"C","APL_CLOSE")
+
+#IF TEST:VIU == -1 #THEN #BLOCK
+   #CREATE APL_CLOSE:C = LIST(-
+      IU = 1,-
+      TS = 1,-
+      CM = SA_INIT:VSAGR_CLOSE_CM,-
+      IN = VECTOR())
+
+#BLOCK_END
+
+;create SAGR_CLOSE:C, if it does not exist already
+@TEST=FETCH(0,"C","SAGR_CLOSE")
+
+#IF TEST:VIU == -1 #THEN #BLOCK
+   #CREATE SAGR_CLOSE:C = LIST(-
+      IU = 1,-
+      TS = 1,-
+      CM = SA_INIT:VSAGR_CLOSE_CM,-
+      IN = (";This is executed when application goes from HOT to WARM",-
+            ";",-
+            ";execute SA LIB specific BGU_APL_CLOSE",-            
+            "#DO READ_TEXT(""/SA_LIB/BASE/BBONE/USE/BGU_APL_CLOSE.TXT"")"))
+#BLOCK_END
+
+;create event channel BGU_LTRK_EVENT, if it does not exist already
+@TEST=FETCH(0,"A","BGU_LTRK_EVENT")
+
+#IF TEST:VIU == -1 #THEN #BLOCK
+   #CREATE BGU_LTRK_EVENT:A = LIST(-
+      IU = 1,-
+      LN = "BGU_LTRK_EVENT",-
+      CM = SA_INIT:VLTRK_EVENT_CM,-
+      SN1= "BGU_LTRK_EVENT",-
+      ST1= "C",-
+      ON = "BGU_LTRK_EVENT",-
+      OT = "C")
+#BLOCK_END
+
+;if it exists, then add  BGU_LTRK_EVENT execution to event channel
+#IF LENGTH(BGU_LTRK_EVENT:ASN)<10 #THEN #BLOCK
+   #IF LENGTH(SELECT(BGU_LTRK_EVENT:ASN,"==""BGU_LTRK_EVENT"""))==0 AND BGU_LTRK_EVENT:AON <> "BGU_LTRK_EVENT" #THEN #BLOCK
+      @TMP=LENGTH(BGU_LTRK_EVENT:ASN)
+      @TMP2=BGU_LTRK_EVENT:ASN
+      @TMP2(%TMP+1)="BGU_LTRK_EVENT"
+      @TMP3=BGU_LTRK_EVENT:AST
+      @TMP3(%TMP+1)="C"
+      #MODIFY BGU_LTRK_EVENT:A=LIST(-
+                        SN=%TMP2,-
+                        ST=%TMP3)
+   #BLOCK_END
+#BLOCK_END
+#ELSE #BLOCK
+   #IF LENGTH(SELECT(BGU_LTRK_EVENT:ASN,"==""BGU_LTRK_EVENT"""))==0 AND BGU_LTRK_EVENT:AON <> "BGU_LTRK_EVENT" #THEN #BLOCK
+      @TMP=LENGTH(BGU_LTRK_EVENT:ASN)
+      @TMP2=BGU_LTRK_EVENT:ASN
+      @TMP3=BGU_LTRK_EVENT:AST
+      @i_Warning = console_output("WARNING Max. number of secondary objects exceeded in BGU_LTRK_EVENT:A. Existing " + %TMP2(10) + ":" + %TMP3(10) + " replaced with BGU_LTRK_EVENT:C.")
+      @TMP2(10)="BGU_LTRK_EVENT"
+      @TMP3(10)="C"
+      #MODIFY BGU_LTRK_EVENT:A=LIST(-
+                        SN=%TMP2,-
+                        ST=%TMP3)
+   #BLOCK_END
+#BLOCK_END

@@ -1,0 +1,36 @@
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Mikko Ripatti/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+  <Parameters type="InterfaceDefinition">
+    <Parameter name="ObjectType">SSS LLN0</Parameter>
+    <Parameter name="Caption">LLN0</Parameter>
+    <Parameter name="Description">objectTypeDesc</Parameter>
+    <Parameter name="Group">Communication</Parameter>
+    <Parameter name="Type">LN</Parameter>
+    <Parameter name="IconFileName">ln.ico</Parameter>
+    <Parameter name="Tools">
+    </Parameter>
+    <Parameter name="DataServers" />
+    <Parameter name="Verbs" />
+    <Parameter name="Visible">True</Parameter>
+    <Parameter name="CanInherit">False</Parameter>
+    <Parameter name="ParentControlConditions">
+      <Structure name="COMMUNICATION">
+        <Condition type="PCMObjectType">SSS LD</Condition>
+      </Structure>
+    </Parameter>
+  </Parameters>
+  <Properties type="PropertyDefinitions">
+    <Property name="LNClass" category="[010] Basic">
+      <Value>LLN0</Value>
+      <DescID>LNClassDesc</DescID>
+      <CaptionID>LNClass</CaptionID>
+      <Values type="singleChoice">
+        <Enum textID="LLN0" value="LLN0" />
+      </Values>
+      <DataType>System.Int32</DataType>
+      <HelpKey />
+      <Access>HRR</Access>
+      <AttributeName>Devicetype</AttributeName>
+    </Property>
+  </Properties>
+</ObjectType>

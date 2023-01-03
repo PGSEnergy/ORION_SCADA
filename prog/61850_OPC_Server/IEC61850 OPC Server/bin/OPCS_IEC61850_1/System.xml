@@ -1,0 +1,2921 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--Generated with ABB IEC61850 Libraries 5.4.0.588 at 20.12.2019 3:19:06.-->
+<SCL xmlns="http://www.iec.ch/61850/2003/SCL" xmlns:sxy="http://www.iec.ch/61850/2003/SCLcoordinates" xmlns:esld="http://www.abb.com/61850/2006/SCL_SLD" xmlns:eComm="http://www.abb.com/61850/2015/SCL_ABBCommunication" xmlns:eopc="http://www.abb.com/61850/2009/SCL_ABB_OPC" xmlns:eLS="http://www.abb.com/61850/2008/SCL_LoadShedding" xmlns:eABB="http://www.abb.com/61850/2010/ABBTranslations" xmlns:commonSA="commonSA.abb.com" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.iec.ch/61850/2003/SCL SCL.xsd http://www.iec.ch/61850/2003/SCLcoordinates SCL_Coordinates.xsd http://www.abb.com/61850/2006/SCL_SLD SCL_SLD.xsd http://www.abb.com/61850/2015/SCL_ABBCommunication SCL_ABBCommunication.xsd http://www.abb.com/61850/2009/SCL_ABB_OPC SCL_ABB_OPC.xsd http://www.abb.com/61850/2008/SCL_LoadShedding SCL_LoadShedding.xsd http://www.abb.com/61850/2010/ABBTranslations SCL_ABBTranslations.xsd" version="2007" revision="B">
+    <Header id="ID" toolID="Common\MS-CET_IEC61850 10.2.101" />
+    <Communication>
+        <SubNetwork name="Subnet1" desc="IEC61850 Subnetwork" type="8-MMS">
+            <ConnectedAP iedName="OPCS1" apName="OPCS1:ETH0">
+                <Address>
+                    <P type="IP" xsi:type="tP_IP">127.0.0.1</P>
+                    <P type="OSI-TSEL" xsi:type="tP_OSI-TSEL">00000001</P>
+                    <P type="OSI-SSEL" xsi:type="tP_OSI-SSEL">0001</P>
+                    <P type="OSI-PSEL" xsi:type="tP_OSI-PSEL">0001</P>
+                    <P type="OSI-AP-Title" xsi:type="tP_OSI-AP-Title">1,3,9999,23</P>
+                    <P type="OSI-AE-Qualifier" xsi:type="tP_OSI-AE-Qualifier">23</P>
+                </Address>
+            </ConnectedAP>
+            <ConnectedAP iedName="ORION_PRD" apName="S1">
+                <Address>
+                    <P type="IP" xsi:type="tP_IP">192.168.2.12</P>
+                    <P type="IP-SUBNET" xsi:type="tP_IP-SUBNET">255.255.255.0</P>
+                    <P type="IP-GATEWAY" xsi:type="tP_IP-GATEWAY">0.0.0.0</P>
+                    <P type="OSI-TSEL" xsi:type="tP_OSI-TSEL">0001</P>
+                    <P type="OSI-PSEL" xsi:type="tP_OSI-PSEL">00000001</P>
+                    <P type="OSI-SSEL" xsi:type="tP_OSI-SSEL">0001</P>
+                    <P type="OSI-AP-Title" xsi:type="tP_OSI-AP-Title">1,3,9999,23</P>
+                    <P type="OSI-AE-Qualifier" xsi:type="tP_OSI-AE-Qualifier">23</P>
+                </Address>
+            </ConnectedAP>
+            <ConnectedAP iedName="ORION_VCHZ" apName="S1">
+                <Address>
+                    <P type="IP" xsi:type="tP_IP">192.168.2.14</P>
+                    <P type="IP-SUBNET" xsi:type="tP_IP-SUBNET">255.255.255.0</P>
+                    <P type="IP-GATEWAY" xsi:type="tP_IP-GATEWAY">0.0.0.0</P>
+                    <P type="OSI-TSEL" xsi:type="tP_OSI-TSEL">0001</P>
+                    <P type="OSI-PSEL" xsi:type="tP_OSI-PSEL">00000001</P>
+                    <P type="OSI-SSEL" xsi:type="tP_OSI-SSEL">0001</P>
+                    <P type="OSI-AP-Title" xsi:type="tP_OSI-AP-Title">1,3,9999,23</P>
+                    <P type="OSI-AE-Qualifier" xsi:type="tP_OSI-AE-Qualifier">23</P>
+                </Address>
+            </ConnectedAP>
+            <ConnectedAP iedName="ORION_SKI" apName="S1">
+                <Address>
+                    <P type="IP" xsi:type="tP_IP">192.168.2.44</P>
+                    <P type="IP-SUBNET" xsi:type="tP_IP-SUBNET">255.255.255.0</P>
+                    <P type="IP-GATEWAY" xsi:type="tP_IP-GATEWAY">0.0.0.0</P>
+                    <P type="OSI-TSEL" xsi:type="tP_OSI-TSEL">0001</P>
+                    <P type="OSI-PSEL" xsi:type="tP_OSI-PSEL">00000001</P>
+                    <P type="OSI-SSEL" xsi:type="tP_OSI-SSEL">0001</P>
+                    <P type="OSI-AP-Title" xsi:type="tP_OSI-AP-Title">1,3,9999,23</P>
+                    <P type="OSI-AE-Qualifier" xsi:type="tP_OSI-AE-Qualifier">23</P>
+                </Address>
+            </ConnectedAP>
+        </SubNetwork>
+    </Communication>
+    <IED name="OPCS1" desc="OPC Server for IEC61850" type="OPC Server">
+        <Private type="ABB_CommonSA_OPCConfiguration"><commonSA:SAObjects xmlns:commonSA="commonSA.abb.com">
+<commonSA:Object type="OPC Server">
+<commonSA:Name>OPCS1</commonSA:Name>
+<commonSA:Parameters>
+<commonSA:Parameter name="UseQualityAndTimeAttributes" category="[010] Basic" >
+<commonSA:Value>True</commonSA:Value>
+<commonSA:AttributeName>UseQualityAndTimeAttributes</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="EnableOPCv2Optimizations" category="[010] Basic" >
+<commonSA:Value>True</commonSA:Value>
+<commonSA:AttributeName>EnableOPCv2Optimizations</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="UseDescriptionAttribute" category="[010] Basic" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>UseDescriptionAttribute</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="TreeDelimiter" category="[010] Basic" >
+<commonSA:Value>\</commonSA:Value>
+<commonSA:AttributeName>TreeDelimiter</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="AcceptedTreeDelimiter" category="[010] Basic" >
+<commonSA:Value>\</commonSA:Value>
+<commonSA:AttributeName>AcceptedTreeDelimiter</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="EnableTimesyncClient" category="[020] SNTP Client" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>EnableTimesyncClient</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="EnableTimesyncServer" category="[025] SNTP Server" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>EnableTimesyncServer</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ReportControlIdentity" category="[030] Communication Control" >
+<commonSA:Value>Client1</commonSA:Value>
+<commonSA:AttributeName>ReportControlIdentity</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="TimesyncServerConf" category="[025] SNTP Server" >
+<commonSA:Value>123</commonSA:Value>
+<commonSA:AttributeName>TimesyncServerConf</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ServerOriginatorCategory" category="[030] Communication Control" >
+<commonSA:Value>2</commonSA:Value>
+<commonSA:AttributeName>ServerOriginatorCategory</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ServerOriginatorIdentification" category="[030] Communication Control" >
+<commonSA:Value>ABB</commonSA:Value>
+<commonSA:AttributeName>ServerOriginatorIdentification</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="SystemEventLevel" category="[030] Communication Control" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>SystemEventLevel</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ServerInitializationInSeconds" category="[010] Basic" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>ServerInitializationInSeconds</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="QualityTexts" category="[040] OPC Alarm and Event" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName></commonSA:AttributeName>
+</commonSA:Parameter>
+
+</commonSA:Parameters>
+</commonSA:Object>
+
+<commonSA:Object type="8-MMS">
+<commonSA:Name>Subnet1</commonSA:Name>
+<commonSA:Parameters>
+<commonSA:Parameter name="DeviceName" category="[020] Communication Port" >
+<commonSA:Value>ETH0</commonSA:Value>
+<commonSA:AttributeName>SD</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="InUse" category="[010] Basic" >
+<commonSA:Value>1</commonSA:Value>
+<commonSA:AttributeName>InUse</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="TCPKeepaliveTimeout" category="[030] Communication Control" >
+<commonSA:Value>15</commonSA:Value>
+<commonSA:AttributeName>TCPKeepaliveTimeout</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="SystemEventLevel" category="[030] Communication Control" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>SystemEventLevel</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="GOOSE_NIC_GUID" category="[020] Communication Port" >
+<commonSA:Value>\Device\NPF_{00000000-0000-0000-0000-000000000000}</commonSA:Value>
+<commonSA:AttributeName>GOOSE_NIC_GUID</commonSA:AttributeName>
+</commonSA:Parameter>
+
+</commonSA:Parameters>
+</commonSA:Object>
+
+<commonSA:Object type="TX">
+<commonSA:Name>ORION_PRD</commonSA:Name>
+<commonSA:Parameters>
+<commonSA:Parameter name="SimulationMode" category="[010] Basic" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>SimulationMode</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PollTimeout" category="[040] Polling" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>PollTimeout</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="RCBInitialize" category="[030] Communication Control" >
+<commonSA:Value>True</commonSA:Value>
+<commonSA:AttributeName>RCBInitialize</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="GCBInitialize" category="[030] Communication Control" >
+<commonSA:Value>MMS</commonSA:Value>
+<commonSA:AttributeName>GCBInitialize</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="StationRemoteSwitchOPCPath" category="[060] Control Authorization" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>StationRemoteSwitchOPCPath</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="InUse" category="[010] Basic" >
+<commonSA:Value>1</commonSA:Value>
+<commonSA:AttributeName>InUse</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="UseEntryIDSequence" category="[030] Communication Control" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>UseEntryIDSequence</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="SystemEventLevel" category="[010] Basic" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>SystemEventLevel</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="AuthenticationPassword" category="[080] Authentication" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>AuthenticationPassword</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ConfigurationVersionCheckLocation" category="[030] Communication Control" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>ConfigurationVersionCheckLocation</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="Use32BitEntryID" category="[030] Communication Control" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>Use32BitEntryID</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="UseSequenceNumberCheck" category="[030] Communication Control" >
+<commonSA:Value>True</commonSA:Value>
+<commonSA:AttributeName>UseSequenceNumberCheck</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DynamicCreateDataSets" category="[030] Communication Control" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>DynamicCreateDataSets</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="MMSRequestTimeout" category="[030] Communication Control" >
+<commonSA:Value>3000</commonSA:Value>
+<commonSA:AttributeName>MMSRequestTimeout</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderEnabled" category="[096] Disturbance Recording" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderEnabled</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderDeleteRecordings" category="[096] Disturbance Recording" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderDeleteRecordings</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderMaxTotalFileSize" category="[096] Disturbance Recording" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderMaxTotalFileSize</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderPollingPeriod" category="[096] Disturbance Recording" >
+<commonSA:Value>120</commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderPollingPeriod</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderRemoteDirectory" category="[096] Disturbance Recording" >
+<commonSA:Value>COMTRADE/</commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderRemoteDirectory</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderLocalDirectory" category="[096] Disturbance Recording" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderLocalDirectory</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderFTP" category="[096] Disturbance Recording via FTP" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderFTP</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderFTPUserName" category="[096] Disturbance Recording via FTP" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderFTPUserName</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderFTPPassword" category="[096] Disturbance Recording via FTP" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderFTPPassword</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdOpenSpaParamName" category="[080] SPA Access" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>PwdOpenSpaParamName</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdOpenSpaParamValue" category="[080] SPA Access" >
+<commonSA:Value>1</commonSA:Value>
+<commonSA:AttributeName>PwdOpenSpaParamValue</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdCloseSpaParamName" category="[080] SPA Access" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>PwdCloseSpaParamName</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdCloseSpaParamValue" category="[080] SPA Access" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>PwdCloseSpaParamValue</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ParamsStoreSpaParamName" category="[080] SPA Access" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>ParamsStoreSpaParamName</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ParamsStoreSpaParamValue" category="[080] SPA Access" >
+<commonSA:Value>1</commonSA:Value>
+<commonSA:AttributeName>ParamsStoreSpaParamValue</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="SynchroCheckDisableForAllControls" category="[060] Control Authorization" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>SynchroCheckDisableForAllControls</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="InterlockCheckDisableForAllControls" category="[060] Control Authorization" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>InterlockCheckDisableForAllControls</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ConfigurationRevisionCheck" category="[030] Communication Control" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>ConfigurationRevisionCheck</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="SynchroCheckOverrideSupported" category="[060] Control Authorization" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>SynchroCheckOverrideSupported</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="InterlockOverrideSupported" category="[060] Control Authorization" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>InterlockOverrideSupported</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="SendSingleMMSWrites" category="[030] Communication Control" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>SendSingleMMSWrites</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderEventTriggerEnabled" category="[096] Disturbance Recording" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderEventTriggerEnabled</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderEventTriggerSource" category="[096] Disturbance Recording" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderEventTriggerSource</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderEventTriggerDelay" category="[096] Disturbance Recording" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderEventTriggerDelay</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="MeasurementLimitSupervision" category="[070] OPC Alarm and Event" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>MeasurementLimitSupervision</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="AreaName" category="[070] OPC Alarm and Event" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>AreaName</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="AreaDesc" category="[070] OPC Alarm and Event" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>AreaDesc</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DiscardOldBufferedEvents" category="[070] OPC Alarm and Event" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>DiscardOldBufferedEvents</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="MMSKeepaliveTimeout" category="[030] Communication Control" >
+<commonSA:Value>60</commonSA:Value>
+<commonSA:AttributeName>MMSKeepaliveTimeout</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DataVariablesInReadRequestMax" category="[030] Communication Control" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>DataVariablesInReadRequestMax</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DeviceConnectionStatus" category="[070] OPC Alarm and Event" >
+<commonSA:Value>Device Connection Status, 0, False</commonSA:Value>
+<commonSA:AttributeName>DeviceConnectionStatusClass</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="SRSwitchForLogicalDeviceLD0" category="[060] Control Authorization" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>SRSwitchForLogicalDeviceLD0</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="SPATCPDeviceForLD0" category="[030] Transparent SPA" >
+<commonSA:Value>0, 3, 7001</commonSA:Value>
+<commonSA:AttributeName>SPATCPDeviceForLD0</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdOpenSpaParamNameForLD0" category="[080] SPA Access" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>PwdOpenSpaParamNameForLD0</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdOpenSpaParamValueForLD0" category="[080] SPA Access" >
+<commonSA:Value>1</commonSA:Value>
+<commonSA:AttributeName>PwdOpenSpaParamValueForLD0</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdCloseSpaParamNameForLD0" category="[080] SPA Access" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>PwdCloseSpaParamNameForLD0</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdCloseSpaParamValueForLD0" category="[080] SPA Access" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>PwdCloseSpaParamValueForLD0</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ParamsStoreSpaParamNameForLD0" category="[080] SPA Access" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>ParamsStoreSpaParamNameForLD0</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ParamsStoreSpaParamValueForLD0" category="[080] SPA Access" >
+<commonSA:Value>1</commonSA:Value>
+<commonSA:AttributeName>ParamsStoreSpaParamValueForLD0</commonSA:AttributeName>
+</commonSA:Parameter>
+
+</commonSA:Parameters>
+</commonSA:Object>
+
+<commonSA:Object type="VCHZ">
+<commonSA:Name>ORION_VCHZ</commonSA:Name>
+<commonSA:Parameters>
+<commonSA:Parameter name="SimulationMode" category="[010] Basic" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>SimulationMode</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PollTimeout" category="[040] Polling" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>PollTimeout</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="RCBInitialize" category="[030] Communication Control" >
+<commonSA:Value>True</commonSA:Value>
+<commonSA:AttributeName>RCBInitialize</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="GCBInitialize" category="[030] Communication Control" >
+<commonSA:Value>MMS</commonSA:Value>
+<commonSA:AttributeName>GCBInitialize</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="StationRemoteSwitchOPCPath" category="[060] Control Authorization" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>StationRemoteSwitchOPCPath</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="InUse" category="[010] Basic" >
+<commonSA:Value>1</commonSA:Value>
+<commonSA:AttributeName>InUse</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="UseEntryIDSequence" category="[030] Communication Control" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>UseEntryIDSequence</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="SystemEventLevel" category="[010] Basic" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>SystemEventLevel</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="AuthenticationPassword" category="[080] Authentication" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>AuthenticationPassword</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ConfigurationVersionCheckLocation" category="[030] Communication Control" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>ConfigurationVersionCheckLocation</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="Use32BitEntryID" category="[030] Communication Control" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>Use32BitEntryID</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="UseSequenceNumberCheck" category="[030] Communication Control" >
+<commonSA:Value>True</commonSA:Value>
+<commonSA:AttributeName>UseSequenceNumberCheck</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DynamicCreateDataSets" category="[030] Communication Control" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>DynamicCreateDataSets</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="MMSRequestTimeout" category="[030] Communication Control" >
+<commonSA:Value>3000</commonSA:Value>
+<commonSA:AttributeName>MMSRequestTimeout</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderEnabled" category="[096] Disturbance Recording" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderEnabled</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderDeleteRecordings" category="[096] Disturbance Recording" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderDeleteRecordings</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderMaxTotalFileSize" category="[096] Disturbance Recording" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderMaxTotalFileSize</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderPollingPeriod" category="[096] Disturbance Recording" >
+<commonSA:Value>120</commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderPollingPeriod</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderRemoteDirectory" category="[096] Disturbance Recording" >
+<commonSA:Value>COMTRADE/</commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderRemoteDirectory</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderLocalDirectory" category="[096] Disturbance Recording" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderLocalDirectory</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderFTP" category="[096] Disturbance Recording via FTP" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderFTP</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderFTPUserName" category="[096] Disturbance Recording via FTP" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderFTPUserName</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderFTPPassword" category="[096] Disturbance Recording via FTP" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderFTPPassword</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdOpenSpaParamName" category="[080] SPA Access" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>PwdOpenSpaParamName</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdOpenSpaParamValue" category="[080] SPA Access" >
+<commonSA:Value>1</commonSA:Value>
+<commonSA:AttributeName>PwdOpenSpaParamValue</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdCloseSpaParamName" category="[080] SPA Access" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>PwdCloseSpaParamName</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdCloseSpaParamValue" category="[080] SPA Access" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>PwdCloseSpaParamValue</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ParamsStoreSpaParamName" category="[080] SPA Access" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>ParamsStoreSpaParamName</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ParamsStoreSpaParamValue" category="[080] SPA Access" >
+<commonSA:Value>1</commonSA:Value>
+<commonSA:AttributeName>ParamsStoreSpaParamValue</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="SynchroCheckDisableForAllControls" category="[060] Control Authorization" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>SynchroCheckDisableForAllControls</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="InterlockCheckDisableForAllControls" category="[060] Control Authorization" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>InterlockCheckDisableForAllControls</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ConfigurationRevisionCheck" category="[030] Communication Control" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>ConfigurationRevisionCheck</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="SynchroCheckOverrideSupported" category="[060] Control Authorization" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>SynchroCheckOverrideSupported</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="InterlockOverrideSupported" category="[060] Control Authorization" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>InterlockOverrideSupported</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="SendSingleMMSWrites" category="[030] Communication Control" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>SendSingleMMSWrites</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderEventTriggerEnabled" category="[096] Disturbance Recording" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderEventTriggerEnabled</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderEventTriggerSource" category="[096] Disturbance Recording" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderEventTriggerSource</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderEventTriggerDelay" category="[096] Disturbance Recording" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderEventTriggerDelay</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="MeasurementLimitSupervision" category="[070] OPC Alarm and Event" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>MeasurementLimitSupervision</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="AreaName" category="[070] OPC Alarm and Event" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>AreaName</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="AreaDesc" category="[070] OPC Alarm and Event" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>AreaDesc</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DiscardOldBufferedEvents" category="[070] OPC Alarm and Event" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>DiscardOldBufferedEvents</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="MMSKeepaliveTimeout" category="[030] Communication Control" >
+<commonSA:Value>60</commonSA:Value>
+<commonSA:AttributeName>MMSKeepaliveTimeout</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DataVariablesInReadRequestMax" category="[030] Communication Control" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>DataVariablesInReadRequestMax</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DeviceConnectionStatus" category="[070] OPC Alarm and Event" >
+<commonSA:Value>Device Connection Status, 0, False</commonSA:Value>
+<commonSA:AttributeName>DeviceConnectionStatusClass</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="SRSwitchForLogicalDeviceCFG" category="[060] Control Authorization" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>SRSwitchForLogicalDeviceCFG</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="SPATCPDeviceForCFG" category="[030] Transparent SPA" >
+<commonSA:Value>0, 3, 7001</commonSA:Value>
+<commonSA:AttributeName>SPATCPDeviceForCFG</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdOpenSpaParamNameForCFG" category="[080] SPA Access" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>PwdOpenSpaParamNameForCFG</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdOpenSpaParamValueForCFG" category="[080] SPA Access" >
+<commonSA:Value>1</commonSA:Value>
+<commonSA:AttributeName>PwdOpenSpaParamValueForCFG</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdCloseSpaParamNameForCFG" category="[080] SPA Access" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>PwdCloseSpaParamNameForCFG</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdCloseSpaParamValueForCFG" category="[080] SPA Access" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>PwdCloseSpaParamValueForCFG</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ParamsStoreSpaParamNameForCFG" category="[080] SPA Access" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>ParamsStoreSpaParamNameForCFG</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ParamsStoreSpaParamValueForCFG" category="[080] SPA Access" >
+<commonSA:Value>1</commonSA:Value>
+<commonSA:AttributeName>ParamsStoreSpaParamValueForCFG</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="SRSwitchForLogicalDeviceMON" category="[060] Control Authorization" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>SRSwitchForLogicalDeviceMON</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="SPATCPDeviceForMON" category="[030] Transparent SPA" >
+<commonSA:Value>0, 3, 7001</commonSA:Value>
+<commonSA:AttributeName>SPATCPDeviceForMON</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdOpenSpaParamNameForMON" category="[080] SPA Access" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>PwdOpenSpaParamNameForMON</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdOpenSpaParamValueForMON" category="[080] SPA Access" >
+<commonSA:Value>1</commonSA:Value>
+<commonSA:AttributeName>PwdOpenSpaParamValueForMON</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdCloseSpaParamNameForMON" category="[080] SPA Access" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>PwdCloseSpaParamNameForMON</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdCloseSpaParamValueForMON" category="[080] SPA Access" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>PwdCloseSpaParamValueForMON</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ParamsStoreSpaParamNameForMON" category="[080] SPA Access" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>ParamsStoreSpaParamNameForMON</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ParamsStoreSpaParamValueForMON" category="[080] SPA Access" >
+<commonSA:Value>1</commonSA:Value>
+<commonSA:AttributeName>ParamsStoreSpaParamValueForMON</commonSA:AttributeName>
+</commonSA:Parameter>
+
+</commonSA:Parameters>
+</commonSA:Object>
+
+<commonSA:Object type="SKI">
+<commonSA:Name>ORION_SKI</commonSA:Name>
+<commonSA:Parameters>
+<commonSA:Parameter name="SimulationMode" category="[010] Basic" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>SimulationMode</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PollTimeout" category="[040] Polling" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>PollTimeout</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="RCBInitialize" category="[030] Communication Control" >
+<commonSA:Value>True</commonSA:Value>
+<commonSA:AttributeName>RCBInitialize</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="GCBInitialize" category="[030] Communication Control" >
+<commonSA:Value>MMS</commonSA:Value>
+<commonSA:AttributeName>GCBInitialize</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="StationRemoteSwitchOPCPath" category="[060] Control Authorization" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>StationRemoteSwitchOPCPath</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="InUse" category="[010] Basic" >
+<commonSA:Value>1</commonSA:Value>
+<commonSA:AttributeName>InUse</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="UseEntryIDSequence" category="[030] Communication Control" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>UseEntryIDSequence</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="SystemEventLevel" category="[010] Basic" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>SystemEventLevel</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="AuthenticationPassword" category="[080] Authentication" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>AuthenticationPassword</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ConfigurationVersionCheckLocation" category="[030] Communication Control" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>ConfigurationVersionCheckLocation</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="Use32BitEntryID" category="[030] Communication Control" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>Use32BitEntryID</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="UseSequenceNumberCheck" category="[030] Communication Control" >
+<commonSA:Value>True</commonSA:Value>
+<commonSA:AttributeName>UseSequenceNumberCheck</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DynamicCreateDataSets" category="[030] Communication Control" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>DynamicCreateDataSets</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="MMSRequestTimeout" category="[030] Communication Control" >
+<commonSA:Value>3000</commonSA:Value>
+<commonSA:AttributeName>MMSRequestTimeout</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderEnabled" category="[096] Disturbance Recording" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderEnabled</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderDeleteRecordings" category="[096] Disturbance Recording" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderDeleteRecordings</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderMaxTotalFileSize" category="[096] Disturbance Recording" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderMaxTotalFileSize</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderPollingPeriod" category="[096] Disturbance Recording" >
+<commonSA:Value>120</commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderPollingPeriod</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderRemoteDirectory" category="[096] Disturbance Recording" >
+<commonSA:Value>COMTRADE/</commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderRemoteDirectory</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderLocalDirectory" category="[096] Disturbance Recording" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderLocalDirectory</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderFTP" category="[096] Disturbance Recording via FTP" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderFTP</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderFTPUserName" category="[096] Disturbance Recording via FTP" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderFTPUserName</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderFTPPassword" category="[096] Disturbance Recording via FTP" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderFTPPassword</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdOpenSpaParamName" category="[080] SPA Access" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>PwdOpenSpaParamName</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdOpenSpaParamValue" category="[080] SPA Access" >
+<commonSA:Value>1</commonSA:Value>
+<commonSA:AttributeName>PwdOpenSpaParamValue</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdCloseSpaParamName" category="[080] SPA Access" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>PwdCloseSpaParamName</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdCloseSpaParamValue" category="[080] SPA Access" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>PwdCloseSpaParamValue</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ParamsStoreSpaParamName" category="[080] SPA Access" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>ParamsStoreSpaParamName</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ParamsStoreSpaParamValue" category="[080] SPA Access" >
+<commonSA:Value>1</commonSA:Value>
+<commonSA:AttributeName>ParamsStoreSpaParamValue</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="SynchroCheckDisableForAllControls" category="[060] Control Authorization" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>SynchroCheckDisableForAllControls</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="InterlockCheckDisableForAllControls" category="[060] Control Authorization" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>InterlockCheckDisableForAllControls</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ConfigurationRevisionCheck" category="[030] Communication Control" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>ConfigurationRevisionCheck</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="SynchroCheckOverrideSupported" category="[060] Control Authorization" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>SynchroCheckOverrideSupported</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="InterlockOverrideSupported" category="[060] Control Authorization" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>InterlockOverrideSupported</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="SendSingleMMSWrites" category="[030] Communication Control" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>SendSingleMMSWrites</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderEventTriggerEnabled" category="[096] Disturbance Recording" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderEventTriggerEnabled</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderEventTriggerSource" category="[096] Disturbance Recording" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderEventTriggerSource</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DisturbanceRecorderEventTriggerDelay" category="[096] Disturbance Recording" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>DisturbanceRecorderEventTriggerDelay</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="MeasurementLimitSupervision" category="[070] OPC Alarm and Event" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>MeasurementLimitSupervision</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="AreaName" category="[070] OPC Alarm and Event" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>AreaName</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="AreaDesc" category="[070] OPC Alarm and Event" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>AreaDesc</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DiscardOldBufferedEvents" category="[070] OPC Alarm and Event" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName>DiscardOldBufferedEvents</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="MMSKeepaliveTimeout" category="[030] Communication Control" >
+<commonSA:Value>60</commonSA:Value>
+<commonSA:AttributeName>MMSKeepaliveTimeout</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DataVariablesInReadRequestMax" category="[030] Communication Control" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>DataVariablesInReadRequestMax</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="DeviceConnectionStatus" category="[070] OPC Alarm and Event" >
+<commonSA:Value>Device Connection Status, 0, False</commonSA:Value>
+<commonSA:AttributeName>DeviceConnectionStatusClass</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="SRSwitchForLogicalDeviceLD0" category="[060] Control Authorization" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>SRSwitchForLogicalDeviceLD0</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="SPATCPDeviceForLD0" category="[030] Transparent SPA" >
+<commonSA:Value>0, 3, 7001</commonSA:Value>
+<commonSA:AttributeName>SPATCPDeviceForLD0</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdOpenSpaParamNameForLD0" category="[080] SPA Access" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>PwdOpenSpaParamNameForLD0</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdOpenSpaParamValueForLD0" category="[080] SPA Access" >
+<commonSA:Value>1</commonSA:Value>
+<commonSA:AttributeName>PwdOpenSpaParamValueForLD0</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdCloseSpaParamNameForLD0" category="[080] SPA Access" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>PwdCloseSpaParamNameForLD0</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="PwdCloseSpaParamValueForLD0" category="[080] SPA Access" >
+<commonSA:Value>0</commonSA:Value>
+<commonSA:AttributeName>PwdCloseSpaParamValueForLD0</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ParamsStoreSpaParamNameForLD0" category="[080] SPA Access" >
+<commonSA:Value></commonSA:Value>
+<commonSA:AttributeName>ParamsStoreSpaParamNameForLD0</commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ParamsStoreSpaParamValueForLD0" category="[080] SPA Access" >
+<commonSA:Value>1</commonSA:Value>
+<commonSA:AttributeName>ParamsStoreSpaParamValueForLD0</commonSA:AttributeName>
+</commonSA:Parameter>
+
+</commonSA:Parameters>
+</commonSA:Object>
+
+<commonSA:Object type="Event Class">
+<commonSA:Name>Device Connection Status</commonSA:Name>
+<commonSA:Parameters>
+<commonSA:Parameter name="BaseType" category="[010] Basic" >
+<commonSA:Value>DeviceConnectionStatus</commonSA:Value>
+<commonSA:AttributeName></commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ConnectionLostMessage" category="[010] Basic" >
+<commonSA:Value>Device Connection Lost</commonSA:Value>
+<commonSA:AttributeName></commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="SeverityOfConnectionLost" category="[010] Basic" >
+<commonSA:Value>1</commonSA:Value>
+<commonSA:AttributeName></commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ConnectionLostAckReq" category="[010] Basic" >
+<commonSA:Value>True</commonSA:Value>
+<commonSA:AttributeName></commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ConnectionOKMessage" category="[010] Basic" >
+<commonSA:Value>Connection OK</commonSA:Value>
+<commonSA:AttributeName></commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="ConnectionOKAckReq" category="[010] Basic" >
+<commonSA:Value>False</commonSA:Value>
+<commonSA:AttributeName></commonSA:AttributeName>
+</commonSA:Parameter>
+
+<commonSA:Parameter name="SendSimpleEvent" category="[010] Basic" >
+<commonSA:Value>True</commonSA:Value>
+<commonSA:AttributeName></commonSA:AttributeName>
+</commonSA:Parameter>
+
+</commonSA:Parameters>
+</commonSA:Object>
+
+</commonSA:SAObjects>
+</Private>
+        <Services>
+            <ClientServices bufReport="true" unbufReport="true" />
+        </Services>
+        <AccessPoint name="OPCS1:ETH0" />
+    </IED>
+    <IED name="ORION_PRD" desc="Generic IEC61850 GW IED" type="TX" manufacturer="KEPM" configVersion="">
+        <Private type="KEPM_GooseSubscription"></Private>
+        <Private type="KEPM_IedResources"><ekepm:InData format="{0}{1:D3}" name="SPS" min="1" max="32" category="Binary" type="COMPOSITE" xmlns:ekepm="http://www.kepm.com/2018/61850"><ekepm:InSubData name="stVal" type="BOOLEAN" /><ekepm:InSubData name="q" type="Quality" /><ekepm:InSubData name="t" type="Timestamp" /></ekepm:InData></Private>
+        <Services nameLength="64">
+            <ClientServices goose="true" />
+            <ConfDataSet max="15" maxAttributes="375" />
+            <DynDataSet max="2" maxAttributes="256" />
+            <ConfReportControl max="10" />
+            <ReportSettings cbName="Conf" datSet="Conf" rptID="Conf" optFields="Conf" bufTime="Dyn" trgOps="Dyn" intgPd="Dyn" />
+            <GSESettings cbName="Conf" datSet="Conf" appID="Conf" dataLabel="Conf" />
+            <GOOSE max="5" />
+            <DynAssociation />
+            <GetDirectory />
+            <GetDataObjectDefinition />
+            <GetCBValues />
+            <DataObjectDirectory />
+            <GetDataSetValue />
+            <DataSetDirectory />
+            <ReadWrite />
+            <FileHandling />
+        </Services>
+        <AccessPoint name="S1">
+            <Server>
+                <Authentication />
+                <LDevice inst="LD0">
+                    <LN0 lnClass="LLN0" inst="" lnType="LLN0_Kalina">
+                        <DataSet name="INCOM" desc="Commands goose inputs status">
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind1" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind2" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind3" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind4" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind5" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind6" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind7" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind8" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind9" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind10" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind11" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind12" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind13" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind14" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind15" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind16" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind17" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind18" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind19" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind20" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind21" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind22" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind23" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind24" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind25" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind26" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind27" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind28" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind29" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind30" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind31" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="Ind32" fc="ST" />
+                        </DataSet>
+                        <DataSet name="INPUT" desc="Physical inputs status">
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind1" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind2" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind3" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind4" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind5" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind6" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind7" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind8" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="2" doName="Ind1" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="2" doName="Ind2" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="2" doName="Ind3" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="2" doName="Ind4" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="2" doName="Ind5" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="2" doName="Ind6" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="2" doName="Ind7" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="2" doName="Ind8" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="3" doName="Ind1" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="3" doName="Ind2" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="3" doName="Ind3" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="3" doName="Ind4" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="3" doName="Ind5" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="3" doName="Ind6" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="3" doName="Ind7" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="3" doName="Ind8" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="4" doName="Ind1" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="4" doName="Ind2" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="4" doName="Ind3" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="4" doName="Ind4" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="4" doName="Ind5" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="4" doName="Ind6" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="4" doName="Ind7" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="4" doName="Ind8" fc="ST" />
+                        </DataSet>
+                        <DataSet name="TRANSCOM" desc="Command transmitting status">
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO1" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO2" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO3" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO4" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO5" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO6" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO7" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO8" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO9" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO10" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO11" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO12" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO13" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO14" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO15" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO16" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO17" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO18" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO19" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO20" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO21" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO22" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO23" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO24" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO25" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO26" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO27" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO28" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO29" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO30" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO31" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="SPCSO32" fc="ST" />
+                        </DataSet>
+                        <DataSet name="INCOMBLOCK" desc="GOOSE Block keys status">
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO1" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO2" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO3" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO4" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO5" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO6" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO7" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO8" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO9" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO10" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO11" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO12" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO13" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO14" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO15" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO16" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO17" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO18" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO19" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO20" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO21" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO22" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO23" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO24" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO25" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO26" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO27" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO28" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO29" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO30" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO31" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="GI" lnClass="GGIO" lnInst="1" doName="SPCSO32" fc="ST" />
+                        </DataSet>
+                        <DataSet name="INPUTBLOCK" desc="INPUT Block keys status">
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="SPCSO1" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="SPCSO2" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="SPCSO3" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="SPCSO4" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="SPCSO5" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="SPCSO6" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="SPCSO7" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="SPCSO8" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="2" doName="SPCSO1" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="2" doName="SPCSO2" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="2" doName="SPCSO3" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="2" doName="SPCSO4" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="2" doName="SPCSO5" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="2" doName="SPCSO6" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="2" doName="SPCSO7" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="2" doName="SPCSO8" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="3" doName="SPCSO1" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="3" doName="SPCSO2" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="3" doName="SPCSO3" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="3" doName="SPCSO4" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="3" doName="SPCSO5" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="3" doName="SPCSO6" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="3" doName="SPCSO7" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="3" doName="SPCSO8" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="4" doName="SPCSO1" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="4" doName="SPCSO2" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="4" doName="SPCSO3" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="4" doName="SPCSO4" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="4" doName="SPCSO5" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="4" doName="SPCSO6" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="4" doName="SPCSO7" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="4" doName="SPCSO8" fc="ST" />
+                        </DataSet>
+                        <DataSet name="DeviceStatus" desc="ModHealthLocRem">
+                            <FCDA ldInst="LD0" lnClass="LLN0" doName="Mod" fc="ST" />
+                            <FCDA ldInst="LD0" lnClass="LLN0" doName="Health" fc="ST" />
+                            <FCDA ldInst="LD0" lnClass="LLN0" doName="LocKey" fc="ST" />
+                            <FCDA ldInst="LD0" lnClass="LPHD" lnInst="1" doName="Sim" fc="ST" />
+                            <FCDA ldInst="LD0" lnClass="LPHD" lnInst="1" doName="GooseON" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="Health" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="2" doName="Health" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="3" doName="Health" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="4" doName="Health" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="Ind33" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="IntIn1" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="IntIn2" fc="ST" />
+                        </DataSet>
+                        <DataSet name="Measurements" desc="PUI">
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="AnIn1" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="AnIn2" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="TX" lnClass="GGIO" lnInst="1" doName="AnIn3" fc="MX" />
+                        </DataSet>
+                        <ReportControl name="ReportDS" desc="DeviceStatus" rptID="Events1" datSet="DeviceStatus" confRev="1" intgPd="1000" bufTime="50" buffered="true">
+                            <TrgOps dchg="true" qchg="true" />
+                            <OptFields reasonCode="true" seqNum="true" dataSet="true" configRef="true" timeStamp="true" entryID="true" />
+                            <RptEnabled max="2">
+                                <ClientLN iedName="Client1" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                                <ClientLN iedName="Client2" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                            </RptEnabled>
+                        </ReportControl>
+                        <ReportControl name="ReportINCOM" desc="Command input status" rptID="Events2" datSet="INCOM" confRev="1" intgPd="1000" bufTime="50" buffered="true">
+                            <TrgOps dchg="true" qchg="true" />
+                            <OptFields reasonCode="true" seqNum="true" dataSet="true" configRef="true" timeStamp="true" entryID="true" />
+                            <RptEnabled max="2">
+                                <ClientLN iedName="Client1" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                                <ClientLN iedName="Client2" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                            </RptEnabled>
+                        </ReportControl>
+                        <ReportControl name="ReportINPUT" desc="Command input status" rptID="Events3" datSet="INPUT" confRev="1" intgPd="1000" bufTime="50" buffered="true">
+                            <TrgOps dchg="true" qchg="true" />
+                            <OptFields reasonCode="true" seqNum="true" dataSet="true" configRef="true" timeStamp="true" entryID="true" />
+                            <RptEnabled max="2">
+                                <ClientLN iedName="Client1" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                                <ClientLN iedName="Client2" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                            </RptEnabled>
+                        </ReportControl>
+                        <ReportControl name="ReportTRANSCOM" desc="Command transmitting status" rptID="Events4" datSet="TRANSCOM" confRev="1" intgPd="1000" bufTime="50" buffered="true">
+                            <TrgOps dchg="true" qchg="true" />
+                            <OptFields reasonCode="true" seqNum="true" dataSet="true" configRef="true" timeStamp="true" entryID="true" />
+                            <RptEnabled max="2">
+                                <ClientLN iedName="Client1" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                                <ClientLN iedName="Client2" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                            </RptEnabled>
+                        </ReportControl>
+                        <ReportControl name="ReportMeas" desc="Measurements" rptID="Events5" datSet="Measurements" confRev="1" intgPd="1000" bufTime="50" buffered="true">
+                            <TrgOps dchg="true" qchg="true" />
+                            <OptFields reasonCode="true" seqNum="true" dataSet="true" configRef="true" timeStamp="true" entryID="true" />
+                            <RptEnabled max="2">
+                                <ClientLN iedName="Client1" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                                <ClientLN iedName="Client2" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                            </RptEnabled>
+                        </ReportControl>
+                        <ReportControl name="ReportINCOMBLOCK" desc="GOOSE Block keys status" rptID="Events6" datSet="INCOMBLOCK" confRev="1" intgPd="1000" bufTime="50" buffered="true">
+                            <TrgOps dchg="true" qchg="true" />
+                            <OptFields reasonCode="true" seqNum="true" dataSet="true" configRef="true" timeStamp="true" entryID="true" />
+                            <RptEnabled max="2">
+                                <ClientLN iedName="Client1" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                                <ClientLN iedName="Client2" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                            </RptEnabled>
+                        </ReportControl>
+                        <ReportControl name="ReportINPUTBLOCK" desc="INPUT Block keys status" rptID="Events7" datSet="INPUTBLOCK" confRev="1" intgPd="1000" bufTime="50" buffered="true">
+                            <TrgOps dchg="true" qchg="true" />
+                            <OptFields reasonCode="true" seqNum="true" dataSet="true" configRef="true" timeStamp="true" entryID="true" />
+                            <RptEnabled max="2">
+                                <ClientLN iedName="Client1" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                                <ClientLN iedName="Client2" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                            </RptEnabled>
+                        </ReportControl>
+                    </LN0>
+                    <LN lnClass="LPHD" inst="1" lnType="LPHD1" />
+                    <LN prefix="DI" lnClass="GGIO" inst="1" lnType="GGIO2" />
+                    <LN prefix="DI" lnClass="GGIO" inst="2" lnType="GGIO2" />
+                    <LN prefix="DI" lnClass="GGIO" inst="3" lnType="GGIO2" />
+                    <LN prefix="DI" lnClass="GGIO" inst="4" lnType="GGIO2" />
+                    <LN prefix="GI" lnClass="GGIO" inst="1" lnType="GGIO4" />
+                    <LN prefix="TX" lnClass="GGIO" inst="1" lnType="GGIO3">
+                        <DOI name="AnIn1">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                        <DOI name="AnIn2">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                        <DOI name="AnIn3">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                    </LN>
+                </LDevice>
+            </Server>
+        </AccessPoint>
+        <AccessPoint name="S2">
+            <ServerAt apName="S1" />
+        </AccessPoint>
+    </IED>
+    <IED name="ORION_VCHZ" desc="Generic IEC61850 GW IED" type="VCHZ" manufacturer="PGS Energy" configVersion="">
+        <Services nameLength="64">
+            <ClientServices goose="true" />
+            <ConfDataSet max="15" maxAttributes="375" />
+            <DynDataSet max="2" maxAttributes="256" />
+            <ConfReportControl max="10" />
+            <ReportSettings cbName="Conf" datSet="Conf" rptID="Conf" optFields="Conf" bufTime="Dyn" trgOps="Dyn" intgPd="Dyn" />
+            <DynAssociation />
+            <GetDirectory />
+            <GetDataObjectDefinition />
+            <GetCBValues />
+            <DataObjectDirectory />
+            <GetDataSetValue />
+            <DataSetDirectory />
+            <ReadWrite />
+            <FileHandling />
+        </Services>
+        <AccessPoint name="S1">
+            <Server>
+                <Authentication />
+                <LDevice desc="Data Sets, BRCBs, URCBs" inst="CFG">
+                    <LN0 lnClass="LLN0" inst="" lnType="LLN0_Kalina_#LIB1">
+                        <DataSet name="INPUT" desc="Physical inputs status">
+                            <FCDA ldInst="MON" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind1" fc="ST" />
+                            <FCDA ldInst="MON" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind2" fc="ST" />
+                            <FCDA ldInst="MON" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind3" fc="ST" />
+                            <FCDA ldInst="MON" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind4" fc="ST" />
+                            <FCDA ldInst="MON" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind5" fc="ST" />
+                            <FCDA ldInst="MON" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind6" fc="ST" />
+                            <FCDA ldInst="MON" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind7" fc="ST" />
+                            <FCDA ldInst="MON" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind8" fc="ST" />
+                        </DataSet>
+                        <DataSet name="OUTPUT" desc="Command output status">
+                            <FCDA ldInst="MON" prefix="DO" lnClass="GGIO" lnInst="1" doName="Ind1" fc="ST" />
+                            <FCDA ldInst="MON" prefix="DO" lnClass="GGIO" lnInst="1" doName="Ind2" fc="ST" />
+                            <FCDA ldInst="MON" prefix="DO" lnClass="GGIO" lnInst="1" doName="Ind3" fc="ST" />
+                            <FCDA ldInst="MON" prefix="DO" lnClass="GGIO" lnInst="1" doName="Ind4" fc="ST" />
+                            <FCDA ldInst="MON" prefix="DO" lnClass="GGIO" lnInst="1" doName="Ind5" fc="ST" />
+                            <FCDA ldInst="MON" prefix="DO" lnClass="GGIO" lnInst="1" doName="Ind6" fc="ST" />
+                            <FCDA ldInst="MON" prefix="DO" lnClass="GGIO" lnInst="1" doName="Ind7" fc="ST" />
+                            <FCDA ldInst="MON" prefix="DO" lnClass="GGIO" lnInst="1" doName="Ind8" fc="ST" />
+                            <FCDA ldInst="MON" prefix="DO" lnClass="GGIO" lnInst="2" doName="Ind9" fc="ST" />
+                            <FCDA ldInst="MON" prefix="DO" lnClass="GGIO" lnInst="2" doName="Ind10" fc="ST" />
+                            <FCDA ldInst="MON" prefix="DO" lnClass="GGIO" lnInst="2" doName="Ind11" fc="ST" />
+                            <FCDA ldInst="MON" prefix="DO" lnClass="GGIO" lnInst="2" doName="Ind12" fc="ST" />
+                            <FCDA ldInst="MON" prefix="DO" lnClass="GGIO" lnInst="2" doName="Ind13" fc="ST" />
+                            <FCDA ldInst="MON" prefix="DO" lnClass="GGIO" lnInst="2" doName="Ind14" fc="ST" />
+                            <FCDA ldInst="MON" prefix="DO" lnClass="GGIO" lnInst="2" doName="Ind15" fc="ST" />
+                            <FCDA ldInst="MON" prefix="DO" lnClass="GGIO" lnInst="2" doName="Ind16" fc="ST" />
+                        </DataSet>
+                        <DataSet name="TRANSCOM" desc="Command transmitting status">
+                            <FCDA ldInst="MON" prefix="TX" lnClass="GGIO" lnInst="1" doName="Ind1" fc="ST" />
+                            <FCDA ldInst="MON" prefix="TX" lnClass="GGIO" lnInst="1" doName="Ind2" fc="ST" />
+                            <FCDA ldInst="MON" prefix="TX" lnClass="GGIO" lnInst="1" doName="Ind3" fc="ST" />
+                            <FCDA ldInst="MON" prefix="TX" lnClass="GGIO" lnInst="1" doName="Ind4" fc="ST" />
+                        </DataSet>
+                        <DataSet name="RECCOM" desc="Command receiving status">
+                            <FCDA ldInst="MON" prefix="RX" lnClass="GGIO" lnInst="1" doName="Ind1" fc="ST" />
+                            <FCDA ldInst="MON" prefix="RX" lnClass="GGIO" lnInst="1" doName="Ind2" fc="ST" />
+                            <FCDA ldInst="MON" prefix="RX" lnClass="GGIO" lnInst="1" doName="Ind3" fc="ST" />
+                            <FCDA ldInst="MON" prefix="RX" lnClass="GGIO" lnInst="1" doName="Ind4" fc="ST" />
+                            <FCDA ldInst="MON" prefix="RX" lnClass="GGIO" lnInst="1" doName="Ind5" fc="ST" />
+                            <FCDA ldInst="MON" prefix="RX" lnClass="GGIO" lnInst="1" doName="Ind6" fc="ST" />
+                            <FCDA ldInst="MON" prefix="RX" lnClass="GGIO" lnInst="1" doName="Ind7" fc="ST" />
+                            <FCDA ldInst="MON" prefix="RX" lnClass="GGIO" lnInst="1" doName="Ind8" fc="ST" />
+                            <FCDA ldInst="MON" prefix="RX" lnClass="GGIO" lnInst="1" doName="Ind9" fc="ST" />
+                            <FCDA ldInst="MON" prefix="RX" lnClass="GGIO" lnInst="1" doName="Ind10" fc="ST" />
+                            <FCDA ldInst="MON" prefix="RX" lnClass="GGIO" lnInst="1" doName="Ind11" fc="ST" />
+                            <FCDA ldInst="MON" prefix="RX" lnClass="GGIO" lnInst="1" doName="Ind12" fc="ST" />
+                        </DataSet>
+                        <DataSet name="LED" desc="Front panel LEDs indication">
+                            <FCDA ldInst="MON" prefix="LED" lnClass="GGIO" lnInst="1" doName="IntIn1" fc="ST" />
+                            <FCDA ldInst="MON" prefix="LED" lnClass="GGIO" lnInst="1" doName="IntIn2" fc="ST" />
+                            <FCDA ldInst="MON" prefix="LED" lnClass="GGIO" lnInst="1" doName="IntIn3" fc="ST" />
+                            <FCDA ldInst="MON" prefix="LED" lnClass="GGIO" lnInst="1" doName="IntIn4" fc="ST" />
+                            <FCDA ldInst="MON" prefix="LED" lnClass="GGIO" lnInst="1" doName="IntIn5" fc="ST" />
+                            <FCDA ldInst="MON" prefix="LED" lnClass="GGIO" lnInst="1" doName="IntIn6" fc="ST" />
+                            <FCDA ldInst="MON" prefix="LED" lnClass="GGIO" lnInst="1" doName="IntIn7" fc="ST" />
+                            <FCDA ldInst="MON" prefix="LED" lnClass="GGIO" lnInst="1" doName="IntIn8" fc="ST" />
+                            <FCDA ldInst="MON" prefix="LED" lnClass="GGIO" lnInst="1" doName="IntIn9" fc="ST" />
+                            <FCDA ldInst="MON" prefix="LED" lnClass="GGIO" lnInst="1" doName="IntIn10" fc="ST" />
+                            <FCDA ldInst="MON" prefix="LED" lnClass="GGIO" lnInst="1" doName="IntIn11" fc="ST" />
+                            <FCDA ldInst="MON" prefix="LED" lnClass="GGIO" lnInst="1" doName="IntIn12" fc="ST" />
+                            <FCDA ldInst="MON" prefix="LED" lnClass="GGIO" lnInst="1" doName="IntIn13" fc="ST" />
+                            <FCDA ldInst="MON" prefix="LED" lnClass="GGIO" lnInst="1" doName="IntIn14" fc="ST" />
+                            <FCDA ldInst="MON" prefix="LED" lnClass="GGIO" lnInst="1" doName="IntIn15" fc="ST" />
+                            <FCDA ldInst="MON" prefix="LED" lnClass="GGIO" lnInst="1" doName="IntIn16" fc="ST" />
+                            <FCDA ldInst="MON" prefix="LED" lnClass="GGIO" lnInst="1" doName="IntIn17" fc="ST" />
+                            <FCDA ldInst="MON" prefix="LED" lnClass="GGIO" lnInst="1" doName="IntIn18" fc="ST" />
+                            <FCDA ldInst="MON" prefix="LED" lnClass="GGIO" lnInst="1" doName="IntIn19" fc="ST" />
+                            <FCDA ldInst="MON" prefix="LED" lnClass="GGIO" lnInst="1" doName="IntIn20" fc="ST" />
+                        </DataSet>
+                        <DataSet name="DeviceStatus" desc="ModHealth">
+                            <FCDA ldInst="MON" lnClass="LLN0" doName="Mod" fc="ST" />
+                            <FCDA ldInst="MON" lnClass="LLN0" doName="Health" fc="ST" />
+                            <FCDA ldInst="MON" prefix="DI" lnClass="GGIO" lnInst="1" doName="Health" fc="ST" />
+                            <FCDA ldInst="MON" prefix="DO" lnClass="GGIO" lnInst="1" doName="Health" fc="ST" />
+                            <FCDA ldInst="MON" prefix="DO" lnClass="GGIO" lnInst="2" doName="Health" fc="ST" />
+                        </DataSet>
+                        <ReportControl name="ReportDS" desc="DeviceStatus" rptID="Events1" datSet="DeviceStatus" confRev="1" intgPd="1000" bufTime="50" buffered="true">
+                            <TrgOps dchg="true" qchg="true" />
+                            <OptFields reasonCode="true" seqNum="true" dataSet="true" configRef="true" timeStamp="true" entryID="true" />
+                            <RptEnabled max="2">
+                                <ClientLN iedName="Client1" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                                <ClientLN iedName="Client2" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                            </RptEnabled>
+                        </ReportControl>
+                        <ReportControl name="ReportINPUT" desc="Command input status" rptID="Events2" datSet="INPUT" confRev="1" intgPd="1000" bufTime="50" buffered="true">
+                            <TrgOps dchg="true" qchg="true" />
+                            <OptFields reasonCode="true" seqNum="true" dataSet="true" configRef="true" timeStamp="true" entryID="true" />
+                            <RptEnabled max="2">
+                                <ClientLN iedName="Client1" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                                <ClientLN iedName="Client2" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                            </RptEnabled>
+                        </ReportControl>
+                        <ReportControl name="ReportTRANSCOM" desc="Command transmitting status" rptID="Events3" datSet="TRANSCOM" confRev="1" intgPd="1000" bufTime="50" buffered="true">
+                            <TrgOps dchg="true" qchg="true" />
+                            <OptFields reasonCode="true" seqNum="true" dataSet="true" configRef="true" timeStamp="true" entryID="true" />
+                            <RptEnabled max="2">
+                                <ClientLN iedName="Client1" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                                <ClientLN iedName="Client2" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                            </RptEnabled>
+                        </ReportControl>
+                        <ReportControl name="ReportRECCOM" desc="Command receiving status" rptID="Events4" datSet="RECCOM" confRev="1" intgPd="1000" bufTime="50" buffered="true">
+                            <TrgOps dchg="true" qchg="true" />
+                            <OptFields reasonCode="true" seqNum="true" dataSet="true" configRef="true" timeStamp="true" entryID="true" />
+                            <RptEnabled max="2">
+                                <ClientLN iedName="Client1" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                                <ClientLN iedName="Client2" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                            </RptEnabled>
+                        </ReportControl>
+                        <ReportControl name="ReportOUTPUT" desc="Command output status" rptID="Events5" datSet="OUTPUT" confRev="1" intgPd="1000" bufTime="50" buffered="true">
+                            <TrgOps dchg="true" qchg="true" />
+                            <OptFields reasonCode="true" seqNum="true" dataSet="true" configRef="true" timeStamp="true" entryID="true" />
+                            <RptEnabled max="2">
+                                <ClientLN iedName="Client1" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                                <ClientLN iedName="Client2" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                            </RptEnabled>
+                        </ReportControl>
+                        <ReportControl name="ReportLED" desc="LED indication status" rptID="Events6" datSet="LED" confRev="1" intgPd="1000" bufTime="50" buffered="true">
+                            <TrgOps dchg="true" qchg="true" />
+                            <OptFields reasonCode="true" seqNum="true" dataSet="true" configRef="true" timeStamp="true" entryID="true" />
+                            <RptEnabled max="2">
+                                <ClientLN iedName="Client1" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                                <ClientLN iedName="Client2" apRef="LD0" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                            </RptEnabled>
+                        </ReportControl>
+                    </LN0>
+                    <LN lnClass="LPHD" inst="1" lnType="LPHD1_#LIB1" />
+                </LDevice>
+                <LDevice desc="Monitoring parameters" inst="MON">
+                    <LN0 lnClass="LLN0" inst="" lnType="LLN0_Kalina_#LIB1" />
+                    <LN lnClass="LPHD" inst="1" lnType="LPHD1_#LIB1" />
+                    <LN prefix="DI" lnClass="GGIO" inst="1" lnType="GGIO0" />
+                    <LN prefix="DO" lnClass="GGIO" inst="1" lnType="GGIO1" />
+                    <LN prefix="DO" lnClass="GGIO" inst="2" lnType="GGIO2_#LIB1" />
+                    <LN prefix="LED" lnClass="GGIO" inst="1" lnType="GGIO4_#LIB1" />
+                    <LN prefix="TX" lnClass="GGIO" inst="1" lnType="GGIO5" />
+                    <LN prefix="RX" lnClass="GGIO" inst="1" lnType="GGIO6" />
+                </LDevice>
+            </Server>
+        </AccessPoint>
+        <AccessPoint name="S2">
+            <ServerAt apName="S1" />
+        </AccessPoint>
+    </IED>
+    <IED name="ORION_SKI" desc="Generic IEC61850 GW IED" type="SKI" manufacturer="KEPM" configVersion="">
+        <Private type="KEPM_GooseSubscription"></Private>
+        <Private type="KEPM_IedResources"><ekepm:InData format="{0}{1:D3}" name="SPS" min="1" max="32" category="Binary" type="COMPOSITE" xmlns:ekepm="http://www.kepm.com/2018/61850"><ekepm:InSubData name="stVal" type="BOOLEAN" /><ekepm:InSubData name="q" type="Quality" /><ekepm:InSubData name="t" type="Timestamp" /></ekepm:InData></Private>
+        <Services nameLength="64">
+            <ClientServices goose="true" />
+            <ConfDataSet max="15" maxAttributes="375" />
+            <DynDataSet max="2" maxAttributes="256" />
+            <ConfReportControl max="18" />
+            <ReportSettings cbName="Conf" datSet="Conf" rptID="Conf" optFields="Conf" bufTime="Dyn" trgOps="Dyn" intgPd="Dyn" />
+            <GSESettings cbName="Conf" datSet="Conf" appID="Conf" dataLabel="Conf" />
+            <GOOSE max="5" />
+            <GSSE max="0" />
+            <DynAssociation />
+            <GetDirectory />
+            <GetDataObjectDefinition />
+            <GetCBValues />
+            <DataObjectDirectory />
+            <GetDataSetValue />
+            <DataSetDirectory />
+            <ReadWrite />
+            <FileHandling />
+        </Services>
+        <AccessPoint name="S1">
+            <Server>
+                <Authentication />
+                <LDevice inst="LD0">
+                    <LN0 lnClass="LLN0" inst="" lnType="LLN0_Kalina_#LIB2">
+                        <DataSet name="INPUT" desc="Physical inputs status">
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind1" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind2" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind3" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind4" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind5" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind6" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind7" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind8" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind9" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind10" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind11" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind12" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind13" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind14" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind15" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DI" lnClass="GGIO" lnInst="1" doName="Ind16" fc="ST" />
+                        </DataSet>
+                        <DataSet name="SETTINGS_BDTx" desc="Configuring modules BDT BDTU">
+                            <FCDA ldInst="LD0" prefix="CI" lnClass="GGIO" lnInst="1" doName="IntIn1" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="CI" lnClass="GGIO" lnInst="2" doName="IntIn1" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="CI" lnClass="GGIO" lnInst="3" doName="IntIn1" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="LCI" lnClass="GGIO" lnInst="1" doName="IntIn1" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="LCI" lnClass="GGIO" lnInst="2" doName="IntIn1" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="LCI" lnClass="GGIO" lnInst="3" doName="IntIn1" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="LCI" lnClass="GGIO" lnInst="4" doName="IntIn1" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="LCI" lnClass="GGIO" lnInst="5" doName="IntIn1" fc="ST" />
+                        </DataSet>
+                        <DataSet name="SETTINGS_BAT1" desc="Configuring BAT1 settings">
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="1" doName="IntIn1" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="1" doName="IntIn2" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="1" doName="IntIn3" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="1" doName="IntIn4" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="1" doName="IntIn5" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="1" doName="IntIn6" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="1" doName="IntIn7" fc="ST" />
+                        </DataSet>
+                        <DataSet name="SETTINGS_BAT2" desc="Configuring BAT2 settings">
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="2" doName="IntIn1" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="2" doName="IntIn2" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="2" doName="IntIn3" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="2" doName="IntIn4" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="2" doName="IntIn5" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="2" doName="IntIn6" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="2" doName="IntIn7" fc="ST" />
+                        </DataSet>
+                        <DataSet name="OUTPUT" desc="Command output status">
+                            <FCDA ldInst="LD0" prefix="DO" lnClass="GGIO" lnInst="1" doName="Ind1" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DO" lnClass="GGIO" lnInst="1" doName="Ind2" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DO" lnClass="GGIO" lnInst="1" doName="Ind3" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DO" lnClass="GGIO" lnInst="1" doName="Ind4" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DO" lnClass="GGIO" lnInst="1" doName="Ind5" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DO" lnClass="GGIO" lnInst="1" doName="Ind6" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DO" lnClass="GGIO" lnInst="2" doName="Ind1" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DO" lnClass="GGIO" lnInst="2" doName="Ind2" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DO" lnClass="GGIO" lnInst="2" doName="Ind3" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DO" lnClass="GGIO" lnInst="2" doName="Ind4" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DO" lnClass="GGIO" lnInst="2" doName="Ind5" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="DO" lnClass="GGIO" lnInst="2" doName="Ind6" fc="ST" />
+                        </DataSet>
+                        <DataSet name="DeviceStatus" desc="ModHealthLocRem">
+                            <FCDA ldInst="LD0" lnClass="LLN0" doName="Mod" daName="stVal" fc="ST" />
+                            <FCDA ldInst="LD0" lnClass="LLN0" doName="Health" daName="stVal" fc="ST" />
+                        </DataSet>
+                        <DataSet name="MEAS_BDTx" desc="Measurement UI">
+                            <FCDA ldInst="LD0" prefix="CI" lnClass="GGIO" lnInst="1" doName="AnIn1" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="CI" lnClass="GGIO" lnInst="1" doName="AnIn2" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="CI" lnClass="GGIO" lnInst="2" doName="AnIn1" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="CI" lnClass="GGIO" lnInst="2" doName="AnIn2" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="CI" lnClass="GGIO" lnInst="3" doName="AnIn1" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="CI" lnClass="GGIO" lnInst="3" doName="AnIn2" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="LCI" lnClass="GGIO" lnInst="1" doName="AnIn1" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="LCI" lnClass="GGIO" lnInst="1" doName="AnIn2" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="LCI" lnClass="GGIO" lnInst="1" doName="AnIn3" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="LCI" lnClass="GGIO" lnInst="2" doName="AnIn1" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="LCI" lnClass="GGIO" lnInst="2" doName="AnIn2" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="LCI" lnClass="GGIO" lnInst="2" doName="AnIn3" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="LCI" lnClass="GGIO" lnInst="3" doName="AnIn1" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="LCI" lnClass="GGIO" lnInst="3" doName="AnIn2" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="LCI" lnClass="GGIO" lnInst="3" doName="AnIn3" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="LCI" lnClass="GGIO" lnInst="4" doName="AnIn1" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="LCI" lnClass="GGIO" lnInst="4" doName="AnIn2" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="LCI" lnClass="GGIO" lnInst="4" doName="AnIn3" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="LCI" lnClass="GGIO" lnInst="5" doName="AnIn1" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="LCI" lnClass="GGIO" lnInst="5" doName="AnIn2" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="LCI" lnClass="GGIO" lnInst="5" doName="AnIn3" fc="MX" />
+                        </DataSet>
+                        <DataSet name="MEAS_BAT1" desc="Measurement battery 1">
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="1" doName="AnIn1" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="1" doName="AnIn2" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="1" doName="AnIn3" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="1" doName="AnIn4" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="1" doName="AnIn5" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="1" doName="AnIn6" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="ZBTC" lnClass="GGIO" lnInst="1" doName="AnIn1" fc="MX" />
+                        </DataSet>
+                        <DataSet name="MEAS_BAT2" desc="Measurement battery 2">
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="2" doName="AnIn1" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="2" doName="AnIn2" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="2" doName="AnIn3" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="2" doName="AnIn4" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="2" doName="AnIn5" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="2" doName="AnIn6" fc="MX" />
+                            <FCDA ldInst="LD0" prefix="ZBTC" lnClass="GGIO" lnInst="2" doName="AnIn1" fc="MX" />
+                        </DataSet>
+                        <DataSet name="IND_BAT1" desc="Signal indications">
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="1" doName="Ind1" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="1" doName="Ind2" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="1" doName="Ind3" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="1" doName="Ind4" fc="ST" />
+                            <FCDA ldInst="LD0" prefix="ZBAT" lnClass="GGIO" lnInst="1" doName="Ind5" fc="ST" />
+                        </DataSet>
+                        <ReportControl name="ReportDS" desc="DeviceStatus" rptID="Events1" datSet="DeviceStatus" confRev="1" intgPd="1000" bufTime="50" buffered="true">
+                            <TrgOps dchg="true" qchg="true" />
+                            <OptFields reasonCode="true" seqNum="true" dataSet="true" configRef="true" timeStamp="true" entryID="true" />
+                            <RptEnabled max="2">
+                                <ClientLN iedName="Client1" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                                <ClientLN iedName="Client2" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                            </RptEnabled>
+                        </ReportControl>
+                        <ReportControl name="ReportINPUT" desc="Command input status" rptID="Events2" datSet="INPUT" confRev="1" intgPd="1000" bufTime="50" buffered="true">
+                            <TrgOps dchg="true" qchg="true" />
+                            <OptFields reasonCode="true" seqNum="true" dataSet="true" configRef="true" timeStamp="true" entryID="true" />
+                            <RptEnabled max="2">
+                                <ClientLN iedName="Client1" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                                <ClientLN iedName="Client2" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                            </RptEnabled>
+                        </ReportControl>
+                        <ReportControl name="ReportOUTPUT" desc="Command output status" rptID="Events3" datSet="OUTPUT" confRev="1" intgPd="1000" bufTime="50" buffered="true">
+                            <TrgOps dchg="true" qchg="true" />
+                            <OptFields reasonCode="true" seqNum="true" dataSet="true" configRef="true" timeStamp="true" entryID="true" />
+                            <RptEnabled max="2">
+                                <ClientLN iedName="Client1" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                                <ClientLN iedName="Client2" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                            </RptEnabled>
+                        </ReportControl>
+                        <ReportControl name="ReportSETTINGS_BDTx" desc="Сonfiguring modules" rptID="Events4" datSet="SETTINGS_BDTx" confRev="1" intgPd="1000" bufTime="50" buffered="true">
+                            <TrgOps dchg="true" qchg="true" />
+                            <OptFields reasonCode="true" seqNum="true" dataSet="true" configRef="true" timeStamp="true" entryID="true" />
+                            <RptEnabled max="2">
+                                <ClientLN iedName="Client1" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                                <ClientLN iedName="Client2" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                            </RptEnabled>
+                        </ReportControl>
+                        <ReportControl name="ReportSETTINGS_BAT1" desc="Report Settings BAT1" rptID="Events5" datSet="SETTINGS_BAT1" confRev="1" intgPd="1000" bufTime="50" buffered="true">
+                            <TrgOps dchg="true" qchg="true" />
+                            <OptFields reasonCode="true" seqNum="true" dataSet="true" configRef="true" timeStamp="true" entryID="true" />
+                            <RptEnabled max="2">
+                                <ClientLN iedName="Client1" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                                <ClientLN iedName="Client2" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                            </RptEnabled>
+                        </ReportControl>
+                        <ReportControl name="ReportSETTINGS_BAT2" desc="Report Settings BAT2" rptID="Events6" datSet="SETTINGS_BAT2" confRev="1" intgPd="1000" bufTime="50" buffered="true">
+                            <TrgOps dchg="true" qchg="true" />
+                            <OptFields reasonCode="true" seqNum="true" dataSet="true" configRef="true" timeStamp="true" entryID="true" />
+                            <RptEnabled max="2">
+                                <ClientLN iedName="Client1" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                                <ClientLN iedName="Client2" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                            </RptEnabled>
+                        </ReportControl>
+                        <ReportControl name="ReportMeas_BDTx" desc="Report Measurement BDT BDTU" rptID="Events7" datSet="MEAS_BDTx" confRev="1" intgPd="1000" bufTime="50" buffered="true">
+                            <TrgOps dchg="true" qchg="true" />
+                            <OptFields reasonCode="true" seqNum="true" dataSet="true" configRef="true" timeStamp="true" entryID="true" />
+                            <RptEnabled max="2">
+                                <ClientLN iedName="Client1" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                                <ClientLN iedName="Client2" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                            </RptEnabled>
+                        </ReportControl>
+                        <ReportControl name="ReportMeas_BAT1" desc="Report Measurement BAT1" rptID="Events8" datSet="MEAS_BAT1" confRev="1" intgPd="1000" bufTime="50" buffered="true">
+                            <TrgOps dchg="true" qchg="true" />
+                            <OptFields reasonCode="true" seqNum="true" dataSet="true" configRef="true" timeStamp="true" entryID="true" />
+                            <RptEnabled max="2">
+                                <ClientLN iedName="Client1" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                                <ClientLN iedName="Client2" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                            </RptEnabled>
+                        </ReportControl>
+                        <ReportControl name="ReportMeas_BAT2" desc="Report Measurement BAT2" rptID="Events9" datSet="MEAS_BAT2" confRev="1" intgPd="1000" bufTime="50" buffered="true">
+                            <TrgOps dchg="true" qchg="true" />
+                            <OptFields reasonCode="true" seqNum="true" dataSet="true" configRef="true" timeStamp="true" entryID="true" />
+                            <RptEnabled max="2">
+                                <ClientLN iedName="Client1" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                                <ClientLN iedName="Client2" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                            </RptEnabled>
+                        </ReportControl>
+                        <ReportControl name="ReportIND_BAT1" desc="Report signal indication BAT1" rptID="Events10" datSet="IND_BAT1" confRev="1" intgPd="1000" bufTime="50" buffered="true">
+                            <TrgOps dchg="true" qchg="true" />
+                            <OptFields reasonCode="true" seqNum="true" dataSet="true" configRef="true" timeStamp="true" entryID="true" />
+                            <RptEnabled max="2">
+                                <ClientLN iedName="Client1" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                                <ClientLN iedName="Client2" ldInst="LD0" lnClass="IHMI" lnInst="1" />
+                            </RptEnabled>
+                        </ReportControl>
+                    </LN0>
+                    <LN lnClass="LPHD" inst="1" lnType="LPHD1_#LIB2" />
+                    <LN prefix="ICS" lnClass="GGIO" inst="1" lnType="GGIO0_#LIB1" />
+                    <LN prefix="DI" lnClass="GGIO" inst="1" lnType="GGIO1_#LIB1" />
+                    <LN prefix="ZBAT" lnClass="GGIO" inst="1" lnType="GGIO2_#LIB2">
+                        <DOI name="AnIn1">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                        <DOI name="AnIn2">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                        <DOI name="AnIn3">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                        <DOI name="AnIn4">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                        <DOI name="AnIn5">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                        <DOI name="AnIn6">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                    </LN>
+                    <LN prefix="ZBAT" lnClass="GGIO" inst="2" lnType="GGIO2_#LIB2">
+                        <DOI name="AnIn1">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                        <DOI name="AnIn2">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                        <DOI name="AnIn3">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                        <DOI name="AnIn4">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                        <DOI name="AnIn5">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                        <DOI name="AnIn6">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                    </LN>
+                    <LN prefix="DO" lnClass="GGIO" inst="1" lnType="GGIO3_#LIB1" />
+                    <LN prefix="DO" lnClass="GGIO" inst="2" lnType="GGIO3_#LIB1" />
+                    <LN prefix="ZBTC" lnClass="GGIO" inst="1" lnType="GGIO4_#LIB2">
+                        <DOI name="AnIn1">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                    </LN>
+                    <LN prefix="ZBTC" lnClass="GGIO" inst="2" lnType="GGIO4_#LIB2">
+                        <DOI name="AnIn1">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                    </LN>
+                    <LN prefix="CI" lnClass="GGIO" inst="1" lnType="GGIO5_#LIB1">
+                        <DOI name="AnIn1">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                        <DOI name="AnIn2">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                    </LN>
+                    <LN prefix="CI" lnClass="GGIO" inst="2" lnType="GGIO5_#LIB1">
+                        <DOI name="AnIn1">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                        <DOI name="AnIn2">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                    </LN>
+                    <LN prefix="CI" lnClass="GGIO" inst="3" lnType="GGIO5_#LIB1">
+                        <DOI name="AnIn1">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                        <DOI name="AnIn2">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                    </LN>
+                    <LN prefix="LCI" lnClass="GGIO" inst="1" lnType="GGIO6_#LIB1">
+                        <DOI name="AnIn1">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                        <DOI name="AnIn2">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                        <DOI name="AnIn3">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                    </LN>
+                    <LN prefix="LCI" lnClass="GGIO" inst="2" lnType="GGIO6_#LIB1">
+                        <DOI name="AnIn1">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                        <DOI name="AnIn2">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                        <DOI name="AnIn3">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                    </LN>
+                    <LN prefix="LCI" lnClass="GGIO" inst="3" lnType="GGIO6_#LIB1">
+                        <DOI name="AnIn1">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                        <DOI name="AnIn2">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                        <DOI name="AnIn3">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                    </LN>
+                    <LN prefix="LCI" lnClass="GGIO" inst="4" lnType="GGIO6_#LIB1">
+                        <DOI name="AnIn1">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                        <DOI name="AnIn2">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                        <DOI name="AnIn3">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                    </LN>
+                    <LN prefix="LCI" lnClass="GGIO" inst="5" lnType="GGIO6_#LIB1">
+                        <DOI name="AnIn1">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                        <DOI name="AnIn2">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                        <DOI name="AnIn3">
+                            <SDI name="rangeC">
+                                <SDI name="max">
+                                    <DAI name="f">
+                                        <Val>20000</Val>
+                                    </DAI>
+                                </SDI>
+                            </SDI>
+                        </DOI>
+                    </LN>
+                </LDevice>
+            </Server>
+        </AccessPoint>
+    </IED>
+    <DataTypeTemplates>
+        <LNodeType id="ABBOPCServer_ReportClientLN_IHMI" lnClass="IHMI">
+            <DO name="Mod" type="ABBOPCServer_INC" />
+            <DO name="Beh" type="ABBOPCServer_INS" />
+            <DO name="Health" type="ABBOPCServer_INSHealth" />
+            <DO name="NamPlt" type="ABBOPCServer_LPL" />
+        </LNodeType>
+        <LNodeType id="LLN0_Kalina" lnClass="LLN0">
+            <DO name="Mod" type="modENC_Kalina" />
+            <DO name="Beh" type="ENS_behaviour_Kalina" />
+            <DO name="Health" type="ENS_health_Kalina" />
+            <DO name="NamPlt" type="LPL_LN0_Kalina" />
+            <DO name="LocKey" type="SPS_1_Proxy" />
+            <DO name="LEDRs" type="SPC_1_SPCSO1" />
+        </LNodeType>
+        <LNodeType id="LPHD1" lnClass="LPHD">
+            <DO name="PhyNam" type="DPL_1_PhyNam" />
+            <DO name="PhyHealth" type="ENS_health_Kalina" />
+            <DO name="Proxy" type="SPS_1_Proxy" />
+            <DO name="Sim" type="SPS_1_Proxy" />
+            <DO name="GooseON" type="SPS_1_Proxy" />
+        </LNodeType>
+        <LNodeType id="GGIO2" lnClass="GGIO">
+            <DO name="Mod" type="SPS_1_Proxy" />
+            <DO name="Beh" type="ENS_behaviour_Kalina" />
+            <DO name="Health" type="ENS_health_Kalina" />
+            <DO name="Ind1" type="SPS_1_Proxy" />
+            <DO name="Ind2" type="SPS_1_Proxy" />
+            <DO name="Ind3" type="SPS_1_Proxy" />
+            <DO name="Ind4" type="SPS_1_Proxy" />
+            <DO name="Ind5" type="SPS_1_Proxy" />
+            <DO name="Ind6" type="SPS_1_Proxy" />
+            <DO name="Ind7" type="SPS_1_Proxy" />
+            <DO name="Ind8" type="SPS_1_Proxy" />
+            <DO name="SPCSO1" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO2" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO3" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO4" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO5" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO6" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO7" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO8" type="SPC_1_SPCSO1" />
+        </LNodeType>
+        <LNodeType id="GGIO4" lnClass="GGIO">
+            <DO name="Mod" type="SPS_1_Proxy" />
+            <DO name="Beh" type="ENS_behaviour_Kalina" />
+            <DO name="SPCSO1" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO2" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO3" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO4" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO5" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO6" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO7" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO8" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO9" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO10" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO11" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO12" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO13" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO14" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO15" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO16" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO17" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO18" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO19" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO20" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO21" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO22" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO23" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO24" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO25" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO26" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO27" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO28" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO29" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO30" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO31" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO32" type="SPC_1_SPCSO1" />
+            <DO name="Ind1" type="SPS_1_Proxy" />
+            <DO name="Ind2" type="SPS_1_Proxy" />
+            <DO name="Ind3" type="SPS_1_Proxy" />
+            <DO name="Ind4" type="SPS_1_Proxy" />
+            <DO name="Ind5" type="SPS_1_Proxy" />
+            <DO name="Ind6" type="SPS_1_Proxy" />
+            <DO name="Ind7" type="SPS_1_Proxy" />
+            <DO name="Ind8" type="SPS_1_Proxy" />
+            <DO name="Ind9" type="SPS_1_Proxy" />
+            <DO name="Ind10" type="SPS_1_Proxy" />
+            <DO name="Ind11" type="SPS_1_Proxy" />
+            <DO name="Ind12" type="SPS_1_Proxy" />
+            <DO name="Ind13" type="SPS_1_Proxy" />
+            <DO name="Ind14" type="SPS_1_Proxy" />
+            <DO name="Ind15" type="SPS_1_Proxy" />
+            <DO name="Ind16" type="SPS_1_Proxy" />
+            <DO name="Ind17" type="SPS_1_Proxy" />
+            <DO name="Ind18" type="SPS_1_Proxy" />
+            <DO name="Ind19" type="SPS_1_Proxy" />
+            <DO name="Ind20" type="SPS_1_Proxy" />
+            <DO name="Ind21" type="SPS_1_Proxy" />
+            <DO name="Ind22" type="SPS_1_Proxy" />
+            <DO name="Ind23" type="SPS_1_Proxy" />
+            <DO name="Ind24" type="SPS_1_Proxy" />
+            <DO name="Ind25" type="SPS_1_Proxy" />
+            <DO name="Ind26" type="SPS_1_Proxy" />
+            <DO name="Ind27" type="SPS_1_Proxy" />
+            <DO name="Ind28" type="SPS_1_Proxy" />
+            <DO name="Ind29" type="SPS_1_Proxy" />
+            <DO name="Ind30" type="SPS_1_Proxy" />
+            <DO name="Ind31" type="SPS_1_Proxy" />
+            <DO name="Ind32" type="SPS_1_Proxy" />
+        </LNodeType>
+        <LNodeType id="GGIO3" lnClass="GGIO">
+            <DO name="Mod" type="SPS_1_Proxy" />
+            <DO name="Beh" type="ENS_behaviour_Kalina" />
+            <DO name="AnIn1" desc="Power" type="MV_1_AnIn1" />
+            <DO name="AnIn2" desc="Voltage" type="MV_1_AnIn1" />
+            <DO name="AnIn3" desc="Current" type="MV_1_AnIn1" />
+            <DO name="Ind33" desc="Trip" type="SPS_1_Proxy" />
+            <DO name="IntIn1" type="INS_Kalina" />
+            <DO name="IntIn2" type="INS_Kalina" />
+            <DO name="SPCSO1" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO2" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO3" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO4" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO5" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO6" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO7" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO8" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO9" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO10" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO11" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO12" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO13" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO14" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO15" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO16" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO17" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO18" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO19" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO20" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO21" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO22" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO23" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO24" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO25" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO26" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO27" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO28" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO29" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO30" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO31" type="SPC_1_SPCSO1" />
+            <DO name="SPCSO32" type="SPC_1_SPCSO1" />
+            <DO name="Ind1" type="SPS_1_Proxy" />
+            <DO name="Ind2" type="SPS_1_Proxy" />
+            <DO name="Ind3" type="SPS_1_Proxy" />
+            <DO name="Ind4" type="SPS_1_Proxy" />
+            <DO name="Ind5" type="SPS_1_Proxy" />
+            <DO name="Ind6" type="SPS_1_Proxy" />
+            <DO name="Ind7" type="SPS_1_Proxy" />
+            <DO name="Ind8" type="SPS_1_Proxy" />
+            <DO name="Ind9" type="SPS_1_Proxy" />
+            <DO name="Ind10" type="SPS_1_Proxy" />
+            <DO name="Ind11" type="SPS_1_Proxy" />
+            <DO name="Ind12" type="SPS_1_Proxy" />
+            <DO name="Ind13" type="SPS_1_Proxy" />
+            <DO name="Ind14" type="SPS_1_Proxy" />
+            <DO name="Ind15" type="SPS_1_Proxy" />
+            <DO name="Ind16" type="SPS_1_Proxy" />
+            <DO name="Ind17" type="SPS_1_Proxy" />
+            <DO name="Ind18" type="SPS_1_Proxy" />
+            <DO name="Ind19" type="SPS_1_Proxy" />
+            <DO name="Ind20" type="SPS_1_Proxy" />
+            <DO name="Ind21" type="SPS_1_Proxy" />
+            <DO name="Ind22" type="SPS_1_Proxy" />
+            <DO name="Ind23" type="SPS_1_Proxy" />
+            <DO name="Ind24" type="SPS_1_Proxy" />
+            <DO name="Ind25" type="SPS_1_Proxy" />
+            <DO name="Ind26" type="SPS_1_Proxy" />
+            <DO name="Ind27" type="SPS_1_Proxy" />
+            <DO name="Ind28" type="SPS_1_Proxy" />
+            <DO name="Ind29" type="SPS_1_Proxy" />
+            <DO name="Ind30" type="SPS_1_Proxy" />
+            <DO name="Ind31" type="SPS_1_Proxy" />
+            <DO name="Ind32" type="SPS_1_Proxy" />
+        </LNodeType>
+        <LNodeType id="LLN0_Kalina_#LIB1" lnClass="LLN0">
+            <DO name="Mod" type="modENC_Kalina_#LIB1" />
+            <DO name="Beh" type="ENS_behaviour_Kalina" />
+            <DO name="Health" type="ENS_health_Kalina" />
+            <DO name="NamPlt" type="LPL_LN0_Kalina_#LIB1" />
+        </LNodeType>
+        <LNodeType id="LPHD1_#LIB1" lnClass="LPHD">
+            <DO name="PhyNam" type="DPL_1_PhyNam_#LIB1" />
+            <DO name="PhyHealth" type="ENS_health_Kalina" />
+            <DO name="Proxy" type="SPS_1_Proxy" />
+        </LNodeType>
+        <LNodeType id="GGIO0" lnClass="GGIO">
+            <DO name="Mod" type="modENC_Kalina_#LIB1" />
+            <DO name="Beh" type="ENS_behaviour_Kalina" />
+            <DO name="Health" type="ENS_health_Kalina" />
+            <DO name="Ind1" type="SPS_1_Proxy" />
+            <DO name="Ind2" type="SPS_1_Proxy" />
+            <DO name="Ind3" type="SPS_1_Proxy" />
+            <DO name="Ind4" type="SPS_1_Proxy" />
+            <DO name="Ind5" type="SPS_1_Proxy" />
+            <DO name="Ind6" type="SPS_1_Proxy" />
+            <DO name="Ind7" type="SPS_1_Proxy" />
+            <DO name="Ind8" type="SPS_1_Proxy" />
+        </LNodeType>
+        <LNodeType id="GGIO1" lnClass="GGIO">
+            <DO name="Mod" type="modENC_Kalina_#LIB1" />
+            <DO name="Beh" type="ENS_behaviour_Kalina" />
+            <DO name="Health" type="ENS_health_Kalina" />
+            <DO name="Ind1" type="SPS_1_Proxy" />
+            <DO name="Ind2" type="SPS_1_Proxy" />
+            <DO name="Ind3" type="SPS_1_Proxy" />
+            <DO name="Ind4" type="SPS_1_Proxy" />
+            <DO name="Ind5" type="SPS_1_Proxy" />
+            <DO name="Ind6" type="SPS_1_Proxy" />
+            <DO name="Ind7" type="SPS_1_Proxy" />
+            <DO name="Ind8" type="SPS_1_Proxy" />
+        </LNodeType>
+        <LNodeType id="GGIO2_#LIB1" lnClass="GGIO">
+            <DO name="Mod" type="modENC_Kalina_#LIB1" />
+            <DO name="Beh" type="ENS_behaviour_Kalina" />
+            <DO name="Health" type="ENS_health_Kalina" />
+            <DO name="Ind9" type="SPS_1_Proxy" />
+            <DO name="Ind10" type="SPS_1_Proxy" />
+            <DO name="Ind11" type="SPS_1_Proxy" />
+            <DO name="Ind12" type="SPS_1_Proxy" />
+            <DO name="Ind13" type="SPS_1_Proxy" />
+            <DO name="Ind14" type="SPS_1_Proxy" />
+            <DO name="Ind15" type="SPS_1_Proxy" />
+            <DO name="Ind16" type="SPS_1_Proxy" />
+        </LNodeType>
+        <LNodeType id="GGIO4_#LIB1" lnClass="GGIO">
+            <DO name="Mod" type="modENC_Kalina_#LIB1" />
+            <DO name="Beh" type="ENS_behaviour_Kalina" />
+            <DO name="IntIn1" type="INS_Kalina" />
+            <DO name="IntIn2" type="INS_Kalina" />
+            <DO name="IntIn3" type="INS_Kalina" />
+            <DO name="IntIn4" type="INS_Kalina" />
+            <DO name="IntIn5" type="INS_Kalina" />
+            <DO name="IntIn6" type="INS_Kalina" />
+            <DO name="IntIn7" type="INS_Kalina" />
+            <DO name="IntIn8" type="INS_Kalina" />
+            <DO name="IntIn9" type="INS_Kalina" />
+            <DO name="IntIn10" type="INS_Kalina" />
+            <DO name="IntIn11" type="INS_Kalina" />
+            <DO name="IntIn12" type="INS_Kalina" />
+            <DO name="IntIn13" type="INS_Kalina" />
+            <DO name="IntIn14" type="INS_Kalina" />
+            <DO name="IntIn15" type="INS_Kalina" />
+            <DO name="IntIn16" type="INS_Kalina" />
+            <DO name="IntIn17" type="INS_Kalina" />
+            <DO name="IntIn18" type="INS_Kalina" />
+            <DO name="IntIn19" type="INS_Kalina" />
+            <DO name="IntIn20" type="INS_Kalina" />
+        </LNodeType>
+        <LNodeType id="GGIO5" lnClass="GGIO">
+            <DO name="Mod" type="modENC_Kalina_#LIB1" />
+            <DO name="Beh" type="ENS_behaviour_Kalina" />
+            <DO name="Ind1" type="SPS_1_Proxy" />
+            <DO name="Ind2" type="SPS_1_Proxy" />
+            <DO name="Ind3" type="SPS_1_Proxy" />
+            <DO name="Ind4" type="SPS_1_Proxy" />
+        </LNodeType>
+        <LNodeType id="GGIO6" lnClass="GGIO">
+            <DO name="Mod" type="modENC_Kalina_#LIB1" />
+            <DO name="Beh" type="ENS_behaviour_Kalina" />
+            <DO name="Ind1" type="SPS_1_Proxy" />
+            <DO name="Ind2" type="SPS_1_Proxy" />
+            <DO name="Ind3" type="SPS_1_Proxy" />
+            <DO name="Ind4" type="SPS_1_Proxy" />
+            <DO name="Ind5" type="SPS_1_Proxy" />
+            <DO name="Ind6" type="SPS_1_Proxy" />
+            <DO name="Ind7" type="SPS_1_Proxy" />
+            <DO name="Ind8" type="SPS_1_Proxy" />
+            <DO name="Ind9" type="SPS_1_Proxy" />
+            <DO name="Ind10" type="SPS_1_Proxy" />
+            <DO name="Ind11" type="SPS_1_Proxy" />
+            <DO name="Ind12" type="SPS_1_Proxy" />
+        </LNodeType>
+        <LNodeType id="LLN0_Kalina_#LIB2" lnClass="LLN0">
+            <DO name="Mod" type="modENC_Kalina_#LIB2" />
+            <DO name="Beh" type="ENS_behaviour_Kalina" />
+            <DO name="Health" type="ENS_health_Kalina" />
+            <DO name="NamPlt" type="LPL_LN0_Kalina_#LIB2" />
+        </LNodeType>
+        <LNodeType id="LPHD1_#LIB2" lnClass="LPHD">
+            <DO name="PhyNam" type="DPL_1_PhyNam_#LIB2" />
+            <DO name="PhyHealth" type="ENS_health_Kalina" />
+            <DO name="Proxy" type="SPS_1_Proxy" />
+        </LNodeType>
+        <LNodeType id="GGIO0_#LIB1" lnClass="GGIO">
+            <DO name="Mod" type="modENC_Kalina_without_control" />
+            <DO name="Beh" type="ENS_behaviour_Kalina" />
+            <DO name="Ind1" type="SPS_1_Proxy" />
+            <DO name="Ind2" type="SPS_1_Proxy" />
+            <DO name="Ind3" type="SPS_1_Proxy" />
+        </LNodeType>
+        <LNodeType id="GGIO1_#LIB1" lnClass="GGIO">
+            <DO name="Mod" type="modENC_Kalina_without_control" />
+            <DO name="Beh" type="ENS_behaviour_Kalina" />
+            <DO name="Health" type="ENS_health_Kalina" />
+            <DO name="Ind1" type="SPS_1_Proxy" />
+            <DO name="Ind2" type="SPS_1_Proxy" />
+            <DO name="Ind3" type="SPS_1_Proxy" />
+            <DO name="Ind4" type="SPS_1_Proxy" />
+            <DO name="Ind5" type="SPS_1_Proxy" />
+            <DO name="Ind6" type="SPS_1_Proxy" />
+            <DO name="Ind7" type="SPS_1_Proxy" />
+            <DO name="Ind8" type="SPS_1_Proxy" />
+            <DO name="Ind9" type="SPS_1_Proxy" />
+            <DO name="Ind10" type="SPS_1_Proxy" />
+            <DO name="Ind11" type="SPS_1_Proxy" />
+            <DO name="Ind12" type="SPS_1_Proxy" />
+            <DO name="Ind13" type="SPS_1_Proxy" />
+            <DO name="Ind14" type="SPS_1_Proxy" />
+            <DO name="Ind15" type="SPS_1_Proxy" />
+            <DO name="Ind16" type="SPS_1_Proxy" />
+        </LNodeType>
+        <LNodeType id="GGIO2_#LIB2" lnClass="GGIO">
+            <DO name="Mod" type="modENC_Kalina_without_control" />
+            <DO name="Beh" type="ENS_behaviour_Kalina" />
+            <DO name="IntIn1" type="INS_Kalina" />
+            <DO name="IntIn2" type="INS_Kalina" />
+            <DO name="IntIn3" type="INS_Kalina" />
+            <DO name="IntIn4" type="INS_Kalina" />
+            <DO name="IntIn5" type="INS_Kalina" />
+            <DO name="IntIn6" type="INS_Kalina" />
+            <DO name="IntIn7" type="INS_Kalina" />
+            <DO name="Ind1" type="SPS_1_Proxy" />
+            <DO name="Ind2" type="SPS_1_Proxy" />
+            <DO name="Ind3" type="SPS_1_Proxy" />
+            <DO name="Ind4" type="SPS_1_Proxy" />
+            <DO name="Ind5" type="SPS_1_Proxy" />
+            <DO name="AnIn1" desc="Resistance" type="MV_1_AnIn1" />
+            <DO name="AnIn2" desc="Voltage" type="MV_1_AnIn1" />
+            <DO name="AnIn3" desc="Ripples" type="MV_1_AnIn1" />
+            <DO name="AnIn4" desc="Charge current" type="MV_1_AnIn1" />
+            <DO name="AnIn5" desc="Voltage asymmetry" type="MV_1_AnIn1" />
+            <DO name="AnIn6" desc="Tail element voltage" type="MV_1_AnIn1" />
+        </LNodeType>
+        <LNodeType id="GGIO3_#LIB1" lnClass="GGIO">
+            <DO name="Mod" type="modENC_Kalina_without_control" />
+            <DO name="Beh" type="ENS_behaviour_Kalina" />
+            <DO name="Health" type="ENS_health_Kalina" />
+            <DO name="Ind1" type="SPS_1_Proxy" />
+            <DO name="Ind2" type="SPS_1_Proxy" />
+            <DO name="Ind3" type="SPS_1_Proxy" />
+            <DO name="Ind4" type="SPS_1_Proxy" />
+            <DO name="Ind5" type="SPS_1_Proxy" />
+            <DO name="Ind6" type="SPS_1_Proxy" />
+        </LNodeType>
+        <LNodeType id="GGIO4_#LIB2" lnClass="GGIO">
+            <DO name="Mod" type="modENC_Kalina_without_control" />
+            <DO name="Beh" type="ENS_behaviour_Kalina" />
+            <DO name="AnIn1" desc="Charger Current" type="MV_1_AnIn1" />
+        </LNodeType>
+        <LNodeType id="GGIO5_#LIB1" lnClass="GGIO">
+            <DO name="Mod" type="modENC_Kalina_without_control" />
+            <DO name="Beh" type="ENS_behaviour_Kalina" />
+            <DO name="Health" type="ENS_health_Kalina" />
+            <DO name="AnIn1" desc="Voltage" type="MV_1_AnIn1" />
+            <DO name="AnIn2" desc="Current" type="MV_1_AnIn1" />
+            <DO name="IntIn1" type="INS_Kalina" />
+        </LNodeType>
+        <LNodeType id="GGIO6_#LIB1" lnClass="GGIO">
+            <DO name="Mod" type="modENC_Kalina_without_control" />
+            <DO name="Beh" type="ENS_behaviour_Kalina" />
+            <DO name="Health" type="ENS_health_Kalina" />
+            <DO name="AnIn1" desc="Voltage" type="MV_1_AnIn1" />
+            <DO name="AnIn2" desc="Current" type="MV_1_AnIn1" />
+            <DO name="AnIn3" desc="Resistance" type="MV_1_AnIn1" />
+            <DO name="IntIn1" type="INS_Kalina" />
+        </LNodeType>
+        <DOType id="ABBOPCServer_INC" cdc="INC">
+            <DA name="Oper" bType="Struct" type="ABBOPCServer_Oper_INC_INT32" fc="CO" />
+            <DA name="stVal" bType="INT32" fc="ST" dchg="true" />
+            <DA name="q" bType="Quality" valKind="RO" fc="ST" qchg="true" />
+            <DA name="t" bType="Timestamp" valKind="RO" fc="ST" />
+            <DA name="ctlModel" bType="Enum" valKind="RO" type="ABBOPCServer_ctlModel" fc="CF">
+                <Val>direct-with-normal-security</Val>
+            </DA>
+            <DA name="d" bType="VisString255" fc="DC" />
+        </DOType>
+        <DOType id="ABBOPCServer_INS" cdc="INS">
+            <DA name="stVal" bType="INT32" valKind="RO" fc="ST" dchg="true" />
+            <DA name="q" bType="Quality" valKind="RO" fc="ST" qchg="true" />
+            <DA name="t" bType="Timestamp" valKind="RO" fc="ST" />
+            <DA name="d" bType="VisString255" fc="DC" />
+        </DOType>
+        <DOType id="ABBOPCServer_INSHealth" cdc="INS">
+            <DA name="stVal" bType="Enum" valKind="RO" type="ABBOPCServer_Health" fc="ST" dchg="true" />
+            <DA name="q" bType="Quality" valKind="RO" fc="ST" qchg="true" />
+            <DA name="t" bType="Timestamp" valKind="RO" fc="ST" />
+            <DA name="d" bType="VisString255" fc="DC" />
+        </DOType>
+        <DOType id="ABBOPCServer_LPL" cdc="LPL">
+            <DA name="vendor" bType="VisString255" valKind="RO" fc="DC" />
+            <DA name="swRev" bType="VisString255" valKind="RO" fc="DC" />
+            <DA name="d" bType="VisString255" fc="DC" />
+        </DOType>
+        <DOType id="modENC_Kalina" cdc="ENC">
+            <DA name="Oper" bType="Struct" type="tcOper_Mod_OnTestBlock" fc="CO" />
+            <DA name="stVal" bType="Enum" type="OnTestBlockOff" fc="ST" dchg="true" />
+            <DA name="q" bType="Quality" fc="ST" qchg="true" />
+            <DA name="t" bType="Timestamp" fc="ST" />
+            <DA name="ctlModel" bType="Enum" valKind="RO" type="StatusDirect" fc="CF">
+                <Val>direct-with-normal-security</Val>
+            </DA>
+            <DA name="d" bType="VisString255" fc="DC" />
+        </DOType>
+        <DOType id="ENS_behaviour_Kalina" cdc="ENS">
+            <DA name="stVal" bType="Enum" type="Beh" fc="ST" dchg="true" />
+            <DA name="q" bType="Quality" fc="ST" qchg="true" />
+            <DA name="t" bType="Timestamp" fc="ST" />
+            <DA name="d" bType="VisString255" fc="DC" />
+        </DOType>
+        <DOType id="ENS_health_Kalina" cdc="ENS">
+            <DA name="stVal" bType="Enum" type="Health" fc="ST" dchg="true" />
+            <DA name="q" bType="Quality" fc="ST" qchg="true" />
+            <DA name="t" bType="Timestamp" fc="ST" />
+            <DA name="d" bType="VisString255" fc="DC" />
+        </DOType>
+        <DOType id="LPL_LN0_Kalina" cdc="LPL">
+            <DA name="vendor" bType="VisString255" fc="DC">
+                <Val>PGS ENERGY Ltd.</Val>
+            </DA>
+            <DA name="swRev" bType="VisString255" fc="DC">
+                <Val>august 2022</Val>
+            </DA>
+            <DA name="d" bType="VisString255" fc="DC" />
+            <DA name="configRev" bType="VisString255" fc="DC">
+                <Val>1</Val>
+            </DA>
+            <DA name="ldNs" bType="VisString255" fc="EX">
+                <Val>IEC 61850-7-4:2010</Val>
+            </DA>
+        </DOType>
+        <DOType id="SPS_1_Proxy" cdc="SPS">
+            <DA name="stVal" bType="BOOLEAN" fc="ST" dchg="true" />
+            <DA name="q" bType="Quality" fc="ST" qchg="true" />
+            <DA name="t" bType="Timestamp" fc="ST" />
+            <DA name="d" bType="VisString255" fc="DC" />
+        </DOType>
+        <DOType id="SPC_1_SPCSO1" cdc="SPC">
+            <DA name="Oper" bType="Struct" type="Indperate_1" fc="CO" />
+            <DA name="stVal" bType="BOOLEAN" fc="ST" dchg="true" />
+            <DA name="q" bType="Quality" fc="ST" qchg="true" />
+            <DA name="t" bType="Timestamp" fc="ST" />
+            <DA name="ctlModel" bType="Enum" type="ctlModel" fc="CF">
+                <Val>direct-with-normal-security</Val>
+            </DA>
+            <DA name="pulseConfig" bType="Struct" type="PulseConfig" fc="CF" />
+            <DA name="d" bType="VisString255" fc="DC" />
+        </DOType>
+        <DOType id="DPL_1_PhyNam" cdc="DPL">
+            <DA name="vendor" bType="VisString255" fc="DC">
+                <Val>PGS ENERGY Ltd.</Val>
+            </DA>
+            <DA name="swRev" bType="VisString255" fc="DC">
+                <Val>august 2022</Val>
+            </DA>
+            <DA name="hwRev" bType="VisString255" fc="DC">
+                <Val>2022</Val>
+            </DA>
+            <DA name="model" bType="VisString255" fc="DC">
+                <Val>ORION TX</Val>
+            </DA>
+            <DA name="serNum" bType="VisString255" fc="DC">
+                <Val>see front panel</Val>
+            </DA>
+            <DA name="d" bType="VisString255" fc="DC" />
+        </DOType>
+        <DOType id="MV_1_AnIn1" cdc="MV">
+            <DA name="mag" bType="Struct" type="AnalogueValue_1" fc="MX" dchg="true" />
+            <DA name="q" bType="Quality" fc="MX" qchg="true" />
+            <DA name="t" bType="Timestamp" fc="MX" />
+            <DA name="range" bType="Enum" type="range" fc="MX" dchg="true" />
+            <DA name="rangeC" bType="Struct" type="RangeConfig" fc="CF" />
+            <DA name="units" bType="Struct" valKind="RO" type="Unit" fc="CF" />
+            <DA name="d" bType="VisString255" fc="DC" />
+        </DOType>
+        <DOType id="INS_Kalina" cdc="INS">
+            <DA name="stVal" bType="INT32" fc="ST" dchg="true" />
+            <DA name="q" bType="Quality" fc="ST" qchg="true" />
+            <DA name="t" bType="Timestamp" fc="ST" />
+            <DA name="d" bType="VisString255" fc="DC" />
+        </DOType>
+        <DOType id="modENC_Kalina_#LIB1" cdc="ENC">
+            <DA name="stVal" bType="Enum" type="OnTestBlockOff" fc="ST" dchg="true" />
+            <DA name="q" bType="Quality" fc="ST" qchg="true" />
+            <DA name="t" bType="Timestamp" fc="ST" />
+            <DA name="d" bType="VisString255" fc="DC" />
+        </DOType>
+        <DOType id="LPL_LN0_Kalina_#LIB1" cdc="LPL">
+            <DA name="vendor" bType="VisString255" fc="DC">
+                <Val>PGS ENERGY Ltd.</Val>
+            </DA>
+            <DA name="swRev" bType="VisString255" fc="DC">
+                <Val>31.10.2022</Val>
+            </DA>
+            <DA name="d" bType="VisString255" fc="DC" />
+            <DA name="configRev" bType="VisString255" fc="DC">
+                <Val>1</Val>
+            </DA>
+            <DA name="ldNs" bType="VisString255" fc="EX">
+                <Val>IEC 61850-7-4:2010</Val>
+            </DA>
+        </DOType>
+        <DOType id="DPL_1_PhyNam_#LIB1" cdc="DPL">
+            <DA name="vendor" bType="VisString255" fc="DC">
+                <Val>PGS ENERGY Ltd.</Val>
+            </DA>
+            <DA name="swRev" bType="VisString255" fc="DC">
+                <Val>31.10.2022</Val>
+            </DA>
+            <DA name="hwRev" bType="VisString255" fc="DC">
+                <Val>2022</Val>
+            </DA>
+            <DA name="model" bType="VisString255" fc="DC">
+                <Val>ORION V4Z</Val>
+            </DA>
+            <DA name="serNum" bType="VisString255" fc="DC">
+                <Val>see front panel</Val>
+            </DA>
+            <DA name="d" bType="VisString255" fc="DC" />
+        </DOType>
+        <DOType id="modENC_Kalina_#LIB2" cdc="ENC">
+            <DA name="Oper" bType="Struct" count="0" type="tcOper_Mod_OnTestBlock_#LIB1" fc="CO" />
+            <DA name="stVal" bType="Enum" count="0" type="OnTestBlockOff" fc="ST" dchg="true" />
+            <DA name="q" bType="Quality" count="0" fc="ST" qchg="true" />
+            <DA name="t" bType="Timestamp" count="0" fc="ST" />
+            <DA name="ctlModel" bType="Enum" valKind="RO" count="0" type="StatusDirect" fc="CF">
+                <Val>direct-with-normal-security</Val>
+            </DA>
+            <DA name="d" bType="VisString255" count="0" fc="DC" />
+        </DOType>
+        <DOType id="LPL_LN0_Kalina_#LIB2" cdc="LPL">
+            <DA name="vendor" bType="VisString255" count="0" fc="DC">
+                <Val>KEPM Ltd.</Val>
+            </DA>
+            <DA name="swRev" bType="VisString255" count="0" fc="DC">
+                <Val>KEPM-ORION-SKI-2022-V1</Val>
+            </DA>
+            <DA name="configRev" bType="VisString255" count="0" fc="DC">
+                <Val>1</Val>
+            </DA>
+            <DA name="ldNs" bType="VisString255" count="0" fc="EX">
+                <Val>IEC 61850-7-4:2010</Val>
+            </DA>
+            <DA name="d" bType="VisString255" count="0" fc="DC" />
+        </DOType>
+        <DOType id="DPL_1_PhyNam_#LIB2" cdc="DPL">
+            <DA name="vendor" bType="VisString255" count="0" fc="DC">
+                <Val>KEPM Ltd.</Val>
+            </DA>
+            <DA name="swRev" bType="VisString255" count="0" fc="DC">
+                <Val>KEPM-ORION-SKI-2022-V1</Val>
+            </DA>
+            <DA name="hwRev" bType="VisString255" count="0" fc="DC">
+                <Val>KEPM-ORION-SKI-2022-V1</Val>
+            </DA>
+            <DA name="model" bType="VisString255" count="0" fc="DC">
+                <Val>ORION-SKI</Val>
+            </DA>
+            <DA name="serNum" bType="VisString255" count="0" fc="DC">
+                <Val>2.044</Val>
+            </DA>
+            <DA name="d" bType="VisString255" count="0" fc="DC" />
+        </DOType>
+        <DOType id="modENC_Kalina_without_control" cdc="ENC">
+            <DA name="stVal" bType="Enum" count="0" type="OnTestBlockOff" fc="ST" />
+            <DA name="q" bType="Quality" count="0" fc="ST" qchg="true" />
+            <DA name="t" bType="Timestamp" count="0" fc="ST" />
+            <DA name="d" bType="VisString255" count="0" fc="DC" />
+        </DOType>
+        <DAType id="ABBOPCServer_Originator">
+            <BDA name="orCat" bType="Enum" type="ABBOPCServer_orCategory" />
+            <BDA name="orIdent" bType="Octet64" />
+        </DAType>
+        <DAType id="ABBOPCServer_Oper_INC_INT32">
+            <BDA name="ctlVal" bType="INT32" />
+            <BDA name="origin" bType="Struct" type="ABBOPCServer_Originator" />
+            <BDA name="ctlNum" bType="INT8U" />
+            <BDA name="T" bType="Timestamp" />
+            <BDA name="Test" bType="BOOLEAN" />
+            <BDA name="Check" bType="Check" />
+        </DAType>
+        <DAType id="Originator">
+            <BDA name="orCat" bType="Enum" type="OrCat" />
+            <BDA name="orIdent" bType="Octet64" />
+        </DAType>
+        <DAType id="tcOper_Mod_OnTestBlock">
+            <BDA name="ctlVal" bType="Enum" type="OnTestBlockOff" />
+            <BDA name="origin" bType="Struct" type="Originator" />
+            <BDA name="ctlNum" bType="INT8U" />
+            <BDA name="T" bType="Timestamp" />
+            <BDA name="Test" bType="BOOLEAN" />
+            <BDA name="Check" bType="Check" />
+            <ProtNs>IEC 61850-8-1:2003</ProtNs>
+        </DAType>
+        <DAType id="Indperate_1">
+            <BDA name="ctlVal" bType="BOOLEAN" />
+            <BDA name="origin" bType="Struct" type="Originator" />
+            <BDA name="ctlNum" bType="INT8U" />
+            <BDA name="T" bType="Timestamp" />
+            <BDA name="Test" bType="BOOLEAN" />
+            <BDA name="Check" bType="Check" />
+        </DAType>
+        <DAType id="PulseConfig">
+            <BDA name="cmdQual" bType="Enum" type="ControlOutputKind" />
+            <BDA name="onDur" bType="INT32U" />
+            <BDA name="offDur" bType="INT32U" />
+            <BDA name="numPls" bType="INT32U" />
+        </DAType>
+        <DAType id="AnalogueValue_1">
+            <BDA name="f" bType="FLOAT32" />
+        </DAType>
+        <DAType id="AnalogueValue_f">
+            <BDA name="f" bType="FLOAT32" />
+        </DAType>
+        <DAType id="RangeConfig">
+            <BDA name="hhLim" bType="Struct" type="AnalogueValue_f" />
+            <BDA name="hLim" bType="Struct" type="AnalogueValue_f" />
+            <BDA name="lLim" bType="Struct" type="AnalogueValue_f" />
+            <BDA name="llLim" bType="Struct" type="AnalogueValue_f" />
+            <BDA name="min" bType="Struct" valKind="RO" type="AnalogueValue_f" />
+            <BDA name="max" bType="Struct" valKind="RO" type="AnalogueValue_f" />
+        </DAType>
+        <DAType id="Unit">
+            <BDA name="SIUnit" bType="Enum" type="SIUnit" />
+            <BDA name="multiplier" bType="Enum" type="multiplier" />
+        </DAType>
+        <DAType id="tcOper_Mod_OnTestBlock_#LIB1">
+            <BDA name="ctlVal" bType="Enum" count="0" type="OnTestBlockOff" />
+            <BDA name="origin" bType="Struct" count="0" type="Originator" />
+            <BDA name="ctlNum" bType="INT8U" count="0" />
+            <BDA name="T" bType="Timestamp" count="0" />
+            <BDA name="Test" bType="BOOLEAN" count="0" />
+            <BDA name="Check" bType="Check" count="0" />
+            <ProtNs>IEC 61850-7-4:2010</ProtNs>
+        </DAType>
+        <EnumType id="ABBOPCServer_orCategory">
+            <EnumVal ord="0">not-supported</EnumVal>
+            <EnumVal ord="1">bay-control</EnumVal>
+            <EnumVal ord="2">station-control</EnumVal>
+            <EnumVal ord="3">remote-control</EnumVal>
+            <EnumVal ord="4">automatic-bay</EnumVal>
+            <EnumVal ord="5">automatic-station</EnumVal>
+            <EnumVal ord="6">automatic-remote</EnumVal>
+            <EnumVal ord="7">maintenance</EnumVal>
+            <EnumVal ord="8">process</EnumVal>
+        </EnumType>
+        <EnumType id="ABBOPCServer_ctlModel">
+            <EnumVal ord="0">status-only</EnumVal>
+            <EnumVal ord="1">direct-with-normal-security</EnumVal>
+            <EnumVal ord="2">sbo-with-normal-security</EnumVal>
+            <EnumVal ord="3">direct-with-enhanced-security</EnumVal>
+            <EnumVal ord="4">sbo-with-enhanced-security</EnumVal>
+        </EnumType>
+        <EnumType id="ABBOPCServer_Health">
+            <EnumVal ord="1">Ok</EnumVal>
+            <EnumVal ord="2">Warning</EnumVal>
+            <EnumVal ord="3">Alarm</EnumVal>
+        </EnumType>
+        <EnumType id="OnTestBlockOff">
+            <EnumVal ord="1">on</EnumVal>
+            <EnumVal ord="2">blocked</EnumVal>
+            <EnumVal ord="3">test</EnumVal>
+            <EnumVal ord="4">test/blocked</EnumVal>
+        </EnumType>
+        <EnumType id="OrCat">
+            <EnumVal ord="0">not-supported</EnumVal>
+            <EnumVal ord="1">bay-control</EnumVal>
+            <EnumVal ord="2">station-control</EnumVal>
+            <EnumVal ord="3">remote-control</EnumVal>
+            <EnumVal ord="4">automatic-bay</EnumVal>
+            <EnumVal ord="5">automatic-station</EnumVal>
+            <EnumVal ord="6">automatic-remote</EnumVal>
+            <EnumVal ord="7">maintenance</EnumVal>
+            <EnumVal ord="8">process</EnumVal>
+        </EnumType>
+        <EnumType id="StatusDirect">
+            <EnumVal ord="0">status-only</EnumVal>
+            <EnumVal ord="1">direct-with-normal-security</EnumVal>
+        </EnumType>
+        <EnumType id="Beh">
+            <EnumVal ord="1">on</EnumVal>
+            <EnumVal ord="2">blocked</EnumVal>
+            <EnumVal ord="3">test</EnumVal>
+            <EnumVal ord="4">test/blocked</EnumVal>
+            <EnumVal ord="5">off</EnumVal>
+        </EnumType>
+        <EnumType id="Health">
+            <EnumVal ord="1">Ok</EnumVal>
+            <EnumVal ord="2">Warning</EnumVal>
+            <EnumVal ord="3">Alarm</EnumVal>
+        </EnumType>
+        <EnumType id="ctlModel">
+            <EnumVal ord="0">status-only</EnumVal>
+            <EnumVal ord="1">direct-with-normal-security</EnumVal>
+            <EnumVal ord="2">sbo-with-normal-security</EnumVal>
+            <EnumVal ord="3">direct-with-enhanced-security</EnumVal>
+            <EnumVal ord="4">sbo-with-enhanced-security</EnumVal>
+        </EnumType>
+        <EnumType id="ControlOutputKind">
+            <EnumVal ord="0">pulse</EnumVal>
+            <EnumVal ord="1">persistent</EnumVal>
+        </EnumType>
+        <EnumType id="range">
+            <EnumVal ord="0">normal</EnumVal>
+            <EnumVal ord="1">high</EnumVal>
+            <EnumVal ord="2">low</EnumVal>
+            <EnumVal ord="3">high-high</EnumVal>
+            <EnumVal ord="4">low-low</EnumVal>
+        </EnumType>
+        <EnumType id="SIUnit">
+            <EnumVal ord="1" />
+            <EnumVal ord="2">m</EnumVal>
+            <EnumVal ord="3">kg</EnumVal>
+            <EnumVal ord="4">s</EnumVal>
+            <EnumVal ord="5">A</EnumVal>
+            <EnumVal ord="6">K</EnumVal>
+            <EnumVal ord="7">mol</EnumVal>
+            <EnumVal ord="8">cd</EnumVal>
+            <EnumVal ord="9">deg</EnumVal>
+            <EnumVal ord="10">rad</EnumVal>
+            <EnumVal ord="11">sr</EnumVal>
+            <EnumVal ord="21">Gy</EnumVal>
+            <EnumVal ord="22">q</EnumVal>
+            <EnumVal ord="23">°C</EnumVal>
+            <EnumVal ord="24">Sv</EnumVal>
+            <EnumVal ord="25">F</EnumVal>
+            <EnumVal ord="26">C</EnumVal>
+            <EnumVal ord="27">S</EnumVal>
+            <EnumVal ord="28">H</EnumVal>
+            <EnumVal ord="29">V</EnumVal>
+            <EnumVal ord="30">ohm</EnumVal>
+            <EnumVal ord="31">J</EnumVal>
+            <EnumVal ord="32">N</EnumVal>
+            <EnumVal ord="33">Hz</EnumVal>
+            <EnumVal ord="34">lx</EnumVal>
+            <EnumVal ord="35">Lm</EnumVal>
+            <EnumVal ord="36">Wb</EnumVal>
+            <EnumVal ord="37">T</EnumVal>
+            <EnumVal ord="38">W</EnumVal>
+            <EnumVal ord="39">Pa</EnumVal>
+            <EnumVal ord="41">m²</EnumVal>
+            <EnumVal ord="42">m³</EnumVal>
+            <EnumVal ord="43">m/s</EnumVal>
+            <EnumVal ord="44">m/s²</EnumVal>
+            <EnumVal ord="45">m³/s</EnumVal>
+            <EnumVal ord="46">m/m³</EnumVal>
+            <EnumVal ord="47">M</EnumVal>
+            <EnumVal ord="48">kg/m³</EnumVal>
+            <EnumVal ord="49">m²/s</EnumVal>
+            <EnumVal ord="50">W/m K</EnumVal>
+            <EnumVal ord="51">J/K</EnumVal>
+            <EnumVal ord="52">ppm</EnumVal>
+            <EnumVal ord="53">1/s</EnumVal>
+            <EnumVal ord="54">rad/s</EnumVal>
+            <EnumVal ord="61">VA</EnumVal>
+            <EnumVal ord="62">Watts</EnumVal>
+            <EnumVal ord="63">VAr</EnumVal>
+            <EnumVal ord="64">phi</EnumVal>
+            <EnumVal ord="65">cos(phi)</EnumVal>
+            <EnumVal ord="66">Vs</EnumVal>
+            <EnumVal ord="67">V²</EnumVal>
+            <EnumVal ord="68">As</EnumVal>
+            <EnumVal ord="69">A²</EnumVal>
+            <EnumVal ord="70">A²t</EnumVal>
+            <EnumVal ord="71">VAh</EnumVal>
+            <EnumVal ord="72">Wh</EnumVal>
+            <EnumVal ord="73">AWarh</EnumVal>
+            <EnumVal ord="74">V/Hz</EnumVal>
+            <EnumVal ord="75">hz/s</EnumVal>
+            <EnumVal ord="76">char</EnumVal>
+            <EnumVal ord="77">char/s</EnumVal>
+            <EnumVal ord="78">kgm²</EnumVal>
+            <EnumVal ord="79">dB</EnumVal>
+        </EnumType>
+        <EnumType id="multiplier">
+            <EnumVal ord="-24">y</EnumVal>
+            <EnumVal ord="-21">z</EnumVal>
+            <EnumVal ord="-18">a</EnumVal>
+            <EnumVal ord="-15">f</EnumVal>
+            <EnumVal ord="-12">p</EnumVal>
+            <EnumVal ord="-9">n</EnumVal>
+            <EnumVal ord="-6">µ</EnumVal>
+            <EnumVal ord="-3">m</EnumVal>
+            <EnumVal ord="-2">c</EnumVal>
+            <EnumVal ord="-1">d</EnumVal>
+            <EnumVal ord="0" />
+            <EnumVal ord="1">da</EnumVal>
+            <EnumVal ord="2">h</EnumVal>
+            <EnumVal ord="3">k</EnumVal>
+            <EnumVal ord="6">M</EnumVal>
+            <EnumVal ord="9">G</EnumVal>
+            <EnumVal ord="12">T</EnumVal>
+            <EnumVal ord="15">P</EnumVal>
+            <EnumVal ord="18">E</EnumVal>
+            <EnumVal ord="21">Z</EnumVal>
+            <EnumVal ord="24">Y</EnumVal>
+        </EnumType>
+    </DataTypeTemplates>
+</SCL>

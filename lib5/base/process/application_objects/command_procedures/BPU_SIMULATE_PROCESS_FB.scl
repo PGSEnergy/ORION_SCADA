@@ -1,0 +1,78 @@
+;Function: BPU_SIMULATE_PROCESS_FB:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_simulate_process_fb.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute),  search_result, forced operation
+;Return data:
+;Description: Prepares execute command for OFF (open)
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data, t_execute_ln, i_simulate_value
+#local l_connection_state, i_IX, t_symbol_simu_procedure = "", i_execute
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_SIMULATE_PROCESS_FB"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+         @REDIRECTED = true                                                                        
+         i_ArgCnt = argument_count                                                                 
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+         #loop_end                                                                                 
+         #return 't_Redirect_Command' ;;;;;                                                        
+      #block_end                                                                                   
+   #block_end                                                                                      
+   #else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+   
+#if attribute_exists(l_object_info.type_info, "command_procedures") #then #block
+   #if attribute_exists(l_object_info.type_info.command_procedures, "SYMBOL_PRESENTATION_SIMULATION") #then -
+      t_symbol_simu_procedure = l_object_info.type_info.command_procedures.SYMBOL_PRESENTATION_SIMULATION
+#block_end
+
+;set indication if simulated process
+l_connection_state = do(bpu_define_switch_state:c,  l_object_info, l_data.all_objects)
+#if not (l_connection_state.i_connection_ss == 1 and l_connection_state.i_connection_un == 1) #then #block
+   #case l_object_info.indication_type
+      #when "DB" #block
+         i_IX = l_data.all_objects.indication_db_ix
+         #set 't_execute_ln':pov'i_IX' = i_simulate_value
+      #block_end
+      #when "AI" #block
+         i_IX = l_data.all_objects.indication_up1_ix
+         #set 't_execute_ln':pov'i_IX'= i_simulate_value
+      #block_end
+      #when "BI" #block
+         i_IX = l_data.all_objects.indication_up1_ix
+         #set 't_execute_ln':pov'i_IX' = round(abs(i_simulate_value**2-3))-1
+      #block_end
+      #when "2BI" #block
+         #if i_simulate_value == 2 #then #block
+            i_IX = l_data.all_objects.indication_up1_ix
+            #set 't_execute_ln':pov'i_IX' = 1
+            i_IX = l_data.all_objects.indication_up2_ix
+            #set 't_execute_ln':pov'i_IX' = 0
+         #block_end
+         #else #block
+            i_IX = l_data.all_objects.indication_up1_ix
+            #set 't_execute_ln':pov'i_IX' = 0
+            i_IX = l_data.all_objects.indication_up2_ix
+            #set 't_execute_ln':pov'i_IX' = 1
+         #block_end
+      #block_end
+     #case_end
+     
+     #if t_symbol_simu_procedure <> "" #then -
+      i_execute = do('t_symbol_simu_procedure':c, l_object_info, l_data, t_execute_ln, i_simulate_value)
+  
+#block_end

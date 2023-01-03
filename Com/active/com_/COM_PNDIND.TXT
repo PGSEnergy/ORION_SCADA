@@ -1,0 +1,118 @@
+﻿; This command procedure is used for handling pending indications (indications or termination objects 
+; connected to a command and waiting for value) in a COM500 application
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  APL:BSV(20), general parameters
+;         APL:BSV(21), NCC cross-refernce table
+;         APL:BSV(28), time stamps of the pending indications
+;         APL:BSV(29), ids (ln+ix+oa+sta_nr) of the pending indications
+; OUTPUT  APL:BSV(28), time stamps of the pending indications
+;         APL:BSV(29), ids (ln+ix+oa+sta_nr) of the pending indications
+;---------------------------------------------------------------------------------------
+
+#LOCAL COMMAND_LN = ""
+#LOCAL ACR = 0
+#LOCAL LAST_ERROR_OBJECT_55 = FALSE
+#LOCAL COMMAND_RT = 0, COMMAND_RM = 0
+
+#ERROR CONTINUE
+
+@IEC_TERM_ENABLED = COM_GENVAR:PBZ(2)
+@ENABLE_LOGGING = COM_GENVAR:PBZ(3)
+
+@TIME = HR_CLOCK
+@RT = TIMES(TIME:VCL)
+@RM = ROUND(TIME:VUS/1000)
+
+;read in general parameters
+@B_INITIALIZED = FALSE
+#IF LENGTH(APL:BSV) > 19 #THEN #IF DATA_TYPE(APL:BSV(20)) == "LIST" #THEN #BLOCK
+   #IF LENGTH(APL:BSV(20)) > 0 #THEN #BLOCK
+      @GEN_INFO = APL:BSV(20)
+      @B_INITIALIZED = TRUE
+   #BLOCK_END
+#BLOCK_END
+
+#IF %B_INITIALIZED #THEN #BLOCK
+
+   ;if indications that have been pending for longer than the predefined interval are found
+   ;remove reference to these indications and terminate the commands, if provided by the protocol
+   #IF DATA_TYPE(APL:BSV(28)) == "VECTOR" AND LENGTH(APL:BSV(28)) > 0 #THEN #BLOCK
+      @TIME_LIMIT = CLOCK - GEN_INFO:VPENDING_INDICATION_TIMEOUT
+      @PENDING_INDICATIONS = SELECT(APL:BSV(28),"<%TIME_LIMIT")
+      #IF LENGTH(%PENDING_INDICATIONS) > 0  #THEN #BLOCK
+         #LOOP_WITH I = 1..LENGTH(%PENDING_INDICATIONS)
+            @IND_IDS = APL:BSV(29)
+            @ID_INDEX = %PENDING_INDICATIONS(%I)
+            @TMP = SEPARATE(%IND_IDS(%ID_INDEX),"/")         
+            @NCC_STA_NUMBER = DEC_SCAN(%TMP(3))
+            @COMMAND_ADDRESS = DEC_SCAN(%TMP(2))
+            @ORIGINATOR = DEC_SCAN(%TMP(4))
+            #IF LENGTH(%TMP) > 4 #THEN #BLOCK   
+               COMMAND_LN = %TMP(5)
+               COMMAND_RT = DEC_SCAN(%TMP(6)) 
+               COMMAND_RM = DEC_SCAN(%TMP(7))
+            #BLOCK_END
+            @NCC_XREF_TABLE = APL:BSV(21)
+            #IF LENGTH(%NCC_XREF_TABLE) > 0 #THEN #BLOCK
+               #LOOP_WITH COUNT = 1..LENGTH(%NCC_XREF_TABLE)
+                  @NCC = %NCC_XREF_TABLE(%COUNT)
+                  #IF %NCC(1) == %NCC_STA_NUMBER #THEN #LOOP_EXIT
+               #LOOP_END
+               #CASE %NCC(2)
+                  #WHEN 1 #BLOCK ;RP-570 slave protocol
+                
+                  #BLOCK_END
+                  #WHEN 2 #BLOCK ;IEC 870-5-101 slave protocol
+                     ;terminate command (negative acknowlegement)
+                     #IF %NCC(10) == 3 #THEN #BLOCK
+                        #IF COMMAND_LN <> "" #THEN #BLOCK
+                           LAST_ERROR_OBJECT_55 = APPLICATION_OBJECT_EXISTS(0, "IX", LIST(LN=COMMAND_LN, IX=55),"IU == 1") 
+                           #IF LAST_ERROR_OBJECT_55 #THEN #BLOCK             
+                              #IF 'COMMAND_LN':PRT55 > COMMAND_RT OR ('COMMAND_LN':PRT55 == COMMAND_RT AND 'COMMAND_LN':PRM55 > COMMAND_RM) #THEN #BLOCK
+                                 ACR = 'COMMAND_LN':POV55
+                              #BLOCK_END          
+                              #ELSE ACR = 0
+                           #BLOCK_END          
+                           #ELSE ACR = 0
+                        #BLOCK_END
+                        #ELSE ACR = 0   
+                        #SET STA'NCC_STA_NUMBER':SCF = (10+64,%COMMAND_ADDRESS,ACR,0,1)
+                        #IF STATUS == 0 #THEN #BLOCK
+                           #IF %ENABLE_LOGGING #THEN #BLOCK
+                              @INFO="'rt':'rm',PNDIND,0,,'NCC_STA_NUMBER',timeout -> negative activation termination to cmd addr 'COMMAND_ADDRESS' is sent to NCC,,,,,,,,,,,,,,,,"
+                              #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                              #ELSE #DO COM_LOG:CIN
+                           #BLOCK_END
+                        #BLOCK_END
+                     #BLOCK_END
+                     #ELSE_IF %NCC(10) == 2 #THEN #BLOCK
+                     
+                     #BLOCK_END                                   
+                     #ELSE #BLOCK
+                        #IF %IEC_TERM_ENABLED #THEN #BLOCK
+                           #SET STA'NCC_STA_NUMBER':SCF = (256*%ORIGINATOR+10+64,%COMMAND_ADDRESS)             
+                           #IF %ENABLE_LOGGING #THEN #BLOCK
+                              @INFO="'rt':'rm',PNDIND,0,,'NCC_STA_NUMBER',timeout -> negative activation termination to cmd addr 'COMMAND_ADDRESS' is sent to NCC,,,,,,,,,,,,,,,,"
+                              #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                              #ELSE #DO COM_LOG:CIN
+                           #BLOCK_END
+                        #BLOCK_END
+                     #BLOCK_END
+                  #BLOCK_END
+                  #WHEN 3 #BLOCK ; CPI interface
+   
+                  #BLOCK_END
+               #CASE_END
+            #BLOCK_END
+            ;remove reference to indication
+            #SET APL:BSV(28) = DELETE_ELEMENT(APL:BSV(28),%ID_INDEX)
+            #SET APL:BSV(29) = DELETE_ELEMENT(APL:BSV(29),%ID_INDEX)
+         #LOOP_END
+      #BLOCK_END
+   #BLOCK_END
+
+#BLOCK_END

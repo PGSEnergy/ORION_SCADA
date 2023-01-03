@@ -1,0 +1,24 @@
+;re-route power flow values known by SYS600 NTC to index 10
+
+#local -
+   i_power_flow_direction = %OV,-
+   i_topology_index = 10,-
+   i_value
+
+#case i_power_flow_direction
+   #when 1 i_value = 0     ;undetermined
+   #when 2 i_value = 0     ;de-energized
+   #when 3 i_value = 1     ;energized no power flow
+   #when 4 i_value = 1     ;active power flow in
+   #when 5 i_value = -1    ;active power flow out
+   #when 6 i_value = 1     ;reactive capactive power flow
+   #when 7 i_value = 1    ;reactive inductive power flow
+#case_end
+
+#if data_type(i_value) == "INTEGER" #then #block
+   #if 'LN':POS'i_topology_index' < 10 #then #block
+      #if 'LN':POV'i_topology_index' <> i_value #then -
+         #set 'LN':POV'i_topology_index' = i_value
+   #block_end
+   #else #set 'LN':POV'i_topology_index' = i_value
+#block_end

@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Markku Hamarila/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">ONOFF</Parameter>
+		<Parameter name="Caption">objectTypeCaption</Parameter>
+		<Parameter name="Description">objectTypeDesc</Parameter>
+		<Parameter name="Group">Event Classes</Parameter>
+		<Parameter name="Type">EVENT</Parameter>
+		<Parameter name="IconFileName">ae.ico</Parameter>
+		<Parameter name="Tools"/>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="Visible">True</Parameter>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="PCMObjectType">CommandEventGroup</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+	<Parameters type="SCLExport">
+		<Export name="CDATA">BaseType, OperateOffMsg, OperateOnMsg, OperationFailedMsg,NormalSeverity, FailedSeverity</Export>
+	</Parameters>
+	<Properties type="PropertyDefinitions">
+				<Property name="OPCObjectType" category="[010] Basic">
+			<Value>Command Tracking</Value>
+			<DescID>OPCObjectTypeDesc</DescID>
+			<CaptionID>OPCObjectType</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHR</Access>
+			<AttributeName>OPCObjectType</AttributeName>
+		</Property>
+<Property name="BaseType" category="[010] Basic">
+			<Value>ONOFF</Value>
+			<DescID>Base Type of Command Tracking Condition</DescID>
+			<CaptionID>Base Type</CaptionID>
+			<Values type="singleChoice">
+				<Enum textID="On Off" value="ONOFF"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RRR</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="NormalSeverity" category="[010] Basic">
+			<Value>10</Value>
+			<DescID>Normal Severity for operation</DescID>
+			<CaptionID>Normal Severity</CaptionID>
+			<Values type="numerical">
+				<Min>1</Min>
+				<Max>1000</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="FailedSeverity" category="[010] Basic">
+			<Value>100</Value>
+			<DescID>Failed Severity for operation</DescID>
+			<CaptionID>Failed Severity</CaptionID>
+			<Values type="numerical">
+				<Min>1</Min>
+				<Max>1000</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="CancelMsg" category="[010] Basic">
+			<Value>Operation cancelled</Value>
+			<DescID>Cancel Message for operation</DescID>
+			<CaptionID>Cancel Message</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="OperateOffMsg" category="[010] Basic">
+			<Value>Operate off</Value>
+			<DescID>Operate Off Message for operation</DescID>
+			<CaptionID>Operate Off Message</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="OperateOnMsg" category="[010] Basic">
+			<Value>Operate on</Value>
+			<DescID>Operate On Message for operation</DescID>
+			<CaptionID>Operate On Message</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="OperateLowerMsg" category="[010] Basic">
+			<Value>Operate lower</Value>
+			<DescID>Operate Lower Message for operation</DescID>
+			<CaptionID>Operate Lower Message</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="OperateHigherMsg" category="[010] Basic">
+			<Value>Operate higher</Value>
+			<DescID>Operate Higher Message for operation</DescID>
+			<CaptionID>Operate Higher Message</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="OperateStopMsg" category="[010] Basic">
+			<Value>Operate stop</Value>
+			<DescID>Operate Stop Message for operation</DescID>
+			<CaptionID>Operate Stop Message</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="OperateMsg" category="[010] Basic">
+			<Value>Operate</Value>
+			<DescID>Operate Message for operation</DescID>
+			<CaptionID>Operate Message</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="SubstitutionOnMsg" category="[010] Basic">
+			<Value>Substitution on</Value>
+			<DescID>Message for substitution on</DescID>
+			<CaptionID>Substitution On Message</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="SubstitutionOffMsg" category="[010] Basic">
+			<Value>Substition off</Value>
+			<DescID>Message for substitution Off</DescID>
+			<CaptionID>Substitution Off Message</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="InterlockMsg" category="[010] Basic">
+			<Value>Interlocked</Value>
+			<DescID>Message when interlocking overridden</DescID>
+			<CaptionID>Interlock Override Message</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="SynchroCheckMsg" category="[010] Basic">
+			<Value>Synchrochecked</Value>
+			<DescID>Message when synchrocheck overridden</DescID>
+			<CaptionID>Synchrocheck Overridden Message</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="OperationFailedMsg" category="[010] Basic">
+			<Value>Operation failed</Value>
+			<DescID>Operation Failed Message for operation</DescID>
+			<CaptionID>Operation Failed Message</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="SelectOffMsg" category="[010] Basic">
+			<Value>Select off</Value>
+			<DescID>Select Off Message for operation</DescID>
+			<CaptionID>Select Off Message</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="SelectOnMsg" category="[010] Basic">
+			<Value>Select on</Value>
+			<DescID>Select On Message for operation</DescID>
+			<CaptionID>Select On Message</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName/>
+		</Property>
+	</Properties>
+</ObjectType>

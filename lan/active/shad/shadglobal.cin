@@ -1,0 +1,72 @@
+; SHADOW GLOBAL DEFINITIONS
+;
+;
+
+@MAX_APL = MAX_APPLICATION_NUMBER       ;MAXIMUM # OF APPLICATIONS
+@MAX_NET = MAX_NODE_NUMBER              ;MAXIMUM # OF NETS
+
+@CHK_NET_START = FALSE                  ;CHECKS FOR NET CONNECTIONS
+                                        ;AT FORCED APPLICATION START
+
+@CHK_EXT_SP = FALSE                     ;CHECKS FOR SHADOWING PHASE FOR
+                                        ;EXTERNAL APPLICATIONS
+
+@LAPL_START = 180                       ;SECONDS TO WAIT FOR LOCAL
+                                        ;APPLICATION TO START
+
+@EAPL_START = 180                       ;SECONDS TO WAIT FOR EXTERNAL 
+                                        ;APPLICATION START RESPONSE
+
+@SHD_RESTART = 300                      ;SECONDS BEFORE TRYING TO RESTART
+                                        ;TRANSMISSION
+
+@NET_CONN = 300                         ;SECONDS SINCE LAST MESSAGE FROM NET
+                                        ;BEFORE CONNECTION CONSIDERED BROKEN
+
+@RCV_MATRIX = ("SHADRCV_M","SHADBCK_M") ;TRANSITION MATRIXES FOR REVEIVER
+@XMT_MATRIX = ("SHADXMT_M","")          ;TRANSITION MATRIXES FOR TRANSMITTER
+                                        ;(<EXT SHADOWING>,<INT SHADOWING>)
+
+@BCK_PROC = "BCK_CREATE"                ;NAME OF PROCEDURE TO PERFORM BACKUP
+
+
+@HSB_LOG = TRUE                         ;ENABLE/DISABLE LOGGING OF HSB EVENTS ON DISK
+                                        ;IN THE FILE "SYS_SHADOW.LOG"
+@LOG_FILE = "SYS_/SYS_SHADOW.LOG"       ;NAME OF LOGFILE
+
+@EVENTS = ("CONTROL      ",-            ;SHADOWING EVENT
+           "START        ",-
+           "STOP         ",-
+           "TIMER        ",-
+           "STATE CHANGE ",-
+           "STATUS CHANGE",-
+           "CONN. LOST   ")
+           
+@SPHASE = ("NONE           ",-          ;SHADOWING PHASE
+           "TO WARM SEND   ",-
+           "WARM SEND      ",-
+           "TO HOT SEND    ",-
+           "HOT SEND       ",-
+           "TO WARM RECEIVE",-
+           "WARM RECEIVE   ",-
+           "TO HOT RECEIVE ",-
+           "HOT RECEIVE    ")
+           
+@SSTATE = ("NONE     ",-                ;SHADOWING STATE
+           "WARM SEND",-
+           "HOT SEND ",-
+           "RECEIVE  ")
+           
+@ASTATE = ("COLD",-                     ;APPLICATION STATE
+           "WARM",-
+           "HOT ")
+
+; EVENTS FOR SHADUSR
+@TR_START =  1                          ;TRANSMISSION STARTS
+@DUMP_DONE = 2                          ;DUMP DONE
+@CONN_LOST = 3                          ;CONNECTION LOST TO RECEIVER
+@TOVR      = 4                          ;TAKEOVER
+@EXTAS     = 5                          ;EXTERNAL APPLICATION STATE CHANGE
+
+;USER REDEFINITIONS AFTER THE FOLLOWING LINE
+;-END-ABB---------------------------------------------------------------------

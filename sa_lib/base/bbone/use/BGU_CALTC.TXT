@@ -1,0 +1,280 @@
+;Command procedure:   BGU_CALTC:C
+;Text file:           BBONE/BGU_CALTC.TXT
+;Description:
+;Run timed command and set up calendar time channels . Two time channels
+;are maintained. Time channels are in use turn by turn.
+;This procedure perform following actions:
+;  1) Timed commands are executed. Command is read from PICT/cal_1.ini
+;  2) Next command name is written to PICT/cal_1.ini
+;  3) Time channel (TC) attribute is set to the other of the two tc's
+;  4) Current time channel is set to NOT IN USE -state (IU=0)
+;Arguments:           1 or 0
+;Argument(1):         1=initialization
+;No arguments:	      Run procedure(s) and set up time channels
+;Two identical command procedures and time channels exist.
+;One of them is 1, the other is 2. Following variable identifies
+;number of the other procedure/time channel -set. The line (n:o 20)is modified
+;automatically at creation time:
+   @other_set=2
+
+
+   @file_nm         = "pict/periods.dat"
+   @par_path        = "pict/"
+   @ini_file        = "pict/cal_1.ini"
+   @dtyp_file       = "pict/daytypes.dat"
+   @log_file        = "pict/bgu_cal.log"
+   @proc_dump       = "pict/cal_proc.dat"
+   @data_y          = vector()
+   @data_t          = evaluate(read_text(%dtyp_file))
+   @appending       = 1
+   @curr_time       = clock
+   @prev_time       = hex_scan("7FFFFFFF")
+   @prev_time_sw1   = hex_scan("7FFFFFFF") 
+   @prev_time_sw2   = hex_scan("7FFFFFFF") 
+   @rt_found        = FALSE
+   @found_on_loop   = FALSE
+   @start_point     = -1
+   @stop_point      = -1
+   @prev            = ""
+   @d_temp          = ""
+   @day_checked     = 0
+   #create v_proc:v = list(pn=vector,pt=vector)
+   @defnames        = vector("","")
+   @overridden_days = vector()
+   @tmp_x           = read_parameter(%ini_file, "General","default_policy")
+   #if tmp_x:vstatus<>0 #then #error raise 5007
+   @def_pol         = evaluate(tmp_x:vvalue)
+   @tmp_x=read_parameter(%ini_file, "General","default_type_1")
+   @defnames(1)     = tmp_x:vvalue
+   @tmp_x=read_parameter(%ini_file, "General","default_type_2")
+   @defnames(2)     = tmp_x:vvalue
+
+;Execute commands, if not initialization call:
+   #if argument_count==0 #then #block
+      @tmp_x=read_text(%proc_dump)
+      @runlist=evaluate(%tmp_x)
+      #if length(runlist:vpn)<>0 #then #block
+         #loop_with n_9=1..length(runlist:vpn)
+            @cmd=runlist:vpn(%n_9)
+            #error ignore
+            #do 'cmd':C
+            @st=status
+            #error stop
+            #if %st==0 #then #block
+               @msg_entry=date+" "+tods+" "+ runlist:vpn(%n_9)+ -
+               ":C executed successfully."
+               #set 'cmd':crt=clock
+               #set 'cmd':cos=0
+            #block_end
+            #else #block
+               @msg_entry=date+" "+tods+" "+ runlist:vpn(%n_9)+ -
+               ":C command failed."
+               #set 'cmd':crt=clock
+               #set 'cmd':cos=10
+               @st=console_output(%msg_entry)
+            #block_end
+            ;@st=console_output(%msg_entry)
+            @rubbish=write_text(%log_file,vector(%msg_entry),1)
+         #loop_end
+      #block_end
+   #block_end
+
+   #loop_with n_4=1978..2045
+     #error ignore
+     @data_y=evaluate(read_text(%par_path+"y"+dec(%n_4,4)+".dat"))
+     #error stop
+     @st=status
+     #if %st==0 #then #block
+        @st=status
+        @to_sort=vector()
+        ;Delete all but run-proc.,type assignment and summer/winter time blocks:
+        @d_len=length(%data_y)
+        #loop_with n_5=1..%d_len
+          @cur_ind=%d_len-%n_5+1
+          @vtmp=%data_y(%cur_ind)
+          #if %vtmp(2)<>3 and %vtmp(2)<>5 and %vtmp(2)<>6 #then @data_y=delete_element(%data_y,%cur_ind)
+        #loop_end
+        
+        #loop_with n_5=1..length(%data_y)
+           @to_sort(%n_5)=%vtmp(3)
+        #loop_end
+        @sort_ind=sort(%to_sort)
+        @data_y=pick(%data_y, %sort_ind)
+            #loop_with n_2=1..length(%data_y)
+               @v_level_1=%data_y(%n_2)
+               @v_level_2=%v_level_1(2)
+               @day_label=%v_level_1(1)
+               @day_and_month=separate(%v_level_1(1),".")
+               @srch_day=evaluate(%day_and_month(1))
+               @srch_month=evaluate(%day_and_month(2))
+               @t_this=pack_time(%n_4,%srch_month,%srch_day,0,0,0)
+               #case %v_level_1(2)
+                  #when 3 #block ;Procedure to be run
+                     @handmin=separate(%v_level_1(3),":")
+                     @p_h=evaluate(%handmin(1))
+                     @p_min=evaluate(%handmin(2))
+                     @p_time=pack_time(%n_4,%srch_month,%srch_day,%p_h,%p_min,0)
+                     #if %p_time-%curr_time>0 and %found_on_loop==FALSE #then #block
+                        #if %p_time<%prev_time #then #block
+                           #set v_proc:vpn=vector(%v_level_1(4))
+                           #set v_proc:vpt=vector(%p_time)
+                           @prev_time=%p_time
+                           @found_on_loop=TRUE
+                        #block_end
+                        #if %p_time==%prev_time and %found_on_loop==FALSE #then #block
+                           #set v_proc:vpn=append(v_proc:vpn,%v_level_1(4))
+                           #set v_proc:vpt=append(v_proc:vpt,%p_time)
+                           @prev_time=%p_time
+                           @found_on_loop=TRUE
+                        #block_end
+                     #block_end
+                  #block_end
+                  #when 6 #block ;Summer/winter time change
+                     @handmin=separate(%v_level_1(3),":")
+                     @p_h=evaluate(%handmin(1))
+                     @p_min=evaluate(%handmin(2))
+                     @p_time_sw=pack_time(%n_4,%srch_month,%srch_day,%p_h,%p_min,0)
+                        #if %v_level_1(4)==1 and %p_time_sw<%prev_time_sw1 and %p_time_sw>%curr_time #then #block
+                           @nm="bgu_summer"
+                           #set 'nm':tsy2=%p_time_sw
+                           @prev_time_sw1=%p_time_sw
+                        #block_end
+                        #if %v_level_1(4)==2 and %p_time_sw<%prev_time_sw2 and %p_time_sw>%curr_time #then #block
+                           @nm="bgu_winter"
+                           #set 'nm':tsy2=%p_time_sw
+                           @prev_time_sw2=%p_time_sw
+                        #block_end
+                  #block_end
+                  #when 5 #block ;Type assignment, search type settings from day type database
+                   @typename=%v_level_1(3) ;refers to item of %data_y
+                   #if %def_pol==2 #then #block
+                      #if dow(%t_this)==7 #then @overriding_type=%defnames(2)
+                      #else                     @overriding_type=%defnames(1)
+                   #block_end
+                   #else @overriding_type=""
+                   #if %typename == %overriding_type #then #block
+                      @overridden_days=append(%overridden_days, vector(%day_label))
+                   #block_end
+                   #loop_with n_7=1..length(%data_t)
+                    @v_level_1=%data_t(%n_7)
+                    @v_level_2=%v_level_1(2)
+                    #case %v_level_1(2)
+                     #when 3 #block ;Procedure to be run in type definition     
+                       #if %v_level_1(1)==%typename #then #block
+                        @handmin=separate(%v_level_1(3),":")
+                        @p_h=evaluate(%handmin(1))
+                        @p_min=evaluate(%handmin(2))
+                        @p_time=pack_time(%n_4,%srch_month,%srch_day,%p_h,%p_min,0)
+                        #if %p_time-%curr_time>0 and %found_on_loop==FALSE #then #block
+                           #if %p_time<%prev_time #then #block
+                              #set v_proc:vpn=vector(%v_level_1(4))
+                              #set v_proc:vpt=vector(%p_time)
+                              @prev_time=%p_time
+                              @found_on_loop=TRUE
+                           #block_end
+                           #if %p_time==%prev_time and %found_on_loop==FALSE #then #block
+                              #set v_proc:vpn=append(v_proc:vpn,%v_level_1(4))
+                              #set v_proc:vpt=append(v_proc:vpt,%p_time)
+                              @prev_time=%p_time
+                              @found_on_loop=TRUE
+                           #block_end
+                        #block_end
+                       #block_end
+                     #block_end
+                    #case_end
+                   #loop_end
+                  #block_end
+               #case_end
+               @found_on_loop=FALSE
+            #loop_end
+        #block_end
+      #loop_end
+
+   @appending=1
+
+;Check default types:
+@def1_found=FALSE
+#if %def_pol==2 #then @def2_found=FALSE
+#else #block
+   ; set def2_found to false if next_def2_time is not defined at all
+   #if DATA_TYPE(%next_def2_time) == "NONE" #then @def2_found=FALSE
+   #else @def2_found=TRUE
+#block_end
+
+@chk_time=%curr_time
+#loop %def1_found==FALSE or %def2_found==FALSE
+      @chk_label=dec(day(%chk_time),0)+"."+dec(month(%chk_time),0)+"."
+      @ind=select(%overridden_days, "=="""+%chk_label+"""")
+      #if length(%ind)==0 #then #block
+         #if dow(%chk_time)==7 and %def1_found==FALSE #then #block
+            @next_def1_time=%chk_time
+            @def1_found=TRUE
+         #block_end
+         #if dow(%chk_time)<7 and %def2_found==FALSE #then #block
+            @next_def2_time=%chk_time
+            @def2_found=TRUE
+         #block_end
+      #block_end
+      @chk_time=%chk_time+3600*24
+#loop_end
+
+#if %def_pol<>0 #then #block
+ #loop_with n_5=1..length(%data_t)
+   @v_level_1=%data_t(%n_5)
+      ;Check conditions:
+      @condition_value=FALSE
+      
+      #if %v_level_1(1)==%defnames(1) #then @condition_value=TRUE
+      #if %v_level_1(1)==%defnames(2) and %def_pol==2 #then @condition_value=TRUE
+      #if %v_level_1(2)<>3 #then @condition_value=FALSE
+
+      #if %condition_value==TRUE #then #block
+          @handmin=separate(%v_level_1(3),":")
+          @p_h=evaluate(%handmin(1))
+          @p_min=evaluate(%handmin(2))
+          
+          #if %v_level_1(1)==%defnames(1) #then -
+             @p_time=pack_time(year(%next_def1_time),month(%next_def1_time),-
+             day(%next_def1_time),%p_h,%p_min,0)
+          #if %v_level_1(1)==%defnames(2) #then -
+             @p_time=pack_time(year(%next_def2_time),month(%next_def2_time),-
+             day(%next_def2_time),%p_h,%p_min,0)
+
+          #if %p_time-%curr_time>0 and %found_on_loop==FALSE #then #block
+             #if %p_time<%prev_time #then #block
+                 #set v_proc:vpn=vector(%v_level_1(4))
+                 #set v_proc:vpt=vector(%p_time)
+                 @prev_time=%p_time
+                 @found_on_loop=TRUE
+             #block_end
+             #if %p_time==%prev_time and %found_on_loop==FALSE #then #block
+                 #set v_proc:vpn=append(v_proc:vpn,%v_level_1(4))
+                 #set v_proc:vpt=append(v_proc:vpt,%p_time)
+                 @prev_time=%p_time
+                 @found_on_loop=TRUE
+             #block_end
+          #block_end
+      #block_end
+   @found_on_loop=FALSE
+ #loop_end
+#block_end
+
+@v_dump=dump(%v_proc)
+@st=write_text(%proc_dump, %v_dump)
+
+
+;Initialize time channels:
+
+@test_var = fetch(0,"t","bgu_caltc1")
+#if test_var:VIU == -1 #then #create bgu_caltc1:t=list(iu=1)
+@test_var = fetch(0,"t","bgu_caltc2")
+#if test_var:VIU == -1 #then #create bgu_caltc2:t=list(iu=1)
+@test_var=0
+
+;@st=console_output(%v_dump(1))
+#if length(v_proc:vpt)<>0 #then #block
+      #set bgu_caltc'other_set':tsy2=v_proc:vpt(1)
+#block_end
+
+;#if argument_count==1 #then @st=console_output(date+ -
+;   " "+tods+" "+"BGU_CALTC1:T and BGU_CALTC2:T initialized successfully.")

@@ -1,0 +1,17 @@
+DRAW_FIELD_DYNAMICS
+
+@CC = (1,9,8)
+@PARENT_GC = GC("P",20)
+#IF DATA_TYPE(PARENT_GC:VFG)=="VECTOR" #THEN #BLOCK
+   @FG = PARENT_GC:VFG
+   #IF DATA_TYPE(%FG(1)) == "TEXT" #THEN #BLOCK
+      #IF %FG(1) <> "M" OR %FG(2) <> 1 #THEN @CC = (1,13,12)
+   #BLOCK_END
+   #ELSE #BLOCK
+      @TMPSC = COLOR(("M",1))
+      #IF %TMPSC(1) <> %FG(1) OR %TMPSC(2) <> %FG(2) -
+                              OR %TMPSC(3) <> %FG(3) #THEN @CC = (1,13,12)
+   #BLOCK_END
+#BLOCK_END
+#DO SYS_GPRC:VDRAW_FIELD
+

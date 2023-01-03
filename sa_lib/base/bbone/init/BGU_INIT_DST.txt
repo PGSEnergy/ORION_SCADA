@@ -1,0 +1,82 @@
+;--------------------------------------------------------------------------
+;
+; Update daylight saving time command procedures
+;--------------------------------------------------------------------------
+; 
+; 
+
+@b_Old_DST_In_Use = false
+@APL_BNA = APL:BNA
+
+@fetch_c = fetch(0,"T","A_SPRING")
+#if fetch_c:viu > 0 #then #block
+   @b_Old_DST_In_Use = true
+   #set a_spring:tiu=0
+   @st=console_output(times+" 'APL_BNA' BGU_INIT_DST.TXT: A_SPRING  was taken out of use.")
+#block_end
+
+@fetch_c = fetch(0,"T","A_AUTUMN")
+#if fetch_c:viu > 0 #then #block
+   @b_Old_DST_In_Use = true
+   #set a_autumn:tiu=0
+   @st=console_output(times+" 'APL_BNA' BGU_INIT_DST.TXT: A_AUTUMN  was taken out of use.")
+#block_end
+
+;command procedure for standard time
+
+@fetch_c = fetch(0,"C","BGU_WINTER")
+#if fetch_c:viu >= 0 #then #block
+   @cin_code=BGU_WINTER:CIN
+   #delete BGU_WINTER:C
+   @st=write_text("BGU_WINTER.CIN", %cin_code)
+   @st=console_output(times+" 'APL_BNA' BGU_INIT_DST.TXT: BGU_WINTER:C was deleted.")
+   @st=console_output(times+" 'APL_BNA' BGU_INIT_DST.TXT: Backup code of BGU_WINTER:C saved to PICT/BGU_WINTER.CIN")
+#block_end
+
+;command procedure for daylight saving time
+@fetch_c = fetch(0,"C","BGU_SUMMER")
+#if fetch_c:viu >= 0 #then #block
+   @cin_code=BGU_SUMMER:CIN
+   #delete BGU_SUMMER:C
+   @st=write_text("BGU_SUMMER.CIN", %cin_code)
+   @st=console_output(times+" 'APL_BNA' BGU_INIT_DST.TXT: BGU_SUMMER:C was deleted.")
+   @st=console_output(times+" 'APL_BNA' BGU_INIT_DST.TXT: Backup code of BGU_SUMMER:C saved to PICT/BGU_SUMMER.CIN")
+#block_end
+
+
+;time channel for standard time
+@fetch_t = fetch(0,"T","BGU_WINTER")
+#if fetch_t:viu > 0 #then #block
+   @b_Old_DST_In_Use = true
+   #set bgu_winter:tiu = 0
+#block_end
+
+;time channel for daylight saving time
+@fetch_t = fetch(0,"T","BGU_SUMMER")
+#if fetch_t:viu > 0 #then #block
+   @b_Old_DST_In_Use = true
+   #set bgu_summer:tiu = 0
+#block_end
+
+;;;; PH 30-8-2004 ID(9422): Automatic daylight saving changes doesn't work
+;;;;crete needed command procedures & time channels
+;;;;#if %b_Old_DST_In_Use #then #block
+;;;;    #if LENGTH(PATH("BBONE"))>0 #then #do read_text("bbone/bgu_dst.scl")
+;;;;#block_end
+;;;
+;;;;actually it is not enough that BBONE is defined for app
+;;;;it should be really check that there is at least also the APLMOD4 dir
+;;;;otherwise executing bbone/path4.txt will fail
+;;;#if LENGTH(PATH("BBONE"))>0 #then #block
+;;;   @sDirName="/APL/"+APL:BNA+"/APLMOD4"
+;;;   @libMOdDir = fm_scil_directory(%sDirName)
+;;;   #if DIRECTORY_MANAGER("EXISTS",%libModDir) #then #block
+;;;       #do read_text ("bbone/path4.txt")
+;;;       #do read_text("bbone/bgu_dst.scl")
+;;;       @st=status       
+;;;   #block_end
+;;;#block_end
+
+@MODIFIED_COM_PROCEDURES = VECTOR("BGU_DST2")
+#do read_text("sagr_bbone/bgu_dst.scl")
+@st=status

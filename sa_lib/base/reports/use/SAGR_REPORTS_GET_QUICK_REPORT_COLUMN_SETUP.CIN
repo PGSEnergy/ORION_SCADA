@@ -1,0 +1,80 @@
+;CM =Interface for Monitor Pro Reports, Defines the column setup for Quick report pages
+; Function:    SAGR_REPORTS_GET_QUICK_REPORT_COLUMN_SETUP:C
+; Version:     3.0 (build 2.3.2012)
+; Parameters:  Objects, Report_Type, Time_Interval
+; Return data: PAGE1=list(Column1=list(ALLOW_MANUAL_TAGGING=Boolean           ;can be removed
+;                                      DATA= text (Object name)            
+;                                      DECIMALS=integer                       ;??
+;                                      EDITABLE=Boolean                       ;can be removed
+;                                      OPERATION=Text                         
+;                                      TITLE=Text)
+;                          Columnx=list(ALLOW_MANUAL_TAGGING=Boolean
+;                                      DATA= text (Object name)
+;                                      DECIMALS=integer
+;                                      EDITABLE=Boolean
+;                                      OPERATION=Text
+;                                      TITLE=Text)
+; Description: Defines the column setup for Quick report pages
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#local i,j,k, i_Status = Status, cot,-
+       t_LN = "", b_IsEditingAllowed = FALSE, i_BP = %l_GlobalSettings.BP ,-
+       i_ColumnsOnPage = max_integer, i_QR_PageCount = 1,-
+       v_QuickReportObjects = %Argumentlist.OBJECTS
+      
+@Report_Type= "NONE"
+@Quick_Report = true
+@Output=list(PAGE_COUNT=0)
+
+#if ATTRIBUTE_EXISTS(%Argumentlist,"REPORT_TYPE") #then @REPORT_TYPE=%Argumentlist.REPORT_TYPE
+#else #block
+   cot = console_output("SAGR_REPORTS_GET_QUICK_REPORT_COLUMN_SETUP:C error: Invalid Report Type, missing in Argument list","E","MREP")
+   #return
+#block_end   
+@T1=clock
+@T2=clock
+
+#if SAGR_REPORTS_CALCDATARANGE:ccs == 1 #then -
+      #do SAGR_REPORTS_CALCDATARANGE:ccp
+#else #do SAGR_REPORTS_CALCDATARANGE:c
+
+@ColumnSetup   = list(PAGE_COUNT=0)
+
+i_QR_PageCount = length(v_QuickReportObjects) DIV i_ColumnsOnPage
+#if (length(v_QuickReportObjects) MOD i_ColumnsOnPage) <> 0 #then - 
+   i_QR_PageCount = i_QR_PageCount + 1
+
+@ColumnSetup.PAGE_COUNT = i_QR_PageCount
+
+#loop_with i = 1..%ColumnSetup.PAGE_COUNT
+   #modify ColumnSetup:V = list(PAGE'i' = list(COLUMN_COUNT = 0, TITLE = "'i'/'i_QR_PageCount'"))
+   
+   #if i == %ColumnSetup.PAGE_COUNT #then -
+         @ColumnSetup.PAGE'i'.COLUMN_COUNT = length(v_QuickReportObjects) MOD i_ColumnsOnPage
+   #else @ColumnSetup.PAGE'i'.COLUMN_COUNT = i_ColumnsOnPage
+
+   @page  = %ColumnSetup.PAGE'i'
+   #loop_with j = 1..%ColumnSetup.PAGE'i'.COLUMN_COUNT           
+      k = (i-1) + j
+      t_LN = v_QuickReportObjects(k)
+
+      #if %Report_Type=="HOUR" #then b_IsEditingAllowed = FALSE                 ;*** Editing is not possible in hour reports.
+      #else #block
+         i_BP = %l_GlobalSettings.BP 
+         #if attribute_exists(%l_ReportObjects.OBJ_'t_LN', "BP") #then i_BP = %l_ReportObjects.OBJ_'t_LN'.BP
+         b_IsEditingAllowed = i_BP == %TIME_INTERVAL
+      #block_end
+
+      @COLUMN = list(TITLE    = v_QuickReportObjects(k),-
+                     DATA     = v_QuickReportObjects(k),-
+                     DECIMALS = 2, EDITABLE = b_IsEditingAllowed,-
+                     ALLOW_MANUAL_TAGGING = FALSE, OPERATION="")
+ 
+      #modify PAGE:V = list(COLUMN'j' = %COLUMN)
+   #loop_end
+   #modify ColumnSetup:V = list(PAGE'i' = %PAGE)
+#loop_end
+
+@output = %ColumnSetup

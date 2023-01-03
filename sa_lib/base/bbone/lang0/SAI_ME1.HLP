@@ -1,0 +1,293 @@
+COMMON MEASUREMENT
+
+1. Environmental requirements
+
+In order for the measurement to have full
+functionality, the following components need to
+be installed:
+
+SA-LIB
+
+   - Station
+   - Bay
+
+It is also possible to configure the measurement to
+operate without station and bay.
+
+2. Configurable attributes
+
+It is important to configure attributes in the order
+of appearance since setting one attribute may
+enable/disable and/or reset another attribute
+later.
+
+STATION_NAME
+
+A selector type of an editable combo box to
+select or enter the name of the substation. As a
+default, the maximum length of the text is 9
+characters. The selection list shows up to ten
+latest entries.
+
+The configurable attribute is being read directly
+from the process object database if there is any
+process object linked to the selected measurement.
+Therefore, the configurable attribute within a
+standard function has meaning only when the process
+objects have not been created.
+
+This text will be used as a substation identifier of
+the measurement objects on event list, alarm list,
+printout, database query, etc. It is very important
+that this text is similar to all objects within the
+same substation.
+
+BAY_NAME
+
+A selector type of an editable combo box to
+select or enter the name of the bay (feeder). As a
+default, the maximum length of the text is 14
+characters. The selection list shows up to ten
+latest entries.
+
+The configurable attribute is being read directly
+from the process object database if there is any
+process object linked to the selected measurement.
+Therefore, the configurable attribute within a
+standard function has meaning only when the process
+objects have not been created.
+
+This text will be used as a bay (feeder) identifier
+of the measurement objects on event list, alarm
+list, printout, database query, etc. It is very
+important that this text is similar to all objects
+within the same bay (feeder).
+
+DEVICE_NAME
+
+A selector type of an editable combo box to
+select or enter the name (identifier) of the
+measurement. As a default, the maximum length of
+the text is 5 characters. The selection list shows
+up to ten latest entries.
+
+The configurable attribute is being read directly
+from the process object database if there is any
+process object linked to the selected measurement.
+Therefore, the configurable attribute within a
+standard function has meaning only when the process
+objects have not been created.
+
+This text will be used as an identifier of the
+measurement on event list, alarm list, printout,
+database query, etc.
+
+P_OBJECT_LN
+
+The logical name of the database process objects.
+The maximum length of the text is 10 characters.
+Allowed characters are the letters A-Z, all
+digits and the underscore (_).
+
+The logical names of process objects have to be
+unique throughout the entire system, that is,
+different objects cannot have the same logical
+name. Therefore, it is very important to have a
+proper naming convention for the process object
+database.
+
+Certain naming convention is also required to speed
+up the opening time of the main dialogs. With the
+predefined naming convention it is possible to
+collect all station and bay related database
+objects without searching through the complete
+database. Therefore, it is advised to use the
+following naming convention:
+
+   - The first three characters identify the
+     substation
+   - The following four characters identify the bay
+   - The last three characters can be freely used to
+     identify the source of the signal i.e. device,
+     unit, etc.
+
+The following list is presented as an example of
+the proper naming convention within one bay. The
+station name is Green Bay, and the bay name is HA12
+Downtown:
+
+   - GRB, station
+   - GRBHA12BAY, bay
+   - GRBHA12Q0, circuit breaker Q0
+   - GRBHA12Q1, truck Q1
+   - GRBHA12Q9, earth switch Q9
+   - GRBHA12CT, measurements/current transformer
+   - GRBHA12VT, measurements/voltage
+     transformer
+   - GRBHA12ALA, alarm indicator
+   - GRBHA12AR, auto-reclosing tag
+   - GRBHA12TRP, tripping tag
+   - GRBHA12R1, feeder terminal or protection
+     unit 1
+   - GRBHA12R2, feeder terminal or protection
+     unit 2
+   - GRBHA12LS1, line segment 1 of busbar
+     coloring
+   - GRBHA12LS2, line segment 2 of busbar
+     coloring
+   - GRBHA12LS3, line segment 3 of busbar
+     coloring
+   - GRBHA12LI, line indicator of busbar
+     coloring
+
+STATION_TYPE
+
+A selector type of a combo box to select station
+type of the objects.
+
+The database process objects will be created for
+the station type defined here. The list of supported
+protocols is as follows:
+
+   - SPA
+   - ANSI
+   - LON
+   - RP570
+   - RP570 with FTABs
+   - IEC 870-5-101
+   - IEC 870-5-103
+   - ICCP
+   - DNP 3.0
+   - MODBUS RTU
+   - IEC 61850-8
+   - PROCOL
+
+TYPE_MEAS_'number'
+
+The type of the measurement. The type identifies the
+measurement for the creation of database (indexes,
+object texts, units ..). In case no suitable
+alternative can be found, the indexes 27..37 can
+be used. The indexes 27 .. 32 are for user-defined
+analog (AI) objects, and the indexes 33 .. 37 are
+for user-defined pulse counter (PC) objects.
+
+NOTE!
+
+THE DATABASE OBJECTS WILL NOT BE
+CREATED UNTIL THE PROCESS OBJECT
+TOOL HAS BEEN USED TO CREATE THEM.
+
+FOLDER_'number'_TITLE
+
+The name of the measurement to be shown in the
+measurement dialog. Attribute is optional, if it is
+not given, the measurement is referred to as "Meas.
+'number'" in the dialog.
+
+If the configurable attribute
+TYPE_MEAS_'number' is not configured, this
+attribute is being disabled, and the value has no
+meaning.
+
+MEAS_'number'_DECIMALS
+
+The number of decimals used when presenting the
+measurement value in the dialog.
+
+If the configurable attribute
+TYPE_MEAS_'number' is not configured, this
+attribute is being disabled, and the value has no
+meaning.
+
+AUTHORIZATION_GROUP
+
+A selector type of an editable combo box to
+select the authorization group for the object. The
+maximum length of the text is 63 characters. The
+given text has to be usable as a SCIL list
+attribute name (see the SCIL manual). The
+contents of the selection list is taken from the
+existing authorization groups.
+
+NOTE! The name may not be composed of two
+letters followed by a number.
+
+The attribute needs to be defined, if the object is
+wanted to be included in some authorization group.
+The authorization level of each user in this group
+can be defined afterwards by the system manager with
+User Management pictures.
+
+EVENT_RECORDING
+
+An ON/OFF type of a toggle button to select
+whether there is a need for event recording process
+objects with the RP 570 protocol. If
+STATION_TYPE is other than RTU 2xx or RTU
+2xx/FTABs, the configurable attribute is being
+disabled, and the value has no meaning.
+
+With the RP 570 the time stamp from process device
+comes into the event recording process object. If no
+accurate time stamp is needed or available, or the
+device is emulating the RP 570 without an event
+recording possibility, do not set this attribute ON.
+
+3. Configurations made with Process Object Tool
+
+THE DATABASE OBJECTS WILL NOT BE
+CREATED UNTIL THE PROCESS OBJECT
+TOOL HAS BEEN USED TO CREATE THEM.
+
+Based on the configuration made with the Standard
+Configuration Tool, the Process Object Tool
+(POT) creates a set of process objects among those
+that are listed below.
+
+Analog input or pulse counter for measurement
+
+   - Obligatory
+   - Current L1, index 10, AI
+   - Current L2, index 11, AI
+   - Current L3, index 12, AI
+   - Neutral current I0, index 13, AI
+   - Directional neutral current Ij, index 14, AI
+   - Maximum demand I15min, index 15, AI
+   - Voltage U12, index 16, AI
+   - Voltage U23, index 17, AI
+   - Voltage U31, index 18, AI
+   - Residual voltage U0, index 19, AI
+   - Active power P, index 20, AI
+   - Reactive power Q, index 21, AI
+   - Apparent power S, index 22, AI
+   - Power factor Cosj, index 23, AI
+   - Frequency f, index 24, AI
+   - Harmonic distortion, index 25, AI
+   - Temperature, index 26, AI
+   - User-defined measurement, index 27, AI
+   - User-defined measurement, index 28, AI
+   - User-defined measurement, index 29, AI
+   - User-defined measurement, index 30, AI
+   - User-defined measurement, index 31, AI
+   - User-defined measurement, index 32, AI
+   - User-defined pulse counter, index 33, PC
+   - User-defined pulse counter, index 34, PC
+   - User-defined pulse counter, index 35, PC
+   - User-defined pulse counter, index 36, PC
+   - User-defined pulse counter, index 37, PC
+   - Active energy E (kWh), index 38, PC
+   - Active energy E (MWh), index 39, PC
+   - Active energy E (GWh), index 40, PC
+   - Active energy E (kWh) - reversed, index 41, PC
+   - Active energy E (kWh) - reversed, index 42, PC
+   - Active energy E (kWh) - reversed, index 43, PC
+   - Reactive energy E (kvarh), index 44, PC
+   - Reactive energy E (Mvarh), index 45, PC
+   - Reactive energy E (Gvarh), index 46, PC
+   - Reactive energy E (kvarh) - reversed, index 47,
+     PC
+   - Reactive energy E (Mvarh) - reversed, index 48,
+     PC
+   - Reactive energy E (Gvarh) - reversed, index 49,
+     PC

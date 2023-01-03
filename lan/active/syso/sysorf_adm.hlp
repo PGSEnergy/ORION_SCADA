@@ -1,0 +1,16 @@
+REDUNDANT FRONTEND INSTALLATION TIPS
+
+1. Install Redundant Frontend command procedures, data and process 
+   objects with <INSTALL RF OBJECTS> key
+
+2. Select redundant NET pairs with <CREATE/VIEW NET PAIRS> key
+
+3. Choose the NET lines which are operated by the RF procedures with
+   <CHOOSE/VIEW RF LINES> key
+
+4. Create list of stations and printers defined in you basesystem with
+   <CREATE LIST OF OBJECTS> key. The list is stored in to the command
+   procedure RF_U_BOBJ, which can then be manually modified if needed.
+
+5. If you have Hot-standby basesystem, create an command procedure 
+   into the watchdog application with <INSTALL OBJECTS FOR HSB APL>

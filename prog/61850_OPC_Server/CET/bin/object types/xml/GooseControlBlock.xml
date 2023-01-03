@@ -1,0 +1,225 @@
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Mikko Ripatti/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">GooseControlBlock</Parameter>
+		<Parameter name="Caption">objectTypeCaption</Parameter>
+		<Parameter name="Description">objectTypeDescription</Parameter>
+		<Parameter name="Group">GOOSE</Parameter>
+		<Parameter name="Type">REPORTCONTROL</Parameter>
+		<Parameter name="IconFileName">GCB.ico</Parameter>
+		<Parameter name="Tools">OnlineDiagnosticsRcbIec61850</Parameter>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="Visible">True</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="PCMObjectType">IEC61850 Proxy LLN0, IEC61850 LLN0, IEC61850SPA LLN0</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+	<Parameters type="SCLExport">
+		<Export name="sclXML">ReportControlBlockSCL</Export>
+	</Parameters>
+	<Properties type="PropertyDefinitions">
+		<Property name="UpdateRCBSCL" category="[010] Basic">
+			<Value>False</Value>
+			<DescID>UpdateRCBSCLDesc</DescID>
+			<CaptionID>UpdateRCBSCL</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>UpdateRCBSCL</AttributeName>
+		</Property>
+		<Property name="ReportControlBlockSCL" category="[010] Basic">
+			<Value/>
+			<DescID>ReportControlBlockSCLDesc</DescID>
+			<CaptionID>ReportControlBlockSCL</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>ReportControlBlockSCL</AttributeName>
+		</Property>
+		<Property name="GSESCL" category="[010] Basic">
+			<Value/>
+			<DescID>GSESCLDesc</DescID>
+			<CaptionID>GSESCL</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>GSESCL</AttributeName>
+		</Property>
+		<Property name="datSet" category="[010] Basic">
+			<Value/>
+			<DescID>Dataset to be sent in GOOSE.</DescID>
+			<CaptionID>datSet</CaptionID>
+			<Values type="singleChoiceDynamic">
+				<ListObjects findMethod="ancestorDirectChild" ancestorDsot="LN" filterDsot="DATASET"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>datSet</AttributeName>
+		</Property>
+		<!--Property name="rptID" category="[010] Basic">
+			<Value></Value>
+			<DescID>rptIDDesc</DescID>
+			<CaptionID>rptID</CaptionID>
+			<Values type="string"></Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>rptID</AttributeName>
+		</Property-->
+		<!--Property name="buffered" category="[010] Basic">
+			<Value>True</Value>
+			<DescID>bufferedDesc</DescID>
+			<CaptionID>buffered</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>buffered</AttributeName>
+		</Property>
+		<Property name="intgPd" category="[010] Basic">
+			<Value>0</Value>
+			<DescID>intgPdDesc</DescID>
+			<CaptionID>intgPd</CaptionID>
+			<Values type="numerical"/>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>intgPd</AttributeName>
+		</Property-->
+		<Property name="confRev" category="[010] Basic">
+			<Value>1</Value>
+			<DescID>confRevDesc</DescID>
+			<CaptionID>confRev</CaptionID>
+			<Values type="numerical"/>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>confRev</AttributeName>
+		</Property>
+		<!--Property name="bufTime" category="[010] Basic">
+			<Value>100</Value>
+			<DescID>bufTimDesc</DescID>
+			<CaptionID>bufTim</CaptionID>
+			<Values type="numerical"/>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>bufTime</AttributeName>
+		</Property-->
+
+		<Property name="MAC-Address" category="[080] Goose Address">
+			<Value>01-0C-CD-01-00-00</Value>
+			<DescID>MulticastAddressDesc</DescID>
+			<CaptionID>MulticastAddress</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>WWW</Access>
+			<AttributeName>MAC-Address</AttributeName>
+		</Property>
+		<!--Property name="APPID" category="[080] Goose Address">
+			<Value>0</Value>
+			<DescID>Application ID for the GOOSE control block.</DescID>
+			<CaptionID>APPID</CaptionID>
+			<Values type="numerical">
+				<Min>0</Min>
+				<Max>16383</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>WWW</Access>
+			<AttributeName>AppID</AttributeName>
+		</Property-->
+		<Property name="APPID" category="[080] Goose Address">
+			<Value>0000</Value>
+			<DescID>APPIDDesc</DescID>
+			<CaptionID>APPID</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>WWW</Access>
+			<AttributeName>AppID</AttributeName>
+		</Property>
+
+		<Property name="VLAN-PRIORITY" category="[080] Goose Address">
+			<Value>4</Value>
+			<DescID>VLAN-PriorityDesc</DescID>
+			<CaptionID>VLAN-Priority</CaptionID>
+			<Values type="numerical">
+				<Min>0</Min>
+				<Max>7</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>WWW</Access>
+			<AttributeName>VLAN-PRIORITY</AttributeName>
+		</Property>
+		<Property name="VLAN-ID" category="[080] Goose Address">
+			<Value>000</Value>
+			<DescID>VLAN-IDDesc</DescID>
+			<CaptionID>VLAN-ID</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>WWW</Access>
+			<AttributeName>VLAN-ID</AttributeName>
+		</Property>
+		<Property name="AppIDDescription" category="[080] Goose Address">
+			<Value></Value>
+			<DescID>GoIDDesc</DescID>
+			<CaptionID>GoID</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>WWW</Access>
+			<AttributeName>AppIDDescription</AttributeName>
+		</Property>
+		<Property name="MaxTime" category="[080] Goose Address">
+			<Value>10000</Value>
+			<DescID>MaxTimeDesc</DescID>
+			<CaptionID>MaxTime</CaptionID>
+			<Values type="numerical">
+				<Min>0</Min>
+				<Max>65535</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>MaxTime</AttributeName>
+		</Property>
+		<Property name="MinTime" category="[080] Goose Address">
+			<Value>2</Value>
+			<DescID>MinTimeDesc</DescID>
+			<CaptionID>MinTime</CaptionID>
+			<Values type="numerical">
+				<Min>0</Min>
+				<Max>65535</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>MinTime</AttributeName>
+		</Property>
+		<Property name="GSEType" category="[010] Basic">
+			<Value>GOOSE</Value>
+			<DescID>GSETypeDesc</DescID>
+			<CaptionID>GSEType</CaptionID>
+			<Values type="singleChoice">
+				<Enum textID="GOOSE" value="GOOSE"/>
+				<Enum textID="GSSE" value="GSSE"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RRR</Access>
+			<AttributeName>GSEType</AttributeName>
+		</Property>
+	</Properties>
+</ObjectType>

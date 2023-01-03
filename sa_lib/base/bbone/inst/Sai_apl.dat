@@ -1,0 +1,703 @@
+; File : BSI_APL.DAT
+; Description : This file is the configuration datafile for the Application function (BSI_APLT.PIC)                            
+; -------------------------------------------------------------------------------------------------
+
+##FUNC_INIT_BEGIN
+
+@'.ID'_PICTURE_FUNCTION_CONF = LIST(-
+   AUTHORIZATION_GROUP = "SUPERVISION",-
+   APL_NUMBER          = 0,-
+   HOT_STAND_BY        = FALSE,-
+   NODE_NUMBER         = 0,-
+   EXT_WD_APL_NR       = 0,-
+   P_OBJECT_LN	       = "")
+
+##FUNC_INIT_END
+
+;-------- Attributes and User Programs -----------------
+##FUNC_DEF_BEGIN
+
+;create a list of all existing authorization groups
+#ERROR IGNORE
+@AUTHORIZATION_GROUPS = LIST_ATTR(MON:BSV(9))
+#IF DATA_TYPE(%AUTHORIZATION_GROUPS) <> "VECTOR" #THEN @AUTHORIZATION_GROUPS = VECTOR()
+#ERROR CONTINUE
+
+@FUNC_DEF = LIST(-
+   CONFIGURABLE_ATTRIB = ("AUTHORIZATION_GROUP",-
+                          "APL_NUMBER",-
+                          "HOT_STAND_BY",-
+                          "NODE_NUMBER",-
+                          "P_OBJECT_LN",-
+                          "EXT_WD_APL_NR"),-
+   SCT_ATTRIBUTES =  (LIST(NAME            = "AUTHORIZATION_GROUP",-
+                           TYPE            = "EDITABLE_SELECTOR",-
+                           INPUT_TYPE      = "TEXT",-
+                           VALUES          = %AUTHORIZATION_GROUPS,-
+                           REPRESENT       = %AUTHORIZATION_GROUPS),-
+                      LIST(NAME            = "APL_NUMBER",-
+                           TYPE            = "INTEGER",-
+                           MIN_VALUE       = 1,-
+                           MAX_VALUE       = MAX_APPLICATION_NUMBER,-
+                           CHANGE_CALLBACK = VECTOR("#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_APL_NUMBER"")")),-                   
+                      LIST(NAME           = "HOT_STAND_BY",-
+                           TYPE           = "BOOLEAN",-
+                           CHANGE_CALLBACK = VECTOR("#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_HOT_STAND_BY"")")),-
+                      LIST(NAME            = "NODE_NUMBER",-
+                           TYPE            = "INTEGER",-
+                           MIN_VALUE       = 1,-
+                           MAX_VALUE       = MAX_NODE_NUMBER),-                      
+                      LIST(NAME           = "EXT_WD_APL_NR",-
+                           TYPE           = "INTEGER",-
+                           MIN_VALUE      = 1,-
+                           MAX_VALUE      = MAX_APPLICATION_NUMBER)),-
+   SCT_HELP_FILE   = "SAGR_LANG/SAI_APL.HLP",-
+   REPR_ATTRIBUTES = (LIST(NAME   = "REPRESENTATION",-
+                           VALUES = "B_REPR/B_APL")),-
+   REPR_USER_PROGS = (""))
+
+##FUNC_DEF_END
+
+;-------- Callback Programs -----------------
+
+##CALLBACK_HOT_STAND_BY_BEGIN
+
+#if ROOT.ST_GET_ATTRIBUTE("HOT_STAND_BY") #then #block
+   ROOT.ST_ENABLE_ATTRIBUTE("NODE_NUMBER")
+   ROOT.ST_ENABLE_ATTRIBUTE("EXT_WD_APL_NR")
+#block_end
+#else #block
+   ROOT.ST_DISABLE_ATTRIBUTE("NODE_NUMBER")
+   ROOT.ST_DISABLE_ATTRIBUTE("EXT_WD_APL_NR")
+#block_end
+
+##CALLBACK_HOT_STAND_BY_END
+
+##CALLBACK_APL_NUMBER_BEGIN
+
+@LN_Start = "SYS_A"
+@Tmp ="0000" + dec('.ID'_PICTURE_FUNCTION_CONF:vAPL_NUMBER,0)
+@LN_End = substr(%Tmp, length(%Tmp) - 3, 0) + "I"
+
+
+ROOT.ST_SET_ATTRIBUTE("P_OBJECT_LN", "'LN_Start''LN_End'")
+
+##CALLBACK_APL_NUMBER_END
+
+
+;-------- SCT Initialization -----------------
+##SCT_INIT_BEGIN
+
+;check if system self supervision routing is enabled
+@i_Status = status
+#error ignore
+   @l_Sys_Bsv2 = SYS:BSV2
+   @b_SSS_Mech_In_Use = FALSE
+   @b_SSS_Mech_In_Use = l_Sys_Bsv2:vB_SSS_MECH_IN_USE
+#error stop
+
+;initialization
+#if status <> 0 #then #block
+
+   ;show message dialog
+   ROOT.ST_SHOW_MESSAGE("New SYS_BASCON.COM template is not used during the start-up of MicroSCADA. Replace the existing SYS_BASCON.COM file with SYS_BASCON$COM file and then try again, if you want to enable the System Self Supervision.")
+  
+   ;disable configuration
+   ROOT.ST_DISABLE_CONFIGURATION
+
+   ;switch for attribute definition
+   @b_Attribute_Definition_In_Sct_Init = FALSE
+   
+#block_end
+#else #block
+
+   ;show message dialog (if supervision routing disabled)
+   #if not(%b_SSS_Mech_In_Use) #then ROOT.ST_SHOW_MESSAGE("System Self Supervision routing is disabled in SYS_BASCON.COM. Thus, no diagnostic data available.")
+   
+   ;object is unconfigured
+   #if ROOT.ST_GET_ATTRIBUTE("NODE_NUMBER") == 0 and ROOT.ST_GET_ATTRIBUTE("APL_NUMBER") == 0 #then #block
+      ;attribute for node number
+      ROOT.ST_SET_ATTRIBUTE_DEFINITION("NODE_NUMBER", list(VALUE = SYS:BND))
+      ;attribute for apl numbers
+      ROOT.ST_SET_ATTRIBUTE_DEFINITION("APL_NUMBER", list(VALUE = APL:BAN))
+      ;switch for attribute definition
+      @b_Attribute_Definition_In_Sct_Init = TRUE
+      #error ignore
+      .set root\\Apply._enabled = TRUE
+   #block_end   
+
+   ;object is configured
+   #else #block
+      ;switch for attribute definition
+      @b_Attribute_Definition_In_Sct_Init = FALSE
+      ;read in application number
+      @i_Configured_Apl_Number = ROOT.ST_GET_ATTRIBUTE("APL_NUMBER")
+   #block_end
+
+   #DO .ST_READ_DATA_FILE_SECTION("CALLBACK_HOT_STAND_BY")
+   #DO .ST_READ_DATA_FILE_SECTION("CALLBACK_APL_NUMBER")
+#block_end
+
+
+##SCT_INIT_END
+
+;-------- Define Configuration Tool Menu -----------------
+
+##MENU_TXT_BEGIN
+
+;enable representation tool
+
+##MENU_TXT_END
+
+
+##MENU_PROG_BEGIN
+ 
+
+##MENU_PROG_END
+
+##TOOLS_BEGIN
+
+@SCT_Tools = Vector(-
+   LIST(Name = "Delete Tool",-
+        Id   = "Delete_Tool",-
+        File = "SAGR_INST/SAI_APLDEL.VSO",-
+        Tag  = "MAIN",-
+        Attribute_list = list(Application_Number = ROOT.ST_GET_ATTRIBUTE("APL_NUMBER"), ID =%'.ID'_PICTURE_FUNCTION_CONF, CONFIG_FILE="SAGR_INST/SAI_APL.DAT")))
+
+
+
+      
+##TOOLS_END
+;-------- Define Process Objects -----------------
+##P_OBJECTS_BEGIN
+
+
+ 
+##P_OBJECTS_END
+
+;-------- Program Executed when OK -----------------
+##OK_BEGIN
+
+;create application objects (if doesn't already exist)
+#if application_object_count(0, "C", "", "", "", "LN == ""SYS_SSSREV""") == 0 #then #do read_text("SYS_TOOL/SSS_Aplobj.scl")
+
+;check configuration consistency (if changes in application number since the previous configuration)
+#if not(%b_Attribute_Definition_In_Sct_Init) #then #block
+   #if %i_Configured_Apl_Number <> ROOT.ST_GET_ATTRIBUTE("APL_NUMBER") #then #DO ROOT.ST_READ_DATA_FILE_SECTION("CHECK_CONFIGURATION_CONSISTENCY")
+#block_end
+   #else @i_Configured_Apl_Number = ROOT.ST_GET_ATTRIBUTE("APL_NUMBER")
+
+;read in the pf configuration list
+@l_Attr = ROOT.ST_GET_CONF_LIST
+
+;create notations to parameter file and create process objects
+#if data_type(%l_Attr) <> "NONE" #then #block ; 1
+
+   ;add object number to parameter file
+   @l_Number = do(apl:bsv40, "SSS", "PutObjectNumber", "APPLICATION", l_Attr:vAPL_NUMBER)
+
+   ;add/define object attributes and process objects
+   #if l_Number:vSTATUS == 0 #then #block ; 2
+
+      ;object doesn't exist
+      #if not(l_Number:vEXIST) #then #block ; 3_1
+
+         ;a hot-stand-by system
+         #if l_Attr:vHOT_STAND_BY #then #block ; 4_1
+
+            ;attributes
+            @l_Object_Attributes    = list(-
+               AS_PRIMARY           = "",-
+               AS_SECONDARY         = "",-
+               SP_PRIMARY           = "",-
+               SP_SECONDARY         = "",-
+               POOL_PRIMARY         = "",-
+               POOL_SECONDARY       = "",-
+               QUEUE_PRIMARY        = "",-
+               QUEUE_SECONDARY      = "",-            
+               CX                   = APL'l_Attr:vAPL_NUMBER':BTT,-
+               CREATOR              = "HMI")
+
+            @l_Attributes = do(apl:bsv40, "SSS", "PutObjectAttributes", "APPLICATIONS", l_Attr:vAPL_NUMBER, %l_Object_Attributes)
+
+            ;process objects, HSB info to CX (also initialize process objects [local sys] or create cmd procedures [external sys])
+            ;application in local base system
+            #if SYS:BND == l_Attr:vNODE_NUMBER #then #block
+               ;HSB info to CX attribute
+               @t_CX_Attr = l_Object_Attributes:vCX+"_Hxx_'l_Attr:vEXT_WD_APL_NR'"
+               @l_CX_Attr = do(apl:bsv40, "SSS", "PutObjectAttributes", "APPLICATIONS", l_Attr:vAPL_NUMBER, list(CX = %t_CX_Attr))
+
+               ;process objects (primary, local sys)
+               @l_Apl_Primary = do(apl:bsv40, "SSS", "CreateProcessObject", "APPLICATION", "INDICATION", l_Attr:vAPL_NUMBER, "PRIMARY")
+
+               ;process object for presentation
+               @l_Apl_Presentation= do(APL:BSV40, "SSS", "CreateProcessObject", "APPLICATION", "INDICATION", l_Attr:VApl_Number, LIST(NODE_NUMBER=l_Attr:VNode_Number))
+
+               ;initialization of process objects (local sys)
+               #if l_Apl_Primary:vSTATUS == 0 #then #block
+                  ;define variables for event initialization
+                  @l_Time = hr_clock
+
+                  ;define events (apl. state and shadowing phase)
+                  #exec_after 5 SYS_SYSER:C (@SOURCE = "APL_AS", @SOURCE_NR = l_Attr:vAPL_NUMBER, -
+                     @EVENT = APL'l_Attr:vAPL_NUMBER':BAS, @RT = l_Time:vCL, @RM = l_Time:vUS DIV 1000)
+                  #exec_after 5 SYS_SYSER:C (@SOURCE = "APL_SP", @SOURCE_NR = l_Attr:vAPL_NUMBER, -
+                     @EVENT = APL'l_Attr:vAPL_NUMBER':BSP, @RT = l_Time:vCL, @RM = l_Time:vUS DIV 1000)
+               #block_end
+            #block_end
+            ;application in external base system
+            #else #block
+               ;HSB info to CX attribute
+               @t_CX_Attr = l_Object_Attributes:vCX+"_HSB_'l_Attr:vEXT_WD_APL_NR'"
+               @l_CX_Attr = do(apl:bsv40, "SSS", "PutObjectAttributes", "APPLICATIONS", l_Attr:vAPL_NUMBER, list(CX = %t_CX_Attr))
+
+               ;process objects (secondary, external sys)
+               @l_Apl_Secondary = do(apl:bsv40, "SSS", "CreateProcessObject", "APPLICATION", "INDICATION", l_Attr:vAPL_NUMBER, "SECONDARY")
+
+               ;process object for presentation
+               @l_Apl_Presentation= do(APL:BSV40, "SSS", "CreateProcessObject", "APPLICATION", "INDICATION", l_Attr:VApl_Number, LIST(NODE_NUMBER=l_Attr:VNode_Number))
+
+               ;command procedures for apl. in external sys
+               #do ROOT.ST_READ_DATA_FILE_SECTION("CREATE_APL_OBJECTS")
+            #block_end
+
+         #block_end ; 4_1
+
+         ;a single system
+         #else #block ; 4_2     
+
+            ;attributes
+            @l_Object_Attributes    = list(-
+               AS_PRIMARY           = "",-
+               AS_SECONDARY         = "",-
+               SP_PRIMARY           = "",-
+               SP_SECONDARY         = "",-
+               POOL_PRIMARY         = "",-
+               POOL_SECONDARY       = "",-
+               QUEUE_PRIMARY        = "",-
+               QUEUE_SECONDARY      = "",-            
+               CX                   = APL'l_Attr:vAPL_NUMBER':BTT,-
+               CREATOR              = "HMI")
+
+            @l_Attributes = do(apl:bsv40, "SSS", "PutObjectAttributes", "APPLICATIONS", l_Attr:vAPL_NUMBER, %l_Object_Attributes)
+
+            ;process objects (also initialize process objects [local sys] or create cmd procedures [external sys])
+            ;external applications
+            #if APL'l_Attr:vAPL_NUMBER':BTT == "EXTERNAL" #then #block
+               ;process objects
+               @l_Apl_Primary = do(apl:bsv40, "SSS", "CreateProcessObject", "APPLICATION", "INDICATION", l_Attr:vAPL_NUMBER)
+
+               ;process object for presentation
+               @l_Apl_Presentation= do(APL:BSV40, "SSS", "CreateProcessObject", "APPLICATION", "INDICATION", l_Attr:VApl_Number, LIST(NODE_NUMBER=0))
+
+               ;command procedures for apl. in external sys
+               #do ROOT.ST_READ_DATA_FILE_SECTION("CREATE_APL_OBJECTS")
+            #block_end
+            ;local applications
+            #else #block
+               ;process objects
+               @l_Apl_Primary = do(apl:bsv40, "SSS", "CreateProcessObject", "APPLICATION", "INDICATION", l_Attr:vAPL_NUMBER)
+
+               ;process object for presentation
+               @l_Apl_Presentation= do(APL:BSV40, "SSS", "CreateProcessObject", "APPLICATION", "INDICATION", l_Attr:VApl_Number, LIST(NODE_NUMBER=0))
+
+               ;initialization of process objects (local sys)
+               #if l_Apl_Primary:vSTATUS == 0 #then #block
+                  ;define variables for event initialization
+                  @l_Time = hr_clock
+
+                  ;define event
+                  #exec_after 5 SYS_SYSER:C (@SOURCE = "APL_AS", @SOURCE_NR = l_Attr:vAPL_NUMBER, -
+                     @EVENT = APL'l_Attr:vAPL_NUMBER':BAS, @RT = l_Time:vCL, @RM = l_Time:vUS DIV 1000)
+               #block_end
+            #block_end
+
+         #block_end ; 4_2
+
+      #block_end ; 3_1
+
+      ;object already exist
+      #else #block ; 3_2
+
+         ;a hot-stand-by system
+         #if l_Attr:vHOT_STAND_BY #then #block ; 4_1
+
+            ;process objects (also initialize process objects [local sys] or create cmd procedures [external sys], if needed...)
+            ;application in local base system
+            #if SYS:BND == l_Attr:vNODE_NUMBER #then #block
+               ;check object attributes
+               @l_Apl_Attrs = do(apl:bsv40, "SSS", "GetObjectAttributes", "APPLICATION", l_Attr:vAPL_NUMBER)
+
+               ;process objects (primary, local sys)
+               @l_Apl_Primary = do(apl:bsv40, "SSS", "CreateProcessObject", "APPLICATION", "INDICATION", l_Attr:vAPL_NUMBER, "PRIMARY")
+               
+               ;process object for presentation
+               @l_Apl_Presentation= do(APL:BSV40, "SSS", "CreateProcessObject", "APPLICATION", "INDICATION", l_Attr:VApl_Number, LIST(NODE_NUMBER=l_Attr:VNode_Number))
+
+               ;initialization of process objects (local sys), if objects created...
+               #if l_Apl_Primary:vSTATUS == 0 and (l_Apl_Attrs:vAS_PRIMARY == "#" and l_Apl_Attrs:vSP_PRIMARY == "#") #then #block
+                  ;define variables for event initialization
+                  @l_Time = hr_clock
+
+                  ;define events (apl. state and shadowing phase)
+                  #exec_after 5 SYS_SYSER:C (@SOURCE = "APL_AS", @SOURCE_NR = l_Attr:vAPL_NUMBER, -
+                     @EVENT = APL'l_Attr:vAPL_NUMBER':BAS, @RT = l_Time:vCL, @RM = l_Time:vUS DIV 1000)
+                  #exec_after 5 SYS_SYSER:C (@SOURCE = "APL_SP", @SOURCE_NR = l_Attr:vAPL_NUMBER, -
+                     @EVENT = APL'l_Attr:vAPL_NUMBER':BSP, @RT = l_Time:vCL, @RM = l_Time:vUS DIV 1000)                    
+               #block_end
+            #block_end
+            ;application in external base system
+            #else #block
+               ;HSB info to CX attribute
+               @t_CX_Attr = APL'l_Attr:vAPL_NUMBER':BTT+"_HSB_'l_Attr:vEXT_WD_APL_NR'"
+               @l_CX_Attr = do(apl:bsv40, "SSS", "PutObjectAttributes", "APPLICATIONS", l_Attr:vAPL_NUMBER, list(CX = %t_CX_Attr))
+
+               ;process objects (secondary, external sys)
+               @l_Apl_Secondary = do(apl:bsv40, "SSS", "CreateProcessObject", "APPLICATION", "INDICATION", l_Attr:vAPL_NUMBER, "SECONDARY")
+
+               ;process object for presentation
+               @l_Apl_Presentation= do(APL:BSV40, "SSS", "CreateProcessObject", "APPLICATION", "INDICATION", l_Attr:VApl_Number, LIST(NODE_NUMBER=l_Attr:VNode_Number))
+
+               ;command procedures for apl. in external sys
+               #do ROOT.ST_READ_DATA_FILE_SECTION("CREATE_APL_OBJECTS")
+            #block_end
+
+         #block_end ; 4_1
+
+         ;a single system
+         #else #block ; 4_2
+
+            ;attributes
+            @l_CX_Attr = do(apl:bsv40, "SSS", "PutObjectAttributes", "APPLICATIONS", l_Attr:vAPL_NUMBER, list(CX = APL'l_Attr:vAPL_NUMBER':BTT))
+
+            ;process objects
+            #if APL'l_Attr:vAPL_NUMBER':BTT == "EXTERNAL" #then #block
+               @l_Apl_Primary = do(apl:bsv40, "SSS", "CreateProcessObject", "APPLICATION", "INDICATION", l_Attr:vAPL_NUMBER) 
+
+               ;command procedures for apl. in external sys
+               #do ROOT.ST_READ_DATA_FILE_SECTION("CREATE_APL_OBJECTS")
+            #block_end
+               #else @l_Apl_Primary = do(apl:bsv40, "SSS", "CreateProcessObject", "APPLICATION", "INDICATION", l_Attr:vAPL_NUMBER)
+
+             ;process object for presentation
+             @l_Apl_Presentation= do(APL:BSV40, "SSS", "CreateProcessObject", "APPLICATION", "INDICATION", l_Attr:VApl_Number, LIST(NODE_NUMBER=0))
+
+         #block_end ; 4_2
+
+      #block_end ; 3_2
+
+   #block_end ; 2
+
+   ;check local base system attributes
+   #if l_Attr:vHOT_STAND_BY #then #if l_Attr:vNODE_NUMBER <> SYS:BND #then #block
+
+      @l_Sys_Node = do(apl:bsv40, "SSS", "PutObjectNumber", "NODE", l_Attr:vNODE_NUMBER)
+
+      #if not(l_Sys_Node:vEXIST) #then #block
+         @l_Base_System = do(apl:bsv40, "SSS", "PutObjectAttributes", "NODES", l_Attr:vNODE_NUMBER, list(TYPE = "BASE SYSTEM", CREATOR = "HMI"))
+         @l_Base_System = do(apl:bsv40, "SSS", "CreateProcessObject", "NODE", "INDICATION", l_Attr:vNODE_NUMBER)
+      #block_end
+ 
+   #block_end
+   #else #block
+
+      @l_Sys_Node = do(apl:bsv40, "SSS", "PutObjectNumber", "NODE", SYS:BND)
+
+      #if not(l_Sys_Node:vEXIST) #then #block
+         @l_Base_System = do(apl:bsv40, "SSS", "PutObjectAttributes", "NODES", SYS:BND, list(TYPE = "BASE SYSTEM", CREATOR = "HMI"))
+         @l_Base_System = do(apl:bsv40, "SSS", "CreateProcessObject", "NODE", "INDICATION", SYS:BND)
+      #block_end
+   
+   #block_end
+
+   ;switch for attribute definitions (in case that program executed when apply)
+   @b_Attribute_Definition_In_Sct_Init = FALSE
+
+#block_end ; 1
+
+##OK_END
+
+;-------- Program Executed when CANCEL -----------------
+##CANCEL_BEGIN
+ 
+;;#if %b_Attribute_Definition_In_Sct_Init #then ROOT.ST_SHOW_MESSAGE("This picture function was not configured. Only default attribute values were displayed.") 
+ 
+##CANCEL_END
+
+;-------- Program Executed when DELETE -----------------
+##DELETE_BEGIN
+
+;** check if SSS initialized TL
+@e_state = error_state
+@s = 0
+#error ignore
+@check_apl_bsv_40 = get_status(apl:bsv(40))
+#if not (status==0) #then #return
+#error 'e_state'
+;** 
+
+;read in the pf configuration list
+@l_Attr = ROOT.SCT_GET_CONF_LIST(%ID)
+
+;process object deletion
+#if data_type(%l_Attr) <> "NONE" #then #block ; 1
+
+   ;read in attributes
+   @l_Object_Attributes = do(apl:bsv40, "SSS", "GetObjectAttributes", "APPLICATION", l_Attr:vAPL_NUMBER)
+
+   ;delete process objects, if created by the pf
+   #if l_Object_Attributes:vSTATUS == 0 #then #if l_Object_Attributes:vCREATOR == "HMI" #then #block
+
+      ;a hot-stand-by system
+      #if l_Attr:vHOT_STAND_BY #then #block
+         ;application in local base system
+         #if SYS:BND == l_Attr:vNODE_NUMBER #then #block
+            #if l_Object_Attributes:vAS_SECONDARY == "#" #then #block
+               @l_Apl_Primary = do(apl:bsv40, "SSS", "DeleteProcessObject", "APPLICATION", "INDICATION", l_Attr:vAPL_NUMBER)
+               @l_Apl_Attr = do(apl:bsv40, "SSS", "PutObjectAttributes", "APPLICATIONS", l_Attr:vAPL_NUMBER, list(CX = ""))
+               @l_Apl_Nr = do(apl:bsv40, "SSS", "DeleteObjectNumber", "APPLICATION", l_Attr:vAPL_NUMBER)
+            #block_end
+               #else @l_Apl_Primary = do(apl:bsv40, "SSS", "DeleteProcessObject", "APPLICATION", "INDICATION", l_Attr:vAPL_NUMBER)
+          #block_end
+         ;application in external base system
+         #else #block
+            ;process objects
+            #if l_Object_Attributes:vAS_PRIMARY == "#" #then #block
+               @l_Apl_Secondary = do(apl:bsv40, "SSS", "DeleteProcessObject", "APPLICATION", "INDICATION", l_Attr:vAPL_NUMBER, list(), "", "SECONDARY")
+               @l_Apl_Attr = do(apl:bsv40, "SSS", "PutObjectAttributes", "APPLICATIONS", l_Attr:vAPL_NUMBER, list(CX = ""))
+               @l_Apl_Nr = do(apl:bsv40, "SSS", "DeleteObjectNumber", "APPLICATION", l_Attr:vAPL_NUMBER)
+            #block_end               
+            #else #block
+               @l_Apl_Secondary = do(apl:bsv40, "SSS", "DeleteProcessObject", "APPLICATION", "INDICATION", l_Attr:vAPL_NUMBER, list(), "", "SECONDARY")
+               @l_CX_Attr = do(apl:bsv40, "SSS", "PutObjectAttributes", "APPLICATIONS", l_Attr:vAPL_NUMBER, list(CX = APL'l_Attr:vAPL_NUMBER':BTT+"_Hxx_'l_Attr:vEXT_WD_APL_NR'"))
+            #block_end
+            ;reset application history
+            #error ignore
+               @i_Status = status
+               @l_Apl_Bsv = APL:BSV46
+               #delete l_Apl_Bsv:vAPL'l_Attr:vAPL_NUMBER'_HSB
+            #error stop
+            #if status == 0 #then #set APL:BSV46 = %l_Apl_Bsv
+         #block_end
+      #block_end
+
+      ;a single application
+      #else #block      
+         @l_Apl_Primary = do(apl:bsv40, "SSS", "DeleteProcessObject", "APPLICATION", "INDICATION", l_Attr:vAPL_NUMBER)
+         @l_Apl_Attr = do(apl:bsv40, "SSS", "PutObjectAttributes", "APPLICATIONS", l_Attr:vAPL_NUMBER, list(CX = ""))
+         @l_Apl_Nr = do(apl:bsv40, "SSS", "DeleteObjectNumber", "APPLICATION", l_Attr:vAPL_NUMBER)
+         ;reset application history (in case of ext. application)
+         #if l_Object_Attributes:vCX == "EXTERNAL" #then #block
+            #error ignore
+               @i_Status = status
+               @l_Apl_Bsv = APL:BSV46
+               #delete l_Apl_Bsv:vAPL'l_Attr:vAPL_NUMBER'_EXT
+            #error stop
+            #if status == 0 #then #set APL:BSV46 = %l_Apl_Bsv
+         #block_end         
+      #block_end
+
+   #block_end
+
+   ;check inactivation of command procedures for apl. in external sys (%CONFIGDATA defined in PictEd.vso)
+   #if l_Attr:vHOT_STAND_BY or l_Object_Attributes:vCX == "EXTERNAL" #then #block
+      @v_Start_of_Section = select(%CONFIGDATA, "==""##CHECK_APL_OBJECTS_BEGIN""")
+      @v_End_of_Section = select(%CONFIGDATA, "==""##CHECK_APL_OBJECTS_END""")
+      #do %CONFIGDATA(%v_Start_of_Section(1)+1 .. %v_End_of_Section(1)-1)
+   #block_end
+
+#block_end ; 1
+
+##DELETE_END
+
+
+
+;-------- Programs Executed within OK part (additional part, added by mitrpaka) -----------------
+##CREATE_APL_OBJECTS_BEGIN
+
+;a hot-stand-by system
+#if l_Attr:vHOT_STAND_BY #then #if application_object_count(0, "C", "", "", "", "LN == ""SYS_APLH1""") == 0 #then #block
+
+   ;read in general info
+   @l_General_Info = APL:BSV45
+
+   ;create time channel (not to be executed in the pq)
+   @l_SYS_APLH = list(-
+         IU    = 1,-
+         CY    = (0,l_General_Info:vAPL_STATUS_CHECK_INTERVAL),-
+         SU    = (0,0),-
+         SY    = (0,clock),-
+         CM    = do(apl:bsv40, "SSS", "GetLanguageText", "Time_Cha_of_SYS_APLH", true))
+
+   @i_Create_Status = do(apl:bsv40, "SSS", "CreateTimeChannel", "SYS_APLH", %l_SYS_APLH)   
+
+   ;command procedures
+   @l_SYS_APLH1 = list(-
+         IU     = 1,-
+         MO     = 1,-
+         PE     = 1,-
+         PQ     = 4,-
+         FX     = "TRUE",-
+         TC     = "SYS_APLH",-
+         CM     = do(apl:bsv40, "SSS", "GetLanguageText", "Cmd_Proc_of_SYS_APLH1", true),-
+         IN     = read_text("SYS_TOOL/sys_aplh1.scl"))
+
+   @i_Create_Status = do(apl:bsv40, "SSS", "CreateCommandProcedure", "SYS_APLH1", %l_SYS_APLH1, true)
+
+   @l_SYS_APLH2 = list(-
+         IU     = 1,-
+         MO     = 1,-
+         PE     = 1,-
+         PQ     = 4,-
+         FX     = "TRUE",-
+         CM     = do(apl:bsv40, "SSS", "GetLanguageText", "Cmd_Proc_of_SYS_APLH2", true),-
+         IN     = read_text("SYS_TOOL/sys_aplh2.scl"))
+
+   @i_Create_Status = do(apl:bsv40, "SSS", "CreateCommandProcedure", "SYS_APLH2", %l_SYS_APLH2, true)
+
+#block_end
+#else #block
+   ;time channel
+   #set SYS_APLH:TIU = 1
+   ;cmd procedures
+   #modify SYS_APLH1:C = list(IU = 1, FX = "TRUE")
+   #modify SYS_APLH2:C = list(IU = 1, FX = "TRUE")
+#block_end
+            
+;a single system (external applications)
+#if not(l_Attr:vHOT_STAND_BY) #then #if application_object_count(0, "C", "", "", "", "LN == ""SYS_APLE1""") == 0 #then #block
+
+   ;read in general info
+   @l_General_Info = APL:BSV45
+
+   ;create time channel (not to be executed in the pq)
+   @l_SYS_APLE = list(-
+         IU    = 1,-
+         CY    = (0,l_General_Info:vAPL_STATUS_CHECK_INTERVAL),-
+         SU    = (0,0),-
+         SY    = (0,clock),-
+         CM    = do(apl:bsv40, "SSS", "GetLanguageText", "Time_Cha_of_SYS_APLE", true))
+
+   @i_Create_Status = do(apl:bsv40, "SSS", "CreateTimeChannel", "SYS_APLE", %l_SYS_APLE)   
+
+   ;command procedures
+   @l_SYS_APLE1 = list(-
+         IU     = 1,-
+         MO     = 1,-
+         PE     = 1,-
+         PQ     = 4,-
+         FX     = "TRUE",-
+         TC     = "SYS_APLE",-
+         CM     = do(apl:bsv40, "SSS", "GetLanguageText", "Cmd_Proc_of_SYS_APLE1", true),-
+         IN     = read_text("SYS_TOOL/sys_aple1.scl"))
+
+   @i_Create_Status = do(apl:bsv40, "SSS", "CreateCommandProcedure", "SYS_APLE1", %l_SYS_APLE1, true)
+
+   @l_SYS_APLE2 = list(-
+         IU     = 1,-
+         MO     = 1,-
+         PE     = 1,-
+         PQ     = 4,-
+         FX     = "TRUE",-
+         CM     = do(apl:bsv40, "SSS", "GetLanguageText", "Cmd_Proc_of_SYS_APLE2", true),-
+         IN     = read_text("SYS_TOOL/sys_aple2.scl"))
+
+   @i_Create_Status = do(apl:bsv40, "SSS", "CreateCommandProcedure", "SYS_APLE2", %l_SYS_APLE2, true)
+   
+#block_end
+#else #block
+   ;time channel
+   #set SYS_APLE:TIU = 1
+   ;command procedures
+   #modify SYS_APLE1:C = list(IU = 1, FX = "TRUE")
+   #modify SYS_APLE2:C = list(IU = 1, FX = "TRUE")
+#block_end
+
+##CREATE_APL_OBJECTS_END
+
+
+##CHECK_APL_OBJECTS_BEGIN
+
+@l_Apl_Numbers = do(apl:bsv40, "SSS", "GetObjectNumbers", "APPLICATION")
+
+#if l_Apl_Numbers:vSTATUS == 0 #then #block
+   @b_Cmd_Ext_Delete = TRUE
+   @b_Cmd_Hsb_Delete = TRUE
+   #loop_with i_Apl = 1 .. length(l_Apl_Numbers:vDATA)
+      @i_Apl_Nr = l_Apl_Numbers:vDATA(%i_Apl)
+      @l_Apl_Attrs = do(apl:bsv40, "SSS", "GetObjectAttributes", "APPLICATION", %i_Apl_Nr)
+
+      #if l_Apl_Attrs:vSTATUS == 0 #then #block
+         #if l_Apl_Attrs:vCX == "EXTERNAL" #then @b_Cmd_Ext_Delete = FALSE
+         #else_if locate(l_Apl_Attrs:vCX, "HSB") > 0 #then @b_Cmd_Hsb_Delete = FALSE
+      #block_end
+   #loop_end
+
+   #if %b_Cmd_Ext_Delete #then #block
+      ;time channel
+      @l_Fetch = fetch(0, "T", "SYS_APLE")
+      #if l_Fetch:vIU == 1 #then #set SYS_APLE:TIU = 0
+      ;command procedures
+      @l_Fetch = fetch(0, "C", "SYS_APLE1")
+      #if l_Fetch:vIU == 1 #then #modify SYS_APLE1:C = list(IU = 0, FX = "FALSE")
+      @l_Fetch = fetch(0, "C", "SYS_APLE2")
+      #if l_Fetch:vIU == 1 #then #modify SYS_APLE2:C = list(IU = 0, FX = "FALSE")
+   #block_end
+   #else_if %b_Cmd_Hsb_Delete #then #block
+      ;time channel
+      @l_Fetch = fetch(0, "T", "SYS_APLH")
+      #if l_Fetch:vIU == 1 #then #set SYS_APLH:TIU = 0
+      ;cmd procedures
+      @l_Fetch = fetch(0, "C", "SYS_APLH1")
+      #if l_Fetch:vIU == 1 #then #modify SYS_APLH1:C = list(IU = 0, FX = "FALSE")
+      @l_Fetch = fetch(0, "C", "SYS_APLH2")
+      #if l_Fetch:vIU == 1 #then #modify SYS_APLH2:C = list(IU = 0, FX = "FALSE")
+   #block_end
+#block_end
+
+##CHECK_APL_OBJECTS_END
+
+
+##CHECK_CONFIGURATION_CONSISTENCY_BEGIN
+
+;read in attributes for previous application number
+@l_Previous_Obj_Attrs = do(apl:bsv40, "SSS", "GetObjectAttributes", "APPLICATION", %i_Configured_Apl_Number)
+
+;show question dialog, if created by the pf
+#if l_Previous_Obj_Attrs:vSTATUS == 0 #then #if l_Previous_Obj_Attrs:vCREATOR == "HMI" #then #block
+
+   ROOT.ST_SHOW_QUESTION("Application number for the selected picture function is changed since the previous configuration. " + -
+                         "Do you want to delete the previous configuration for application 'i_Configured_Apl_Number'?", -
+                         VECTOR("#DO .ST_READ_DATA_FILE_SECTION(""DELETE_PREVIOUS_CONFIGURATION_YES"")"),-
+                         VECTOR("#DO .ST_READ_DATA_FILE_SECTION(""DELETE_PREVIOUS_CONFIGURATION_NO"")"))
+
+#block_end   
+
+##CHECK_CONFIGURATION_CONSISTENCY_END
+
+;-------- Programs Executed when Question dialog shown (additional part, added by mitrpaka) -----------------
+##DELETE_PREVIOUS_CONFIGURATION_YES_BEGIN
+
+;delete process objects for previous application number
+@l_Apl_Primary = do(apl:bsv40, "SSS", "DeleteProcessObject", "APPLICATION", "INDICATION", %i_Configured_Apl_Number)
+@l_Apl_Secondary = do(apl:bsv40, "SSS", "GetObjectAttributes", "APPLICATION", %i_Configured_Apl_Number)
+#if l_Apl_Secondary:vSTATUS == 0 #then #if l_Apl_Secondary:vAS_SECONDARY <> "#" #then -
+   @l_Apl_Secondary = do(apl:bsv40, "SSS", "DeleteProcessObject", "APPLICATION", "INDICATION", %i_Configured_Apl_Number, list(), "", "SECONDARY")
+@l_Apl_Attr = do(apl:bsv40, "SSS", "PutObjectAttributes", "APPLICATIONS", %i_Configured_Apl_Number, list(CX = ""))
+@l_Apl_Nr = do(apl:bsv40, "SSS", "DeleteObjectNumber", "APPLICATION", %i_Configured_Apl_Number)
+
+;check inactivation of command procedures for apl. in external sys
+#if ROOT.ST_GET_ATTRIBUTE("HOT_STAND_BY") or l_Previous_Obj_Attrs:vCX == "EXTERNAL" #then #DO ROOT.ST_READ_DATA_FILE_SECTION("CHECK_APL_OBJECTS")
+
+;read in application number
+@i_Configured_Apl_Number = ROOT.ST_GET_ATTRIBUTE("APL_NUMBER")
+   
+##DELETE_PREVIOUS_CONFIGURATION_YES_END
+
+
+##DELETE_PREVIOUS_CONFIGURATION_NO_BEGIN
+
+;read in application number
+@i_Configured_Apl_Number = ROOT.ST_GET_ATTRIBUTE("APL_NUMBER")
+   
+##DELETE_PREVIOUS_CONFIGURATION_NO_END

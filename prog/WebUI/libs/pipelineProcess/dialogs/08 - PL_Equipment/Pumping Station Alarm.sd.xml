@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:variable type="external" name="control" default="''" />
+    <d:meta name="dv-custom-attribute|ABB SA Symbols" content="v1.0" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="Alarm" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Pumping Station Alarm" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="status-color" default="0" />
+    <d:value-list name="f1561" min="0" max="4">
+      <d:option expression="colors[38]" />
+      <d:option expression="colors[32]" />
+      <d:option expression="colors[44]" />
+      <d:option expression="colors[45]" />
+      <d:option expression="colors[38]" />
+    </d:value-list>
+    <d:value-list name="f1562" min="0" max="4">
+      <d:option expression="colors[38]" />
+      <d:option expression="colors[32]" />
+      <d:option expression="colors[44]" />
+      <d:option expression="colors[45]" />
+      <d:option expression="colors[38]" />
+    </d:value-list>
+  </d:head>
+  <d:body n:LN="{LN(control)}" n:IX="{IX(control)}" x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <s:circle cx="0" cy="0" r="10" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f1561(`status-color`), subdrawing_color)}" y:fill-rule="evenodd" y:stroke="none" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Status" />
+    <s:pattern id="i2" width="4" height="4" patternUnits="userSpaceOnUse" d:adjustToScreenCoordSystem="true">
+      <s:rect x="0" y="0" width="4" height="4" fill="{colors[19]}" />
+      <s:path stroke="{subdrawing_color}" stroke-width="0.400" d="M 0 1 L 8 1 M 0 3 L 8 3 M 0 5 L 8 5 M 0 7 L 8 7" />
+    </s:pattern>
+    <s:circle cx="0" cy="0" r="8" d:transform-anchor="center-center" y:fill="url(#i2)" y:fill-rule="evenodd" y:stroke="none" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Status" />
+  </d:body>
+</d:document>

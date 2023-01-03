@@ -1,0 +1,80 @@
+﻿;OBJECT       : FTU_CREATE.TXT
+;Copyright Hitachi Power Grids. All rights reserved.
+;
+;DESCRIPTION  : This is the text file for creating data objects and time channels 
+;               for the LIB 500 trend picture
+;--------------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+;find the previous full minute
+@EXEC_SYNC_TIME = PACK_TIME(YEAR,MONTH,DAY,HOUR,MINUTE,0)
+
+;create ten second time channel, added HoDa 10.10.2011, ID:16108
+@FETCH = FETCH(0,"T","FTU_TRT10")
+#IF FETCH:VIU == -1 #THEN #CREATE FTU_TRT10:T = LIST(-
+           IU = 1,-
+           CY = (0,10),-
+           SU = (0,0),-
+           SY = (0,%EXEC_SYNC_TIME),-
+           CM = FTU_OBJECT:VTIME_CHANNEL_TEXT)
+
+;create thirty second time channel
+@FETCH = FETCH(0,"T","FTU_TRT30")
+#IF FETCH:VIU == -1 #THEN #CREATE FTU_TRT30:T = LIST(-
+           IU = 1,-
+           CY = (0,30),-
+           SU = (0,0),-
+           SY = (0,%EXEC_SYNC_TIME),-
+           CM = FTU_OBJECT:VTIME_CHANNEL_TEXT)
+
+;create one minute time channel
+@FETCH = FETCH(0,"T","FTU_TRT60")
+#IF FETCH:VIU == -1 #THEN #CREATE FTU_TRT60:T = LIST(-
+          IU = 1,-
+          CY = (0,60),-
+          SU = (0,0),-
+          SY = (0,%EXEC_SYNC_TIME),-
+          CM = FTU_OBJECT:VTIME_CHANNEL_TEXT)
+
+;create two minute time channel
+@FETCH = FETCH(0,"T","FTU_TRT120")
+#IF FETCH:VIU == -1 #THEN #CREATE FTU_TRT120:T = LIST(-
+           IU = 1,-
+           CY = (0,120),-
+           SU = (0,0),-
+           SY = (0,%EXEC_SYNC_TIME),-
+           CM = FTU_OBJECT:VTIME_CHANNEL_TEXT)
+
+;create five minute time channel
+@FETCH = FETCH(0,"T","FTU_TRT300")
+#IF FETCH:VIU == -1 #THEN #CREATE FTU_TRT300:T = LIST(-
+           IU = 1,-
+           CY = (0,300),-
+           SU = (0,0),-
+           SY = (0,%EXEC_SYNC_TIME),-
+           CM = FTU_OBJECT:VTIME_CHANNEL_TEXT)
+
+;create ten minute time channel
+@FETCH = FETCH(0,"T","FTU_TRT600")
+#IF FETCH:VIU == -1 #THEN #CREATE FTU_TRT600:T = LIST(-   
+           IU = 1,-
+           CY = (0,600),-
+           SU = (0,0),-
+           SY = (0,%EXEC_SYNC_TIME),-
+           CM = FTU_OBJECT:VTIME_CHANNEL_TEXT)
+
+;create default amoutnt of data objects for trend data logging
+#LOOP_WITH I = 1..(FTU_SETUP:VNUMBER_OF_DATALOGS)
+   @FETCH = FETCH(0,"D","FTU_TRD'I'")
+   #IF FETCH:VIU == -1 #THEN #CREATE FTU_TRD'I':D = LIST(-
+              IN = "",-
+              LF = FTU_SETUP:VDEFAULT_LOG_FUNCTION,-
+              HR = FTU_SETUP:VMAX_LENGTH_OF_LOGS,-
+              IU = 0,-
+              EP = 0,-
+              CM = FTU_OBJECT:VDATA_OBJECT_TEXT,-
+              TC = FTU_SETUP:VDEFAULT_TIME_CHANNEL)
+#LOOP_END
+
+   

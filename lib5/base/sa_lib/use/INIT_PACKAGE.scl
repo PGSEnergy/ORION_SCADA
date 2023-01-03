@@ -1,0 +1,124 @@
+#local -
+   l_info,-
+   st,-
+   res,-
+   t_action,-
+   t_selector,-
+   tmp_version,-
+   txt_running_revision,-
+   txt_installed_revision,-
+   vct_running_revision,-
+   vct_installed_revision,-
+   int_running_revision,-
+   int_installed_revision,-
+   update_needed,-
+   v_running_version,-
+   v_installed_version,-
+   l_license
+
+#local l_result = list(-
+			version_procedure = "SA_LIB_REV",-
+			base_path = "/SA_LIB/BASE/BBONE",-
+			name = "SA_LIB Base Backbone",-
+			identifier = "SAGR",-
+			depends = vector(),-
+			uninstall =  false,-
+			update = false,-
+			prepared = false,-
+			version = list(-
+				major = 1,-
+				minor = 0),-
+			status_info = "",-
+			status = 0)
+			
+#error ignore
+res = trace_end
+			
+#if argument_count > 0 #then #block
+	t_selector = argument(1)
+	#if data_type(t_selector) == "TEXT" #then #block
+		#case t_selector
+			#when "GET_INFO", "PREPARE_APPLICATION", "UPDATE_APPLICATION", "UNINSTALL"
+			#otherwise #return list()
+		#case_end
+	#block_end
+#block_end
+#else #return list()
+
+st = status
+#if length(path("b5_bbone")) == 0 #then #path b5_bbone +NO_CREATE, /LIB5/BASE/BBONE/USE
+#error continue
+	
+#case t_selector
+	#when "GET_INFO" #block
+      l_license = LICENSE_MANAGER("GET", "MAIN_LICENSE") ; For now tie this package with the pipeline
+		#if l_license.STATUS <> 0 #then #return LIST(status = l_license.STATUS)
+		#if not attribute_exists(l_license, "SA_LIB") #then #return merge_attributes(l_result, LIST(status = 1,-
+	   		status_info = translation("Not allowed by license.")))
+	   	#if l_license.SA_LIB <> "1" #then #block
+			#return merge_attributes(l_result, LIST(status = 1, status_info = translation("Not allowed by license.")))
+		#block_end
+      
+      st = status
+      ;Get SW module revision from command procedure (when installation was run last time)
+      #if application_object_exists(0, "c", l_result.version_procedure) #then #block
+         tmp_version = do('l_result.version_procedure':c)
+         #if data_type(tmp_version) <> "TEXT" #then txt_running_revision = "0"
+         #else txt_running_revision = tmp_version
+      #block_end
+      #else txt_running_revision = "0"
+      
+      ;Get revision of installed SW module:
+      txt_installed_revision = do(read_text(l_result.base_path + "/" + "USE/BGU_SA_LIB_REV.TXT"))      
+            
+      v_running_version = separate(txt_running_revision, ".")
+      v_installed_version = separate(txt_installed_revision, ".")   
+
+      vct_running_revision=set_status(sum(append(dec_scan(separate(txt_running_revision, ".")),(0,0))*(10000,100,1)),0)
+      vct_installed_revision=set_status(sum(append(dec_scan(separate(txt_installed_revision, ".")),(0,0))*(10000,100,1)),0)
+
+      int_running_revision=vct_running_revision(1)
+      int_installed_revision=vct_installed_revision(1)
+      update_needed = (int_installed_revision > int_running_revision) and (int_running_revision > 0)
+      
+      st = status
+      l_info =  LIST(UPDATE = update_needed, PREPARED = (txt_running_revision <> "0"), STATUS = st, INSTALLED_REV = v_installed_version, RUNNING_REV = v_running_version)   
+		
+      #if data_type(l_info) == "LIST" #then #block
+			#if attribute_exists(l_info, "update") and attribute_exists(l_info, "prepared") and attribute_exists(l_info, "running_rev") #then #block
+				l_result = merge_attributes(l_result, list(update = l_info.update, prepared = l_info.prepared))
+				#if data_type(l_info.running_rev) == "VECTOR" #then #block
+					#if length(l_info.running_rev) > 0 #then -
+						l_result = merge_attributes(l_result, list(version = list(major = l_info.running_rev(1))))
+					#else l_result = merge_attributes(l_result, list(version = list(major = 0)))
+					#if length(l_info.running_rev) > 1 #then -
+						l_result = merge_attributes(l_result, list(version = list(major = l_result.version.major, minor = l_info.running_rev(2))))
+					#else l_result = merge_attributes(l_result, list(version = list(major = l_result.version.major, minor = 0)))
+					#if length(l_info.running_rev) > 2 #then -
+						l_result = merge_attributes(l_result, list(version = list(major = l_result.version.major, minor = l_result.version.minor, extra =l_info.running_rev(3))))
+				#block_end
+				#if data_type(l_info.prepared) == "BOOLEAN" and data_type(l_info.update) == "BOOLEAN" #then #block
+					#if l_info.prepared and	l_info.update #then -
+						l_result.status_info = translation("Version") + " " +  collect(l_info.installed_rev, ".") + " " + translation("available")
+				#block_end
+			#block_end
+		#block_end
+	#block_end
+	#when "PREPARE_APPLICATION", "UPDATE_APPLICATION" #block
+      st = status
+      #DO READ_TEXT("/SA_LIB/BASE/BBONE/USE/BGU_INIT.TXT")
+		st = status
+		l_result = list(status = st, err_description = status_code_name(st))
+	#block_end
+	#when "UNINSTALL" #block
+		l_result = list(status = status_code("SCIL_UNKNOWN_FUNCTION"), Err_Description = "Not implemented")
+	#block_end
+	#otherwise #block
+		l_result = list(status = status_code("SCIL_UNKNOWN_FUNCTION"), Err_Description = "Not implemented")
+	#block_end
+#case_end
+
+#return l_result
+
+
+

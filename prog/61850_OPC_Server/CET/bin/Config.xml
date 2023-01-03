@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Product xmlns="ABB.PCM.Config.xsd" productIdentityCode="Common\MS-CET_IEC61850" productFamilyCode="Common\MS-CET_IEC61850" dbPrefix="CET_IEC61850_92"  label="Communication Engineering Tool for IEC61850 OPC Server" startImage="mspro.jpg" icon="mspro.ico" helpFile="sys600.chm" testerEnabled="false" aplConfigFile="PCMFrame.exe.config" schemaLocation="ABB.PCM.ConfigXML config.xsd"> 
+    <Project defaultIcon="Project.ico" />
+    <PCMFrame majorVersion="3" minorVersion="2" />
+    <Navigator visualStyle="Classic" />  <!--visualStyle = "Classic"|"VisualStudio2005|Office2003"-->  
+    <Structures>
+	        <Structure id="Communication" label="Communication" dataStructureType="COMMUNICATION" visible="true" default="true"/>
+	        <Structure id="PCMSTRUCTURE" label="PCM" dataStructureType="PCMStructure" visible="false" default="false"/>
+
+    </Structures>
+    <SQLServer maxServerMemory="400"/>
+</Product>

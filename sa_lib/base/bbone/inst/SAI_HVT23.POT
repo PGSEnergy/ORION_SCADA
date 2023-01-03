@@ -1,0 +1,163 @@
+; Copyright Hitachi Power Grids. All rights reserved.
+; File: FPI_HVT3.POT
+; Type: Text file containing Process Opbject definitions for FPI_HVT3
+; Function   : Process Opbject definitions for FPI_HVT3
+; Input      : global var %CHAR_WIND (character, "2"|"3", selector if
+;              2 or 3 windings transformer. defined in .DAT file
+; Output     :
+
+;initialize variables
+;====================
+
+;read project dependent configuration variables
+;#DO READ_TEXT("C_INST/FPI_PROJCT.TXT")
+
+;read object texts
+#DO READ_TEXT("SAGR_LANG/SAI_HVT'CHAR_WIND'.TXT")
+
+#DO READ_TEXT("SAGR_INST/SAI_TRAIDX.TXT") ; read the object indexes
+
+;create needed scales, command procedures and event channels
+;#DO READ_TEXT("F_INST/FPI_CRSCAL.TXT")
+
+
+@OBJ_IDENT
+#LOOP_WITH I = 1 .. %NR_OF_FIELDS
+  @FIELD_IDENT = %OBJECT_IDENTIFIER_'I'_NAME
+  @OBJ_IDENT=%OBJ_IDENT+SUBSTR('ID'_PICTURE_FUNCTION_CONF:V'FIELD_IDENT',1,%OI_LENGTH'I')
+#LOOP_END
+
+;common attributes for all STATION objects
+;-----------------------------------------
+@COMMON_TEMPLATE = LIST(-
+  IU = 1,-              ;in use = yes
+  OI = %OBJ_IDENT,-     ;substation & bay name & device name
+  SS = 1,-              ;switch state = Manual
+  HE = 0)               ;history enable = no
+
+
+@BASE_OBJ_LN = 'ID'_PICTURE_FUNCTION_CONF:VP_OBJECT_LN
+
+;topol. coloring, generator coloring object (index 250, 251 and 252)
+;------------------------------------------
+
+#LOOP_WITH I = 1..3
+  #IF %CHAR_WIND == "2" #THEN #BLOCK
+      #IF %I == 3 #THEN #LOOP_EXIT   ; 2 windings: only one of these objects
+                  #ELSE @J = %I      ; 2 windings: 'object not numbered'
+    #BLOCK_END
+  #ELSE @J = %I
+
+  @OBJ_INDEX_NR = 'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_COLOR'J'_IX + 22
+  @P_OBJ'OBJ_INDEX_NR' = %COMMON_TEMPLATE
+  #MODIFY P_OBJ'OBJ_INDEX_NR':V = LIST(-
+    IX = %OBJ_INDEX_NR-22,-                      ;index
+    PT = 9,-                                     ;process object type = AI
+    DX = "9",-                                   ;directive text
+    AI = 'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_COLOR'J'_NR,-  ;user color
+    OX = FPI_HVT'CHAR_WIND':VTOPO_OBJECT_COLOR'J'_IX_TEXT,-     ;object text
+-;;;    SS = 2,-                                     ;switch state = Fictive
+    EE = 0,-                                     ;event enable = no
+    SN = "1_1",-                                 ;scale name
+    RX = "")               ;group information
+
+  #MODIFY P_OBJECTS:V = LIST( P_OBJ'OBJ_INDEX_NR' = %P_OBJ'OBJ_INDEX_NR' )
+
+;topol. coloring, generator coloring object (index 246, 247 and 248)
+;------------------------------------------
+
+  @OBJ_INDEX_NR = 'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_PASSIVE_NODE'J'_IX
+  @P_OBJ'OBJ_INDEX_NR' = %COMMON_TEMPLATE
+  #MODIFY P_OBJ'OBJ_INDEX_NR':V = LIST(-
+    IX = 'OBJ_INDEX_NR',-                        ;index
+    PT = 9,-                                     ;process object type = AI
+    DX = "9",-                                   ;directive text
+    AI = 33,-                    ;default color, passive
+    OX = FPI_HVT'CHAR_WIND':VTOPO_OBJECT_PASSIVE_NODE'J'_IX_TEXT,-  ;object text
+    SS = 2,-                                     ;switch state = Automatic
+    EE = 1,-                                     ;event enable = no
+    AA = 1,-                                     ;action activation, new value
+    AE = 1,-                                     ;action enabled
+    AF = 1,-                                     ;action at first update
+    AN = "FPI_ACTT'CHAR_WIND'",-                 ;action name
+    SN = "1_1",-                                 ;scale name
+    RX = "")               ;group information
+
+  #MODIFY P_OBJECTS:V = LIST( P_OBJ'OBJ_INDEX_NR' = %P_OBJ'OBJ_INDEX_NR' )
+#LOOP_END
+
+;                   (index 240, 241, 242, 243, and 244, and 253, 254 and 255)
+;------------------------------------------
+
+#LOOP_WITH I = 1..5
+  #IF %CHAR_WIND == "2" #THEN #BLOCK
+    #IF %I > 3  #THEN #LOOP_EXIT   ; 2 windings: only three of these objects
+                #ELSE @J = %I      ; 2 windings: 'object not numbered'
+    #BLOCK_END
+  #ELSE @J = %I
+
+  @OBJ_INDEX_NR = 'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH'J'_IX
+  @P_OBJ'OBJ_INDEX_NR' = %COMMON_TEMPLATE
+  #MODIFY P_OBJ'OBJ_INDEX_NR':V = LIST(-
+    IX = 'OBJ_INDEX_NR',-                        ;index
+    PT = 3,-                                     ;process object type = BI
+    DX = "3",-                                   ;directive text
+    BI = 0,-                                     ;Fict. switch state
+    OX = FPI_HVT'CHAR_WIND':VTOPO_OBJECT_SWITCH'J'_IX_TEXT,-  ;object text
+    EE = 1,-                                     ;event enable = yes
+    SN = "1_1",-                                 ;scale name
+    RX = "")               ;group information
+
+  #MODIFY P_OBJECTS:V = LIST( P_OBJ'OBJ_INDEX_NR' = %P_OBJ'OBJ_INDEX_NR' )
+#LOOP_END
+#LOOP_WITH I = 6..8
+  #IF %CHAR_WIND == "2" #THEN #BLOCK
+    #IF %I > 7  #THEN #LOOP_EXIT   ; 2 windings: only three of these objects
+                #ELSE @J = %I      ; 2 windings: 'object not numbered'
+    #BLOCK_END
+  #ELSE @J = %I
+
+  @OBJ_INDEX_NR = 'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH'J'_IX
+  @P_OBJ'OBJ_INDEX_NR' = %COMMON_TEMPLATE
+  #MODIFY P_OBJ'OBJ_INDEX_NR':V = LIST(-
+    IX = 'OBJ_INDEX_NR',-                        ;index
+    PT = 3,-                                     ;process object type = BI
+    DX = "3",-                                   ;directive text
+    BI = 0,-                                     ;Fict. switch state
+    OX = FPI_HVT'CHAR_WIND':VTOPO_OBJECT_SWITCH'J'_IX_TEXT,-  ;object text
+    EE = 1,-                                     ;event enable = yes
+    SN = "1_1",-                                 ;scale name
+    RX = "")               ;group information
+
+  #MODIFY P_OBJECTS:V = LIST( P_OBJ'OBJ_INDEX_NR' = %P_OBJ'OBJ_INDEX_NR' )
+#LOOP_END
+
+;------------------------------------------
+;Create needed event channel and cmd. procedure if not yet existing
+
+@A_SEARCH = FETCH(0,"A","FPI_ACTT'CHAR_WIND'")
+#IF A_SEARCH:VIU == -1 -
+#THEN #CREATE FPI_ACTT'CHAR_WIND':A = LIST( ON = "FPI_ACTT'CHAR_WIND'", LN = "FPI_ACTT'CHAR_WIND'", -
+                                  OT = "C", CM = "Used for evaluating the actual status of bus bar colloring for a transformer" )
+
+@C_SEARCH = FETCH(0,"C","FPI_ACTT'CHAR_WIND'")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+
+  @S=STATUS
+  #ERROR IGNORE
+  @TMP_VAR_IN = DO(READ_TEXT("SAGR_INST/SAI_ACTT23.TXT"))
+  #ERROR CONTINUE
+  @S=STATUS
+
+  #CREATE TMP_VAR:V
+  #SET TMP_VAR:VIN = %TMP_VAR_IN
+
+  #IF %S==0 #THEN #BLOCK
+    #MODIFY TMP_VAR:V = LIST(-
+        IU = 1,-
+        MO = 0,-
+        CM = "Calculates the value of the actual status of bus bar coloring for a transformer" )
+    #CREATE FPI_ACTT'CHAR_WIND':C = %TMP_VAR
+  #BLOCK_END
+  #DELETE TMP_VAR:V
+#BLOCK_END

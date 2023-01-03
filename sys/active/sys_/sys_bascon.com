@@ -1,0 +1,919 @@
+;File:        Sys_bascon.com
+;Desription:  Standard Base system configuration file
+;             for Single and Hot Stand-By systems
+;             Version 10.0
+;----------------------------------------------------
+;
+;The quick configuration block below is written by the configuration wizard or 
+;it can be modified manually.
+;
+;Quick configuration begin
+;
+#local Hot_Standby = FALSE                ;Hot Stand-by enabled/disabled
+#local Apl_Backup = FALSE                 ;Application Backup enabled/disabled (Single systems)
+#local Apl_Names = vector("MAIN")         ;Application Name vector, main applications
+#local BS_Names = vector("SYS_1","SYS_2") ;Base System Node Names / IP Addresses
+#local BS_Nodes = vector(9,10)            ;Base System Node Numbers
+#local BS_Addresses = vector(209,210)     ;Base System Station Addresses
+#local BS_Web_Addresses = vector("","")   ;Base System Web Addresses
+#local This_Node_is = BS_Nodes(1)         ;This system 1 or 2 (Always 1 for single system)
+;
+#local COM500 = vector(FALSE)             ;TRUE = COM500i application, FALSE = not COM500i application
+#local OPC_Server_Enabled = TRUE          ;OPC Server enabled/disabled
+#local OPC_AE_Server_Enabled = vector(FALSE) ;OPC A&E Server enabled/disabled
+;
+;Quick configuration end
+;
+;Basic configuration begin
+;
+;Application numbers. Empty vector = automatic numbering from 1 to max_application_number
+;Hot Stand-by Application numbers in the order:
+;(MAIN1, MAIN2, ... , WATCH-DOG, ADJ MAIN1, ADJ MAIN2, ... , ADJ WATCH-DOG)
+;An example of three main applications
+;#local Apl_Names = vector("MAIN1","MAIN2","MAIN3")
+;
+;                            MAIN1
+;                            .   MAIN2
+;                            .   .   MAIN3
+;                            .   .   .   WD
+;                            .   .   .   .   ADJ_MAIN1
+;                            .   .   .   .   .   ADJ_MAIN2
+;                            .   .   .   .   .   .   ADJ_MAIN3
+;                            .   .   .   .   .   .   .   ADJWD
+;                            .   .   .   .   .   .   .   .
+;#local Apl_Numbers = vector(1,  2,  5,  6,  7,  8, 11, 12)
+;
+
+#local Apl_Numbers = vector()
+
+;Image Stations for System Messages (max. 10 for each main application)
+#local Apl_Image_Stations =  vector()
+
+;An example. Three applications with one image station each
+;#local Apl_Image_Stations =  vector(vector(list(APL = 15, UN = 91)),-
+;                                    vector(list(APL = 16, UN = 92)),-
+;                                    vector(list(APL = 17, UN = 93)))
+
+#local LAN_Link = 1                      ;LAN link number
+
+#local Number_of_Printers = 0            ;Number of Printers
+#local Pri_Numbers = vector(1,2)
+#local Pri_Device_Names = vector("\\PrintServer1\Printername1","\\PrintServer2\Printername2")
+
+#local Number_of_VS = 6                  ;Number of VS monitors
+
+; Base system node whitelisting
+#local BS_Nodes_WL = vector("","")       ;for example vector("","10.123.45.62")
+                                         ;when This_Node_is = BS_Nodes(1)
+;
+;Other Base System Nodes
+;
+#local NOD_Numbers = vector(),-          ;for example vector(11,12),-
+       NOD_Names = vector("NOD_11","NOD_12"),-
+       NOD_Addresses = vector(211,212)
+
+; Other Base system node whitelisting
+#local OBS_Nodes_WL = vector("","")      ;for example vector("10.123.45.67",("10.123.45.68","10.123.45.69"))
+
+;
+;Gateway Nodes or nodes of the remote communication units
+;
+#local GW_NOD_Numbers = vector(),-       ;for example vector(20,22),-
+       GW_NOD_Addresses = vector()
+
+; Gateway node whitelisting
+#local GW_Nodes_WL = vector("")
+
+;
+;OPC DA and OPC A&E Nodes
+;
+
+#local OPC_DA_NOD_Numbers = vector()
+#local OPC_DA_NOD_RN = vector()
+#local OPC_DA_NOD_OP = vector()
+
+;An OPC DA example, two OPC DA nodes
+;#local OPC_DA_NOD_Numbers = vector(101, 102) ;Node numbers
+;#local OPC_DA_NOD_RN = vector(0, 0)          ;Routing node: 0 = current SYS node
+;#local OPC_DA_NOD_OP = vector(list(CI = "{CE0322A9-65A9-4268-84D5-DD7A17E94C56}",-
+;                                   US = "username",-
+;                                   PW = "password",-
+;                                   SN = "DA Server 1",-
+;                                   SK = "",-       ;Currently recognized: "AC 800" ABB AC 800 series
+;                                   GR = vector(-
+;                                           list(IG = "Group name",-
+;                                                UR = 0,-
+;                                                PD = 0.0))),-
+;                               list(CI = "{2E565242-B238-11D3-842D-0008C779D775}",-
+;                                   US = "username",-
+;                                   PW = "password",-
+;                                   SN = "DA Server 2",-
+;                                   SK = "",-       ;Currently recognized: "AC 800" ABB AC 800 series
+;                                   GR = vector(-
+;                                           list(IG = "Group name",-
+;                                                UR = 0,-
+;                                                PD = 0.0))))
+
+#local OPC_AE_NOD_Numbers = vector()
+#local OPC_AE_NOD_RN = vector()
+#local OPC_AE_NOD_OP = vector()
+
+;An OPC A&E example, two OPC A&E nodes
+;#local OPC_AE_NOD_Numbers = vector(111, 112) ;Node numbers
+;#local OPC_AE_NOD_RN = vector(0,0)           ;Routing node: 0 = current SYS node
+;#local OPC_AE_NOD_OP = vector(list(CI = "{386CAD37-3798-42BA-A6BD-086A022CE803}",-
+;                                   US = "username",-
+;                                   PW = "password",-
+;                                   SN = "AE Server 1",-
+;                                   SK = "",-       ;Currently recognized: "AC 800" ABB AC 800 series
+;                                   AA = 0 ),-
+;                               list(CI = "{68AEC2B0-93CD-11D1-94E1-0020AFC84400}",-
+;                                   US = "username",-
+;                                   PW = "password",-
+;                                   SN = "AE Server 2",-
+;                                   SK = "",-       ;Currently recognized: "AC 800" ABB AC 800 series
+;                                   AA = 0 ))
+
+#local OPC_Nod_DI = 20                   ;Diagnostic interval
+#local OPC_Nod_DT = 2                    ;Diagnostic timeout
+;
+;OPC Stations
+;
+#local OPC_DA_Station_Numbers = vector() ;Station numbers
+#local OPC_DA_Station_Nodes = vector()   ;The node numbers of the node object that specifies the OPC server of the station
+
+;An OPC DA station definition example
+;#local OPC_DA_Station_Numbers = vector(1,2)
+;#local OPC_DA_Station_Nodes = vector(101,102)
+
+#local OPC_AE_Station_Numbers = vector() ;Station numbers
+#local OPC_AE_Station_Nodes = vector()   ;The node numbers of the node object that specifies the OPC server of the station
+
+;An OPC A&E station definition example
+;#local OPC_AE_Station_Numbers = vector(11,12)
+;#local OPC_AE_Station_Nodes = vector(111,112)
+
+;
+;External Applications for mirroring or for APL-APL communication
+;
+#local Ext_Apl_Numbers = vector(),-     ;for example vector(15,16),-
+       Ext_Apl_NA = vector("EXT_1","EXT_2"),-
+       Ext_Apl_ND = vector(11,12),-
+       Ext_Apl_SN = vector(12,11),-     ;Shadowing partner application
+       Ext_Apl_TN = vector(1,1),-
+       Ext_Apl_EM = 5000,-              ;Maximum length of mirroring queue
+       Ext_APl_EP = "KEEP"              ;Event queue overflow policy, "DISCARD" or "KEEP"
+;
+;Proxy Applications
+;
+#local Proxy_Apl_Numbers = vector(),-     ;for example vector(101,102),-
+       Proxy_Apl_NA = vector("PRO_1","PRO_2"),-
+       Proxy_Apl_HS = vector(vector(13,15),vector(14,16))
+              
+;
+;Application mapping
+;
+#local Apl_Mapping
+;
+;Application Language
+;
+#local Apl_LA = "EN"
+
+;
+; Base System Object SYS attributes
+;
+#local Sys_Modify = list(-
+          -; Communication Attributes
+             ER = 0,-                   ;Enable Routing 0=disabled, 1=enabled
+             TI = 10,-                  ;Timeout Length
+          -; Security Attributes
+             HD = list(DENY_EXTERNAL_API_ACCESS = TRUE,-
+                       REQUIRE_ACP_IP_WHITELISTING = TRUE,-
+                       REQUIRE_ENCRYPTED_ACP = "NETWORK",-
+                       REQUIRE_KNOWN_ACP_CERTIFICATE = FALSE,-
+                       REQUIRE_OPC_AUTHENTICATION = TRUE,-
+                       RUN_EXTERNAL_API_AS_READ_ONLY = TRUE,-
+                       RUN_OPC_GUEST_AS_READ_ONLY = TRUE),-
+          -; Time Handling Attributes
+             TM = "SYS",-               ;Time Master, SYS or APL
+             TR = "LOCAL",-             ;Time Reference, LOCAL or UTC
+             TF = 0,-                   ;Time Format
+                                       -; 0 = yy-mm-dd hh:mm:ss
+                                       -; 1 = dd-mm-yy hh:mm:ss
+                                       -; 2 = mm-dd-yy hh:mm:ss
+          -; Memory Handling Attribute
+             RC = 8192,-                ;Report Cache Size(kB)
+          -; Audio Alarm Device
+             AA = 0,-                   ;Audio Alarm Address, 0 = No audio alarm board
+             AD = "NONE",-              ;Audio Alarm Device, "NONE" = No audio alarm board
+             AW = 3,-                   ;Audio Watchdog Cycle, seconds
+          -; SPA device attributes
+             SD = "",-                  ;SPACOM Driver Name
+             SP = 0,-                   ;SPACOM Protocol, 0 = Direct connection of SPACOM not allowed
+          -; MS-STOOL Settings
+             SV = (0,-                  ;System Variables
+                   list(t_System_Configuration_File = "sys_/SysConf.ini",- ;PC-NET Configuration information
+                        b_Conf_Mech_In_Use  = TRUE,-   ;enables/disables start-up configuration
+                        b_SSS_Mech_In_Use  = TRUE,-    ;enables/disables system self supervision routing
+                        t_Version = "9.3")),-
+          -; Operating System Event Handler Attributes
+             OE = 0,-                         ;1=Enabled, 0=Disabled
+             OT = (Bit_Mask(0,1,2,3,4),-      ;Application events (Bit 0=ERROR, 1=WARNING, 2=INFORMATION, 3=AUDIT_SUCCESS, 4=AUDIT_FAILURE)
+                   Bit_Mask(0,1,2,3,4),-      ;System events (Bit 0=ERROR, 1=WARNING, 2=INFORMATION, 3=AUDIT_SUCCESS, 4=AUDIT_FAILURE)
+                   Bit_Mask(0,1,2,3,4)))      ;Security events (Bit 0=ERROR, 1=WARNING, 2=INFORMATION, 3=AUDIT_SUCCESS, 4=AUDIT_FAILURE)
+;
+; Node Object NOD attributes
+; 
+#local Nod_Modify = list(-
+             DF = 1,-                   ;Diagnostic event from first FOUND (0=System event not generated, 1=System event generated)
+             DI = 20,-                  ;Diagnostic interval
+             DT = 5)                    ;Diagnostic timeout
+;
+; Application Object APL attributes
+;
+#local Apl_Modify = list(-
+             TT = "LOCAL",-             ;Translation type
+             AS = "COLD",-              ;Application state
+             PQ = 5,-                   ;Parallel queues
+             AA = 10,-                  ;Number of APL-APL servers (1..10)
+             SR = 1,-                   ;Shadowing maximum receive wait time in seconds
+             HP = "DATABASE",-          ;History Logging Policy ("DATABASE", "EVENT_LOG", "NONE")
+             EE = 1,-                   ;System Events & Operating System Events (1=Enabled, 0=Disabled)
+             TD = vector("APL_/APL_TEXT.SDB"),-            ;Application specific text databases
+             LA = Apl_LA,-              ;Application Language
+             LS = vector(Apl_LA),-      ;Languages Supported
+             PN = list(LOCAL=5432,REMOTE=5432),-   ;External Database Port Numbers
+             QM = (-                    ;Maximum queue lengths:
+                   10000,-              ; Time channel queue
+                   10000,-              ; Event channel queue
+                   15000,-              ; Parallel queues
+                   10000),-             ; Delayed exec queue
+             EM = 5000,-                ;Maximum process event queue length
+             DI = vector(),-
+             DT = vector(),-
+          -; UAL Configuration
+          -; UA = list(SOURCE="UAL Logging",-
+          -;           OWN_IP_ADDRESS="",-      ; IPv4 address used for sending the SYSLog message
+          -;           SERVERS=vector(list(TYPE="UDP",IP_ADDRESS="111.111.111.1",PORT=514),-
+          -;                          list(TYPE="TCP",IP_ADDRESS="111.111.111.2",PORT=1468))),-
+             WS = 0,-                  ;Windows Single Sign-On
+                                   -; 0 or FALSE = Disabled
+                             -; 1 or TRUE  = Enabled
+             CE = 0)                   ;Centralized Account Management
+                                       ; 0 = SYS600 User Account Management
+                                       ; 1 = Centralized Account Management
+                                       ; 2 = Centralized Account Management with role integration
+
+#local Apl_DI = 0,-                     ;Application diagnostic interval (0 = Disabled)
+       Apl_DT = 5                       ;Application diagnostic timeout
+;
+; Printer Object PRI attributes
+;
+#local Pri_Modify = list(-
+          -; Common attributes
+             TT = "LOCAL",-             ;Translation Type
+             DC = "LINE",-              ;Device Connection
+             DT = "TRANSPARENT",-       ;Device Type
+          -; Printer connection attributes
+             ND = 0,-                   ;Node Number of NET unit (to be defined if DC = "NET")
+          -; Printout attributes
+             LP = 0,-                   ;Lines per Page
+             PN = 0,-                   ;Page Number
+          -; Printer queue attribute
+             QM = 1000,-                ;Queue Length Maximum
+          -; Printer log attributes
+             LD = "",-                  ;Log Directory
+             LL = "DAY",-               ;Log Length
+             LF = 1000,-                ;Log Flush Timeout
+             OD = "PRINTER",-           ;Output Destination
+          -;
+             OJ = 1,-                   ;Open on Job Basis
+          -;
+             CX = "")                   ;Comment Text
+
+;
+;Host stations are typically defined with the PC-NET system configuration tool.
+;Image stations, gateway stations etc. can be defined here.
+;
+#local Stations = vector()
+#local Sta_Nodes = vector()
+#local Sta_ST = vector()
+#local Sta_MR = vector()
+#local Sta_H_Apl = vector()
+#local Sta_H_UN = vector()
+#local Sta_I_Apl = vector()
+#local Sta_I_UN = vector()
+
+;An example of STA object definitions for NCC level (MR = "IMAGE") stations in the following
+;
+;#local Stations  = ( 1005,   1012,    1031,   1042,   3051,     91 )
+;#local Sta_ST    = ( "PLC",  "SPA",  "IEC",  "STA",  "REX",  "STA" )
+;#local Sta_Nodes = (   0,       0,       0,      0,      0,      0 )
+;#local Sta_MR    = ("IMAGE","IMAGE","IMAGE","IMAGE","IMAGE","IMAGE")
+;#local Sta_H_Apl = (  13,      13,      13,     13,     13,     13 )
+;#local Sta_H_UN  = (   5,      12,      31,     42,     51,      0 )
+;
+;An example of STA object definitions for intermediate level (MR = "BOTH") stations in the following
+;
+;#local Stations  = ( 1005,   1012,    1031,   1042,   3051,     91 )
+;#local Sta_ST    = ( "PLC",  "SPA",  "IEC",  "STA",  "REX",  "STA" )
+;#local Sta_Nodes = (   0,       0,       0,      0,      0,      0 )
+;#local Sta_MR    = ("BOTH", "BOTH", "BOTH", "BOTH", "BOTH", "BOTH" )
+;#local Sta_H_Apl = (  13,      13,      13,     13,     13,     13 )
+;#local Sta_H_UN  = (   5,      12,      31,     42,     51,      0 )
+;#local Sta_I_APL = (vector(15),vector(15),vector(15),vector(15),vector(15),vector(15) )
+;#local Sta_I_UN  = (vector(2005),vector(2012),vector(2031),vector(2042),vector(2051),vector(2091))
+
+;
+;Basic configuration end
+;
+
+;
+;Variable declarations
+;
+#local Sys,-                        ;The base system object
+       Sys_Permanent = list(),-     ;Permanent definitions of the base system object
+       Sys_Supersede = list(),-     ;Definitions to replace obsolete kernel default attribute values
+       Sys_ND,-                     ;The node number of the base system computer
+       Sys_OP,-                     ;The state of the OPC Data Access server
+       Sys_SA,-                     ;The station address of the base system
+       Sys_SH,-                     ;The state of the shadowing
+       Sys_WA,-                     ;The web address of the base system
+       Adj_Sys_ND,-                 ;The node number of the adjacent base system computer
+       Adj_Sys_SA                   ;The station address of the adjacent base system computer
+
+#local Nod,-                        ;The NOD object
+       Nod_Permanent = list(),-     ;Permanent definitions of the node object
+       Nod_Supersede = list(),-     ;Definitions to replace obsolete kernel default attribute values
+       Nod_NN,-                     ;The LAN node name of the node or the TCP/IP internet address
+       Nod_Nb,-                     ;The node number
+       Nod_SA,-                     ;The station address of the node
+       Nod_RN,-                     ;The node number of the routing node
+       Nod_OP,-                     ;OPC server configuration
+       Nod_WL = vector()            ;Node whitelisting
+
+#local Sta,-                        ;The STA object
+       Sta_Nb,-                     ;The station number
+       Sta_ND                       ;The node number of the communication unit to which the station is connected
+       
+#local Apl,-                        ;The APL object
+       Apl_AP,-                     ;Application mapping
+       Apl_Count,-                  ;Application count
+       Apl_Permanent = list(),-     ;Permanent definitions of the application object
+       Apl_Supersede = list(),-     ;Definitions to replace obsolete kernel default attribute values
+       Apl_Nb,-                     ;The application number
+       Apl_IS,-                     ;Image stations for system messages
+       Apl_OE,-                     ;OPC A&E server enabled
+       Apl_SA,-                     ;Shadowing partner web address
+       Apl_SC,-                     ;Shadowing connection time
+       Apl_SF,-                     ;Shadowing flush time
+       Apl_SI,-                     ;Shadowing diagnostic interval
+       Apl_SQ,-                     ;Shadow the event channel queue
+       Apl_SY,-                     ;Time synchonization interval
+       Apl_SV = vector()            ;System variables of the application
+       
+#local Pri,-                        ;The PRI object
+       Pri_Nb,-                     ;The printer number
+       Pri_Permanent = list(),-     ;Permanent definitions of the printer object
+       Pri_Supersede = list(),-     ;Definitions to replace obsolete kernel default attribute values
+       Printer_Mapping              ;Printer mapping
+       
+#local First_Free_Mon,-             ;Variable for monitor mapping definition
+       Mon,-                        ;The MON object
+       Monitor_Mapping              ;Monitor mapping
+
+#local Global_Paths,-               ;
+       Standard_Paths               ;
+
+#local m, n                         ;Control variables of the loop
+#local Result                       ;
+
+#local Global_Variables,-           ;Local variables used to delete global variables
+       Global_Variable              ;
+
+;Initialize application numbers if not done yet
+;
+#if Hot_Standby #then Apl_Count = 2 * (length(Apl_Names) + 1)
+#else_if Apl_Backup #then Apl_Count = 2 * (length(Apl_Names) ) + 1
+#else Apl_Count = length(Apl_Names)
+
+#if length(Apl_Numbers) == 0 #then #block
+   #loop_with n = 1 .. Apl_Count
+      Apl_Numbers(n) = n
+   #loop_end
+#block_end
+
+Apl_Mapping = append(append(Apl_Numbers, Ext_Apl_Numbers), Proxy_Apl_Numbers)
+
+;Definitions to replace obsolete kernel default attribute values with up-to-date values
+;
+Sys_Supersede = list(-
+                   DN = 3,-                   ;Default NET Node Number
+                   DS = "SPA",-               ;Default STA type
+                   PA = Apl_Numbers(1))       ;Primary application = the first main application
+Nod_Supersede = list()
+Apl_Supersede = list()
+Pri_Supersede = list()
+
+;Shadowing attributes
+Apl_SC = 120                 ;Shadowing maximum connect time in seconds
+Apl_SF = 100                 ;Shadowing flush time in milliseconds
+Apl_SI = Apl_SF              ;Shadowing diagnostic interval
+Apl_SQ = 0                   ;Shadow the Event Channel Queue (0 = Disabled, 1 = Enabled) 
+Apl_SY = 60                  ;Shadowing time synchronization interval in seconds
+
+;***********************************************
+;***********************************************
+; Do not edit contents below this line -
+; except project specific part in the end
+;***********************************************
+;***********************************************         
+Sys_Modify = merge_attributes(Sys_Modify, Sys_Supersede)
+Nod_Modify = merge_attributes(Nod_Modify, Nod_Supersede)
+Apl_Modify = merge_attributes(Apl_Modify, Apl_Supersede)
+Pri_Modify = merge_attributes(Pri_Modify, Pri_Supersede)
+
+#if Hot_Standby #then Sys_SH = 1
+#else_if Apl_Backup #then Sys_SH = 1
+#else Sys_SH = 0
+
+#if OPC_Server_Enabled #then Sys_OP = 1
+#else Sys_OP = 0
+
+;***********************************************
+;Statements for creating Base System Objects (B)
+;***********************************************
+#if not Hot_Standby #then This_Node_is = BS_Nodes(1)  ;to be sure!
+
+#case This_Node_is
+  #when BS_Nodes(1) #block
+     Sys_ND = BS_Nodes(1)
+     Sys_SA = BS_Addresses(1)
+     Sys_WA = BS_Web_Addresses(1)
+     #if Hot_Standby #then #block
+        Adj_Sys_ND = BS_Nodes(2)
+        Adj_Sys_SA = BS_Addresses(2)
+        Apl_SA = BS_Web_Addresses(2)
+     #block_end
+  #block_end
+  #when BS_Nodes(2) #block
+     Sys_ND = BS_Nodes(2)
+     Sys_SA = BS_Addresses(2)
+     Sys_WA = BS_Web_Addresses(2)
+     Adj_Sys_ND = BS_Nodes(1)
+     Adj_Sys_SA = BS_Addresses(1)
+     Apl_SA = BS_Web_Addresses(1)
+  #block_end
+#case_end
+
+;***********************************************
+;Base System Object (SYS)
+;***********************************************
+Standard_Paths = do(read_text("/STool/Def/Path_Def.txt"))
+
+Sys_Permanent = list(-
+                   ND = Sys_ND,-        ;Node number
+                   SA = Sys_SA,-        ;Station address
+                   WA = Sys_WA,-        ;Web address
+                   SH = Sys_SH,-        ;Shadowing enabled
+                   OP = Sys_OP,-        ;OPC Server
+                   FS = "NEVER",-       ;File synchronization criteria
+                   PH = Standard_Paths)
+
+Sys = merge_attributes(Sys_Modify, Sys_Permanent)
+
+#create SYS:B = Sys
+
+;***********************************************
+;LAN link (LIN)
+;***********************************************
+#create LIN'LAN_Link':B = list(LT = "LAN")
+
+;***********************************************
+;Base system nodes (NOD) for Hot Stand-by system
+;***********************************************
+#if Hot_Standby or Apl_Backup #then #block
+   Nod = list()
+   #loop_with n = 1 .. length(BS_Nodes)
+      Nod_Nb = BS_Nodes(n)
+      Nod_SA = BS_Addresses(n)
+      Nod_NN = BS_Names(n)
+      Nod_WL = BS_Nodes_WL(n)
+      Nod_Permanent = list(SA = Nod_SA, NN = Nod_NN, LI = LAN_link, WL = Nod_WL)
+      Nod = merge_attributes(Nod_Modify, Nod_Permanent)
+      #create NOD'Nod_Nb':B = Nod
+   #loop_end
+#block_end
+
+;***********************************************
+;Other base system nodes (NOD) e.g. for Mirroring
+;***********************************************
+Nod = list()
+#loop_with n = 1 .. length(NOD_Numbers)
+   Nod_Nb = NOD_Numbers(n)
+   Nod_SA = NOD_Addresses(n)
+   Nod_NN = NOD_Names(n)
+   Nod_WL = OBS_Nodes_WL(n)
+   Nod_Permanent = list(SA = Nod_SA, NN = Nod_NN, LI = LAN_link, WL = Nod_WL)
+   Nod = merge_attributes(Nod_Modify, Nod_Permanent)
+   #create NOD'Nod_Nb':B = Nod
+#loop_end
+
+;***********************************************
+;Gateway nodes (NOD) 
+;***********************************************
+Nod = list()
+#loop_with n = 1 .. length(GW_NOD_Numbers)
+   Nod_Nb = GW_NOD_Numbers(n)
+   Nod_SA = GW_NOD_Addresses(n)
+   Nod_WL = GW_Nodes_WL(n)
+   Nod_Permanent = list(SA = Nod_SA, LI = LAN_link, WL = Nod_WL)
+   Nod = merge_attributes(Nod_Modify, Nod_Permanent)
+   #create NOD'Nod_Nb':B = Nod
+#loop_end
+
+;***********************************************
+;Printers (PRI)
+;***********************************************
+Printer_Mapping(1 .. max_printer_number) = 0
+#do read_text("sys_/pr_default.dat")    ;Control Sequences for the transparent printer
+#loop_with n = 1 .. Number_of_Printers
+   Pri_Nb = Pri_Numbers(n)
+   Printer_Mapping(Pri_Nb) = Pri_Nb
+   Pri_Permanent = list(CS = %CS, HF = %HF, SD = Pri_Device_Names(n))
+   Pri = merge_attributes(Pri_Modify, Pri_Permanent)
+   #create PRI'Pri_Nb':B = Pri
+#loop_end
+
+;***********************************************
+;Classic Monitors (MON)
+;***********************************************
+First_Free_Mon = 1
+Monitor_Mapping(1 .. max_monitor_number) = 0
+#loop_with n = 0 .. (Number_of_VS - 1)
+   Mon = First_Free_Mon
+   First_Free_Mon = First_Free_Mon + 1
+   Monitor_Mapping(Mon) = -1
+   #create MON'Mon':B = list(TT = "LOCAL", DT = "VS")
+#loop_end
+
+;***********************************************
+;Applications (APL)
+;***********************************************
+Global_Paths = do(read_text("sys_/sys_bascon.scl"), "GLOBAL_PATHS")
+
+;The usage of OI & OX -attributes
+Apl_SV(15) = list(-
+                Process_Objects=list(-
+                   OI=list(-
+                      Title1=VECTOR("Substation"),-
+                      Title2=VECTOR("Bay"),-
+                      Title3=VECTOR("Device"),-
+                      Title4=VECTOR(""),-
+                      Title5=VECTOR(""),-
+                      Length1=10,-
+                      Length2=15,-
+                      Length3=5,-
+                      Length4=0,-
+                      Length5=0,-
+                      Field1=VECTOR("STA"),-
+                      Field2=VECTOR("BAY"),-
+                      Field3=VECTOR("DEV"),-
+                      Field4=VECTOR(""),-
+                      Field5=VECTOR("")),-
+                   OX=list(-
+                      Title1=VECTOR("Object text"),-
+                      Length1=30)))
+
+#if Hot_Standby #then #block
+
+  ;*** LOCAL WATCHDOG ***
+   Apl_Nb = Apl_Numbers(length(Apl_Names) + 1)
+   Apl_Permanent = list(-
+                  NA = "WD",-                ;Application name
+                  AS = "HOT",-               ;Application state
+                  PQ = 2,-                   ;Parallel queues
+                  HP = "NONE",-              ;History Logging Policy ("DATABASE", "EVENT_LOG", "NONE")
+                  EE = 1,-                   ;System Events & Operating System Events (1=Enabled, 0=Disabled) 
+                  MO = Monitor_Mapping,-     ;Monitor mapping
+                  PR = Printer_Mapping,-     ;Printer mapping
+                  AP = spread(APL'Apl_Nb':BAP, Apl_Mapping, Apl_Mapping))   ;Application mapping
+
+    Apl = merge_attributes(Apl_Modify, Apl_Permanent)
+    
+    #loop_with n = 1 .. max_application_number
+      Apl_AP = Apl.AP(n)
+      #if Apl_AP > 0 #then #block
+         Apl.DT(n) = Apl_DT
+         Apl.DI(n) = Apl_DI
+      #block_end
+    #loop_end
+    
+    #create APL'Apl_Nb':B = Apl
+   
+   ;*** ADJACENT WATHDOG ***
+   Apl_Nb = Apl_Numbers(2 * (length(Apl_Names) + 1))
+   #create APL'Apl_Nb':B = list(-
+      NA = "ADJ_WD",-                        ;Application name
+      TT = "EXTERNAL",-                      ;Translation type
+      ND = Adj_Sys_ND,-                      ;Node number
+      TN = Apl_Numbers(length(Apl_Names) + 1))  ;Translated object number
+   
+   #loop_with m = 1 .. length(Apl_Names)
+
+      ;*** LOCAL HSB APPLICATION ***
+      Apl_Nb = Apl_Numbers(m)
+      #if length(OPC_AE_Server_Enabled) < m #then Apl_OE = 0
+      #else_if OPC_AE_Server_Enabled(m) #then Apl_OE = 1
+      #else Apl_OE = 0
+      #if length(Apl_Image_Stations) < m #then Apl_IS = vector()
+      #else APL_IS = Apl_Image_Stations(m)
+      Apl_Permanent = list(-
+                     NA = Apl_Names(m),-        ;Application name
+                     AS = "COLD",-              ;Application state (started by WD)
+                     OE = Apl_OE,-              ;OPC A&E Server
+                     PH = Global_Paths,-        ;Global paths
+                     SV = Apl_SV,-              ;System variables (reserved)
+                     SA = Apl_SA,-              ;Shadowing Partner Web Address
+                     SC = Apl_SC,-              ;Shadowing maximum connect time in seconds
+                     SF = Apl_SF,-              ;Shadowing flush time in milliseconds
+                     SI = Apl_SI,-              ;Shadowing diagnostic interval
+                     SY = Apl_SY,-              ;Shadowing time synchronization interval in seconds
+                     SQ = Apl_SQ,-              ;Shadow the Event Channel Queue
+                     SN = Apl_Numbers(length(Apl_Names) + 1 + m),-  ;Shadow application
+                     SW = Apl_Numbers(length(Apl_Names) + 1),-      ;Shadow watchdog
+                     IS = Apl_IS,-              ;Image Stations for System Messages
+                     MO = Monitor_Mapping,-     ;Monitor mapping
+                     PR = Printer_Mapping,-     ;Printer mapping
+                     AP = spread(APL'Apl_Nb':BAP, Apl_Mapping, Apl_Mapping))    ;Application mapping
+   
+      #if m <= length(COM500) #then #block
+      
+         #if COM500(m) #then -                ;COM500i Application
+            Apl_Permanent = merge_attributes(Apl_Permanent, -
+                            list(PQ = 16,-                                ;Number of parallel queues
+                                 QD = (1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1))) ;Parallel queue dedication      
+      
+      #block_end
+      
+      Apl = merge_attributes(Apl_Modify, Apl_Permanent)
+      
+      #loop_with n = 1 .. max_application_number
+         Apl_AP = Apl.AP(n)
+         #if Apl_AP > 0 #then #block
+            Apl.DT(n) = Apl_DT
+            Apl.DI(n) = Apl_DI
+         #block_end
+      #loop_end
+       
+      #create APL'Apl_Nb':B = Apl
+            
+      ;*** ADJACENT HSB APPLICATION ***
+      Apl_Nb = Apl_Numbers(length(Apl_Names) + 1 + m)
+      #create APL'Apl_Nb':B = list(-
+         NA = substr("ADJ_" + Apl_Names(m), 1, 10),-     ;Application name
+         TT = "EXTERNAL",-          ;Translation type
+         ND = Adj_Sys_ND,-          ;Node number
+         TN = Apl_Numbers(m))       ;Translated object number
+
+   #loop_end
+   
+#block_end
+#else #block         ; *** Single System ***
+   
+   #loop_with m = 1 .. length(Apl_Names)
+
+      Apl_Nb = Apl_Numbers(m)
+      #if length(OPC_AE_Server_Enabled) < m #then Apl_OE = 0
+      #else_if OPC_AE_Server_Enabled(m) #then Apl_OE = 1
+      #else Apl_OE = 0
+      #if length(Apl_Image_Stations) < m #then Apl_IS = vector()
+      #else APL_IS = Apl_Image_Stations(m)
+      Apl_Permanent = list(-
+                     NA = Apl_Names(m),-        ;Application name
+                     AS = "HOT",-               ;Application state
+                     OE = Apl_OE,-              ;OPC A&E Server
+                     PH = Global_Paths,-        ;Global paths
+                     SV = Apl_SV,-              ;System variables (reserved)
+                     IS = Apl_IS,-              ;Image Stations for System Messages
+                     MO = Monitor_Mapping,-     ;Monitor mapping
+                     PR = Printer_Mapping,-     ;Printer mapping
+                     AP = spread(APL'Apl_Nb':BAP, Apl_Mapping, Apl_Mapping))    ;Application mapping
+
+      #if m <= length(COM500) #then #block
+   
+         #if COM500(m) #then -                ;COM500i Application
+            Apl_Permanent = merge_attributes(Apl_Permanent, -
+                            list(PQ = 16,-                                ;Number of parallel queues
+                                 QD = (1,1,0,0,0,0,1,1,1,1,1,1,1,1,1,1))) ;Parallel queue dedication
+
+      #block_end
+      
+      ;System Events & Operating System Events Enabled in Primary Application 
+      #if Apl_Nb == SYS:BPA #then Apl_Permanent = merge_attributes(Apl_Permanent, list(EE = 1)) 
+   
+      ;Application Backup Enabled
+      #if Apl_Backup #then #block
+         Apl_Permanent = merge_attributes(Apl_Permanent, list(SN = Apl_Numbers(length(Apl_Names) + m + 1),-
+                                                              SW = Apl_Numbers(length(Apl_Names) + 1)))
+      #block_end
+   
+      Apl = merge_attributes(Apl_Modify, Apl_Permanent)
+   
+      #loop_with n = 1 .. max_application_number
+         Apl_AP = Apl.AP(n)
+         #if Apl_AP > 0 #then #block
+            Apl.DT(n) = Apl_DT
+            Apl.DI(n) = Apl_DI
+         #block_end
+      #loop_end
+    
+      #create APL'Apl_Nb':B = Apl
+
+   #loop_end
+      
+#block_end
+
+;***********************************************
+;Application Backup Enabled
+;***********************************************
+#if Apl_Backup #then #block
+
+   ;Watchdog application
+   Apl_Nb = Apl_Numbers(length(Apl_Names) + 1)
+   Apl_Permanent = list(-
+                 NA = "WD",-                ;Application name
+                 AS = "HOT",-               ;Application state
+                 PQ = 2,-                   ;Parallel queues
+                 HP = "NONE",-              ;History Logging Policy ("DATABASE", "EVENT_LOG", "NONE")
+                 EE = 1,-                   ;System Events & Operating System Events (1=Enabled, 0=Disabled) 
+                 MO = Monitor_Mapping,-     ;Monitor mapping
+                 PR = Printer_Mapping,-     ;Printer mapping
+                 AP = spread(APL'Apl_Nb':BAP, Apl_Mapping, Apl_Mapping))   ;Application mapping
+
+   Apl = merge_attributes(Apl_Modify, Apl_Permanent)
+    
+   #loop_with n = 1 .. max_application_number
+     Apl_AP = Apl.AP(n)
+     #if Apl_AP > 0 #then #block
+        Apl.DT(n) = Apl_DT
+        Apl.DI(n) = Apl_DI
+     #block_end
+   #loop_end
+    
+   #create APL'Apl_Nb':B = Apl
+   
+   ;Backup applications
+
+   #loop_with m = 1 .. length(Apl_Names)
+   
+      Apl_Nb = Apl_Numbers(length(Apl_Names)) + m + 1
+      
+      Apl = list(-
+               TT = "LOCAL",-                            ;Translation Type
+               NA = substr("BCK_" + Apl_Names(m), 1, 10),-  ;Application name
+               AS = "COLD",-                             ;Application state
+               SN = Apl_Numbers(m),-                     ;Shadow application
+               SW = Apl_Numbers(length(Apl_Names) + 1),-
+               AP = spread(APL'Apl_Nb':BAP, Apl_Mapping, Apl_Mapping))    ;Application mapping
+               
+      #create APL'Apl_Nb':B = Apl
+   
+   #loop_end
+
+#block_end
+
+;***********************************************
+;External Applications e.g. for Mirroring
+;***********************************************
+#loop_with n = 1 .. length(Ext_Apl_Numbers)
+
+   Apl_Nb  = Ext_Apl_Numbers(n)
+   Apl_Permanent = list(-
+                  TT = "EXTERNAL",-
+                  NA = Ext_Apl_NA(n),-            ;Application name
+                  ND = Ext_Apl_ND(n),-            ;Host node number
+                  SN = Ext_Apl_SN(n),-            ;Shadowing partner
+                  TN = Ext_Apl_TN(n),-            ;Host application number
+                  EM = Ext_Apl_EM,-               ;Max. length of mirroring queue
+                  EP = Ext_Apl_EP)                ;Event queue overflow policy
+
+   #create APL'Apl_Nb':B = Apl_Permanent
+
+#loop_end
+
+;***********************************************
+;Proxy Applications
+;***********************************************
+#loop_with n = 1 .. length(Proxy_Apl_Numbers)
+
+   Apl_Nb  = Proxy_Apl_Numbers(n)
+   Apl_Permanent = list(-
+                  TT = "PROXY",-
+                  NA = Proxy_Apl_NA(n),-          ;Application name
+                  HS = Proxy_Apl_HS(n) )          ;HSB application pair
+
+   #create APL'Apl_Nb':B = Apl_Permanent
+
+#loop_end
+
+;***********************************************
+;Station Types
+;***********************************************
+Result = do(read_text("sys_/sys_bascon.scl"), "STATION_TYPES")
+
+;***********************************************
+;Node, Link for PC-NET & Stations
+;***********************************************
+Result = do(read_text("Sys_Tool/Create_C.scl"), "BASE_SYSTEM")
+
+;***********************************************
+;OPC DA nodes 
+;***********************************************
+Nod = list()
+#loop_with n = 1 .. length(OPC_DA_NOD_Numbers)
+   Nod_Nb = OPC_DA_NOD_Numbers(n)
+   Nod_RN = OPC_DA_NOD_RN(n)
+   Nod_OP = OPC_DA_NOD_OP(n)
+   Nod = list(NT = "OPC_DA", RN = Nod_RN, OP = Nod_OP, DI = OPC_Nod_DI)
+   #create NOD'Nod_Nb':B = Nod
+#loop_end
+
+;***********************************************
+;OPC AE nodes 
+;***********************************************
+Nod = list()
+#loop_with n = 1 .. length(OPC_AE_NOD_Numbers)
+   Nod_Nb = OPC_AE_NOD_Numbers(n)
+   Nod_RN = OPC_AE_NOD_RN(n)
+   Nod_OP = OPC_AE_NOD_OP(n)
+   Nod = list(NT = "OPC_AE", RN = Nod_RN, OP = Nod_OP, DI = OPC_Nod_DI)
+   #create NOD'Nod_Nb':B = Nod
+#loop_end
+
+;***********************************************
+;OPC DA stations 
+;***********************************************
+Sta = list()
+#loop_with n = 1 .. length(OPC_DA_Station_Numbers)
+   Sta_Nb = OPC_DA_Station_Numbers(n)
+   Sta_ND = OPC_DA_Station_Nodes(n)
+   Sta = list(ST = "OPC", ND = Sta_ND, TT = "EXTERNAL")
+   #create STA'Sta_Nb':B = Sta
+#loop_end
+
+;***********************************************
+;OPC AE stations
+;***********************************************
+Sta = list()
+#loop_with n = 1 .. length(OPC_AE_Station_Numbers)
+   Sta_Nb = OPC_AE_Station_Numbers(n)
+   Sta_ND = OPC_AE_Station_Nodes(n)
+   Sta = list(ST = "OAE", ND = Sta_ND, TT = "EXTERNAL")
+   #create STA'Sta_Nb':B = Sta
+#loop_end
+
+;***********************************************
+;Stations for Mirroring etc.
+;***********************************************
+              
+Sta = list()
+
+#loop_with n = 1 .. length(Stations)
+
+   Sta_Nb = Stations(n)
+
+   Sta = list(TT = "EXTERNAL",-
+              ST = Sta_ST(n),-
+              ND = Sta_Nodes(n),-
+              TN = Stations(n),-
+              MR = Sta_MR(n),-
+              HS = list(APL = 0, UN = 0),-
+              IS = vector(list(APL = 0, UN = 0)))
+
+   #if Sta_MR(n) == "HOST" or Sta_MR(n) == "BOTH" #then #block
+      #loop_with m = 1 .. length(Sta_I_Apl(n))
+         Sta.IS(m) = list(APL = Sta_I_Apl(n)(m), UN = Sta_I_UN(n)(m))
+      #loop_end
+   #block_end
+   #if Sta_MR(n) == "IMAGE" or Sta_MR(n) == "BOTH" #then #block
+      Sta.TN = 0
+      Sta.HS = list(APL = Sta_H_Apl(n), UN = Sta_H_UN(n))
+   #block_end
+
+   #create STA'Sta_Nb':B = Sta
+
+#loop_end
+
+;***********************************************
+;Delete global variables
+;***********************************************
+Global_Variables = variable_names
+#loop_with n = 1 .. length(Global_Variables)
+   Global_Variable = Global_Variables(n)
+   #delete 'Global_Variable':V
+#loop_end
+
+;***********************************************
+;Project specific configuration after this line
+;***********************************************

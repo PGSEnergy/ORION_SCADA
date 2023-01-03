@@ -1,0 +1,332 @@
+        "Slider"  			
+                VNslider  	
+
+		DEF_TEMPLATE "DefSlider.lay"
+		RANGE 1	
+		; 
+
+		ICON "slider.clr"
+		BWICON "slider.bwi"
+		;
+        "Text Menu"
+                VNmenu  	
+
+		DEF_TEMPLATE "DefMenu.lay"
+		ECHO_TEMPLATE_INFO 1
+		EDIT_LIST_SIZE 1
+		EDIT_LIST_LABELS 1
+		EDIT_LIST_VALUES 1
+		; 
+
+		ICON "tmenu.clr"
+		BWICON "tmenu.bwi"
+		;
+        "Object Menu"  			
+                VNobjmenu  	
+
+		DEF_TEMPLATE "DefObjMenu.lay"
+		TEMPLATE 1
+		ECHO_TEMPLATE_INFO 1
+		EDIT_LIST_SIZE 0
+		EDIT_LIST_LABELS 0
+		EDIT_LIST_VALUES 1
+		; 
+
+		ICON "omenu.clr"
+		BWICON "omenu.bwi"
+		;
+        "Text Toggle"  			
+                VNtoggle  	
+
+		DEF_TEMPLATE "DefToggle.lay"
+		ECHO_TEMPLATE_INFO 1
+		EDIT_LIST_SIZE 1
+		EDIT_LIST_LABELS 1
+		EDIT_LIST_VALUES 1
+		; 
+
+		ICON "ttoggle.clr"
+		BWICON "ttoggle.bwi"
+		;
+        "Object Toggle"  			
+                VNobjtoggle  	
+
+		DEF_TEMPLATE "DefObjTogg.lay"
+		TEMPLATE 1
+		ECHO_TEMPLATE_INFO 1
+		EDIT_LIST_SIZE 0
+		EDIT_LIST_LABELS 0
+		EDIT_LIST_VALUES 1
+		; 
+
+		ICON "otoggle.clr"
+		BWICON "otoggle.bwi"
+		;
+        "Scrollbar"  			
+                VNscrollbar  	
+
+		DEF_TEMPLATE "DefScroll.lay"
+		TEMPLATE 1
+		RANGE 1	
+		; 
+
+		ICON "scrlbar.clr"
+		BWICON "scrlbar.bwi"
+		;
+        "Slider2D"  			
+                VNslider2D  	
+
+		DEF_TEMPLATE "Def2D.lay"
+                VARS	2	
+                VAR_LABELS  "Vdp X:,Vdp Y:"	
+                RANGE 1
+                KEY_BINDINGS "SELECT,CANCEL,DONE,RESTORE,TOG_POLL"
+		; 
+
+		ICON "slider2d.clr"
+		BWICON "slider2d.bwi"
+		;
+        "Text Entry"  			
+                VNtext  	
+
+		DEF_TEMPLATE "DefText.lay"
+                VAR_TYPE TEXT
+                KEY_BINDINGS "SELECT,CANCEL,DONE,RESTORE,CLEAR"
+		; 
+
+		ICON "txtentry.clr"
+		BWICON "txtentry.bwi"
+		;
+        "Text Edit"  			
+                VNtextedit  	
+
+		DEF_TEMPLATE "DefTexted.lay"
+                VAR_TYPE TEXT
+                KEY_BINDINGS "SELECT,CANCEL,DONE,RESTORE,CLEAR"
+		; 
+
+		ICON "txtedit.clr"
+		BWICON "txtedit.bwi"
+		;
+        "Palette"  			
+                VNpalette  	
+
+		DEF_TEMPLATE "DefPalette.lay"
+                ; 
+                  
+                ICON "palette.clr"
+                BWICON "palette.bwi"
+                ; 
+        "Checklist"
+                VNchecklist
+                  
+		DEF_TEMPLATE "DefCheck.lay"
+		TEMPLATE 1
+                VARS	-1	
+                VAR_LABELS  "Vdp %d:"
+		ECHO_TEMPLATE_INFO 1
+		EDIT_LIST_SIZE 1
+		EDIT_LIST_LABELS 1
+		EDIT_LIST_VALUES 1
+		; 
+
+		ICON "cklist.clr"
+		BWICON "cklist.bwi"
+		;
+        "Object Checklist"
+                VNobjchecklist
+                  
+		DEF_TEMPLATE "DefObjCh.lay"
+		TEMPLATE 1
+                VARS	-1	
+                VAR_LABELS  "Vdp %d:"
+		ECHO_TEMPLATE_INFO 1
+		EDIT_LIST_SIZE 0
+		EDIT_LIST_LABELS 0
+		EDIT_LIST_VALUES 1
+		; 
+
+		ICON "ocklist.clr"
+		BWICON "ocklist.bwi"
+		;
+        "Button"  			
+                VNbutton  	
+
+		DEF_TEMPLATE "DefButton.lay"
+		TEMPLATE 1
+                KEY_BINDINGS "SELECT"
+		ECHO_TEMPLATE_INFO 1
+		EDIT_LIST_SIZE 1
+		EDIT_LIST_LABELS 1
+		EDIT_LIST_VALUES 1
+		; 
+
+		ICON "button.clr"
+		BWICON "button.bwi"
+		;
+        "Motif Menu"  			
+                VNwmenu
+
+		WIDGETSET MOTIF
+                COMPATIBLE_VNTYPE VNmenu
+		DEF_TEMPLATE "DefMenu.lay"
+		ECHO_TEMPLATE_INFO 1
+		EDIT_LIST_SIZE 1
+		EDIT_LIST_LABELS 1
+		EDIT_LIST_VALUES 1
+		;
+		ICON "Mmenu.clr"
+		BWICON "Mmenu.bwi"
+		;
+        "Motif Text Toggle"  			
+                VNwtoggle
+
+		WIDGETSET MOTIF
+                COMPATIBLE_VNTYPE VNtoggle
+		DEF_TEMPLATE "DefToggle.lay"
+		ECHO_TEMPLATE_INFO 1
+		EDIT_LIST_SIZE 1
+		EDIT_LIST_LABELS 1
+		EDIT_LIST_VALUES 1
+		;
+		ICON "Mttoggle.clr"
+		BWICON "Mttoggle.bwi"
+		;
+       	"Motif Text"  			
+                VNwtext  	
+
+		WIDGETSET MOTIF
+                COMPATIBLE_VNTYPE VNtext
+		DEF_TEMPLATE "DefText.lay"
+                VAR_TYPE TEXT
+                KEY_BINDINGS "SELECT,CANCEL,DONE,RESTORE,CLEAR"
+		; 
+		ICON "Mtext.clr"
+		BWICON "Mtext.bwi"
+		;
+       	"Motif Slider"	
+                VNwslider
+
+		WIDGETSET MOTIF
+                COMPATIBLE_VNTYPE VNslider
+		DEF_TEMPLATE "DefSlider.lay"
+		RANGE 1	
+		; 
+		ICON "Mslider.clr"
+		BWICON "Mslider.bwi"
+		;
+	"Motif Checklist"
+                VNwcheck
+                  
+		WIDGETSET MOTIF
+                COMPATIBLE_VNTYPE VNchecklist
+		DEF_TEMPLATE "DefCheck.lay"
+                VARS	-1	
+                VAR_LABELS  "Vdp %d:"
+		ECHO_TEMPLATE_INFO 1
+		EDIT_LIST_SIZE 1
+		EDIT_LIST_LABELS 1
+		EDIT_LIST_VALUES 1
+		; 
+
+		ICON "Mcheck.clr"
+		BWICON "Mcheck.bwi"
+		;
+	"Motif Radio"  			
+                VNwradio
+
+		WIDGETSET MOTIF
+                COMPATIBLE_VNTYPE VNmenu
+		DEF_TEMPLATE "DefMenu.lay"
+		ECHO_TEMPLATE_INFO 1
+		EDIT_LIST_SIZE 1
+		EDIT_LIST_LABELS 1
+		EDIT_LIST_VALUES 1
+		; 
+
+		ICON "Mradio.clr"
+		BWICON "Mradio.bwi"
+		;
+        "OpenLook Menu"  			
+                VNwmenu
+
+		WIDGETSET OPENLOOK
+                COMPATIBLE_VNTYPE VNmenu
+		DEF_TEMPLATE "DefMenu.lay"
+		ECHO_TEMPLATE_INFO 1
+		EDIT_LIST_SIZE 1
+		EDIT_LIST_LABELS 1
+		EDIT_LIST_VALUES 1
+		;
+		ICON "OLmenu.clr"
+		BWICON "OLmenu.bwi"
+		;
+        "OpenLook Text Toggle"  			
+                VNwtoggle
+
+		WIDGETSET OPENLOOK
+                COMPATIBLE_VNTYPE VNtoggle
+		DEF_TEMPLATE "DefToggle.lay"
+		ECHO_TEMPLATE_INFO 1
+		EDIT_LIST_SIZE 1
+		EDIT_LIST_LABELS 1
+		EDIT_LIST_VALUES 1
+		;
+		ICON "OLttoggle.clr"
+		BWICON "OLttoggle.bwi"
+		;
+       	"OpenLook Text"  			
+                VNwtext  	
+
+		WIDGETSET OPENLOOK
+                COMPATIBLE_VNTYPE VNtext
+		DEF_TEMPLATE "DefText.lay"
+                VAR_TYPE TEXT
+                KEY_BINDINGS "SELECT,CANCEL,DONE,RESTORE,CLEAR"
+		; 
+		ICON "OLtext.clr"
+		BWICON "OLtext.bwi"
+		;
+       	"OpenLook Slider"	
+                VNwslider
+
+		WIDGETSET OPENLOOK
+                COMPATIBLE_VNTYPE VNslider
+		DEF_TEMPLATE "DefSlider.lay"
+		RANGE 1	
+		; 
+		ICON "OLslider.clr"
+		BWICON "OLslider.bwi"
+		;
+	"OpenLook Checklist"
+                VNwcheck
+                  
+		WIDGETSET OPENLOOK
+                COMPATIBLE_VNTYPE VNchecklist
+		DEF_TEMPLATE "DefCheck.lay"
+                VARS	-1	
+                VAR_LABELS  "Vdp %d:"
+		ECHO_TEMPLATE_INFO 1
+		EDIT_LIST_SIZE 1
+		EDIT_LIST_LABELS 1
+		EDIT_LIST_VALUES 1
+		; 
+
+		ICON "OLcheck.clr"
+		BWICON "OLcheck.bwi"
+		;
+	"OpenLook Radio"  			
+                VNwradio
+
+		WIDGETSET OPENLOOK
+                COMPATIBLE_VNTYPE VNmenu
+		DEF_TEMPLATE "DefMenu.lay"
+		ECHO_TEMPLATE_INFO 1
+		EDIT_LIST_SIZE 1
+		EDIT_LIST_LABELS 1
+		EDIT_LIST_VALUES 1
+		; 
+
+		ICON "OLradio.clr"
+		BWICON "OLradio.bwi"
+		;

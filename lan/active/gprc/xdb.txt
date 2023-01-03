@@ -1,0 +1,31 @@
+DRAW_FRAME
+
+@BW = SYS_GPRC:VBORDER_WIDTH
+.PEND ON
+.PUSH
+@XOLD = %X
+@YOLD = %Y
+@WOLD = %W
+@HOLD = %H
+.GC : FU = "COPY", FG = ("M",1), LS = "SOLID", LW = 0
+.BOX %X,%Y,%W,%H,FILL
+#DO SYS_GPRC:VCALC_SHADOW
+.GC : FG = ("M",8)
+.POLYLINE %X1,%Y1,FILL
+.GC : FG = ("M",9)
+.POLYLINE %X2,%Y2,FILL
+@X = %X + %ST + %BW
+@Y = %Y + %ST + %BW
+@W = %W - 2*%ST - 2*%BW
+@H = %H - 2*%ST - 2*%BW
+#DO SYS_GPRC:VCALC_SHADOW
+.POLYLINE %X1,%Y1,FILL
+.GC : FG = ("M",8)
+.POLYLINE %X2,%Y2,FILL
+@X = %XOLD
+@Y = %YOLD
+@W = %WOLD
+@H = %HOLD
+.POP
+.PEND OFF
+

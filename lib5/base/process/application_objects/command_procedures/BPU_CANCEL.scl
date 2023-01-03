@@ -1,0 +1,74 @@
+;Function: BPU_CANCEL:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_cancel.scl
+;Version: 1.0
+;Parameters:
+;Return data:
+;Description:
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+
+#argument t_cancel_ln, i_cancel_ix, i_cancel_value, t_Sta_type, t_control_type
+#local i_res = 0
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_CANCEL"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+		#if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+			@REDIRECTED = true                                                                        
+			i_ArgCnt = argument_count                                                                 
+			#if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"						      
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"											      
+			#loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+				t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+				#if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+			#loop_end                                                                                 
+			#return 't_Redirect_Command' ;;;;;                                                        
+		#block_end                                                                                   
+	#block_end                                                                                      
+	#else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+
+i_res = status
+#error ignore
+
+#case t_control_type
+  #when "SEC-5BO", "SEC-5AO", "SEC-4BO" #block
+    #case t_sta_type
+      #when "IEC101", "ICCP" #set 't_cancel_ln':p'i_cancel_ix'=list(ov=1, ct=8,  og=sys:bsa)
+      #when "IEC103" #set 't_cancel_ln':p'i_cancel_ix'=list(ov=1, ct=20, og=sys:bsa)
+      #when "IEC61850" #set 't_cancel_ln':p'i_cancel_ix'= i_cancel_value
+      #when "DNP_30" @tmp ;#set 't_cancel_ln':p'i_cancel_ix'=list(ov=i_cancel_value,se=0)
+      #otherwise #set 't_cancel_ln':p'i_cancel_ix'=i_cancel_value
+    #case_end
+  #block_end
+  #when "SEC-BO" #block
+    #case t_Sta_type
+      #when "IEC101", "ICCP" #set 't_cancel_ln':pse'i_cancel_ix'=list(se=i_cancel_value, ct=8,  og=sys:bsa)
+      #when "IEC103" #set 't_cancel_ln':pse'i_cancel_ix'=list(se=i_cancel_value, ct=20, og=sys:bsa)
+      #when "DNP_30"      @tmp ;#set 't_cancel_ln':pse'i_cancel_ix'=list(se=0, ty=3, ql=2)
+      #when "RTU","RTU_E" #set 't_cancel_ln':pse'i_cancel_ix'=i_cancel_value
+      #when "MODBUS_RTU" #set 't_cancel_ln':pse'i_cancel_ix'=i_cancel_value 
+      #when "LON" #set 't_cancel_ln':pse'i_cancel_ix'=i_cancel_value
+      #otherwise #set 't_cancel_ln':pse'i_cancel_ix'=i_cancel_value
+    #case_end
+  #block_end
+  #when "AO" #block
+    #case t_Sta_type
+      #when "IEC101", "ICCP" #set 't_cancel_ln':p'i_cancel_ix'=list(ov=i_cancel_value, ct=8,  og=sys:bsa)
+      #when "IEC103" #set 't_cancel_ln':p'i_cancel_ix'=list(ov=i_cancel_value, ct=20, og=sys:bsa)
+      #when "DNP_30" @tmp ;#set 't_cancel_ln':p'i_cancel_ix'=list(ov=i_cancel_value,se=0)
+      #otherwise #set 't_cancel_ln':pov'i_cancel_ix'= i_cancel_value
+    #case_end
+  #block_end
+#case_end
+i_res = status
+
+#return i_res

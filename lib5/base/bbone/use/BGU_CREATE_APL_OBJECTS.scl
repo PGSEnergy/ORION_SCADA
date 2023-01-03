@@ -1,0 +1,21 @@
+;creates event handling objects/command procedures from *.SDB file
+#argument t_file, t_type
+#local l_db, i, l_eh, l_section, t_ln
+
+l_db = data_manager("OPEN", t_file)
+
+#if l_db.status == 0 #then #block
+   l_eh = data_manager("LIST_SECTIONS", l_db.handle)
+   #if l_eh.status == 0 #then #block
+      #loop_with i = 1 .. length(l_eh.sections)
+         l_section = data_manager("GET", l_db.handle, l_eh.sections(i))
+         #if l_section.status == 0 #then #block
+            t_ln = l_section.value.ln
+            #if application_object_exists(0, t_type, t_ln) #then #modify 't_ln':'t_type' = l_section.value
+            #else #create 't_ln':'t_type' = l_section.value
+         #block_end
+      #loop_end
+   #block_end  
+#block_end
+
+l_db = data_manager("CLOSE", l_db.handle)

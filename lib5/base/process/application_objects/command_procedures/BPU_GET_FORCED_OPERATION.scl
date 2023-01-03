@@ -1,0 +1,48 @@
+;Function: BPU_GET_FORCED_OPERATION:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_get_forced_operation.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute), l_data
+;Return data: : LIST(INTERLOCK_BYPASS = TRUE | FALSE, SYNCHRCHECK_BYPASS = TRUE | FALSE, STATUS=integer, err_description=text)
+;Description:
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data
+#local l_result = list(interlock_bypass = false, synchrocheck_bypass = false, status = 0, err_description = "")
+#local t_LN, i_IX = 0
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_GET_FORCED_OPERATION"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+		#if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+			@REDIRECTED = true                                                                        
+			i_ArgCnt = argument_count                                                                 
+			#if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"						      
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"											      
+			#loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+				t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+				#if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+			#loop_end                                                                                 
+			#return 't_Redirect_Command' ;;;;;                                                        
+		#block_end                                                                                   
+	#block_end                                                                                      
+	#else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+
+#if attribute_exists(l_object_info, "interlocking_bypass") #then #block
+	#if l_object_info.interlocking_bypass #then l_result.interlock_bypass = true
+#block_end
+
+#if attribute_exists(l_object_info, "synchrocheck_bypass") #then #block
+	#if l_object_info.synchrocheck_bypass #then l_result.synchrocheck_bypass = true
+#block_end
+
+#return l_result
+

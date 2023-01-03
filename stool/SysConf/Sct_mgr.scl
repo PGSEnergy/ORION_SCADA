@@ -1,0 +1,104 @@
+; File: SCT_Mgr.scl(t_Method__, [t_Module_Type__])
+; Parameters: t_Method__
+;             [t_Module_Type__], specifies the module to the used, default SCT
+; Description: Used for compiling the System Configuration Tool methods into SCF Table, and later for utilizing
+;              those methods from the caller's side.
+; -------------------------------------------------------------------------------------------------------------
+
+@t_Method__ = argument(1)
+@t_Module_Type__ = "SCT"
+@x_Information__ = "NONE"
+#if argument_count == 2 #then #block
+   @t_Method__ = argument(1)
+   @t_Module_Type__ = argument(2)
+#block_end
+#if argument_count == 3 #then #block
+   @t_Method__ = argument(1)
+   @t_Module_Type__ = argument(2)
+   @x_Information__ = argument(3)
+#block_end
+
+@MAXIMUM_MODULE_COUNT__ = 5
+
+#if %t_Module_Type__ == "SSS" #then @i_Apl_Index__ = 41
+
+#case upper_case(%t_Method__)
+
+   #when "ACINIT" #block
+
+      @Gl_'t_Module_Type__'_Table__ = list()
+
+      #loop_with x_Module__ = 1 .. %MAXIMUM_MODULE_COUNT__
+
+         #if %x_Module__ == 1 #then @x_Module__ = ""
+         @i_Status__ = status
+         #error ignore
+            @v_SCT_Code__ = read_text("sys_tool/'t_Module_Type__'_Mgr'x_Module__'.mod", 1, 10000)
+         #error stop
+         #if status == 0 #then #block
+
+            @v_Start_Rows__ = select(substr(%v_SCT_Code__, 1, 9), "==""; Method:""")
+
+            #loop_with i__ = 1 .. length(%v_Start_Rows__) - 1
+
+               @t_Method_Name__ = substr(%v_SCT_Code__(%v_Start_Rows__(%i__)), 11, locate(%v_SCT_Code__(%v_Start_Rows__(%i__)), "(") - 11)
+               @l_Compile__ = compile(%v_SCT_Code__(%v_Start_Rows__(%i__) .. %v_Start_Rows__(%i__ + 1) - 1))
+               #if l_Compile__:vSTATUS == 0 #then #set Gl_'t_Module_Type__'_Table__:v't_Method_Name__' = l_Compile__:vCODE
+
+            #loop_end
+
+            @t_Method_Name__ = substr(%v_SCT_Code__(%v_Start_Rows__(length(%v_Start_Rows__))), 11, locate(%v_SCT_Code__(%v_Start_Rows__(length(%v_Start_Rows__))), "(") - 11)
+            @l_Compile__ = compile(%v_SCT_Code__(%v_Start_Rows__(length(%v_Start_Rows__)) .. length(%v_SCT_Code__)))
+            #if l_Compile__:vSTATUS == 0 #then #set Gl_'t_Module_Type__'_Table__:v't_Method_Name__' = l_Compile__:vCODE
+            @v_SCT_Code__
+
+         #block_end
+
+      #loop_end
+
+      #if %t_Module_Type__ == "SSS" and %x_Information__ == "SYSTEMVARIABLE" #then #block
+
+         #set apl:bsv(%i_Apl_Index__) = %Gl_'t_Module_Type__'_Table__
+         @Gl_'t_Module_Type__'_Table__
+
+         @Gv_'t_Module_Type__'_Mgr__ = (-
+            "@t_Service_Name__ = argument(2)",-
+            "@Gl_SSS_Table__ = apl:bsv(41)",-
+            "#case argument_count",-
+            "   #when 2 #return do (Gl_SSS_Table__:v''t_Service_Name__'')",-
+            "   #when 3 #return do (Gl_SSS_Table__:v''t_Service_Name__'',argument(3))",-
+            "   #when 4 #return do (Gl_SSS_Table__:v''t_Service_Name__'',argument(3),argument(4))",-
+            "   #when 5 #return do (Gl_SSS_Table__:v''t_Service_Name__'',argument(3),argument(4),argument(5))",-
+            "   #when 6 #return do (Gl_SSS_Table__:v''t_Service_Name__'',argument(3),argument(4),argument(5),argument(6))",-
+            "   #when 7 #return do (Gl_SSS_Table__:v''t_Service_Name__'',argument(3),argument(4),argument(5),argument(6),argument(7))",-
+            "   #when 8 #return do (Gl_SSS_Table__:v''t_Service_Name__'',argument(3),argument(4),argument(5),argument(6),argument(7),argument(8))",-
+            "   #when 9 #return do (Gl_SSS_Table__:v''t_Service_Name__'',argument(3),argument(4),argument(5),argument(6),argument(7),argument(8),argument(9))",-
+            "   #otherwise #return list(STATUS = 1, DESCRIPTIVE_TEXT = ""SCM_ARGUMENT_COUNT_EXCEEDED"")",-
+            "#case_end")
+
+         #set apl:bsv(40) = %Gv_SSS_Mgr__
+         @Gv_SSS_Mgr__
+
+      #block_end
+      #else #block
+
+         @Gv_'t_Module_Type__'_Mgr__ = (-
+            "@t_Service_Name__ = argument(1)",-
+            "#case argument_count",-
+            "   #when 1 #return do (Gl_'t_Module_Type__'_Table__:v''t_Service_Name__'')",-
+            "   #when 2 #return do (Gl_'t_Module_Type__'_Table__:v''t_Service_Name__'',argument(2))",-
+            "   #when 3 #return do (Gl_'t_Module_Type__'_Table__:v''t_Service_Name__'',argument(2),argument(3))",-
+            "   #when 4 #return do (Gl_'t_Module_Type__'_Table__:v''t_Service_Name__'',argument(2),argument(3),argument(4))",-
+            "   #when 5 #return do (Gl_'t_Module_Type__'_Table__:v''t_Service_Name__'',argument(2),argument(3),argument(4),argument(5))",-
+            "   #when 6 #return do (Gl_'t_Module_Type__'_Table__:v''t_Service_Name__'',argument(2),argument(3),argument(4),argument(5),argument(6))",-
+            "   #when 7 #return do (Gl_'t_Module_Type__'_Table__:v''t_Service_Name__'',argument(2),argument(3),argument(4),argument(5),argument(6),argument(7))",-
+            "   #when 8 #return do (Gl_'t_Module_Type__'_Table__:v''t_Service_Name__'',argument(2),argument(3),argument(4),argument(5),argument(6),argument(7),argument(8))",-
+            "   #when 9 #return do (Gl_'t_Module_Type__'_Table__:v''t_Service_Name__'',argument(2),argument(3),argument(4),argument(5),argument(6),argument(7),argument(8),argument(9))",-
+            "   #otherwise #return list(STATUS = 1, DESCRIPTIVE_TEXT = ""SCM_ARGUMENT_COUNT_EXCEEDED"")",-
+            "#case_end")
+
+      #block_end
+
+   #block_end
+
+#case_end

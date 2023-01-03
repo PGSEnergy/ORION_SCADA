@@ -1,0 +1,342 @@
+; Command Procedure: SYS_SYSER
+; Version: SYS 600 9.3
+; Description: This is command procedure for receiving SYS_EVENT events
+; ----------------------------------------------------------------------
+
+;read in object data
+#case %SOURCE
+
+   #when "NOD" #block
+      @l_Obj_Vars = list(SOURCE = %SOURCE, TYPE = "NODE", NUMBER = %SOURCE_NR, INDICATION = "INDICATION_PRIMARY")
+      @l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectAttributes", l_Obj_Vars:vTYPE, l_Obj_Vars:vNUMBER)
+   #block_end
+
+   #when "PRI" #block
+      @l_Obj_Vars = list(SOURCE = %SOURCE, TYPE = "PRINTER", NUMBER = %SOURCE_NR, INDICATION = "INDICATION_PRIMARY")
+      @l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectAttributes", l_Obj_Vars:vTYPE, l_Obj_Vars:vNUMBER)
+      ;event reconstruction
+      @EVENT = "OUTPUT_LOST"      
+   #block_end
+
+   #when "APL_AS" #block
+      @l_Obj_Vars = list(SOURCE = %SOURCE, TYPE = "APPLICATION", NUMBER = %SOURCE_NR, INDICATION = "AS_PRIMARY")
+
+      @i_Status = status
+      #error ignore
+         @l_Apl_Bsv46 = apl:bsv46
+         @l_Apl_History = list(NA = "?", TT = "?", AS = "?", SP = "?")
+         @l_Apl_History = l_Apl_Bsv46:vAPL'l_Obj_Vars:vNUMBER'_LOCAL
+      #error stop   
+      @i_Status = status
+      
+      @l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectAttributes", l_Obj_Vars:vTYPE, l_Obj_Vars:vNUMBER)
+   #block_end
+
+   #when "APL_SP" #block
+      @l_Obj_Vars = list(SOURCE = %SOURCE, TYPE = "APPLICATION", NUMBER = %SOURCE_NR, INDICATION = "SP_PRIMARY")
+      @l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectAttributes", l_Obj_Vars:vTYPE, l_Obj_Vars:vNUMBER)
+   #block_end
+      
+   #when "GLOBAL_POOL" #block
+      @l_Obj_Vars = list(SOURCE = %SOURCE, TYPE = "NODE", NUMBER = SYS:BND, INDICATION = "INDICATION_PRIMARY")
+      @l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectAttributes", l_Obj_Vars:vTYPE, l_Obj_Vars:vNUMBER)
+      ;event reconstruction
+      #if %EVENT == "CACHE BORROW" #then @EVENT = "CACHE_BORROW"      
+   #block_end
+
+   #when "APL_EM", "APL_QM1", "APL_QM2", "APL_QM3", "APL_QM4", "APL_PM1", "APL_PM2" #block
+      @l_Obj_Vars = list(SOURCE = %SOURCE, TYPE = "APPLICATION", NUMBER = %SOURCE_NR, INDICATION = "QUEUE_PRIMARY")
+      @l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectAttributes", l_Obj_Vars:vTYPE, l_Obj_Vars:vNUMBER)
+   #block_end
+
+   #otherwise #block
+      #if locate(%SOURCE, "PICO_POOL") > 0 #then #block
+         @l_Obj_Vars = list(SOURCE = "PICO_POOL", TYPE = "APPLICATION", NUMBER = %SOURCE_NR, INDICATION = "POOL_PRIMARY")
+         @l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectAttributes", l_Obj_Vars:vTYPE, l_Obj_Vars:vNUMBER)      
+      #block_end
+      #else_if locate(%SOURCE, "REPR_POOL") > 0 #then #block
+         @l_Obj_Vars = list(SOURCE = "REPR_POOL", TYPE = "APPLICATION", NUMBER = %SOURCE_NR, INDICATION = "POOL_PRIMARY")
+         @l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectAttributes", l_Obj_Vars:vTYPE, l_Obj_Vars:vNUMBER)      
+      #block_end
+      #else_if locate(%SOURCE, "PRIN_POOL") > 0 #then #block
+         @l_Obj_Vars = list(SOURCE = "PRIN_POOL", TYPE = "APPLICATION", NUMBER = %SOURCE_NR, INDICATION = "POOL_PRIMARY")
+         @l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectAttributes", l_Obj_Vars:vTYPE, l_Obj_Vars:vNUMBER)      
+      #block_end
+      #else @l_Obj_Data = list(STATUS = -1)
+   #block_end
+
+#case_end
+
+;define events and update indication state
+#if l_Obj_Data:vSTATUS == 0 #then #if l_Obj_Data:v'l_Obj_Vars:vINDICATION' <> "#" #then #block ; 1
+
+   ;read in filtering info
+   @l_Filtering_Info = do(apl:bsv40, "SSS", "GetFilterAttributes", "SYS_EVENT", l_Obj_Vars:vSOURCE, %EVENT)
+
+   ;read in general info
+   @l_General_Info = APL:BSV45
+
+   ;write to log, event/alarm activation
+   #if l_Filtering_Info:vSTATUS == 0 #then #block ; 2
+
+      ;write to log, if requested
+      #if l_Filtering_Info:vLOG and l_General_Info:vENABLE_LOG #then -
+         @i_Log_Write = do(apl:bsv40, "SSS", "WriteLogItem", "STE", "EVENT_SYS")
+
+      ;activate event, if requested
+      #if l_Filtering_Info:vEVENT and l_General_Info:vENABLE_EVENT #then #block
+         @l_Event_Point = do(apl:bsv40, "SSS", "GetEvents", "EVENT", l_Obj_Vars:vTYPE, l_Obj_Vars:vNUMBER, list(SOURCE = l_Obj_Vars:vSOURCE, EVENT = %EVENT))
+         
+         #if l_Event_Point:vSTATUS == 0 #then #set 'l_Event_Point:vEVENT' = 1
+         #else #block
+            @l_Event_Point = do(apl:bsv40, "SSS", "CreateProcessObject", l_Obj_Vars:vTYPE, "EVENT", l_Obj_Vars:vNUMBER, list(SOURCE = l_Obj_Vars:vSOURCE, EVENT = %EVENT))
+            #set 'l_Event_Point:vEVENT' = 1
+         #block_end      
+      #block_end
+      
+      ;activate alarm, if requested
+      #if l_Filtering_Info:vALARM and l_General_Info:vENABLE_ALARM #then #block
+         @l_Alarm_Point = do(apl:bsv40, "SSS", "GetEvents", "ALARM", l_Obj_Vars:vTYPE, l_Obj_Vars:vNUMBER, list(SOURCE = l_Obj_Vars:vSOURCE, EVENT = %EVENT))
+         
+         #if l_Alarm_Point:vSTATUS == 0 #then #set 'l_Alarm_Point:vALARM' = abs(1 - 'l_Alarm_Point:vALARM')
+         #else #block
+            @l_Alarm_Point = do(apl:bsv40, "SSS", "CreateProcessObject", l_Obj_Vars:vTYPE, "ALARM", l_Obj_Vars:vNUMBER, list(SOURCE = l_Obj_Vars:vSOURCE, EVENT = %EVENT))
+            #set 'l_Alarm_Point:vALARM' = 1
+         #block_end      
+      #block_end   
+   
+   #block_end ; 2
+      #else_if l_Filtering_Info:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_syser:c]", l_Filtering_Info:vDESCRIPTIVE_TEXT)
+
+   ;update indication process object
+   #case l_Obj_Vars:vSOURCE
+      
+      #when "NOD" #block
+         #if l_Obj_Data:vTYPE <> "" #then #block
+            #if upper_case(l_Obj_Data:vTYPE) == "PCNET" #then #block
+               ;indication process object of NET
+               #if l_Filtering_Info:vSTATUS == 0 #then #block
+                  #if l_Filtering_Info:vALARM #then #block
+                     #if %EVENT == "LOST" #then #block
+                        ;the state of NET, lines etc...
+                        #do sys_netsr:c
+                        ;indication
+                        ;#set 'l_Obj_Data:vINDICATION_PRIMARY' = %i_Net_State
+                     #block_end             
+                        #else ; #set 'l_Obj_Data:vINDICATION_PRIMARY' = 10
+                  #block_end
+                  #else #block
+                     #if %EVENT == "FOUND" #then #block
+                        ;the state of NET, lines etc...
+                        #do sys_netsr:c
+                        ;indication
+                        #set 'l_Obj_Data:vINDICATION_PRIMARY' = %i_Net_State
+                     #block_end               
+                     #else #set 'l_Obj_Data:vINDICATION_PRIMARY' = 0
+                   #block_end
+               #block_end
+               #else #block
+                  #error ignore
+                     @i_OV = 1
+                     @i_OV = 'l_Obj_Data:vINDICATION_PRIMARY' 
+                  #error stop
+                  #set 'l_Obj_Data:vINDICATION_PRIMARY' = list(OV = %i_OV, OS = 4)
+               #block_end
+            #block_end
+            #else_if upper_case(l_Obj_Data:vTYPE) == "61850NET" #then #block
+               ;indication process object of NET
+               #if l_Filtering_Info:vSTATUS == 0 #then #block
+                  #if l_Filtering_Info:vALARM #then #block
+                     #if %EVENT == "LOST" #then #block
+                        ;the state of NET and stations...
+                        #do sys_netsr:c
+                        ;indication
+                        #set 'l_Obj_Data:vINDICATION_PRIMARY' = %i_Net_State
+                     #block_end
+                     #else ; #set 'l_Obj_Data:vINDICATION_PRIMARY' = 10
+                  #block_end
+                  #else #block
+                     #if %EVENT == "FOUND" #then #block
+                        ;the state of NET, lines etc...
+                        #do sys_netsr:c
+                        ;indication
+                        #set 'l_Obj_Data:vINDICATION_PRIMARY' = %i_Net_State
+                        ;update system message
+                        #if NET'SOURCE_NR':SSE == 1 #then #set NET'SOURCE_NR':SOS = 1
+                     #block_end
+                     #else #set 'l_Obj_Data:vINDICATION_PRIMARY' = 0
+                  #block_end
+               #block_end
+               #else #block
+                  #error ignore
+                     @i_OV = 1
+                     @i_OV = 'l_Obj_Data:vINDICATION_PRIMARY' 
+                  #error stop
+                  #set 'l_Obj_Data:vINDICATION_PRIMARY' = list(OV = %i_OV, OS = 4)
+               #block_end
+            #block_end 
+         #block_end
+      #block_end
+      
+      #when "PRI" #block
+         ;indication process object of printer
+         #if l_Filtering_Info:vSTATUS == 0 #then #block
+            #if l_Filtering_Info:vALARM #then #set 'l_Obj_Data:vINDICATION_PRIMARY' = 10
+               #else #set 'l_Obj_Data:vINDICATION_PRIMARY' = 0
+         #block_end
+         #else_if l_Filtering_Info:vSTATUS < 0 #then #set 'l_Obj_Data:vINDICATION_PRIMARY' = 0
+         #else #block
+            #error ignore
+               @i_OV = 1
+               @i_OV = 'l_Obj_Data:vINDICATION_PRIMARY'
+            #error stop
+            #set 'l_Obj_Data:vINDICATION_PRIMARY' = list(OV = %i_OV, OS = 4)
+         #block_end        
+      #block_end      
+      
+      #when "APL_AS" #block
+         ;indication process object of application for application state
+         #if APL'l_Obj_Vars:vNUMBER':BTT == "NONE" #then #set 'l_Obj_Data:vAS_PRIMARY' = -1
+         #else #block
+            #if l_Filtering_Info:vSTATUS == 0 #then #block
+               #if l_Filtering_Info:vALARM #then #set 'l_Obj_Data:vAS_PRIMARY' = 10
+                  #else #set 'l_Obj_Data:vAS_PRIMARY' = 0
+            #block_end
+            #else_if l_Filtering_Info:vSTATUS < 0 #then #set 'l_Obj_Data:vAS_PRIMARY' = 0
+            #else #block
+               #error ignore
+                  @i_OV = 1
+                  @i_OV = 'l_Obj_Data:vAS_PRIMARY' 
+               #error stop
+               #set 'l_Obj_Data:vAS_PRIMARY' = list(OV = %i_OV, OS = 4)
+            #block_end
+         #block_end
+         ;update history status
+         #if data_type(%l_Apl_Bsv46) <> "LIST" #then @l_Apl_Bsv46 = list()
+         #modify l_Apl_Bsv46:v = list(APL'l_Obj_Vars:vNUMBER'_LOCAL = list(-
+            NA = APL'l_Obj_Vars:vNUMBER':BNA,-
+            TT = APL'l_Obj_Vars:vNUMBER':BTT,-
+            AS = %EVENT,-
+            SP = "?"))
+         #set APL:BSV46 = %l_Apl_Bsv46
+         ;update application state
+         @l_Event_Object = do(apl:bsv40, "SSS", "GetLogicalNameAndIndex", l_Obj_Data:vAS_PRIMARY)
+         @t_Event_Object = "'l_Event_Object:vLN':E'l_Event_Object:vIX'"
+         #exec 't_Event_Object'
+         
+         #if l_Obj_Data:vPresentation <> "#" #then #block  
+            @l_Presentation_Object = do(apl:bsv40, "SSS", "GetLogicalNameAndIndex", l_Obj_Data:vPresentation)
+            #if locate(l_Obj_Data:vCX, "HSB") > 0 #then #set l_Presentation_Object:vIX = SYS:BND * 100 + 1000 + %SOURCE_NR
+            @t_Presentation_Object = "'l_Presentation_Object:vLN':P'l_Presentation_Object:vIX'"                      
+            #case %EVENT
+               #when "COLD" @i_Value = 1
+               #when "WARM" @i_Value = 2
+               #when "HOT" #block
+                  #if locate(l_Obj_Data:vCX, "HSB") > 0 #then @i_Value = 4
+                  #else  @i_Value = 3
+               #block_end
+               #otherwise @i_Value = 13
+            #case_end
+            #if application_object_exists(0, "IX", LIST(LN="'l_Presentation_Object:vLN'", IX=l_Presentation_Object:vIX)) #then -
+               #set 't_Presentation_Object' = %i_Value
+         #block_end
+      #block_end
+
+      #when "APL_SP" #block
+         ;indication process object of application for application shadowing state
+         #if l_Filtering_Info:vSTATUS == 0 #then #block
+            #if l_Filtering_Info:vALARM #then #set 'l_Obj_Data:vSP_PRIMARY' = 10
+               #else #set 'l_Obj_Data:vSP_PRIMARY' = 0
+         #block_end
+         #else_if l_Filtering_Info:vSTATUS < 0 #then #set 'l_Obj_Data:vSP_PRIMARY' = 0
+         #else #block
+            #error ignore
+               @i_OV = 1
+               @i_OV = 'l_Obj_Data:vSP_PRIMARY'
+            #error stop
+            #set 'l_Obj_Data:vSP_PRIMARY' = list(OV = %i_OV, OS = 4)
+         #block_end
+         ;update application state
+         @l_Event_Object = do(apl:bsv40, "SSS", "GetLogicalNameAndIndex", l_Obj_Data:vSP_PRIMARY)
+         @t_Event_Object = "'l_Event_Object:vLN':E'l_Event_Object:vIX'"
+         #exec 't_Event_Object'
+
+         #if l_Obj_Data:vPresentation <> "#" #then #block 
+            @l_Presentation_Object = do(apl:bsv40, "SSS", "GetLogicalNameAndIndex", l_Obj_Data:vPresentation)
+            #set l_Presentation_Object:vIX = SYS:BND * 100 + %SOURCE_NR + 1000
+            @t_Presentation_Object = "'l_Presentation_Object:vLN':P'l_Presentation_Object:vIX'"
+            #case %EVENT
+               #when "NONE" @i_Value = 4
+               #when "TO_WARM_SEND" @i_Value = 5
+               #when "WARM_SEND" @i_Value = 6
+               #when "TO_HOT_SEND" @i_Value = 7
+               #when "HOT_SEND" @i_Value = 8
+               #when "TO_WARM_RECEIVE" @i_Value = 9
+               #when "WARM_RECEIVE" @i_Value = 10
+               #when "TO_HOT_RECEIVE" @i_Value = 11
+               #when "HOT_RECEIVE" @i_Value = 12
+               #otherwise @i_Value = 13
+            #case_end
+            #if application_object_exists(0, "IX", LIST(LN="'l_Presentation_Object:vLN'", IX=l_Presentation_Object:vIX)) #then -
+               #set 't_Presentation_Object' = %i_Value
+         #block_end
+      #block_end
+      
+      #when "GLOBAL_POOL" #block ;binary input
+         ;indication process object of Base System
+         #if l_Filtering_Info:vSTATUS == 0 #then #block
+            #if l_Filtering_Info:vALARM #then #set 'l_Obj_Data:vINDICATION_PRIMARY' = 1
+               #else #set 'l_Obj_Data:vINDICATION_PRIMARY' = 0
+         #block_end
+         #else_if l_Filtering_Info:vSTATUS < 0 #then #set 'l_Obj_Data:vINDICATION_PRIMARY' = 0
+         #else #block
+            #error ignore
+               @i_OV = 0
+               @i_OV = 'l_Obj_Data:vINDICATION_PRIMARY'
+            #error stop
+            #set 'l_Obj_Data:vINDICATION_PRIMARY' = list(OV = %i_OV, OS = 4)
+         #block_end
+         ;re-enable global memory pool events
+         #set SYS:BME = 1
+      #block_end
+      
+      #when "PICO_POOL", "REPR_POOL", "PRIN_POOL" #block ;binary input
+         ;indication process object of application for local memory pools
+         #if l_Filtering_Info:vSTATUS == 0 #then #block
+            #if l_Filtering_Info:vALARM #then #set 'l_Obj_Data:vPOOL_PRIMARY' = 1
+               #else #set 'l_Obj_Data:vPOOL_PRIMARY' = 0
+         #block_end
+         #else_if l_Filtering_Info:vSTATUS < 0 #then #set 'l_Obj_Data:vPOOL_PRIMARY' = 0
+         #else #block
+            #error ignore
+               @i_OV = 0
+               @i_OV = 'l_Obj_Data:vPOOL_PRIMARY'
+            #error stop
+            #set 'l_Obj_Data:vPOOL_PRIMARY' = list(OV = %i_OV, OS = 4)
+         #block_end
+         ;re-enable local memory pool events
+         #set APL'l_Obj_Vars:vNUMBER':BME = 1
+      #block_end      
+      
+      #when "APL_EM", "APL_QM1", "APL_QM2", "APL_QM3", "APL_QM4", "APL_PM1", "APL_PM2" #block ;binary input
+         ;indication process object of application for application queues 
+         #if l_Filtering_Info:vSTATUS == 0 #then #block
+            #if l_Filtering_Info:vALARM #then #set 'l_Obj_Data:vQUEUE_PRIMARY' = 1
+               #else #set 'l_Obj_Data:vQUEUE_PRIMARY' = 0
+         #block_end
+         #else_if l_Filtering_Info:vSTATUS < 0 #then #set 'l_Obj_Data:vQUEUE_PRIMARY' = 0
+         #else #block
+            #error ignore
+               @i_OV = 0
+               @i_OV = 'l_Obj_Data:vINDICATION_PRIMARY' 
+            #error stop
+            #set 'l_Obj_Data:vINDICATION_PRIMARY' = list(OV = %i_OV, OS = 4)
+         #block_end
+         ;re-enable queue overflow events
+         #set APL'l_Obj_Vars:vNUMBER':BQE = 1
+      #block_end
+   
+   #case_end
+
+#block_end ; 1
+   #else_if l_Obj_Data:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_syser:c]", l_Obj_Data:vDESCRIPTIVE_TEXT)

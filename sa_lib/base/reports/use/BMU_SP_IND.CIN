@@ -1,0 +1,60 @@
+; Function:    BMU_SP_IND:C
+; Version:     3.0 (Build 23.02.2012)
+; Parameters:  l_ReportObject - Report Object conf.
+;              T1 - start time
+;              T2 - end time (not obl.) 
+; Return data: IS1 - index of start time
+;              IS2 - index of end time
+;              NS  - number of registrations in range to fetch data from
+;              N1  - high index for data fetch 1st part (IS2 < IS1)
+;              NBR_OF_VALUES - number of total registrations
+; Description: Index calculation for sampled values
+;---------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;---------------------------------------------------------------------------------------------
+;---------------------------------------------------------------------------------------------
+#local i_Status = status, cot, i_HR = -1
+#error ignore
+
+#if %l_ReportObject.SP_HL > 0 #then #block                                      ;*** sampling history stored
+   i_HR = %l_ReportObject.SP_HL*24*(3600 DIV %l_ReportObject.SP) + %SP_Buffer   ;*** number of history values = number of registrations
+
+   @IS1 = TRUNC((%T1 DIV %l_ReportObject.SP) MOD i_HR) + 1                      ;*** index of start time
+   
+   #if DATA_TYPE(%T2)=="TIME" #then -                                           ;*** index of end time
+         @IS2 = TRUNC((%T2 DIV %l_ReportObject.SP) MOD i_HR) + 1
+   #else @IS2 = %IS1  
+   ;*** data in two parts     
+   #if %IS2 >= %IS1 #then @NS = %IS2-%IS1+1                                     ;*** is2=is1 ns=1
+   #else #block                                                                 ;*** index for end time < index for stat time
+      @N1 = i_HR - %IS1 + 1                                                     ;***
+      @N2 = %IS2 
+      @NS = %N1+%N2
+   #block_end
+#block_end
+#else #block                                                                    ;*** no sampling history SP_HL = 0
+   i_HR = %l_ReportObject.BP DIV %l_ReportObject.SP                             ;*** e.g. 900 div 180=5 sampled values (3min sampl.freq) within base period (15min base period)
+   @IS1 = i_HR - ((CLOCK-%T1) DIV %l_ReportObject.SP) + 1                       ;*** 5-(180 div 180)+1 = 5-1+1 = 5
+
+   #if DATA_TYPE(%T2) == "TIME" #then -
+         @IS2 = i_HR - ((CLOCK-%T1) DIV %l_ReportObject.SP) + 1
+   #else @IS2 = %IS1
+      
+   #if %IS2 >= %IS1 AND (%IS1 > 0 AND %IS1 <= i_HR) #then -
+      @NS = %IS2 - %IS1 + 1
+   #else #block
+      @IS1
+      @IS2
+      @NS
+      #if data_type(%t_ObjectName)=="NONE" #then @t_ObjectName="???"
+      cot = CONSOLE_OUTPUT("BMU_SP_IND:C - Report object 't_ObjectName' - Time interval is out of range - T1='t1', T2='t2'","E","MREP")
+   #block_end
+#block_end
+
+@NBR_OF_VALUES = i_HR
+i_Status = status
+#if i_Status <> 0 #then cot = CONSOLE_OUTPUT("BMU_SP_IND:C - SCIL Error='i_Status'","E","MREP") 
+
+
+

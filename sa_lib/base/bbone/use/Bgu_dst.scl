@@ -1,0 +1,126 @@
+@APL_BNA = APL:BNA
+
+;create command procedure if does not exist
+@l_Check = fetch(0,"C","BGU_TIMEFO")
+#if l_Check:viu == -1 #then #block
+   #create bgu_timefo:c = list(-
+      IU = 1,-
+      MO = 1,-
+      CM = "Executed when clock is moved forwards",-
+      IN = vector)
+#block_end
+
+;create command procedure if does not exist
+@l_Check = fetch(0,"C","BGU_TIMEBA")
+#if l_Check:viu == -1 #then #block
+   #create bgu_timeba:c = list(-
+      IU = 1,-
+      MO = 1,-
+      CM = "Executed when clock is moved backwards",-
+      IN = vector)
+#block_end
+
+;source code for preparing Daylight Saving time application objects
+#if data_type(%i_HandApl) == "NONE" #then -
+   @i_HandApl = 0
+#else #block
+   #if %i_HandApl<>0 #then #block
+      @Tmp = select(apl:bap,"==%i_HandApl")
+      #if length(%Tmp) == 0 #then @i_HandApl = 0
+      #else @i_HandApl = %Tmp(1)
+   #block_end
+#block_end
+
+;activate new mechanism
+;time channel for daylight saving time / standard time
+
+@fetch_t = fetch(%i_HandApl,"T","BGU_DST1")  
+#if fetch_t:viu == -1 #then #block
+   #create BGU_DST1:'i_HandApl't = LIST(-
+                     IU = 1,-
+                     CY = (0,0),-
+                     SU = (0,7),-
+                     SY = (0,clock - 1),-
+                     CD = ("",""),-
+                     CM = "Time channel activated by daylight saving time change in OS")
+#block_end
+#else_if fetch_t:viu == 0 #then #set BGU_DST1:'i_HandApl'TIU=1
+
+;time channel for daylight saving time / standard time
+@fetch_t = fetch(%i_HandApl,"T","BGU_DST2")  
+#if fetch_t:viu == -1 #then #block
+   #create BGU_DST2:'i_HandApl't = LIST(-
+                     IU = 1,-
+                     CY = (0,0),-
+                     SU = (0,0),-
+                     SY = (0,clock - 1),-
+                     CD = ("",""),-
+                     CM = "Time channel activated by BGU_DST1:C")
+#block_end
+
+;Command procedure BGU_DST1
+@fetch_c = fetch(%i_HandApl,"C","BGU_DST1")
+#if fetch_c:viu == -1 #then #block
+   #create BGU_DST1:'i_HandApl'c = LIST(-
+                     IU = 1,-
+                     MO = 1,-
+                     CM = "SA-LIB Daylight saving time actions part1",-
+                     TC = "BGU_DST1",-
+                     IN = read_text("sagr_bbone/bgu_dst1.scl"))
+#block_end
+
+;Command procedure BGU_DST2
+@fetch_c = fetch(%i_HandApl,"C","BGU_DST2")
+#if fetch_c:viu == -1 #then #block
+   
+   #create BGU_DST2:'i_HandApl'c = LIST(-
+                     IU = 1,-
+                     MO = 1,-
+                     CM = "SA-LIB Daylight saving time actions part2",-
+                     TC = "BGU_DST2",-
+                     IN = read_text("sagr_bbone/bgu_dst2.scl"))
+
+#block_end
+#else #block
+   #if data_type(%MODIFIED_COM_PROCEDURES) <> "NONE" #then #block
+      #if length(select(%MODIFIED_COM_PROCEDURES, "==""BGU_DST2""")) > 0 #then #block
+         @cin_code=BGU_DST2:CIN
+         #modify BGU_DST2:'i_HandApl'c = LIST(-
+                     IN = read_text("sagr_bbone/bgu_dst2.scl"))
+
+         @st=write_text("BGU_DST2.CIN", %cin_code)
+         @st=console_output(times+" 'APL_BNA' BGU_DST.SCL: Command procedure BGU_DST:C was updated")
+         @st=console_output(times+" 'APL_BNA' BGU_DST.SCL: Backup code of BGU_DST2:C saved to PICT/BGU_DST2.CIN")
+      #block_end
+   #block_end
+#block_end
+
+;event process object for daylight saving time change
+@fetch_p = fetch(%i_HandApl,"P","DAYLIGHT",10)
+#if fetch_p:viu > -1 #then #delete DAYLIGHT:'i_HandApl'P10
+#create DAYLIGHT:'i_HandApl'P10=LIST(-
+   IU = 1,-                  ;in use = yes
+   PT = 3,-                  ;process object type = BI
+   DX = "3",-                ;directive text
+   OV = 1,-                  ;object value
+   SS = 1,-                  ;switch state = manual
+   RC = 1,-                  ;receipt = acknowledgement reguired
+   HA = 2,-                  ;history activation = OV changes, or OS = 1 o
+   PA = 2,-                  ;printout activation = OV changes, or OS = 1
+   HE = 1,-                  ;history enable = yes
+   HL = BIT_MASK(15),-       ;history log number
+   EE = 1,-                  ;event enable = yes
+   HF = 1,-                  ;Event at first time
+   LD = BIT_MASK(1),-        ;listing device
+   PU = 0,-
+   PF = "FORM5SAGR1",-       ;physical format
+   EH = "SAGR_FORM5FPBI1_46",-
+   RI = 46,-
+   CX = "SA-LIB Daylight saving time; events",-
+   OI = SYS:BCX,-
+   OX = "Daylight saving time")  ;object text
+
+;init SYS:BTS
+@l_TimeInformation = local_time_information
+#if l_TimeInformation:vbias == l_TimeInformation:vtime_zone #then #set sys:bts = "winter"
+#else #set sys:bts = "summer"

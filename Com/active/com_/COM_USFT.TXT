@@ -1,0 +1,167 @@
+﻿; This command procedure is used for file transfer (upstream direction)
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+;---------------------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+
+#IF LENGTH(APL:BSV) >= 19 #THEN #BLOCK
+   #IF DATA_TYPE(APL:BSV(20)) =="LIST" #THEN #BLOCK
+
+      @ENABLE_DATA_SENDING_AFTER_STARTUP = COM_GENVAR:PBZ(4)
+      @COPIED_FILES = VECTOR()
+      @COPIED_FILES_INDEX = 1
+      @NCC_NUMBERS = VECTOR()
+      @NCC_STA_NUMBERS = VECTOR()
+      @NCC_PROTOCOLS = VECTOR()
+      @NCC_SUB_PROTOCOLS = VECTOR()
+      @ENABLE_FILE_TRANSFERS = VECTOR() 
+      @FT_FILE_LOCATIONS = VECTOR()
+      @FT_FILE_FILTERS = VECTOR()
+      @FT_FILE_SUBFOLDERS = VECTOR()
+      @FT_FILE_SUBFOLDER = FALSE
+      @FT_COMPRESS_FILES = VECTOR()
+      @FT_COMPRESS_FILE = FALSE
+      
+      #IF %ENABLE_DATA_SENDING_AFTER_STARTUP #THEN #BLOCK ; 1
+         @NCC_XREF_TABLE = APL:BSV(21)
+         #IF LENGTH(%NCC_XREF_TABLE) > 0 #THEN #BLOCK ;2
+            #LOOP_WITH I = 1..LENGTH(%NCC_XREF_TABLE) ;3
+               @NCC_VECTOR = %NCC_XREF_TABLE(%I)
+               #IF LENGTH(%NCC_VECTOR) >= 13 #THEN #BLOCK ;4
+                  @NCC_NUMBERS(%I) = %I
+                  @NCC_STA_NUMBERS(%I) = %NCC_VECTOR(1)
+                  @NCC_PROTOCOLS(%I) = %NCC_VECTOR(2)
+                  @NCC_SUB_PROTOCOLS(%I) = %NCC_VECTOR(10)
+                  @ENABLE_FILE_TRANSFERS(%I) = %NCC_VECTOR(11) 
+                  @FT_FILE_LOCATIONS(%I) = %NCC_VECTOR(12)
+                  @FT_FILE_FILTERS(%I) = %NCC_VECTOR(13)
+                  #IF LENGTH(%NCC_VECTOR) >=15 #THEN #BLOCK
+                     @FT_FILE_SUBFOLDERS(%I) = %NCC_VECTOR(15)
+                  #BLOCK_END         
+                  #IF LENGTH(%NCC_VECTOR) >=16 #THEN #BLOCK
+                     @FT_COMPRESS_FILES(%I) = %NCC_VECTOR(16)
+                  #BLOCK_END         
+               #BLOCK_END ;4
+            #LOOP_END ;3
+         #BLOCK_END ;2
+         #IF LENGTH(%NCC_STA_NUMBERS) > 0 #THEN #BLOCK ; 2
+            #LOOP_WITH NCC_COUNTER = 1..LENGTH(%NCC_STA_NUMBERS) ; 3
+               @NCC_NUMBER = %NCC_NUMBERS(%NCC_COUNTER)
+               @STA_NR = %NCC_STA_NUMBERS(%NCC_COUNTER)
+               @ENABLE_FILE_TRANSFER = %ENABLE_FILE_TRANSFERS(%NCC_COUNTER)
+               @FT_FILE_LOCATION = %FT_FILE_LOCATIONS(%NCC_COUNTER)
+               @FT_FILE_FILTER = %FT_FILE_FILTERS(%NCC_COUNTER)
+               #IF LENGTH(%FT_FILE_SUBFOLDERS) > 0 #THEN #BLOCK
+                  @FT_FILE_SUBFOLDER = %FT_FILE_SUBFOLDERS(%NCC_COUNTER)
+               #BLOCK_END
+               #IF LENGTH(%FT_COMPRESS_FILES) > 0 #THEN #BLOCK
+                  @FT_COMPRESS_FILE = %FT_COMPRESS_FILES(%NCC_COUNTER)
+               #BLOCK_END
+               #IF %ENABLE_FILE_TRANSFER AND NOT COM_GENVAR:PBZ(%NCC_NUMBER+4) #THEN #BLOCK ; 4     
+                  #IF %FT_FILE_LOCATION <> "" #THEN #BLOCK ;5
+                     #IF DIRECTORY_MANAGER("EXISTS",FM_DIRECTORY(%FT_FILE_LOCATION)) #THEN #BLOCK ; 6     
+                        #IF FM_REPRESENT(FM_DIRECTORY(%FT_FILE_LOCATION)) <> FM_REPRESENT(FM_APPLICATION_DIRECTORY("COM500/NCC'NCC_COUNTER'_FILE_TRANSFER")) #THEN #BLOCK ;7    
+                        
+                           ; Directories are not the same - file transfer from the process need not 
+                           ; to be synchronized with the file transfer to upward direction.
+            
+                           @NCC_FILE_DIR = FM_APPLICATION_DIRECTORY("COM500/NCC'NCC_COUNTER'_FILE_TRANSFER")
+                           @FT_FILE_LOCATION_TAG = FM_DIRECTORY(%FT_FILE_LOCATION)
+                           #IF %FT_FILE_SUBFOLDER #THEN #BLOCK
+                              ;create subfolders to nccx_file_transfer folder
+                              @DIRECTORIES = DIRECTORY_MANAGER("LIST", %FT_FILE_LOCATION_TAG, "", "RECURSIVE")  
+                              #LOOP_WITH I=1..LENGTH(%DIRECTORIES)
+                                 @CREATE_DIRECTORY_TAG = FM_COMBINE(%NCC_FILE_DIR, %DIRECTORIES(%I))   
+                                 #IF NOT DIRECTORY_MANAGER("EXISTS", %CREATE_DIRECTORY_TAG) #THEN #BLOCK
+                                    @CREATE = DIRECTORY_MANAGER("CREATE", %CREATE_DIRECTORY_TAG)   
+                                 #BLOCK_END
+                              #LOOP_END 
+                              @DISTURBANCE_FILES = FILE_MANAGER("LIST", %FT_FILE_LOCATION_TAG, %FT_FILE_FILTER, "RECURSIVE")                                
+                           #BLOCK_END
+                           #ELSE #BLOCK
+                              @DISTURBANCE_FILES = FILE_MANAGER("LIST", %FT_FILE_LOCATION_TAG, %FT_FILE_FILTER)
+                           #BLOCK_END
+                           #LOOP_WITH I=1..LENGTH(%DISTURBANCE_FILES) ;8    
+                              @FTAG_SOURCE = FM_COMBINE(%FT_FILE_LOCATION_TAG, %DISTURBANCE_FILES(%I))               
+                              @FTAG_TARGET = FM_COMBINE(%NCC_FILE_DIR, %DISTURBANCE_FILES(%I))               
+                              @FILE_NAME = FM_REPRESENT(FM_EXTRACT(%FTAG_SOURCE,"LAST"))                     
+                              @FULLFILE = PARSE_FILE_NAME(%FT_FILE_LOCATION, %FILE_NAME)   
+                              @RESULT = FILE_LOCK_MANAGER("LOCK", %FULLFILE)
+                              #IF %RESULT=="OK" #THEN #BLOCK ;9
+                                 @RENAME_FILE = FILE_MANAGER("RENAME", %FTAG_SOURCE, "COMFILETEST")
+                                 @F_TEMP = FILE_MANAGER("LIST", %FT_FILE_LOCATION_TAG, "COMFILETEST", "RECURSIVE")
+                                 #IF LENGTH(%F_TEMP) > 0 #THEN #BLOCK ;10
+                                    @FTAG_SOURCE = FM_COMBINE(%FT_FILE_LOCATION_TAG, %F_TEMP(1))               
+                                    @RENAME_FILE = FILE_MANAGER("RENAME", %FTAG_SOURCE, %FILE_NAME)
+                                    @FTAG_SOURCE = FM_COMBINE(%FT_FILE_LOCATION_TAG, %DISTURBANCE_FILES(%I))       
+                                    #IF NOT %FT_COMPRESS_FILE #THEN #BLOCK
+                                       ;#ERROR IGNORE
+                                       @S = STATUS
+                                       @COPY_FILE = FILE_MANAGER("COPY", %FTAG_SOURCE, %FTAG_TARGET)
+                                       @S = STATUS
+                                       ;#ERROR CONTINUE
+                                       #IF %S == 0 #THEN #BLOCK
+                                          @COPIED_FILES(%COPIED_FILES_INDEX) = %FTAG_SOURCE
+                                          @COPIED_FILES_INDEX = %COPIED_FILES_INDEX + 1
+                                       #BLOCK_END
+                                    #BLOCK_END
+                                    #ELSE #BLOCK
+                                       @ZIP_FILE_SOURCE = FM_REPRESENT(%FTAG_SOURCE)
+                                       @ZIP_FILE_TARGET = FM_REPRESENT(%FTAG_TARGET)
+                                       @ZIP_PROG = FM_REPRESENT(FM_SCIL_file("/stool/misc/7z"))
+                                       @OPS_CALL = OPS_CALL("'ZIP_PROG' a -spf2 -sdel -tzip ""'ZIP_FILE_TARGET'.zip"" ""'ZIP_FILE_SOURCE'""")
+                                       @ZIP_DIRECTORY_TAG = FM_EXTRACT(%FTAG_SOURCE,"DIRECTORY")
+                                       @DIRECTORY_EXIST = DIRECTORY_MANAGER("EXISTS", %ZIP_DIRECTORY_TAG)
+                                       #IF NOT %DIRECTORY_EXIST #THEN #BLOCK
+                                          @D_MANAGER = DIRECTORY_MANAGER("CREATE",%ZIP_DIRECTORY_TAG)
+                                       #BLOCK_END
+                                    #BLOCK_END  
+                                 #BLOCK_END ;10
+                                 #ELSE
+                                 @RESULT = FILE_LOCK_MANAGER("UNLOCK", %FULLFILE)                     
+                              #BLOCK_END ;9
+                              #ELSE
+                           #LOOP_END ;8
+                        #BLOCK_END ;7 
+                        #ELSE #BLOCK
+                           ; Directories are the same - file transfer from the process may have
+                           ; to be synchronized with the file transfer to upward direction.
+                           ; Use #pause if operation is non-blocking
+                           ; #DO PROCESS_FT:C
+                        #BLOCK_END
+                        #CASE %NCC_PROTOCOLS(%NCC_COUNTER) ; 7
+                           #WHEN 1 #BLOCK ;********************** RP-570 slave protocol **************************************************************************; 8
+                              
+                           #BLOCK_END ;8
+                           #WHEN 2 #BLOCK ;********************** IEC 870-5-101/104 slave protocol ***************************************************************; 8
+                              #IF %NCC_SUB_PROTOCOLS(%NCC_COUNTER) < 2 #THEN #BLOCK
+                                 #IF COM_IEFT:CCS == 1 #THEN #DO COM_IEFT:CCP
+                                 #ELSE #DO COM_IEFT:CIN  
+                              #BLOCK_END
+                           #BLOCK_END ;8
+                           #WHEN 3 #BLOCK ;********************** CPI ********************************************************************************************; 8   
+                              
+                           #BLOCK_END ;8
+                           #WHEN 4 #BLOCK ;********************** DNP 3.0 slave **********************************************************************************; 8
+                              
+                           #BLOCK_END ;8          
+                        #CASE_END ;7
+                     #BLOCK_END ;6     
+                  #BLOCK_END ;5         
+               #BLOCK_END ;4      
+            #LOOP_END ;3
+            @COPIED_FILES = REMOVE_DUPLICATES(%COPIED_FILES)
+            #LOOP_WITH I = 1..LENGTH(%COPIED_FILES)
+               @DELETE_FILE = FILE_MANAGER("DELETE", %COPIED_FILES(%I))  
+            #LOOP_END
+         #BLOCK_END ;2
+      #BLOCK_END ;1
+   #BLOCK_END
+#BLOCK_END
+
+

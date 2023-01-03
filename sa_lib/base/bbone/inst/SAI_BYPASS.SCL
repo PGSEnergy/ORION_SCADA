@@ -1,0 +1,37 @@
+;
+;
+;This script is used for:
+;
+;  - creating the commandprocedure FPU_SYN_BYPASS:C for the functionality "GENERIC SYNCHROCHECK_BYPASS"
+;
+;--------------------------------------------------------------------------
+;Create command procedure FPU_SYN_BYPASS:C
+;--------------------------------------------------------------------------
+@t_C_NAME  = "FPU_SYN_BYPASS"
+@l_CHECK = FETCH(0,"C","'t_C_NAME'") 
+#IF l_CHECK:VIU <> -1 #THEN #BLOCK
+   @appl_name_tmp=apl:bna
+   @st=status
+   @e_state=error_state
+   #error ignore
+     ;#DELETE 't_C_NAME':C
+   #error 'e_state'
+   @st=status
+   ;#if %st==0 #then @t_cons=console_output(times+" INFO Appl. 'appl_name_tmp': FPU_SYN_BYPASS:C was removed during the update.") 
+#BLOCK_END
+#ELSE #BLOCK
+   @l_TEMP_LIST2 = LIST(IU=1,-
+                        MO=1,-
+                        CM="Synchrocheck Bypass functionality  !!DO NOT EDIT!!",-
+                        IN=read_text("SAGR_BBONE/fpu_syn_bypass.cin"))
+
+   @appl_name_tmp=apl:bna
+   @st=status
+   @e_state=error_state
+   #error ignore
+     #CREATE 't_C_NAME':C = %l_TEMP_LIST2
+   #error 'e_state'
+   @st=status
+   #if %st==0 #then @t_cons=console_output(times+" INFO Appl. 'appl_name_tmp': FPU_SYN_BYPASS:C was successfully created/updated.")
+#BLOCK_END
+

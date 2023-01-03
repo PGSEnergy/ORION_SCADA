@@ -1,0 +1,32 @@
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">GooseInput</Parameter>
+		<Parameter name="Caption">GSEInput</Parameter>
+		<Parameter name="Description">GOOSE Inputs</Parameter>
+		<Parameter name="Group">GOOSE</Parameter>
+		<Parameter name="Type">GENERIC</Parameter>
+		<Parameter name="IconFileName">Inputs.ico</Parameter>
+		<Parameter name="Tools">GooseInputEditor</Parameter>
+		<Parameter name="DataServers"/>
+		<Parameter name="Visible">False</Parameter>
+		<Parameter name="Verbs"/>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="PCMObjectType">IEC61850 Proxy LLN0, IEC61850 LLN0</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+	<Properties type="PropertyDefinitions">
+		<Property name="InputSCL" category="[010] Basic">
+			<Value/>
+			<DescID>InputSCLDesc</DescID>
+			<CaptionID>InputSCL</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>InputSCL</AttributeName>
+		</Property>
+	</Properties>
+</ObjectType>

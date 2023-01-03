@@ -1,0 +1,159 @@
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Mikko Ripatti/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">IEC61850SPA LN</Parameter>
+		<Parameter name="Caption">objectTypeCaption</Parameter>
+		<Parameter name="Description">objectTypeDesc</Parameter>
+		<Parameter name="Group">Communication</Parameter>
+		<Parameter name="Type">LN</Parameter>
+		<Parameter name="IconFileName">ln.ico</Parameter>
+		<Parameter name="Tools">
+    </Parameter>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="Visible">False</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="PCMObjectType">IEC61850 LD</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+	<Properties type="PropertyDefinitions">
+		<Property name="LNClass" category="[010] Basic">
+			<Value>GGIO</Value>
+			<DescID>Logical Node Class</DescID>
+			<CaptionID>Logical Node Class</CaptionID>
+			<Values type="singleChoiceEditable">
+				<Enum textID="ANCR" value="ANCR"/>
+				<Enum textID="ARCO" value="ARCO"/>
+				<Enum textID="ATCC" value="ATCC"/>
+				<Enum textID="AVCO" value="AVCO"/>
+				<Enum textID="LPHD" value="LPHD"/>
+				<Enum textID="CALH" value="CALH"/>
+				<Enum textID="CCGR" value="CCGR"/>
+				<Enum textID="CILO" value="CILO"/>
+				<Enum textID="CPOW" value="CPOW"/>
+				<Enum textID="CSWI" value="CSWI"/>
+				<Enum textID="GAPC" value="GAPC"/>
+				<Enum textID="GGIO" value="GGIO"/>
+				<Enum textID="GSAL" value="GSAL"/>
+				<Enum textID="IARC" value="IARC"/>
+				<Enum textID="IHMI" value="IHMI"/>
+				<Enum textID="ITCI" value="ITCI"/>
+				<Enum textID="ITMI" value="ITMI"/>
+				<Enum textID="MDIF" value="MDIF"/>
+				<Enum textID="MHAI" value="MHAI"/>
+				<Enum textID="MHAN" value="MHAN"/>
+				<Enum textID="MMTR" value="MMTR"/>
+				<Enum textID="MMXN" value="MMXN"/>
+				<Enum textID="MMXU" value="MMXU"/>
+				<Enum textID="MSQI" value="MSQI"/>
+				<Enum textID="MSTA" value="MSTA"/>
+				<Enum textID="PDIF" value="PDIF"/>
+				<Enum textID="PDIR" value="PDIR"/>
+				<Enum textID="PDIS" value="PDIS"/>
+				<Enum textID="PDOP" value="PDOP"/>
+				<Enum textID="PDUP" value="PDUP"/>
+				<Enum textID="PFRC" value="PFRC"/>
+				<Enum textID="PHAR" value="PHAR"/>
+				<Enum textID="PHIZ" value="PHIZ"/>
+				<Enum textID="PIOC" value="PIOC"/>
+				<Enum textID="PMRI" value="PMRI"/>
+				<Enum textID="PMSS" value="PMSS"/>
+				<Enum textID="POPF" value="POPF"/>
+				<Enum textID="PPAM" value="PPAM"/>
+				<Enum textID="PSCH" value="PSCH"/>
+				<Enum textID="PSDE" value="PSDE"/>
+				<Enum textID="PTEF" value="PTEF"/>
+				<Enum textID="PTOC" value="PTOC"/>
+				<Enum textID="PTOF" value="PTOF"/>
+				<Enum textID="PTOV" value="PTOV"/>
+				<Enum textID="PTRC" value="PTRC"/>
+				<Enum textID="PTTR" value="PTTR"/>
+				<Enum textID="PTUC" value="PTUC"/>
+				<Enum textID="PTUV" value="PTUV"/>
+				<Enum textID="PUPF" value="PUPF"/>
+				<Enum textID="PTUF" value="PTUF"/>
+				<Enum textID="PVOC" value="PVOC"/>
+				<Enum textID="PVPH" value="PVPH"/>
+				<Enum textID="PZSU" value="PZSU"/>
+				<Enum textID="RDRE" value="RDRE"/>
+				<Enum textID="RADR" value="RADR"/>
+				<Enum textID="RBDR" value="RBDR"/>
+				<Enum textID="RDRS" value="RDRS"/>
+				<Enum textID="RBRF" value="RBRF"/>
+				<Enum textID="RDIR" value="RDIR"/>
+				<Enum textID="RFLO" value="RFLO"/>
+				<Enum textID="RPSB" value="RPSB"/>
+				<Enum textID="RREC" value="RREC"/>
+				<Enum textID="RSYN" value="RSYN"/>
+				<Enum textID="SARC" value="SARC"/>
+				<Enum textID="SIMG" value="SIMG"/>
+				<Enum textID="SIML" value="SIML"/>
+				<Enum textID="SPDC" value="SPDC"/>
+				<Enum textID="XCBR" value="XCBR"/>
+				<Enum textID="XSWI" value="XSWI"/>
+				<Enum textID="TCTR" value="TCTR"/>
+				<Enum textID="TVTR" value="TVTR"/>
+				<Enum textID="YEFN" value="YEFN"/>
+				<Enum textID="YLTC" value="YLTC"/>
+				<Enum textID="YPSH" value="YPSH"/>
+				<Enum textID="YPTR" value="YPTR"/>
+				<Enum textID="ZAXN" value="ZAXN"/>
+				<Enum textID="ZBAT" value="ZBAT"/>
+				<Enum textID="ZBSH" value="ZBSH"/>
+				<Enum textID="ZCAB" value="ZCAB"/>
+				<Enum textID="ZCAP" value="ZCAP"/>
+				<Enum textID="ZCON" value="ZCON"/>
+				<Enum textID="ZGEN" value="ZGEN"/>
+				<Enum textID="ZGIL" value="ZGIL"/>
+				<Enum textID="ZLIN" value="ZLIN"/>
+				<Enum textID="ZMOT" value="ZMOT"/>
+				<Enum textID="ZREA" value="ZREA"/>
+				<Enum textID="ZRRC" value="ZRRC"/>
+				<Enum textID="ZSAR" value="ZSAR"/>
+				<Enum textID="ZTCF" value="ZTCF"/>
+				<Enum textID="ZTCR" value="ZTCR"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>LNClass</AttributeName>
+		</Property>
+		<Property name="Prefix" category="[010] Basic">
+			<Value/>
+			<DescID>Prefix for Logical Node</DescID>
+			<CaptionID>Logical Node Prefix</CaptionID>
+			<Values type="string">
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>Prefix</AttributeName>
+		</Property>
+		<Property name="Inst" category="[010] Basic">
+			<Value>1</Value>
+			<DescID>Logical Node Instance Number</DescID>
+			<CaptionID>Logical Node Instance</CaptionID>
+			<Values type="numerical">
+				<Min>1</Min>
+				<Max>2147483647</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>Inst</AttributeName>
+		</Property>
+		<Property name="ProtocolName" category="[010] Basic">
+			<Value>IEC61850</Value>
+			<DescID>ProtocolNameDesc</DescID>
+			<CaptionID>ProtocolName</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName/>
+		</Property>
+	</Properties>
+</ObjectType>

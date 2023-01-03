@@ -1,0 +1,189 @@
+; Command Procedure: SYS_APLER
+; Version: SYS 600 9.3 
+; Description: This is command procedure for receiving APL_EVENT events
+;              Note! if %SOURCE is "UN", this procedure is executed, if ENABLE_STATION_EVENTS -switch 
+;                    is enabled in SSS_Setup.scl
+; --------------------------------------------------------------------------------
+
+;read in general info
+@l_General_Info = APL:BSV45
+
+#case %SOURCE
+
+   #when "UN" #block
+   
+      #if l_General_Info:vENABLE_STATION_EVENTS #then #block
+      
+         ;read in object data
+         @l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectAttributes", "STATION", %SOURCE_NR)
+      
+         #if l_Obj_Data:vSTATUS == 0 #then #if l_Obj_Data:vINDICATION_PRIMARY <> "#" #then #block ; 1
+      
+            ;read in filtering info
+            @l_Filtering_Info = do(apl:bsv40, "SSS", "GetFilterAttributes", "APL_EVENT", %SOURCE, %EVENT)
+      
+            ;write to log, event/alarm activation
+            #if l_Filtering_Info:vSTATUS == 0 #then #block ; 2
+      
+               ;write to log, if requested
+               #if l_Filtering_Info:vLOG and l_General_Info:vENABLE_LOG #then -
+                  @i_Log_Write = do(apl:bsv40, "SSS", "WriteLogItem", "STE", "EVENT_STA")
+      
+               ;activate event, if requested
+               #if l_Filtering_Info:vEVENT and l_General_Info:vENABLE_EVENT #then #block
+                  @l_Event_Point = do(apl:bsv40, "SSS", "GetEvents", "EVENT", "STATION", %SOURCE_NR, list(SOURCE = %SOURCE, EVENT = %EVENT))
+      
+                  #if l_Event_Point:vSTATUS == 0 #then #set 'l_Event_Point:vEVENT' = 1
+                  #else #block
+                     @l_Event_Point = do(apl:bsv40, "SSS", "CreateProcessObject", "STATION", "EVENT", %SOURCE_NR, list(SOURCE = %SOURCE, EVENT = %EVENT))
+                     #set 'l_Event_Point:vEVENT' = 1
+                  #block_end      
+               #block_end
+      
+               ;activate alarm, if requested
+               #if l_Filtering_Info:vALARM and l_General_Info:vENABLE_ALARM #then #block
+                  @l_Alarm_Point = do(apl:bsv40, "SSS", "GetEvents", "ALARM", "STATION", %SOURCE_NR, list(SOURCE = %SOURCE, EVENT = %EVENT))
+      
+                  #if l_Alarm_Point:vSTATUS == 0 #then #set 'l_Alarm_Point:vALARM' = abs(1 - 'l_Alarm_Point:vALARM')
+                  #else #block
+                     @l_Alarm_Point = do(apl:bsv40, "SSS", "CreateProcessObject", "STATION", "ALARM", %SOURCE_NR, list(SOURCE = %SOURCE, EVENT = %EVENT))
+                     #set 'l_Alarm_Point:vALARM' = 1
+                  #block_end      
+               #block_end   
+      
+            #block_end ; 2
+               #else_if l_Filtering_Info:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_apler:c]", l_Filtering_Info:vDESCRIPTIVE_TEXT)
+      
+            ;update indication point
+            @i_Timeout = timeout(l_General_Info:vTIMEOUT_LENGTH)
+            #error ignore
+               @i_Status = status
+               @i_IU = STA'SOURCE_NR':SIU
+            #error stop
+            @i_Timeout = timeout(%i_Timeout)
+      
+            #if status == 0 #then #block
+               #if %i_IU == 0 #then #set 'l_Obj_Data:vINDICATION_PRIMARY' = -1
+               #else #block
+                  #if l_Filtering_Info:vSTATUS == 0 #then #block
+                     #if l_Filtering_Info:vALARM #then #set 'l_Obj_Data:vINDICATION_PRIMARY' = 10
+                        #else #set 'l_Obj_Data:vINDICATION_PRIMARY' = 0
+                  #block_end
+                  #else_if l_Filtering_Info:vSTATUS < 0 #then #set 'l_Obj_Data:vINDICATION_PRIMARY' = 0
+                  #else #block
+                     #error ignore
+                        @i_OV = 1
+                        @i_OV = 'l_Obj_Data:vINDICATION_PRIMARY'
+                     #error stop
+                     #set 'l_Obj_Data:vINDICATION_PRIMARY' = list(OV = %i_OV, OS = 4)
+                  #block_end
+               #block_end
+            #block_end
+            #else #block
+               #error ignore
+                  @i_OV = 1
+                  @i_OV = 'l_Obj_Data:vINDICATION_PRIMARY'
+               #error stop
+               #set 'l_Obj_Data:vINDICATION_PRIMARY' = list(OV = %i_OV, OS = 4)
+            #block_end
+      
+         #block_end ; 1
+            #else_if l_Obj_Data:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_apler:c]", l_Obj_Data:vDESCRIPTIVE_TEXT)
+      
+      #block_end
+   #block_end ;UN
+   #when "APL" #block
+
+      @b_HSB_Partner = False
+      @NODE = SYS:BND
+      
+      @l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectAttributes", "APPLICATION", %SOURCE_NR)
+      #if l_Obj_Data:VSTATUS <> 0 #then #block 
+         @l_Tmp_Data = do(apl:bsv40, "SSS", "GetObjectAttributes", "APPLICATION", APL'SOURCE_NR':BTN)
+         #if l_Tmp_Data:VSTATUS == 0 #then #block 
+            #if locate(l_Tmp_Data:vCX, "HSB") > 0 #then #block
+               @NODE = APL'SOURCE_NR':BND
+               @l_Obj_Data = %l_Tmp_Data
+               @b_HSB_Partner = True
+            #block_end
+         #block_end
+      #block_end
+      
+      #if l_Obj_Data:vSTATUS == 0 and %NODE <> SYS:BND #then #block
+         
+         @l_Presentation_Object = do(apl:bsv40, "SSS", "GetLogicalNameAndIndex", l_Obj_Data:vPresentation)
+   
+         #if %b_HSB_Partner #then #set l_Presentation_Object:vIX = %NODE * 100 + APL'SOURCE_NR':BTN + 1000
+        
+         #if l_Obj_Data:vPresentation <> "#" #then #block     
+            
+            @t_Presentation_Object = "'l_Presentation_Object:vLN':P'l_Presentation_Object:vIX'"    
+             
+            @i_Value = - 1
+            #case %EVENT
+               #when "AS_CHANGED" #block
+                  #case %AS
+                     #when "COLD" @i_Value = 1
+                     #when "WARM" @i_Value = 2
+                     #when "HOT" @i_Value = 3
+                     #otherwise @i_Value = -1
+                  #case_end
+               #block_end
+               #when "SP_CHANGED" #block
+                  #case %SP
+                     #when "NONE" @i_Value = -1
+                     #when "TO_WARM_SD" @i_Value = 5
+                     #when "WARM_SD" @i_Value = 6
+                     #when "TO_HOT_SD" @i_Value = 7               
+                     #when "HOT_SD" @i_Value = 8
+                     #when "TO_WARM_RC" @i_Value = 9
+                     #when "WARM_RC" @i_Value = 10
+                     #when "TO_HOT_RC" @i_Value = 11
+                     #when "HOT_RC" @i_Value = 12
+                     #otherwise @i_Value = -1
+                  #case_end
+               #block_end
+               #when "FOUND" #block
+                  @l_Obj_Data = APL:BDS(%SOURCE_NR)
+                  #if l_Obj_Data:vSTATUS == 0 #then #block
+                     #if %b_HSB_Partner #then #block
+                        #case l_Obj_Data:vSP
+                           #when "NONE" @i_Value = -1
+                           #when "TO_WARM_SD" @i_Value = 5
+                           #when "WARM_SD" @i_Value = 6
+                           #when "TO_HOT_SD" @i_Value = 7               
+                           #when "HOT_SD" @i_Value = 8
+                           #when "TO_WARM_RC" @i_Value = 9
+                           #when "WARM_RC" @i_Value = 10
+                           #when "TO_HOT_RC" @i_Value = 11
+                           #when "HOT_RC" @i_Value = 12
+                           #otherwise @i_Value = -1
+                        #case_end
+                     #block_end
+                     #else #block
+                        #case l_Obj_Data:vAS
+                           #when "NONE" @i_Value = 0
+                           #when "COLD" @i_Value = 1
+                           #when "WARM" @i_Value = 2
+                           #when "HOT"  @i_Value = 3
+                        #case_end
+                     #block_end
+                  #block_end
+               #block_end
+               #when "LOST" #block
+                  @i_Value = 13
+               #block_end
+               #otherwise @i_Value = -1
+            #case_end
+            #if application_object_exists(0, "IX", LIST(LN="'l_Presentation_Object:vLN'", IX=l_Presentation_Object:vIX)) #then -
+                 #if %i_Value <> -1 #then #set 't_Presentation_Object' = %i_Value
+         #block_end
+      #block_end
+   #block_end ;APL
+   #when "HOST" #block
+   
+   #block_end
+   #When "IMAGE" #block
+   
+   #block_end
+#case_end

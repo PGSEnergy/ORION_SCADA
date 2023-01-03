@@ -1,0 +1,137 @@
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Mikko Ripatti/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+  <Parameters type="InterfaceDefinition">
+    <Parameter name="ObjectType">SNMP INS</Parameter>
+    <Parameter name="Caption">objectTypeCaption</Parameter>
+    <Parameter name="Description">objectTypeDesc</Parameter>
+    <Parameter name="Group">Data objects</Parameter>
+    <Parameter name="Type">DO</Parameter>
+    <Parameter name="IconFileName">ins.ico</Parameter>
+    <Parameter name="Tools">OnlineDiagnosticsDataObject</Parameter>
+    <Parameter name="DataServers" />
+    <Parameter name="Verbs" />
+    <Parameter name="Visible">True</Parameter>
+    <Parameter name="CanInherit">False</Parameter>
+    <Parameter name="ParentControlConditions">
+      <Structure name="COMMUNICATION">
+        <Condition type="PCMObjectType">SNMP LN, SNMP LLN0</Condition>
+      </Structure>
+    </Parameter>
+  </Parameters>
+   <Parameters type="SCLExport">
+    <Export name="sAddr">
+		61850-Type, SubType, OID, Scale, MappedEvent, PrintBlock, Section
+    </Export>
+  </Parameters>
+  <Properties type="PropertyDefinitions">
+    <Property name="61850-Type" category="[010] Basic">
+      <Value>INS</Value>
+      <DescID>61850-TypeDesc</DescID>
+      <CaptionID>61850-Type</CaptionID>
+      <Values type="singleChoice">
+        <Enum textID="ACD" value="ACD" />
+        <Enum textID="ACT" value="ACT" />
+        <Enum textID="APC" value="APC" />
+        <Enum textID="ASG" value="ASG" />
+        <Enum textID="BCR" value="BCR" />
+        <Enum textID="BSC" value="BSC" />
+        <Enum textID="CMV" value="CMV" />
+        <Enum textID="CSD" value="CSD" />
+        <Enum textID="CURVE" value="CURVE" />
+        <Enum textID="DEL" value="DEL" />
+        <Enum textID="DPC" value="DPC" />
+        <Enum textID="DPS" value="DPS" />
+        <Enum textID="DPL" value="DPL" />
+        <Enum textID="HDEL" value="HDEL" />
+        <Enum textID="HMV" value="HMV" />
+        <Enum textID="HWYE" value="HWYE" />
+        <Enum textID="INC" value="INC" />
+        <Enum textID="ING" value="ING" />
+        <Enum textID="INS" value="INS" />
+        <Enum textID="ISC" value="ISC" />
+        <Enum textID="LPL" value="LPL" />
+        <Enum textID="MV" value="MV" />
+        <Enum textID="SAV" value="SAV" />
+        <Enum textID="SEC" value="SEC" />
+        <Enum textID="SEQ" value="SEQ" />
+        <Enum textID="SPC" value="SPC" />
+        <Enum textID="SPG" value="SPG" />
+        <Enum textID="SPS" value="SPS" />
+        <Enum textID="WYE" value="WYE" />
+      </Values>
+      <DataType>System.String</DataType>
+      <HelpKey />
+      <Access>RRR</Access>
+      <AttributeName />
+    </Property>
+    <Property name="SubType" category="[010] Basic">
+      <Value>BASIC</Value>
+      <DescID>SubTypeDesc</DescID>
+      <CaptionID>SubType</CaptionID>
+      <Values type="singleChoice">
+        <Enum textID="BASIC" value="BASIC" />
+      </Values>
+      <DataType>System.String</DataType>
+      <HelpKey />
+      <Access>HHH</Access>
+      <AttributeName />
+    </Property>	
+	<Property name="Section" category="[040] OPC Alarm and Event">
+			<Value>0</Value>
+			<DescID>SectionDesc</DescID>
+			<CaptionID>Section</CaptionID>
+			<Values type="numerical">
+				<Min>0</Min>
+				<Max>16</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="PrintBlock" category="[040] OPC Alarm and Event">
+			<Value>False</Value>
+			<DescID>PrintBlockDesc</DescID>
+			<CaptionID>PrintBlock</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="MappedEvent" category="[040] OPC Alarm and Event">
+			<Value/>
+			<DescID>MappedEventDesc</DescID>
+			<CaptionID>MappedEvent</CaptionID>
+      <Values type="singleChoiceDynamic">
+		<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupDOEvents" secondchildObjectType="DiscreteEventGroup"/>
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="OID" category="[020] Object Identifier">
+			<Value>1.3.6.1.2.1.25</Value>
+			<DescID>OIDDescID</DescID>
+			<CaptionID>OIDCaptionID</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="Scale" category="[050] Scale and Unit">
+			<Value></Value>
+			<DescID>ScaleDesc</DescID>
+			<CaptionID>Scale</CaptionID>
+			<Values type="singleChoiceDynamic">
+				<ListObjects findMethod="ancestorDirectChild" ancestorDsot="GATEWAY" childObjectType="ScaleGroup"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+  </Properties>
+</ObjectType>

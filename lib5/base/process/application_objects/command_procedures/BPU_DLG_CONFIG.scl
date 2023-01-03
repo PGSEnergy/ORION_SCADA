@@ -1,0 +1,33 @@
+#local v_libs = DO(READ_TEXT("B5_BBONE/BGU_GET_LIBRARIES.SCL"))
+#local I, t_Lib, l_Lib, l_Result = LIST(), l_Cfg
+
+#LOOP_WITH I = 1 .. LENGTH(v_Libs)
+	l_Lib = v_libs(I)
+	t_Lib = l_LIB.IDENTIFIER
+	#IF ATTRIBUTE_EXISTS(l_Lib, "PREPARED") #THEN-
+	#IF l_Lib.PREPARED == TRUE #THEN -
+		#IF ATTRIBUTE_EXISTS(l_LIB, "NAME") AND-
+			ATTRIBUTE_EXISTS(l_Lib, "Dialogs") AND-
+			ATTRIBUTE_EXISTS(l_Lib, "Configuration") AND-
+			ATTRIBUTE_EXISTS(l_LIB, "Texts") AND-
+			ATTRIBUTE_EXISTS(l_LIB, "Priority") #THEN #BLOCK
+				l_Cfg = LIST(-
+					Name = l_Lib.Name,-
+					Dialogs = l_Lib.Dialogs,-
+					Configuration = l_Lib.Configuration,-
+					Texts = l_Lib.Texts,-
+					Priority = l_Lib.Priority)
+				l_Result = MERGE_ATTRIBUTES(l_Result, LIST('t_LIB'  = l_Cfg))
+	#BLOCK_END
+#LOOP_END
+
+#IF NOT ATTRIBUTE_EXISTS(l_Result, "APL") #THEN #BLOCK
+	l_Result = MERGE_ATTRIBUTES(l_Result, LIST(-
+   		APL = LIST(Name = "Application Specific",-
+		Dialogs = "apl_/APL_DIALOGS.SDB",-
+		Configuration = "apl_/APL_TABS.SDB",-
+		Texts = "APL_/APL_LIB5_TEXTS.SDB",-
+		Priority = 90)))
+#BLOCK_END
+
+#RETURN l_Result

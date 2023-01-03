@@ -1,0 +1,100 @@
+#local sys_bsv11,-
+       v_SysSet,-
+       l_Now,-
+       l_Now_Information,-
+       l_Hour_Ago,-
+       l_Hour_Ago_Information,-
+       t_New_Season,-
+       i_Shift,-
+       l_History,-
+       i,-
+       i_Time,-
+       t_Line,-
+       i_Write_Status,-
+       e_Next_Run
+
+#local argCnt, tRedirectProc, tRedirectCommand, iArgLoop
+tRedirectProc="APLMOD_DST1"
+#if APPLICATION_OBJECT_EXISTS(0,"C",tRedirectProc) AND -
+DATA_TYPE(%REDIRECTED)=="NONE" #then #block
+   #if 'tRedirectProc':CIU==1 #then #block
+      @REDIRECTED=TRUE
+      argCnt=ARGUMENT_COUNT
+      tRedirectCommand="DO('tRedirectProc':C"
+      #loop_with iArgLoop=1..argCnt
+         tRedirectCommand=tRedirectCommand+",argument('iArgLoop')"
+         #if iArgLoop==argCnt #then #block
+            tRedirectCommand=tRedirectCommand+")"
+         #block_end
+      #loop_end
+      #return 'tRedirectCommand'
+   #block_end
+#block_end
+       
+#error continue
+
+sys_bsv11 = SYS:BSV(11)
+
+;check if function in use and I am the controlling application
+
+#if sys_bsv11.b_daylight_saving_time_in_use == 1 and -
+    APL:BAN == sys_bsv11.b_handled_by_apl #then #block
+
+   ;Find out which switch and the amount of time shift
+   
+   l_Now = local_time
+   l_Now_Information = local_time_information(l_Now)
+   l_Hour_Ago = local_time_add(l_Now, -3600)
+   l_Hour_Ago_Information = local_time_information(l_Hour_Ago)
+   #if l_Now.DS #then t_New_Season = "SUMMER"
+   #else              t_New_Season = "WINTER"
+   i_Shift = l_Now_Information.BIAS - l_Hour_Ago_Information.BIAS
+   
+   ;set history to SYS:BSV(11)
+
+   l_History = sys_bsv11.b_execution_history
+   #if i_Shift > 0 #then #block
+      l_History.add_hour(1 .. 4) = l_History.add_hour(2 .. 5)
+      l_History.add_hour(5) = l_Now.CL
+   #block_end
+   #else #block
+      l_History.reduce_hour(1 .. 4) = l_History.reduce_hour(2 .. 5)
+      l_History.reduce_hour(5) = l_Now.CL
+   #block_end
+   sys_bsv11.b_execution_history = l_History
+   #set SYS:BSV(11) = sys_bsv11
+   
+   ;set history to sys_set.txt
+   
+   v_SysSet = evaluate(read_text("sys_/sys_set.txt"))
+   v_SysSet(7) = ("@tmp=sys:bsv11",-
+                  "#set tmp:vb_execution_history=list",-
+                  "@history=tmp:vb_execution_history")
+   #loop_with i = 1 .. 5
+      i_Time = type_cast(l_History.add_hour(i), "INTEGER")
+      t_Line = "#set history:vadd_hour('i')=type_cast('i_Time',""TIME"")"
+      v_SysSet(7) = append(v_SysSet(7), t_Line)
+   #loop_end
+   #loop_with i = 1 .. 5
+      i_Time = type_cast(l_History.reduce_hour(i), "INTEGER")
+      t_Line = "#set history:vreduce_hour('i')=type_cast('i_Time',""TIME"")"
+      v_SysSet(7) = append(v_SysSet(7), t_Line)
+   #loop_end
+   v_SysSet(7) = append(v_SysSet(7),-
+                        ("#set tmp:vb_execution_history=%history",-
+                         "#set sys:bsv11=%tmp"))
+   v_SysSet(8) = "#set sys:bts=""" + t_New_Season + """"
+   i_Write_Status = write_text("sys_/sys_set.txt",dump(v_SysSet))
+   
+   ;tag the next change
+   
+   #if t_New_Season == "SUMMER" #then #set DAYLIGHT:P10 = 1
+   #else                              #set DAYLIGHT:P10 = 0
+   #set SYS:BTS = t_New_Season
+
+   ;Prepare time channel BGU_DST2 to run in 20 seconds
+   
+   e_Next_Run = l_Now.CL + 20
+   #modify BGU_DST2:T = list(SU = (0,0), SY = (0, e_Next_Run), CY = (0, 0))
+   
+#block_end

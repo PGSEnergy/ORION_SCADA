@@ -1,0 +1,29 @@
+; Command Procedure: SYS_UPOER
+; Version: SYS 600 9.3
+; Description: This is command procedure for receiving UNDEF_PROC events
+; -----------------------------------------------------------------------
+
+;read in general info
+@l_General_Info = APL:BSV45
+
+#if l_General_Info:vENABLE_LOG #then #block ; 1
+
+   #if %UN == 0 #then #block
+   
+      @l_Filtering_Info = do(apl:bsv40, "SSS", "GetObjectAttribute", "UNDEF_PROC", "Common_System_Messages_Enabled")
+   
+      #if l_Filtering_Info:vSTATUS == 0 #then #if l_Filtering_Info:vDATA #then -
+         @i_Log_Write = do(apl:bsv40, "SSS", "WriteLogItem", "UPE")
+
+   #block_end
+   #else #block
+   
+      @l_Filtering_Info = do(apl:bsv40, "SSS", "GetObjectNumbers", "UNDEF_PROC")
+
+      #if l_Filtering_Info:vSTATUS == 0 #then #if l_Filtering_Info:vDATA(1) == 0 or length(select(l_Filtering_Info:vDATA, "=='UN'")) > 0 #then -
+            @i_Log_Write = do(apl:bsv40, "SSS", "WriteLogItem", "UPE")
+
+   #block_end
+          
+#block_end ; 1
+

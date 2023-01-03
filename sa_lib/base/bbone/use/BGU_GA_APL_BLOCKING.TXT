@@ -1,0 +1,30 @@
+; Function:    SAGR_GA_APL_BLOCKING:c
+; Version:     1.0 (build 10.02.2010) 
+; Parameters:  ln,ix,...
+; Return Data: -
+; Description: check if object with blocking attribute change is a member of group alarms, if yes launch ga main
+;              only alarm blocking change will be handled
+;--------------------------------------------------------------------------------------------
+;Revision history
+;Date       vers.    author description
+;
+;---------------------------------------------------------------------------------------------
+#local lGA_SDB,l_Sections,x,l_Settings
+
+#if %CA == "AB" and %BV == 1 #then #block
+
+   lGA_SDB = data_manager("OPEN", "apl_/apl_grpal.sdb")
+   #if lGA_SDB.status <> 0 #then #return
+   
+   l_Sections = data_manager("list_sections", lGA_SDB.handle)
+   #if l_Sections.Status <> 0 #then #return
+   
+   l_Settings = data_manager("GET", lGA_SDB.handle, "SETTINGS")
+   #if l_Settings.Status <> 0 #then #return
+   #else l_Settings = l_Settings.Value
+   
+   x = data_manager("CLOSE", lGA_SDB.handle)
+   
+   #if find_element(l_Sections.Sections, %ln + ":" + dec(%ix, 0)) <> 0 and l_Settings.ResetWithAB #then -
+      #exec sagr_ga_main:c (@ln = %ln, @ix = %ix, @method = "MAIN")
+#block_end

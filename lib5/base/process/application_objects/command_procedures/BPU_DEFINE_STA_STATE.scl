@@ -1,0 +1,77 @@
+;Function: BPU_DEFINE_STA_STATE:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_define_sta_state.scl
+;Version: 1.0
+;Parameters: 
+;Return data: 
+;Description:  
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_Objects
+
+#local t_LN, v_inputs = vector, v_Outputs = vector
+#local l_attributes = list(), b_ind_double_binary = true
+
+#local l_result = list(-
+   indication_state = 0,-
+   indication_missing = false,-
+   control_missing = false)
+
+t_LN = l_object_info.p_object_ln
+
+#if attribute_exists(l_object_info, "ind_double_binary") #then -
+   b_ind_double_binary = l_object_info.ind_double_binary
+
+;indication missing
+#if not attribute_exists(l_objects, "sta_lr_obj_ix") #then l_result.indication_missing = true
+
+#if l_object_info.station_type == "ANSI" #then #block
+   #if b_ind_double_binary #then #block
+      #if not attribute_exists(l_objects, "sta_lr_ev_obj_ix") #then l_result.indication_missing = true
+   #block_end
+#block_end
+#else_if l_object_info.station_type == "PROC" #then #block
+   #if b_ind_double_binary #then #block
+      #if not attribute_exists(l_objects, "sta_lr_ev_obj_ix") or not attribute_exists(l_objects, "sta_lr_ev2_obj_ix") #then -
+         l_result.indication_missing = true
+   #block_end
+#block_end
+
+#if not l_result.indication_missing #then #block
+   ;checks the current state for the sta local/remote-switch indication(s)
+   #if attribute_exists(l_Objects, "sta_lr_ev_obj_ix") and attribute_exists(l_Objects, "sta_lr_ev2_obj_ix") #then -
+      v_inputs = (l_objects.sta_lr_ev_obj_ix, l_objects.sta_lr_ev2_obj_ix)
+   #else #block
+      #if attribute_exists(l_Objects, "sta_lr_ev_obj_ix") #then v_inputs = vector(l_Objects.sta_lr_ev_obj_ix)
+      #else v_inputs = vector(l_Objects.sta_lr_obj_ix)
+   #block_end
+#block_end
+
+;control missing
+#if l_object_info.lr_remotely_controllable #then #block
+   #if b_ind_double_binary #then #block
+      #if not attribute_exists(l_objects, "sta_lr_loc_cmd_ix") or -
+         not attribute_exists(l_objects, "sta_lr_sta_cmd_ix") or -
+         not attribute_exists(l_objects, "sta_lr_rem_cmd_ix") or -
+         not attribute_exists(l_objects, "sta_lr_res_cmd_ix") #then l_result.control_missing = true
+   #block_end
+   #else #block
+      #if not attribute_exists(l_objects, "sta_lr_sta_cmd_ix") #then l_result.control_missing = true
+   #block_end   
+   
+   #if  not l_result.control_missing #then #block
+      #if b_ind_double_binary #then -
+         v_Outputs = (l_objects.sta_lr_loc_cmd_ix, l_objects.sta_lr_sta_cmd_ix, l_objects.sta_lr_rem_cmd_ix, l_objects.sta_lr_res_cmd_ix)
+      #else #block
+         v_Outputs = vector(l_objects.sta_lr_sta_cmd_ix)
+      #block_end
+   #block_end
+   
+#block_end
+
+l_result = do(bpu_get_po_attribute_states:c, v_Inputs, v_Outputs, t_LN, l_result)
+
+#if l_result.i_connection_os < 10 #then l_result.indication_state ='t_ln':pov'l_objects.sta_lr_obj_ix'
+
+#return l_result

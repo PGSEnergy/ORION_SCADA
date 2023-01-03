@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view comment="" box="-2200.0 -850.0 2200.0 850.0" scale="0.0" delay="0" minortickspacing="1" middletickspacing="1" majortickspacing="1" import_filename="C:/sc/prog/graphicsEngine/Palette/04 - SA_Indication" pathname="C:/sc/prog/graphicsEngine/Palette/04 - SA_Indication" filename="BI.sd" usetooltip="1">
+  <searchpath>
+    <dir idx="1" dname="C:/sc/prog/graphicsEngine/Palette"/>
+    <dir idx="2" dname="C:/sc/prog/graphicsEngine/etc"/>
+    <dir idx="3" dname="C:/sc/prog/graphicsEngine/lib"/>
+    <dir idx="4" dname="C:/sc/prog/graphicsEngine/lib/views"/>
+    <dir idx="5" dname="C:/sc/prog/graphicsEngine/lib/fonts"/>
+    <dir idx="6" dname="C:/sc/prog/graphicsEngine/lib/Templates"/>
+    <dir idx="7" dname="C:/sc/prog/graphicsEngine/lib/Templates/drawings"/>
+    <dir idx="8" dname="views"/>
+    <dir idx="9" dname="drawings"/>
+    <dir idx="10" dname="datafiles"/>
+    <dir idx="11" dname="layouts"/>
+    <dir idx="12" dname="images"/>
+    <dir idx="13" dname="icons"/>
+    <dir idx="14" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\etc"/>
+    <dir idx="15" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\fonts"/>
+    <dir idx="16" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\views"/>
+    <dir idx="17" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\drawings"/>
+    <dir idx="18" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\templates_sftext"/>
+    <dir idx="19" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\templates_sftext\drawings"/>
+    <dir idx="20" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\templates"/>
+    <dir idx="21" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\templates\drawings"/>
+    <dir idx="22" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\datafiles"/>
+    <dir idx="23" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\layouts"/>
+    <dir idx="24" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\images"/>
+    <dir idx="25" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\icons"/>
+  </searchpath>
+  <datasources>
+    <dps id="dps-2d1ccb8" type="memory" format="binary" name="default.mem">
+      <dp id="dp-2d1b050" type="float" name="State" rows="1" columns="1" delimiter="" global="1" initval="0.0" strinitval=""/>
+      <dp id="dp-2c435c8" type="float" name="Color" rows="1" columns="1" delimiter="" global="1" initval="0.0" strinitval=""/>
+    </dps>
+  </datasources>
+  <graphics layer="1073741823" lod="all" invisible="0" foregroundcolor="empty" backgroundcolor="23">
+    <sk name="V_CDVObjectInternals" type="external" size="0" value="0"/>
+    <sk name="DV_RULE_SCRIPT_NAME" type="string" size="0" value="\sc\prog\graphicsengine\etc\SYS600_scripts.bas"/>
+    <sk name="SATopologyModel" type="string" size="0" value="Strict"/>
+    <sk name="DV_SEARCH_PATH" type="string" size="0" value="C:\SC\APL\SUMY\PICT;C:\SC\APL\SUMY\AplMod4\Palette;C:\sc\prog\graphicsengine\Palette;C:\sc\prog\graphicsengine\etc;C:\sc\prog\graphicsengine\lib;C:\sc\prog\graphicsengine\lib\views;C:\sc\prog\graphicsengine\lib\fonts;C:\sc\prog\graphicsengine\lib\Templates;C:\sc\prog\graphicsengine\lib\templates\drawings;C:\sc\prog\graphicsengine\support"/>
+    <sk name="DV_SA_REV_INFO" type="string" size="0" value="1"/>
+    <sk name="DefaultScalingFactor" type="string" size="0" value="1"/>
+    <sk name="SADisplayName" type="string" size="0" value="BI"/>
+    <sk name="SAVersionInfo" type="string" size="0" value="2"/>
+    <rectangle id="go-32c0000" layer="1073741823" lod="all" invisible="0" foregroundcolor="31" backgroundcolor="251" linewidth="2" strokewidth="0.0" rx="0.0" ry="0.0" linetype="1" capstyle="butt" joinstyle="miter" dashmode="empty" fillstatus="fillwithedge" bfg="empty" bbg="empty" bfreq="0">
+      <pt x="-2200.0" y="850.0"/>
+      <pt x="2200.0" y="-850.0"/>
+      <dfs id="dfs-333fff0" erasemethod="redrawdelayed" erasecolor="empty" xformanchor="center-center">
+        <dy id="dy-1-333fff0" type="foregroundcolor" rangelow="0.0" rangehigh="0.0" dprangelow="0.0" dprangehigh="1.0">
+          <refdp dp="#dp-2d1b050" varinfo="default.mem:State"/>
+          <thresholdtable id="tt-33c0068" type="co" dytype="foregroundcolor" dprangelow="0.0" dprangehigh="1.0">
+            <ttentry normalized="-1" threshold="-1.0" color="15"/>
+            <ttentry normalized="16384" threshold="0.5" color="31"/>
+          </thresholdtable>
+        </dy>
+        <dy id="dy-2-333fff0" type="backgroundcolor" rangelow="0.0" rangehigh="0.0" dprangelow="30.0" dprangehigh="40.0">
+          <refdp dp="#dp-2c435c8" varinfo="default.mem:Color"/>
+          <thresholdtable id="tt-33bffe0" type="co" dytype="backgroundcolor" dprangelow="30.0" dprangehigh="40.0">
+            <ttentry normalized="-1" threshold="29.0" color="251"/>
+            <ttentry normalized="4915" threshold="31.49993896484375" color="3"/>
+            <ttentry normalized="8192" threshold="32.5" color="251"/>
+            <ttentry normalized="21299" threshold="36.49993896484375" color="11"/>
+            <ttentry normalized="24575" threshold="37.49969482421875" color="5"/>
+            <ttentry normalized="31129" threshold="39.49981689453125" color="251"/>
+          </thresholdtable>
+        </dy>
+      </dfs>
+    </rectangle>
+    <text id="go-33fffd8" type="scalable" string="OFF" textfont="Arial 1 0 0 0 0.0 1439.47412109375 0.0" textdirection="horizontal" textposition="bottom-left" textjustification="left" layer="1073741823" lod="all" invisible="0" foregroundcolor="0" backgroundcolor="empty" bfg="empty" bbg="empty" bfreq="0">
+      <pt x="-1230.0" y="-755.0"/>
+      <dfs id="dfs-3340050" erasemethod="redrawdelayed" erasecolor="empty" xformanchor="center-center">
+        <dy id="dy-45-3340050" type="visibility" rangelow="0.0" rangehigh="0.0" dprangelow="0.0" dprangehigh="1.0">
+          <refdp dp="#dp-2d1b050" varinfo="default.mem:State"/>
+          <thresholdtable id="tt-33c00f0" type="int" dytype="visibility" dprangelow="0.0" dprangehigh="1.0">
+            <ttentry normalized="-1" threshold="-1.0" raw="1"/>
+            <ttentry normalized="16384" threshold="0.5" raw="0"/>
+          </thresholdtable>
+        </dy>
+      </dfs>
+    </text>
+    <text id="go-3400150" type="scalable" string="ON&#10;" textfont="Arial 1 0 0 0 0.0 1439.47412109375 0.0" textdirection="horizontal" textposition="bottom-left" textjustification="left" layer="1073741823" lod="all" invisible="0" foregroundcolor="0" backgroundcolor="empty" bfg="empty" bbg="empty" bfreq="0">
+      <pt x="-927.0" y="-754.0"/>
+      <dfs id="dfs-33400b0" erasemethod="redrawdelayed" erasecolor="empty" xformanchor="center-center">
+        <dy id="dy-45-33400b0" type="visibility" rangelow="0.0" rangehigh="0.0" dprangelow="0.0" dprangehigh="1.0">
+          <refdp dp="#dp-2d1b050" varinfo="default.mem:State"/>
+          <thresholdtable id="tt-33c0178" type="int" dytype="visibility" dprangelow="0.0" dprangehigh="1.0">
+            <ttentry normalized="-1" threshold="-1.0" raw="0"/>
+            <ttentry normalized="16384" threshold="0.5" raw="1"/>
+          </thresholdtable>
+        </dy>
+      </dfs>
+    </text>
+    <rectangle id="go-32c0088" layer="1073741823" lod="all" invisible="0" foregroundcolor="5" backgroundcolor="251" linewidth="1" strokewidth="0.0" rx="0.0" ry="0.0" linetype="1" capstyle="butt" joinstyle="miter" dashmode="transparent" fillstatus="fill" bfg="empty" bbg="empty" bfreq="0">
+      <pt x="-1900.0" y="600.0"/>
+      <pt x="1900.0" y="-600.0"/>
+      <dfs id="dfs-3340110" erasemethod="redrawdelayed" erasecolor="empty" xformanchor="center-center">
+        <dy id="dy-45-3340110" type="visibility" rangelow="0.0" rangehigh="0.0" dprangelow="37.0" dprangehigh="40.0">
+          <refdp dp="#dp-2c435c8" varinfo="default.mem:Color"/>
+          <thresholdtable id="tt-33c0200" type="int" dytype="visibility" dprangelow="37.0" dprangehigh="40.0">
+            <ttentry normalized="-1" threshold="36.0" raw="0"/>
+            <ttentry normalized="5461" threshold="37.499969482421875" raw="1"/>
+            <ttentry normalized="27306" threshold="39.49993896484375" raw="0"/>
+          </thresholdtable>
+        </dy>
+      </dfs>
+    </rectangle>
+  </graphics>
+</view>
+

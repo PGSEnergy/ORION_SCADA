@@ -1,0 +1,24 @@
+;Template code for mapping two power flow indicators together
+#argument t_Local_LN, i_Remote_IX
+#local t_Remote_LN = ""
+
+; ** leave this code block out from APLMOD5_BGU_POWER_FLOW_LN_MAPPING:C 
+#if application_object_exists(0, "C", "APLMOD5_BGU_POWER_FLOW_LN_MAPPING") #then #block
+   #return do(APLMOD5_BGU_POWER_FLOW_LN_MAPPING:C, t_Local_LN, i_Remote_IX)
+#block_end
+; **
+
+;make mapping
+;;#case t_Local_LN
+;;   #when "X" t_Remote_LN = "Y"
+;;   #when "Y" t_Remote_LN = "X"
+;;#case_end
+;;
+;;;check that Remote_LN is in use
+;;#if t_Remote_LN <> "" #then #block
+;;   #if application_object_exists(0, "IX", list(LN = t_Remote_LN, IX = i_Remote_IX)) #then #block
+;;      #if 't_Remote_LN':PIU'i_Remote_IX' > 0 #then #return t_Remote_LN
+;;   #block_end
+;;#block_end
+
+#return ""

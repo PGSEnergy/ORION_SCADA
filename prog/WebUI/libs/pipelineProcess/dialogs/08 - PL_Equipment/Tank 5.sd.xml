@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="dv-custom-attribute|ABB SA Symbols" content="v1.0" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Tank 5" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="Tank" />
+    <d:meta name="dv-custom-attribute|SATopology" content="" />
+    <d:role name="symbol" />
+  </d:head>
+  <d:body x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <s:linearGradient x1="0%" y1="0%" x2="100%" y2="0%" id="i2" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="rgb(192, 192, 192)" offset="1" />
+    </s:linearGradient>
+    <s:ellipse cx="0" cy="10" rx="2.400" ry="7.500" transform="rotate(90, 0, 10)" y:fill="url(#i2)" y:fill-rule="evenodd" y:stroke="rgb(112, 112, 112)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <s:linearGradient x1="0%" y1="0%" x2="100%" y2="0%" id="i3" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(224, 224, 224)" offset="0" />
+      <s:stop stop-color="rgb(160, 160, 160)" offset="1" />
+    </s:linearGradient>
+    <s:polyline points="-7.500,10 -40,-40 40,-40 7.500,10 " y:fill="url(#i3)" y:fill-rule="evenodd" y:stroke="rgb(112, 112, 112)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <d:view name="08 - PL_Equipment/Tank 3.sd" s:transform="translate(0,-80) scale(1,1)" d:object-name="Tank 3">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="subdrawing_dynamics" value="0" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+    </d:view>
+    <s:rect width="0" height="0" x="-40" y="-105" s:pointer-events="visiblePainted" y:fill="none" y:fill-rule="evenodd" y:stroke="{subdrawing_color}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Hotspot1" />
+    <s:rect width="0" height="0" x="-40" y="-45" s:pointer-events="visiblePainted" y:fill="none" y:fill-rule="evenodd" y:stroke="{subdrawing_color}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Hotspot2" />
+    <s:rect width="0" height="0" x="40" y="-105" s:pointer-events="visiblePainted" y:fill="none" y:fill-rule="evenodd" y:stroke="{colors[31]}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Hotspot3" />
+    <s:rect width="0" height="0" x="40" y="-45" s:pointer-events="visiblePainted" y:fill="none" y:fill-rule="evenodd" y:stroke="{subdrawing_color}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Hotspot4" />
+    <s:rect width="0" height="0" x="0" y="-120" s:pointer-events="visiblePainted" y:fill="none" y:fill-rule="evenodd" y:stroke="{subdrawing_color}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Hotspot5" />
+  </d:body>
+</d:document>

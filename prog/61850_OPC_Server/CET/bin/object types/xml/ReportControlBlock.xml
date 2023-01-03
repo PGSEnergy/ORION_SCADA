@@ -1,0 +1,778 @@
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Markku Hamarila/RSC (ABB OY Substation Automation) -->
+<ObjectTypes>
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">ReportControlBlock 4.1</Parameter>
+		<Parameter name="Caption">objectTypeCaption</Parameter>
+		<Parameter name="Description">objectTypeDesc</Parameter>
+		<Parameter name="Group">Communication</Parameter>
+		<Parameter name="Type">REPORTCONTROL</Parameter>
+		<Parameter name="IconFileName">RCB.ico</Parameter>
+		<Parameter name="Tools">OnlineDiagnosticsRcbIec61850</Parameter>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="Visible">True</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="PCMObjectType">IEC61850 LLN0, IEC61850 LN, IEC61850GW LD0 LLN0, SSS LLN0, IEC61850 Proxy LLN0, IEC61850 Proxy LN</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+	<Parameters type="SCLExport">
+		<Export name="sclXML">ReportControlBlockSCL</Export>
+	</Parameters>
+	<Properties type="PropertyDefinitions">
+		<Property name="UpdateRCBSCL" category="[010] Basic">
+			<Value>True</Value>
+			<DescID>UpdateRCBSCLDesc</DescID>
+			<CaptionID>UpdateRCBSCL</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>ReportControlBlockSCL</AttributeName>
+		</Property>
+		<Property name="ReportControlBlockSCL" category="[010] Basic">
+			<Value/>
+			<DescID>ReportControlBlockSCLDesc</DescID>
+			<CaptionID>ReportControlBlockSCL</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>ReportControlBlockSCL</AttributeName>
+		</Property>
+		<Property name="datSet" category="[010] Basic">
+			<Value/>
+			<DescID>datSetDesc</DescID>
+			<CaptionID>datSet</CaptionID>
+			<Values type="singleChoiceDynamic">
+				<ListObjects findMethod="ancestorDirectChild" ancestorDsot="LN" filterDsot="DATASET"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>datSet</AttributeName>
+		</Property>
+		<Property name="rptID" category="[010] Basic">
+			<Value>
+      </Value>
+			<DescID>rptIDDesc</DescID>
+			<CaptionID>rptID</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>rptID</AttributeName>
+		</Property>
+		<Property name="buffered" category="[010] Basic">
+			<Value>True</Value>
+			<DescID>bufferedDesc</DescID>
+			<CaptionID>buffered</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>buffered</AttributeName>
+		</Property>
+		<Property name="intgPd" category="[010] Basic">
+			<Value>0</Value>
+			<DescID>intgPdDesc</DescID>
+			<CaptionID>intgPd</CaptionID>
+			<Values type="numerical">
+				<Min>0</Min>
+				<Max>2147483647</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>intgPd</AttributeName>
+		</Property>
+		<Property name="confRev" category="[010] Basic">
+			<Value>1</Value>
+			<DescID>confRevDesc</DescID>
+			<CaptionID>confRev</CaptionID>
+			<Values type="numerical">
+				<Min>0</Min>
+				<Max>2147483647</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RRR</Access>
+			<AttributeName>confRev</AttributeName>
+		</Property>
+		<Property name="bufTime" category="[010] Basic">
+			<Value>100</Value>
+			<DescID>bufTimDesc</DescID>
+			<CaptionID>bufTim</CaptionID>
+			<Values type="numerical">
+				<Min>0</Min>
+				<Max>2147483647</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>bufTime</AttributeName>
+		</Property>
+		<Property name="seqNum" category="[010] Option Fields">
+			<Value>True</Value>
+			<DescID>seqNumDesc</DescID>
+			<CaptionID>seqNum</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>seqNum</AttributeName>
+		</Property>
+		<Property name="timeStamp" category="[010] Option Fields">
+			<Value>False</Value>
+			<DescID>timeStampDesc</DescID>
+			<CaptionID>timeStamp</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>timeStamp</AttributeName>
+		</Property>
+		<Property name="dataSet" category="[010] Option Fields">
+			<Value>False</Value>
+			<DescID>dataSetDesc</DescID>
+			<CaptionID>dataSet</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>dataSet</AttributeName>
+		</Property>
+		<Property name="reasonCode" category="[010] Option Fields">
+			<Value>True</Value>
+			<DescID>reasonCodeDesc</DescID>
+			<CaptionID>reasonCode</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>reasonCode</AttributeName>
+		</Property>
+		<Property name="dataRef" category="[010] Option Fields">
+			<Value>False</Value>
+			<DescID>dataRefDesc</DescID>
+			<CaptionID>dataRef</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>dataRef</AttributeName>
+		</Property>
+		<Property name="bufOvfl" category="[010] Option Fields">
+			<Value>True</Value>
+			<DescID>bufOvflDesc</DescID>
+			<CaptionID>bufOvfl</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>bufOvfl</AttributeName>
+		</Property>
+		<Property name="entryID" category="[010] Option Fields">
+			<Value>True</Value>
+			<DescID>entryIDDesc</DescID>
+			<CaptionID>entryID</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>entryID</AttributeName>
+		</Property>
+		<Property name="configRef" category="[010] Option Fields">
+			<Value>False</Value>
+			<DescID>configRefDesc</DescID>
+			<CaptionID>configRef</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>configRef</AttributeName>
+		</Property>
+		<Property name="segmentation" category="[010] Option Fields">
+			<Value>True</Value>
+			<DescID>segmentationDesc</DescID>
+			<CaptionID>segmentation</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>segmentation</AttributeName>
+		</Property>
+		<Property name="gi" category="[010] Trigger Options">
+			<Value>True</Value>
+			<DescID>giDesc</DescID>
+			<CaptionID>gi</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>gi</AttributeName>
+		</Property>
+		<Property name="dchg" category="[010] Trigger Options">
+			<Value>True</Value>
+			<DescID>dchgDesc</DescID>
+			<CaptionID>dchg</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>dchg</AttributeName>
+		</Property>
+		<Property name="qchg" category="[010] Trigger Options">
+			<Value>True</Value>
+			<DescID>qchgDesc</DescID>
+			<CaptionID>qchg</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>qchg</AttributeName>
+		</Property>
+		<Property name="dupd" category="[010] Trigger Options">
+			<Value>False</Value>
+			<DescID>dupdDesc</DescID>
+			<CaptionID>dupd</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>dupd</AttributeName>
+		</Property>
+		<Property name="period" category="[010] Trigger Options">
+			<Value>False</Value>
+			<DescID>periodDesc</DescID>
+			<CaptionID>period</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>period</AttributeName>
+		</Property>
+		<Property name="indexed" category="[010] Basic">
+			<Value>True</Value>
+			<DescID>indexedDesc</DescID>
+			<CaptionID>indexed</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>indexed</AttributeName>
+		</Property>
+	</Properties>
+</ObjectType>
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">ReportControlBlock 3.4</Parameter>
+		<Parameter name="Caption">objectTypeCaption</Parameter>
+		<Parameter name="Description">objectTypeDesc</Parameter>
+		<Parameter name="Group">Communication</Parameter>
+		<Parameter name="Type">REPORTCONTROL</Parameter>
+		<Parameter name="IconFileName">RCB.ico</Parameter>
+		<Parameter name="Tools">OnlineDiagnosticsRcbIec61850</Parameter>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="Visible">True</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="PCMObjectType">IEC61850 LLN0, IEC61850 LN, IEC61850GW LD0 LLN0, SSS LLN0, IEC61850 Proxy LLN0, IEC61850 Proxy LN</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+	<Parameters type="SCLExport">
+		<Export name="sclXML">ReportControlBlockSCL</Export>
+	</Parameters>
+	<Properties type="PropertyDefinitions">
+		<Property name="UpdateRCBSCL" category="[010] Basic">
+			<Value>True</Value>
+			<DescID>UpdateRCBSCLDesc</DescID>
+			<CaptionID>UpdateRCBSCL</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>ReportControlBlockSCL</AttributeName>
+		</Property>
+		<Property name="ReportControlBlockSCL" category="[010] Basic">
+			<Value/>
+			<DescID>ReportControlBlockSCLDesc</DescID>
+			<CaptionID>ReportControlBlockSCL</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>ReportControlBlockSCL</AttributeName>
+		</Property>
+		<Property name="datSet" category="[010] Basic">
+			<Value/>
+			<DescID>datSetDesc</DescID>
+			<CaptionID>datSet</CaptionID>
+			<Values type="singleChoiceDynamic">
+				<ListObjects findMethod="ancestorDirectChild" ancestorDsot="LN" filterDsot="DATASET"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>datSet</AttributeName>
+		</Property>
+		<Property name="rptID" category="[010] Basic">
+			<Value>
+      </Value>
+			<DescID>rptIDDesc</DescID>
+			<CaptionID>rptID</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>rptID</AttributeName>
+		</Property>
+		<Property name="buffered" category="[010] Basic">
+			<Value>True</Value>
+			<DescID>bufferedDesc</DescID>
+			<CaptionID>buffered</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>buffered</AttributeName>
+		</Property>
+		<Property name="intgPd" category="[010] Basic">
+			<Value>0</Value>
+			<DescID>intgPdDesc</DescID>
+			<CaptionID>intgPd</CaptionID>
+			<Values type="numerical">
+				<Min>0</Min>
+				<Max>2147483647</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>intgPd</AttributeName>
+		</Property>
+		<Property name="confRev" category="[010] Basic">
+			<Value>1</Value>
+			<DescID>confRevDesc</DescID>
+			<CaptionID>confRev</CaptionID>
+			<Values type="numerical">
+				<Min>0</Min>
+				<Max>2147483647</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RRR</Access>
+			<AttributeName>confRev</AttributeName>
+		</Property>
+		<Property name="bufTime" category="[010] Basic">
+			<Value>100</Value>
+			<DescID>bufTimDesc</DescID>
+			<CaptionID>bufTim</CaptionID>
+			<Values type="numerical">
+				<Min>0</Min>
+				<Max>2147483647</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>bufTime</AttributeName>
+		</Property>
+		<Property name="seqNum" category="[010] Option Fields">
+			<Value>True</Value>
+			<DescID>seqNumDesc</DescID>
+			<CaptionID>seqNum</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>seqNum</AttributeName>
+		</Property>
+		<Property name="timeStamp" category="[010] Option Fields">
+			<Value>False</Value>
+			<DescID>timeStampDesc</DescID>
+			<CaptionID>timeStamp</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>timeStamp</AttributeName>
+		</Property>
+		<Property name="dataSet" category="[010] Option Fields">
+			<Value>False</Value>
+			<DescID>dataSetDesc</DescID>
+			<CaptionID>dataSet</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>dataSet</AttributeName>
+		</Property>
+		<Property name="reasonCode" category="[010] Option Fields">
+			<Value>True</Value>
+			<DescID>reasonCodeDesc</DescID>
+			<CaptionID>reasonCode</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>reasonCode</AttributeName>
+		</Property>
+		<Property name="dataRef" category="[010] Option Fields">
+			<Value>False</Value>
+			<DescID>dataRefDesc</DescID>
+			<CaptionID>dataRef</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>dataRef</AttributeName>
+		</Property>
+		<Property name="bufOvfl" category="[010] Option Fields">
+			<Value>True</Value>
+			<DescID>bufOvflDesc</DescID>
+			<CaptionID>bufOvfl</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>bufOvfl</AttributeName>
+		</Property>
+		<Property name="entryID" category="[010] Option Fields">
+			<Value>True</Value>
+			<DescID>entryIDDesc</DescID>
+			<CaptionID>entryID</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>entryID</AttributeName>
+		</Property>
+		<Property name="configRef" category="[010] Option Fields">
+			<Value>False</Value>
+			<DescID>configRefDesc</DescID>
+			<CaptionID>configRef</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>configRef</AttributeName>
+		</Property>
+		<Property name="segmentation" category="[010] Option Fields">
+			<Value>True</Value>
+			<DescID>segmentationDesc</DescID>
+			<CaptionID>segmentation</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>segmentation</AttributeName>
+		</Property>
+		<Property name="dchg" category="[010] Trigger Options">
+			<Value>True</Value>
+			<DescID>dchgDesc</DescID>
+			<CaptionID>dchg</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>dchg</AttributeName>
+		</Property>
+		<Property name="qchg" category="[010] Trigger Options">
+			<Value>True</Value>
+			<DescID>qchgDesc</DescID>
+			<CaptionID>qchg</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>qchg</AttributeName>
+		</Property>
+		<Property name="dupd" category="[010] Trigger Options">
+			<Value>False</Value>
+			<DescID>dupdDesc</DescID>
+			<CaptionID>dupd</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>dupd</AttributeName>
+		</Property>
+		<Property name="period" category="[010] Trigger Options">
+			<Value>False</Value>
+			<DescID>periodDesc</DescID>
+			<CaptionID>period</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>period</AttributeName>
+		</Property>
+		<Property name="indexed" category="[010] Basic">
+			<Value>True</Value>
+			<DescID>indexedDesc</DescID>
+			<CaptionID>indexed</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>indexed</AttributeName>
+		</Property>
+	</Properties>
+</ObjectType>
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">ReportControlBlock</Parameter>
+		<Parameter name="Caption">objectTypeCaption</Parameter>
+		<Parameter name="Description">objectTypeDesc</Parameter>
+		<Parameter name="Group">Communication</Parameter>
+		<Parameter name="Type">REPORTCONTROL</Parameter>
+		<Parameter name="IconFileName">RCB.ico</Parameter>
+		<Parameter name="Tools">OnlineDiagnosticsRcbIec61850</Parameter>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="Visible">True</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="PCMObjectType">IEC61850 LLN0, IEC61850 LN, IEC61850GW LD0 LLN0, SSS LLN0</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+	<Parameters type="SCLExport">
+		<Export name="sclXML">ReportControlBlockSCL</Export>
+	</Parameters>
+	<Properties type="PropertyDefinitions">
+		<Property name="UpdateRCBSCL" category="[010] Basic">
+			<Value>True</Value>
+			<DescID>UpdateRCBSCLDesc</DescID>
+			<CaptionID>UpdateRCBSCL</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>ReportControlBlockSCL</AttributeName>
+		</Property>
+		<Property name="ReportControlBlockSCL" category="[010] Basic">
+			<Value/>
+			<DescID>ReportControlBlockSCLDesc</DescID>
+			<CaptionID>ReportControlBlockSCL</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>ReportControlBlockSCL</AttributeName>
+		</Property>
+		<Property name="datSet" category="[010] Basic">
+			<Value/>
+			<DescID>datSetDesc</DescID>
+			<CaptionID>datSet</CaptionID>
+			<Values type="singleChoiceDynamic">
+				<ListObjects findMethod="ancestorDirectChild" ancestorDsot="LN" filterDsot="DATASET"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>datSet</AttributeName>
+		</Property>
+		<Property name="rptID" category="[010] Basic">
+			<Value>
+      </Value>
+			<DescID>rptIDDesc</DescID>
+			<CaptionID>rptID</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>rptID</AttributeName>
+		</Property>
+		<Property name="buffered" category="[010] Basic">
+			<Value>True</Value>
+			<DescID>bufferedDesc</DescID>
+			<CaptionID>buffered</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>buffered</AttributeName>
+		</Property>
+		<Property name="intgPd" category="[010] Basic">
+			<Value>0</Value>
+			<DescID>intgPdDesc</DescID>
+			<CaptionID>intgPd</CaptionID>
+			<Values type="numerical">
+				<Min>0</Min>
+				<Max>2147483647</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>intgPd</AttributeName>
+		</Property>
+		<Property name="confRev" category="[010] Basic">
+			<Value>1</Value>
+			<DescID>confRevDesc</DescID>
+			<CaptionID>confRev</CaptionID>
+			<Values type="numerical">
+				<Min>0</Min>
+				<Max>2147483647</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RRR</Access>
+			<AttributeName>confRev</AttributeName>
+		</Property>
+		<Property name="bufTime" category="[010] Basic">
+			<Value>100</Value>
+			<DescID>bufTimDesc</DescID>
+			<CaptionID>bufTim</CaptionID>
+			<Values type="numerical">
+				<Min>0</Min>
+				<Max>2147483647</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>bufTime</AttributeName>
+		</Property>
+		<Property name="seqNum" category="[010] Option Fields">
+			<Value>True</Value>
+			<DescID>seqNumDesc</DescID>
+			<CaptionID>seqNum</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>seqNum</AttributeName>
+		</Property>
+		<Property name="timeStamp" category="[010] Option Fields">
+			<Value>False</Value>
+			<DescID>timeStampDesc</DescID>
+			<CaptionID>timeStamp</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>timeStamp</AttributeName>
+		</Property>
+		<Property name="dataSet" category="[010] Option Fields">
+			<Value>False</Value>
+			<DescID>dataSetDesc</DescID>
+			<CaptionID>dataSet</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>dataSet</AttributeName>
+		</Property>
+		<Property name="reasonCode" category="[010] Option Fields">
+			<Value>True</Value>
+			<DescID>reasonCodeDesc</DescID>
+			<CaptionID>reasonCode</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>reasonCode</AttributeName>
+		</Property>
+		<Property name="dataRef" category="[010] Option Fields">
+			<Value>False</Value>
+			<DescID>dataRefDesc</DescID>
+			<CaptionID>dataRef</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>dataRef</AttributeName>
+		</Property>
+		<Property name="bufOvfl" category="[010] Option Fields">
+			<Value>True</Value>
+			<DescID>bufOvflDesc</DescID>
+			<CaptionID>bufOvfl</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>bufOvfl</AttributeName>
+		</Property>
+		<Property name="entryID" category="[010] Option Fields">
+			<Value>True</Value>
+			<DescID>entryIDDesc</DescID>
+			<CaptionID>entryID</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>entryID</AttributeName>
+		</Property>
+		<Property name="configRef" category="[010] Option Fields">
+			<Value>False</Value>
+			<DescID>configRefDesc</DescID>
+			<CaptionID>configRef</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>configRef</AttributeName>
+		</Property>
+		<Property name="segmentation" category="[010] Option Fields">
+			<Value>True</Value>
+			<DescID>segmentationDesc</DescID>
+			<CaptionID>segmentation</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>segmentation</AttributeName>
+		</Property>
+		<Property name="dchg" category="[010] Trigger Options">
+			<Value>True</Value>
+			<DescID>dchgDesc</DescID>
+			<CaptionID>dchg</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>dchg</AttributeName>
+		</Property>
+		<Property name="qchg" category="[010] Trigger Options">
+			<Value>True</Value>
+			<DescID>qchgDesc</DescID>
+			<CaptionID>qchg</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>qchg</AttributeName>
+		</Property>
+		<Property name="dupd" category="[010] Trigger Options">
+			<Value>False</Value>
+			<DescID>dupdDesc</DescID>
+			<CaptionID>dupd</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>dupd</AttributeName>
+		</Property>
+		<Property name="period" category="[010] Trigger Options">
+			<Value>False</Value>
+			<DescID>periodDesc</DescID>
+			<CaptionID>period</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>period</AttributeName>
+		</Property>
+	</Properties>
+</ObjectType>
+
+</ObjectTypes>

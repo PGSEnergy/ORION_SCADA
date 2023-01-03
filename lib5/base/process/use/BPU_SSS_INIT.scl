@@ -1,0 +1,17 @@
+;Prepares cyclical updating of SSS models
+#if not application_object_exists(0, "T", "BPU_SSS_UPDATE_MODELS") #then #block
+   #create BPU_SSS_UPDATE_MODELS:T = list(-
+      IU = 1,-
+      CX = translation("Time channel for updating SSS models"),-
+      PE = 1,-
+      PQ = 4,-
+      CY = (0, 300))
+#block_end
+
+#if application_object_exists(0, "C", "BPU_SSS_UPDATE_MODELS") #then #block
+   #modify BPU_SSS_UPDATE_MODELS:C = list(-
+      IU = 1,-
+      TC = "BPU_SSS_UPDATE_MODELS",-
+      PE = 1,-
+      PQ = 4)      
+#block_end

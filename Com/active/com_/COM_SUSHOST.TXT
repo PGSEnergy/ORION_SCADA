@@ -1,0 +1,183 @@
+﻿; This command procedure is used for handling host events in a COM application
+; This command procedure is activated by event channel APL_EVENT
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @SOURCE, source of the event, text
+;         @SOURCE_NR, number of the host, integer
+;         @EVENT, event causing the activation
+;
+; OUTPUT  @SOURCE, source of the event, text
+;         @SOURCE_NR, number of the station, integer
+;         @EVENT, communication state of the station, text 
+;---------------------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+@NOT_SAMPLED_STATUS = FALSE
+@SHADOWING_PARTNER_NR = 0
+
+#IF %SOURCE == "HOST" #THEN #BLOCK
+   #IF %EVENT == "LOST" OR %EVENT == "DISCONNECTED" OR %EVENT == "DOWN" OR %EVENT == "DISABLED" OR %EVENT == "HOST_DISABLED" #THEN #BLOCK
+      @STA_LIST = BASE_SYSTEM_OBJECT_LIST("STA","MR==""IMAGE""",("BM","CS","HS"))   
+      #LOOP_WITH i = 1..LENGTH(STA_LIST:VBM) 
+         @HS = STA_LIST:VHS(%i)
+         @SHADOWING_PARTNER_NR = APL'SOURCE_NR':BSN 
+         #IF %HS.APL == %SOURCE_NR OR %HS.APL == %SHADOWING_PARTNER_NR #THEN #BLOCK
+            @BM = STA_LIST:VBM(%i)
+            @CS = STA_LIST:VCS(%i)
+            #EXEC COM_SUSSTA:C (@SOURCE = "UN", @SOURCE_NR = %BM, @EVENT=%CS)  
+         #BLOCK_END
+      #LOOP_END
+   #BLOCK_END
+   #IF %EVENT == "CONNECTED" OR %EVENT == "RECONNECTED" #THEN #BLOCK
+      @STA_LIST = BASE_SYSTEM_OBJECT_LIST("STA","MR==""IMAGE""",("BM","CS","HS"))   
+      #LOOP_WITH i = 1..LENGTH(STA_LIST:VBM) 
+         @HS = STA_LIST:VHS(%i)
+         @SHADOWING_PARTNER_NR = APL'SOURCE_NR':BSN 
+         #IF %HS.APL == %SOURCE_NR OR %HS.APL == %SHADOWING_PARTNER_NR #THEN #BLOCK
+            @BM = STA_LIST:VBM(%i)
+            @CS = STA_LIST:VCS(%i)
+            #IF %CS == "RUNNING" #THEN #BLOCK
+               #IF %EVENT == "RECONNECTED" #THEN #BLOCK
+                  @QUERY_CONDITION = "PT < 100 AND TI <> 0 AND IU == 1 AND SS > 0 AND (PT==3 OR PT==6 OR PT==9 OR PT==12 OR PT==13 OR PT==16) AND RX <> ""%%%%%%%%%%%%%%%%%%%%BN*"""
+                  @HOST_OBJECTS = APPLICATION_OBJECT_LIST(0,"IX","U","F",%BM,%QUERY_CONDITION,("OS","PT","OV","AL","LN","IX","RT","RM","BL","SB","OR","CT","OG","DX","GI","RZ","OF","QL"),50000)
+                  #IF LENGTH(HOST_OBJECTS:VLN) > 0 #THEN #BLOCK 
+                     #LOOP_WITH I = 1..LENGTH(HOST_OBJECTS:VLN) 
+                           @LN = HOST_OBJECTS:VLN(%I)
+                           @IX = HOST_OBJECTS:VIX(%I)
+                           @OS = HOST_OBJECTS:VOS(%I)
+                           #IF (%OS == 10 OR %OS == 2) #THEN #BLOCK 
+                              #CASE HOST_OBJECTS:VDX(%I)
+                                 ;if RTU 200 event recording object and not sampled, read from lower index
+                                 #WHEN "I10S","R10S","I11","R11","I10D","R10D" #BLOCK
+                                    @LOW_IX = %IX - 100
+                                    @LOW_OS = 'LN':POS'LOW_IX'
+                                    #IF (%LOW_OS <> 10 AND %LOW_OS <> 2) #THEN #BLOCK 
+                                       @NOT_SAMPLED_STATUS = FALSE
+                                       @OS = %LOW_OS
+                                       #SET HOST_OBJECTS:VOV(%I) = 'LN':POV'LOW_IX'
+                                       #SET HOST_OBJECTS:VAL(%I) = 'LN':PAL'LOW_IX'
+                                       #SET HOST_OBJECTS:VRT(%I) = 'LN':PRT'LOW_IX'
+                                       #SET HOST_OBJECTS:VRM(%I) = 'LN':PRM'LOW_IX'
+                                       #SET HOST_OBJECTS:VBL(%I) = 'LN':PBL'LOW_IX'
+                                       #SET HOST_OBJECTS:VSB(%I) = 'LN':PSB'LOW_IX'
+                                       #SET HOST_OBJECTS:VOR(%I) = 'LN':POR'LOW_IX'
+                                       #SET HOST_OBJECTS:VCT(%I) = 'LN':PCT'LOW_IX' 
+                                       #SET HOST_OBJECTS:VOG(%I) = 'LN':POG'LOW_IX'                    
+                                       #SET HOST_OBJECTS:VQL(%I) = 'LN':PQL'LOW_IX'                          
+                                    #BLOCK_END
+                                    #ELSE @NOT_SAMPLED_STATUS = TRUE 
+                                 #BLOCK_END
+                                 #OTHERWISE @NOT_SAMPLED_STATUS = TRUE 
+                              #CASE_END
+                           #BLOCK_END
+                           #ELSE @NOT_SAMPLED_STATUS = FALSE  
+                           #IF %NOT_SAMPLED_STATUS == FALSE #THEN #BLOCK  
+                              #CASE HOST_OBJECTS:VPT(%I) 
+                                 #WHEN 3 #BLOCK
+                                    #EXEC  COM_USBI:C (@LN = HOST_OBJECTS:VLN(%I),@IX = HOST_OBJECTS:VIX(%I),-
+                                                         @OS = HOST_OBJECTS:VOS(%I),@RT = HOST_OBJECTS:VRT(%I),-
+                                                         @RM = HOST_OBJECTS:VRM(%I),@BI = HOST_OBJECTS:VOV(%I),-
+                                                         @AL = HOST_OBJECTS:VAL(%I),@BL = HOST_OBJECTS:VBL(%I),-
+                                                         @SB = HOST_OBJECTS:VSB(%I),@CT = HOST_OBJECTS:VCT(%I),-
+                                                         @OG = HOST_OBJECTS:VOG(%I),@RZ = HOST_OBJECTS:VRZ(%I),- 
+                                                         @QL = HOST_OBJECTS:VQL(%I),@COM_CAUSE_OF_TRANSMISSION = 3)
+                                 #BLOCK_END
+                                 #WHEN 5 #BLOCK
+                                    #IF BIT(%GI,1)==1 #THEN #BLOCK
+                                       #EXEC  COM_USBO:C (@LN = HOST_OBJECTS:VLN(%I),@IX = HOST_OBJECTS:VIX(%I),-
+                                                            @OS = HOST_OBJECTS:VOS(%I),@RT = HOST_OBJECTS:VRT(%I),-
+                                                            @RM = HOST_OBJECTS:VRM(%I),@BO = HOST_OBJECTS:VOV(%I),-
+                                                            @BL = HOST_OBJECTS:VBL(%I),@SB = HOST_OBJECTS:VSB(%I),-
+                                                            @CT = HOST_OBJECTS:VCT(%I),@RZ = HOST_OBJECTS:VRZ(%I),- 
+                                                            @OG = HOST_OBJECTS:VOG(%I),@COM_CAUSE_OF_TRANSMISSION = 3)                                        
+   
+                                    #BLOCK_END                                                                    
+                                 #BLOCK_END                                                          
+                                                                                    
+                                 #WHEN 6 #EXEC  COM_USDI:C (@LN = HOST_OBJECTS:VLN(%I),@IX = HOST_OBJECTS:VIX(%I),-
+                                                            @OS = HOST_OBJECTS:VOS(%I),@RT = HOST_OBJECTS:VRT(%I),-
+                                                            @RM = HOST_OBJECTS:VRM(%I),@DI = HOST_OBJECTS:VOV(%I),-
+                                                            @AL = HOST_OBJECTS:VAL(%I),@BL = HOST_OBJECTS:VBL(%I),-
+                                                            @SB = HOST_OBJECTS:VSB(%I),@CT = HOST_OBJECTS:VCT(%I),-
+                                                            @RZ = HOST_OBJECTS:VRZ(%I),@OG = HOST_OBJECTS:VOG(%I),-
+                                                            @QL = HOST_OBJECTS:VQL(%I),@COM_CAUSE_OF_TRANSMISSION = 3)
+                                 #WHEN 9 #EXEC COM_USAI:C (@LN = HOST_OBJECTS:VLN(%I),@IX = HOST_OBJECTS:VIX(%I),-
+                                                         @OS = HOST_OBJECTS:VOS(%I),@RT = HOST_OBJECTS:VRT(%I),-
+                                                         @RM = HOST_OBJECTS:VRM(%I),@AI = HOST_OBJECTS:VOV(%I),-
+                                                         @AL = HOST_OBJECTS:VAL(%I),@BL = HOST_OBJECTS:VBL(%I),-
+                                                         @SB = HOST_OBJECTS:VSB(%I),@OR = HOST_OBJECTS:VOR(%I),-
+                                                         @OG = HOST_OBJECTS:VOG(%I),@RZ = HOST_OBJECTS:VRZ(%I),- 
+                                                         @QL = HOST_OBJECTS:VQL(%I),@COM_CAUSE_OF_TRANSMISSION = 3)
+                                          
+   
+                                 #WHEN 11 #EXEC COM_USAO:C (@LN = HOST_OBJECTS:VLN(%I),@IX = HOST_OBJECTS:VIX(%I),-
+                                                            @OS = HOST_OBJECTS:VOS(%I),@RT = HOST_OBJECTS:VRT(%I),-
+                                                            @RM = HOST_OBJECTS:VRM(%I),@AO = HOST_OBJECTS:VOV(%I),-
+                                                            @BL = HOST_OBJECTS:VBL(%I),@SB = HOST_OBJECTS:VSB(%I),-
+                                                            @OR = HOST_OBJECTS:VOR(%I),@OG = HOST_OBJECTS:VOG(%I),-
+                                                            @RZ = HOST_OBJECTS:VRZ(%I),@CT = HOST_OBJECTS:VCT(%I),-
+                                                            @COM_CAUSE_OF_TRANSMISSION = 3)                                                                
+                                 #WHEN 12 #EXEC COM_USDB:C (@LN = HOST_OBJECTS:VLN(%I),@IX = HOST_OBJECTS:VIX(%I),-
+                                                         @OS = HOST_OBJECTS:VOS(%I),@RT = HOST_OBJECTS:VRT(%I),-
+                                                         @RM = HOST_OBJECTS:VRM(%I),@DB = HOST_OBJECTS:VOV(%I),-
+                                                         @AL = HOST_OBJECTS:VAL(%I),@BL = HOST_OBJECTS:VBL(%I),-
+                                                         @CT = HOST_OBJECTS:VCT(%I),@SB = HOST_OBJECTS:VSB(%I),-
+                                                         @OG = HOST_OBJECTS:VOG(%I),@RZ = HOST_OBJECTS:VRZ(%I),-
+                                                         @QL = HOST_OBJECTS:VQL(%I),@COM_CAUSE_OF_TRANSMISSION = 3)
+            
+                                 #WHEN 13 #EXEC COM_USPC:C (@LN = HOST_OBJECTS:VLN(%I),@IX = HOST_OBJECTS:VIX(%I),-
+                                                            @OS = HOST_OBJECTS:VOS(%I),@RT = HOST_OBJECTS:VRT(%I),-
+                                                            @RM = HOST_OBJECTS:VRM(%I),@PC = HOST_OBJECTS:VOV(%I),-
+                                                            @BL = HOST_OBJECTS:VBL(%I),@SB = HOST_OBJECTS:VSB(%I),-
+                                                            @OG = HOST_OBJECTS:VOG(%I),@RZ = HOST_OBJECTS:VRZ(%I),- 
+                                                            @CT = HOST_OBJECTS:VCT(%I),@OF = HOST_OBJECTS:VOF(%I),- 
+                                                            @QL = HOST_OBJECTS:VQL(%I),@COM_CAUSE_OF_TRANSMISSION = 3)
+                                                            
+                                 #WHEN 14 #EXEC COM_USBS:C (@LN = HOST_OBJECTS:VLN(%I),@IX = HOST_OBJECTS:VIX(%I),-
+                                                            @OS = HOST_OBJECTS:VOS(%I),@RT = HOST_OBJECTS:VRT(%I),-
+                                                            @RM = HOST_OBJECTS:VRM(%I),@BS = HOST_OBJECTS:VOV(%I),-
+                                                            @BL = HOST_OBJECTS:VBL(%I),@SB = HOST_OBJECTS:VSB(%I),-
+                                                            @CT = HOST_OBJECTS:VCT(%I),@RZ = HOST_OBJECTS:VRZ(%I),- 
+                                                            @OG = HOST_OBJECTS:VOG(%I),@QL = HOST_OBJECTS:VQL(%I),-
+                                                            @COM_CAUSE_OF_TRANSMISSION = 3)
+                                                            
+                                 #WHEN 16 #EXEC  COM_USOE:C (@LN = HOST_OBJECTS:VLN(%I),@IX = HOST_OBJECTS:VIX(%I),-
+                                                         @OS = HOST_OBJECTS:VOS(%I),@RT = HOST_OBJECTS:VRT(%I),-
+                                                         @RM = HOST_OBJECTS:VRM(%I),@OE = HOST_OBJECTS:VOV(%I),-
+                                                         @AL = HOST_OBJECTS:VAL(%I),@BL = HOST_OBJECTS:VBL(%I),-
+                                                         @SB = HOST_OBJECTS:VSB(%I),@CT = HOST_OBJECTS:VCT(%I),-
+                                                         @OG = HOST_OBJECTS:VOG(%I),@RZ = HOST_OBJECTS:VRZ(%I),- 
+                                                         @COM_CAUSE_OF_TRANSMISSION = 3)
+               
+                              #CASE_END
+                        #BLOCK_END
+                     #LOOP_END
+                  #BLOCK_END
+               #BLOCK_END
+               #CASE STA'BM':BST
+                  #WHEN "REX","IEC","DNP" #SET STA'BM':SGI = 1 ; rex, iec, dnp
+                  #WHEN "SPA" #SET STA'BM':SUP = 1; spa
+                  #WHEN "RTU" #SET STA'BM':SSC = 1; rtu
+                  #WHEN "STA" #BLOCK
+                     @ANSI_OBJECTS = APPLICATION_OBJECT_LIST(0,"IX","A","F","",-
+                                   "PT < 100 AND IU == 1 AND SS > 0 AND UN == %BM AND (PT==3 OR PT==6 OR PT==9 OR PT==12 OR PT==13 OR PT==14) AND RX <> ""%%%%%%%%%%%%%%%%%%%%BN*""",-
+                                   ("LN","IX"),10000)
+                     #IF LENGTH(ANSI_OBJECTS:VLN) > 0 #THEN #BLOCK
+                        #LOOP_WITH I = 1..LENGTH(ANSI_OBJECTS:VLN)
+                           @LN = ANSI_OBJECTS:VLN(%I)
+                           @IX = ANSI_OBJECTS:VIX(%I)
+                           #GET 'LN':P'IX'
+                        #LOOP_END
+                     #BLOCK_END
+                  #BLOCK_END
+               #CASE_END
+                              
+            #BLOCK_END
+         #BLOCK_END
+      #LOOP_END
+   #BLOCK_END
+#BLOCK_END

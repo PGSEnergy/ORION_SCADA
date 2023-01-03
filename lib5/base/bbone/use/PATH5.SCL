@@ -1,0 +1,14 @@
+#local l_Paths, t_Basepath = ARGUMENT(1)
+#local v_attrs, t_attr, t_path, I ; remove after kernel changes
+
+
+#IF ARGUMENT_COUNT == 0 #THEN #BLOCK ; Remove after kernel changes, and cleanup everything else that tries to call this
+	@trsh = CONSOLE_OUTPUT("This block should be removed!!!", "E", "LIB5")
+	#ERROR RAISE 112
+	#RETURN
+#BLOCK_END
+
+l_Paths = LIST(-
+	B5_USE = VECTOR("'t_Basepath'/USE"))
+
+#RETURN l_Paths

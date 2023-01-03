@@ -1,0 +1,40 @@
+;------------------------------------------------------------------------------------
+; Rev. 
+; 0.00     2012.3.30   NN    Initial
+;-----------------------------------------------------------------
+;create object texts. These are keys that are to be found from text database (FD_LANG_TEXTS.SDB)
+#CREATE FPI_SSW:V = LIST(-
+   AI2DB_COMMENT = "Updates DB from AI",-
+   BI22DB_COMMENT = "Updates DB from two BIs - 1",-
+   BI2DB_COMMENT = "Updates DB from a single BI",-
+   CB_AUX_PLUG = "Pump auxiliary plug",-
+   CB_CANCEL_CMD = "Pump cancel command",-
+   CB_CLOSE_EXEC = "Pump close execute command",-
+   CB_CLOSE_ILOCKED = "Pump close interlocked",-
+   CB_CLOSE_IND = "Pump close indication",-
+   CB_CLOSE_SEL = "Pump close select command",-
+   CB_CMD_EVENT = "Pump command event",-
+   CB_EXEC_CMD = "Pump execute command",-
+   CB_EXT_CNTR_BLK = "Pump device control block",-
+   CB_FAULTY_IND = "Pump faulty indication",-
+   CB_ILOCK_CAUSE = "Cause of interlocking",-
+   CB_OBJ_CMD = "Pump command",-
+   CB_OPEN_EXEC = "Pump open execute command",-
+   CB_OPEN_ILOCKED = "Pump open interlocked",-
+   CB_OPEN_IND = "Pump open indication",-
+   CB_OPEN_SEL = "Pump open select command",-
+   CB_POS_IND = "Pump position indication",-
+   CB_SEL_ON_MON = "Pump selected on monitor",-
+   CB_SYN_CMD = "Pump synch. bypass command",-
+   CB_SYN_IND = "Pump Synchrocheck",-
+   INTL_CAUSE = "Calculated interlocking cause",-
+   SETDB_COMMENT = "Updates DB from two BIs - 2",-
+   UPDATE_COMMENT = "Used for updating objects from the process")
+
+@EH_PT3  = "FD_FORM5_3_6"
+@EH_PT5  = "FD_FORM5_5_0"
+@EH_PT12 = "FD_FORM5_12_0"
+
+;execute common DS%% code
+#DO READ_TEXT("F5_INST/FDI_DS.POT",1,10000)
+

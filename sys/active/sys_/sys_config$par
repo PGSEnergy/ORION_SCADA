@@ -1,0 +1,17 @@
+; File:        Sys_config.par
+; Description: Configuration of static base system parameters
+;              Commented lines (with leading ';') show default values
+;---------------------------------------------------------------
+;
+;MEMORY_POOL_SIZE             = 256 ;Global memory pool size (MB)
+;                                   ;Recommended values: 256, 384, 512, 768, 1024(, 1536, 2048, 2560 if 64 bit OS)
+;MAX_PRIVATE_MEMORY_POOL_SIZE = 128 ;Max private memory pool size (MB) for SCIL threads
+;                                   ;(processes picn.exe, picv.exe, repr.exe, opcs.exe)
+;                                   ;Recommended values: 128, 256
+;
+;Obsolete parameters -- still supported but not to be used in new applications:
+;
+;MEMORY_POOL_ADDRESS          = 30000000 ;Memory pool start address
+;ANALOG_SWITCH_STATE_OPEN     = 2   ;The semantics for MicroTOPOLOGY of AI
+;ANALOG_SWITCH_STATE_CLOSED   = 1   ;process objects used for indicating the
+;ANALOG_SWITCH_STATE_MIDDLE   = 0   ;state of a switching device

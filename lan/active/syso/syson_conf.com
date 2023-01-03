@@ -1,0 +1,305 @@
+; SYSON_CONF.COM  DEFINITIONS FOR NET ONLINE CONFIGURATION TOOLS
+
+; DIAGNOSTIC COUNTER DESCRIPTIONS PER PROTOCOL
+
+#CREATE SYSON_DIAC:V
+
+#SET SYSON_DIAC:VPROT_1_TEXTS = - ;             ANSI X3.28 FD
+   ("TRANSMITTED TELEGRAMS",-
+    "FAILED TRANSMISSIONS",-
+    "TIMEOUT ERRORS",-
+    "TRANSMITTED ACKS",-
+    "TRANSMITTED NAKS",-
+    "TRANSMITTED ENQS",-
+    "RECEIVED ACKS",-
+    "RECEIVED NAKS",-
+    "RECEIVED ENQS",-
+    "RECEIVED EOTS",-
+    "RECEIVED TELEGRAMS",-
+    "PARITY ERRORS",-
+    "OVERRUN ERRORS",-
+    "REDUNDANCY ERRORS",-
+    "FRAMING ERRORS",-
+    "BUFFER OVERFLOW ERRORS")
+
+#SET SYSON_DIAC:VPROT_2_TEXTS = SYSON_DIAC:VPROT_1_TEXTS  ; ANSI X3.28 HD
+
+#SET SYSON_DIAC:VPROT_3_TEXTS = SYSON_DIAC:VPROT_1_TEXTS  ; CRAM
+
+#SET SYSON_DIAC:VPROT_4_TEXTS = -		          ; ASCII PRINTER
+   ("TRANSMITTED TELEGRAMS",-
+    "",-
+    "TIMEOUTS",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "")
+
+#SET SYSON_DIAC:VPROT_7_TEXTS = - ;              RP570 MASTER
+   ("TRANSMITTED TELEGRAMS",-
+    "FAILED TRANSMISSIONS",-
+    "TIMEOUT ERRORS",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "APPLICATION FAILURES",-
+    "RECEIVED TELEGRAMS",-
+    "PARITY ERRORS",-
+    "OVERRUN ERRORS",-
+    "REDUNDANCY ERRORS",-
+    "FRAMING ERRORS",-
+    "BUFFER OVERFLOW ERRORS")
+
+#SET SYSON_DIAC:VPROT_8_TEXTS = - ;             ADLP 80
+   ("",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "RECEIVED TELEGRAMS",-
+    "PARITY ERRORS",-
+    "OVERRUN ERRORS",-
+    "REDUNDANCY ERRORS",-
+    "FRAMING ERRORS",-
+    "BUFFER OVERFLOW ERRORS")
+
+#SET SYSON_DIAC:VPROT_9_TEXTS = - ;             P 214
+   ("TRANSMITTED TELEGRAMS",-
+    "FAILED TRANSMISSIONS",-
+    "TIMEOUT ERRORS",-
+    "TRANSMITTED FETCHS",-
+    "TRANSMITTED POLLS",-
+    "TRANSMITTED BROADCASTS",-
+    "",-
+    "",-
+    "RECEIVER TIMEOUTS",-
+    "SYS CONNECTION TIMEOUTS",-
+    "RECEIVED TELEGRAMS",-
+    "PARITY ERRORS",-
+    "OVERRUN ERRORS",-
+    "REDUNDANCY ERRORS",-
+    "FRAMING ERRORS",-
+    "BUFFER OVERFLOW ERRORS")
+
+#SET SYSON_DIAC:VPROT_10_TEXTS = - ;             ADLP 180 SLAVE
+   ("TRANSMITTED TELEGRAMS",-
+    "FAILED TRANSMISSIONS",-
+    "TIMEOUT ERRORS",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "RECEIVED TELEGRAMS",-
+    "PARITY ERRORS",-
+    "OVERRUN ERRORS",-
+    "REDUNDANCY ERRORS",-
+    "FRAMING ERRORS",-
+    "BUFFER OVERFLOW ERRORS")
+
+#SET SYSON_DIAC:VPROT_11_TEXTS = - ;             COMLI
+   ("TRANSMITTED TELEGRAMS",-
+    "FAILED TRANSMISSIONS",-
+    "TIMEOUT ERRORS",-
+    "CL RETRANSMISSION REQUESTS",-
+    "CL FOREIGN TELEGRAMS",-
+    "CL UNIDENTIFIED TELEGRAMS",-
+    "CL RECEIVER TIMEOUTS",-
+    "",-
+    "",-
+    "",-
+    "RECEIVED TELEGRAMS",-
+    "PARITY ERRORS",-
+    "OVERRUN ERRORS",-
+    "REDUNDANCY ERRORS",-
+    "FRAMING ERRORS",-
+    "BUFFER OVERFLOW ERRORS")
+
+#SET SYSON_DIAC:VPROT_12_TEXTS = - ;              LCU 500
+   ("TRANSMITTED TELEGRAMS",-
+    "FAILED TRANSMISSIONS",-
+    "TIMEOUT ERRORS",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "APPLICATION FAILURES",-
+    "RECEIVED TELEGRAMS",-
+    "PARITY ERRORS",-
+    "OVERRUN ERRORS",-
+    "REDUNDANCY ERRORS",-
+    "FRAMING ERRORS",-
+    "BUFFER OVERFLOW ERRORS",-
+    "",-
+    "",-
+    "",-
+    "TRANSMITTED RTMS",-
+    "RTMS RESULTING IN CANCEL",-
+    "TRANSMITTED CANCEL",-
+    "RTM SYNC TIMEOUTS")
+
+#SET SYSON_DIAC:VPROT_13_TEXTS = - ;              ADLP 180 MASTER
+   ("TRANSMITTED TELEGRAMS",-
+    "FAILED TRANSMISSIONS",-
+    "TIMEOUT ERRORS",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "APPLICATION FAILURES",-
+    "RECEIVED TELEGRAMS",-
+    "PARITY ERRORS",-
+    "OVERRUN ERRORS",-
+    "REDUNDANCY ERRORS",-
+    "FRAMING ERRORS",-
+    "BUFFER OVERFLOW ERRORS")
+
+#SET SYSON_DIAC:VPROT_14_TEXTS = - ;              SPA MASTER
+   ("TRANSMITTED TELEGRAMS",-
+    "FAILED TRANSMISSIONS",-
+    "TIMEOUT ERRORS",-
+    "",-
+    "",-
+    "",-
+    "RECEIVED_EVENT_TLGS",-
+    "RECEIVED_DATA_TLGS",-
+    "",-
+    "",-
+    "RECEIVED TELEGRAMS",-
+    "PARITY ERRORS",-
+    "OVERRUN ERRORS",-
+    "REDUNDANCY ERRORS",-
+    "FRAMING ERRORS",-
+    "")
+
+#SET SYSON_DIAC:VPROT_15_TEXTS = - ;              GEN ASCII 
+   ("TRANSMITTED TELEGRAMS",-
+    "FAILED TRANSMISSIONS",-
+    "TIMEOUT ERRORS",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "RECEIVED TELEGRAMS",-
+    "PARITY ERRORS",-
+    "OVERRUN ERRORS",-
+    "REDUNDANCY ERRORS",-
+    "FRAMING ERRORS",-
+    "BUFFER OVERFLOW ERRORS")
+
+#SET SYSON_DIAC:VPROT_16_TEXTS = - ;              RP570 SLAVE
+   ("TRANSMITTED TELEGRAMS",-
+    "FAILED TRANSMISSIONS",-
+    "TIMEOUT ERRORS",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "RECEIVED TELEGRAMS",-
+    "PARITY ERRORS",-
+    "OVERRUN ERRORS",-
+    "REDUNDANCY ERRORS",-
+    "FRAMING ERRORS",-
+    "BUFFER OVERFLOW ERRORS")
+
+#SET SYSON_DIAC:VPROT_17_TEXTS = - ;              RCOM
+   ("TRANSMITTED TELEGRAMS",-
+    "FAILED TRANSMISSIONS",-
+    "TIMEOUT ERRORS",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "APPLICATION FAILURES",-
+    "RECEIVED TELEGRAMS",-
+    "PARITY ERRORS",-
+    "OVERRUN ERRORS",-
+    "REDUNDANCY ERRORS",-
+    "FRAMING ERRORS",-
+    "BUFFER OVERFLOW ERRORS")
+
+#SET SYSON_DIAC:VPROT_25_TEXTS = - ;              MODBUS
+   ("TRANSMITTED TELEGRAMS",-
+    "FAILED TRANSMISSIONS",-
+    "TRANSITTED TIMEOUTS",-
+    "CHARACTER TIMEOUT",-
+    "SLAVE DEVICE BUSY",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "RECEIVED TELEGRAMS",-
+    "PARITY ERRORS",-
+    "OVERRUN ERRORS",-
+    "CHECK SUM ERRORS",-
+    "FRAMING ERRORS",-
+    "BUFFER OVERFLOW ERRORS")
+
+#SET SYSON_DIAC:VPROT_26_TEXTS = - ;              IEC1107
+   ("TRANSMITTED TELEGRAMS",-
+    "FAILED TRANSMISSIONS",-
+    "",-
+    "",-
+    "",-
+    "MESSAGE BUFFER OVERFLOWS",-
+    "",-
+    "",-
+    "MESSAGE TIMEOUTS",-
+    "",-
+    "RECEIVED MESSAGES",-
+    "PARITY ERRORS",-
+    "OVERRUN ERRORS",-
+    "BCC ERRORS",-
+    "FRAMING ERRORS",-
+    "SCC BUFFER OVERFLOW ERRORS")
+
+#SET SYSON_DIAC:VPROT_27_TEXTS = - ;              LON
+   ("TRANSMITTED MESSAGES",-
+    "FAILED TRANSMISSIONS",-
+    "TRANSMIT TIMEOUTS",-
+    "",-
+    "",-
+    "UNHANDLED MESSAGES",-
+    "",-
+    "",-
+    "",-
+    "",-
+    "RECEIVED MESSAGES",-
+    "",-
+    "MESSAGE BUFFER POOL EMPTY",-
+    "",-
+    "ERROR IN MESSAGE FORMAT",-
+    "TRANSP MSG BUFF POOL EMPTY")
+

@@ -1,0 +1,40 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;                                         C  S  S  T  S  S  C  ;
+;                                         O  T  T  I  T  T  O  ;
+;                                         N  A  O  M  A  A  N  ;
+;                                         T  R  P  E  T  T  N  ;
+;                                         R  T     R  E  U  E  ;
+;                                         O           _  S  C  ;
+;                                         L           C  _  T  ;
+;                                                     H  C  I  ;
+;                                                     A  H  O  ;
+;                                                     N  A  N  ;
+;                                                     G  N  _  ;
+;                                                     E  G  L  ;
+;                                                        E  O  ;
+;                                                           S  ;
+;                                                           T  ;       
+;APL_COLD_SHD_NONE_PHS_NONE              IG IG IG IG 01 IG IG  ;
+;APL_COLD_SHD_RECV_PHS_NONE              IG IG IG IG 01 IG 02  ;
+;APL_COLD_SHD_RECV_PHS_TO_WARM_RECEIVE   IG IG IG IG 01 IG 02  ;
+;APL_COLD_SHD_RECV_PHS_WARM_RECEIVE      IG IG IG IG 01 IG IG  ;
+;APL_COLD_SHD_RECV_PHS_TO_HOT_RECEIVE    IG IG IG IG 01 IG 02  ;
+;APL_COLD_SHD_RECV_PHS_HOT_RECEIVE       IG IG IG IG 01 IG 03  ;
+;APL_WARM_SHD_NONE_PHS_NONE              IG IG IG IG 01 IG 03  ;
+;APL_WARM_SHD_RECV_PHS_NONE              IG IG IG IG 01 IG 03  ;
+;APL_WARM_SHD_RECV_PHS_WARM_RECEIVE      IG IG IG IG 01 IG 03  ;
+;APL_WARM_SHD_RECV_PHS_HOT_RECEIVE       IG IG IG IG 01 IG 03  ;
+;APL_HOT__SHD_NONE_PHS_NONE              IG IG IG IG 01 IG IG  ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+@MATRIX="SHADRCV_M"
+@STATE_BEGIN=17
+@EVENT_BEGIN=42
+@MAX_STATE=11
+@MAX_EVENT=7
+@MAX_TRANSITION=3
+
+@TRANSITION(1) = "SHADSTATCH"
+@TRANSITION(2) = "SHADRCLSTR"
+@TRANSITION(3) = "SHADRSTACH"
+

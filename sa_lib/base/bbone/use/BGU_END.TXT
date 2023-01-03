@@ -1,0 +1,60 @@
+
+
+;Closes all monitors open to this application for this user
+
+;check, if feature is on
+@aplbsv11 = apl:bsv(11)
+@login_only_once = false
+#error ignore
+@login_only_once = aplbsv11:vb_login_once_per_workstation
+#error stop
+
+#if %login_only_once #then #block 
+  ;get my monitor id
+  #if mon:bsd == "" #then @my_monitor_id = sys:bnn   ;VS-local monitor
+  #else @my_monitor_id = substr(mon:bsd,1,locate(mon:bsd,":")-1) ;VS-remote, X-monitors
+  
+  ;get user on my monitor
+  @monbsv11 = mon:bsv(11)
+  @user_on_my_mon = monbsv11:vb_username
+  
+  ;if user logged in
+  #if %user_on_my_mon <> "" #then #block
+  
+    ;close all other monitors on this workstation open to this application for this user 
+    @aplbmo = apl:bmo
+    @aplbmo(mon:ban) = -1   ;monitor mapping, this monitor not included
+    @physical_monitors_in_use = pick(%aplbmo,select(%aplbmo,">0"))
+    @logical_monitors_in_use = select(%aplbmo,">0")
+  
+    #if length(%logical_monitors_in_use) > 0 #then #block
+      #loop_with i = 1..length(%logical_monitors_in_use)
+        @l_mon_nr = %logical_monitors_in_use(%i)
+        @p_mon_nr = %physical_monitors_in_use(%i)
+        @user_on_other_mon 
+        #error ignore
+        @monbsv11 = mon'p_mon_nr':bsv(11)
+        @user_on_other_mon = monbsv11:vb_username
+        #error stop
+        #if mon'p_mon_nr':bsd == "" #then @mon_workstation_id = sys:bnn
+        #else @mon_workstation_id = substr(mon'p_mon_nr':bsd,1,locate(mon'p_mon_nr':bsd,":")-1)
+        #if %mon_workstation_id == %my_monitor_id and -
+            %user_on_my_mon == %user_on_other_mon #then #block
+               @trash=console_output("BGU_END 2")
+               #exec LIB500_Monitor_Close:e'l_mon_nr'
+            #block_end
+            ;%user_on_my_mon == %user_on_other_mon #then #set apl:bmo'l_mon_nr'=-1
+      #loop_end
+    #block_end
+  #block_end
+#block_end
+#else #block
+   @E_STATE=ERROR_STATE
+   #ERROR IGNORE
+   root.toolmanager_exit
+   #ERROR 'E_STATE'
+   @TRASH=STATUS
+#block_end
+;close this monitor
+!close
+

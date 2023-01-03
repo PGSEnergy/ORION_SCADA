@@ -1,0 +1,17 @@
+#local -
+   v_Objects,-
+   offset,-
+   i_level,-
+   v_OI
+   
+#error stop
+i_level = argument(1)
+v_OI = APL:BOI
+offset = 1
+#loop_with i = 1 .. i_level - 1
+   offset = offset + v_OI.LEVELS(%i).width
+#loop_end
+v_Objects = application_object_list(0, "IX", "A", "F", "", "OI<>""""", vector("OI"), MAX_VECTOR_LENGTH)
+v_Objects.OI = edit(remove_duplicates(substr(v_Objects.OI,offset,v_OI.LEVELS(i_level).width)),"RIGHT_TRIM")
+v_Objects=delete_element(v_Objects.OI, select(edit(v_Objects.OI, "COLLAPSE"), "=="""""))
+#return pick(v_Objects, sort(upper_case(v_Objects)))

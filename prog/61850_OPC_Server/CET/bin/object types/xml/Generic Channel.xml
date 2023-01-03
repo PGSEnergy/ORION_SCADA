@@ -1,0 +1,20 @@
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Mikko Ripatti/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">Channel</Parameter>
+		<Parameter name="Caption">Channel</Parameter>
+		<Parameter name="Description">Channel</Parameter>
+		<Parameter name="Group">Communication</Parameter>
+		<Parameter name="Type">SubNetwork</Parameter>
+		<Parameter name="IconFileName">bus.ico</Parameter>
+		<Parameter name="Tools"></Parameter>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="Visible">false</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="DataStructureObjectType">OPCServer, OPCClient</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+</ObjectType>

@@ -1,0 +1,150 @@
+COMMON PROCESS OBJECT CREATOR
+
+1. Environmental requirements
+
+If the value of the attribute
+TYPE_OF_SIGNAL'number' is not linked, it is
+recommended to install the following components.
+
+SA-LIB
+
+   - Station
+   - Bay
+
+2. Configurable attributes
+
+It is important to configure attributes in the order
+of appearance since setting one attribute may
+enable/disable and/or reset another attribute
+later.
+
+STATION_NAME
+
+A selector type of an editable combo-box to
+select or enter the name of the substation. As a
+default, the maximum length of the text is 9
+characters. The selection list shows up to ten
+latest entries.
+
+The configurable attribute is being read directly
+from the process object database if there is any
+process object linked to the selected alarm
+indicator. Therefore, the configurable attribute
+within a standard function has meaning only when the
+process objects have not been created.
+
+This text will be used as a substation identifier of
+the alarm indicator objects on event list, alarm
+list, printout, database query, etc. It is very
+important that this text is similar to all objects
+within the same substation.
+
+BAY_NAME
+
+A selector type of an editable combo box to
+select or enter the name of the bay (feeder). As a
+default, the maximum length of the text is 14
+characters. The selection list shows up to ten
+latest entries.
+
+The configurable attribute is being read directly
+from the process object database, if there is any
+process object linked to the selected alarm
+indicator. Therefore, the configurable attribute
+within a standard function has meaning only when the
+process objects have not been created.
+
+This text will be used as a bay (feeder) identifier
+of the alarm indicator objects on event list,
+alarm list, printout, database query, etc. It is
+very important that this text is similar to all
+objects within the same bay (feeder).
+
+DEVICE_NAME
+
+A selector type of an editable combo box to
+select or enter the name (identifier) of the alarm
+indicator. As a default, the maximum length of the
+text is 5 characters. The selection list shows up to
+ten latest entries.
+
+The configurable attribute is being read directly
+from the process object database, if there is any
+process object linked to the selected alarm
+indicator. Therefore, the configurable attribute
+within a standard function has meaning only when the
+process objects have not been created.
+
+This text will be used as an identifier of the
+alarm indicator on event list, alarm list,
+printout, database query, etc.
+
+P_OBJECT_LN
+
+The logical name of the database process objects.
+The maximum length of the text is 63 characters.
+Allowed characters are the letters A-Z, all
+digits and the underscore (_).
+
+The logical names of process objects have to be
+unique throughout the entire system, that is,
+different objects cannot have the same logical
+name. Therefore, it is very important to have a
+proper naming convention for the process object
+database.
+
+Certain naming convention is also required to speed
+up the opening time of the main dialogs. With the
+predefined naming convention, it is possible to
+collect all station and bay related database
+objects without searching through the complete
+database. Therefore, it is advisable to use the
+following naming convention:
+
+  - The first three characters identify the substation
+  - The following four characters identify the bay
+  - The last three characters can be freely used to
+    identify the source of the signal i.e. device,
+    unit, etc.
+
+The following list is presented as an example of a
+proper naming convention within one bay. The
+station name is Green Bay and the bay name is HA12
+Downtown:
+
+  - GRB, station
+  - GRBHA12BAY, bay
+  - GRBHA12Q0, circuit breaker Q0
+  - GRBHA12Q1, truck Q1
+  - GRBHA12Q9, earth switch Q9
+  - GRBHA12CT, measurements/current transformer
+  - GRBHA12VT, measurements/voltage
+    transformer
+  - GRBHA12ALA, alarm indicator
+  - GRBHA12AR, auto-reclosing tag
+  - GRBHA12TRP, tripping tag
+  - GRBHA12R1, feeder terminal or protection unit
+    1
+  - GRBHA12R2, feeder terminal or protection unit
+    1
+  - GRBHA12LS1, line segment 1 of busbar
+    coloring
+  - GRBHA12LS2, line segment 2 of busbar
+    coloring
+  - GRBHA12LS3, line segment 3 of busbar
+    coloring
+  - GRBHA12LI, line indicator of busbar
+    coloring
+
+SNMP_DEVICE_TEMPLATE
+A selector type of a combo box to select supervized device.
+The created process database model is described in file
+ \sc\sa_lib\base\bbone\SAI_SNMP.TPL or alternatively
+in \sc\apl\'apl name'\aplmod4\inst\SAI_SNMP.TPL (project specific Changes)
+
+3. Configurations made with the Process Object
+Tool
+
+THE DATABASE OBJECTS WILL NOT BE
+CREATED UNTIL THE PROCESS OBJECT
+TOOL HAS BEEN USED TO CREATE THEM.

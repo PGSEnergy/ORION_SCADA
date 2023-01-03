@@ -1,0 +1,124 @@
+;Function: BPU_DEFINE_SWITCH_STATE:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_define_switch_state.scl
+;Version: 1.0
+;Parameters: 
+;Return data: 
+;Description:  
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_Objects
+
+#local t_LN, v_Inputs = vector, v_Outputs = vector, l_Attributes = list()
+#local l_result = list(-
+   indication_state = 0,-
+	indication2_state = 0,-
+	indication_missing = false,-
+	control_missing = false)
+	
+;****************************************************************************************************
+;redirect command if application specific command procedure is found                               ;*
+#local t_Redirect_Proc = "APLMOD5_BPU_DEFINE_SWITCH_STATE"                                         ;*
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    ;*
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            ;*
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 ;*
+		#if 't_Redirect_Proc':CIU == 1 #then #block                                                  ;*
+			@REDIRECTED = true                                                                        ;*
+			i_ArgCnt = argument_count                                                                 ;*
+			#if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"						      ;*
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" ;*
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"											      ;*
+			#loop_with i_arg_loop = 1 .. i_ArgCnt                                                     ;*
+				t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    ;*
+				#if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        ;*
+			#loop_end                                                                                 ;*
+			#return 't_Redirect_Command' ;;;;;                                                        ;*
+		#block_end                                                                                   ;*
+	#block_end                                                                                      ;*
+	#else #delete REDIRECTED:V                                                                      ;*
+#block_end                                                                                         ;*
+;****************************************************************************************************
+;MAIN START
+   
+t_LN = l_object_info.p_object_ln
+
+#case l_object_info.indication_type
+	#when "DB" #block
+		#if not attribute_exists(l_objects, "indication_db_ix") #then l_result.indication_missing = true
+		#else v_Inputs = vector(l_objects.indication_db_ix)
+		#if l_object_info.switching_device_type == "Q3" #then #block
+			#if not attribute_exists(l_objects, "indication2_db_ix") #then l_result.indication_missing = true
+			#if not l_result.indication_missing #then v_Inputs = (l_objects.indication_db_ix, l_objects.indication2_db_ix)
+		#block_end
+	#block_end
+	#when "BI", "AI" #block
+		#if not attribute_exists(l_objects, "indication_db_ix") #then l_result.indication_missing = true
+		#if not attribute_exists(l_objects, "indication_up1_ix") #then l_result.indication_missing = true
+		#if l_object_info.switching_device_type <> "Q3" #then #block
+			#if not l_result.indication_missing #then v_Inputs = vector(l_objects.indication_up1_ix)
+		#block_end
+		#else #block
+			#if not attribute_exists(l_objects, "indication2_db_ix") #then l_result.indication_missing = true
+			#if not attribute_exists(l_objects, "indication_up2_ix") #then l_result.indication_missing = true	
+			#if not l_result.indication_missing #then v_Inputs = vector(l_objects.indication_up1_ix, l_objects.indication2_up1_ix)
+		#block_end
+	#block_end
+	#when "2BI" #block
+		#if not attribute_exists(l_objects, "indication_db_ix") #then l_result.indication_missing = true
+		#if not attribute_exists(l_objects, "indication_up1_ix") #then l_result.indication_missing = true
+		#if not attribute_exists(l_objects, "indication_up2_ix") #then l_result.indication_missing = true
+		#if l_object_info.switching_device_type <> "Q3" #then #block
+			#if not l_result.indication_missing #then v_Inputs = vector(l_objects.indication_up1_ix, l_objects.indication_up2_ix)
+		#block_end
+		#else #block
+			#if not attribute_exists(l_objects, "indication2_db_ix") #then l_result.indication_missing = true
+			#if not attribute_exists(l_objects, "indication2_up1_ix") #then l_result.indication_missing = true	
+			#if not attribute_exists(l_objects, "indication2_up2_ix") #then l_result.indication_missing = true	
+			#if not l_result.indication_missing #then -
+				v_Inputs = vector(l_objects.indication_up1_ix, l_objects.indication2_up1_ix, l_objects.indication2_up1_ix, l_objects.indication2_up2_ix)
+		#block_end
+	#block_end
+#case_end
+	
+#if l_object_info.motorized #then #block
+
+	#case l_object_info.control_type
+		#when "SEC-4BO" #block
+			#if not attribute_exists(l_objects, "open_cmd_ix") or -
+			not attribute_exists(l_objects, "close_cmd_ix") or -
+			not attribute_exists(l_objects, "execute_cmd_ix") or -
+			not attribute_exists(l_objects, "cancel_cmd_ix") #then l_result.control_missing = true
+			#if not l_result.control_missing #then -
+			v_Outputs = (l_objects.open_cmd_ix, l_objects.close_cmd_ix, l_objects.execute_cmd_ix, l_objects.cancel_cmd_ix)
+		#block_end
+		#when "SEC-2BO","SEC-2DO" #block
+			#if not attribute_exists(l_objects, "open_cmd_ix") or -
+			not attribute_exists(l_objects, "close_cmd_ix") #then l_result.control_missing = true
+			#if not l_result.control_missing #then v_Outputs = (l_objects.open_cmd_ix, l_objects.close_cmd_ix)
+		#block_end
+		#when "SEC-5BO","SEC-5AO" #block
+			#if not attribute_exists(l_objects, "open_cmd_ix") or -
+			not attribute_exists(l_objects, "close_cmd_ix") or -
+			not attribute_exists(l_objects, "execute_open_cmd_ix") or -
+			not attribute_exists(l_objects, "execute_close_cmd_ix") or -
+			not attribute_exists(l_objects, "cancel_cmd_ix") #then l_result.control_missing = true
+			#if not l_result.control_missing #then -
+			v_Outputs = (l_objects.open_cmd_ix, l_objects.close_cmd_ix, l_objects.execute_open_cmd_ix, l_objects.execute_close_cmd_ix, l_objects.cancel_cmd_ix)
+		#block_end
+		#otherwise #block
+			#if not attribute_exists(l_objects, "execute_cmd_ix") #then l_result.control_missing = true
+			#if not l_result.control_missing #then v_Outputs = vector(l_objects.execute_cmd_ix)
+		#block_end
+	#case_end
+	
+#block_end
+
+l_result = do(bpu_get_po_attribute_states:c, v_Inputs, v_Outputs, t_LN, l_result)
+
+#if l_result.i_connection_os < 10 #then #block
+	l_result.indication_state ='t_ln':pov'l_objects.indication_db_ix'
+	#if l_object_info.switching_device_type == "Q3" #then l_result.indication2_state = 't_ln':pov'l_objects.indication2_db_ix'
+#block_end
+
+#return l_result

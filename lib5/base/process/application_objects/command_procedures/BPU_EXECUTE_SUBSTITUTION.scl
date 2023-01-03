@@ -1,0 +1,171 @@
+﻿;argument: VECTOR(LIST(LN="",IX = 'ix', COMMAND = 'action', VALUE = 'value')))
+;if LN = "NAME_NOT_FOUND", the item address was not resolved -> SUCCESS = FALSE
+
+;Actions
+;  LOCAL_ON, 
+;  LOCAL_OFF
+;  REMOTE_ON
+;  REMOTE_OFF
+
+;Value
+; simulated value
+
+;returns vector(list(-
+;            value = 0,- ; Error code, 0 when success is true
+;            status_type = 0,- ; 0 = confirmation, 1 = termination (only 0 supported)
+;            success = TRUE | FALSE)))
+
+#argument v_Command
+#local -
+   i,-
+   j,-
+   t_LN,-
+   i_IX,-
+   v_Command_response = vector(),-
+   t_Command,-
+   s,-
+   v_Update_Objects = vector(),-
+   l_Object_Info,-
+   t_Authorization_Group = "SUBSTITUTION_HANDLING",-
+   l_Add_Cause_Values,-
+   i_Response,-
+   t_Separator = ".",-
+   v_IN,- ;(Subnetwork, Logical device, Logical node, Data object, Data attribute)
+   i_UN,-
+   t_Logical_Device,-
+   t_Logical_Node,-
+   t_Data_Object,-
+   subVal,-
+   t_Attr,-
+   t_Value,-
+   i_Value
+  
+l_Add_Cause_Values = do(BPU_ADD_CAUSE_VALUES:C)
+
+#loop_with i = 1 .. length(v_Command)
+   
+   #if v_Command(i).LN <> "NAME_NOT_FOUND" #then #block
+   
+      t_Command = v_Command(i).COMMAND      
+      t_LN = v_Command(i).LN
+      i_IX = v_Command(i).IX
+      
+      l_Object_Info = do(BPU_CONTROL:C, "GET_OBJECT_INFO", t_LN, i_IX)
+      
+      #if not do(bpu_user_authorized:c, l_object_info, 1, t_Authorization_Group) #then -
+         #return append(v_Command_Response, list(-
+            value = l_Add_Cause_Values.NO_ACCESS_AUTHORITY,-
+            status_type = 0,-
+            success = FALSE))
+      
+      #case t_Command      
+         #when "LOCAL_ON" #block
+         
+            i_Value = v_Command(i).VALUE            
+            #if locate('t_LN':PRX'i_IX', "Q") > 0 and substr('t_LN':PDX'i_IX', 1, 1) <> "E" #then #block
+               #if v_Command(i).VALUE == 1 #then i_Value = 2
+               #else_if v_Command(i).VALUE == 2 #then i_Value = 1
+            #block_end
+
+            #error ignore
+            s = status
+            #set 't_LN':P'i_IX' = list(SU = 1 , OV = i_Value)
+            s = status
+            #if s == 0 #then i_Response = l_Add_Cause_Values.NONE
+            #else i_Response = l_Add_Cause_Values.UNKNOWN
+            
+            v_Command_Response = append(v_Command_Response, list(-
+               value = i_Response,-
+               status_type = 0,- ; 0 = confirmation, 1 = termination (only 0 supported)
+               success = (s == 0)))
+         #block_end     
+         #when "LOCAL_OFF" #block
+            #error ignore
+            s = status
+            #set 't_LN':PSU'i_IX' = 0
+            s = status
+            #if s == 0 #then i_Response = l_Add_Cause_Values.NONE
+            #else i_Response = l_Add_Cause_Values.UNKNOWN
+            
+            v_Command_Response = append(v_Command_Response, list(-
+               value = i_Response,-
+               status_type = 0,- ; 0 = confirmation, 1 = termination (only 0 supported)
+               success = (s == 0)))
+     
+            #if 't_LN':PSS'i_IX' > 1 and 't_LN':PUN'i_IX' > 0 #then -
+               v_Update_Objects(length(v_Update_Objects) + 1) = list(ln = t_LN, ix = i_IX)
+            #exec bpu_update:c (@update_objects = v_Update_Objects)
+            
+         #block_end       
+         #when "REMOTE_ON", "REMOTE_OFF" #block
+            v_IN = separate('t_LN':PIN'i_IX', t_Separator)
+            #if length(v_IN) > 4 #then #block
+               t_Logical_Device = v_IN(3)
+               t_Logical_Node = v_IN(4)
+               t_Data_Object = v_IN(5)
+               t_Attr = "subEna"
+               i_UN = 't_LN':PUN'i_IX'
+               subVal = "subVal"
+               
+               #if locate('t_LN':PRX'i_IX', "MEAM") > 0 #then #block
+                  #if length(v_IN) > 6 #then #block
+                     subVal = v_IN(6) + "$subCVal$mag$f"
+                     t_Attr = v_IN(6) + "$" + t_Attr
+                  #block_end
+                  #else #block
+                     subVal = "subMag$f"
+                  #block_end
+               #block_end
+               
+               #if i_UN <> 0 #then #block
+                  #error ignore
+                  s = status
+                  #if t_Command == "REMOTE_ON" #then #block
+                     t_Value = v_Command(i).VALUE
+                     #SET STA'i_UN':SXT = "SetDataValue&LDInst='t_Logical_Device'&LNName='t_Logical_Node'&DORef='t_Data_Object'&Attr='subVal'&FunConstr=SV&v='t_Value'"
+                     i_Response = STA'i_UN':SXT
+                     #SET STA'i_UN':SXT = "SetDataValue&LDInst='t_Logical_Device'&LNName='t_Logical_Node'&DORef='t_Data_Object'&Attr='t_Attr'&FunConstr=SV&v=True"
+                     i_Response = STA'i_UN':SXT
+                  #block_end
+                  #else #block
+                     #SET STA'i_UN':SXT = "SetDataValue&LDInst='t_Logical_Device'&LNName='t_Logical_Node'&DORef='t_Data_Object'&Attr='t_Attr'&FunConstr=SV&v=False"
+                     i_Response = STA'i_UN':SXT
+                  #block_end
+                  s = status
+
+                  #if s == 0 #then i_Response = l_Add_Cause_Values.NONE
+                  #else i_Response = l_Add_Cause_Values.UNKNOWN               
+                     v_Command_Response = append(v_Command_Response, list(-
+                     value = i_Response,- ; Simulate SubscriptionError "NAME_NOT_FOUND"
+                     status_type = 0,- ; 0 = confirmation, 1 = termination (only 0 supported)
+                     success = (s == 0)))
+               #block_end
+               #else -
+                   v_Command_Response = append(v_Command_Response, list(-
+                     value = l_Add_Cause_Values.NOT_SUPPORTED,- ; Simulate SubscriptionError "NAME_NOT_FOUND"
+                     status_type = 0,- ; 0 = confirmation, 1 = termination (only 0 supported)
+                     success = FALSE))
+            #block_end
+            #else -
+               v_Command_Response = append(v_Command_Response, list(-
+                  value = l_Add_Cause_Values.NOT_SUPPORTED,- ; Simulate SubscriptionError "NAME_NOT_FOUND"
+                  status_type = 0,- ; 0 = confirmation, 1 = termination (only 0 supported)
+                  success = FALSE))
+         #block_end          
+         #otherwise #block
+            #return append(v_Command_Response, list(-
+               value = l_Add_Cause_Values.NOT_SUPPORTED,-
+               status_type = 0,- ; 0 = confirmation, 1 = termination (only 0 supported)
+               success = FALSE))
+         #block_end   
+      #case_end
+   #block_end
+   #else #block
+      v_Command_Response = append(v_Command_Response, list(-
+         value = l_Add_Cause_Values.NOT_SUPPORTED,- ; Simulate SubscriptionError "NAME_NOT_FOUND"
+         status_type = 0,- ; 0 = confirmation, 1 = termination (only 0 supported)
+         success = FALSE))
+   #block_end  
+#loop_end
+
+#return v_Command_Response

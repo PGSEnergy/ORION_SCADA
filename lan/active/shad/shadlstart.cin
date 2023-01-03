@@ -1,0 +1,90 @@
+; SHADOW - LOCAL SHADOWING START REQUEST
+;
+; INPUT PARAMETERS:
+;            %APL    - APPLICATION
+;            %ESS    - EXTERNAL APL:BSS
+
+
+@LOCAPL = TRUNC(SHADLOCAPL:D(%APL))
+#IF (APL'APL':BAS <> "COLD") OR (APL'APL':BSS <> "NONE") #THEN @LOCAPL = -1
+
+#CASE %LOCAPL
+   #WHEN 0   
+   #WHEN 1 #BLOCK   ; APPLICATION READY FOR SHADOWING
+      #SET SHADLOCAPL:D(%APL) = 2
+      #DO SHADRESAPL:C
+      @OLD = TIMEOUT(10000)
+      #ERROR IGNORE
+      @EAS = APL'ETAPL':'EWAPL'BAS
+      #ERROR STOP
+      @STATUS = STATUS
+      @DUMMY = TIMEOUT(%OLD)
+      #IF %STATUS == 0 #THEN #BLOCK
+         #IF %EAS <> "COLD" #THEN @STATUS = 99999
+      #BLOCK_END         ; IF %STATUS == 0
+      #IF %STATUS == 0 #THEN #BLOCK
+         #IF SHADHOT:DOS(%APL) == 0 #THEN #BLOCK
+            @MY_RT = SHADHOT:DRT(%APL)
+         #BLOCK_END         ; IF SHADHOT:DOS(%APL) == 
+         #ELSE #BLOCK
+            @MY_RT = 0
+         #BLOCK_END
+         #SET SHADLOCAPL:D(%APL) = 10
+         #EXEC SHADRSTART:'EWAPL'C (@APL=%ETAPL,@RT=%MY_RT)
+      #BLOCK_END         ; IF %STATUS == 
+      #ELSE #BLOCK
+         #SET SHADLOCAPL:D(%APL) = 1
+         #IF %STATUS <> 99999 #THEN #EXEC SHADFSTART:C (@APL = %APL)
+      #BLOCK_END
+      #BLOCK_END
+   #WHEN 2 #BLOCK    ; APPLICATION TEMPORARILY BUSY
+      #IF DATA_TYPE(%COUNT) == "NONE" #THEN @COUNT = 0
+      @COUNT = %COUNT + 1
+      #IF DATA_TYPE(%ESS) == "NONE" #THEN @ESS=""
+      #IF %COUNT < 60 #THEN #EXEC_AFTER 1 SHADLSTART:C (@APL=%APL,@ESS=%ESS,@COUNT=%COUNT)
+      #BLOCK_END
+   #WHEN 10 #BLOCK  ; APPLICATION WAITING FOR REMOTE START
+      @EXT_SS = ""
+      #ERROR IGNORE
+      @EXT_SS = %ESS
+      #ERROR STOP
+      #IF %EXT_SS <> "" #THEN #BLOCK
+         #CASE %EXT_SS
+            #WHEN "RECEIVE" #BLOCK
+               @STATUS = STATUS
+               #ERROR CONTINUE
+               #SET APL'APL':BSS = "HOT_SEND"
+               #SET APL'APL':BAS = "HOT"
+               #ERROR STOP
+               @STATUS = STATUS
+               #IF %STATUS == 0 #THEN #BLOCK
+                  #EXEC SHADHOT:C
+                  #EXEC SHADMAPNET:C (@APL = %APL)
+                  #EXEC SHADMAPMON:C (@APL = %APL)
+                  #EXEC SHADLOG:C (@APL=%APL,-
+                                   @RT=SYS_TIME,-
+                                   @TEXT="APPLICATION AND SHADOWING STARTED")
+               #BLOCK_END         ; IF STATUS == 0
+               #ELSE #BLOCK
+                  #SET APL'APL':BSS = "NONE"
+                  #EXEC SHADLOG:C (@APL=%APL,-
+                                   @RT=SYS_TIME,-
+                                   @TEXT="APPLICATION AND SHADOWING START FAILED ('STATUS')")
+               #BLOCK_END
+               #BLOCK_END
+            #WHEN "HOT_SEND","WARM_SEND" #BLOCK
+               #DO SHADRCVINI:C
+               #SET APL'APL':BSS = "RECEIVE"
+               #EXEC SHADLOG:C (@APL=%APL,-
+                                @RT=SYS_TIME,-
+                                @TEXT="RECEIVER STARTED")
+               #BLOCK_END
+         #CASE_END ; %EXT_SS
+         #SET SHADLOCAPL:D(%APL) = 1
+      #BLOCK_END         ; IF %EXT_SS <> ""
+      #BLOCK_END
+#CASE_END
+
+
+
+

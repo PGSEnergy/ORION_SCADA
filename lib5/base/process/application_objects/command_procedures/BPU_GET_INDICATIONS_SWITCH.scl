@@ -1,0 +1,92 @@
+;Function: BPU_GET_INDICATIONS_SWITCH:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_get_indications_switch.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute),  search_result, session number of control dialog, name of workstation
+;Return data:
+;Description: Calculates state of main tab and messages related to the object
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info
+
+#local l_result = list(), v_attrs, t_attr, i, l_objects, l_ied_bay_convention = list()
+;**************************************************************************************************
+;redirect command if application specific command procedure is found
+#local t_Redirect_Proc = "APLMOD5_BPU_GET_INDICATIONS_SWITCH"
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block
+   #if data_type(%REDIRECTED)=="NONE" #then #block
+      #if 't_Redirect_Proc':CIU == 1 #then #block
+         @REDIRECTED = true
+         i_ArgCnt = argument_count
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP"
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"
+         #loop_with i_arg_loop = 1 .. i_ArgCnt
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"
+         #loop_end
+         #return 't_Redirect_Command' ;;;;;
+      #block_end
+   #block_end
+   #else #delete REDIRECTED:V
+#block_end
+;**************************************************************************************************
+;MAIN START
+#if argument_count > 1 #then l_objects = argument(2)
+;define value convention for process data
+l_result = list(-
+   position_indication  = list(OV_0 = "INTERMEDIATE", OV_1 = "OPEN", OV_2 = "CLOSED", OV_3 = "FAULTY"),-
+   open_interlocked = list(OV_0 = "OPEN_INTERLOCKED", OV_1 = "RELEASED"),-
+   close_interlocked = list(OV_0 = "CLOSE_INTERLOCKED", OV_1 = "RELEASED"),-
+   ext_blocked_3 = list(OV_0 = "RELEASED", OV_1 = "BLOCKED"),-
+   ext_blocked_9 = list(OV_0 = "RELEASED", OV_1 = "RELEASED", OV_2 = "BLOCKED"),-
+   ar_running = list(OV_2 = "RUNNING"),-
+   ar_running_3 = list(OV_0 = "", OV_1 = "RUNNING"),-
+   ar_running_9 = list(OV_2 = "RUNNING"),-
+   ar_in_use_sw = list(OV_0 = "", OV_1 = "IN_USE"),-
+   ar_in_use_hw = list(OV_0 = "", OV_1 = "IN_USE"),-
+   open_blocked = list(OV_0 = "RELEASED", OV_1 = "OPEN_BLOCKED"),-
+   close_blocked = list(OV_0 = "RELEASED", OV_1 = "CLOSE_BLOCKED"),-
+   synchrocheck = list(OV_0 = "INHIBITS", OV_1 = "RELEASED"),-
+   logical_node_loc = list(OV_0 = "REMOTE", OV_1 = "LOCAL"),-
+   bay_lr_bi = list(OV_0 = "REMOTE", OV_1 = "LOCAL"),-
+   bay_lr_db = list(OV_0 = "DISABLED", OV_1 = "LOCAL", OV_2 = "REMOTE", OV_3 = "RESERVED"),-
+   bay_lr_ai = list(OV_0 = "DISABLED", OV_1 = "LOCAL", OV_2 = "REMOTE", OV_3 = "ERROR", OV_4 = "ERROR", OV_5 = "ALL"),-
+   bay_op_db = list(OV_0 = "NONE", OV_1 = "STATION", OV_2 = "REMOTE", OV_3 = "BOTH"))
+;bay_lr_db = list(OV_0 = "DISABLED", OV_1 = "LOCAL", OV_2 = "REMOTE_SCS", OV_3 = "REMOTE_NCC"),-
+
+;defaults for none IEC61850
+#if l_object_info.station_type <> "IEC61850" #then #block
+   l_result.position_indication = list(OV_0 = "INTERMEDIATE", OV_1 = "CLOSED", OV_2 = "OPEN", OV_3 = "FAULTY")
+   l_result.open_interlocked = list(OV_0 = "RELEASED", OV_1 = "OPEN_INTERLOCKED")
+   l_result.close_interlocked = list(OV_0 = "RELEASED", OV_1 = "CLOSE_INTERLOCKED")
+   l_result.ar_running =  list(OV_0 = "", OV_1 = "RUNNING", OV_2 = "RUNNING", OV_3 = "RUNNING", OV_4 = "RUNNING", OV_5 = "RUNNING")
+   l_result.ar_running_3 =  list(OV_0 = "", OV_1 = "RUNNING")
+   l_result.ar_running_9 =  list(OV_0 = "", OV_1 = "RUNNING", OV_2 = "RUNNING", OV_3 = "RUNNING", OV_4 = "RUNNING", OV_5 = "RUNNING")
+   l_result.bay_lr_bi = list(OV_0 = "LOCAL", OV_1 = "REMOTE")
+#block_end
+
+;switch device objects have bay_lr_polarity configuration for binary input
+#if attribute_exists(l_object_info, "bay_lr_polarity") #then #block
+   #if l_object_info.bay_lr_polarity == "R1" #then l_result.bay_lr_bi = list(OV_0 = "LOCAL", OV_1 = "REMOTE")
+   #else_if l_object_info.bay_lr_polarity == "L1" #then l_result.bay_lr_bi = list(OV_1 = "LOCAL", OV_0 = "REMOTE") 
+#block_end
+
+#if data_type(l_objects) <> "NONE" #then #block
+   l_ied_bay_convention = do(bpu_bay_lr_conventions:c, l_objects)
+   #if length(l_ied_bay_convention) > 0 #then l_result = merge_attributes(l_result, l_ied_bay_convention)
+#block_end
+
+;use value convention from object type, if definition exists
+#if attribute_exists(l_object_info.type_info, "value_convention") #then #block
+   v_Attrs = list_attr(l_object_info.type_info.value_convention)
+   #loop_with i = 1 .. length(v_Attrs)
+      t_Attr = v_Attrs(i)
+      #if attribute_exists(l_result, "'t_Attr'") #then -
+         l_result.'t_Attr' = l_object_info.type_info.value_convention.'t_Attr'
+   #loop_end
+#block_end
+
+#return l_result

@@ -1,0 +1,7 @@
+#if length(path("b5_bbone")) == 0 #then #path b5_bbone +NO_CREATE, /LIB5/BASE/BBONE/USE
+#do "#path form no_create,form," + collect(path("b5_bbone"), ",")
+	  
+;read in global paths used in  for printer queue
+#loop_with i=1..20
+	#if %i<>15 #then #print 'i' form/form5b_ini
+#loop_end

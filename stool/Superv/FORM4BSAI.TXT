@@ -1,0 +1,19 @@
+;OBJECT       : FORM4BSAI.TXT
+;COPYRIGHT    : Hitachi Power Grids
+;DEPARTMENT   : RSD
+;PROJECT      : LIB 500 System Self Supervision
+;AUTHOR       : 
+;CREATED      : 99-06-22
+;
+;DESCRIPTION  : Text file for the analog input format picture (alarm zone/alarm limits)
+;---------------------------------------------------------------------------------------
+
+@FORM4BSAI=TRUE
+
+#CREATE FORM4BSAI:V = LIST(-
+		AI_0_SEL0     = "Normal",-			;Default
+		AI_0_SEL1     = "Not in use",-
+		AI_0_SEL2     = "Alarm",-
+		AI_0_SEL3     = "Warning",-
+		AI_0_SEL4     = "Warning",-
+		AI_0_SEL5     = "Alarm/warning limit changed")

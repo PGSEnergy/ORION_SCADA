@@ -1,0 +1,122 @@
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Mikko Ripatti/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+  <Parameters type="InterfaceDefinition">
+    <Parameter name="ObjectType">IEC61850 ISC</Parameter>
+    <Parameter name="Caption">objectTypeCaption</Parameter>
+    <Parameter name="Description">objectTypeDesc</Parameter>
+    <Parameter name="Group">Data objects</Parameter>
+    <Parameter name="Type">DO</Parameter>
+    <Parameter name="IconFileName">isc.ico</Parameter>
+    <Parameter name="Tools">OnlineDiagnosticsDataObject</Parameter>
+    <Parameter name="DataServers" />
+    <Parameter name="Verbs" />
+    <Parameter name="Visible">False</Parameter>
+    <Parameter name="CanInherit">False</Parameter>
+    <Parameter name="ParentControlConditions">
+      <Structure name="COMMUNICATION">
+        <Condition type="DataStructureObjectType">LN</Condition>
+      </Structure>
+    </Parameter>
+  </Parameters>
+  <Parameters type="SCLExport">
+    <Export name="sclXML">DOISCL</Export>
+	<Export name="sAddr">MappedCommandEvent, CommandPrintBlock, Section</Export>
+  </Parameters>
+  <Properties type="PropertyDefinitions">
+    <Property name="DOISCL" category="[010] Basic">
+      <Value></Value>
+      <DescID>DOSCLDesc</DescID>
+      <CaptionID>DOISCL</CaptionID>
+      <Values type="string" />
+      <DataType>System.String</DataType>
+      <HelpKey />
+      <Access>HHH</Access>
+      <AttributeName>DOISCL</AttributeName>
+    </Property>
+    <Property name="61850-Type" category="[010] Basic">
+      <Value>ISC</Value>
+      <DescID>61850-TypeDesc</DescID>
+      <CaptionID>61850-Type</CaptionID>
+      <Values type="singleChoice">
+        <Enum textID="ACD" value="ACD" />
+        <Enum textID="ACT" value="ACT" />
+        <Enum textID="APC" value="APC" />
+        <Enum textID="ASG" value="ASG" />
+        <Enum textID="BCR" value="BCR" />
+        <Enum textID="BSC" value="BSC" />
+        <Enum textID="CMV" value="CMV" />
+        <Enum textID="CSD" value="CSD" />
+        <Enum textID="CURVE" value="CURVE" />
+        <Enum textID="DEL" value="DEL" />
+        <Enum textID="DPC" value="DPC" />
+        <Enum textID="DPS" value="DPS" />
+        <Enum textID="DPL" value="DPL" />
+        <Enum textID="HDEL" value="HDEL" />
+        <Enum textID="HMV" value="HMV" />
+        <Enum textID="HWYE" value="HWYE" />
+        <Enum textID="INC" value="INC" />
+        <Enum textID="ING" value="ING" />
+        <Enum textID="INS" value="INS" />
+        <Enum textID="ISC" value="ISC" />
+        <Enum textID="LPL" value="LPL" />
+        <Enum textID="MV" value="MV" />
+        <Enum textID="SAV" value="SAV" />
+        <Enum textID="SEC" value="SEC" />
+        <Enum textID="SEQ" value="SEQ" />
+        <Enum textID="SPC" value="SPC" />
+        <Enum textID="SPG" value="SPG" />
+        <Enum textID="SPS" value="SPS" />
+        <Enum textID="WYE" value="WYE" />
+      </Values>
+      <DataType>System.String</DataType>
+      <HelpKey />
+      <Access>RRR</Access>
+      <AttributeName />
+    </Property>
+    <Property name="DOType" category="[010] Basic">
+      <Value></Value>
+      <DescID>DOTypeDesc</DescID>
+      <CaptionID>DOType</CaptionID>
+      <Values type="string" />
+      <DataType>System.String</DataType>
+      <HelpKey />
+      <Access>HHH</Access>
+      <AttributeName>DOType</AttributeName>
+    </Property>
+    <Property name="Section" category="[040] OPC Alarm and Event">
+			<Value>0</Value>
+			<DescID>SectionDesc</DescID>
+			<CaptionID>Section</CaptionID>
+			<Values type="numerical">
+				<Min>0</Min>
+				<Max>16</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="CommandPrintBlock" category="[040] OPC Alarm and Event">
+			<Value>False</Value>
+			<DescID>CommandPrintBlockDesc</DescID>
+			<CaptionID>CommandPrintBlock</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="MappedCommandEvent" category="[040] OPC Alarm and Event">
+			<Value/>
+			<DescID>MappedCommandEventDesc</DescID>
+			<CaptionID>MappedCommandEvent</CaptionID>
+			<Values type="singleChoiceDynamic">
+				<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupDOEvents" secondchildObjectType="CommandEventGroup"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+  </Properties>
+</ObjectType>

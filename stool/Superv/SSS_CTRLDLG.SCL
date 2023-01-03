@@ -1,0 +1,162 @@
+;
+; Helper functions for SSS CtrlDlg ini files.
+;
+#local t_Function = ARGUMENT(1)	; Function to call
+#local PARAM2, PARAM3
+#local l_Station_Types, i_Index
+#local v_Node_Link_Attributes
+#local x_Tmp, s_Err
+#local i_old_Timeout = -1, i_Total_Width = 150
+#local l_geometry, s
+
+#IF SYS:BDM == 1 #THEN #BLOCK
+	#ON ERROR #BLOCK
+		@DBG = CONSOLE_OUTPUT("Error in SSS_CTRLDLG.SCL: " + STATUS_CODE_NAME(STATUS))
+		#ERROR RAISE
+	#BLOCK_END
+#BLOCK_END
+
+#IF ARGUMENT_COUNT > 1 #THEN PARAM2 = ARGUMENT(2)
+
+#CASE t_Function
+	#WHEN "GET_NODE_LINE_NUMBERS" #BLOCK
+  		x_TMP = DO(%Gv_SCT_Mgr__, "GetObjectNumbers", "NODE_LINK", 'PARAM2')
+		#IF ATTRIBUTE_EXISTS(x_TMP, "DATA") #THEN #RETURN x_Tmp.DATA
+		
+		#RETURN VECTOR()
+	#BLOCK_END
+	#WHEN "LIN_DIAG_PRELOAD" #BLOCK
+		.MODIFY ROOT = LIST(t_Action = "", t_Selected_Object = "AAAA1,'NODENUM','PARAM2'")
+		.MODIFY ROOT = LIST(t_SD__ = 0 , t_AC__ = "#", t_Line_Type = "", i_PO = 0)
+		s_Err = ERROR_STATE
+		#ERROR IGNORE
+			i_old_Timeout = TIMEOUT(1000)	
+			.SET Root.t_AC__ = NET'NETNUM':SAC'PARAM2'
+			.SET root.t_SD__ = NET'NETNUM':SSD'PARAM2'
+			.SET ROOT.i_PO = NET'NETNUM':SPO'PARAM2'
+			i_Old_Timeout = TIMEOUT(i_Old_Timeout)
+		#ERROR 's_Err'
+		@b_Line_Diagnostic_Counter_Header_Ready = FALSE
+		v_Node_Link_Attributes = mdl_Attr_Def.Return_Attributes("NET_LINK")
+		v_Node_Link_Attributes = append(v_Node_Link_Attributes, mdl_Attr_Def.Return_Attributes("NET_LINK", "LON"))
+		v_Node_Link_Attributes = append(v_Node_Link_Attributes, mdl_Attr_Def.Return_Attributes("NET_LINK", "SPA"))
+		v_Node_Link_Attributes = append(v_Node_Link_Attributes, mdl_Attr_Def.Return_Attributes("NET_LINK", "ANSI X3.28 XF"))
+		v_Node_Link_Attributes = append(v_Node_Link_Attributes, mdl_Attr_Def.Return_Attributes("NET_LINK", "RP570M/RP571M"))
+		v_Node_Link_Attributes = append(v_Node_Link_Attributes, mdl_Attr_Def.Return_Attributes("NET_LINK", "DNP 3.0S"))
+		v_Node_Link_Attributes = append(v_Node_Link_Attributes, mdl_Attr_Def.Return_Attributes("NET_LINK", "IEC 870-5-101 BS"))
+		@v_AC_Index = VECTOR(1)
+		@Gl_Node_'NODENUM'_Links = LIST ( Node_Link'PARAM2' = VECTOR(ROOT.t_AC__))
+		@Gl_Attribute_Mapping = list(Node_Link_Attributes = REMOVE_DUPLICATES(v_Node_Link_Attributes))
+
+		l_Station_Types = ROOT\mdl_Attr_Def.Return_Attribute_Definition("NET_LINK", "PO")
+		i_Index = FIND_ELEMENT(l_Station_Types.SPECIAL_VALUES, ROOT.i_PO)
+		#IF i_Index <> 0 #THEN #BLOCK
+			 .SET ROOT.t_Line_Type = l_Station_Types.VALUE_DESCRIPTIONS(i_Index)
+			 .SET Root.t_Selected_Object = "AAAA1,'NODENUM','PARAM2'"
+		#BLOCK_END
+  	#BLOCK_END	
+	#WHEN "LIN_DIAG_POSTLOAD" #BLOCK
+		i_Total_Width = 'PARAM2'\hdr_Diagnostic_Counters._Geometry
+		i_Total_Width = i_Total_Width.W
+		.SET 'PARAM2'\hdr_Diagnostic_Counters\hdi_DC_1._WIDTH = ROUND(i_Total_Width / 6)
+		.SET 'PARAM2'\hdr_Diagnostic_Counters\hdi_DC_2._WIDTH = ROUND(i_Total_Width / 6)*3
+		.SET 'PARAM2'\hdr_Diagnostic_Counters\hdi_DC_3._WIDTH = ROUND(i_Total_Width / 6)*2
+	#BLOCK_END
+	#WHEN "LIN_DIAG_ONSELECT" #BLOCK 
+		l_Station_Types = ROOT\mdl_Attr_Def.Return_Attribute_Definition("NET_LINK", "PO")
+		s_Err = ERROR_STATE
+		#ERROR IGNORE
+			i_old_Timeout = TIMEOUT(1000)	
+			.SET ROOT.t_SD__ = "" 
+			.SET ROOT.t_SD__ = NET'NETNUM':SSD'PARAM2'
+			.SET ROOT.t_AC__ = "#"
+			.SET ROOT.t_AC__ = NET'NETNUM':SAC'PARAM2'
+			.SET ROOT.i_PO = NET'NETNUM':SPO'PARAM2'
+			i_old_Timeout = TIMEOUT(i_Old_Timeout)	
+		#ERROR 's_Err'
+		i_Index = FIND_ELEMENT(l_Station_Types.SPECIAL_VALUES, ROOT.i_PO)
+		#IF i_Index <> 0 #THEN #BLOCK
+			.SET ROOT.t_Line_Type = l_Station_Types.VALUE_DESCRIPTIONS(i_Index)
+			.SET Root.t_Selected_Object = "AAAA1,'NODENUM','PARAM2'"
+		#BLOCK_END
+		#ELSE #BLOCK
+			.SET ROOT.t_Line_Type = ""			; These will cause SCIL errors if we end up here for some reason
+			.SET ROOT.t_Selected_Object = ""
+		#BLOCK_END
+	#BLOCK_END
+	#WHEN "DEV_DIAG_PRELOAD" #BLOCK
+		@b_Station_Diagnostic_counter_header_ready = FALSE
+		.MODIFY ROOT = LIST(t_Station_Type = STA'STANUM':BST, t_Action = "", i_Station_Number = %STANUM,-
+			v_Supported_Devices = VECTOR("REX","LMK","SPA","IEC","DNP","SPI","RTU","LCU","PLC","STA","ADE","ATR"))
+	#BLOCK_END
+	#WHEN "DEV_DIAG_POSTLOAD" #BLOCK
+		i_Total_Width = 'PARAM2'\hdr_Diagnostic_Counters._Geometry
+		i_Total_Width = i_Total_Width.W
+		.SET 'PARAM2'\hdr_Diagnostic_Counters\hdi_DC_1._WIDTH = ROUND(i_Total_Width / 6)
+		.SET 'PARAM2'\hdr_Diagnostic_Counters\hdi_DC_2._WIDTH = ROUND(i_Total_Width / 6)*3
+		.SET 'PARAM2'\hdr_Diagnostic_Counters\hdi_DC_3._WIDTH = ROUND(i_Total_Width / 6)*2
+	#BLOCK_END
+	#WHEN "TRANSLATE_IU" #BLOCK
+		i_old_Timeout = TIMEOUT(1000)
+		s_Err = ERROR_STATE
+		#ERROR IGNORE
+			s = STATUS
+			PARAM2 = 'PARAM2'
+			s = STATUS
+		#ERROR 's_Err'
+		i_old_Timeout = TIMEOUT(i_Old_Timeout)
+		#IF s == 0 #THEN #BLOCK
+			#IF PARAM2 == 0 #THEN #RETURN "0 - Not In Use"
+			#ELSE_IF PARAM2 == 1 #THEN #RETURN "1 - In Use"
+		#BLOCK_END
+		#ELSE #RETURN STATUS_CODE_NAME(s) 
+
+		#RETURN "Unknown In Use value"
+	#BLOCK_END
+	#WHEN "GET_STATION_STATUS" #BLOCK
+		i_old_Timeout = TIMEOUT(1000)
+		s_Err = ERROR_STATE
+		#ERROR IGNORE
+			s = STATUS
+			PARAM2 = 'PARAM2'
+			s = STATUS
+		#ERROR 's_Err'
+		i_old_Timeout = TIMEOUT(i_Old_Timeout)
+		#IF s == 0 #THEN #RETURN STATUS_CODE_NAME(PARAM2)
+		#ELSE #RETURN STATUS_CODE_NAME(s) 
+	#BLOCK_END
+	#WHEN "TRANSLATE_PO" #BLOCK
+		i_old_Timeout = TIMEOUT(1000)
+		s_Err = ERROR_STATE
+	   	#ERROR IGNORE
+			s = STATUS
+			PARAM2 = 'PARAM2'
+			s = STATUS
+		#ERROR 's_Err'
+		i_old_Timeout = TIMEOUT(i_old_Timeout)
+
+		#IF s == 0 #THEN #BLOCK
+			l_Station_Types = ROOT\mdl_Attr_Def.Return_Attribute_Definition("NET_LINK", "PO")
+		   	i_Index = FIND_ELEMENT(l_Station_Types.SPECIAL_VALUES, PARAM2)
+			#IF i_Index <> 0 #THEN #RETURN "'PARAM2' - " + l_Station_Types.VALUE_DESCRIPTIONS(i_Index)
+			#ELSE "'PARAM2' - Description not found"
+		#BLOCK_END
+		
+		#RETURN "Error reading PO value"
+	#BLOCK_END
+	#WHEN "CHECK_LINE" #BLOCK
+		#IF ARGUMENT_COUNT < 3 #THEN #ERROR RAISE 16609 	; I guess 16609 (NETC_LINE_NUMBER_OUT_OF_RANGE) is as good as any when the whole number is missing...
+		PARAM2 = ARGUMENT(2)
+		PARAM3 = ARGUMENT(3)
+		s_Err = ERROR_STATE
+		#ERROR IGNORE
+			s = STATUS
+			x_Tmp = NET'PARAM2':SIU'PARAM3' 
+	 		s = STATUS
+		#ERROR 's_Err'
+		#IF s <> 0 #THEN #ERROR RAISE s
+
+		#RETURN 0
+	#BLOCK_END
+	#OTHERWISE #ERROR RAISE STATUS_CODE("SCIL_UNKNOWN_FUNCTION")
+#CASE_END

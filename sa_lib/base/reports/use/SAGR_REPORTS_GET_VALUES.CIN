@@ -1,0 +1,516 @@
+; Function:    SAGR_REPORTS_GET_VALUES:C
+; Version:     3.0.6 (build 21.11.2013)
+; Parameters:  Conf_Name="xxxx",Time_From,Time_To
+; Return data: PAGEx=list(COL1=vector(data),COLy=vector(data),.....
+;                          COL_TOTALS1=list(SumInfoValue1(..6)
+;                          COL_TOTALSy=list(),....
+;                          OS1=vector(OSData),OSy=vector(OSData),....
+;                          TIME=vector(TimeData)
+;                          TIME_INTERVALL=xxxxx [seconds]
+; Description: Report Data provider for Report GUI
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;10.11.2013 3.06     HoDa   In-day periods and summary information values from SCIL
+;16.05.2013 3.05     HoDa   Leap Hour data 
+;--------------------------------------------------------------------------------------------------
+#local i,j,c,p,i_,b_,l_, t_, v_, cot,-
+       v_IX = vector(), v_OV = vector(), i_OS =0, i_IX=0, i_Status = Status,-
+       t_DisplayConfName = %ArgumentList.Conf_Name,-
+       b_TimeColumnOK = FALSE,-
+       b_SP_HistoryExists = false, b_BP_HistoryExists = false,-
+       b_ReadCondition = false,    b_IsInsideHistory = false,-
+       b_IsDataObjectDefined = false, b_IsOPERationDefined = false,-
+       b_OPERationDone = false, b_DataFetchDone = false,-
+       i_FirstYear = 2012, t_ObjectName = "" ,-
+-;var. declarations for leap hour data handling
+		 l_DST_ExecutionHistory = list(), l_SYSBSV11 = SYS:BSV11, v_DST=vector(),-
+       b_LeapInformation = false, i_LeapIndexCount = 0, i_LeapStartIndex = 0,-
+		 i_LeapCount = 0, i_DST_Hour = 0, i_LDO1 = 0, i_LDC2 =0,-
+-;var.declarations for summary info handling
+		 v_SumInfo = vector("","","",""), v_DefaultSumType = ("SUM","MIN","MAX","MEAN","NONE"),-
+		 b_IDP_Used = false, v_IDP = vector(), i_SumValue = 0, i_SumStatus = 10
+
+@OUTPUT=list()
+@v_RemoveOS = vector()                                                          ;*** no OS removal
+;@v_RemoveOS = vector(1,2,3,10)                                                 ;*** 1=invalid, 2 = obsolete, 9=manual entered, 10=not sampled, 11=no Data fetch
+
+#if SAGR_REPORTS_GETDATFILE:ccs == 1 #then -
+      b_ = do(SAGR_REPORTS_GETDATFILE:ccp,t_DisplayConfName)
+#else b_ = do(SAGR_REPORTS_GETDATFILE:c,  t_DisplayConfName)   
+#if not b_ #then #return
+
+#create BMU_BASE:V         = list(-
+   DAYLIGHT_ADD            = FALSE,-
+   DAYLIGHT_REDUCE         = FALSE,-
+   DAYLIGHT_TIME           = "",-
+   DAYS                    = (31,28,31,30,31,30,31,31,30,31,30,31),-
+   END_TIME                = "",-
+   FORECAST_AREA           = "",-
+   LENGTH                  = 0,-
+   MAX_COUNT               = 0,-
+   START_TIME              = "",-
+   TIME_INTERVAL           = 0)
+
+@T1 = %ArgumentList.TIME_FROM
+@T2 = %ArgumentList.TIME_TO
+
+#if data_type(%T1) <> "TIME" OR data_type(%T2) <> "TIME" #then #error raise
+#if data_type(%T1) == "NONE" #then @T1=clock
+
+#if SAGR_REPORTS_CALCDATARANGE:ccs == 1 #then -
+      #do SAGR_REPORTS_CALCDATARANGE:ccp
+#else #do SAGR_REPORTS_CALCDATARANGE:c
+
+@START_TIME = %T1
+@END_TIME   = %T2
+;cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+;Check daylight saving time exist in history fetched from SYS:BSV11
+
+#if LENGTH(l_SYSBSV11) > 0 #then #block
+   l_DST_ExecutionHistory = l_SYSBSV11.B_EXECUTION_HISTORY
+   ;***hour added
+   v_DST = PICK(l_DST_ExecutionHistory.ADD_HOUR -3600,-
+					 select(l_DST_ExecutionHistory.ADD_HOUR - 3600, ">= %START_TIME-60 and <= %END_TIME"))
+   #if LENGTH(v_DST) > 0 #then  #SET BMU_BASE:VDAYLIGHT_ADD = TRUE
+   #else                        #SET BMU_BASE:VDAYLIGHT_ADD = FALSE
+   ;hour reduced -> leap hour
+   v_DST = PICK(l_DST_ExecutionHistory.REDUCE_HOUR,-
+                select(l_DST_ExecutionHistory.REDUCE_HOUR, ">= %START_TIME-60 and <= %END_TIME"))
+;                select(l_DST_ExecutionHistory.REDUCE_HOUR, ">= %START_TIME-60-(3600*%BOD) and <= %END_TIME"))
+
+   #if LENGTH(v_DST) > 0 #then #block
+      #modify BMU_BASE:V = list(DAYLIGHT_REDUCE = TRUE,-
+                                DAYLIGHT_TIME   = pack_time(year(v_DST(1)),month(v_DST(1)), -
+                                                            day(v_DST(1)),hour(v_DST(1)),1,0))
+         
+      b_LeapInformation = %REPORT_TYPE <> "HOUR"
+   #block_end
+   #else #modify BMU_BASE:V = list(DAYLIGHT_REDUCE = FALSE,-
+                                   DAYLIGHT_TIME   = "")
+#block_end
+
+;cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+@t_PageConfName = %l_DisplayConf.COLUMN_CONFIG_DATA_FILE                        ;*** list(PAGE_COUNT=LENGTH(%ITEMS))
+@l_PageConf     = %l_PageObjects.OBJ_'t_PageConfName'
+;cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
+
+@COL_TIME = vector()
+@COL_TIME(1) = %T1
+
+@PAGE_START = 1
+@PAGE_END   = %l_PageConf.PAGE_COUNT   
+#if attribute_exists(%ArgumentList,"PAGE")  #then #block
+   @PAGE_START = %ArgumentList.PAGE
+   @PAGE_END   = %ArgumentList.PAGE
+#block_end
+
+#if b_leapInformation #then #block   
+	;calculate leap count
+	#if %REPORT_TYPE=="YEAR" or %REPORT_TYPE=="MONTH"  or %REPORT_TYPE=="WEEK" #then -
+			i_LeapCount  = 0
+	#else i_LeapCount  = 3600 DIV %TIME_INTERVAL                                 ;### 6 for DAY_10, 4 for DAY_15, 2 for DAY_30 and 1 for DAY_60  
+	
+	;calculate leap index
+	#if (i_LeapCount > 0 ) #then #block        
+		i_DST_Hour = hour(BMU_BASE:VDAYLIGHT_TIME) - hour(%T1)
+
+		#if i_DST_Hour > 0 #then -
+			i_LeapStartIndex = ((i_DST_Hour + 1) * i_leapCount)	                 ;point to first index from leap hour 
+		#else  #block                                                             ;BOD is set to value other than 00:00 
+			j = hour(%T1) - hour(BMU_BASE:VDAYLIGHT_TIME)
+			i_DST_Hour = 24 - j                                                    ;### ???
+			i_LeapStartIndex = (i_DST_Hour +1 )* i_leapCount
+		#block_end
+		@DATA_LENGTH = %DATA_LENGTH + i_LeapCount
+		@MAX_COUNT   = %MAX_COUNT   + i_LeapCount    
+	#block_end
+#block_end 
+
+#loop_with p = %PAGE_START..%PAGE_END
+   @PAGE_DATA=list()
+      
+   #loop_with c = 1 .. %l_PageConf.PAGE'p'.COLUMN_COUNT
+      b_IsDataObjectDefined = FALSE
+      #case data_type(%l_PageConf.PAGE'p'.COLUMN'c'.DATA)
+         #when "TEXT" #block
+            #if %l_PageConf.PAGE'p'.COLUMN'c'.DATA > "" #then b_IsDataObjectDefined = TRUE
+         #block_end
+         #when "VECTOR" #block
+            #if length(%l_PageConf.PAGE'p'.COLUMN'c'.DATA) > 0 #then #block
+               b_IsDataObjectDefined = TRUE
+               #loop_with i = 1 .. length(%l_PageConf.PAGE'p'.COLUMN'c'.DATA)
+                  #if %l_PageConf.PAGE'p'.COLUMN'c'.DATA(i) == "" #then #block
+                     b_IsDataObjectDefined = FALSE
+                     @reportName = %l_DisplayConf.PICTURE_HEADER
+                     cot = console_output("SAGR_REPORTS:C error: Empty calculation object. Report ""'reportName'"", column 'c'","E","MREP")
+                  #block_end
+               #loop_end
+            #block_end
+         #block_end
+      #case_end              
+      b_IsOperationDefined = FALSE
+
+      #case data_type(%l_PageConf.PAGE'p'.COLUMN'c'.OPERATION)
+         #when "TEXT" #block
+            #if %l_PageConf.PAGE'p'.COLUMN'c'.OPERATION > "" #then        b_IsOperationDefined = TRUE
+         #block_end
+         #when "VECTOR" #block
+            #if length(%l_PageConf.PAGE'p'.COLUMN'c'.OPERATION) > 0 #then b_IsOperationDefined = TRUE
+         #block_end
+      #case_end              
+
+      #if b_IsDataObjectDefined OR b_IsOperationDefined #then #block            ;### either Object Name or OPERation defined, if not at all->empty column
+        ;initialize variables
+         @COL'c' = vector()
+         ;define object value
+         b_OPERationDone = FALSE                                                ;operation done
+         t_ObjectName = upper_case(%l_PageConf.PAGE'p'.COLUMN'c'.DATA)
+         #if data_type(t_ObjectName) == "VECTOR" #then t_ObjectName = upper_case(%l_PageConf.PAGE'p'.COLUMN'c'.DATA(1))
+         
+         #if b_IsDataObjectDefined #then #block
+            @l_ReportObject    = %l_ReportObjects.OBJ_'t_ObjectName'
+            b_SP_HistoryExists = %l_ReportObject.SP_HL > 0 and (%l_ReportObject.ID <> "MP") and -
+                                (%l_ReportObject.id <>"CP")
+            b_BP_HistoryExists = %l_ReportObject.BP_HL > 0 and (%l_ReportObject.ID <> "CS")
+         #block_end
+         #else #block
+            b_SP_HistoryExists = false
+            b_BP_HistoryExists = false
+         #block_end                                                             ;### b_IsDataObjectDefined
+
+         #loop_with i = 1 .. min(%DATA_LENGTH,%MAX_COUNT)
+            #if %REPORT_TYPE=="YEAR" #then #block
+               @T1 = pack_time(year(%T1), i, 1, 0, 1, 0) + %BOD*3600                                          
+               @T2 = pack_time(year(%T1), i, %BMU_BASE.DAYS(i), 23, 59, 59) - 40 + %BOD*3600
+            #block_end
+            #else #block
+               @T1 = %START_TIME + (i - 1) * %TIME_INTERVAL
+               @T2 = %T1 + %TIME_INTERVAL - 1
+                #if (i > i_LeapStartIndex  AND i_LeapCount > 0 )  #then #block  ;### - 1 hour if leap hour detected and we're in that leap hour data range
+                       @T1 = %T1 - 3600
+                       @T2 = %T2 - 3600
+                #block_End
+            #block_end
+            #if %T2 > clock #then @T2 = clock
+
+            #if NOT b_TimeColumnOK #then @COL_TIME(i..i) = %T1
+
+            #if %REPORT_TYPE == "HOUR" #then #block
+               @T1 = %T1 + 30
+               @T2 = %T2 - 30
+               #if b_SP_HistoryExists #then -                                                                             
+                  #if BMU_SP_IND:CCS == 1 #then #do BMU_SP_IND:CCP
+                  #else #do BMU_SP_IND:C
+            #block_end
+            #else #block
+               #if b_BP_HistoryExists #then -                                                                           
+                  #if BMU_BP_IND:CCS == 1 #then #do BMU_BP_IND:CCP
+                  #else #do BMU_BP_IND:C
+            #block_end
+				;### validate requested time range
+            #if %REPORT_TYPE=="HOUR" #then #block
+               #if b_SP_HistoryExists #then #block                                                                       
+                  b_IsInsideHistory = (%T1 > clock - %l_ReportObject.SP_HL * 24 * 3600)                                           
+                  b_ReadCondition = (((%START_TIME + (i - 1) * %TIME_INTERVAL) MOD %l_ReportObject.SP)==0) and b_IsInsideHistory and -   
+                                     ((%START_TIME + (i - 1) * %TIME_INTERVAL) + %l_ReportObject.SP < clock)
+               #block_end
+               #else_if b_IsOperationDefined #then b_ReadCondition = true
+               #else b_ReadCondition = false
+            #block_end
+            #else #block
+               #if b_BP_HistoryExists #then #block                                                                      
+                  ;Year of (this year's January 1st minus base period history length times 365 days) is starting year of history
+                  i_FirstYear       = year(pack_time(year(clock),1,1,0,0,0) - %l_ReportObject.BP_HL * 365 * 86400)                        
+                  b_IsInsideHistory = (%T1 > pack_time(i_FirstYear, month(%T1), day(%T1), hour(%T1), minute(%T1), second(%T1))) and -
+                                      (%T2 < clock)
+                  b_ReadCondition=(((%START_TIME + (i - 1) * %TIME_INTERVAL) MOD %l_ReportObject.BP)==0) and b_IsInsideHistory and -
+                                   ((%START_TIME + (i - 1) * %TIME_INTERVAL) + %l_ReportObject.BP < clock)
+               #block_end
+               #else_if b_IsOperationDefined #then b_ReadCondition = true
+               #else b_ReadCondition = false
+            #block_end
+
+            #if b_ReadCondition #then #block												  ;### requested time range is valid 
+               @RESULT
+               #if b_IsDataObjectDefined #then #block
+                  #case data_type(%l_PageConf.PAGE'p'.COLUMN'c'.DATA)
+                     #when "TEXT" #block
+                        #if %l_PageConf.PAGE'p'.COLUMN'c'.DATA > "" #then #block
+                           @DATA_ID = %l_PageConf.PAGE'p'.COLUMN'c'.DATA
+                           #if %REPORT_TYPE == "HOUR" #then #block
+                              #if BMU_SP_READ:CCS == 1 #then #do BMU_SP_READ:CCP
+                              #else #do BMU_SP_READ:C
+									#block_end	
+                           #else #block                                         ;*** fetch values from datalog                         
+										#if(i > i_LeapStartIndex - i_LeapCount  AND i <= i_LeapStartIndex)  #then #block
+											#if i == (i_LeapStartIndex - i_LeapCount)+1 #then -
+											       i_LDO1 = 0
+											#else  i_LDO1 = i_LDO1 + (%TIME_INTERVAL div %l_ReportObject.BP)
+											i_LDC2 = (%TIME_INTERVAL div %l_ReportObject.BP)
+											
+											#if %l_ReportObject.BP <= %TIME_INTERVAL #then #block
+												#case %l_ReportObject.BP
+													#when 600  @DATA = data_fetch(0, "'t_ObjectName''YE1'", 52795 + i_LDO1, 1, i_LDC2)  ;*** 10 minute base period 6 values to copy
+													#when 900  @DATA = data_fetch(0, "'t_ObjectName''YE1'", 35147 + i_LDO1, 1, i_LDC2)  ;*** 15 minute base period 4 values to copy
+													#when 1800 @DATA = data_fetch(0, "'t_ObjectName''YE1'", 17599 + i_LDO1, 1, i_LDC2)  ;*** 30 minutes base period 2 values to copy
+													#when 3600 @DATA = data_fetch(0, "'t_ObjectName''YE1'",  8800 + i_LDO1, 1, i_LDC2)  ;*** 1 hour base period 1 value to copy
+												#case_end
+											#block_end 
+										#block_end
+										#else -                                           ;### normal base period data read
+										   #if BMU_BP_READ:CCS == 1 #then #do BMU_BP_READ:CCP
+											#else #do BMU_BP_READ:C
+									#block_end
+									i_Status = status
+                           @OBJ = DATA:VOV
+                           @RESULT = DATA:VOV
+                           i_Status = status
+                           b_DataFetchDone = TRUE      									
+									#if b_LeapInformation and i_LeapCount == 0 #then #block ;### WEEK, MONTH and YEAR report
+										v_DST = PICK(l_DST_ExecutionHistory.REDUCE_HOUR, select(l_DST_ExecutionHistory.REDUCE_HOUR, ">= %T1-60 and <= %T2"))
+										#if length(v_DST) > 0 #then #block
+											#case %l_ReportObject.BP
+												#when 600  @DATA = data_fetch(0, "'t_ObjectName''YE1'", 52795 , 1, 6)  ;*** 10 minute base period 6 values to copy
+												#when 900  @DATA = data_fetch(0, "'t_ObjectName''YE1'", 35147 , 1, 4)  ;*** 15 minute base period 4 values to copy
+												#when 1800 @DATA = data_fetch(0, "'t_ObjectName''YE1'", 17599 , 1, 2)  ;*** 30 minutes base period 2 values to copy
+												#when 3600 @DATA = data_fetch(0, "'t_ObjectName''YE1'",  8800 , 1, 1)  ;*** 1 hour base period 1 value to copy
+											#case_end
+											@OBJ    = append(%OBJ,    DATA:VOV)
+											@RESULT = append(%RESULT, DATA:VOV)
+										#block_end
+									#block_end
+                        #block_end
+                        #else b_DataFetchDone = FALSE                               
+                     #block_end
+                     #when "VECTOR" #block
+                        #loop_with j = 1..LENGTH(%l_PageConf.PAGE'p'.COLUMN'c'.DATA)
+                           @DATA_ID 			= %l_PageConf.PAGE'p'.COLUMN'c'.DATA(j)
+									@l_ReportObject   = %l_ReportObjects.OBJ_'DATA_ID'
+                           #if edit(%DATA_ID,"TRIM") == "" #then #loop_exit
+                           #if %REPORT_TYPE == "HOUR" #then -
+                              #if BMU_SP_READ:CCS == 1 #then #do BMU_SP_READ:CCP
+                              #else #do BMU_SP_READ:C
+                           #else #block                                              ;*** fetch values from datalog
+										#if(i > i_LeapStartIndex - i_LeapCount  AND i <= i_LeapStartIndex)  #then #block
+											#if i == (i_LeapStartIndex - i_LeapCount)+1 #then -
+											       i_LDO1 = 0
+											#else_if j==1 #then i_LDO1 = i_LDO1 + (%TIME_INTERVAL div %l_ReportObject.BP)
+											i_LDC2 = (%TIME_INTERVAL div %l_ReportObject.BP)
+											
+											#if %l_ReportObject.BP <= %TIME_INTERVAL #then #block
+												#case %l_ReportObject.BP
+													#when 600  @DATA = data_fetch(0, "'DATA_ID''YE1'", 52795 + i_LDO1, 1, i_LDC2)  ;*** 10 minute base period 6 values to copy
+													#when 900  @DATA = data_fetch(0, "'DATA_ID''YE1'", 35147 + i_LDO1, 1, i_LDC2)  ;*** 15 minute base period 4 values to copy
+													#when 1800 @DATA = data_fetch(0, "'DATA_ID''YE1'", 17599 + i_LDO1, 1, i_LDC2)  ;*** 30 minutes base period 2 values to copy
+													#when 3600 @DATA = data_fetch(0, "'DATA_ID''YE1'",  8800 + i_LDO1, 1, i_LDC2)  ;*** 1 hour base period 1 value to copy
+												#case_end
+											#block_end 
+										#block_end
+										#else -                                           ;### normal base period data read							
+											#if BMU_BP_READ:CCS == 1 #then #do BMU_BP_READ:CCP	
+											#else #do BMU_BP_READ:C
+									#block_end
+                           i_Status = status
+                           @OBJ'j' = DATA:VOV
+                           #if j == 1 #then @RESULT = DATA:VOV
+                           #else            @RESULT = %RESULT + DATA:VOV        ;### default calculation is to summarize
+                           i_Status = status
+                        #loop_end
+                        #if edit(%DATA_ID,"TRIM") <> "" #then #block
+                           v_IX = select(get_status(%RESULT), ">1 and <9")      
+                           @RESULT = spread(%RESULT, v_IX,set_status(pick(%RESULT, v_IX),1))
+                           b_DataFetchDone = TRUE                               ;*** data fetched from db
+                        #block_end
+                        #else b_DataFetchDone = FALSE
+                     #block_end
+                  #case_end
+               #block_end
+               #else b_DataFetchDone = FALSE
+
+             ;do pre-defined operation from column setup in Page config., if any...
+               #case data_type(%l_PageConf.PAGE'p'.COLUMN'c'.OPERATION)
+                  #when "TEXT" #block
+                     #if %l_PageConf.PAGE'p'.COLUMN'c'.OPERATION > "" #then #block
+                        @CALC = %l_PageConf.PAGE'p'.COLUMN'c'.OPERATION
+                        i_Status = status
+                        @RESULT = 'CALC'
+                        i_Status = status
+                        b_OPERationDone = TRUE                   
+                     #block_end
+                     #else b_OPERationDone = FALSE               
+                  #block_end
+                  #when "VECTOR" #block
+                     i_Status = status
+                     @RESULT = do(%l_PageConf.PAGE'p'.COLUMN'c'.OPERATION)
+                     i_Status = status
+                     b_OPERationDone = TRUE                      
+                  #block_end  
+               #case_end
+
+             ;define period sums, if sums not yet calculated...
+               #if b_DataFetchDone #then #block
+                  #if %l_ReportObject.BP == %TIME_INTERVAL OR data_type(%RESULT) <> "VECTOR" #then -
+                     #if i_Status == 0 #then @COL'c'(i..i) = %RESULT*1.0
+                     #else @COL'c'(i..i) = set_status(vector(0),i_Status)
+                  #else #block
+                     v_IX = select(get_status(%result),"==9")
+                     #if length(v_IX) > 0 #then @result = SPREAD(%result,v_IX, set_status(PICK(%result,v_IX),0))
+
+                     #if i_Status == 0 #then #block
+								#if not b_OPERationDone #then #block
+									#case %l_ReportObject.id
+										#when "MS" @COL'c'(i..i) = SUM(%RESULT)         
+										#when "MM" @COL'c'(i..i) = MEAN(%RESULT)         
+										#when "MN" @COL'c'(i..i) = LOW(%RESULT)         
+										#when "MX" @COL'c'(i..i) = HIGH(%RESULT)         
+										#otherwise @COL'c'(i..i) = SUM(%RESULT)
+									#case_end
+								#block_end
+								#else #block
+									@COL'c'(i..i) = %RESULT
+								#block_end
+                     #block_end   
+                     #else @COL'c'(i..i) = set_status(vector(0), i_Status)
+                     #if length(v_IX) > 0 #then @COL'c'(i..i) = set_status(%COL'c'(i..i),9)  ;restore OS=9 indicating manual tagging status
+                  #block_end
+               #block_end
+               #else #block                                                     ;no Data fetched, for oper.col or DATA definition error
+                  #case data_type(%RESULT)
+                     #when "TEXT","NONE" #block
+                        #if i_Status == 0 #then @COL'c'(i..i) = set_status(vector(0),10)
+                        #else @COL'c'(i..i) = set_status(vector(0), i_Status)
+                     #block_end
+                     #when "VECTOR" #block
+                        #if i_Status == 0 #then @COL'c' = %RESULT*1.0
+                        #else @COL'c'(1..(%Max_Count)) = set_status(vector(0),i_Status)
+                     #block_end
+                     #otherwise #block
+                        #if i_Status == 0 #then @COL'c'(i..i) = %RESULT*1.0
+                        #else @COL'c'(i..i) = set_status(vector(0),i_Status)
+                     #block_end
+                  #case_end
+               #block_end                                                       ;### b_DataFetchDone
+
+               ;Hide manual tags if manual tagging is disabled for the column:
+               #if NOT %l_PageConf.PAGE'p'.COLUMN'c'.ALLOW_MANUAL_TAGGING #then #block
+                  v_IX    = select(get_status(%COL'c'),"==9")
+                  @COL'c' = spread(%COL'c', v_IX,set_status(pick(%COL'c', v_IX),0))
+               #block_end
+            #block_end
+            #else #block
+               @COL'c'(i..i) = set_status(vector(0),11)                         ;*** READ condition fails -> Shows as empty in report
+            #block_end
+         #loop_end                                                              ;### cell data 1 .. min(%DATA_LENGTH,%MAX_COUNT)
+
+         #if min(%DATA_LENGTH,%MAX_COUNT) < 1 #then #block
+            @COL_TIME(1..1) = %T1
+            @COL'c'(1..1)   = set_status(vector(0), 10)
+         #block_end
+         
+         b_TimeColumnOK = TRUE
+         ;define proper status for calculated values
+         #if b_OPERationDone #then #block
+            v_IX = select(get_status(%COL'c'), ">1 and <9")
+            @COL'c' = spread(%COL'c', v_IX, set_status(pick(%COL'c', v_IX),1))
+         #block_end
+
+         #if data_type(l_DisplayConf:VREPORT_SCALE) <> "NONE" #then #block
+            #if l_DisplayConf:VREPORT_SCALE <> 1 #then #block
+               #loop_with j = 1 .. length(%COL'c')
+                  #if get_status(%COL'c'(j)) <> 10 #then -
+                     @COL'c'(j) = %COL'c'(j) * l_DisplayConf:VREPORT_SCALE
+               #loop_end
+            #block_end
+         #block_end
+         
+         #if length(%v_RemoveOS) > 0 #then #block
+            #loop_with i = 1..length(%v_RemoveOS)
+               i_OS = %v_RemoveOS(i)
+               v_IX = select(get_status(%COL'c'),"=='i_OS'")
+               @COL'c' = spread(%COL'c', v_IX, set_status(pick(%COL'c',v_IX),0))
+
+            #loop_end
+         #block_end
+      
+         #modify PAGE_DATA:V = list(COL'c' = %COL'c', OS'c' = get_status(%COL'c'))   
+
+			#loop_with i = 1 .. 6
+				#if attribute_exists(%l_DisplayConf, "SUMMARY_INFO_'i'") #then -
+						v_SumInfo(i) = %l_DisplayConf.SUMMARY_INFO_'i'
+				#else v_SumInfo(i) = "NONE"
+				#if substr(%REPORT_TYPE, 1, 3) == "DAY" #then -                   ;*** In-Day periods only allowed for DAY reports
+					b_IDP_Used = b_IDP_used or find_element(v_DefaultSumType, v_SumInfo(i), 1, "CASE_INSENSITIVE") == 0
+			#loop_end
+			#if b_IDP_Used #then #block
+				#if application_object_exists(0, "C", "BGU_CALEN") #then -
+					#if BGU_CALEN:CCS == 1 #then -
+							v_IDP = DO(BGU_CALEN:CCP,2, %START_TIME, %END_TIME - ((%END_TIME - %START_TIME) mod %TIME_INTERVAL), %TIME_INTERVAL, v_SumInfo) ;return In-Dayperiod status vector
+					#else v_IDP = DO(BGU_CALEN:C,2,   %START_TIME, %END_TIME - ((%END_TIME - %START_TIME) mod %TIME_INTERVAL), %TIME_INTERVAL, v_SumInfo) ;return In-Dayperiod status vector
+				#else b_IDP_Used = false
+			#block_end	
+
+			#modify PAGE_DATA:V = list(COL_TOTALS'c' = list())
+
+			v_IX = select(get_status(%COL'c'),"==9")                               ;*** replace OS=9 with OS=0, only values with OS = 0 will be used for summary calculation
+			@COL'c' = spread(%COL'c', v_IX, set_status(pick(%COL'c',v_IX),0))
+			v_IX = select(get_status(%COL'c'),"==1")                               ;*** replace OS=1 with OS=0, only values with OS = 0 will be used for summary calculation
+			@COL'c' = spread(%COL'c', v_IX, set_status(pick(%COL'c',v_IX),0))
+
+			#loop_with i = 1 .. length(v_SumInfo)
+				t_ = v_SumInfo(i)
+				#if find_element(v_DefaultSumType, v_SumInfo(i), 1, "CASE_INSENSITIVE") == 0 #then #block
+					i_IX = 2 ** (i-1)                                                ;*** In-Day period
+					v_IX = select(v_IDP,"=='i_IX'")
+					v_OV = pick(%COL'c', v_IX)												     ;*** pick data for selected In-Day period
+				#block_end
+				#else v_OV = %COL'c'
+				
+				v_IX = select(get_status(v_OV),">0")
+				#if length(v_IX) == length(v_OV) #then #block                       ;*** no valid data exists for summary calculation
+					i_SumStatus = 10
+					v_OV(1) = 0
+				#block_end
+				#else #block
+					i_SumStatus = 0                                                  
+					v_IX = select(get_status(v_OV),"==0")						  	     	  ;*** pick all valid data
+					v_OV = pick(v_OV, v_IX)
+					
+					#case v_SumInfo(i)
+						#when "MIN"  v_OV = low(v_OV)
+						#when "MAX"  v_OV = high(v_OV)
+						#when "MEAN" v_OV = mean(v_OV)
+						#when "SUM"  v_OV = sum(v_OV)
+						#when "NONE" #block
+							i_SumStatus = 11
+							i_SumValue  = 0
+						#block_end
+						#otherwise #block
+							#if b_IDP_Used #then #block
+								#case %l_ReportObject.id
+									#when "MS" v_OV = SUM(v_OV)         
+									#when "MM" v_OV = MEAN(v_OV)         
+									#when "MN" v_OV = Low(v_OV)
+									#when "MX" v_OV = HIGH(v_OV)         
+									#otherwise v_OV = SUM(v_OV)
+								#case_end
+							#block_end
+						#block_end
+					#case_end
+				#block_end
+				i_SumValue = v_OV(1)
+
+				#modify PAGE_DATA:V = list(-
+					COL_TOTALS'c' = merge_attributes(%PAGE_DATA.COL_TOTALS'c',-
+																list(SumInfoValue'i'         = i_SumValue,-
+																	  SumInfoValue'i'_status  = i_SumStatus)))
+
+
+			#loop_end
+      #block_end
+   #loop_end                                                                    ;### column
+   #modify OUTPUT:V = list(PAGE'p' = %PAGE_DATA)
+#loop_end                                                                       ;### page
+
+
+#modify OUTPUT:V = list(TIME_INTERVAL = %TIME_INTERVAL, TIME = %COL_TIME)

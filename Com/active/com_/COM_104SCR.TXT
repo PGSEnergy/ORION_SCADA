@@ -1,0 +1,73 @@
+﻿; This command procedure is used for configuring line and station into NET 
+; for IEC 870-5-104 slave                           
+;
+; SYS600 10.2.0
+; Compilation status: Not Compiled
+; INPUT:  @NET, number of the NET, integer
+;         @LINE, number of the line that connects the station to NET, integer
+;         @STATIONS, number(s) of the station that is connected to line, integer vector   
+;         @IP_ADDR, IP address(es) of the station that is connected to LAN, text vector   
+;         @APPLIC, application number that receives the system messages, integer
+;------------------------------------------------------------------------------
+
+; Create a line with IEC 870-5-104 slave if it does not exist
+#IF NET'NET':SPO'LINE'==0 #THEN #BLOCK
+  #SET NET'NET':SPO'LINE' = 45            ;IEC 870-5-104 slave
+  #SET NET'NET':SMS'LINE' = %APPLIC       ;message application
+  #SET NET'NET':SMI'LINE' = %LINE+(6000+(%NET*100))  ;message identifier
+  #SET NET'NET':SPS'LINE' = 250            ;buffer pool size
+  #SET NET'NET':STI'LINE' = 15            ;IEC link response timeout (s)
+  #SET NET'NET':SPD'LINE' = 20            ;polling detection (ms)                    
+#BLOCK_END
+
+; Stop and start the net line before configuration
+#ERROR IGNORE
+#SET NET'NET':SIU'LINE' = 1
+#SET NET'NET':SIU'LINE' = 0
+#ERROR STOP
+
+; Requires a basesystem object for station
+#LOOP_WITH I = 1..LENGTH(%STATIONS)
+  @STA=%STATIONS(%I)
+  #IF (STA'STA':BST=="IEC") AND -
+      (STA'STA':BND==%NET) AND -
+      (STA'STA':BTT=="EXTERNAL") #THEN #BLOCK
+    #ERROR IGNORE
+    #SET STA'STA':SIU = 0
+    @STA_NR = STA'STA':BTN
+    #SET NET'NET':SDV29 = (%STA_NR,"D")
+    #ERROR STOP
+  #BLOCK_END
+#LOOP_END
+
+#LOOP_WITH I = 1..LENGTH(%STATIONS)
+  @STA=%STATIONS(%I)
+  @IPADDR=%IP_ADDR(%I)
+  @STA_NR = STA'STA':BTN
+  #SET NET'NET':SDV(29) = (%STA_NR,%LINE)      ;create station to line
+  #SET STA'STA':SIU           = 0              ;set station out of use
+  #SET STA'STA':SCT           = 60             ;activation termination waiting time  
+  #SET STA'STA':SAL           = 1              ;allocated
+  #SET STA'STA':SMI           = 1000+%STA      ;message identification
+  #SET STA'STA':SRT           = 10             ;application reply timeout 
+  #SET STA'STA':SMS           = %APPLIC        ;message application
+  #SET STA'STA':SSA           = %STA_NR        ;station address
+  #SET STA'STA':SSL           = 2              ;station address length (bytes)
+  #SET STA'STA':SIL           = 3              ;information address length (bytes) 
+  #SET STA'STA':SCL           = 2              ;COT length (bytes) 
+  #SET STA'STA':SCA           = 32000          ;command address
+  #SET STA'STA':SPC           = 1              ;process data confirmation (0=man, 1=auto)
+  #SET STA'STA':SMT           = 0             ;max. delayed response time (s)
+  #SET STA'STA':SSU           = 0              ;summer time (0=no, 1=yes)
+  #SET STA'STA':SRW           = 10             ;reply window size          
+  #SET STA'STA':SML           = 245            ;max. message length
+  #SET STA'STA':SRM           = 1              ;running mode
+  #SET STA'STA':SIA           = %IPADDR        ;host IP address
+  #SET STA'STA':SUS           = 12             ;unacknowledge send
+  #SET STA'STA':SUR           = 8              ;unacknowledge receive
+  #SET STA'STA':SAT           = 10             ;acknowledge timeout (s)
+  #SET STA'STA':SIU           = 1              ;set station in use
+#LOOP_END
+
+; Set line in use
+#SET NET'NET':SIU'LINE' = 1

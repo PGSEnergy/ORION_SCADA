@@ -1,0 +1,308 @@
+﻿;## Executed by application MAIN
+;## at 20-01-19 10:45:17, This is not executed again while these lines are here
+; This is the application update file for a System Self Supervision
+;
+; SSS rev. 3.9
+;
+; DO NOT edit this program without consulting with Hitachi Power Grids!
+;
+;-------------------------------------------------------------------------------------------------------
+;reset status
+@S = STATUS
+
+;read in language to be used
+@T_LANGUAGE = "EN"
+#IF APL:BLA <> "" #THEN @T_LANGUAGE = APL:BLA
+
+;define path for Base Tools language text directory
+#path SSS_LANG +/STOOL/SUPERV/LANG_TEXTS
+
+;check revision infomation
+@C_SEARCH = FETCH(0,"C","SYS_SSSREV")
+#IF C_SEARCH:VIU <> -1 #THEN #DO SYS_SSSREV:C
+#ELSE #RETURN
+
+;parse revision info
+@REV_INFO = SEPARATE(SYS_SSSREV:VINFO,";")
+@SSS_REV=SUBSTR(%REV_INFO(2),LENGTH(%REV_INFO(2))-2,0)
+
+;update command procedures
+#IF %SSS_REV < "4.0" #THEN #BLOCK
+
+   ;Reads in to a file all the existing procedures ; ID 15223
+   @l_Procedures = application_object_list(0, "C", "", "", "", "LN == ""SYS_*""")
+
+   ;define a text vector
+   #if l_Procedures:vCOUNT > 0 #then #block
+
+      ;search all the procedures for supervision
+      @l_Attributes = application_object_attributes(0, "C", l_Procedures:vLN, VECTOR("IU", "TC", "EP", "PE", "PQ", "HN", "IN"))
+
+      ;read in application information
+      @v_Txt = vector()
+      @v_Txt = append(%v_Txt, "APPLICATION: " + APL:BNA)
+      @v_Txt = append(%v_Txt, times)
+
+      ;read in procedures         
+      #loop_with i_Count = 1 .. l_Procedures:vCOUNT
+         ;procedure attributes
+         @l_Attr = list(LN = l_Procedures:VLN(%i_Count), IU = l_Attributes:vIU(%i_Count), TC = l_Attributes:vTC(%i_Count), -
+                        EP = l_Attributes:vEP(%i_Count), PE = l_Attributes:vPE(%i_Count), PQ = l_Attributes:vPQ(%i_Count), -
+                        HN = l_Attributes:vHN(%i_Count), IN = l_Attributes:vIN(%i_Count))
+                     
+         ;procedure info
+         @v_Txt = append(%v_Txt, "")
+         @v_Txt = append(%v_Txt, substr("--------------------------------------------", 1, 30))
+         @v_Txt = append(%v_Txt, substr("--------- " + l_Attr:VLN + " ---------------", 1, 30))
+         @v_Txt = append(%v_Txt, substr("--------------------------------------------", 1, 30))
+         @v_Txt = append(%v_Txt, "IU:'l_Attr:vIU', TC:'l_Attr:vTC', EP:'l_Attr:vEP', PE:'l_Attr:vPE', PQ:'l_Attr:vPQ', HN:'l_Attr:vHN'")
+         @v_Txt = append(%v_Txt, "")
+         @v_Txt = append(%v_Txt, l_Attr:vIN)
+      #loop_end
+
+      @i_Status = write_text("PICT/SYS_CPROC.BAK", %v_Txt, 1)
+
+      @OPS_COUT = CONSOLE_OUTPUT(TIMES + " SSS supervision routing command procedures has been updated and")
+      @OPS_COUT = CONSOLE_OUTPUT(SUBSTR("", 1, 30) + "backup file has been created for old procedures (PICT/SYS_CPROC.BAK)")
+
+   #block_end
+
+   ;parallel queue of command procedures
+   @i_PQ = 4
+   
+   ;send message to the notification window
+   @APL_NAME = APL:BNA
+   @TMP = CONSOLE_OUTPUT("Updating Application 'APL_NAME' to System Self Supervision revision 4.0 ...")
+   @SSS_REV = "4.0"
+
+   @MODIFIED_COM_PROCEDURES = ("SYS_NETSR","SYS_STAMR","SYS_OSER", "SYS_APLE1", "SYS_APLH1")
+
+   #LOOP_WITH I = 1..LENGTH(%MODIFIED_COM_PROCEDURES)
+      @COM_PROC = %MODIFIED_COM_PROCEDURES(%I)
+      @COM_SEARCH = FETCH(0,"C","'COM_PROC'")
+      #IF COM_SEARCH:VIU <> -1 #THEN #BLOCK
+         @TMP_NAME = "TMP" + SUBSTR(%COM_PROC,4,0)
+         @TMP_SEARCH = FETCH(0,"C","'TMP_NAME'")
+         #IF TMP_SEARCH:VIU == -1 #THEN -
+            #CREATE 'TMP_NAME':C = LIST(-   
+                IU = 0,-
+                MO = COM_SEARCH:VMO,-
+                PE = COM_SEARCH:VPE,-
+                PQ = COM_SEARCH:VPQ,-
+                CM = COM_SEARCH:VCM,-
+                TC = COM_SEARCH:VTC,-
+                IN = COM_SEARCH:VIN)
+         #ELSE -
+            #MODIFY 'TMP_NAME':C = LIST(-   
+                IU = 0,-
+                MO = COM_SEARCH:VMO,-
+                PE = COM_SEARCH:VPE,-
+                PQ = COM_SEARCH:VPQ,-
+                CM = COM_SEARCH:VCM,-
+                TC = COM_SEARCH:VTC,-
+                IN = COM_SEARCH:VIN)
+         #ERROR IGNORE
+         @S = STATUS       
+         #DELETE 'COM_PROC':C
+         #ERROR CONTINUE
+         #IF STATUS <> 0 #THEN #BLOCK
+            #PAUSE 2
+            #DELETE 'COM_PROC':C
+         #BLOCK_END
+         
+         @l_Comment = read_parameter("sss_lang/SSSTexts.ini", %t_Language, "Cmd_Proc_of_'COM_PROC'")
+         #if l_Comment:vstatus <> 0 #then #set l_Comment:vvalue = "SSS Procedure"
+         
+         #CREATE 'COM_PROC':C = list(-
+                       IU     = 1,-
+                       MO     = 1,-
+                       PE     = 1,-
+                       PQ     = %i_PQ,-
+                       CM     = l_Comment:vvalue,-
+                       TC    = COM_SEARCH:VTC,-
+                       IN     = read_text("SYS_TOOL/'COM_PROC'.scl"))
+        
+      #BLOCK_END
+   #LOOP_END
+
+   ;update SSSFilter.ini
+   @APL_NAME = APL:BNA
+   @FILE = "/APL/'APL_NAME'/SUPERV/SSSFILTER.INI"
+   #IF FILE_MANAGER("EXISTS",FM_SCIL_FILE(%FILE)) #THEN #BLOCK
+      @SECTION = "SYS_MSG_STA_IEC"
+      @KEY = "Status_13881"
+      @KEY_VALUE = "TRUE,TRUE,TRUE                              ;ICCC_DEVICE_STARTED"
+      @XX = WRITE_PARAMETER(%FILE,%SECTION,%KEY,%KEY_VALUE)
+
+      ; ID 8180 MV
+      @SECTION = "SYS_MSG_STA_PLC"
+      @KEY = "Status_13801"
+      @KEY_VALUE = "TRUE,TRUE,TRUE                              ;PLCP_DEVICE_SUSPENDED"
+      @l_Check = read_parameter(%file, %Section, %key)
+      #if l_Check:vSTATUS == 0 #then @xx = write_parameter(%File, %Section, %Key, %Key_Value)
+
+      @SECTION = "SYS_MSG_STA_PLC"
+      @KEY = "Status_13803"
+      @KEY_VALUE = "TRUE,TRUE,TRUE                              ;PLCP_STARTTED"
+      @l_Check = read_parameter(%file, %Section, %key)
+      #if l_Check:vSTATUS == 0 #then @xx = write_parameter(%File, %Section, %Key, %Key_Value)
+
+      ; ID 7614 MV
+      @v_Stations = ("STA","SPA","REX","LMK","RTU","SPI","LCU","PLC","IEC","DNP")
+      #loop_with i_Station = 1 .. length(%v_Stations)
+         @t_Station = %v_Stations(%i_Station)
+         @SECTION = "SYS_MSG_STA_'t_Station'"
+         @KEY = "Status_0"
+         @KEY_VALUE = "TRUE,FALSE,FALSE                                ;OK_STATUS"
+         @l_Check = read_parameter(%file, %Section, %key)
+         #if l_Check:vSTATUS == 559 #then @xx = write_parameter(%File, %Section, %Key, %Key_Value)
+      #loop_end
+
+   #BLOCK_END
+
+   ;update SSSFilter.ini
+   @Apl_Name = APL:BNA
+   @File= "/APL/'APL_NAME'/SUPERV/SSSFILTER.INI"
+   #if file_manager("EXISTS",FM_SCIL_FILE(%FILE)) #then #block
+   
+      @v_Sections = vector("SYS_MSG_LINE_44", "SYS_MSG_LINE_45", "SYS_MSG_LINE_25", "SYS_MSG_STA_PLC", "SYS_MSG_NET_61850NET", "SYS_MSG_STA_IEC")
+ 
+      @v_IEC104_Values = vector(-
+         "Status_0=TRUE,FALSE,FALSE                                ;OK_STATUS",-
+         "Status_16001=TRUE,FALSE,FALSE                            ;LINK_CTS_LINE_IS_INACTIVE",-
+         "Status_16002=TRUE,TRUE,TRUE                              ;LINK_CTS_LINE_REMAINS_INACTIVE",-
+         "Status_16003=TRUE,FALSE,FALSE                            ;LINK_DCD_LINE_IS_INACTIVE",-
+         "Status_16004=TRUE,TRUE,TRUE                              ;LINK_DCD_LINE_REMAINS_INACTIVE",-
+         "Status_16041=TRUE,TRUE,TRUE                              ;LINK_CTS_FAILURE",-
+         "Status_17800=TRUE,TRUE,TRUE                              ;ITCP_REMOTE_HOST_CONTINUOUSLY_BUSY",-
+         "Status_17801=TRUE,FALSE,FALSE                            ;ITCP_LINE_INITIALIZING",-
+         "Status_17802=TRUE,FALSE,FALSE                            ;ITCP_LINE_INITIALIZATION_FAILED",-
+         "Status_17803=TRUE,FALSE,FALSE                            ;ITCP_REMOTE_HOST_BUSY",-
+         "Status_17804=TRUE,FALSE,FALSE                            ;ITCP_REMOTE_HOST_NOT_RESPONDING",-
+         "Status_17805=TRUE,FALSE,FALSE                            ;ITCP_LINE_NOT_CONNECTED",-
+         "Status_17806=TRUE,FALSE,FALSE                            ;ITCP_LINE_STOPPED",-
+         "Status_17807=TRUE,FALSE,FALSE                            ;ITCP_RECEIVER_OUT_OF_BUFFERS",-
+         "Status_17808=TRUE,FALSE,FALSE                            ;ITCP_REMOTE_HOST_NOT_READY",-
+         "Status_17820=TRUE,TRUE,TRUE                              ;ITPC_ILLEGAL_ATTRIBUTE_VALUE")
+      
+      @v_MODBUS_Values = vector(-
+         "Status_0=TRUE,FALSE,FALSE                                ;OK_STATUS",-
+         "Status_16001=TRUE,FALSE,FALSE                            ;LINK_CTS_LINE_IS_INACTIVE",-
+         "Status_16002=TRUE,TRUE,TRUE                              ;LINK_CTS_LINE_REMAINS_INACTIVE",-
+         "Status_16003=TRUE,FALSE,FALSE                            ;LINK_DCD_LINE_IS_INACTIVE",-
+         "Status_16004=TRUE,TRUE,TRUE                              ;LINK_DCD_LINE_REMAINS_INACTIVE",-
+         "Status_16041=TRUE,TRUE,TRUE                              ;LINK_CTS_FAILURE",-
+         "Status_17500=TRUE,FALSE,FALSE                            ;PGCP_TIMEOUT_WHILE_WAITING_CTS",-
+         "Status_17501=TRUE,FALSE,FALSE                            ;PGCP_CTS_LINE_FAILURE_WHILE_TRANSMITTING",-
+         "Status_17502=TRUE,FALSE,FALSE                            ;PGCP_BUFFER_NOT_READY",-
+         "Status_17503=TRUE,FALSE,FALSE                            ;PGCP_CTS_LINE_IS_CONTINUOUSLY_INACTIVE",-
+         "Status_17504=TRUE,FALSE,FALSE                            ;PGCP_REDUNDANCY_ERRORS_IN_RESPONSE",-
+         "Status_17505=TRUE,FALSE,FALSE                            ;PGCP_TIMEOUT_WHILE_WAITING_RESPONSE",-
+         "Status_17506=TRUE,FALSE,FALSE                            ;PGCP_LINE_PASSIVATED",-
+         "Status_17507=TRUE,FALSE,FALSE                            ;PGCP_LINE_ACTIVATED_BY_LOCAL",-
+         "Status_17508=TRUE,FALSE,FALSE                            ;PGCP_LINE_ACTIVATED_BY_REMOTE",-
+         "Status_17509=TRUE,FALSE,FALSE                            ;PGCP_LINE_IS_PASSIVE")
+      
+      @v_PLC_Values = vector(-
+         "Status_0=TRUE,FALSE,FALSE                                ;OK_STATUS",-
+         "Status_13800=TRUE,FALSE,FALSE                            ;PLCP_IN_INITIALIZE_DB_STATE",-
+         "Status_13801=TRUE,TRUE,TRUE                              ;PLCP_DEVICE_SUSPENDED",-
+         "Status_13802=TRUE,FALSE,FALSE                            ;PLCP_STOPPED",-
+         "Status_13803=TRUE,TRUE,TRUE                              ;PLCP_STARTTED",-
+         "Status_13827=TRUE,FALSE,FALSE                            ;PLCP_TIMEOUT_WHILE_WAITING_RESPONSE",-
+         "Status_13828=TRUE,FALSE,FALSE                            ;PLCP_EVENT_BUFFER_OK",-
+         "Status_13829=TRUE,FALSE,FALSE                            ;PLCP_EVENT_BUFFER_OVERFLOW",-
+         "Status_13830=TRUE,FALSE,FALSE                            ;PLCP_EVENT_BUFFER_ERROR")
+
+      @v_61850NET_Values = vector(-
+         "Status_10001=TRUE,TRUE,FALSE                             ;NETP_SYSTEM_INITIALIZED")
+      
+      #loop_with i = 1 .. length(%v_Sections)
+   
+         @Section = %v_Sections(%i)
+         #case %i
+            #when 1,2 @v_Key_Values = %v_IEC104_Values
+            #when 3   @v_Key_Values = %v_MODBUS_Values
+            #when 4   @v_Key_Values = %v_PLC_Values
+            #when 5   @v_Key_Values = %v_61850NET_Values
+            #when 6   #block
+               ;ICCP status codes
+               @v_Key_Values = vector
+               #loop_with j = 14200 .. 14270
+                  @t_Code = status_code_name(%j)
+                  #if %t_Code <> "" #then #block
+                     #case %j
+                        #when 14227, 14228, 14246, 14247 @t_Mask = "TRUE,FALSE,TRUE"
+                        #otherwise @t_Mask = "TRUE,FALSE,FALSE"
+                     #case_end
+                     @t_Code = "Status_'j'='t_Mask'" + pad(ascii(32), 28) + ";'t_Code'"
+                     @v_Key_Values = append(%v_Key_Values, %t_Code)
+                  #block_end
+               #loop_end
+               ;Native IEC61850 server
+               @v_Key_Values = append(%v_Key_Values, vector(-
+                  "Status_14319=TRUE,FALSE,TRUE                             ;IEC6_STATION_SUSPENDED"))
+            #block_end             
+         #case_end
+      
+         #loop_with j = 1 .. length(%v_Key_Values)
+         
+            @loc = locate(%v_Key_Values(%j),"=")
+            @Key = substr(%v_Key_Values(%j), 1, %loc-1)
+            @Key_Value = substr(%v_Key_Values(%j), %loc + 1, 0)
+            ;check that key does not exist
+            @l_Check = read_parameter(%file, %Section, %key)
+            #if l_Check:vSTATUS <> 0 #then @xx = write_parameter(%File, %Section, %Key, %Key_Value)
+            
+         #loop_end
+      
+      #loop_end
+
+   #block_end
+
+   ;update SSSConf.ini
+   @Apl_Name = APL:BNA
+   @File= "/APL/'APL_NAME'/SUPERV/SSSCONF.INI"
+   #if file_manager("EXISTS",FM_SCIL_FILE(%FILE)) #then #block
+
+      @Section = "ATTRIBUTE_MAPPING"
+      @Key = "Application_Attributes"
+
+      @l_Check = read_parameter(%file, %Section, %Key)
+
+      #if l_Check:vSTATUS == 0 #then #block
+
+         #if find_element(upper_case(separate(l_Check:vvalue, ",")), "PRESENTATION") == 0 #then #block
+
+            @Key_Value = "AS_Primary,AS_Secondary,SP_Primary,SP_Secondary,POOL_Primary,POOL_Secondary,QUEUE_Primary,QUEUE_Secondary,CX,Creator,Presentation"
+            @xx = write_parameter(%File, %Section, %Key, %Key_Value)         
+
+         #block_end
+
+      #block_end
+
+   #block_end
+
+   ;update SSS_Setup.scl as template file to application
+   @fileSALib = "SYS_TOOL/SSS_Setup.scl"
+   @aplTemplateFile = "/APL/'APL_NAME'/SUPERV/SSS_Setup$scl"
+   @aplFile = "/APL/'APL_NAME'/SUPERV/SSS_Setup.scl"
+   @bCopy = FILE_MANAGER("COPY", FM_SCIL_FILE(%fileSALib), FM_SCIL_FILE(%aplTemplateFile))
+   #if not file_manager("EXISTS", FM_SCIL_FILE(%aplFile)) #then @bCopy = FILE_MANAGER("COPY", FM_SCIL_FILE(%fileSALib), FM_SCIL_FILE(%aplFile))
+
+   ;update SSS_CTRLDLG.INI as template file to application
+   @fileSALib = "SYS_TOOL/SSS_CTRLDLG.INI"
+   @aplTemplateFile = "/APL/'APL_NAME'/PAR/APL/SSS_CTRLDLG$INI"
+   @aplFile = "/APL/'APL_NAME'/PAR/APL/SSS_CTRLDLG.INI"
+   @bCopy = FILE_MANAGER("COPY", FM_SCIL_FILE(%fileSALib), FM_SCIL_FILE(%aplTemplateFile))
+   #if not file_manager("EXISTS", FM_SCIL_FILE(%aplFile)) #then @bCopy = FILE_MANAGER("COPY", FM_SCIL_FILE(%fileSALib), FM_SCIL_FILE(%aplFile))
+
+   ;send message to the notification window
+   @UPDATE_STATUS = STATUS
+   @APL_NAME = APL:BNA
+
+   #IF %UPDATE_STATUS == 0 #THEN @MSG = "successfully"
+   #ELSE @MSG = "unsuccessfully"
+   @TMP = CONSOLE_OUTPUT("Application 'APL_NAME' 'msg' updated to System Self Supervision revision 4.0")
+
+#BLOCK_END

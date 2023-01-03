@@ -1,0 +1,147 @@
+#IF %CHAR_WIND == "2" #THEN #BLOCK
+  @TEMPLATE_FILE = READ_TEXT("SAGR_INST/SAI_ACTT2.TPL")
+
+  @WINDING1 = ('ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_COLOR1_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH2_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_PASSIVE_NODE1_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH3_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_PASSIVE_NODE2_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_COLOR2_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH6_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH7_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH1_IX)
+
+  @WINDING2 = ('ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_COLOR2_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH3_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_PASSIVE_NODE2_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH2_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_PASSIVE_NODE1_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_COLOR1_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH7_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH6_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH1_IX)
+
+  @WINDING_IX = SELECT(%TEMPLATE_FILE, "==""@WINDING1 =*""", "WILDCARDS")
+
+  @TEMPLATE_FILE(%WINDING_IX(1)) = "@WINDING1 = (" + DEC(%WINDING1(1),1)+ ", " -
+                                                   + DEC(%WINDING1(2),1)+ ", " -
+                                                   + DEC(%WINDING1(3),1)+ ", " -
+                                                   + DEC(%WINDING1(4),1)+ ", " -
+                                                   + DEC(%WINDING1(5),1)+ ", " -
+                                                   + DEC(%WINDING1(6),1)+ ", " -
+                                                   + DEC(%WINDING1(7),1)+ ", " -
+                                                   + DEC(%WINDING1(8),1)+ ", " -
+                                                   + DEC(%WINDING1(9),1)+ ")"
+
+  @WINDING_IX = SELECT(%TEMPLATE_FILE, "==""@WINDING2 =*""","WILDCARDS" )
+
+  @TEMPLATE_FILE(%WINDING_IX(1)) = "@WINDING2 = (" + DEC(%WINDING2(1),1)+ ", " -
+                                                   + DEC(%WINDING2(2),1)+ ", " -
+                                                   + DEC(%WINDING2(3),1)+ ", " -
+                                                   + DEC(%WINDING2(4),1)+ ", " -
+                                                   + DEC(%WINDING2(5),1)+ ", " -
+                                                   + DEC(%WINDING2(6),1)+ ", " -
+                                                   + DEC(%WINDING2(7),1)+ ", " -
+                                                   + DEC(%WINDING2(8),1)+ ", " -
+                                                   + DEC(%WINDING2(9),1)+ ")"
+#BLOCK_END
+#ELSE #BLOCK
+  @TEMPLATE_FILE = READ_TEXT("SAGR_INST/SAI_ACTT3.TPL")
+
+  @WINDING1 = ('ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_COLOR1_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH2_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_PASSIVE_NODE1_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH3_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH4_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_PASSIVE_NODE2_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_PASSIVE_NODE3_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_COLOR2_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_COLOR3_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH6_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH7_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH8_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH1_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH5_IX)
+
+  @WINDING2 = ('ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_COLOR2_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH3_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_PASSIVE_NODE2_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH2_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH4_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_PASSIVE_NODE1_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_PASSIVE_NODE3_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_COLOR1_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_COLOR3_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH7_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH6_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH8_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH1_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH5_IX)
+
+  @WINDING3 = ('ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_COLOR3_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH4_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_PASSIVE_NODE3_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH2_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH3_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_PASSIVE_NODE1_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_PASSIVE_NODE2_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_COLOR1_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_COLOR2_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH8_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH6_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH7_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH1_IX,-
+               'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_SWITCH5_IX)
+
+  @WINDING_IX = SELECT(%TEMPLATE_FILE, "==""@WINDING1 =*""", "WILDCARDS")
+
+  @TEMPLATE_FILE(%WINDING_IX(1)) = "@WINDING1 = (" + DEC(%WINDING1(1),1)+ ", " -
+                                                   + DEC(%WINDING1(2),1)+ ", " -
+                                                   + DEC(%WINDING1(3),1)+ ", " -
+                                                   + DEC(%WINDING1(4),1)+ ", " -
+                                                   + DEC(%WINDING1(5),1)+ ", " -
+                                                   + DEC(%WINDING1(6),1)+ ", " -
+                                                   + DEC(%WINDING1(7),1)+ ", " -
+                                                   + DEC(%WINDING1(8),1)+ ", " -
+                                                   + DEC(%WINDING1(9),1)+ ", " -
+                                                   + DEC(%WINDING1(10),1)+ ", " -
+                                                   + DEC(%WINDING1(11),1)+ ", " -
+                                                   + DEC(%WINDING1(12),1)+ ", " -
+                                                   + DEC(%WINDING1(13),1)+ ", " -
+                                                   + DEC(%WINDING1(14),1)+ ")"
+
+  @WINDING_IX = SELECT(%TEMPLATE_FILE, "==""@WINDING2 =*""","WILDCARDS" )
+
+  @TEMPLATE_FILE(%WINDING_IX(1)) = "@WINDING2 = (" + DEC(%WINDING2(1),1)+ ", " -
+                                                   + DEC(%WINDING2(2),1)+ ", " -
+                                                   + DEC(%WINDING2(3),1)+ ", " -
+                                                   + DEC(%WINDING2(4),1)+ ", " -
+                                                   + DEC(%WINDING2(5),1)+ ", " -
+                                                   + DEC(%WINDING2(6),1)+ ", " -
+                                                   + DEC(%WINDING2(7),1)+ ", " -
+                                                   + DEC(%WINDING2(8),1)+ ", " -
+                                                   + DEC(%WINDING2(9),1)+ ", " -
+                                                   + DEC(%WINDING2(10),1)+ ", " -
+                                                   + DEC(%WINDING2(11),1)+ ", " -
+                                                   + DEC(%WINDING2(12),1)+ ", " -
+                                                   + DEC(%WINDING2(13),1)+ ", " -
+                                                   + DEC(%WINDING2(14),1)+ ")"
+
+  @WINDING_IX = SELECT(%TEMPLATE_FILE, "==""@WINDING3 =*""","WILDCARDS" )
+
+  @TEMPLATE_FILE(%WINDING_IX(1)) = "@WINDING3 = (" + DEC(%WINDING3(1),1)+ ", " -
+                                                   + DEC(%WINDING3(2),1)+ ", " -
+                                                   + DEC(%WINDING3(3),1)+ ", " -
+                                                   + DEC(%WINDING3(4),1)+ ", " -
+                                                   + DEC(%WINDING3(5),1)+ ", " -
+                                                   + DEC(%WINDING3(6),1)+ ", " -
+                                                   + DEC(%WINDING3(7),1)+ ", " -
+                                                   + DEC(%WINDING3(8),1)+ ", " -
+                                                   + DEC(%WINDING3(9),1)+ ", " -
+                                                   + DEC(%WINDING3(10),1)+ ", " -
+                                                   + DEC(%WINDING3(11),1)+ ", " -
+                                                   + DEC(%WINDING3(12),1)+ ", " -
+                                                   + DEC(%WINDING3(13),1)+ ", " -
+                                                   + DEC(%WINDING3(14),1)+ ")"
+#BLOCK_END
+  #RETURN %TEMPLATE_FILE

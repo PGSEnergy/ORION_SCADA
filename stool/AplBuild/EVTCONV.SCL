@@ -1,0 +1,618 @@
+;check if installed from the SA LIB. If so, no need to create H-Object later on
+@b_SF_from_SA_LIB = FALSE
+#if data_type(%NEW_PICTURE_FUNCTION_CONF) == "LIST" #then #block
+   #if attribute_exists(%NEW_PICTURE_FUNCTION_CONF, "CONFIG_DATA_FILE") and attribute_exists(%NEW_PICTURE_FUNCTION_CONF, "TYPE_PF") #then #block
+      #if locate(NEW_PICTURE_FUNCTION_CONF:vCONFIG_DATA_FILE, "SAGR_INST") > 0 and locate(NEW_PICTURE_FUNCTION_CONF:vTYPE_PF, "SAGR_") > 0 #then @b_SF_from_SA_LIB = TRUE
+      #if locate(NEW_PICTURE_FUNCTION_CONF:vCONFIG_DATA_FILE, "F5_INST") > 0 #then @b_SF_from_SA_LIB = TRUE
+   #block_end
+#block_end
+#else_if argument_count > 3 #then #block
+    #if argument(4) == "CREATE_DB_FROM_SCL" #then @b_SF_from_SA_LIB = TRUE
+#block_end
+
+#if not %b_SF_from_SA_LIB #then #block
+   ;read in logical paths
+   @e_state=ERROR_STATE
+   #error ignore
+   #do read_text("BBONE/PATH4.txt")
+   #error 'E_STATE'
+#block_end
+
+;arguments coming from either Event Conversion Tool or Process Object Tool (POT)
+@t_Mode = argument(1)
+@t_LN_Filter = upper_case(argument(2))
+@b_Has_User_Interface = argument(3)
+
+#if %b_Has_User_Interface #then .set root._busy = true
+
+;intialize variables
+@t_Text_DB = "APL_/APL_TEXT.SDB"
+@l_Last_Object = ""
+@i_Count = 0
+@Error_Solving_Text = 0
+@i_Fail = 0
+@i_Success = 0
+@v_Successful_Conversions = vector
+@v_Successful_P_Objects = vector
+@v_Failed_Conversions = vector
+@v_Supported_PO_Types = (3,5,6,7,9,11,12)
+@t_Mon_Bla = "EN"
+#error ignore
+@t_Mon_Bla = MON:BLA
+#error stop
+@l_Last_Object = ""
+@i_Start_Index = 1
+#if %b_Has_User_Interface #then @b_Write_Log = true
+#else @b_Write_Log = false
+@v_Supported_Packages = ("A", "F", "B", "R", "C", "S")
+@t_Package_ID = ""
+
+@t_Log_Success = "PICT/EVT_CONV1.LOG"
+@t_Log_Fail = "PICT/EVT_CONV2.LOG"
+@t_Log_Conventions = "PICT/EVT_CONV3.LOG"
+
+#if %b_Write_Log #then #block
+
+   ;initialize log files
+   @write = write_text(%t_Log_Success, vector,0)
+   @write = write_text(%t_Log_Fail, vector,0)
+   @write = write_text(%t_Log_Success, vector,0)
+   
+#block_end
+
+#loop   ;1
+   
+   ;query process object from PDB
+   #if locate(%t_LN_Filter, "*")  > 0 #then @l_P_objects = application_object_list(0, "IX", "A", "FORWARD", %l_Last_Object, "PF <> """" AND LN == ""'t_LN_Filter'""", vector("PF","RI","EH"))
+   #else @l_P_objects = application_object_list(0, "IX", "I", "FORWARD", %t_LN_Filter, "", vector("PF","RI","EH"))
+   
+;if nothing was found, no need to continue
+   #if l_P_objects:Vcount == 0 #then #return
+   
+   ;Name of the last object needed for next query, if more than 10 000 were found
+   @l_Last_Object  = list(LN = l_P_objects:VLN(length(l_P_objects:VLN)),IX = l_P_objects:VIX(length(l_P_objects:VIX)))
+   
+   @i_Total_Count = l_P_objects:VCount
+   #if %b_Has_User_Interface #then .Show_Progress_Bar_dlg(%i_Total_Count)
+   
+   #loop_with i = 1 .. %i_Total_Count   ;2
+   
+      @t_LN = l_P_objects:VLN(%i)
+      @i_IX = l_P_objects:VIX(%i)
+      @i_RI = l_P_objects:VRI(%i)
+      @t_PF = l_P_objects:VPF(%i)
+      @t_EH = l_P_objects:VEH(%i)
+      
+      @i_P_Object_Type = 't_LN':ppt'i_IX'
+      
+      #if %b_Has_User_Interface #then #block
+      
+         #if %t_Mode == "SEARCH" #then @t_Info_Text = translate("@Scanning")
+         #else @t_Info_Text = translate("@Modifying")
+         dlg_Progress.Update_Information(%t_Info_Text, "'t_LN':'i_IX'", %i_Total_Count)
+         dlg_Progress.Set_Count(%i)
+         .flush
+         
+      #block_end
+      
+      @i_Loop_Count = 0
+      @v_Event_Text = vector
+      @v_Txt_Count = vector
+      @v_ST_ID = vector
+      @t_VF = ""
+      @i_Low_Value = 0
+      @b_Supported_Form_Convention = true
+      
+      ;resolve logical lang ID, try first from RX and if not found from there, try the name of the format picture
+      @t_Package_ID = substr('t_LN':prx'i_IX',21,1)
+      #if find_element(%v_Supported_Packages, %t_Package_ID) == 0 #then #block
+      
+         #if substr(upper_case(%t_PF),1,5) == "FORM4" #then -
+            @t_Package_ID = substr(upper_case(%t_PF),6,1)
+            
+      #block_end
+      
+      ;special case, error in RX definition
+      #if upper_case(%t_PF) == "FORM4B_BLE" and %t_Package_ID == "F" #then @t_Package_ID = "B"
+      
+      ;supported packages
+      #case %t_Package_ID
+      
+         #when %v_Supported_Packages #block
+         
+            ;If script is run from EC Tool or PF installed from LIB4
+            #if not %b_SF_from_SA_LIB #then #block
+         
+               ;read in texts
+               #error ignore
+               @s = status
+               
+               ;check here if a "known" value based form e.g. tap position
+               ;if so, no need to resolve text later on
+               ;Also, a formula can be decided here for some form pictures
+               @i_Value_Based_Form = false
+               #case %t_PF 
+                  #when "FORM4FPAI3", "FORM4RAO2", "FORM4RAI3" #block
+                     @v_ST_ID(1) = "\V0\"
+                     @i_Value_Based_Form = true
+                  #block_end
+                  #when "FORM4FPAI4" #block
+                     @v_ST_ID(1) = "\V2\" ;reference voltage setting
+                     @i_Value_Based_Form = true
+                  #block_end
+                  #when "FORM4CPAI0" #block
+                     #case %i_RI
+                        #when 0 #block
+                           ;@t_VF = "AZ + RI" 
+                        #block_end
+                        #when 20,22 #block
+                           @v_ST_ID(1) = "\V0\"
+                           @i_Value_Based_Form = true
+                        #block_end
+                        #when 21,23 #block
+                           @v_ST_ID(1) = "\V3\"
+                           @i_Value_Based_Form = true
+                        #block_end
+                        #when 200 @b_Supported_Form_Convention = false
+                        #otherwise #block
+                           @t_VF = "OV + RI"
+                        #block_end
+                     #case_end  
+                  #block_end
+                  #when "FORM4CPAO0" #block
+                     #case %i_RI
+                        #when 20,22 #block
+                           @v_ST_ID(1) = "\V0\"
+                           @i_Value_Based_Form = true
+                        #block_end
+                        #when 21,23 #block
+                           @v_ST_ID(1) = "\V3\"
+                           @i_Value_Based_Form = true
+                        #block_end
+                        #otherwise #block
+                           @t_VF = "OV + RI"
+                        #block_end
+                     #case_end  
+                  #block_end
+                  #when "FORM4CPBI0", "FORM4CPDB0" #block
+                     @t_VF = "OV + RI"
+                  #block_end
+                  #when "FORM4CPBO0" #block
+                     #case %i_RI
+                        #when 420,520,620,720,820 @b_Supported_Form_Convention = false
+                        #otherwise #block
+                           @t_VF = "OV + RI"
+                        #block_end
+                     #case_end  
+                  #block_end
+                  #when "FORM4CPDI0" #block
+                     #case %i_RI
+                        #when 20 #block
+                           @v_ST_ID(1) = "\V0\"
+                           @i_Value_Based_Form = true
+                        #block_end
+                        #otherwise #block
+                           @t_VF = "OV + RI"
+                        #block_end
+                     #case_end  
+                  #block_end
+                  #when "FORM4CPPC0" #block
+                     #case %i_RI
+                        #when 20,21 #block
+                           @v_ST_ID(1) = "\V0\"
+                           @i_Value_Based_Form = true
+                        #block_end
+                        #when 300 @b_Supported_Form_Convention = false
+                        #otherwise #block
+                           @t_VF = "OV + RI"
+                        #block_end
+                     #case_end  
+                  #block_end
+                  #when "FORM4RAI4", "FORM4RBS1" #block
+                     @b_Supported_Form_Convention = false
+                  #block_end
+               #case_end
+               
+               #if %b_Supported_Form_Convention #then #block
+               
+                  #if not(%i_Value_Based_Form) #then #block
+                  
+                     #if substr(%t_LN,1,4) == "SYS_" #then @Lang_Dir = "SYS_TOOL" ;process object is created by SSS ==> related text file found from \sc\Stool\Superv\Lang_Texts
+                     #else @Lang_Dir = "'t_Package_ID'_LANG" ;process object is created by LIB4
+                     
+                     ;do not read texts in if already done, code is faster in this way
+                     #if data_type(%'Lang_Dir'_'t_PF'_TXT) == "NONE" #then #block
+                     
+                        @s = status
+                        #do read_text("'Lang_Dir'/'t_PF'.TXT")
+                        @s = status
+                        #if %s <> 0 #then @'Lang_Dir'_'t_PF'_TXT = TRUE
+                        
+                     #block_end
+                     
+                     #error ignore
+                     @s = status
+                     @v_Txt_Count = list_attr(%'t_PF')
+                     #error stop
+                     
+                  #block_end
+                  
+                  ;if text file succesfully read in
+                  #if (status == 0) #then #block 
+                  
+                     ;intialize value count
+                     @v_VC = vector
+                     
+                     #if not %i_Value_Based_Form #then #block
+                     
+                        ;resolve texts for attribute names starting with "EVENT_", e.g., EVENT_0      = "Normal",- ...
+                        #if substr(%v_Txt_Count(1),1,6) == "EVENT_" #then #block
+                        
+                           #error ignore
+                           @s=status
+                           #loop_with ii = 1 .. length(%v_Txt_Count)
+                              @tmp_OV = dec_scan(substr(%v_Txt_Count(%ii),7,0))
+                              @v_Event_Text(%ii) = 't_PF':VEVENT_'tmp_OV'
+                              @v_VC = append(%v_VC,%tmp_OV)
+                              #if %t_Package_ID == "C" #then @t_Tmp = "0"
+                              #else @t_Tmp = "'i_RI'"
+                              @v_ST_ID(%ii) = "LIB_" + "'t_PF'_'t_Tmp'" + "_ST_" + "'tmp_OV'"
+                              @i_Previous_OV = %tmp_OV
+                           #loop_end
+                           
+                           ;sort values to numerical order and sort texts and text IDs accordingly
+                           @v_Tmp = sort(%v_VC)
+                           @v_VC = pick(%v_VC,%v_Tmp)
+                           @v_ST_ID = pick(%v_ST_ID,%v_Tmp)
+                           @v_Event_Text = pick(%v_Event_Text,%v_Tmp)
+                           #delete v_Tmp:v
+                           
+                           #delete i_Previous_OV:v
+                           #error continue
+                           
+                        #block_end
+                        ;resolve texts for attribute names where the type of PO type is identified in 
+                        ;attribute name, e.g., BO_0_OV0  = "Off",- ...
+                        #else #block
+                        
+                           #case %i_P_Object_Type
+                              #when 3  #block
+                              
+                                 @Attr_Start = "BI_"
+                                 @Attr_End   = "_OV"
+                                 
+                              #block_end
+                              #when 5  #block
+                              
+                                 @Attr_Start = "BO_"
+                                 @Attr_End   = "_OV"
+                                 #if %t_PF == "FORM4ARAL1" #then @Attr_Start = "EVENT_"
+                                 #if %t_Package_ID == "C" or  %t_Package_ID == "S"   #then #block
+                                 
+                                    @v_Event_Text(1) = 't_PF':VEVENT_'i_RI'
+                                    @tmp = %i_RI + 1
+                                    @v_Event_Text(2) = 't_PF':VEVENT_'tmp'
+                                    
+                                 #block_end
+                                 
+                              #block_end
+                              #when 6 #block
+                              
+                                 @Attr_Start = "DI_"
+                                 @Attr_End   = "_OV"
+                                 
+                              #block_end
+                              #when 7 #block
+                              
+                                 @Attr_Start = "DO_"
+                                 @Attr_End   = "_OV"
+                                 
+                              #block_end
+                              #when 9  #block
+                              
+                                 @Attr_Start = "AI_"
+                                 #case %t_PF 
+                                 
+                                    #when "FORM4FPAI2", "FORM4AAI2", "FORM4RAI2", "FORM4BSAI" @Attr_End = "_SEL"
+                                    #when "FORM4RCAI1", "FORM4RCEI1", "FORM4RJAI1", "FORM4RMAI1", "FORM4RUAI1", "FORM4RXAI1", "FORM4RNAI1", "FORM4REAI1" @Attr_End = "_EVENT"
+                                    #otherwise @Attr_End = "_OV"
+                                    
+                                  #case_end
+                                 
+                              #block_end
+                              #when 11  #block
+                              
+                                 @Attr_Start = "AO_"
+                                 #if %t_PF == "FORM4FPAI2" or %t_PF == "FORM4AAI2"#then @Attr_End = "_SEL"
+                                 #else @Attr_End = "_OV"
+                                 
+                              #block_end
+                              #when 12 #block
+                              
+                                 @Attr_Start = "DB_"
+                                 @Attr_End   = "_OV"
+                                 
+                              #block_end
+                           #case_end
+                           
+                           ;separate correct attributes 
+                           @t_Cond = "'Attr_Start''i_RI''Attr_End'"
+                           @i_L = length(%t_Cond)
+                           @t_Tmp_Attr = substr(%v_Txt_Count,1,%i_L)
+                           @v_Txt_Count = pick(%v_Txt_Count,select(%t_Tmp_Attr,"==%t_Cond"))
+                           @i_Loop_Count = length(%v_Txt_Count)
+                           
+                        #block_end
+                        
+                     #block_end
+                  
+                     #if length(select(%v_Supported_PO_Types,"=='i_P_Object_Type'")) > 0 #then #block
+                  
+                        ;if attribute started with "EVENT_" or value based form texts already resolved
+                        ;otherwise do this
+                        #if length(%v_ST_ID) == 0 #then #block
+                     
+                           @i_Low_Value = 0
+                           #loop_with j = 1 .. %i_Loop_Count
+                           
+                              @t_Attr_Name = %v_Txt_Count(%j)                        
+                              @tmp_OV = dec_scan(substr(%t_Attr_Name,%i_L+1,0))
+                              #if %tmp_OV < %i_Low_Value #then @i_Low_Value = %tmp_OV
+                              @v_Event_Text(%j) =  't_PF':V't_Attr_Name'; + ";'tmp_OV'"
+                              @v_VC = append(%v_VC,%tmp_OV)
+                              @v_ST_ID(%j) = "LIB_" + "'t_PF'_'i_RI'" + "_ST_" + "'tmp_OV'"
+                           
+                           #loop_end
+                           
+                           ;sort values to numerical order and sort texts and text IDs accordingly
+                           @v_Tmp = sort(%v_VC)
+                           @v_VC = pick(%v_VC,%v_Tmp)
+                           @v_ST_ID = pick(%v_ST_ID,%v_Tmp)
+                           @v_Event_Text = pick(%v_Event_Text,%v_Tmp)
+                           #delete v_Tmp:v
+                        
+                        #block_end
+                        
+                        ;texts were resolved
+                        #if length(%v_ST_ID) > 0 #then #block
+                           
+                           #if %t_Package_ID == "C" #then @t_Tmp = "0"
+                           #else @t_Tmp = "'i_RI'"
+                           @t_H_Object_Name = "LIB_" + "'t_PF'_'t_Tmp'"
+                           #error continue
+                           @H_Search = fetch(0,"H",%t_H_Object_Name)
+                           
+                           #if %t_Mode == "SEARCH_AND_CREATE" #then #block
+                              #error continue
+                              #if H_Search:VIU == -1 #then @t_Action ="#CREATE"
+                              #else @t_Action ="#MODIFY"
+                              
+                              ;if %v_VC is linear (1,2,3,4 ...) then VC = length of the %v_VC
+                              ;else VC = %v_VC, e.g. (1,2,6,(6,7),12)
+                              @b_Convert_Integer = true
+                              #loop_with z = 2 .. length(%v_VC)
+                                 #if %v_VC(%z) - %v_VC(%z - 1) > 1 #then #block
+                                    @b_Convert_Integer = false
+                                    #loop_exit
+                                 #block_end
+                              #loop_end
+                                 
+                              #if %b_Convert_Integer #then @v_VC = length(%v_VC)
+                              ;create or modify Event Object
+                              't_Action' 't_H_Object_Name':H = LIST(-
+                                                   VC = %v_VC,-
+                                                   VL = %i_Low_Value,-
+                                                   VF = %t_VF,-
+                                                   ST = %v_ST_ID)
+                              #error continue
+                              
+                              ;check if texts already exists in Text DB and write there if not
+                              @db = data_manager("OPEN", "'t_Text_DB'")
+                              
+                              #loop_with kkk = 1 .. length(%v_Event_Text)
+                              
+                                 @id = %v_ST_ID(%kkk)
+                                 @result = data_manager("GET", db:vhandle, %id, %t_Mon_Bla)
+                                 #if result:vSTATUS <> 0 #then #block
+                                 
+                                    #if result:vSTATUS == 660 #then -
+                                       @result = data_manager("CREATE_SECTION", db:vhandle, %id)
+                                    #if result:vstatus == 0 or result:vstatus == 421 #then -
+                                       @result = data_manager("PUT", db:vhandle, %id,%v_Event_Text(%kkk), %t_Mon_Bla)
+                                       
+                                 #block_end
+                                      
+                              #loop_end     
+                                 
+                              @close_result = data_manager("CLOSE", db:vhandle)
+                              
+                              ;Connect process object to Event object
+                              #if 't_LN':PIU'i_IX' > 0 #then #set 't_LN':PEH'i_IX' = %t_H_Object_Name
+                              
+                           #block_end
+                           
+                           ;write data to successful conversions vector if not alaready there
+                           #if %i_Value_Based_Form #then -
+                              @t_Successful_Conversion_Name = "'t_PF';*Value based form*;'t_H_Object_Name'"
+                           #else -
+                              @t_Successful_Conversion_Name = "'t_PF';'Lang_Dir'/'t_PF'.TXT;'t_H_Object_Name'"
+                           @v_Check = select(%v_Successful_Conversions,"==%t_Successful_Conversion_Name")
+                           
+                           #if length(%v_Check) == 0 #then #block
+                           
+                              @v_Successful_Conversions = append(%v_Successful_Conversions,%t_Successful_Conversion_Name)
+                              
+                           #block_end
+                           #if %t_Mode == "SEARCH_AND_CREATE" #then #block
+                           
+                              ;code is faster if the length of vector is limited
+                              ;so write results to file everytime the length raises to 1000
+                              #if length(%v_Successful_P_Objects) == 1000 #then #block
+                              
+                                 #if %b_Write_Log #then @write = write_text(%t_Log_Success, %v_Successful_P_Objects, 1)
+                                 @v_Successful_P_Objects = vector
+                                 
+                              #block_end
+                              
+                              @v_Successful_P_Objects = append(%v_Successful_P_Objects, "'t_LN':P'i_IX';" + "'t_H_Object_Name'")  ;%t_Successful_Conversion_Name)
+                              
+                           #block_end
+                        #block_end
+                        #else #block
+                       
+                           #if %t_Mode == "SEARCH_AND_CREATE" #then #block
+                           
+                              ;write data to Failed_Conversions vector if not alaready there
+                              @t_element = "'t_LN':P'i_IX'" +";'t_PF'" + ";Event text could not be resolved"
+                              @i_IX = dec(%i_IX,0)
+                                                 
+                              ;code is faster if the length of vector is limited
+                              ;so write results to file everytime the length raises to 1000
+                              #if length(%v_Failed_Conversions) == 1000 #then #block
+                                 #if %b_Write_Log #then @write = write_text(%t_Log_Fail, %v_Failed_Conversions, 1)
+                                 @v_Failed_Conversions = vector
+                                 
+                              #block_end
+                              @v_Failed_Conversions = append(%v_Failed_Conversions,%t_Element)
+                              
+                           #block_end
+                          
+                        #block_end
+                    
+                        @i_Count = %i_Count + 1
+                    
+                     #block_end
+                     
+                  #block_end
+                  
+                  #else #block
+                  
+                        #if %t_Mode == "SEARCH_AND_CREATE" #then #block
+                          ;write data to Failed_Conversions vector if not alaready there
+                           @t_Element = "'t_LN':P'i_IX'" +";'t_PF'" + ";Language text file not found"
+                           
+                           ;code is faster if the length of vector is limited
+                           ;so write results to file everytime the length raises to 1000
+                           #if length(%v_Failed_Conversions) == 1000 #then #block
+                              #if %b_Write_Log #then @write = write_text(%t_Log_Fail, %v_Failed_Conversions, 1)
+                              @v_Failed_Conversions = vector
+                           #block_end
+                           @v_Failed_Conversions = append(%v_Failed_Conversions,%t_Element)
+                           
+                        #block_end
+                        
+                   #block_end
+                
+                #block_end
+                #else #block
+                
+                  ;write data to Failed_Conversions vector if not alaready there
+                  @t_element = "'t_LN':P'i_IX'" +";'t_PF'" + ";Not supported form convention, RI = 'i_Ri'"
+                  @i_IX = dec(%i_IX,0)
+                                     
+                  ;code is faster if the length of vector is limited
+                  ;so write results to file everytime the length raises to 1000
+                  #if length(%v_Failed_Conversions) == 1000 #then #block
+                     #if %b_Write_Log #then @write = write_text(%t_Log_Fail, %v_Failed_Conversions, 1)
+                     @v_Failed_Conversions = vector
+                     
+                  #block_end
+                  @v_Failed_Conversions = append(%v_Failed_Conversions,%t_Element)
+                #block_end
+               
+            #block_end
+            #else #block
+               ;process objects were created by SA LIB, so no need to create event objects
+               ;or resolve texts, since they already exist. Only connect process object to Event object
+               
+               ;Check if EH created by SCL importer
+               @b_Connect_To_SA_LIB_EH = true
+               #if argument_count > 3 #then #if argument(4) == "CREATE_DB_FROM_SCL" #then #block
+                  #if 't_LN':PEH'i_IX' <> "" #then #if substr('t_LN':PEH'i_IX', 1, 4) == "SCL_" #then @b_Connect_To_SA_LIB_EH = false
+               #block_end
+               
+               #if %b_Connect_To_SA_LIB_EH AND SUBSTR('t_LN':PEH'i_IX', 1, 5) <> "SAGR_" AND SUBSTR('t_LN':PEH'i_IX', 1, 8) <> "FD_FORM5" #then #block
+               
+                  @t_Tmp_ID = ""
+                  #case 't_LN':ppt'i_IX'
+                     #when 3 #block
+                        @t_Tmp_ID = "BI1"
+                     #block_end
+                     #when 5 #block
+                        @t_Tmp_ID = "BO1"
+                     #block_end
+                     #when 6 #block
+                        @t_Tmp_ID = "DI1"
+                     #block_end
+                     #when 7 #block
+                        @t_Tmp_ID = "DO1"
+                     #block_end
+                     #when 9 #block
+                        #if substr('t_LN':Prx'i_IX',23,4) == "PMEA" or substr('t_LN':Prx'i_IX',23,4) == "HALA" #then @t_Tmp_ID = "AI2"
+                        #else_if substr('t_LN':Prx'i_IX',23,4) == "TAVR" #then @t_Tmp_ID = "AI3"
+                        #else @t_Tmp_ID = "AI1"
+                     #block_end
+                     #when 11 #block
+                        @t_Tmp_ID = "AO1"
+                     #block_end
+                     #when 12 #block
+                         @t_Tmp_ID = "DB1"
+                     #block_end
+                  #case_end
+                  #error continue
+                  @t_H_Object_Name = EDIT("SAGR_" + substr(%t_PF,1,5) + "FP" + "'t_Tmp_ID'" + "_'i_RI'", "COLLAPSE")
+                  @H_Search = fetch(0,"H",%t_H_Object_Name)
+                  #if H_Search:VIU == 1 #then #block
+                     #if 't_LN':PIU'i_IX' > 0 #then #set 't_LN':PEH'i_IX' = %t_H_Object_Name
+                  #block_end
+               #block_end
+               
+            #block_end
+         #block_end
+         #otherwise #block
+         
+            #if %t_Mode == "SEARCH_AND_CREATE" #then #block
+            
+               @t_Element = "'t_LN':P'i_IX'" +";'t_PF'" + ";Not supported software package"
+                  
+               #if length(%v_Failed_Conversions) == 1000 #then #block
+                  #if %b_Write_Log #then @write = write_text(%t_Log_Fail, %v_Failed_Conversions, 1)
+                  @v_Failed_Conversions = vector
+               #block_end
+               @v_Failed_Conversions = append(%v_Failed_Conversions,%t_Element)
+               
+            #block_end
+                  
+         #block_end
+         
+       #case_end
+       
+   #loop_end   ;2
+   
+   #if NOT(l_P_objects:VMore) #then #loop_exit
+   #if %b_Has_User_Interface #then .delete dlg_Progress
+
+#loop_end   ;1
+
+
+#if %b_Write_Log #then #block
+
+   #if %t_Mode == "SEARCH_AND_CREATE" #then @write = write_text(%t_Log_Success, %v_Successful_P_Objects, 1)
+   #if %t_Mode == "SEARCH_AND_CREATE" #then @write = write_text(%t_Log_Fail, %v_Failed_Conversions,1)
+   #if %t_Mode == "SEARCH_AND_CREATE" #then @write = write_text(%t_Log_Conventions, %v_Successful_Conversions,0)
+   
+#block_end
+
+#if %b_Has_User_Interface #then #block
+   
+   dlg_Progress.Update_Information(translate("@Updating"), "", "")
+   .flush
+   root.Update_View(1)
+   
+#block_end
+
+#delete l_P_objects:v
+#delete v_Successful_Conversions:v
+#delete v_Successful_P_Objects:v
+#delete v_Failed_Conversions:v
+

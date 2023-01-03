@@ -1,0 +1,926 @@
+﻿;SSS SNMP Object Model and Object References generator
+
+#local SSS_OR = VECTOR()             ;SSS object references model
+#local SSS_OR_IX = 1
+#local SSS_PO_LN
+#local SSS_PO_IX
+#local SSS_PO_apl_number
+#local own_main_apl_number
+#local PO_TYPE
+#local stations
+#local nodes
+#local node_lookup
+#local node_line_id
+#local node_line_protocol
+#local sta_number
+#local sta_dec
+#local sta_type
+#local line
+#local line_nr
+#local sys_equipment
+#local line_container = VECTOR()
+#local line_container_count
+#local com_node
+#local node_container
+#local containers
+#local id
+#local node
+#local sys_node
+#local equipments = VECTOR()
+#local equipment_counter
+#local equipment_array = VECTOR()
+#local links
+#local link_counter = 1
+#local ied_communication
+#local time_out
+#local protocol_type
+#local line_protocol_number
+#local internal_name
+#local i_status
+#local i
+#local j
+#local c
+
+#local pt
+#local ln
+#local ix
+#local cs_ln
+#local cs_ix
+#local datapoint_type
+
+#local snmp_objects
+#local snmp_ln_groups
+#local previous_ln
+#local snmp_ln_counter
+#local common_data
+#local device_template
+#local visible_name
+#local type
+
+#local container_identifier
+#local container
+#local container_id
+#local container_internal_name
+#local container_type
+#local container_visible_name
+#local container_count
+#local container_found
+#local found_container
+#local snmp
+
+#local object_reference
+#local root_container_name
+#local node_container_name
+
+#local iattributes = VECTOR()
+#local d_iattributes = VECTOR()
+#local a_iattributes = VECTOR()
+#local discrete
+
+;Attributes for non-analog input process objects (includes state)
+d_iattributes(1) = list (name = "path",            ValueAttribute = "OI")
+d_iattributes(2) = list (name = "name",            ValueAttribute = "IL[DEV]")
+d_iattributes(3) = list (name = "customer_text",   ValueAttribute = "TX")
+d_iattributes(4) = list (name = "state",           ValueAttribute = "SX")
+d_iattributes(5) = list (name = "update_blocked",  ValueAttribute = "UB")
+d_iattributes(6) = list (name = "alarm_blocked",   ValueAttribute = "AB")
+d_iattributes(7) = list (name = "event_blocked",   ValueAttribute = "HB")
+d_iattributes(8) = list (name = "printout_blocked",ValueAttribute = "PB")
+d_iattributes(9) = list (name = "active",          ValueAttribute = "AL")
+d_iattributes(10) = list (name = "acknowledged",   ValueAttribute = "AR")
+d_iattributes(11) = list (name = "severity",       ValueAttribute = "AV")
+
+;Attributes for analog input process objects (state removed here)
+a_iattributes(1) = list (name = "path",            ValueAttribute = "OI")
+a_iattributes(2) = list (name = "name",            ValueAttribute = "IL[DEV]")
+a_iattributes(3) = list (name = "customer_text",   ValueAttribute = "TX")
+a_iattributes(4) = list (name = "update_blocked",  ValueAttribute = "UB")
+a_iattributes(5) = list (name = "alarm_blocked",   ValueAttribute = "AB")
+a_iattributes(6) = list (name = "event_blocked",   ValueAttribute = "HB")
+a_iattributes(7) = list (name = "printout_blocked",ValueAttribute = "PB")
+a_iattributes(8) = list (name = "active",          ValueAttribute = "AL")
+a_iattributes(9) = list (name = "acknowledged",   ValueAttribute = "AR")
+a_iattributes(10) = list (name = "severity",       ValueAttribute = "AV")
+
+
+root_container_name = "snmp"
+
+;Find LN groups for SNMP devices
+
+snmp_objects = APPLICATION_OBJECT_LIST(0, "IX", "A", "F", "", "RX == ""*BSSNMPIDEV*""")
+snmp_ln_groups = VECTOR()
+snmp_ln_counter = 0
+previous_ln = ""
+
+#LOOP_WITH i=1..snmp_objects.count
+  ln = snmp_objects.LN(i)
+  #IF ln <> previous_ln #THEN #BLOCK
+    snmp_ln_counter = snmp_ln_counter + 1
+    snmp_ln_groups(snmp_ln_counter) = ln
+    previous_ln = ln 
+  #BLOCK_END
+#LOOP_END
+
+;Go through SNMP LN groups, add equipments and containers
+
+ equipments = VECTOR()
+ equipment_counter=1
+
+#LOOP_WITH i=1..snmp_ln_counter
+ ln = snmp_ln_groups(i)
+ 
+ i_Status = status
+ #error ignore
+ common_data = 'ln':PCD
+ device_template = common_data.SNMP_DEVICE_TEMPLATE
+ #error stop
+ i_Status = status
+ #if i_Status <> 0 #then #BLOCK  ;Device template information notfound
+   device_template = "SNMP_MISC"    ;For IET/GEC SNMP devices that don't use device template in CD
+ #BLOCK_END
+
+ snmp_objects = APPLICATION_OBJECT_LIST(0, "IX", "INDEX", "", ln)
+ ix = snmp_objects.IX(1)
+ visible_name = 'ln':POI'ix'   ;Use this as visible name unless communication state process object found
+ sta_number = 'ln':PUN'ix'
+
+ internal_name = ln
+ internal_name = REPLACE(internal_name, "." , "=")
+ object_reference = root_container_name + "." + internal_name
+
+ ;Add SSS object references for datapoints
+ #IF sta_number <> 0 #THEN #BLOCK
+   #IF sta_number < 10000 #THEN #BLOCK
+      sta_dec = sta_number / 10000
+      cs_ln = "SYS_S" + SUBSTR("'sta_dec'",3,4) + "I"
+   #BLOCK_END
+   #ELSE #BLOCK
+      cs_ln = "SYS_S" + "'sta_number'" + "I"   
+   #BLOCK_END
+   cs_ix = 210
+   datapoint_type = "communication_state"
+  
+   i_Status = status
+   #error ignore
+   pt= 'cs_ln':PPT'cs_ix'
+   #error stop
+   i_Status = status
+   #if i_Status == 0 #then #BLOCK  ;Process object exists
+       visible_name = 'cs_ln':POI'cs_ix'  ;Use the communication state OI as visible name
+
+       SSS_OR(SSS_OR_IX) = LIST(name = object_reference + "." + datapoint_type, value = LIST(-
+                                                                                     DataPointType = datapoint_type, -
+                                                                                     ObjectReference = object_reference, -
+                                                                                     LN = cs_ln, -
+                                                                                     IX = cs_ix, -
+                                                                                     PT = 'pt', -
+                                                                                     ValueAttribute = "OV", -
+                                                                                     Attributes = d_iattributes -
+                                                                                 ) -
+                                  ) 
+                                  
+       SSS_OR_IX = SSS_OR_IX + 1 
+   
+   #BLOCK_END
+   
+  #BLOCK_END
+ 
+ 
+ 
+ 
+ 
+ SSS_OR(SSS_OR_IX) = LIST(name = object_reference + ".group_alarm_state", value = LIST(-
+                                                                               DataPointType = "group_alarm_state", -
+                                                                               ObjectReference = object_reference, -
+                                                                               LN = ln, -
+                                                                               ValueAttribute = "GS" -
+                                                                           ) -
+                            )                           
+ SSS_OR_IX = SSS_OR_IX + 1                                                              
+ 
+
+ #CASE device_template 
+   #WHEN "Computer" #BLOCK
+    type = "SNMP_STATION_COMPUTER"
+
+     equipments(i) = LIST( -
+                              identifier = -
+                                 LIST( - 
+                                       id = object_reference, -
+                                       internal_name = internal_name , -
+                                       type = type, -
+                                       visible_name = visible_name -
+                                     ), -
+                              datapoints = ("communication_state", "group_alarm_state"), -
+                              containers = VECTOR() -                                             
+                       )
+
+     container_count = 1    
+     #LOOP_WITH j=1..snmp_objects.count   ;Loop indexes of this process object group
+        ix = snmp_objects.IX(j)
+        #CASE ix
+           #WHEN 1 #BLOCK
+              container_internal_name = "cooling_device"
+              container_id = object_reference +  "." + container_internal_name
+              container_type = "COOLING_DEVICE"
+           container_visible_name = "Cooling Device"
+              datapoint_type = "cooling_device"   
+              discrete = TRUE
+           #BLOCK_END
+           
+           #WHEN 2 #BLOCK
+              container_internal_name = "power_supply"
+              container_id = object_reference + "." + container_internal_name
+              container_type = "POWER_SUPPLY"
+              container_visible_name = "Power Supply"
+              datapoint_type = "power_supply"
+              discrete = TRUE
+           #BLOCK_END 
+           
+            
+           #WHEN 3 #BLOCK
+              container_internal_name = "cpu"
+              container_id = object_reference + "." + container_internal_name
+              container_type = "CPU"
+              container_visible_name = "CPU"
+              datapoint_type = "temperature_status"
+              discrete = TRUE           
+           #BLOCK_END          
+
+           #WHEN 4 #BLOCK
+              container_internal_name = "cpu"
+              container_id = object_reference + "." + container_internal_name 
+              container_type = "CPU"
+              container_visible_name = "CPU"
+              datapoint_type = "temperature"
+              discrete = FALSE           
+           #BLOCK_END     
+             
+           #WHEN 5 #BLOCK
+              container_internal_name = "raid"
+              container_id = object_reference + "." + container_internal_name
+              container_type = "RAID"
+              container_visible_name = "RAID"
+              datapoint_type = "status"  
+              discrete = TRUE           
+           #BLOCK_END        
+            
+           #WHEN 6 #BLOCK
+              container_internal_name = "LAN_port_1"
+              container_id = object_reference + "." + container_internal_name
+              container_type = "DATA_PORT"
+              container_visible_name ="LAN Port 1"
+              datapoint_type = "status"    
+              discrete = TRUE
+           #BLOCK_END
+
+           #WHEN 7 #BLOCK
+              container_internal_name = "LAN_port_2"
+              container_id = object_reference + "." + container_internal_name
+              container_type = "DATA_PORT"
+              container_visible_name ="LAN Port 2"
+              datapoint_type = "status"    
+              discrete = TRUE
+           #BLOCK_END
+   
+           #OTHERWISE #BLOCK
+              container_internal_name = "'ix'"
+              container_id = object_reference + "." + container_internal_name
+              container_type = ln + "_" + "'ix'"
+              container_visible_name = ln + "_" + "'ix'"
+              datapoint_type = ln + "_" + "'ix'"
+              discrete = TRUE           
+           #BLOCK_END
+  
+         #CASE_END
+                                
+           containers = equipments(i).containers
+           container_found = FALSE
+           #LOOP_WITH c=1..LENGTH(containers)
+           
+              #IF containers(c).identifier.id == container_id #THEN #BLOCK    ;container already created
+                 container_found = TRUE
+                 found_container = containers(c)
+                 #LOOP_EXIT
+              #BLOCK_END
+           #LOOP_END
+           
+           #IF container_found #THEN #BLOCK    ;add datapoint to existing container
+              found_container.datapoints = APPEND(found_container.datapoints, VECTOR(datapoint_type))
+              equipments(i).containers(c).datapoints = found_container.datapoints           
+           #BLOCK_END
+           #ELSE #BLOCK  ;create new container                                      
+              container_identifier = LIST( -
+                                             id = container_id, -
+                                             internal_name = container_internal_name,-
+                                  visible_name = container_visible_name,-
+                                             type = container_type -
+                                          )
+                                          
+                                 container = LIST(-
+                                                  identifier = container_identifier, -
+                                                  datapoints = VECTOR(datapoint_type), -
+                                                  containers = VECTOR() -
+                                             )
+              equipments(i).containers(container_count) = container   
+              container_count = container_count + 1              
+            #BLOCK_END
+
+            #IF discrete == TRUE #THEN #BLOCK   ;for discrete values with state text information
+               iattributes = d_iattributes
+            #BLOCK_END
+            #ELSE #BLOCK
+               iattributes = a_iattributes
+            #BLOCK_END
+            
+            pt= 'LN':PPT'IX'
+               
+            SSS_OR(SSS_OR_IX) = LIST(name = container_id + "." + datapoint_type, value = LIST(-
+                                                                                              DataPointType = datapoint_type, -
+                                                                                              ObjectReference = container_id, -
+                                                                                              LN = ln, -
+                                                                                              IX = ix, -
+                                                                                              PT = 'pt', -
+                                                                                              ValueAttribute = "OV", -
+                                                                                              Attributes = iattributes -
+                                                                                          ) -
+                                           ) 
+                                           
+            SSS_OR_IX = SSS_OR_IX + 1 
+             
+      #LOOP_END
+   
+   #BLOCK_END
+
+   #WHEN "GPS" #BLOCK
+    type = "SNMP_GPS_TIME_SERVER"
+
+     equipments(i) = LIST( -
+                              identifier = -
+                                 LIST( - 
+                                       id = object_reference, -
+                                       internal_name = internal_name , -
+                                       type = type, -
+                                       visible_name = visible_name -
+                                     ), -
+                              datapoints = ("communication_state", "group_alarm_state"), -
+                              containers = VECTOR() -                                             
+                       )
+
+     container_count = 1    
+     #LOOP_WITH j=1..snmp_objects.count   ;Loop indexes of this process object group
+        ix = snmp_objects.IX(j)
+        #CASE ix
+           #WHEN 1 #BLOCK
+              container_internal_name = "ntp"
+              container_id = object_reference + "." + container_internal_name
+              container_type = "NTP"
+              container_visible_name = "NTP"
+              datapoint_type = "ntp_state" 
+              discrete = TRUE           
+           #BLOCK_END
+           
+           #WHEN 2 #BLOCK
+              container_internal_name = "gps"
+              container_id = object_reference + "." + container_internal_name
+              container_type = "GPS"
+              container_visible_name ="GPS"
+              datapoint_type = "gps_state" 
+              discrete = TRUE           
+           #BLOCK_END 
+           
+            
+           #WHEN 3 #BLOCK
+              container_internal_name = "gps"
+              container_id = object_reference + "." + container_internal_name
+              container_type = "GPS"
+              container_visible_name ="GPS"
+              datapoint_type = "number_of_satellites" 
+              discrete = FALSE           
+           #BLOCK_END          
+            
+           #WHEN 4 #BLOCK
+              container_internal_name = "LAN_port_1"
+              container_id = object_reference + "." + container_internal_name
+              container_type = "DATA_PORT"
+              container_visible_name ="LAN Port 1"
+              datapoint_type = "status" 
+              discrete = TRUE           
+           #BLOCK_END
+
+           #WHEN 5 #BLOCK
+              container_internal_name = "LAN_port_2"
+              container_id = object_reference + "." + container_internal_name
+              container_type = "DATA_PORT"
+              container_visible_name ="LAN Port 2"
+              datapoint_type = "status" 
+              discrete = TRUE           
+           #BLOCK_END
+         
+           #WHEN 6 #BLOCK
+              container_internal_name = "LAN_port_3"
+              container_id = object_reference + "." + container_internal_name      
+              container_type = "DATA_PORT"
+              container_visible_name ="LAN Port 3"
+              datapoint_type = "status"  
+              discrete = TRUE           
+           #BLOCK_END
+   
+           #OTHERWISE #BLOCK
+              container_internal_name = "'ix'"
+              container_id = object_reference + "." + container_internal_name
+              container_type = ln + "_" + "'ix'"
+              container_visible_name = ln + "_" + "'ix'"
+              datapoint_type = ln + "_" + "'ix'"  
+              discrete = TRUE           
+           #BLOCK_END
+  
+         #CASE_END
+                                
+           containers = equipments(i).containers
+           container_found = FALSE
+           #LOOP_WITH c=1..LENGTH(containers)
+           
+              #IF containers(c).identifier.id == container_id #THEN #BLOCK    ;container already created
+                 container_found = TRUE
+                 found_container = containers(c) 
+                 #LOOP_EXIT
+              #BLOCK_END
+           #LOOP_END
+           
+           #IF container_found #THEN #BLOCK    ;add datapoint to existing container
+              found_container.datapoints = APPEND(found_container.datapoints, VECTOR(datapoint_type))
+              equipments(i).containers(c).datapoints = found_container.datapoints           
+           #BLOCK_END
+           #ELSE #BLOCK  ;create new container                                      
+              container_identifier = LIST( -
+                                             id = container_id, -
+                                             internal_name = container_internal_name,-
+                                  visible_name = container_visible_name,-
+                                             type = container_type -
+                                          )
+                                          
+              container = LIST(-
+                                                  identifier = container_identifier, -
+                                                  datapoints = VECTOR(datapoint_type), -
+                                                  containers = VECTOR() -
+                                             )
+              equipments(i).containers(container_count) = container   
+              container_count = container_count + 1                
+            #BLOCK_END
+            
+            
+
+            #IF discrete == TRUE #THEN #BLOCK   ;for discrete values with state text information
+               iattributes = d_iattributes
+            #BLOCK_END
+            #ELSE #BLOCK
+               iattributes = a_iattributes
+            #BLOCK_END   
+            
+            pt= 'LN':PPT'IX'      
+               
+            SSS_OR(SSS_OR_IX) = LIST(name = container_id + "." + datapoint_type, value = LIST(-
+                                                                                              DataPointType = datapoint_type, -
+                                                                                              ObjectReference = container_id, -
+                                                                                              LN = ln, -
+                                                                                              IX = ix, -
+                                                                                              PT = 'pt', -
+                                                                                              ValueAttribute = "OV", -
+                                                                                              Attributes = iattributes -
+                                                                                          ) -
+                                           ) 
+                                           
+            SSS_OR_IX = SSS_OR_IX + 1   
+
+ 
+      #LOOP_END
+
+   #BLOCK_END
+
+   #WHEN "Network Switch 20 ports" #BLOCK
+    type = "SNMP_NETWORK_SWITCH"
+
+     equipments(i) = LIST( -
+                              identifier = -
+                                 LIST( - 
+                                       id = object_reference, -
+                                       internal_name = internal_name , -
+                                       type = type, -
+                                       visible_name = visible_name -
+                                     ), -
+                              datapoints = ("communication_state", "group_alarm_state"), -
+                              containers = VECTOR() -                                             
+                       )
+
+     container_count = 1    
+     #LOOP_WITH j=1..snmp_objects.count   ;Loop indexes of this process object group
+        ix = snmp_objects.IX(j)
+        #CASE ix
+              
+           #WHEN 1..20 #BLOCK
+              container_internal_name = "port_"+"'ix'"
+              container_id = object_reference + "." + container_internal_name
+              container_type = "DATA_PORT"
+              container_visible_name = "Port " + "'ix'" 
+              datapoint_type = "port_status" 
+              discrete = TRUE           
+           #BLOCK_END     
+
+           #WHEN 100 #BLOCK
+              container_internal_name = "hardware"
+              container_id = object_reference + "." + container_internal_name
+              container_type = "HARDWARE"
+              container_visible_name = "Hardware"
+              datapoint_type = "temperature" 
+              discrete = FALSE           
+           #BLOCK_END 
+         
+           #WHEN 102 #BLOCK
+              container_internal_name = "power_supply_1"
+              container_id = object_reference + "." + container_internal_name
+              container_type = "POWER_SUPPLY"
+              container_visible_name = "Power Supply"
+              datapoint_type = "power_supply_status"  
+              discrete = TRUE           
+           #BLOCK_END 
+         
+           #WHEN 103 #BLOCK
+              container_internal_name = "power_supply_2"
+              container_id = object_reference + "." + container_internal_name
+              container_type = "POWER_SUPPLY"
+              container_visible_name = "Power Supply"
+              datapoint_type = "power_supply_status" 
+              discrete = TRUE           
+           #BLOCK_END 
+         
+         #OTHERWISE #BLOCK
+              container_internal_name = "'ix'"
+              container_id = object_reference + "." + container_internal_name
+              container_type = ln + "_" + "'ix'"
+              container_visible_name = ln + "_" + "'ix'"
+              datapoint_type = ln + "_" + "'ix'"  
+              discrete = TRUE           
+           #BLOCK_END
+  
+         #CASE_END
+                                
+           containers = equipments(i).containers
+           container_found = FALSE
+           #LOOP_WITH c=1..LENGTH(containers)
+           
+              #IF containers(c).identifier.id == container_id #THEN #BLOCK    ;container already created
+                 container_found = TRUE
+                 found_container = containers(c) 
+                 #LOOP_EXIT
+              #BLOCK_END
+           #LOOP_END
+           
+           #IF container_found #THEN #BLOCK    ;add datapoint to existing container
+              found_container.datapoints = APPEND(found_container.datapoints, VECTOR(datapoint_type))
+              equipments(i).containers(c).datapoints = found_container.datapoints           
+           #BLOCK_END
+           #ELSE #BLOCK  ;create new container                                      
+              container_identifier = LIST( -
+                                             id = container_id, -
+                                             internal_name = container_internal_name,-
+                                  visible_name = container_visible_name,-
+                                             type = container_type -
+                                          )
+                                          
+              container = LIST(-
+                                                  identifier = container_identifier, -
+                                                  datapoints = VECTOR(datapoint_type), -
+                                                  containers = VECTOR() -
+                                             )
+              equipments(i).containers(container_count) = container   
+              container_count = container_count + 1                
+            #BLOCK_END
+            
+            
+
+            #IF discrete == TRUE #THEN #BLOCK   ;for discrete values with state text information
+               iattributes = d_iattributes
+            #BLOCK_END
+            #ELSE #BLOCK
+               iattributes = a_iattributes
+            #BLOCK_END  
+            
+            pt= 'LN':PPT'IX'         
+               
+            SSS_OR(SSS_OR_IX) = LIST(name = container_id + "." + datapoint_type, value = LIST(-
+                                                                                              DataPointType = datapoint_type, -
+                                                                                              ObjectReference = container_id, -
+                                                                                              LN = ln, -
+                                                                                              IX = ix, -
+                                                                                              PT = 'pt', -
+                                                                                              ValueAttribute = "OV", -
+                                                                                              Attributes = iattributes -
+                                                                                          ) -
+                                           ) 
+                                           
+            SSS_OR_IX = SSS_OR_IX + 1 
+
+ 
+      #LOOP_END
+
+   #BLOCK_END
+
+   #WHEN "Printer" #BLOCK
+    type = "SNMP_PRINTER"
+
+     equipments(i) = LIST( -
+                              identifier = -
+                                 LIST( - 
+                                       id = object_reference, -
+                                       internal_name = internal_name , -
+                                       type = type, -
+                                       visible_name = visible_name -
+                                     ), -
+                              datapoints = ("communication_state", "group_alarm_state"), -
+                              containers = VECTOR() -                                             
+                       )
+                  
+     container_count = 1    
+     #LOOP_WITH j=1..snmp_objects.count   ;Loop indexes of this process object group
+        ix = snmp_objects.IX(j)
+        #CASE ix
+           #WHEN 1 #BLOCK
+              container_internal_name = "paper"
+              container_id = object_reference + "." + container_internal_name
+              container_type = "PAPER"
+              container_visible_name = "Paper"
+              datapoint_type = "paper_low" 
+              discrete = TRUE           
+           #BLOCK_END
+         
+           #WHEN 2 #BLOCK
+              container_internal_name = "paper"
+              container_id = object_reference + "." + container_internal_name
+              container_type = "PAPER"
+              container_visible_name = "Paper"
+              datapoint_type = "paper_empty" 
+              discrete = TRUE           
+           #BLOCK_END
+         
+           #WHEN 3 #BLOCK
+              container_internal_name = "toner"
+              container_id = object_reference + "." + container_internal_name
+              container_type = "TONER"
+              container_visible_name = "Toner"
+              datapoint_type = "toner_low"
+              discrete = TRUE           
+           #BLOCK_END
+         
+           #WHEN 4 #BLOCK
+              container_internal_name = "toner"
+              container_id = object_reference + "." + container_internal_name
+              container_type = "TONER"
+              container_visible_name = "Toner"
+              datapoint_type = "toner_empty"  
+              discrete = TRUE           
+           #BLOCK_END
+           
+           #WHEN 5 #BLOCK
+              container_internal_name = "door"
+              container_id = object_reference + "." + container_internal_name
+              container_type = "DOOR"
+              container_visible_name = "Door"
+              datapoint_type = "door_open" 
+              discrete = TRUE           
+           #BLOCK_END 
+           
+           #WHEN 6 #BLOCK
+              container_internal_name = "paper"
+              container_id = object_reference + "." + container_internal_name
+              container_type = "PAPER"
+              container_visible_name = "Paper"
+              datapoint_type = "paper_jammed" 
+              discrete = TRUE           
+           #BLOCK_END 
+                     
+           #WHEN 7 #BLOCK
+              container_internal_name = "general"
+              container_id = object_reference + "." + container_internal_name
+              container_type = "GENERAL"
+              container_visible_name = "General"
+              datapoint_type = "online_state"  
+              discrete = TRUE           
+           #BLOCK_END          
+            
+           #WHEN 8 #BLOCK
+              container_internal_name = "general"
+              container_id = object_reference + "." + container_internal_name
+              container_type = "GENERAL"
+              container_visible_name = "General"
+              datapoint_type = "service_requested" 
+              discrete = TRUE           
+           #BLOCK_END  
+   
+         #OTHERWISE #BLOCK
+              container_internal_name = "'ix'"
+              container_id = object_reference + "." + container_internal_name
+              container_type = ln + "_" + "'ix'"
+              container_visible_name = ln + "_" + "'ix'"
+              datapoint_type = ln + "_" + "'ix'"   
+              discrete = TRUE           
+           #BLOCK_END
+  
+         #CASE_END
+                                
+           containers = equipments(i).containers
+           container_found = FALSE
+           #LOOP_WITH c=1..LENGTH(containers)
+           
+              #IF containers(c).identifier.id == container_id #THEN #BLOCK    ;container already created
+                 container_found = TRUE
+                 found_container = containers(c) 
+                 #LOOP_EXIT
+              #BLOCK_END
+           #LOOP_END
+           
+           #IF container_found #THEN #BLOCK    ;add datapoint to existing container
+              found_container.datapoints = APPEND(found_container.datapoints, VECTOR(datapoint_type))
+              equipments(i).containers(c).datapoints = found_container.datapoints           
+           #BLOCK_END
+           #ELSE #BLOCK  ;create new container                                      
+              container_identifier = LIST( -
+                                             id = container_id, -
+                                             internal_name = container_internal_name,-
+                                  visible_name = container_visible_name,-
+                                             type = container_type -
+                                          )
+                                          
+              container = LIST(-
+                                                  identifier = container_identifier, -
+                                                  datapoints = VECTOR(datapoint_type), -
+                                                  containers = VECTOR() -
+                                             )
+              equipments(i).containers(container_count) = container   
+              container_count = container_count + 1                 
+            #BLOCK_END
+            
+
+            #IF discrete == TRUE #THEN #BLOCK   ;for discrete values with state text information
+               iattributes = d_iattributes
+            #BLOCK_END
+            #ELSE #BLOCK
+               iattributes = a_iattributes
+            #BLOCK_END   
+            
+            pt= 'LN':PPT'IX'       
+               
+            SSS_OR(SSS_OR_IX) = LIST(name = container_id + "." + datapoint_type, value = LIST(-
+                                                                                              DataPointType = datapoint_type, -
+                                                                                              ObjectReference = container_id, -
+                                                                                              LN = ln, -
+                                                                                              IX = ix, -
+                                                                                              PT = 'pt', -
+                                                                                              ValueAttribute = "OV", -
+                                                                                              Attributes = iattributes -
+                                                                                          ) -
+                                           ) 
+                                           
+            SSS_OR_IX = SSS_OR_IX + 1   
+
+ 
+      #LOOP_END
+
+
+   #BLOCK_END
+
+
+
+   #WHEN "SNMP_MISC" #BLOCK
+    type = "SNMP_MISC"
+
+     equipments(i) = LIST( -
+                              identifier = -
+                                 LIST( - 
+                                       id = object_reference, -
+                                       internal_name = internal_name , -
+                                       type = type, -
+                                       visible_name = visible_name -
+                                     ), -
+                              datapoints = ("communication_state", "group_alarm_state"), -
+                              containers = VECTOR() -                                             
+                       )
+
+     container_count = 1    
+     #LOOP_WITH j=1..snmp_objects.count   ;Loop indexes of this process object group
+        ix = snmp_objects.IX(j)
+        #CASE ix
+          
+         #OTHERWISE #BLOCK       
+              container_internal_name = "unknown"
+              container_id = object_reference + "." + container_internal_name
+              container_type = "unknown"
+              container_visible_name = "unknown"
+              datapoint_type = ln + "_" + "'ix'"  
+              discrete = TRUE           
+           #BLOCK_END
+  
+         #CASE_END
+                                
+           containers = equipments(i).containers
+           container_found = FALSE
+           #LOOP_WITH c=1..LENGTH(containers)
+           
+              #IF containers(c).identifier.id == container_id #THEN #BLOCK    ;container already created
+                 container_found = TRUE
+                 found_container = containers(c) 
+                 #LOOP_EXIT
+              #BLOCK_END
+           #LOOP_END
+           
+           #IF container_found #THEN #BLOCK    ;add datapoint to existing container
+              found_container.datapoints = APPEND(found_container.datapoints, VECTOR(datapoint_type))
+              equipments(i).containers(c).datapoints = found_container.datapoints           
+           #BLOCK_END
+           #ELSE #BLOCK  ;create new container                                      
+              container_identifier = LIST( -
+                                             id = container_id, -
+                                             internal_name = container_internal_name,-
+                                  visible_name = container_visible_name,-
+                                             type = container_type -
+                                          )
+                                          
+              container = LIST(-
+                                                  identifier = container_identifier, -
+                                                  datapoints = VECTOR(datapoint_type), -
+                                                  containers = VECTOR() -
+                                             )
+              equipments(i).containers(container_count) = container   
+              container_count = container_count + 1                
+            #BLOCK_END
+            
+            
+
+            #IF discrete == TRUE #THEN #BLOCK   ;for discrete values with state text information
+               iattributes = d_iattributes
+            #BLOCK_END
+            #ELSE #BLOCK
+               iattributes = a_iattributes
+            #BLOCK_END  
+            
+            pt= 'LN':PPT'IX'         
+               
+            SSS_OR(SSS_OR_IX) = LIST(name = container_id + "." + datapoint_type, value = LIST(-
+                                                                                              DataPointType = datapoint_type, -
+                                                                                              ObjectReference = container_id, -
+                                                                                              LN = ln, -
+                                                                                              IX = ix, -
+                                                                                              PT = 'pt', -
+                                                                                              ValueAttribute = "OV", -
+                                                                                              Attributes = iattributes -
+                                                                                          ) -
+                                           ) 
+                                           
+            SSS_OR_IX = SSS_OR_IX + 1 
+
+ 
+      #LOOP_END
+
+   #BLOCK_END
+
+
+ #CASE_END
+
+#LOOP_END
+
+
+
+;
+; Create the top level communications container
+;
+;
+
+
+#LOOP_WITH i=1..length(equipments)
+   equipment_array(i) = equipments(i).identifier.id
+#LOOP_END
+
+containers = VECTOR( -
+                      LIST(-
+                              identifier = LIST( -
+                                                 id="snmp", - 
+                                                 internal_name="snmp", - 
+                                                 type="SNMP", -
+                                                 visible_name="SNMP"), -
+                              datapoints = VECTOR(), -
+                              equipments = equipment_array, -
+                              containers = VECTOR() -
+                           ) -
+                   )
+
+
+; Merge all to IED Communication model
+                
+snmp = LIST( - 
+                      name = "snmp", -
+                      containers = containers, -
+                      equipments = equipments, -
+                 links = VECTOR() -
+                     )
+      
+#RETURN LIST(object_model=snmp, object_references=SSS_OR)

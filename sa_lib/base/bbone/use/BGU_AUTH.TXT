@@ -1,0 +1,88 @@
+; This program is used as a station control authority service for medium
+;
+; DO NOT EDIT!
+;
+; In:  %LR_OBJECT_LN,        text, The name of the station local/remote-switch
+;      %LR_OBJECT_IX,        int,  The index of the station local/remote-switch
+;      %COMMAND_SOURCE_ID,   text, Name of the command source
+;      %COMMAND_SOURCE_TYPE, text, Source can be "local" or "remote"
+;
+; Out: %CONTROLS_ALLOWED,    int,  0=not authorized, 1=authorized, -1=error, 
+;                                  -2=command source is not among authorized centers
+;      %SCIL_CODE,           int,  status code of this program
+;--------------------------------------------------------------------------
+
+#ERROR IGNORE
+
+;reset status
+@S=STATUS
+
+;initialize output variable (-1=error)
+@CONTROLS_ALLOWED=-1
+
+;read stations local/remote switch state
+@TMP_LR
+@TMP_CX
+;if station local/remote-switch is not sampled, it is considered as a local state
+#IF 'LR_OBJECT_LN':POS'LR_OBJECT_IX'==10 #THEN @TMP_LR=0
+#ELSE @TMP_LR = 'LR_OBJECT_LN':POV'LR_OBJECT_IX'
+@TMP_CX = 'LR_OBJECT_LN':PCX'LR_OBJECT_IX'
+@B_IS_BAY_OP_SWITCH = (SUBSTR('LR_OBJECT_LN':PRX'LR_OBJECT_IX', 21, 10) == "FPABAYIOPS")
+      
+;if command source type is local (SCS)
+#IF %COMMAND_SOURCE_TYPE=="LOCAL" #THEN #BLOCK
+   ;if station local/remote-switch is in "station"
+;   #IF %TMP_LR==1 #THEN #BLOCK 
+	#IF (%TMP_LR==1 AND 'LR_OBJECT_LN':PPT'LR_OBJECT_IX'== 12) OR (%TMP_LR==1 AND 'LR_OBJECT_LN':PPT'LR_OBJECT_IX'== 3) #THEN #BLOCK
+      ;check if command source is on the list of authorized control centers
+      @CHECK1=SEPARATE(%TMP_CX,"/")
+      @CHECK2=SELECT(%CHECK1,"==%COMMAND_SOURCE_ID")
+      #IF LENGTH(%CHECK2)<>0 #THEN @CONTROLS_ALLOWED = 1
+      #ELSE @CONTROLS_ALLOWED = -2
+   #BLOCK_END
+   ;if station local/remote-switch is in "reserved" then always authorized
+   #ELSE_IF %TMP_LR==3 #THEN #BLOCK
+      #IF %B_IS_BAY_OP_SWITCH #THEN #BLOCK
+         ;check if command source is on the list of authorized control centers
+         @CHECK1=SEPARATE(%TMP_CX,"/")
+         @CHECK2=SELECT(%CHECK1,"==%COMMAND_SOURCE_ID")
+         #IF LENGTH(%CHECK2)<>0 #THEN @CONTROLS_ALLOWED = 1
+         #ELSE @CONTROLS_ALLOWED = -2 
+      #BLOCK_END
+      #ELSE #BLOCK
+         #IF %TMP_LR==3 #THEN @CONTROLS_ALLOWED = 1
+      #BLOCK_END
+   #BLOCK_END
+   ;if station local/remote-switch is in "other"
+   #ELSE @CONTROLS_ALLOWED = 0
+#BLOCK_END
+
+;if command source type is remote (NCS)
+#IF %COMMAND_SOURCE_TYPE=="REMOTE" #THEN #BLOCK
+   ;if station local/remote-switch is in "remote"
+   ;#IF %TMP_LR==2 #THEN #BLOCK
+   #IF (%TMP_LR==2 AND 'LR_OBJECT_LN':PPT'LR_OBJECT_IX'== 12) OR (%TMP_LR==0 AND 'LR_OBJECT_LN':PPT'LR_OBJECT_IX'== 3) #THEN #BLOCK
+      ;check if command source is on the list of authorized control centers
+      @CHECK1=SEPARATE(%TMP_CX,"/")
+      @CHECK2=SELECT(%CHECK1,"==%COMMAND_SOURCE_ID")
+      #IF LENGTH(%CHECK2)<>0 #THEN @CONTROLS_ALLOWED = 1
+      #ELSE @CONTROLS_ALLOWED = -2
+   #BLOCK_END
+   ;if station local/remote-switch is in "reserved" then always authorized
+   #ELSE_IF %TMP_LR==3 #THEN #BLOCK
+      #IF SUBSTR('LR_OBJECT_LN':PRX'LR_OBJECT_IX', 21, 10) == "FPABAYIOPS" #THEN #BLOCK
+         ;check if command source is on the list of authorized control centers
+         @CHECK1=SEPARATE(%TMP_CX,"/")
+         @CHECK2=SELECT(%CHECK1,"==%COMMAND_SOURCE_ID")
+         #IF LENGTH(%CHECK2)<>0 #THEN @CONTROLS_ALLOWED = 1
+         #ELSE @CONTROLS_ALLOWED = -2 
+      #BLOCK_END
+      #ELSE @CONTROLS_ALLOWED = 1
+   #BLOCK_END
+   ;if station local/remote-switch is in "other"
+   #ELSE @CONTROLS_ALLOWED = 0
+#BLOCK_END
+
+;in case of errors
+@SCIL_CODE=STATUS
+#IF %SCIL_CODE<>0 #THEN @CONTROLS_ALLOWED = -1

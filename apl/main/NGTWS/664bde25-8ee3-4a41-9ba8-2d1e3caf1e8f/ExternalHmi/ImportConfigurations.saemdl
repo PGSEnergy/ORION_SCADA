@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<NGT>
+  <Header>
+    <ModelInfo value="ExternalHmiImportConfigurations" />
+    <ModelVersion value="1.3.0.0" />
+    <PersistencyVersion value="1.0.0.0" />
+  </Header>
+  <DomModel>
+    <Complex name="Root" type="t0" id="0">
+      <Collection name="importConfigurations" type="t1" id="0">
+        <Simple name="Capacity" value="6" />
+        <Items>
+          <Reference name="item" id="1" />
+          <Reference name="item" id="2" />
+          <Reference name="item" id="3" />
+          <Reference name="item" id="4" />
+          <Reference name="item" id="5" />
+          <Reference name="item" id="6" />
+        </Items>
+      </Collection>
+    </Complex>
+    <Complex name="item" type="t2" id="1">
+      <Simple name="Identifier" value="X1F0413042104.X1E04200406041E041D04" />
+      <Simple name="ImportAction" value="Add" />
+    </Complex>
+    <Complex name="item" type="t2" id="2">
+      <Simple name="Identifier" value="AA1.C1" />
+      <Simple name="ImportAction" value="Add" />
+    </Complex>
+    <Complex name="item" type="t2" id="3">
+      <Simple name="Identifier" value="X1F0413042104" />
+      <Simple name="ImportAction" value="Add" />
+    </Complex>
+    <Complex name="item" type="t2" id="4">
+      <Simple name="Identifier" value="X4E004300430020003100.X530074006100740069006F006E00" />
+      <Simple name="ImportAction" value="IgnoreAdd" />
+    </Complex>
+    <Complex name="item" type="t2" id="5">
+      <Simple name="Identifier" value="AA2.C1" />
+      <Simple name="ImportAction" value="IgnoreAdd" />
+    </Complex>
+    <Complex name="item" type="t2" id="6">
+      <Simple name="Identifier" value="X4E004300430020003100" />
+      <Simple name="ImportAction" value="IgnoreAdd" />
+    </Complex>
+    <Types>
+      <Type value="ABB.NGT.Domain.ExternalHmi.Implementation.Import.ImportConfigurationCatalog, ABB.NGT.Domain.ExternalHmi.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t0" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.ExternalHmi.Contracts.Import.IImportConfiguration, ABB.NGT.Domain.ExternalHmi.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t1" />
+      <Type value="ABB.NGT.Domain.ExternalHmi.Implementation.Import.ImportConfiguration, ABB.NGT.Domain.ExternalHmi.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t2" />
+    </Types>
+  </DomModel>
+</NGT>

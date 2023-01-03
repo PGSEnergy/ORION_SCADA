@@ -1,0 +1,64 @@
+﻿; This command procedure sends negative confirm when address of command is unknown 
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT: @UN, @OA
+;
+;------------------------------------------------------------------------------------------------
+
+#IF STA'UN':BST == "IEC" OR STA'UN':BST == "DNP" #THEN #BLOCK
+   #IF LENGTH(APL:BSV) >= 19 #THEN #BLOCK
+      #IF DATA_TYPE(APL:BSV(20)) =="LIST" #THEN #BLOCK
+         ;read general information and NCC xref table
+         @GEN_INFO = APL:BSV(20)
+         @NCC_XREF_TABLE = APL:BSV(21)
+         @ENABLE_LOGGING = COM_GENVAR:PBZ(3)
+         @NCC_PROTOCOL = 0
+         
+         ;find the command source of the incoming signal
+         @NCC_STA_NUMBER = APL:BST('UN')
+         @NCC_XREF_TABLE = APL:BSV(21)
+         #IF DATA_TYPE(%NCC_XREF_TABLE) == "VECTOR" AND LENGTH(%NCC_XREF_TABLE) > 0 #THEN #BLOCK
+            #LOOP_WITH NCC_NUMBER = 1..LENGTH(%NCC_XREF_TABLE)
+               @NCC = %NCC_XREF_TABLE(%NCC_NUMBER)
+               #IF LENGTH(%NCC) >= 10 #THEN #BLOCK
+                  #IF %NCC(1) == %NCC_STA_NUMBER #THEN #BLOCK
+                     @NCC_PROTOCOL = %NCC(2)
+                     @NCC_SUBPROTOCOL = %NCC(10)
+                     @CMD_SOURCE = %NCC(3)
+                     #LOOP_EXIT
+                  #BLOCK_END
+               #BLOCK_END
+            #LOOP_END
+         #BLOCK_END
+         
+         #CASE %NCC_PROTOCOL
+            #WHEN 1 #BLOCK ; ********************** RP-570 slave protocol ***********************************************************************;
+            
+            
+            #BLOCK_END
+            #WHEN 2 #BLOCK ;********************** IEC 870-5-101/104 slave protocol *************************************************************; 
+               #IF %NCC_SUBPROTOCOL == 0 OR %NCC_SUBPROTOCOL == 1 #THEN #BLOCK 
+                  #SET STA'UN':SCF=vector(64+7,'OA')
+                  #IF %ENABLE_LOGGING #THEN #BLOCK ; 1
+                     @TIME = HR_CLOCK
+                     @RT = TIMES(TIME:VCL)
+                     @RM = ROUND(TIME:VUS/1000)      
+                     @INFO="'rt':'rm',DSUN,'UN',,,Negative activation confirmation,,,,'OA',,,,,,,,,,,,"
+                     #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                     #ELSE #DO COM_LOG:CIN 
+                  #BLOCK_END
+               #BLOCK_END
+            #BLOCK_END
+            #WHEN 3 #BLOCK ;********************** CPI interface ********************************************************************************;
+         
+         
+            #BLOCK_END
+            #WHEN 4 #BLOCK ;********************** DNP 3.0 slave protocol ***********************************************************************;         
+               #SET STA'UN':SCF=vector(4, 'OA', 256*4+0) ;Raise INN bit 2.2 temporarily 
+            #BLOCK_END
+         #CASE_END
+      #BLOCK_END
+   #BLOCK_END
+#BLOCK_END       

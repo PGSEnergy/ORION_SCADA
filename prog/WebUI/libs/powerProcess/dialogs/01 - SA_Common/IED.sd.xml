@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="SAObjectType" content="IED" />
+    <d:variable type="external" name="control" default="''" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="IED" />
+    <d:meta name="dv-custom-attribute|ToolLauncherProgId" content="LIB510RT.LIB510IEDTools" />
+    <d:meta name="dv-custom-attribute|SANoRotate" content="" />
+    <d:meta name="dv-custom-attribute|SAAddCustomAttribute" content="LIBObjectName" />
+    <d:meta name="dv-custom-attribute|SARepresentation" content="LIB 510" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="alarm-signal" default="0" />
+    <d:variable type="external" name="caption" default="''" />
+    <d:mapping name="f232" parameters="value">
+      <d:step value="[subdrawing_color, colors[63]]" when="value &lt;= 0.500" />
+      <d:step value="[[subdrawing_color, colors[46]], [colors[63], colors[63]]]" when="value &lt;= 1.500" />
+      <d:otherwise value="[colors[45], colors[63]]" />
+    </d:mapping>
+  </d:head>
+  <d:body n:LN="{LN(control)}" n:IX="{IX(control)}" x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <d:action type="control" when="`control_action_enabled`">
+      <d:parameter name="LN" value="LN(control)" />
+      <d:parameter name="IX" value="IX(control)" />
+      <d:parameter name="opc-id" value="control" />
+      <d:parameter name="progId" value="'LIB510RT.LIB510IEDTools'" />
+    </d:action>
+    <s:polyline points="9.600,-10 10,-9.600 10,9.600 9.600,10 -9.600,10 -10,9.600 -10,-9.600 -9.600,-10 " d:transform-anchor="center-center" y:fill="{subdrawing_color}" y:fill-rule="evenodd" y:stroke="{colors[17]}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Face">
+      <d:animate attributes="fill, stroke" values="if(`subdrawing_dynamics`, f232(`alarm-signal`), subdrawing_color)" />
+    </s:polyline>
+    <s:polyline points="-10,9.600 -10,-9.600 -9.600,-10 9.600,-10 " y:fill="none" y:fill-rule="evenodd" y:stroke="{colors[16]}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Frame Top Left" />
+    <s:rect width="14.400" height="6.400" x="-7.200" y="-7.200" s:pointer-events="visiblePainted" y:fill="{colors[32]}" y:fill-rule="evenodd" y:stroke="{colors[17]}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Screen" />
+    <s:polyline points="-7.200,-0.800 -7.200,-7.200 7.200,-7.200 " y:fill="none" y:fill-rule="evenodd" y:stroke="{colors[17]}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Screen Frame Top Left" />
+    <s:text font-size="4.794" fill="{colors[30]}" x="0" y="4.400" text-anchor="middle" dominant-baseline="central" d:textScaleAdjustment="true" d:transform-anchor="center-center" y:fill="{colors[30]}" y:fill-rule="evenodd" d:object-name="Caption Text">{if(`subdrawing_dynamics`, format('%s', `caption`), 'XXX')}</s:text>
+  </d:body>
+</d:document>

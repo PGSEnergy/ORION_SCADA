@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="SAVersionInfo" content="1" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Tagout" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="Tagout" />
+    <d:meta name="dv-custom-attribute|SATopology" content="" />
+    <d:meta name="dv-custom-attribute|SARepresentation" content="ANSI" />
+    <d:meta name="dv-custom-attribute|SANoRotate" content="" />
+    <d:meta name="dv-custom-attribute|SAOrientation" content="Horizontal" />
+    <d:meta name="dv-custom-attribute|SAVersionInfo" content="1" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="value" default="0" />
+    <d:mapping name="f314" parameters="value">
+      <d:step value="true" when="value &lt;= 1.500" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f315" parameters="value">
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 31.500" />
+      <d:otherwise value="'url(#i2)'" />
+    </d:mapping>
+    <d:mapping name="f316" parameters="value">
+      <d:step value="true" when="value &lt;= 1.500" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f317" parameters="value">
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 15.500" />
+      <d:step value="'url(#i3)'" when="value &lt;= 31.500" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 47.498" />
+      <d:otherwise value="'url(#i4)'" />
+    </d:mapping>
+    <d:mapping name="f318" parameters="value">
+      <d:step value="true" when="value &lt;= 1.500" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f319" parameters="value">
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 7.500" />
+      <d:step value="'url(#i5)'" when="value &lt;= 15.500" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 23.498" />
+      <d:step value="'url(#i6)'" when="value &lt;= 31.498" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 39.498" />
+      <d:step value="'url(#i7)'" when="value &lt;= 47.498" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 55.498" />
+      <d:otherwise value="'url(#i8)'" />
+    </d:mapping>
+    <d:mapping name="f320" parameters="value">
+      <d:step value="true" when="value &lt;= 1.500" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f321" parameters="value">
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 3.499" />
+      <d:step value="'url(#i9)'" when="value &lt;= 7.500" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 11.499" />
+      <d:step value="'url(#i10)'" when="value &lt;= 15.500" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 19.499" />
+      <d:step value="'url(#i11)'" when="value &lt;= 23.498" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 27.499" />
+      <d:step value="'url(#i12)'" when="value &lt;= 31.498" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 35.499" />
+      <d:step value="'url(#i13)'" when="value &lt;= 39.498" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 43.497" />
+      <d:step value="'url(#i14)'" when="value &lt;= 47.498" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 51.499" />
+      <d:step value="'url(#i15)'" when="value &lt;= 55.498" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 59.499" />
+      <d:otherwise value="'url(#i16)'" />
+    </d:mapping>
+    <d:mapping name="f322" parameters="value">
+      <d:step value="true" when="value &lt;= 1.500" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f323" parameters="value">
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 1.500" />
+      <d:step value="'url(#i17)'" when="value &lt;= 3.499" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 5.501" />
+      <d:step value="'url(#i18)'" when="value &lt;= 7.500" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 9.500" />
+      <d:step value="'url(#i19)'" when="value &lt;= 11.499" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 13.501" />
+      <d:step value="'url(#i20)'" when="value &lt;= 15.500" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 17.500" />
+      <d:step value="'url(#i21)'" when="value &lt;= 19.499" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 21.499" />
+      <d:step value="'url(#i22)'" when="value &lt;= 23.498" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 25.500" />
+      <d:step value="'url(#i23)'" when="value &lt;= 27.499" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 29.499" />
+      <d:step value="'url(#i24)'" when="value &lt;= 31.498" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 33.500" />
+      <d:step value="'url(#i25)'" when="value &lt;= 35.499" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 37.499" />
+      <d:step value="'url(#i26)'" when="value &lt;= 39.498" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 41.498" />
+      <d:step value="'url(#i27)'" when="value &lt;= 43.497" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 45.499" />
+      <d:step value="'url(#i28)'" when="value &lt;= 47.498" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 49.499" />
+      <d:step value="'url(#i29)'" when="value &lt;= 51.499" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 53.498" />
+      <d:step value="'url(#i30)'" when="value &lt;= 55.498" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 57.497" />
+      <d:step value="'url(#i31)'" when="value &lt;= 59.499" />
+      <d:step value="'rgb(0, 0, 0)'" when="value &lt;= 61.498" />
+      <d:otherwise value="'url(#i32)'" />
+    </d:mapping>
+  </d:head>
+  <d:body x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i2" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[110]}" offset="1" />
+    </s:radialGradient>
+    <s:rect width="4" height="4" x="-10" y="-2" s:pointer-events="visiblePainted" d:hidden="f314(`value`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f315(`value`), 'rgb(0, 0, 0)')}" y:fill-rule="evenodd" y:stroke="rgb(192, 192, 192)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="TagoutIndicator5" />
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i3" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[111]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i4" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[111]}" offset="1" />
+    </s:radialGradient>
+    <s:rect width="4" height="4" x="-6" y="-2" s:pointer-events="visiblePainted" d:hidden="f316(`value`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f317(`value`), 'rgb(0, 0, 0)')}" y:fill-rule="evenodd" y:stroke="rgb(192, 192, 192)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="TagoutIndicator4" />
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i5" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[112]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i6" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[112]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i7" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[112]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i8" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[112]}" offset="1" />
+    </s:radialGradient>
+    <s:rect width="4" height="4" x="-2" y="-2" s:pointer-events="visiblePainted" d:hidden="f318(`value`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f319(`value`), 'rgb(0, 0, 0)')}" y:fill-rule="evenodd" y:stroke="rgb(192, 192, 192)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="TagoutIndicator3" />
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i9" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[113]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i10" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[113]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i11" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[113]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i12" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[113]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i13" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[113]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i14" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[113]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i15" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[113]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i16" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[113]}" offset="1" />
+    </s:radialGradient>
+    <s:rect width="4" height="4" x="2" y="-2" s:pointer-events="visiblePainted" d:hidden="f320(`value`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f321(`value`), 'rgb(0, 0, 0)')}" y:fill-rule="evenodd" y:stroke="rgb(192, 192, 192)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="TagoutIndicator2" />
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i17" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[114]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i18" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[114]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i19" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[114]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i20" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[114]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i21" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[114]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i22" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[114]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i23" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[114]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i24" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[114]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i25" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[114]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i26" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[114]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i27" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[114]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i28" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[114]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i29" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[114]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i30" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[114]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i31" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[114]}" offset="1" />
+    </s:radialGradient>
+    <s:radialGradient r="100%" cx="50%" cy="50%" id="i32" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(192, 192, 192)" offset="0" />
+      <s:stop stop-color="{colors[114]}" offset="1" />
+    </s:radialGradient>
+    <s:rect width="4" height="4" x="6" y="-2" s:pointer-events="visiblePainted" d:hidden="f322(`value`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f323(`value`), 'rgb(0, 0, 0)')}" y:fill-rule="evenodd" y:stroke="rgb(192, 192, 192)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="TagoutIndicator1" />
+  </d:body>
+</d:document>

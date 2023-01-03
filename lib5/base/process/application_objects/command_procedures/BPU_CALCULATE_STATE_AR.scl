@@ -1,0 +1,88 @@
+;Function: BPU_CALCULATE_STATE_AR:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_calculate_state_switch.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute),  search_result, session number of control dialog, name of workstation
+;Return data:
+;Description: Calculates state of main tab and messages related to the object
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data
+
+#local t_bay_ln, i_bay_ix, l_Objects, t_procedure, l_value_convention, b_bay_mlt_allows = false, v_control_inhibit_reasons = vector()
+#local l_cdm_actual_value, l_lr_check, b_disable_both_directions = false, v_messages = vector, i_count = 0
+#local l_data_points = list(-
+   autoreclosing_mode_set_value_command = list())
+#local l_cdm_authority = list(-
+   control_permitted = true,-
+   level_permitted = true,-
+   control_inhibit_reason = vector()) 
+
+;****************************************************************************************************
+;redirect command if application specific command procedure is found                               ;*
+#local t_Redirect_Proc = "APLMOD5_BPU_CALCULATE_STATE_AR"                                          ;*
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    ;*
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            ;*
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 ;*
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  ;*
+         @REDIRECTED = true                                                                        ;*
+         i_ArgCnt = argument_count                                                                 ;*
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                      ;*
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" ;*
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       ;*
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     ;*
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    ;*
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        ;*
+         #loop_end                                                                                 ;*
+         #return 't_Redirect_Command' ;;;;;                                                        ;*
+      #block_end                                                                                   ;*
+   #block_end                                                                                      ;*
+   #else #delete REDIRECTED:V                                                                      ;*
+#block_end                                                                                         ;*
+;****************************************************************************************************
+
+l_Objects = l_data.all_objects
+
+;define value convention for process data
+t_procedure =  l_object_info.type_info.command_procedures.get_indications_switch
+l_value_convention = do('t_procedure':c, l_object_info, l_Objects)
+
+#if attribute_exists(l_objects, "bay_multilevel_control_ix") #then #block
+   t_bay_ln = l_objects.bay_multilevel_control_ln
+   i_bay_ix = l_objects.bay_multilevel_control_ix
+   #if 't_bay_ln':pos'i_bay_ix' <> 10 #then -
+      b_bay_mlt_allows = ('t_bay_ln':pov'i_bay_ix' == 1)
+#block_end
+
+#if not b_bay_mlt_allows #then #block
+   ;Station L/R switch   
+   l_lr_check = do(bpu_resolve_sta_lr_authority:c, l_Objects, v_messages, i_count, b_disable_both_directions)
+   #if data_type(l_lr_check) == "LIST" #then #block
+      #if attribute_exists(l_lr_check, "count") and attribute_exists(l_lr_check, "messages") and attribute_exists(l_lr_check, "disable_all") #then #block
+         #if l_lr_check.lr_message.custom_value <> 0 #then #block
+            l_cdm_authority.level_permitted = false
+            v_control_inhibit_reasons = append(-
+               v_control_inhibit_reasons, l_lr_check.lr_message)
+         #block_end
+      #block_end
+   #block_end
+   
+   ;Bay L/R switch
+   l_lr_check = do(bpu_resolve_bay_lr_authority:c, l_Objects, l_value_convention, v_messages, i_count, b_disable_both_directions)
+   #if data_type(l_lr_check) == "LIST" #then #block
+      #if attribute_exists(l_lr_check, "count") and attribute_exists(l_lr_check, "messages") and attribute_exists(l_lr_check, "disable_all") #then #block
+         #if l_lr_check.lr_message.custom_value <> 0 #then #block
+            l_cdm_authority.level_permitted = false            
+            v_control_inhibit_reasons = append(-
+               v_control_inhibit_reasons, l_lr_check.lr_message)
+         #block_end
+      #block_end
+   #block_end
+#block_end
+
+l_cdm_authority.control_permitted = do(bpu_user_authorized:c, l_object_info, 1, "MV_CONTROL")
+l_cdm_authority.control_inhibit_reason = v_control_inhibit_reasons
+l_data_points.autoreclosing_mode_set_value_command = l_cdm_authority
+
+#return l_data_points

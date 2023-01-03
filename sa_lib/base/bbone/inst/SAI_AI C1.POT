@@ -1,0 +1,897 @@
+#do read_text("sagr_lang/sai_ai.txt")
+@TMP_LN='ID'_PICTURE_FUNCTION_CONF:VP_OBJECT_LN
+@a_logical_name="BGU_AL_UPD_'TMP_LN'"
+@c_logical_name=%a_logical_name
+
+;initialize variables
+@X1 = 0
+@X2 = 0
+@X3 = 0
+@X0 = 1
+@X = 0
+@IU
+@DX
+@OX
+@HE
+@PF
+@RX
+@LD
+@P_OBJ01
+@P_OBJ02
+@P_OBJ03
+@P_OBJ04
+@P_OBJ05
+@P_OBJ06
+@P_OBJ07
+@P_OBJ08
+@P_OBJ09
+@P_OBJ110
+@P_OBJ111
+@P_OBJ112
+@P_OBJ113
+@P_OBJ114
+@P_OBJ115
+@P_OBJ116
+@P_OBJ117
+@P_OBJECTS = LIST
+@OBJ_IDENT
+#LOOP_WITH I = 1 .. %NR_OF_FIELDS
+  @FIELD_IDENT = %OBJECT_IDENTIFIER_'I'_NAME
+  @OBJ_IDENT=%OBJ_IDENT+SUBSTR('ID'_PICTURE_FUNCTION_CONF:V'FIELD_IDENT',1,%OI_LENGTH'I')
+#LOOP_END
+@ADDITIONAL_IDENT  = "          "
+@UNIT_IDENT= SUBSTR('ID'_PICTURE_FUNCTION_CONF:VDATA_ACQUISITION_UNIT,1,10)
+@RX = %ADDITIONAL_IDENT+%UNIT_IDENT+ "FPHALAIALA"
+
+@FX_C = 'ID'_PICTURE_FUNCTION_CONF:vALARM_ROOT_LN
+@T_var = 'ID'_PICTURE_FUNCTION_CONF:vTYPE_OF_SIGNAL
+@T_Signals = SEPARATE(EDIT(%T_var,"COLLAPSE"), ",")
+@N_var = 'ID'_PICTURE_FUNCTION_CONF:vNUMBER_OF_SIGNAL
+@N_sep = SEPARATE(EDIT(%N_var,"COLLAPSE"), ",")
+@N_Signals = vector()
+
+#loop_with i = 1 .. length(%N_sep)
+@N_Signals = append(%N_Signals,DEC_SCAN(%N_sep(%i)))
+#loop_end
+
+@Signals = vector()
+@Summation = SUM(%N_Signals)
+
+;scales
+@X_SEARCH=FETCH(0,"X","1_1")
+#IF X_SEARCH:VIU == -1 #THEN #BLOCK
+  #CREATE 1_1:X = LIST(SA = 0)
+#BLOCK_END
+
+;define 1/1000 scale for ANSI-AI object if it does not exist
+@X_SEARCH = FETCH(0,"X","BGU_1_1000")
+#IF X_SEARCH:VIU == -1 #THEN #BLOCK
+   #CREATE BGU_1_1000:X = LIST(SA = 1, SC = (0,1000,0,1))
+#BLOCK_END
+   
+;select different input types
+@v_BinaryIndexes = vector
+@v_DiIndexes     = vector
+@v_AnalogIndexes = vector
+@v_DbIndexes     = vector
+
+@V_BI = vector
+@V_DI = vector
+@V_AI = vector
+@V_DB = vector
+
+#loop_with i = 1 .. length(%T_Signals)
+@t_attibute = %T_Signals(%i)
+ #if %t_attibute == "BI" #then #block
+  #loop_with j = 1 .. %N_Signals(%i)
+  @V_BI = append(%V_BI,"BI")
+  #loop_end
+  @Signals = INSERT_ELEMENT(%Signals, length(%Signals)+1, %V_BI)
+  @V_BI = vector()
+ #block_end
+ #if %t_attibute == "DI" #then #block
+  #loop_with j = 1 .. %N_Signals(%i)
+  @V_DI = append(%V_DI,"DI")
+  #loop_end
+  @Signals = INSERT_ELEMENT(%Signals, length(%Signals)+1, %V_DI)
+  @V_DI = vector()
+ #block_end
+ #if %t_attibute == "AI" #then #block
+  #loop_with j = 1 .. %N_Signals(%i)
+  @V_AI = append(%V_AI,"AI")
+  #loop_end
+  @Signals = INSERT_ELEMENT(%Signals, length(%Signals)+1, %V_AI)
+  @V_AI = vector()
+ #block_end
+ #if %t_attibute == "DB" #then #block
+  #loop_with j = 1 .. %N_Signals(%i)
+  @V_DB = append(%V_DB,"DB")
+  #loop_end
+  @Signals = INSERT_ELEMENT(%Signals, length(%Signals)+1, %V_DB)
+  @V_DB = vector()
+ #block_end
+#loop_end
+
+;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+#loop_with i = 1 .. length(%Signals)
+    @t_attibute = %Signals(%i)    
+       #if %t_attibute == "BI" #then #block 
+       @C_SEARCH = FETCH(0,"C","DEV_ALARM")
+       #IF C_SEARCH:VIU == -1 #THEN #BLOCK
+       #CREATE DEV_ALARM:C = LIST(-
+            IU = 1,-
+            MO = 0,-
+            CM = "",-
+            IN = ("#local sep, v_LN, v_IX, val, num, var, f=0, Wr, v_LN1, v_IX1, Salarm=0, path, ext, v_NN, v_num, zero, v2_LN, v_nam, index, v_i, v_f",-
+                  "#error ignore",-
+                  "#if ''LN'':PAC''IX'' == 4 #then #block",-
+                  "sep = SEPARATE(EDIT(''LN'':PFX''IX'',""COLLAPSE""), "":"")",-
+                  "v_LN= sep(1)",-
+                  "v_IX= sep(2)",-
+                  "val=''LN'':POV''IX''",-
+                  "path = ""C:\sc\apl\MAIN\PICT\ALARM\""",-
+                  "ext = "".dat""",-
+                  "v_NN = ""NN""",-
+                  "v2_LN = ""LN""",-
+                  "v_num = ""NUMBER""",-
+                  "v_nam = ""NAME""",-
+                  "zero = ""0""",-
+                  "index = ""''LN''""+ "":""+ ""''IX''""",-                  
+                  "num = read_parameter(path+v_LN+v_IX+ext, v_NN, v_num, zero)",-
+                  "#if DEC_SCAN(num.value)>=1 #then #block",-
+                  "#loop_with i = 1 .. DEC_SCAN(num.value)",-
+                  "v_i = ""''i''""",-
+                  "var = read_parameter(path+v_LN+v_IX+ext, v2_LN, v_nam + v_i, zero)",-
+                  "#if var.value == index #then f=''i''",-
+                  "#loop_end","#block_end",-
+                  "#if f==0 #then f=1+DEC_SCAN(num.value)",-
+                  "#if DEC_SCAN(num.value)==0 #then f=1",-
+                  "v_f = ""''f''""",-
+                  "Wr = write_parameter(path+v_LN+v_IX+ext, v2_LN, v_nam+v_f, index)",-
+                  "#if f<DEC_SCAN(num.value) #then Wr = 0",-
+                  "#if f>=DEC_SCAN(num.value) #then Wr = write_parameter(path+v_LN+v_IX+ext, v_NN, v_num, v_f)",-
+                  "num = read_parameter(path+v_LN+v_IX+ext, v_NN, v_num, zero)",-
+                  "#loop_with i = 1 .. DEC_SCAN(num.value)",-
+                  "v_i = ""''i''""",-
+                  "var = read_parameter(path+v_LN+v_IX+ext, v2_LN, v_nam + v_i, zero)",-
+                  "sep = SEPARATE(EDIT(var.value,""COLLAPSE""), "":"")",-
+                  "v_LN1=sep(1)",-
+                  "v_IX1=sep(2)",-
+                  "#if ''v_LN1'':PAC''v_IX1''== 4 #then #block",-
+                  "#if ''v_LN1'':POV''v_IX1''<> ''v_LN1'':PNV''v_IX1'' #then Salarm=1+Salarm",-
+                  "#block_end",-
+                  "#loop_end",-
+                  "#if Salarm > 0 #then #set ''v_LN'':POV''v_IX'' = 1",-
+                  "#if Salarm == 0 #then #set ''v_LN'':POV''v_IX'' = 0",-
+                  "#set ''v_LN'':PFI''v_IX'' = Salarm",-
+                  "#block_end"))
+       #block_end
+       @A_SEARCH = FETCH(0,"A","DEV_ALARM")
+       #IF A_SEARCH:VIU == -1 #THEN #BLOCK
+       #CREATE DEV_ALARM:A = LIST(-
+            CM = "",-
+            OT = "C",-
+            ON = "DEV_ALARM")
+       #BLOCK_END
+         ;@Wr = write_parameter("C:\sc\apl\MAIN\PICT\ALARM\aaa.dat", "CHECK", "P_OBJ"+"'i'", "BI")  
+         @v_BinaryIndexes = append(%v_BinaryIndexes,%i)
+      #block_end
+      #else_if %t_attibute == "DI" #then #block
+         ;@Wr = write_parameter("C:\sc\apl\MAIN\PICT\ALARM\aaa.dat", "CHECK", "P_OBJ"+"'i'", "DI")  
+         @v_DiIndexes   = append(%v_DiIndexes,%i)
+         #block_end
+      #else_if %t_attibute == "DB" #then #block
+         ;@Wr = write_parameter("C:\sc\apl\MAIN\PICT\ALARM\aaa.dat", "CHECK", "P_OBJ"+"'i'", "DB") 
+         @v_DbIndexes = append(%v_DbIndexes,%i)
+         #block_end
+      #else_if %t_attibute == "AI" #then #block
+         ;@Wr = write_parameter("C:\sc\apl\MAIN\PICT\ALARM\aaa.dat", "CHECK", "P_OBJ"+"'i'", "AI")
+         @v_AnalogIndexes = append(%v_AnalogIndexes,%i)
+         #block_end
+     #loop_end
+#loop_end
+
+#if length(%v_BinaryIndexes) > 0 #then #block
+      
+      @begin = 1
+      @end   = length(%v_BinaryIndexes)
+
+      ;binary inputs
+      #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+        #WHEN "SPA" #BLOCK
+          @DX(%begin..%end)   ="N7S"
+          @HE(%begin..%end)   = 1                       ;history enable = yes
+          @PF(%begin..%end)   = "FORM5SAGR1"            ;physical format for printout
+          @LD(%begin..%end)   = BIT_MASK(1)             ;listing device = 1
+        #BLOCK_END
+
+        #WHEN "LON","LONMARK" #BLOCK
+          @DX(%begin..%end)   ="X7S"
+          @HE(%begin..%end)   = 1                       ;history enable = yes
+          @PF(%begin..%end)   = "FORM5SAGR1"            ;physical format for printout
+          @LD(%begin..%end)   = BIT_MASK(1)             ;listing device = 1
+        #BLOCK_END
+
+        #WHEN "IEC101","IEC103", "ICCP" #BLOCK
+          @DX(%begin..%end)   ="C3"
+          @HE(%begin..%end)   = 1                      ;history enable = yes
+          @PF(%begin..%end)   = "FORM5SAGR1"           ;physical format for printout
+          @LD(%begin..%end)   = BIT_MASK(1)            ;listing device = 1
+        #BLOCK_END
+
+        #WHEN "ANSI" #BLOCK
+          @DX(%begin..%end)   ="3"
+          @HE(%begin..%end)   = 1                      ;history enable = yes
+          @PF(%begin..%end)   = "FORM5SAGR1"           ;physical format for printout
+          @LD(%begin..%end)   = BIT_MASK(1)            ;listing device = 1
+        #BLOCK_END
+
+        #WHEN "PROC" #BLOCK
+          @DX(%begin..%end)   ="O1"
+          @HE(%begin..%end)   = 1                      ;history enable = yes
+          @PF(%begin..%end)   = "FORM5SAGR1"           ;physical format for printout
+          @LD(%begin..%end)   = BIT_MASK(1)            ;listing device = 1
+        #BLOCK_END
+
+        #WHEN "RTU" #BLOCK
+          #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+            @DX(%begin..%end) ="I7S"
+            @DX_EV = "I10S"  
+            @HE(%begin..%end) = 0                      ;history enable = no
+            @PF(%begin..%end) = "DUMMY"                ;physical format for printout
+            @LD(%begin..%end) = 0                      ;listing device = none
+          #BLOCK_END
+
+          #ELSE #BLOCK
+            @DX(%begin..%end) ="I7S"
+            @HE(%begin..%end) = 1                      ;history enable = yes
+            @PF(%begin..%end) = "FORM5SAGR1"           ;physical format for printout
+            @LD(%begin..%end) = BIT_MASK(1)            ;listing device = 1
+          #BLOCK_END
+        #BLOCK_END
+
+        #WHEN "RTU_E" #BLOCK
+          #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+            @DX(%begin..%end) ="R7S"
+            @DX_EV = "R10S"
+            @HE(%begin..%end) = 1                      ;history enable = ues
+            @PF(%begin..%end) = "DUMMY"                ;physical format for printout
+            @LD(%begin..%end) = 0                      ;listing device = none
+          #BLOCK_END
+
+          #ELSE #BLOCK
+            @DX(%begin..%end) ="R7S"
+            @HE(%begin..%end) = 1                      ;history enable = yes
+            @PF(%begin..%end) = "FORM5SAGR1"           ;physical format for printout
+            @LD(%begin..%end) = BIT_MASK(1)            ;listing device = 1
+          #BLOCK_END
+        #BLOCK_END
+
+        #WHEN "DNP_30" #BLOCK
+          #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+            @DX(%begin..%end) ="D3"
+            @DX_EV            ="D3"
+            @HE(%begin..%end) = 0                      ;history enable = yes
+            @PF(%begin..%end) = "DUMMY"                ;physical format for printout
+            @LD(%begin..%end) = 0                      ;listing device = 1
+          #BLOCK_END
+          
+          #ELSE #BLOCK
+            @DX(%begin..%end) ="D3"
+            @HE(%begin..%end) = 1                      ;history enable = yes
+            @PF(%begin..%end) = "FORM5SAGR1"           ;physical format for printout
+            @LD(%begin..%end) = BIT_MASK(1)            ;listing device = 1
+          #BLOCK_END
+        #BLOCK_END
+
+        #WHEN "MODBUS_RTU" #BLOCK
+            @DX(%begin..%end) ="I7S"
+            @HE(%begin..%end) = 1                      ;history enable = yes
+            @PF(%begin..%end) = "FORM5SAGR1"           ;physical format for printout
+            @LD(%begin..%end) = BIT_MASK(1)            ;listing device = 1
+        #BLOCK_END
+
+        #WHEN "IEC61850" #BLOCK
+          @DX(%begin..%end)   ="E7S"
+          @HE(%begin..%end)   = 1                       ;history enable = yes
+          @PF(%begin..%end)   = "FORM5SAGR1"            ;physical format for printout
+          @LD(%begin..%end)   = BIT_MASK(1)             ;listing device = 1
+        #BLOCK_END
+      #CASE_END
+
+     #LOOP_WITH I= %begin .. %end
+
+        @i_ind = %v_BinaryIndexes(%i)
+        @ox  = 'ID'_PICTURE_FUNCTION_CONF:vsignal_text + " BI " +"'i_ind'" ;AE 2004-10-26
+        @Tmp_Ag = 'ID'_PICTURE_FUNCTION_CONF:valarming_state_of_signal ;AE 2004-10-26
+        @ag = 1
+        @ac = 4
+        @i_BiRi = 0
+        #if length(%Tmp_Ag) > 0 #then #block
+           @ag = %Tmp_Ag(1)
+           #if %ag == 1 #then @i_BiRi = 39
+           #else @i_BiRi = 40
+           @ac = 1
+        #block_end
+        
+        @EH = 'ID'_PICTURE_FUNCTION_CONF:vsignal1_EH
+        @IN = 'ID'_PICTURE_FUNCTION_CONF:vOPC_LN_INSTANCE_1
+        @t_OPC_Prefix = 'ID'_PICTURE_FUNCTION_CONF:VOPC_ITEM_PREFIX
+        #if length(%IN) == 0 #then @IN(1) = ""
+        #else @IN(1) = %t_OPC_Prefix + "." + %IN(1)
+
+        @P_OBJ0'I' = LIST(-
+              IX = 0+%i_ind,-                         ;index
+              PT = 3,-                                ;process object type = BI
+              DX = %DX('I'),-                         ;directive text
+              BI = 0,-                                ;object value
+              OI = %OBJ_IDENT,-                       ;substation & bay name
+              OX = %OX,-                              ;object text
+              IU = 1,-                                ;in use = yes
+              SS = 1,-                                ;switch state = manual
+              EE = 0,-                                ;event enable = yes
+              HE = %HE(%I),-                          ;history enable
+              HA = 1,-                                ;history activation = new value
+              HF = 0,-                                ;history at first update = no
+              HL = BIT_MASK(15),-                     ;history log number = 15
+              RC = 1,-                                ;receipt = acknowledgement required
+              AB = 0,-                                ;alarm blocking = no
+              AC = %ac,-                              ;alarm class 
+              AG = %ag,-                              ;alarming value = 0
+              AD = 0,-                                ;alarm delay = 0
+              PD = 0,-                                ;picture device = none
+              PI = "",-                               ;alarm picture
+              PF = %PF('I'),-                         ;physical format for printout
+              RI = %i_BiRi,-                          ;dynamic texts for printout
+              PA = 1,-                                ;printout activation = new value
+              PU = 0,-                                ;picture/ printout at first update = no
+              LD = %LD('I'),-                         ;listing device
+              EH = %EH,-
+              IN = "",-
+              FX = %FX_C,-                            ;custom Free Text
+              AN = "DEV_ALARM",-                      ;custom Action Name
+              AE = 1,-                                ;custom Action Enable
+              AA = 1,-                                ;custom Action Activation
+              RX = %RX)                               ;action activation = 2 (update)
+         ;@Wr = write_parameter("C:\sc\apl\MAIN\PICT\ALARM\aaa.dat", "CHECK", "P_OBJ"+"'i'", "'i_ind'" + "BI")
+         #MODIFY P_OBJECTS:V = LIST(P_OBJ0'i'=%P_OBJ0'i')
+      #LOOP_END
+#block_end
+
+#if length(%v_DiIndexes) > 0 #then #block
+      
+      @begin = length(%v_BinaryIndexes) + 1
+      @end   = length(%v_BinaryIndexes) + length(%v_DiIndexes  )
+
+    ;double binary indication
+    #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+      #WHEN "SPA" #BLOCK
+        @DX(%begin..%end)    ="N9"
+        @HE(%begin..%end)    = 1                      ;history enable = yes
+        @PF(%begin..%end)    = "FORM5SAGR1"           ;physical format for printout
+        @LD(%begin..%end)    = BIT_MASK(1)            ;listing device = 1
+      #BLOCK_END
+
+      #WHEN "LON","LONMARK" #BLOCK
+        @DX(%begin..%end)    ="X9"
+        @HE(%begin..%end)    = 1                      ;history enable = yes
+        @PF(%begin..%end)    = "FORM5SAGR1"           ;physical format for printout
+        @LD(%begin..%end)    = BIT_MASK(1)            ;listing device = 1
+      #BLOCK_END
+
+      #WHEN "IEC101","IEC103", "ICCP" #BLOCK
+        @DX(%begin..%end)    ="C12"
+        @HE(%begin..%end)    = 1                      ;history enable = yes
+        @PF(%begin..%end)    = "FORM5SAGR1"           ;physical format for printout
+        @LD(%begin..%end)    = BIT_MASK(1)            ;listing device = 1
+      #BLOCK_END
+
+      #WHEN "ANSI" #BLOCK
+        @DX(%begin..%end)    ="6"
+        @HE(%begin..%end)    = 1                      ;history enable = yes
+        @PF(%begin..%end)    = "FORM5SAGR1"           ;physical format for printout
+        @LD(%begin..%end)    = BIT_MASK(1)            ;listing device = 1
+      #BLOCK_END
+
+      #WHEN "PROC" #BLOCK
+        @DX(%begin..%end)    ="12"
+        @HE(%begin..%end)    = 1                      ;history enable = yes
+        @PF(%begin..%end)    = "FORM5SAGR1"           ;physical format for printout
+        @LD(%begin..%end)    = BIT_MASK(1)            ;listing device = 1
+      #BLOCK_END
+
+      #WHEN "RTU" #BLOCK
+        #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+          @DX(%begin..%end)  ="I7D"
+          @DX_EV = "I10D" 
+          @HE(%begin..%end)  = 0                      ;history enable = no
+          @PF(%begin..%end)  = "DUMMY"                ;physical format for printout
+          @LD(%begin..%end)  = 0                      ;listing device = none
+        #BLOCK_END
+
+        #ELSE #BLOCK
+          @DX(%begin..%end)  ="I7D"
+          @HE(%begin..%end)  = 1                      ;history enable = yes
+          @PF(%begin..%end)  = "FORM5SAGR1"           ;physical format for printout
+          @LD(%begin..%end)  = BIT_MASK(1)            ;listing device = 1
+        #BLOCK_END
+      #BLOCK_END
+
+      #WHEN "RTU_E" #BLOCK
+        #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+          @DX(%begin..%end)  ="R7D"
+          @DX_EV = "R10D" 
+          @HE(%begin..%end)  = 0                      ;history enable = no
+          @PF(%begin..%end)  = "DUMMY"                ;physical format for printout
+          @LD(%begin..%end)  = 0                      ;listing device = none
+        #BLOCK_END
+
+        #ELSE #BLOCK
+          @DX(%begin..%end)  ="R7D"
+          @HE(%begin..%end)  = 1                      ;history enable = yes
+          @PF(%begin..%end)  = "FORM5SAGR1"           ;physical format for printout
+          @LD(%begin..%end)  = BIT_MASK(1)            ;listing device = 1
+        #BLOCK_END
+      #BLOCK_END
+
+      #WHEN "DNP_30" #BLOCK
+        #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+          @DX(%begin..%end)  ="D12"
+          @DX_EV             ="D12"
+          @HE(%begin..%end)  = 0                      ;history enable = yes
+          @PF(%begin..%end)  = "DUMMY"                ;physical format for printout
+          @LD(%begin..%end)  = 0                      ;listing device = 1
+        #BLOCK_END
+        
+        #ELSE #BLOCK
+          @DX(%begin..%end)  ="D12"
+          @HE(%begin..%end)  = 1                      ;history enable = yes
+          @PF(%begin..%end)  = "FORM5SAGR1"           ;physical format for printout
+          @LD(%begin..%end)  = BIT_MASK(1)            ;listing device = 1
+        #BLOCK_END
+      #BLOCK_END
+
+      #WHEN "MODBUS_RTU" #BLOCK
+          @DX(%begin..%end)  ="I7D"
+          @HE(%begin..%end)  = 1                      ;history enable = yes
+          @PF(%begin..%end)  = "FORM5SAGR1"           ;physical format for printout
+          @LD(%begin..%end)  = BIT_MASK(1)            ;listing device = 1
+      #BLOCK_END
+
+      #WHEN "IEC61850" #BLOCK
+        @DX(%begin..%end)    ="E9"
+        @HE(%begin..%end)    = 1                      ;history enable = yes
+        @PF(%begin..%end)    = "FORM5SAGR1"           ;physical format for printout
+        @LD(%begin..%end)    = BIT_MASK(1)            ;listing device = 1
+      #BLOCK_END
+    #CASE_END
+          
+     @co = 1
+     #LOOP_WITH I = %begin .. %end
+
+        @i_ind = %v_DiIndexes  (%co)
+        @co = %co + 1
+        @ox  = 'ID'_PICTURE_FUNCTION_CONF:vsignal_text + " DI " + "'i_ind'" ;AE 2004-10-26
+        @Tmp_La = 'ID'_PICTURE_FUNCTION_CONF:valarming_state_of_signal ;AE 2004-10-26
+        @ac = 0
+        @la = (0,0,0,0)
+        @i_DbRi = 0
+        #if length(select(%Tmp_La,"==1 or ==0")) == 4 #then #block
+           @v_AlState = select(%Tmp_La(2..3),"==1")
+           #if length(%v_AlState) == 1 #then #block
+              #if %v_AlState(1) == 1 #then @i_DbRi = 14
+              #else @i_DbRi = 13
+           #block_end
+           @Tmp_Str = ""
+           #loop_with j = 1 .. length(%Tmp_La)
+              @Tmp_Str = %Tmp_Str + dec(%Tmp_La(%j),0)
+           #loop_end
+           @la = unpack_str(bit_scan(%Tmp_Str),4)
+           @ac = 1
+        #block_end
+
+       @EH = 'ID'_PICTURE_FUNCTION_CONF:vsignal1_EH
+       @IN = 'ID'_PICTURE_FUNCTION_CONF:vOPC_LN_INSTANCE_1
+       @t_OPC_Prefix = 'ID'_PICTURE_FUNCTION_CONF:VOPC_ITEM_PREFIX
+       #if length(%IN) == 0 #then @IN(1) = ""
+       #else @IN(1) = %t_OPC_Prefix + "." + %IN(1)
+       
+       @P_OBJ0'i' = LIST(-
+              IX = 0+%i_ind,-                         ;index
+              PT = 6,-                                ;process object type = DI
+              DX = %DX(%i),-                          ;directive text
+              DI = 0,-                                ;object value
+              OI = %OBJ_IDENT,-                       ;substation & bay name
+              OX = %OX,-                              ;object text
+              IU = 1,-                                ;in use = yes
+              SS = 1,-                                ;switch state = manual
+              EE = 1,-                                ;event enable = yes
+              HE = %HE(%I),-                          ;history enable
+              HA = 1,-                                ;history activation = new value
+              HF = 0,-                                ;history at first update = no
+              HL = BIT_MASK(15),-                     ;history log number = 15
+              RC = 1,-                                ;receipt = acknowledgement required
+              AB = 0,-                                ;alarm blocking = no
+              AC = 0,-                                ;alarm class = 0
+              AD = 0,-                                ;alarm delay = 0
+              PD = 0,-                                ;picture device = none
+              PI = "",-                               ;alarm picture
+              PF = %PF(%I),-                          ;physical format for printout
+              RI = %i_DbRi,-                          ;dynamic texts for printout
+              PA = 1,-                                ;printout activation = new value
+              PU = 0,-                                ;picture/ printout at first update = no
+              LD = %LD(%i),-                          ;listing device
+              EH = %EH,-
+              IN = "",-
+              FX = %FX_C,-                            ;custom FX
+              RX = %RX)                                 ;action activation = 2 (update)
+             ;@Wr = write_parameter("C:\sc\apl\MAIN\PICT\ALARM\aaa.dat", "CHECK", "P_OBJ"+"'i'", "'i_ind'" + "DI")
+             #MODIFY P_OBJECTS:V = LIST(P_OBJ0'i'=%P_OBJ0'i')              
+    #loop_end
+#block_end
+
+#if length(%v_DbIndexes) > 0 #then #block
+
+      @begin = length(%v_BinaryIndexes) + length(%v_DiIndexes  ) + 1
+      @end   = length(%v_BinaryIndexes) + length(%v_DiIndexes  ) + length(%v_DbIndexes)
+
+    ;double binary indication
+    #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+      #WHEN "SPA" #BLOCK
+        @DX(%begin..%end)    ="N7D"
+        @HE(%begin..%end)    = 1                      ;history enable = yes
+        @PF(%begin..%end)    = "FORM5SAGR1"           ;physical format for printout
+        @LD(%begin..%end)    = BIT_MASK(1)            ;listing device = 1
+      #BLOCK_END
+
+      #WHEN "LON","LONMARK" #BLOCK
+        @DX(%begin..%end)    ="X7D"
+        @HE(%begin..%end)    = 1                      ;history enable = yes
+        @PF(%begin..%end)    = "FORM5SAGR1"           ;physical format for printout
+        @LD(%begin..%end)    = BIT_MASK(1)            ;listing device = 1
+      #BLOCK_END
+
+      #WHEN "IEC101","IEC103", "ICCP" #BLOCK
+        @DX(%begin..%end)    ="C12"
+        @HE(%begin..%end)    = 1                      ;history enable = yes
+        @PF(%begin..%end)    = "FORM5SAGR1"           ;physical format for printout
+        @LD(%begin..%end)    = BIT_MASK(1)            ;listing device = 1
+      #BLOCK_END
+
+      #WHEN "ANSI" #BLOCK
+        @DX(%begin..%end)    ="12"
+        @HE(%begin..%end)    = 1                      ;history enable = yes
+        @PF(%begin..%end)    = "FORM5SAGR1"           ;physical format for printout
+        @LD(%begin..%end)    = BIT_MASK(1)            ;listing device = 1
+      #BLOCK_END
+
+      #WHEN "PROC" #BLOCK
+        @DX(%begin..%end)    ="12"
+        @HE(%begin..%end)    = 1                      ;history enable = yes
+        @PF(%begin..%end)    = "FORM5SAGR1"           ;physical format for printout
+        @LD(%begin..%end)    = BIT_MASK(1)            ;listing device = 1
+      #BLOCK_END
+
+      #WHEN "RTU" #BLOCK
+        #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+          @DX(%begin..%end)  ="I7D"
+          @DX_EV = "I10D" 
+          @HE(%begin..%end)  = 0                      ;history enable = no
+          @PF(%begin..%end)  = "DUMMY"                ;physical format for printout
+          @LD(%begin..%end)  = 0                      ;listing device = none
+        #BLOCK_END
+
+        #ELSE #BLOCK
+          @DX(%begin..%end)  ="I7D"
+          @HE(%begin..%end)  = 1                      ;history enable = yes
+          @PF(%begin..%end)  = "FORM5SAGR1"           ;physical format for printout
+          @LD(%begin..%end)  = BIT_MASK(1)            ;listing device = 1
+        #BLOCK_END
+      #BLOCK_END
+
+      #WHEN "RTU_E" #BLOCK
+        #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+          @DX(%begin..%end)  ="R7D"
+          @DX_EV = "R10D" 
+          @HE(%begin..%end)  = 0                      ;history enable = no
+          @PF(%begin..%end)  = "DUMMY"                ;physical format for printout
+          @LD(%begin..%end)  = 0                      ;listing device = none
+        #BLOCK_END
+
+        #ELSE #BLOCK
+          @DX(%begin..%end)  ="R7D"
+          @HE(%begin..%end)  = 1                      ;history enable = yes
+          @PF(%begin..%end)  = "FORM5SAGR1"           ;physical format for printout
+          @LD(%begin..%end)  = BIT_MASK(1)            ;listing device = 1
+        #BLOCK_END
+      #BLOCK_END
+
+      #WHEN "DNP_30" #BLOCK
+        #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+          @DX(%begin..%end)  ="D12"
+          @DX_EV             ="D12"
+          @HE(%begin..%end)  = 0                      ;history enable = yes
+          @PF(%begin..%end)  = "DUMMY"                ;physical format for printout
+          @LD(%begin..%end)  = 0                      ;listing device = 1
+        #BLOCK_END
+        
+        #ELSE #BLOCK
+          @DX(%begin..%end)  ="D12"
+          @HE(%begin..%end)  = 1                      ;history enable = yes
+          @PF(%begin..%end)  = "FORM5SAGR1"           ;physical format for printout
+          @LD(%begin..%end)  = BIT_MASK(1)            ;listing device = 1
+        #BLOCK_END
+      #BLOCK_END
+
+      #WHEN "MODBUS_RTU" #BLOCK
+          @DX(%begin..%end)  ="I7D"
+          @HE(%begin..%end)  = 1                      ;history enable = yes
+          @PF(%begin..%end)  = "FORM5SAGR1"           ;physical format for printout
+          @LD(%begin..%end)  = BIT_MASK(1)            ;listing device = 1
+      #BLOCK_END
+
+      #WHEN "IEC61850" #BLOCK
+        @DX(%begin..%end)    ="E7D"
+        @HE(%begin..%end)    = 1                      ;history enable = yes
+        @PF(%begin..%end)    = "FORM5SAGR1"           ;physical format for printout
+        @LD(%begin..%end)    = BIT_MASK(1)            ;listing device = 1
+      #BLOCK_END
+    #CASE_END
+          
+     @co = 1
+     #LOOP_WITH I = %begin .. %end
+
+        @i_ind = %v_DbIndexes(%co)
+        @co = %co + 1
+        @ox  = 'ID'_PICTURE_FUNCTION_CONF:vsignal_text + " DB " + "'i_ind'" ;AE 2004-10-26
+        @Tmp_La = 'ID'_PICTURE_FUNCTION_CONF:valarming_state_of_signal ;AE 2004-10-26
+        @ac = 0
+        @la = (0,0,0,0)
+        @i_DbRi = 0
+        #if length(select(%Tmp_La,"==1 or ==0")) == 4 #then #block
+           @v_AlState = select(%Tmp_La(2..3),"==1")
+           #if length(%v_AlState) == 1 #then #block
+              #if %v_AlState(1) == 1 #then @i_DbRi = 14
+              #else @i_DbRi = 13
+           #block_end
+           @Tmp_Str = ""
+           #loop_with j = 1 .. length(%Tmp_La)
+              @Tmp_Str = %Tmp_Str + dec(%Tmp_La(%j),0)
+           #loop_end
+           @la = unpack_str(bit_scan(%Tmp_Str),4)
+           @ac = 1
+        #block_end
+
+       @EH = 'ID'_PICTURE_FUNCTION_CONF:vsignal1_EH
+       @IN = 'ID'_PICTURE_FUNCTION_CONF:vOPC_LN_INSTANCE_1
+       @t_OPC_Prefix = 'ID'_PICTURE_FUNCTION_CONF:VOPC_ITEM_PREFIX
+       #if length(%IN) == 0 #then @IN(1) = ""
+       #else @IN(1) = %t_OPC_Prefix + "." + %IN(1)
+       
+       @P_OBJ0'i' = LIST(-
+              IX = 0+%i_ind,-                         ;index
+              PT = 12,-                               ;process object type = DB
+              DX = %DX(%i),-                          ;directive text
+              DB = 1,-                                ;object value = 1
+              NV = 4,-                                ;normal value = none
+              OI = %OBJ_IDENT,-                       ;substation & bay name
+              OX = %OX,-                              ;object text
+              IU = 1,-                                ;in use = yes
+              SS = 1,-                                ;switch state = manual
+              EE = 1,-                                ;event enable = yes
+              HE = %HE(%I),-                          ;history enable
+              HA = 1,-                                ;history activation = new value
+              HF = 0,-                                ;history at first update = no
+              HL = BIT_MASK(15),-                     ;history log number = 15
+              RC = 1,-                                ;receipt = acknowledgement required
+              AB = 0,-                                ;alarm blocking = no
+              AC = 1,-                                ;alarm class = 1
+              LA = %la(1),-                           ;alarm activation = intermediate & faulty alarming
+              AD = 0,-                                ;alarm delay = 0
+              PD = 0,-                                ;picture device = none
+              PI = "",-                               ;alarm picture
+              PF = %PF(%I),-                          ;physical format for printout
+              RI = %i_DbRi,-                          ;dynamic texts for printout
+              PA = 1,-                                ;printout activation = new value
+              PU = 0,-                                ;picture/ printout at first update = no
+              LD = %LD(%i),-                          ;listing device
+              EH = %EH,-
+              IN = "",-
+              RX = %RX)                                 ;action activation = 2 (update)
+             ;@Wr = write_parameter("C:\sc\apl\MAIN\PICT\ALARM\aaa.dat", "CHECK", "P_OBJ"+"'i'", "'i_ind'" + "DB")
+             #MODIFY P_OBJECTS:V = LIST(P_OBJ0'i'=%P_OBJ0'i')
+              
+    #loop_end
+#block_end
+
+#if length(%v_AnalogIndexes) > 0 #then #block
+      
+      @begin = length(%v_BinaryIndexes) + length(%v_DiIndexes  ) + length(%v_DbIndexes) + 1
+      @end   = length(%v_BinaryIndexes) + length(%v_DiIndexes  ) + length(%v_DbIndexes) + length(%v_AnalogIndexes)
+
+   ;Analog inputs
+
+   #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+          #WHEN "SPA" #BLOCK
+            @DX(%begin..%end)   ="N6"
+            @HE(%begin..%end)   = 1                       ;history enable = yes
+            @PF(%begin..%end)   = "FORM5SAGR1"            ;physical format for printout
+            @LD(%begin..%end)   = BIT_MASK(1)             ;listing device = 1
+            @SN(%begin..%end)   = "1_1"
+          #BLOCK_END
+
+          #WHEN "LON","LONMARK" #BLOCK
+            @DX(%begin..%end)   ="X6"
+            @HE(%begin..%end)   = 1                       ;history enable = yes
+            @PF(%begin..%end)   = "FORM5SAGR1"            ;physical format for printout
+            @LD(%begin..%end)   = BIT_MASK(1)             ;listing device = 1
+            @SN(%begin..%end)   = "1_1"
+          #BLOCK_END
+
+          #WHEN "IEC101","IEC103", "ICCP" #BLOCK
+            @DX(%begin..%end)   ="C9"
+            @HE(%begin..%end)   = 1                       ;history enable = yes
+            @PF(%begin..%end)   = "FORM5SAGR1"            ;physical format for printout
+            @LD(%begin..%end)   = BIT_MASK(1)             ;listing device = 1
+            @SN(%begin..%end)   = "1_1"
+          #BLOCK_END
+
+          #WHEN "ANSI" #BLOCK
+            @DX(%begin..%end)   ="9"
+            @HE(%begin..%end)   = 1                       ;history enable = yes
+            @PF(%begin..%end)   = "FORM5SAGR1"            ;physical format for printout
+            @LD(%begin..%end)   = BIT_MASK(1)             ;listing device = 1
+            @SN(%begin..%end)   = "BGU_1_1000"
+          #BLOCK_END
+
+          #WHEN "PROC" #BLOCK
+            @DX(%begin..%end)   ="O2"
+            @HE(%begin..%end)   = 1                       ;history enable = yes
+            @PF(%begin..%end)   = "FORM5SAGR1"            ;physical format for printout
+            @LD(%begin..%end)   = BIT_MASK(1)             ;listing device = 1
+            @SN(%begin..%end)   = "1_1"
+          #BLOCK_END
+
+          #WHEN "RTU" #BLOCK
+             #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+                @DX(%begin..%end)  ="I6"
+                @DX_EV = "I11"
+                @HE(%begin..%end)  = 0                      ;history enable = no
+                @PF(%begin..%end)  = "DUMMY"                ;physical format for printout
+                @LD(%begin..%end)  = 0                      ;listing device = none
+                @SN(%begin..%end)   = "1_1"
+             #BLOCK_END
+
+             #ELSE #BLOCK
+                @DX(%begin..%end)  ="I6"
+                @HE(%begin..%end)  = 1                      ;history enable = yes
+                @PF(%begin..%end)  = "FORM5SAGR1"           ;physical format for printout
+                @LD(%begin..%end)  = BIT_MASK(1)            ;listing device = 1
+                @SN(%begin..%end)   = "1_1"
+             #BLOCK_END
+          #BLOCK_END
+
+          #WHEN "RTU_E" #BLOCK
+             #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+                @DX(%begin..%end)  ="R6"
+                @DX_EV = "R11"
+                @HE(%begin..%end)  = 0                      ;history enable = no
+                @PF(%begin..%end)  = "DUMMY"                ;physical format for printout
+                @LD(%begin..%end)  = 0                      ;listing device = none
+                @SN(%begin..%end)   = "1_1"
+             #BLOCK_END
+
+             #ELSE #BLOCK
+                @DX(%begin..%end)  ="R6"
+                @HE(%begin..%end)  = 1                      ;history enable = yes
+                @PF(%begin..%end)  = "FORM5SAGR1"            ;physical format for printout
+                @LD(%begin..%end)  = BIT_MASK(1)            ;listing device = 1
+                @SN(%begin..%end)   = "1_1"
+            #BLOCK_END
+          #BLOCK_END
+
+          #WHEN "DNP_30" #BLOCK
+             #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+                @DX(%begin..%end)  ="D9"
+                @DX_EV             ="D9"
+                @HE(%begin..%end)  = 0                      ;history enable = yes
+                @PF(%begin..%end)  = "DUMMY"                ;physical format for printout
+                @LD(%begin..%end)  = 0                      ;listing device = 1
+                @SN(%begin..%end)   = "1_1"
+             #BLOCK_END
+             
+             #ELSE #BLOCK
+                @DX(%begin..%end)  ="D9"
+                @HE(%begin..%end)  = 1                      ;history enable = yes
+                @PF(%begin..%end)  = "FORM5SAGR1"           ;physical format for printout
+                @LD(%begin..%end)  = BIT_MASK(1)            ;listing device = 1
+                @SN(%begin..%end)   = "1_1"
+             #BLOCK_END
+          #BLOCK_END
+
+          #WHEN "MODBUS_RTU" #BLOCK
+                @DX(%begin..%end)  ="I6"
+                @HE(%begin..%end)  = 1                      ;history enable = yes
+                @PF(%begin..%end)  = "FORM5SAGR1"           ;physical format for printout
+                @LD(%begin..%end)  = BIT_MASK(1)            ;listing device = 1
+                @SN(%begin..%end)   = "1_1"
+          #BLOCK_END
+
+          #WHEN "IEC61850" #BLOCK
+            @DX(%begin..%end)   ="E6"
+            @HE(%begin..%end)   = 1                       ;history enable = yes
+            @PF(%begin..%end)   = "FORM5SAGR1"            ;physical format for printout
+            @LD(%begin..%end)   = BIT_MASK(1)             ;listing device = 1
+            @SN(%begin..%end)   = "1_1"
+          #BLOCK_END
+   #CASE_END
+     
+     @co = 1
+     #LOOP_WITH I = %begin .. %end     
+        @hi = 0
+        @hw = 0
+        @lw = 0
+        @li = 0
+        @i_ind = %v_AnalogIndexes(%co)
+        @co = %co + 1
+        @ox  = 'ID'_PICTURE_FUNCTION_CONF:vsignal_text + " AI " + "'i_ind'" ;AE 2004-10-26
+        @Tmp_As = 'ID'_PICTURE_FUNCTION_CONF:valarming_state_of_signal ;AE 2004-10-26
+        @ac = 0
+        
+        #if length(select(%Tmp_As,"<>0")) > 0 #then #block
+           @hi = %Tmp_As(1)
+           @hw = %Tmp_As(2)
+           @lw = %Tmp_As(3)
+           @li = %Tmp_As(4)
+           @ac = 1
+        #block_end
+
+       @EH = 'ID'_PICTURE_FUNCTION_CONF:vsignal'i_ind'_EH
+       @IN = 'ID'_PICTURE_FUNCTION_CONF:vOPC_LN_INSTANCE_'i_ind'
+       @t_OPC_Prefix = 'ID'_PICTURE_FUNCTION_CONF:VOPC_ITEM_PREFIX
+       #if length(%IN) == 0 #then @IN(1) = ""
+       #else @IN(1) = %t_OPC_Prefix + "." + %IN(1) 
+
+       @P_OBJ0'i'= LIST (-
+          IX = 0+%i_ind,-                              ;index 
+          PT = 9,-                                     ;process object type = AI
+          DX = %DX(%I),-                               ;directive text
+          AI = 0,-                                     ;object value = 0
+          OI = %OBJ_IDENT,-                            ;substation & bay name
+          OX = %OX,-                                   ;object text
+          IU = 1,-                                     ;in use = yes
+          SS = 1,-                                     ;switch state = auto
+          EE = 1,-                                     ;event enable = yes
+          HE = %HE(%I),-                               ;history enable = no
+          HA = 1,-                                     ;history activation = new value
+          HF = 0,-                                     ;history at first update = no
+          HL = BIT_MASK(15),-                          ;history log number = 15
+          HI = %hi,-                                   ;upper alarm limit = 0
+          HW = %hw,-                                   ;upper warning limit = 0
+          LW = %lw,-                                   ;lower warning limit = 0
+          LI = %li,-                                   ;lower alarm limit = 0
+          ST = "Alarm",-                               ;unit of value
+          SN = %SN(%I),-                               ;scale name
+          SZ = 1,-                                     ;zone supervision = SCADA
+          RC = 1,-                                     ;receipt = acknowledgement not required
+          AB = 0,-                                     ;alarm blocking = no
+          AC = %ac,-                                   ;alarm class = disabled
+          AD = 0,-                                     ;alarm delay = 0
+          PD = 0,-                                     ;picture device = none
+          PI = "",-                                    ;alarm picture
+          PF = %PF(%I),-                               ;physical format for printout
+          PA = 1,-                                     ;printout activation = new value
+          PU = 0,-                                     ;picture/ printout at first update = no
+          LD = %LD(%I),-                               ;listing device = none
+          RI = 3,-                                     ;reserved integer
+          EH = %EH,-
+          IN = "",-
+          FX = %FX_C,-                                 ;custom FX
+          RX = %RX)                                     
+       ;@Wr = write_parameter("C:\sc\apl\MAIN\PICT\ALARM\aaa.dat", "CHECK", "P_OBJ"+"'i'", "'i_ind'" + "AI")
+       #MODIFY P_OBJECTS:V = LIST(P_OBJ0'i'=%P_OBJ0'i')      
+       
+   #loop_end
+#block_end
+

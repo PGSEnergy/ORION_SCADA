@@ -1,0 +1,127 @@
+;------------------------------------------------------------------------------------
+; Rev. 
+; 0.00     2006.01.16   Ob    Erstellt
+;------------------------------------------------------------------------------------
+
+;execute code of "Pumpe 3BI"
+#DO READ_TEXT("F5_INST/FDI_PUMP_3BI.POT", 1, 10000)
+
+;read object texts
+#CREATE fdi_pump_5bi:v = LIST(-
+   POSITION_OFF = "Throttle valve position",-
+   POSITION_ON = "Throttle valve position",-
+	POSITION = "Throttle valve position")
+	
+ ;create event channel for BI to DB updating command procedure
+ @A_SEARCH = FETCH(0,"A","FDU_2BI2DB")
+ #IF A_SEARCH:VIU == -1 #THEN #BLOCK
+	#CREATE FDU_2BI2DB:A = LIST(-
+			CM = translation("Updates DB from two BIs - 1"),-
+			OT = "C",-
+			ON = "FDU_2BI2DB")
+ #BLOCK_END
+;initialize additional variables
+
+@P_OBJ1006   ;BI - Drosselventil geschlossen Meldung ix==316
+@P_OBJ1007   ;BI - Drosselventil geöffnet Meldung    ix==317
+
+;2 additional binary inputs (für das Drosselventil)
+
+#MODIFY P_OBJECTS:V = LIST(P_OBJ1006 = LIST(-
+          IX = 316,-                                     ;index = 316
+          PT = 3,-                                       ;process object type = BI
+          DX = %DX(1003),-                               ;directive text  ->  siehe DEGR_INST/DEI_PUMP_3BI.POT
+          BI = 0,-                                       ;object value = 0
+          OI = %OBJ_IDENT,-                              ;substation & bay name
+          OX = fdi_pump_5bi:vPOSITION_OFF,-               ;object text
+          IU = 1,-                                       ;in use = yes
+          SS = 1,-                                       ;switch state = manual
+          EE = 1,-                                       ;event enable = yes
+          HE = 0,-                                       ;history enabled = no
+          HA = 1,-                                       ;history activation = new value
+          HF = 0,-                                       ;history at first update = no
+          HL = BIT_MASK(15),-                            ;history log number = 15
+          EH = "FD_FORM5_3_12",-                         ;event handling object
+          RC = 1,-                                       ;receipt = acknowledgement required
+          AB = 0,-                                       ;alarm blocking = no
+          AC = 0,-                                       ;alarm class = 0 (disabled)
+          AG = 1,-                                       ;alarming value = 1
+          AD = 0,-                                       ;alarm delay = 0
+          PD = 0,-                                       ;picture device = none
+          PI = "",-                                      ;alarm picture
+          PF = "",-                                      ;physical format for printout
+          RI = 0,-                                       ;dynamic texts for printout
+          PA = 1,-                                       ;printout activation = new value
+          PU = 0,-                                       ;picture/ printout at first update = no
+          LD = 0,-                                       ;listing device
+          AN = "FDU_2BI2DB",-                            ;action name
+          AE = 1,-                                       ;action disabled
+          AA = 2,-                                       ;action activation = update
+          AF = 1,-                                       ;action at first update = yes
+          RX = %RX(1003)))                               ;data acquisition unit and group information
+                                                         ; ->  siehe DEGR_INST/DEI_PUMP_3BI.POT
+
+#MODIFY P_OBJECTS:V = LIST(P_OBJ1007 = LIST(-
+          IX = 317,-                                     ;index = 317
+          PT = 3,-                                       ;process object type = BI
+          DX = %DX(1003),-                               ;directive text  ->  siehe DEGR_INST/DEI_PUMP_3BI.POT
+          BI = 0,-                                       ;object value = 0
+          OI = %OBJ_IDENT,-                              ;substation & bay name
+          OX = fdi_pump_5bi:vPOSITION_ON,-              		;object text
+          IU = 1,-                                       ;in use = yes
+          SS = 1,-                                       ;switch state = manual
+          EE = 1,-                                       ;event enable = yes
+          HE = 0,-                                       ;history enabled = no
+          HA = 1,-                                       ;history activation = new value
+          HF = 0,-                                       ;history at first update = no
+          HL = BIT_MASK(15),-                            ;history log number = 15
+          EH = "FD_FORM5_3_12X",-                        ;event handling object
+          RC = 1,-                                       ;receipt = acknowledgement required
+          AB = 0,-                                       ;alarm blocking = no
+          AC = 0,-                                       ;alarm class = 0 (disabled)
+          AG = 1,-                                       ;alarming value = 1
+          AD = 0,-                                       ;alarm delay = 0
+          PD = 0,-                                       ;picture device = none
+          PI = "",-                                      ;alarm picture
+          PF = "",-                                      ;physical format for printout
+          RI = 0,-                                       ;dynamic texts for printout
+          PA = 1,-                                       ;printout activation = new value
+          PU = 0,-                                       ;picture/ printout at first update = no
+          LD = 0,-                                       ;listing device
+          AN = "FDU_2BI2DB",-                                      ;action name
+          AE = 1,-                                       ;action disabled
+          AA = 2,-                                       ;action activation = update
+          AF = 1,-                                       ;action at first update = yes
+          RX = %RX(1003)))                               ;data acquisition unit and group information
+                                                         ; ->  siehe DEGR_INST/DEI_PUMP_3BI.POT
+																			
+ #MODIFY P_OBJECTS:V = LIST(P_OBJ1008 = LIST(-
+          IX = 318,-                                     ;index = 318
+          PT = 12,-                                      ;process object type = DB
+          DX = %DX(1),-                                  ;directive text
+          DB = %DB,-                                     ;object value = 1
+          NV = 4,-                                       ;normal value = none
+          OI = %OBJ_IDENT,-                              ;substation & bay name
+          OX = fdi_pump_5bi:vPOSITION,-                  ;object text
+          IU = 1,-                                       ;in use = yes
+          SS = 1,-                                       ;switch state = manual
+          EE = 1,-                                       ;event enable = yes
+          HE = %HE(1),-                                  ;history enable
+          HA = 1,-                                       ;history activation = new value
+          HF = 0,-                                       ;history at first update = no
+          HL = BIT_MASK(15),-                            ;history log number = 15
+          EH = %EH_PT12,-                                ;event handling object  ;ob
+          RC = 1,-                                       ;receipt = acknowledgement required
+          AB = 0,-                                       ;alarm blocking = no
+          AC = 1,-                                       ;alarm class = 1
+          LA = 9,-                                       ;alarm activation = intermediate & faulty alarming
+          AD = 0,-                                       ;alarm delay = 0
+          PD = 0,-                                       ;picture device = none
+          PI = "",-                                      ;alarm picture
+          PF = %PF(1),-                                  ;physical format for printout
+          RI = %RI(1),-                                  ;dynamic texts for printout
+          PA = 1,-                                       ;printout activation = new value
+          PU = 0,-                                       ;picture/ printout at first update = no
+          LD = 0,-                                       ;ob %LD(1),-  ;listing device
+          IN = %IN(1),-                                  ;IEC 61850 instance name
+          RX = %RX(1)))                                  ;data acquisition unit and group information

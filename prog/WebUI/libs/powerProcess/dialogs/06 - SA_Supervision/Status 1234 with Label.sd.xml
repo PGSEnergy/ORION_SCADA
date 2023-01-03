@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="SAVersionInfo" content="1" />
+    <d:variable type="external" name="control" default="''" />
+    <d:meta name="dv-custom-attribute|SATopologyModel" content="Strict" />
+    <d:meta name="dv-custom-attribute|SAVersionInfo" content="1" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Status 1-2-3-4 with Label" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="Status" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="status" default="0" />
+    <d:variable type="external" name="status-color" default="0" />
+    <d:variable type="external" name="text" default="''" />
+    <d:variable type="external" name="text-align" default="0" />
+    <d:variable type="external" name="forecolor" default="0" />
+    <d:variable type="external" name="backcolor" default="0" />
+    <d:mapping name="f1396" parameters="value">
+      <d:step value="true" when="value &lt;= 0.500" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f1397" parameters="value">
+      <d:step value="false" when="value &lt;= 0.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+  </d:head>
+  <d:body n:LN="{LN(control)}" n:IX="{IX(control)}" x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <d:view name="06 - SA_Supervision/Label R.sd" s:transform="translate(-6,0) scale(1,1)" d:hidden="f1396(`text-align`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" d:object-name="Right Aligned Text">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="text" value="`text`" />
+      <d:parameter name="forecolor" value="`forecolor`" />
+      <d:parameter name="backcolor" value="`backcolor`" />
+      <d:meta name="dv-variable-mapping|Text" content="Text" />
+      <d:meta name="dv-variable-mapping|Forecolor" content="Forecolor" />
+      <d:meta name="dv-variable-mapping|Backcolor" content="Backcolor" />
+    </d:view>
+    <d:view name="06 - SA_Supervision/Status 1234.sd" s:transform="translate(0,0) scale(1,1)" d:object-name="Status">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="status" value="`status`" />
+      <d:parameter name="status-color" value="`status-color`" />
+      <d:meta name="dv-variable-mapping|Status" content="Status" />
+      <d:meta name="dv-variable-mapping|Status Color" content="Status Color" />
+    </d:view>
+    <d:view name="06 - SA_Supervision/Label L.sd" s:transform="translate(6,0) scale(1,1)" d:hidden="f1397(`text-align`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" d:object-name="Left Aligned Text">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="text" value="`text`" />
+      <d:parameter name="forecolor" value="`forecolor`" />
+      <d:parameter name="backcolor" value="`backcolor`" />
+      <d:meta name="dv-variable-mapping|Text" content="Text" />
+      <d:meta name="dv-variable-mapping|Forecolor" content="Forecolor" />
+      <d:meta name="dv-variable-mapping|Backcolor" content="Backcolor" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node1" />
+    </d:view>
+  </d:body>
+</d:document>

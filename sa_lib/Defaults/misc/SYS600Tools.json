@@ -1,0 +1,242 @@
+{
+    "System Configuration": [
+        {
+            "name": "License",
+            "icon": "fa/key",
+            "type": "vso",
+            "id": "LICENSE",
+            "cmd": "Sys_Tool/LICENSE.vso@MAIN"
+        },
+        {
+            "name": "System Configuration",
+            "icon": "fa/cog",
+            "type": "vso",
+            "id": "SYSCONF",
+            "cmd": "Sys_Tool/SYSCONF.vso@MAIN"
+        },
+        {
+            "name": "OPC PO List",
+            "icon": "fa/th-list",
+            "type": "vso",
+            "id": "OPCPOLIST",
+            "cmd": "Sys_Tool/OPCPOLIST.vso@MAIN"
+        },
+        {
+            "name": "CET",
+            "icon": "fa/server",
+            "type": "external",
+            "id": "CET",
+            "cmd": "SOFTWARE\\ABB\\Products\\SYS600_CET@InstallDir@bin\\PCMFrame_x86.exe",
+            "workdir": "SOFTWARE\\ABB\\Products\\SYS600_CET@InstallDir@bin"
+        },
+        {
+            "name": "Ext OPC DA Client Conf",
+            "icon": "fa/cog",
+            "type": "external",
+            "id": "Ext OPC DA Client Conf",
+            "cmd": "SOFTWARE\\ABB\\Products\\MicroSCADA Pro\\External OPC DA Client@Path@prog\\OPC_Client\\DA_Config_Tool\\daoct.exe"
+        },
+        {
+            "name": "Ext OPC DA Control Panel",
+            "icon": "fa/eye",
+            "type": "external",
+            "id": "Ext OPC DA Control Panel",
+            "cmd": "SOFTWARE\\ABB\\Products\\MicroSCADA Pro\\External OPC DA Client@Path@prog\\OPC_Client\\DA_Client\\daopccp.exe"
+        }
+    ],
+    "Application Configuration": [
+        {
+            "name": "Apl Init Tool",
+            "icon": "fa/circle-o",
+            "type": "vso",
+            "id": "BGU_INITTOOL",
+            "cmd": "b5_bbone/BGU_INITTOOL.vso@MAIN"
+        },
+        {
+            "name": "IET Data Loader",
+            "icon": "fa/file-text-o",
+            "type": "external",
+            "id": "IET Data Loader",
+            "cmd": "SOFTWARE\\ABB\\Products\\MicroSCADA Pro\\MIET@Path@WebUIApp\\WebUIApp.exe"
+        },
+		{
+            "name": "ICCP Configurator",
+            "icon": "fa/cogs",
+            "type": "external",
+            "id": "ICCP Configurator",
+            "cmd": "SOFTWARE\\ABB\\Products\\MicroSCADA Pro\\MIET@Path@WebUIApp\\WebUIApp.exe",
+            "when": "license.additional_information['ICCP'] > 0"
+        },
+        {
+            "name": "Audible Alarms Settings",
+            "icon": "fa/bullhorn",
+            "type": "external",
+            "id": "Audible Alarms Settings",
+            "cmd": "SOFTWARE\\ABB\\Products\\MicroSCADA Pro\\MIET@Path@WebUIApp\\WebUIApp.exe"
+        },
+        {
+            "name": "SCL Importer",
+            "icon": "fa/download",
+            "type": "vso",
+            "id": "SCLIMPORTER",
+            "cmd": "Sys_Tool/SCLIMPORTER.vso@MAIN"
+        },
+        {
+            "name": "Obj Navigator",
+            "icon": "fa/search",
+            "type": "vso",
+            "id": "OBJNAVIG",
+            "cmd": "Sys_Tool/OBJNAVIG.vso@MAIN"
+        },
+        {
+            "name": "Text Tool",
+            "icon": "fa/font",
+            "type": "vso",
+            "id": "TextT",
+            "cmd": "Sys_Tool/TextT.vso@MAIN"
+        },
+        {
+            "name": "View Builder",
+            "icon": "fa/cubes",
+            "type": "external",
+            "id": "View Builder",
+            "cmd": "SOFTWARE\\ABB\\Products\\MicroSCADA Pro\\NGT@Path@NGT\\ABB.NGT.exe"
+        },
+        {
+            "name": "Tagout Editor",
+            "icon": "fa/hashtag",
+            "type": "vso",
+            "id": "TOEDIT",
+            "cmd": "Sys_Tool/TOEDIT.vso@MAIN"
+        },
+        {
+            "name": "Group Alarm",
+            "icon": "fa/bell",
+            "type": "vso",
+            "id": "GAEDIT",
+            "cmd": "Sys_Tool/GAEDIT.vso@MAIN"
+        },
+        {
+            "name": "Trend Basket",
+            "icon": "fa/signal",
+            "type": "vso",
+            "id": "TREND_BASKET",
+            "cmd": "Sys_Tool/TREND_BASKET.vso@MAIN"
+        },
+        {
+            "name": "SCIL Database",
+            "icon": "fa/database",
+            "type": "vso",
+            "id": "SDBTOOL",
+            "cmd": "Sys_Tool/SDBTOOL.vso@MAIN"
+        },
+        {
+            "name": "Export/Import",
+            "icon": "fa/exchange",
+            "type": "vso",
+            "id": "IMPEXP",
+            "cmd": "Sys_Tool/IMPEXP.vso@MAIN"
+        },
+        {
+            "name": "Sequencer",
+            "icon": "fa/sliders",
+            "type": "vso",
+            "id": "SEQCONF",
+            "cmd": "/lib5/emod/sequencer/use/SEQCONF.vso@MAIN",
+            "when": "license.additional_information['SEQUENCER'] > 0"
+        }
+    ],
+    "Administration": [
+        {
+            "name": "User Management",
+            "icon": "fa/user",
+            "type": "vso",
+            "id": "UAM",
+            "cmd": "Sys_Tool/UAM.vso@MAIN",
+            "when": "authGroups['GENERAL'] = 5"
+        },
+        {
+            "name": "Online Backup",
+            "icon": "fa/save",
+            "type": "vso",
+            "id": "BACKUP",
+            "cmd": "Sys_Tool/Backup.vso@MAIN"
+        },
+        {
+            "name": "SQL Exporter",
+            "icon": "fa/upload",
+            "type": "vso",
+            "id": "RDBMS",
+            "cmd": "Sys_Tool/RDBMS.vso@MAIN",
+            "when": "license.additional_information['SQL_EXPORT'] > 0"
+        },
+        {
+            "name": "NT Manager",
+            "icon": "fa/files-o",
+            "type": "vso",
+            "id": "NT_MANAGER",
+            "cmd": "Sys_Tool/NT_MANAGER.vso@MAIN",
+            "when": "license.additional_information['BUSBAR_COLORING'] > 0"
+        },
+        {
+            "name": "SCM",
+            "icon": "fa/circle-o",
+            "type": "external",
+            "id": "SCM",
+            "cmd": "SOFTWARE\\ABB\\Products\\MicroSCADA Pro\\SCM@Path@ABB.SCM\\ABB.SCM.exe",
+            "when": "authGroups['GENERAL'] = 5"
+        },
+        {
+            "name": "Search Tool",
+            "icon": "fa/search",
+            "type": "vso",
+            "id": "SEARCHTOOL",
+            "cmd": "Sys_Tool/SEARCH.vso@MAIN"
+        },
+        {
+            "name": "Test Dialog",
+            "icon": "fa/rocket",
+            "type": "vso",
+            "id": "TESTDLG",
+            "cmd": "Sys_Tool/TESTDLG.vso@MAIN"
+        },
+        {
+            "name": "Base System Object Navigator",
+            "icon": "fa/cogs",
+            "type": "vso",
+            "id": "B_OBJNAVIG",
+            "cmd": "Sys_Tool/B_OBJNAVIG.vso@MAIN"
+        },
+        {
+            "name": "Application Settings",
+            "icon": "fa/cog",
+            "type": "vso",
+            "id": "SYSAPL_SET",
+            "cmd": "Sys_Tool/SYSAPL_SETTINGS.vso@MAIN",
+            "when": "authGroups['PRO_OPTIONS_HANDLING'] > 1"
+        }
+    ],
+    "COM500i": [
+        {
+            "name": "Signal X-Reference Tool",
+            "icon": "fa/signal",
+            "type": "vso",
+            "id": "COMTOOL",
+            "cmd": "Com_/COMTOOL.vso@MAIN"
+        },
+        {
+            "name": "Diagnostics",
+            "icon": "fa/search",
+            "type": "vso",
+            "id": "COMSTAND",
+            "cmd": "Com_/COM_STAND.vso@MAIN"
+        },
+        {
+            "name": "Log Viewer",
+            "icon": "fa/list-alt",
+            "type": "vso",
+            "id": "COMLVIEWER",
+            "cmd": "Com_/COMLVIEWER.vso@MAIN"
+        }
+    ]
+}

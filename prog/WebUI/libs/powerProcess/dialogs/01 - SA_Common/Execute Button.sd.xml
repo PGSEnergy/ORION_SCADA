@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Execute Button" />
+    <d:meta name="dv-custom-attribute|SANoRotate" content="" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="executable" default="''" />
+    <d:variable type="external" name="arguments" default="''" />
+    <d:variable type="external" name="caption" default="''" />
+  </d:head>
+  <d:body x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <s:polyline points="9.600,-6.800 10,-6.400 10,6.400 9.600,6.800 -9.600,6.800 -10,6.400 -10,-6.400 -9.600,-6.800 " y:fill="{subdrawing_color}" y:fill-rule="evenodd" y:stroke="{colors[17]}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Face" />
+    <s:polyline points="-10,6.400 -10,-6.400 -9.600,-6.800 9.600,-6.800 " y:fill="none" y:fill-rule="evenodd" y:stroke="{colors[16]}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Frame Top Left" />
+    <s:text font-size="5.262" fill="{colors[30]}" x="0" y="0" text-anchor="middle" dominant-baseline="central" d:textScaleAdjustment="true" d:transform-anchor="center-center" y:fill="{colors[30]}" y:fill-rule="evenodd" d:object-name="Caption Text">{if(`subdrawing_dynamics`, format('%s', `caption`), 'Exe')}</s:text>
+  </d:body>
+</d:document>

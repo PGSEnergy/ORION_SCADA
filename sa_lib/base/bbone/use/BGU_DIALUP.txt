@@ -1,0 +1,186 @@
+#if sys:bdm<>0 #then @b_enable_debugging=true
+#else @b_enable_debugging=false
+
+@command_selector=argument(2) ;Defines the command (e.g. OPEN_SELECT, OBJECT_INFO, SIMULATION...)
+
+#if %b_enable_debugging #then #block
+   @i_Trash=trace_begin("TRACE_BGU_CONTROL_'COMMAND_SELECTOR'.txt")
+   #on error #block
+      #if %b_enable_debugging #then #block
+         @i_Stat=status
+         @i_Trash=console_output(-
+            times + -
+            " BGU_CONTROL:C error when executing 'COMMAND_SELECTOR': 'i_Stat'. Trace created to PICT/TRACE_BGU_CONTROL_'COMMAND_SELECTOR'.txt")
+         @i_Trash=trace_end
+         @enable_debugging=false
+      #block_end
+      #return
+   #block_end
+#block_end
+
+@id_arg=argument(1)
+#if data_type(%id_arg)=="VECTOR" #then #block
+   @t_LN=%id_arg(1)
+   @i_IX=%id_arg(2)
+#block_end
+#else #block
+   @t_LN=%id_arg
+#block_end
+
+#if length('t_LN':PCD) > 0 #then #block
+   @l_Conf_Data = 't_LN':PCD
+   #if data_type(%l_Conf_Data.Indication_Type) <> "NONE" #then #block
+      #if %l_Conf_Data.Indication_Type <> "DB" and %i_IX < 100 #then @i_IX = %i_IX + 100
+   #block_end
+#block_end
+
+@t_Ini_File = "pict/bgu_dialup.ini"
+
+#case %command_selector
+
+   #when "CHECK_AUTOCALLER" #block
+      #error ignore
+      @s = status
+      @i_AC = 0
+      #create return_list:v = list
+      #if 't_LN':pss'i_IX' > 1 and 't_LN':pun'i_IX' > 0 #then #block
+         @i_UN = 't_LN':pun'i_IX'
+         
+         @l_read_status = read_parameter(%t_Ini_File, "STA_'i_UN'", "PHONE_NUMBER")
+         #if l_read_status:vSTATUS == 0 #then #block      
+            @i_NET = sta'i_UN':BND
+            @i_Line = sta'i_UN':SLI
+            #modify return_list:v = list(LINE_NUMBER = %i_Line)
+            #modify return_list:v = list(NET_NUMBER = %i_NET)
+            @i_AC = NET'i_NET':SAC'i_Line'          
+         #block_end
+         
+         #if %i_AC == 1 #then #block
+            @t_Show_Sync = false
+            @t_Show_Update = false
+            @t_Show_Settings = true
+            @t_Auto_Call = false
+            @i_Sync_Delay = "5"
+            @i_Upd_Delay = "5"
+            @t_Auto_Hang = false
+            @t_Auto_Sync = false
+            @t_Auto_Upd = false
+            @t_TelNumber = ""
+            @t_Wait = "0"
+                        
+            #modify return_list:v = list(AUTOCALLER = TRUE)
+            #if net'i_Net':SAS'i_Line' <> 1 #then #modify return_list:v = list(MAKE_CALL = TRUE)
+            @l_read_status = read_parameter(%t_Ini_File, "GLOBAL", "SHOW_SYNC")
+            #if l_read_status:vSTATUS == 0 #then @t_Show_Sync = l_read_status:vVALUE
+            @l_read_status = read_parameter(%t_Ini_File, "GLOBAL", "SHOW_UPDATE")
+            #if l_read_status:vSTATUS == 0 #then @t_Show_Update = l_read_status:vVALUE
+            @l_read_status = read_parameter(%t_Ini_File, "GLOBAL", "SHOW_SETTINGS")
+            #if l_read_status:vSTATUS == 0 #then @t_Show_Settings = l_read_status:vVALUE
+            @l_read_status = read_parameter(%t_Ini_File, "STA_'i_UN'", "AUTO_CALL")
+            #if l_read_status:vSTATUS == 0 #then @t_Auto_Call = l_read_status:vVALUE
+            @l_read_status = read_parameter(%t_Ini_File, "STA_'i_UN'", "SYNC_DELAY")
+            #if l_read_status:vSTATUS == 0 #then @i_Sync_Delay = l_read_status:vVALUE
+            @l_read_status = read_parameter(%t_Ini_File, "STA_'i_UN'", "UPDATE_DELAY")
+            #if l_read_status:vSTATUS == 0 #then @i_Upd_Delay = l_read_status:vVALUE
+            @l_read_status = read_parameter(%t_Ini_File, "STA_'i_UN'", "AUTO_HANG_UP")
+            #if l_read_status:vSTATUS == 0 #then @t_Auto_Hang = l_read_status:vVALUE
+            @l_read_status = read_parameter(%t_Ini_File, "STA_'i_UN'", "AUTO_SYNC")
+            #if l_read_status:vSTATUS == 0 #then @t_Auto_Sync = l_read_status:vVALUE
+            @l_read_status = read_parameter(%t_Ini_File, "STA_'i_UN'", "AUTO_UPDATE")
+            #if l_read_status:vSTATUS == 0 #then @t_Auto_Upd = l_read_status:vVALUE
+            @l_read_status = read_parameter(%t_Ini_File, "STA_'i_UN'", "PHONE_NUMBER")
+            #if l_read_status:vSTATUS == 0 #then @t_TelNumber = l_read_status:vVALUE
+            @l_read_status = read_parameter(%t_Ini_File, "STA_'i_UN'", "WAIT")
+            #if l_read_status:vSTATUS == 0 #then @t_Wait = l_read_status:vVALUE
+            #modify return_list:v = list(SHOW_SYNC = 't_Show_Sync', SHOW_UPDATE = 't_Show_Update', SHOW_SETTINGS = 't_Show_Settings')
+            #modify return_list:v = list (AUTO_CALL = 't_Auto_Call', SYNC_DELAY = 'i_Sync_Delay', UPDATE_DELAY = 'i_Upd_Delay', AUTO_HANG_UP = 't_Auto_Hang', AUTO_SYNC = 't_Auto_Sync', AUTO_UPDATE = 't_Auto_Upd', PHONE_NUMBER = "'t_TelNumber'", WAIT = 't_Wait')
+         #block_end
+      #block_end
+      @s = status 
+      #if %s <> 0 or %i_AC == 0 #then #modify return_list:v = list(AUTOCALLER = FALSE, STATUS = %s)
+      #return %return_list 
+   #block_end
+   
+   #when "DIAL" #block
+      @i_UN = 't_LN':pun'i_IX'
+      @i_NET = sta'i_UN':BND
+      @i_Line = sta'i_UN':SLI
+      #if net'i_NET':sas'i_Line' == 0 #then #block
+         @l_read_status = read_parameter(%t_Ini_File, "STA_'i_UN'", "PHONE_NUMBER")
+         @t_TelNumber = l_read_status:vVALUE
+         #set net'i_NET':scn'i_Line' = "'t_TelNumber'" + " S'i_UN'" ;make the call if as=idle   
+      #block_end
+   #block_end
+   
+   #when "HANG_UP" #block
+      @i_UN = 't_LN':pun'i_IX'
+      @i_NET = sta'i_UN':BND
+      @i_Line = sta'i_UN':SLI
+      #set net'i_NET':scn'i_Line' = ""
+   #block_end
+   
+   #when "WRITE_TO_INI_FILE" #block
+      #if not file_manager("EXISTS", fm_scil_file("PICT/BGU_DIALUP.INI")) #then #block
+         @l_write_status = write_parameter(%t_Ini_File, "GLOBAL", "SHOW_SYNC", "FALSE")
+         @l_write_status = write_parameter(%t_Ini_File, "GLOBAL", "SHOW_UPDATE", "FALSE")
+         @l_write_status = write_parameter(%t_Ini_File, "GLOBAL", "SHOW_SETTINGS", "TRUE")
+      #block_end
+      @i_UN = 't_LN':pun'i_IX'
+      @v_Tmp = argument(1)
+      @i_SelectedOptions = %v_Tmp(3)
+      @t_Text = edit(%v_Tmp(4),"COLLAPSE")
+      #if bit(%i_SelectedOptions,0) == 1 #then @t_Text = "TRUE"
+      #else @t_Text = "FALSE"
+      @l_write_status = write_parameter(%t_Ini_File, "STA_'i_UN'", "AUTO_CALL", %t_Text)
+      #if bit(%i_SelectedOptions,1) == 1 #then @t_Text = "TRUE"
+      #else @t_Text = "FALSE"
+      @l_write_status = write_parameter(%t_Ini_File, "STA_'i_UN'", "AUTO_SYNC", %t_Text)
+      #if bit(%i_SelectedOptions,2) == 1 #then @t_Text = "TRUE"
+      #else @t_Text = "FALSE"
+      @l_write_status = write_parameter(%t_Ini_File, "STA_'i_UN'", "AUTO_UPDATE", %t_Text)
+      #if bit(%i_SelectedOptions,3) == 1 #then @t_Text = "TRUE"
+      #else @t_Text = "FALSE"
+      @l_write_status = write_parameter(%t_Ini_File, "STA_'i_UN'", "AUTO_HANG_UP", %t_Text)
+      @t_Text = edit(%v_Tmp(4),"COLLAPSE")
+      @l_write_status = write_parameter(%t_Ini_File, "STA_'i_UN'", "PHONE_NUMBER", %t_Text)
+      
+      @l_read_status = read_parameter(%t_Ini_File, "STA_'i_UN'", "SYNC_DELAY")
+      #if l_read_status:vSTATUS <> 0 #then @l_write_status = write_parameter(%t_Ini_File, "STA_'i_UN'", "SYNC_DELAY", "10")
+      @l_read_status = read_parameter(%t_Ini_File, "STA_'i_UN'", "UPDATE_DELAY")
+      #if l_read_status:vSTATUS <> 0 #then @l_write_status = write_parameter(%t_Ini_File, "STA_'i_UN'", "UPDATE_DELAY", "5")
+      @l_read_status = read_parameter(%t_Ini_File, "STA_'i_UN'", "WAIT")
+      #if l_read_status:vSTATUS <> 0 #then @l_write_status = write_parameter(%t_Ini_File, "STA_'i_UN'", "WAIT", "30")
+      
+   #block_end
+   
+   #when "READ_FROM_INI_FILE" #block
+   #block_end
+   
+   #when "UPDATE_DATA" #block
+      @update_objects = list(-
+      sss't_LN' = vector(%i_IX))
+      #do fpu_update:c
+   #block_end
+   
+   #when "SYCHRONIZE" #block
+      @i_UN = 't_LN':pun'i_IX'
+      #case STA'i_Un':BST
+         #when "IEC" #block
+            #set sta'i_un':ssy = (6,0)
+         #block_end
+      #case_end
+   #block_end
+   
+   #when "UPDATE_AS_STATE" #block
+      #error ignore
+      @s=status
+      @i_UN = 't_LN':pun'i_IX'
+      @i_NET = sta'i_UN':BND
+      @i_Line = sta'i_UN':SLI
+      @i_AS = net'i_Net':SAS'i_Line'
+      #if %s<>0 #then #create return_list:v = list(AS_STATE = 0)
+      #else #create return_list:v = list(AS_STATE = %i_AS)
+      #return %return_list 
+   #block_end
+   
+#case_end

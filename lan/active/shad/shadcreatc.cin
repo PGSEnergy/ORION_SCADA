@@ -1,0 +1,33 @@
+; SHADCREATC - CREATE TIME CHANNEL OBJECTS
+;
+;
+;
+
+@NAMES(1) = "SHAD_1MIN"
+  @NAMESCY(1) = 60
+@NAMES(2) = "SHAD_5MIN"
+  @NAMESCY(2) = 5 * 60
+
+#LOOP_WITH I = 1 .. LENGTH(%NAMES)
+   @NAM = %NAMES(%I)
+   @OBJ = FETCH(%WAPL,"T",%NAM)
+   #IF OBJ:VIU <> -1 #THEN #BLOCK
+      #SEARCH 1 %WAPL "C" "A" "" TC == %NAM
+      #LOOP
+         @CP=NEXT(1)
+         #IF CP:VIU <> -1 #THEN #BLOCK
+            @LN = CP:VLN
+            #MODIFY 'LN':'WAPL'C = LIST(TC="")
+         #BLOCK_END
+         #ELSE #LOOP_EXIT
+      #LOOP_END
+      #DELETE 'NAM':'WAPL'T
+   #BLOCK_END
+   #CREATE OBJ:V
+   #SET OBJ:VIU = 1
+   #SET OBJ:VCY = (0,%NAMESCY(%I))
+   #SET OBJ:VSU = (0,0)
+   #SET OBJ:VSY = (0,%NAMESCY(%I) * (CLOCK DIV %NAMESCY(%I)))
+   #CREATE 'NAM':'WAPL'T = %OBJ
+#LOOP_END
+

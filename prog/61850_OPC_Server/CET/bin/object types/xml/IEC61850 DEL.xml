@@ -1,0 +1,659 @@
+<!-- edited with XMLSpy v2011 rel. 3 sp1 (http://www.altova.com) by XMLSpy 2011 Professional Ed., Installed for 10 users (with SMP from 2010-09-23 to 2011-09-24) (ABB Oy) -->
+<!--P-->
+<ObjectTypes>
+	<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+		<Parameters type="InterfaceDefinition">
+			<Parameter name="ObjectType">IEC61850 DEL 4.0</Parameter>
+			<Parameter name="Caption">objectTypeCaption</Parameter>
+			<Parameter name="Description">objectTypeDesc</Parameter>
+			<Parameter name="Group">Data objects</Parameter>
+			<Parameter name="Type">DO</Parameter>
+			<Parameter name="IconFileName">del.ico</Parameter>
+			<Parameter name="Tools">OnlineDiagnosticsDataObject</Parameter>
+			<Parameter name="DataServers"/>
+			<Parameter name="Verbs"/>
+			<Parameter name="Visible">False</Parameter>
+			<Parameter name="CanInherit">False</Parameter>
+			<Parameter name="ParentControlConditions">
+				<Structure name="COMMUNICATION">
+					<Condition type="DataStructureObjectType">LN</Condition>
+				</Structure>
+			</Parameter>
+		</Parameters>
+		<Parameters type="SCLExport">
+			<Export name="sclXML">DOISCL</Export>
+			<Export name="sAddr">PhsABMappedEvent, PhsABPrintBlock, PhsBCMappedEvent, PhsBCPrintBlock, PhsCAMappedEvent, PhsCAPrintBlock, Section</Export>
+		</Parameters>
+		<Properties type="PropertyDefinitions">
+			<Property name="DOISCL" category="[010] Basic">
+				<Value/>
+				<DescID>DOSCLDesc</DescID>
+				<CaptionID>DOISCL</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>DOISCL</AttributeName>
+			</Property>
+			<Property name="61850-Type" category="[010] Basic">
+				<Value>DEL</Value>
+				<DescID>61850-TypeDesc</DescID>
+				<CaptionID>61850-Type</CaptionID>
+				<Values type="singleChoice">
+					<Enum textID="ACD" value="ACD"/>
+					<Enum textID="ACT" value="ACT"/>
+					<Enum textID="APC" value="APC"/>
+					<Enum textID="ASG" value="ASG"/>
+					<Enum textID="BCR" value="BCR"/>
+					<Enum textID="BSC" value="BSC"/>
+					<Enum textID="CMV" value="CMV"/>
+					<Enum textID="CSD" value="CSD"/>
+					<Enum textID="CURVE" value="CURVE"/>
+					<Enum textID="DEL" value="DEL"/>
+					<Enum textID="DPC" value="DPC"/>
+					<Enum textID="DPS" value="DPS"/>
+					<Enum textID="DPL" value="DPL"/>
+					<Enum textID="HDEL" value="HDEL"/>
+					<Enum textID="HMV" value="HMV"/>
+					<Enum textID="HWYE" value="HWYE"/>
+					<Enum textID="INC" value="INC"/>
+					<Enum textID="ING" value="ING"/>
+					<Enum textID="INS" value="INS"/>
+					<Enum textID="ISC" value="ISC"/>
+					<Enum textID="LPL" value="LPL"/>
+					<Enum textID="MV" value="MV"/>
+					<Enum textID="SAV" value="SAV"/>
+					<Enum textID="SEC" value="SEC"/>
+					<Enum textID="SEQ" value="SEQ"/>
+					<Enum textID="SPC" value="SPC"/>
+					<Enum textID="SPG" value="SPG"/>
+					<Enum textID="SPS" value="SPS"/>
+					<Enum textID="WYE" value="WYE"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="DOType" category="[010] Basic">
+				<Value/>
+				<DescID>DOTypeDesc</DescID>
+				<CaptionID>DOType</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>DOType</AttributeName>
+			</Property>
+			<Property name="PhsABMappedEvent" category="[040] OPC Alarm and Event">
+				<Value/>
+				<DescID>PhsABMappedEventDesc</DescID>
+				<CaptionID>PhsABMappedEvent</CaptionID>
+				<Values type="singleChoiceDynamic">
+					<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupDOEvents" secondchildObjectType="LevelEventGroup"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="PhsBCPrintBlock" category="[040] OPC Alarm and Event">
+				<Value>False</Value>
+				<DescID>PhsBCPrintBlockDesc</DescID>
+				<CaptionID>PhsBCPrintBlock</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="PhsBCMappedEvent" category="[040] OPC Alarm and Event">
+				<Value/>
+				<DescID>PhsBCMappedEventDesc</DescID>
+				<CaptionID>PhsBCMappedEvent</CaptionID>
+				<Values type="singleChoiceDynamic">
+					<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupDOEvents" secondchildObjectType="LevelEventGroup"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="PhsCAPrintBlock" category="[040] OPC Alarm and Event">
+				<Value>False</Value>
+				<DescID>PhsCAPrintBlockDesc</DescID>
+				<CaptionID>PhsCAPrintBlock</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="PhsCAMappedEvent" category="[040] OPC Alarm and Event">
+				<Value/>
+				<DescID>PhsCAMappedEventDesc</DescID>
+				<CaptionID>PhsCAMappedEvent</CaptionID>
+				<Values type="singleChoiceDynamic">
+					<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupDOEvents" secondchildObjectType="LevelEventGroup"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="PhsMin" category="[060] Limit Value Supervision">
+				<Value>0</Value>
+				<DescID>PhsMinDesc</DescID>
+				<CaptionID>PhsMin</CaptionID>
+				<Values type="numerical"/>
+				<DataType>System.Single</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="PhsMax" category="[060] Limit Value Supervision">
+				<Value>20000</Value>
+				<DescID>PhsMaxDesc</DescID>
+				<CaptionID>PhsMax</CaptionID>
+				<Values type="numerical"/>
+				<DataType>System.Single</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="PhsLo" category="[060] Limit Value Supervision">
+				<Value>0</Value>
+				<DescID>PhsLoDesc</DescID>
+				<CaptionID>PhsLo</CaptionID>
+				<Values type="numerical"/>
+				<DataType>System.Single</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="PhsLoLo" category="[060] Limit Value Supervision">
+				<Value>0</Value>
+				<DescID>PhsLoLoDesc</DescID>
+				<CaptionID>PhsLoLo</CaptionID>
+				<Values type="numerical"/>
+				<DataType>System.Single</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="PhsHi" category="[060] Limit Value Supervision">
+				<Value>0</Value>
+				<DescID>PhsHiDesc</DescID>
+				<CaptionID>PhsHi</CaptionID>
+				<Values type="numerical"/>
+				<DataType>System.Single</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="PhsHiHi" category="[060] Limit Value Supervision">
+				<Value>0</Value>
+				<DescID>PhsHiHiDesc</DescID>
+				<CaptionID>PhsHiHi</CaptionID>
+				<Values type="numerical"/>
+				<DataType>System.Single</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="Section" category="[040] OPC Alarm and Event">
+				<Value>0</Value>
+				<DescID>SectionDesc</DescID>
+				<CaptionID>Section</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>16</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="PhsUnit" category="[050] Scale and Unit">
+				<Value>1</Value>
+				<DescID>UnitDesc</DescID>
+				<CaptionID>Unit</CaptionID>
+				<Values type="singleChoice">
+					<Enum textID="Dimensionless" value="1"/>
+					<Enum textID="Meter" value="2"/>
+					<Enum textID="Kilogram" value="3"/>
+					<Enum textID="Second" value="4"/>
+					<Enum textID="Ampere" value="5"/>
+					<Enum textID="Kelvin" value="6"/>
+					<Enum textID="Mole" value="7"/>
+					<Enum textID="Candela" value="8"/>
+					<Enum textID="Degrees" value="9"/>
+					<Enum textID="Radian" value="10"/>
+					<Enum textID="Steradian" value="11"/>
+					<Enum textID="Gray (J/Kg)" value="21"/>
+					<Enum textID="becquerel (I/s)" value="22"/>
+					<Enum textID="degrees Celsius" value="23"/>
+					<Enum textID="seivert (J/kg)" value="24"/>
+					<Enum textID="Farad" value="25"/>
+					<Enum textID="Coulomb" value="26"/>
+					<Enum textID="Siemens" value="27"/>
+					<Enum textID="Henry" value="28"/>
+					<Enum textID="Volt" value="29"/>
+					<Enum textID="Ohm" value="30"/>
+					<Enum textID="joule (Nm)" value="31"/>
+					<Enum textID="newton (kg m/s^2)" value="32"/>
+					<Enum textID="hertz" value="33"/>
+					<Enum textID="lux (lm/m^2)lx" value="34"/>
+					<Enum textID="lumen (cd sr)" value="35"/>
+					<Enum textID="weber (V s)" value="36"/>
+					<Enum textID="tesla (Wb / m^2)" value="37"/>
+					<Enum textID="watt (J/s)" value="38"/>
+					<Enum textID="pascal (N/m^2)" value="39"/>
+					<Enum textID="square meter (m^2)" value="41"/>
+					<Enum textID="cubic meter (m^3)" value="42"/>
+					<Enum textID="meters per second (m/s)" value="43"/>
+					<Enum textID="meters per second^2 (m/s^2)" value="44"/>
+					<Enum textID="cubic meters per second (m^3/s)" value="45"/>
+					<Enum textID="meters / cubic meter (kg/m^3)" value="46"/>
+					<Enum textID="kilogram meter (kg m)" value="47"/>
+					<Enum textID="kilogram / cubic meter (kg / m^3)" value="48"/>
+					<Enum textID="meter square / second (m^2 / s" value="49"/>
+					<Enum textID="watt / emter Kelvin (W / m K)" value="50"/>
+					<Enum textID="joule / Kelvin (J / K)" value="51"/>
+					<Enum textID="parts per million" value="52"/>
+					<Enum textID="rotations per second (1 / s)" value="53"/>
+					<Enum textID="radian per second (rad / s)" value="54"/>
+					<Enum textID="volt ampere (VA)" value="61"/>
+					<Enum textID="watts (I^2R)" value="62"/>
+					<Enum textID="volt ampere reactive (VISin?)" value="63"/>
+					<Enum textID="degrees" value="64"/>
+					<Enum textID="(dimensionless) Cos?" value="65"/>
+					<Enum textID="volt seconds (Ws / A)" value="66"/>
+					<Enum textID="volt square (W^2 / A^2)" value="67"/>
+					<Enum textID="amp second (As)" value="68"/>
+					<Enum textID="amp square (A^2)" value="69"/>
+					<Enum textID="amp square second (A^2s)" value="70"/>
+					<Enum textID="volt apmere hours" value="71"/>
+					<Enum textID="watt hours" value="72"/>
+					<Enum textID="volt ampere reactive hours" value="73"/>
+					<Enum textID="volts per hertz" value="74"/>
+					<Enum textID="hertz per second" value="75"/>
+					<Enum textID="char" value="76"/>
+					<Enum textID="characters per second" value="77"/>
+					<Enum textID="kg per square meter" value="78"/>
+					<Enum textID="dB" value="79"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="PhsMultiplier" category="[050] Scale and Unit">
+				<Value>0</Value>
+				<DescID>MultiplierDesc</DescID>
+				<CaptionID>Multiplier</CaptionID>
+				<Values type="singleChoice">
+					<Enum textID="Yocto" value="-24"/>
+					<Enum textID="Zepto" value="-21"/>
+					<Enum textID="Atto" value="-18"/>
+					<Enum textID="Femto" value="-15"/>
+					<Enum textID="Piko" value="-12"/>
+					<Enum textID="Nano" value="-9"/>
+					<Enum textID="Micro" value="-6"/>
+					<Enum textID="Milli" value="-3"/>
+					<Enum textID="Centi" value="-2"/>
+					<Enum textID="Deci" value="-1"/>
+					<Enum textID="No multiplier" value="0"/>
+					<Enum textID="Deka" value="1"/>
+					<Enum textID="Hekto" value="2"/>
+					<Enum textID="Kilo" value="3"/>
+					<Enum textID="Mega" value="6"/>
+					<Enum textID="Giga" value="9"/>
+					<Enum textID="Tera" value="12"/>
+					<Enum textID="Petra" value="15"/>
+					<Enum textID="Exa" value="18"/>
+					<Enum textID="Zetta" value="21"/>
+					<Enum textID="Yotta" value="24"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="IEC61850MeasurementScale" category="[050] Scale and Unit">
+				<Value/>
+				<DescID>IEC61850MeasurementScaleDesc</DescID>
+				<CaptionID>IEC61850MeasurementScale</CaptionID>
+				<Values type="singleChoiceDynamic">
+					<ListObjects findMethod="ancestorDirectChild" ancestorDsot="GATEWAY" childObjectType="ScaleGroup"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName/>
+			</Property>
+		</Properties>
+	</ObjectType>
+	<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+		<Parameters type="InterfaceDefinition">
+			<Parameter name="ObjectType">IEC61850 DEL 3.2</Parameter>
+			<Parameter name="Caption">objectTypeCaption</Parameter>
+			<Parameter name="Description">objectTypeDesc</Parameter>
+			<Parameter name="Group">Data objects</Parameter>
+			<Parameter name="Type">DO</Parameter>
+			<Parameter name="IconFileName">del.ico</Parameter>
+			<Parameter name="Tools">OnlineDiagnosticsDataObject</Parameter>
+			<Parameter name="DataServers"/>
+			<Parameter name="Verbs"/>
+			<Parameter name="Visible">False</Parameter>
+			<Parameter name="CanInherit">False</Parameter>
+			<Parameter name="ParentControlConditions">
+				<Structure name="COMMUNICATION">
+					<Condition type="DataStructureObjectType">LN</Condition>
+				</Structure>
+			</Parameter>
+		</Parameters>
+		<Parameters type="SCLExport">
+			<Export name="sclXML">DOISCL</Export>
+			<Export name="sAddr">PhsABMappedEvent, PhsABPrintBlock, PhsBCMappedEvent, PhsBCPrintBlock, PhsCAMappedEvent, PhsCAPrintBlock, Section</Export>
+		</Parameters>
+		<Properties type="PropertyDefinitions">
+			<Property name="DOISCL" category="[010] Basic">
+				<Value/>
+				<DescID>DOSCLDesc</DescID>
+				<CaptionID>DOISCL</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>DOISCL</AttributeName>
+			</Property>
+			<Property name="61850-Type" category="[010] Basic">
+				<Value>DEL</Value>
+				<DescID>61850-TypeDesc</DescID>
+				<CaptionID>61850-Type</CaptionID>
+				<Values type="singleChoice">
+					<Enum textID="ACD" value="ACD"/>
+					<Enum textID="ACT" value="ACT"/>
+					<Enum textID="APC" value="APC"/>
+					<Enum textID="ASG" value="ASG"/>
+					<Enum textID="BCR" value="BCR"/>
+					<Enum textID="BSC" value="BSC"/>
+					<Enum textID="CMV" value="CMV"/>
+					<Enum textID="CSD" value="CSD"/>
+					<Enum textID="CURVE" value="CURVE"/>
+					<Enum textID="DEL" value="DEL"/>
+					<Enum textID="DPC" value="DPC"/>
+					<Enum textID="DPS" value="DPS"/>
+					<Enum textID="DPL" value="DPL"/>
+					<Enum textID="HDEL" value="HDEL"/>
+					<Enum textID="HMV" value="HMV"/>
+					<Enum textID="HWYE" value="HWYE"/>
+					<Enum textID="INC" value="INC"/>
+					<Enum textID="ING" value="ING"/>
+					<Enum textID="INS" value="INS"/>
+					<Enum textID="ISC" value="ISC"/>
+					<Enum textID="LPL" value="LPL"/>
+					<Enum textID="MV" value="MV"/>
+					<Enum textID="SAV" value="SAV"/>
+					<Enum textID="SEC" value="SEC"/>
+					<Enum textID="SEQ" value="SEQ"/>
+					<Enum textID="SPC" value="SPC"/>
+					<Enum textID="SPG" value="SPG"/>
+					<Enum textID="SPS" value="SPS"/>
+					<Enum textID="WYE" value="WYE"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="DOType" category="[010] Basic">
+				<Value/>
+				<DescID>DOTypeDesc</DescID>
+				<CaptionID>DOType</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>DOType</AttributeName>
+			</Property>
+			<Property name="PhsABMappedEvent" category="[040] OPC Alarm and Event">
+				<Value/>
+				<DescID>PhsABMappedEventDesc</DescID>
+				<CaptionID>PhsABMappedEvent</CaptionID>
+				<Values type="singleChoiceDynamic">
+					<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupDOEvents" secondchildObjectType="LevelEventGroup"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="PhsBCPrintBlock" category="[040] OPC Alarm and Event">
+				<Value>False</Value>
+				<DescID>PhsBCPrintBlockDesc</DescID>
+				<CaptionID>PhsBCPrintBlock</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="PhsBCMappedEvent" category="[040] OPC Alarm and Event">
+				<Value/>
+				<DescID>PhsBCMappedEventDesc</DescID>
+				<CaptionID>PhsBCMappedEvent</CaptionID>
+				<Values type="singleChoiceDynamic">
+					<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupDOEvents" secondchildObjectType="LevelEventGroup"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="PhsCAPrintBlock" category="[040] OPC Alarm and Event">
+				<Value>False</Value>
+				<DescID>PhsCAPrintBlockDesc</DescID>
+				<CaptionID>PhsCAPrintBlock</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="PhsCAMappedEvent" category="[040] OPC Alarm and Event">
+				<Value/>
+				<DescID>PhsCAMappedEventDesc</DescID>
+				<CaptionID>PhsCAMappedEvent</CaptionID>
+				<Values type="singleChoiceDynamic">
+					<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupDOEvents" secondchildObjectType="LevelEventGroup"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="Section" category="[040] OPC Alarm and Event">
+				<Value>0</Value>
+				<DescID>SectionDesc</DescID>
+				<CaptionID>Section</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>16</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="IEC61850MeasurementScale" category="[050] Scale and Unit">
+				<Value/>
+				<DescID>IEC61850MeasurementScaleDesc</DescID>
+				<CaptionID>IEC61850MeasurementScale</CaptionID>
+				<Values type="singleChoiceDynamic">
+					<ListObjects findMethod="ancestorDirectChild" ancestorDsot="GATEWAY" childObjectType="ScaleGroup"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName/>
+			</Property>
+		</Properties>
+	</ObjectType>
+	<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+		<Parameters type="InterfaceDefinition">
+			<Parameter name="ObjectType">IEC61850 DEL</Parameter>
+			<Parameter name="Caption">objectTypeCaption</Parameter>
+			<Parameter name="Description">objectTypeDesc</Parameter>
+			<Parameter name="Group">Data objects</Parameter>
+			<Parameter name="Type">DO</Parameter>
+			<Parameter name="IconFileName">del.ico</Parameter>
+			<Parameter name="Tools">OnlineDiagnosticsDataObject</Parameter>
+			<Parameter name="DataServers"/>
+			<Parameter name="Verbs"/>
+			<Parameter name="Visible">False</Parameter>
+			<Parameter name="CanInherit">False</Parameter>
+			<Parameter name="ParentControlConditions">
+				<Structure name="COMMUNICATION">
+					<Condition type="DataStructureObjectType">LN</Condition>
+				</Structure>
+			</Parameter>
+		</Parameters>
+		<Parameters type="SCLExport">
+			<Export name="sclXML">DOISCL</Export>
+			<Export name="sAddr">PhsABMappedEvent, PhsABPrintBlock, PhsBCMappedEvent, PhsBCPrintBlock, PhsCAMappedEvent, PhsCAPrintBlock, Section</Export>
+		</Parameters>
+		<Properties type="PropertyDefinitions">
+			<Property name="DOISCL" category="[010] Basic">
+				<Value/>
+				<DescID>DOSCLDesc</DescID>
+				<CaptionID>DOISCL</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>DOISCL</AttributeName>
+			</Property>
+			<Property name="61850-Type" category="[010] Basic">
+				<Value>DEL</Value>
+				<DescID>61850-TypeDesc</DescID>
+				<CaptionID>61850-Type</CaptionID>
+				<Values type="singleChoice">
+					<Enum textID="ACD" value="ACD"/>
+					<Enum textID="ACT" value="ACT"/>
+					<Enum textID="APC" value="APC"/>
+					<Enum textID="ASG" value="ASG"/>
+					<Enum textID="BCR" value="BCR"/>
+					<Enum textID="BSC" value="BSC"/>
+					<Enum textID="CMV" value="CMV"/>
+					<Enum textID="CSD" value="CSD"/>
+					<Enum textID="CURVE" value="CURVE"/>
+					<Enum textID="DEL" value="DEL"/>
+					<Enum textID="DPC" value="DPC"/>
+					<Enum textID="DPS" value="DPS"/>
+					<Enum textID="DPL" value="DPL"/>
+					<Enum textID="HDEL" value="HDEL"/>
+					<Enum textID="HMV" value="HMV"/>
+					<Enum textID="HWYE" value="HWYE"/>
+					<Enum textID="INC" value="INC"/>
+					<Enum textID="ING" value="ING"/>
+					<Enum textID="INS" value="INS"/>
+					<Enum textID="ISC" value="ISC"/>
+					<Enum textID="LPL" value="LPL"/>
+					<Enum textID="MV" value="MV"/>
+					<Enum textID="SAV" value="SAV"/>
+					<Enum textID="SEC" value="SEC"/>
+					<Enum textID="SEQ" value="SEQ"/>
+					<Enum textID="SPC" value="SPC"/>
+					<Enum textID="SPG" value="SPG"/>
+					<Enum textID="SPS" value="SPS"/>
+					<Enum textID="WYE" value="WYE"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="DOType" category="[010] Basic">
+				<Value/>
+				<DescID>DOTypeDesc</DescID>
+				<CaptionID>DOType</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>DOType</AttributeName>
+			</Property>
+			<Property name="PhsABMappedEvent" category="[040] OPC Alarm and Event">
+				<Value/>
+				<DescID>PhsABMappedEventDesc</DescID>
+				<CaptionID>PhsABMappedEvent</CaptionID>
+				<Values type="singleChoiceDynamic">
+					<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupDOEvents" secondchildObjectType="LevelEventGroup"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="PhsBCPrintBlock" category="[040] OPC Alarm and Event">
+				<Value>False</Value>
+				<DescID>PhsBCPrintBlockDesc</DescID>
+				<CaptionID>PhsBCPrintBlock</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="PhsBCMappedEvent" category="[040] OPC Alarm and Event">
+				<Value/>
+				<DescID>PhsBCMappedEventDesc</DescID>
+				<CaptionID>PhsBCMappedEvent</CaptionID>
+				<Values type="singleChoiceDynamic">
+					<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupDOEvents" secondchildObjectType="LevelEventGroup"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="PhsCAPrintBlock" category="[040] OPC Alarm and Event">
+				<Value>False</Value>
+				<DescID>PhsCAPrintBlockDesc</DescID>
+				<CaptionID>PhsCAPrintBlock</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="PhsCAMappedEvent" category="[040] OPC Alarm and Event">
+				<Value/>
+				<DescID>PhsCAMappedEventDesc</DescID>
+				<CaptionID>PhsCAMappedEvent</CaptionID>
+				<Values type="singleChoiceDynamic">
+					<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupDOEvents" secondchildObjectType="LevelEventGroup"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="Section" category="[040] OPC Alarm and Event">
+				<Value>0</Value>
+				<DescID>SectionDesc</DescID>
+				<CaptionID>Section</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>16</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+		</Properties>
+	</ObjectType>
+</ObjectTypes>

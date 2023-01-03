@@ -1,0 +1,77 @@
+#CREATE LSG_ATTR_NR:V = LIST(DATA_TYPE = "INTEGER",-
+              MIN_VALUE = 1,-
+              MAX_VALUE = 127)
+
+#CREATE LSG_ATTR_CT:V = LIST(DATA_TYPE = "INTEGER",-
+                             MIN_VALUE = 0,-
+                             MAX_VALUE = 255)
+
+#CREATE LSG_ATTR_LI:V = LIST(DATA_TYPE = "INTEGER",-
+                             MIN_VALUE = 1,-
+                             MAX_VALUE = 4)
+
+#CREATE LSG_ATTR_UT:V = LIST(DATA_TYPE = "INTEGER",-
+                             MIN_VALUE = 1,-
+                             MAX_VALUE = 3)
+
+#CREATE LSG_ATTR_AS:V = LIST(DATA_TYPE = "INTEGER",-
+                             MIN_VALUE = 0,-
+                             MAX_VALUE = 16)
+
+#CREATE LSG_ATTR_MS:V = LIST(DATA_TYPE = "INTEGER",-
+                             MIN_VALUE = 1,-
+                             MAX_VALUE = 16)
+
+#CREATE LSG_ATTR_NN:V = LIST(DATA_TYPE = "INTEGER",-
+                             MIN_VALUE = 0,-
+                             MAX_VALUE = 127)
+
+#CREATE LSG_ATTR_SN:V = LIST(DATA_TYPE = "INTEGER",-
+                             MIN_VALUE = 0,-
+                             MAX_VALUE = 127)
+
+#CREATE LSG_ATTR_RT:V = LIST(DATA_TYPE = "INTEGER",-
+                             DEFAULT_VALUE = 20,-
+                             MIN_VALUE = 0,-
+                             MAX_VALUE = 65535)
+
+#CREATE LSG_ATTR_NNR:V = LIST(DATA_TYPE = "INTEGER",-
+                              MIN_VALUE = 1,-
+                              MAX_VALUE = 16)
+
+#CREATE LSG_ATTR_NNL:V = LIST(DATA_TYPE = "INTEGER",-
+                              MIN_VALUE = 1,-
+                              MAX_VALUE = 4)
+
+#CREATE LSG_ATTR_BASETYPE:V = LIST(DATA_TYPE = "INTEGER",-
+ DEFAULT_VALUE = 1,-
+ SPECIAL_VALUES = (1,2,3,4,5,7,8,9,10),-
+ SPECIAL_STRINGS = ("Unsigned 16","Signed 16","Unsigned 8","Signed 8","Signed 32","Float IEE754","Structure","LSG Control","LSG Bit Write"))
+
+#CREATE LSG_ATTR_INDEX:V = LIST(DATA_TYPE = "INTEGER",-
+                                MIN_VALUE = 0,-
+                                MAX_VALUE = 4095)
+
+#CREATE LSG_ATTR_ADDRESS:V = LIST(DATA_TYPE = "INTEGER",-
+                                  MIN_VALUE = 0,-
+                                  MAX_VALUE = 65535)
+
+#CREATE LSG_ATTR_TYPE:V = LIST(DATA_TYPE = "INTEGER",-
+                               MIN_VALUE = 0,-
+                               MAX_VALUE = 65535)
+
+#CREATE LSG_ATTR_DEADBAND:V = LIST(DATA_TYPE = ("INTEGER","REAL"),-
+                                   MIN_VALUE = 0,-
+                                   MAX_VALUE = 65535)
+
+#CREATE LSG_ATTR_DI:V = LIST(DATA_TYPE = "INTEGER",-
+                             MIN_VALUE = 0,-
+                             MAX_VALUE = 65535)
+
+#CREATE LSG_ATTR_GI:V = LIST(DATA_TYPE = "INTEGER",-
+                             MIN_VALUE = 0,-
+                             MAX_VALUE = 1)
+
+#CREATE LSG_ATTR_MI:V = LIST(DATA_TYPE = "INTEGER",-
+                             MIN_VALUE = 0,-
+                             MAX_VALUE = 32766)

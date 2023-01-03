@@ -1,0 +1,86 @@
+; end session program
+
+
+@i_index_of_system_variable =argument(1)
+
+;@a=console_output("'i_index_of_system_variable' logout")
+
+;if logout is not done
+#IF SAGR_LOGIN_MANAGER:POV'i_index_of_system_variable' == 1 OR SAGR_LOGIN_MANAGER:POV'i_index_of_system_variable' == 3 #THEN #BLOCK
+
+   ;logout to printer
+   ;#SET SAGR_LOGIN_MANAGER:POV'i_index_of_system_variable'=0
+
+#BLOCK_END
+
+;login to printer
+@OI_LENGTH1=10
+@OI_LENGTH2=15
+@OI_LENGTH3=5
+
+#ERROR IGNORE
+   @APL_BSV15      = APL:BSV15
+   @PROCESSOBJECTS = APL_BSV15:VPROCESS_OBJECTS
+   @OI             = PROCESSOBJECTS:VOI
+   @OI_LENGTH1     = OI:VLENGTH1
+   @OI_LENGTH2     = OI:VLENGTH2
+   @OI_LENGTH3     = OI:VLENGTH3
+#ERROR CONTINUE
+   
+@TMP_SYSNAME = SUBSTR(SYS:BCX,1,%OI_LENGTH1-1)
+;----------------------- LOGIN EVENT -----------------------   
+@t_login_node=argument(3)
+#if %t_login_node=="Server" #then @t_login_node=sys:bnn
+@login_LN="SAGR_LOGIN_MANAGER"
+
+
+#if %i_index_of_system_variable>0 #then #block
+   #if ATTRIBUTE_EXISTS(sys:bsv(%i_index_of_system_variable),"LOGIN_OBJECT_INDEX") #then #block
+      @SESSION_DATA=sys:bsv(%i_index_of_system_variable)
+      @Found_IX=%SESSION_DATA.LOGIN_OBJECT_INDEX
+
+      ;SYS-4309: Don't add Event Display entry when control dialog is opened from DMS
+      ;#SET 'login_LN':POV'Found_IX' = 0
+      #if ATTRIBUTE_EXISTS(%SESSION_DATA, "I_WINDOWHANDLE") #then #block
+         #if %SESSION_DATA.I_WINDOWHANDLE <> 0 #then #SET 'login_LN':POV'Found_IX' = 0
+      #block_end
+
+   #block_end
+#block_end
+;----------------------- LOGIN COUNT -----------------------
+@login_count_ln="SAGR_L_CNT"
+@TMP_COMPONENT=%t_login_node   
+@OI = "'TMP_SYSNAME' 'TMP_COMPONENT'"
+@output=application_object_list(0,"IX","A","","","LN==""'login_count_ln'""", vector("LN","OI","OX"))
+@Found_count_IX=0
+@objectExists=FALSE
+#loop_with i=1..length(%output.LN)
+   #if %output.OI(%i)==%OI #then #block
+      @Found_count_IX=%output.IX(%i)
+      @objectExists=TRUE
+   #block_end
+#loop_end
+#if %objectExists #then #SET 'login_count_ln':PAI'Found_count_IX' = 'login_count_ln':PAI'Found_count_IX' - 1
+;-----------------------------------------------------------
+
+;we need to close the opened monitor if exists
+
+@l_SysSv=SYS:BSV(%i_index_of_system_variable)
+
+#error ignore
+@i_application_monitor_number=l_SysSV:vI_MONITORNUMBER
+#error stop
+#if STATUS==0 #then #block
+   #if %i_application_monitor_number>0 #then #block        
+     #set apl:bmo'i_application_monitor_number' = -1 ;close monitor
+   #block_end
+#block_end
+
+;also we will clear the system variable
+
+#set SYS:BSV(%i_index_of_system_variable)=""
+
+;Ensure that INIT scripts did not leave lock on:
+@lock_Path=path("pict")
+@lock_path=%lock_path(1)
+@CHECK_LOCK=FILE_LOCK_MANAGER("BREAK", "'lock_path'\BGU_INIT")

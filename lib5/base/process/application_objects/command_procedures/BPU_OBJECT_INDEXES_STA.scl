@@ -1,0 +1,70 @@
+;Function: BPU_OBJECT_INDEXES_STA:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_object_indexes_sta.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute)
+;Return data: l_Indexes
+;Description: list of object indexes depending on configuration
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info
+#local l_Indexes, l_OT_Indexes, i, t_Attr, t_LN, b_ind_double_binary = true
+
+;****************************************************************************************************
+;redirect command if application specific command procedure is found                               ;*
+#local t_Redirect_Proc = "APLMOD5_BPU_OBJECT_INDEXES_STA"                                          ;*
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    ;*
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            ;*
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 ;*
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  ;*
+         @REDIRECTED = true                                                                        ;*
+         i_ArgCnt = argument_count                                                                 ;*
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                      ;*
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" ;*
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       ;*
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     ;*
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    ;*
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        ;*
+         #loop_end                                                                                 ;*
+         #return 't_Redirect_Command' ;;;;;                                                        ;*
+      #block_end                                                                                   ;*
+   #block_end                                                                                      ;*
+   #else #delete REDIRECTED:V                                                                      ;*
+#block_end                                                                                         ;*
+;****************************************************************************************************
+;MAIN START
+
+t_LN = l_object_info.p_object_ln
+l_indexes = list(-
+         STA_LR_OBJ_IX            = list(ix=10, ln=t_LN),-
+         STA_LR_LOC_CMD_IX        = list(ix=11, ln=t_LN),-
+         STA_LR_STA_CMD_IX        = list(ix=12, ln=t_LN),-
+         STA_LR_REM_CMD_IX        = list(ix=13, ln=t_LN),-
+         STA_LR_RES_CMD_IX        = list(ix=14, ln=t_LN),-
+         BLOCKINGS_IX             = list(ix=15, ln=t_LN),-
+         SEL_ON_MON_IX            = list(ix=16, ln=t_LN),-
+         STA_LR_EV_OBJ_IX         = list(ix=0, ln=t_LN),-
+         STA_LR_EV2_OBJ_IX        = list(ix=0, ln=t_LN))
+  
+#if attribute_exists(l_object_info, "ind_double_binary") #then -
+   b_ind_double_binary = l_object_info.ind_double_binary
+
+#if not b_ind_double_binary #then -
+   l_indexes = merge_attributes(l_indexes, list(STA_LR_LOC_CMD_IX = list(ix=11, ln=t_LN), STA_LR_STA_CMD_IX = list(ix=11, ln=t_LN),-
+      STA_LR_REM_CMD_IX = list(ix=11, ln=t_LN), STA_LR_RES_CMD_IX = list(ix=11, ln=t_LN)))
+#else #block
+  #case l_object_info.station_type
+    #when "ANSI" l_indexes = merge_attributes(l_indexes, LIST(STA_LR_EV_OBJ_IX = list(ix=110, ln=t_LN)))
+    #when "PROC" l_indexes = merge_attributes(l_indexes, LIST(STA_LR_EV_OBJ_IX = list(ix=110, ln=t_LN), STA_LR_EV2_OBJ_IX = list(ix=108, ln=t_LN)))
+  #case_end
+#block_end
+
+;override indexes if they are defined in object type definition
+l_OT_Indexes = list_attr(l_object_info.Type_Info.Indexes)
+#loop_with i = 1 .. length(l_OT_Indexes)
+   t_Attr = l_OT_Indexes(i)
+   #if l_object_info.Type_Info.Indexes.'t_Attr' > 0 #then l_indexes = merge_attributes(l_indexes, list('t_Attr' = list(ix=l_object_info.Type_Info.Indexes.'t_Attr', ln = t_ln)))
+#loop_end
+   
+#return l_Indexes

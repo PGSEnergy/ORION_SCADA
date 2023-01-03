@@ -1,0 +1,45 @@
+; Passes an urgent message to UI part.
+; Arguments:
+;    1 - text the message.
+;    2 - text, message type:
+;        "CRITICAL", "CAUTION", "INFORMATION"
+;   [3] - integer, status to attach to the message,
+;         or text, text representation of status.
+;         The default is empty string - no status.
+;   [4] - text, "NOLOG" keyword to skip adding message
+;         to the message log or "LOG" to log message
+;         (in this case, the first argument must follow
+;         restrictions specified in DMT_LOG).
+;         The default value is "LOG".
+; Return value:
+;    boolean, true if the UI part is running,
+;    false if no UI part is up, and thus no message
+;    transfer was done.
+; Globals:
+;    see DMT_MAIN
+
+@t_Msg_Text = argument(1)
+@t_Msg_Type = argument(2)
+@x_Status = argument(3)
+@b_Log = DATA_TYPE(argument(4)) <> "TEXT"
+#if NOT %b_Log #then -
+   @b_Log = UPPER_CASE(argument(4)) == "LOG"
+#case DATA_TYPE(%x_Status)
+   #when "INTEGER" @x_Status = " 'x_Status'"
+   #when "NONE" @x_Status = ""
+   #when "TEXT" #block
+      @x_Status = EDIT(%x_Status, "TRIM")
+      #if %x_Status <> "" #then @x_Status = " " + %x_Status
+   #block_end
+#case_end
+
+@b_UI_Running = LENGTH(DMT_DATA:CIN(1)) > 0
+#if %b_UI_Running #then #block
+   @s = DO(DMT_SET:CIN, "APPEND", VECTOR(%t_Msg_Text, %t_Msg_Type + %x_Status))
+   #exec DMT_MSG:E1
+#block_end
+
+#if %b_Log #then -
+   @s = DO(DMT_LOG:CIN, argument(1), argument(2), argument(3))
+
+#return %b_UI_Running

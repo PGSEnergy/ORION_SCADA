@@ -1,0 +1,26 @@
+;GRAPHICS, APPLICATION FONT DEFINITIONS
+
+#DO READ_TEXT("GPRC/X_AFONDESC.TXT")
+
+#IF %VSNATIVE #THEN #BLOCK                ;VS NATIVE MONITOR TYPE
+   #LOOP_WITH I=1..20
+      #ERROR IGNORE
+      @S = STATUS
+      @FONT = X_AFONDESC:VFONT_'I'
+      #ERROR STOP
+      #IF STATUS == 0 #THEN #BLOCK
+         .FONT ("U",%I) : %FONT
+      #BLOCK_END
+   #LOOP_END
+   #BLOCK_END
+#ELSE #BLOCK                              ;X OR VSX MONITOR TYPE
+   @S=STATUS
+   #LOOP_WITH I=1..20
+      #ERROR IGNORE
+      @NAME = X_AFONDESC:VNAME_'I'
+      #ERROR STOP
+      #IF STATUS == 0 #THEN #BLOCK
+         #IF %NAME > " " #THEN .FONT ("U",%I) : %NAME
+      #BLOCK_END
+   #LOOP_END
+#BLOCK_END

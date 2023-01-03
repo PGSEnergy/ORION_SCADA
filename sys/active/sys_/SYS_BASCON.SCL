@@ -1,0 +1,93 @@
+;File:        Sys_bascon.scl
+;Desription:  Standard Base system configuration file
+;             for Single and Hot Stand-By systems.
+;             Static configuration definitions.
+;             Executed in SYS_BASCON.COM
+;             Version 9.3
+;----------------------------------------------------
+;
+
+#argument Target
+
+#local Global_Paths,-
+       LIB_Path_Def_File,-
+       File_Contents,-
+       SALIB_Path_Def_File,-
+	   LIB5_Path_Def_File,-
+       Stat
+       
+#case upper_case(Target)
+
+   #when "GLOBAL_PATHS" #block
+		
+		;execute PCM client setup
+		Stat = ops_call(parse_file_name("/prog/pcm_client/PcmClientSetup.exe"))
+		
+      ;Create Application specific global paths
+      Global_Paths = list()
+      
+      ;Add LIB5xx global paths to list if LIB5xx installed
+      LIB_Path_Def_File = "/LIB4/Base/Bbone/Use/Bgu_Glpath.txt"
+      #if File_Manager("EXISTS", Fm_Scil_File(LIB_Path_Def_File)) #then #block
+         #error continue
+         File_Contents = read_text(LIB_Path_Def_File)
+         #if substr(File_Contents(1),5,16) == "LIB 500 revision" and substr(File_Contents(1),22,5) >= "4.0.2" #then #block
+            Global_Paths = merge_attributes(Global_Paths,do(read_text(LIB_Path_Def_File)))
+         #block_end
+         #error stop
+      #block_end
+      
+      #if substr(SYS:BPR, 1, 7) == "SYS_600" #then #block ; PP
+         ;Add SA_LIB global paths to list 
+         SALIB_Path_Def_File = "/SA_LIB/Base/Bbone/Use/Bgu_Glpath.txt"
+         #if File_Manager("EXISTS", Fm_Scil_File(SALIB_Path_Def_File)) #then #block
+            #error continue
+            File_Contents = read_text(SALIB_Path_Def_File)
+            #if substr(File_Contents(1),5,14) == "SA LIB version" and substr(File_Contents(1),20,5) >= "1.0.0" #then #block
+               Global_Paths = merge_attributes(Global_Paths,do(read_text(SALIB_Path_Def_File)))
+            #block_end
+            #error stop
+         #block_end
+
+		 ;Add LIB5 backbone path to list 
+		 LIB5_Path_Def_File = "/LIB5/Base/Bbone/Use/Bgu_Glpath.txt"
+		 #if File_Manager("EXISTS", Fm_Scil_File(LIB5_Path_Def_File)) #then #block
+            #error continue
+			File_Contents = read_text(LIB5_Path_Def_File)
+			Global_Paths = merge_attributes(Global_Paths,do(read_text(LIB5_Path_Def_File)))
+            #error stop
+         #block_end
+      #block_end
+      
+      #return Global_Paths
+   
+   #block_end
+   
+   #when "STATION_TYPES" #block  ;Station Types STY
+   
+      #error continue
+         #SET STY3:BCX  = "ANSI X3-28"
+         #SET STY4:BCX  = "SPIDER RTUs"
+         #SET STY5:BCX  = "SINDAC (ADLP80 S)"
+         #SET STY6:BCX  = "P214"
+         #SET STY7:BCX  = "SINDAC (ADLP180)"
+         #SET STY8:BCX  = "PAC-5"
+         #SET STY9:BCX  = "SATTCON/COMLI"
+         #SET STY17:BCX = "LON"
+         #SET STY20:BCX = "LCU 500"
+         #SET STY21:BCX = "SPACOM"
+         #CREATE STY22:B = LIST(NA = "SPI", DB = "STA", CX = "S.P.I.D.E.R/RP570")
+         #CREATE STY23:B = LIST(NA = "LMK", DB = "REX", CX = "LonMark")
+         #CREATE STY24:B = LIST(NA = "ADE", DB = "STA", CX = "Ademco")
+         #CREATE STY25:B = LIST(NA = "PCO", DB = "STA", CX = "Procontic / RCOM")
+         #CREATE STY26:B = LIST(NA = "WES", DB = "STA", CX = "Westinghouse")
+         #CREATE STY27:B = LIST(NA = "ATR", DB = "STA", CX = "Alpha Meter")
+         #CREATE STY28:B = LIST(NA = "PLC", DB = "RTU", CX = "PLC")
+         #SET STY29:BCX  = "IEC 60870-5-10x"
+         #SET STY30:BCX  = "DNP V3.00"
+         #SET STY33:BCX  = "OPC Alarm & Event Server"
+      #error stop
+ 
+   #block_end
+
+#case_end

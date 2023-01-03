@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<NGT>
+  <Header>
+    <ModelInfo value="Translation" />
+    <ModelVersion value="1.3.0.0" />
+    <PersistencyVersion value="1.0.0.0" />
+  </Header>
+  <DomModel>
+    <Complex name="Root" type="t0" id="0">
+      <Simple name="name" value="dbbe6883-95bd-484d-a805-edf7824b4638" />
+      <Simple name="languageCode" value="en" />
+      <Simple name="modelInfo" value="Symbol" />
+      <Simple name="modelVersion" value="1.3.2.0" />
+      <Collection name="translatedProperties" type="t1" id="0">
+        <Simple name="Capacity" value="4" />
+        <Items>
+          <Reference name="item" id="1" />
+        </Items>
+      </Collection>
+    </Complex>
+    <Complex name="item" type="t2" id="1">
+      <Simple name="OwnerEntityID" value="82c3170c-71c9-4a65-9970-f6dab374bad6" />
+      <Simple name="Name" value="Name" />
+      <Simple name="Value" value="Label Color" />
+    </Complex>
+    <Types>
+      <Type value="ABB.NGT.Domain.Concepts.Implementation.Localization.TranslationPack, ABB.NGT.Domain.Concepts.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t0" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.Concepts.API.ITranslatedProperty, ABB.NGT.Domain.Concepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t1" />
+      <Type value="ABB.NGT.Domain.Concepts.Implementation.Localization.TranslatedProperty, ABB.NGT.Domain.Concepts.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t2" />
+    </Types>
+  </DomModel>
+</NGT>

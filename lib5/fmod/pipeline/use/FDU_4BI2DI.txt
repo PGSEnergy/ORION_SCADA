@@ -1,0 +1,138 @@
+;4BI
+;------------------------------------------------------------------
+;FDU_4BI2DI
+;
+;
+;
+;------------------------------------------------------------------
+;
+; 10
+;310
+;311
+;312
+;313
+;314
+;------------------------------------------------------------------
+
+@ix_db  = 10
+@ix_di  = 310
+@ix_bi1 = 311
+@ix_bi2 = 312
+@ix_bi3 = 313
+@ix_bi4 = 314
+
+;
+#if 'ln':pOS'ix_bi1' > 9 or 'ln':pOS'ix_bi2' > 9 or 'ln':pOS'ix_bi3' > 9 or 'ln':pOS'ix_bi4' > 9 #then #block
+  ;Status >9 !!! 
+   #set 'ln':POV'ix_di' = 9
+   #set 'ln':POV'ix_db' = list(ov=0, os=10)
+  #ERROR IGNORE
+   #set 'ln':POV16 = 0
+   #set 'ln':POV17 = 0
+  #ERROR CONTINUE
+
+#block_end
+#else #block 
+    @max_os = max('ln':pOS'ix_bi1','ln':pOS'ix_bi2','ln':pOS'ix_bi3','ln':pOS'ix_bi4')
+    @wert = 'ln':pOV'ix_bi1'*1000 + 'ln':pOV'ix_bi2'*100 +'ln':pOV'ix_bi3'*10 +'ln':pOV'ix_bi4'*1 
+      
+    ;;@out = console_output(times+" [DEU_4BI2DI:C]  Wert = 'wert'")
+    
+    #if 'ln':pOS'ix_di' == 10 #then  @di_wert = 0
+    #else                            @di_wert = 'ln':pOV'ix_di'
+    
+    #if %di_wert == 4 #then #block 
+;;;        #set 'ln':POV'ix_di' = list(ov=4,os=0)
+              #set 'ln':POV'ix_di' = list(ov=3,os=0)
+              #set 'ln':POV'ix_db' = list(ov=2, os=%max_os)
+
+    #block_end
+    #else_if %di_wert == 6 #then #block 
+              #set 'ln':POV'ix_di' = list(ov=7,os=0)
+              #set 'ln':POV'ix_db' = list(ov=1, os=%max_os)
+    #block_end
+    #else #block
+        #case %wert
+           #when 0 #block
+              #set 'ln':POV'ix_di' = list(ov=0, os=0) 
+              #set 'ln':POV'ix_db' = list(ov=2, os=%max_os)
+             #ERROR IGNORE
+              #set 'ln':POV16 = 1
+              #set 'ln':POV17 = 1
+             #ERROR CONTINUE
+           #block_end 
+        
+           #when 1 #block
+              #set 'ln':POV'ix_di' = list(ov=7,os=0)
+              #set 'ln':POV'ix_db' = list(ov=1, os=%max_os)
+
+           #block_end 
+  
+           #when 10 #block
+              #set 'ln':POV'ix_di' = list(ov=0,os=0)
+              #set 'ln':POV'ix_db' = list(ov=2, os=%max_os)
+             #ERROR IGNORE
+              #set 'ln':POV16 = 1
+              #set 'ln':POV17 = 1
+             #ERROR CONTINUE
+
+           #block_end 
+  
+          #when 110 #block
+              #set 'ln':POV'ix_di' = list(ov=3,os=0)
+              #set 'ln':POV'ix_db' = list(ov=2, os=%max_os)
+             #ERROR IGNORE
+              #set 'ln':POV16 = 0
+              #set 'ln':POV17 = 0
+             #ERROR CONTINUE
+           #block_end 
+        
+        
+           #when 100 #block
+              #set 'ln':POV'ix_di' = list(ov=5,os=0)
+              #set 'ln':POV'ix_db' = list(ov=0, os=%max_os)
+             #ERROR IGNORE
+              #set 'ln':POV16 = 0
+              #set 'ln':POV17 = 0
+             #ERROR CONTINUE
+           #block_end 
+        
+           #when 101 #block
+              #set 'ln':POV'ix_di' = list(ov=7,os=0)
+              #set 'ln':POV'ix_db' = list(ov=1, os=%max_os)
+             #ERROR IGNORE
+              #set 'ln':POV16 = 0
+              #set 'ln':POV17 = 0
+             #ERROR CONTINUE
+           #block_end 
+        
+        
+           #when 1000,1001,1010,1011,1100,1101,1110,1111 #block
+              ;
+              #if 'ln':PAS'ix_bi1' == 2 #then #block 
+                 #set 'ln':POV'ix_di' = list(ov=1,os=0)
+              #block_end
+              #else #block
+                 #set 'ln':POV'ix_di' = list(ov=2,os=0)
+              #block_end
+              
+              #set 'ln':POV'ix_db' = list(os=%max_os)
+             #ERROR IGNORE
+              #set 'ln':POV16 = 1
+              #set 'ln':POV17 = 1
+             #ERROR CONTINUE
+           #block_end 
+           
+           #otherwise #block
+              #set 'ln':POV'ix_di' = list(ov=9,os=0)
+              #set 'ln':POV'ix_db' = list(ov=0, os=%max_os)
+             #ERROR IGNORE
+              #set 'ln':POV16 = 0
+              #set 'ln':POV17 = 0 
+             #ERROR CONTINUE
+           
+           #block_end
+        
+        #case_end
+    #block_end;(keine Bewegung)
+#block_end

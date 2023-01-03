@@ -1,0 +1,508 @@
+﻿;OBJECT       : SAI_STA2.DAT
+;Copyright Hitachi Power Grids. All rights reserved.
+;
+;DESCRIPTION  : The configuration data file for the station standard function
+
+##FUNC_INIT_BEGIN
+
+@'.ID'_PICTURE_FUNCTION_CONF = LIST(-
+   CREATED_BY                = "SA_LIB",-
+   CONFIG_DATA_FILE         = "?CONF_FILE?",-
+   LIB_REVISION             = " 3.0",-
+   TYPE_PF                  = "?REQUIRED_PF_NAME?",-
+   DEFAULT_TYPE_PF          = "FDI_PLA",-
+   CONTROL_DIALOG           = "F_USE/FPU_STA2A",-
+   CONTROL_DIALOG_WINDOW    = "MNOPER",-
+   STATION_NAME             = "",-
+   SPECIAL_IDENTIFIER_1     = "",-
+   SPECIAL_IDENTIFIER_2     = "",-
+   SPECIAL_IDENTIFIER_3     = "",-
+   PICTURE_FUNCTION_VISIBLE = TRUE,-
+   P_OBJECT_LN              = "",-
+   P_OBJECT_INDEXES         = "",-
+   STATION_TYPE             = "IEC101",-
+   DEFINE_ITEM_NAME         = FALSE,-
+   OPC_ITEM_PREFIX          = "IEC61850 Subnetwork.IED1.LD1",-
+   OPC_LN_INSTANCES         = VECTOR("LLN0"),-
+   UNIT_NUMBER              = 0,-
+   SHORT_ADDRESS            = VECTOR(""),-
+   DA_CONFIG_FILE           = "",-
+   CMD_PARAMETER            = 46,-
+   OUTPUT_STATUS            = FALSE,-
+   DATA_ACQUISITION_UNIT    = "",-
+   AUTHORIZATION_GROUP      = "MV_CONTROL",-
+   STATION_LR_IN_USE        = TRUE,-
+   LR_REMOTELY_CONTROLLABLE = FALSE,-
+   IND_DOUBLE_BINARY        = FALSE,-
+   SA_LIB_INDEXES           = "0,16,13",-
+   OBJECT_TYPE_DESCRIPTION  = "F5_USE/FDU_PLA.scl",-
+   EVENT_RECORDING          = FALSE)
+
+##FUNC_INIT_END
+
+##FUNC_DEF_BEGIN
+
+;check the usage of object identification (OI) -attribute
+@S = STATUS
+@POINTER_STA  = 0
+@POINTER_BAY  = 0
+@POINTER_DEV  = 0
+#ERROR IGNORE
+@APL_BSV15      = APL:BSV15
+@PROCESSOBJECTS = APL_BSV15:VPROCESS_OBJECTS
+@OI             = PROCESSOBJECTS:VOI
+#LOOP_WITH I = 1 .. 30
+  #IF DATA_TYPE(OI:VLENGTH'I')=="INTEGER" #THEN #BLOCK  
+    @OI_LENGTH'I' = OI:VLENGTH'I'
+    ;if field in use
+    #IF %OI_LENGTH'I' > 0 #THEN #BLOCK  
+      @NR_OF_FIELDS = %I
+      @OI_TITLE'I'  = OI:VTITLE'I'
+      @OI_FIELD'I'  = OI:VFIELD'I'
+      #IF      LENGTH(SELECT(%OI_FIELD'I',"==""STA"""))>0 #THEN @POINTER_STA = %I
+      #ELSE_IF LENGTH(SELECT(%OI_FIELD'I',"==""BAY"""))>0 #THEN @POINTER_BAY = %I
+      #ELSE_IF LENGTH(SELECT(%OI_FIELD'I',"==""DEV"""))>0 #THEN @POINTER_DEV = %I
+    #BLOCK_END
+    #ELSE #BLOCK
+      @OI_TITLE'I'  = ""
+      @OI_FIELD'I'  = ""
+    #BLOCK_END
+  #BLOCK_END
+  #ELSE #LOOP_EXIT
+#LOOP_END
+#ERROR CONTINUE
+
+;set defaults if APL:BSV15 not correctly defined
+@S = STATUS
+#IF %S <> 0 #THEN #BLOCK
+  @OI_TITLE1    = "Substation"
+  @OI_TITLE2    = "Bay"
+  @OI_TITLE3    = "Device"
+  @OI_TITLE4    = ""
+  @OI_TITLE5    = ""
+  @OI_LENGTH1   = 10
+  @OI_LENGTH2   = 15
+  @OI_LENGTH3   = 5
+  @OI_LENGTH4   = 0
+  @OI_LENGTH5   = 0
+  @POINTER_STA  = 1
+  @POINTER_BAY  = 2
+  @POINTER_DEV  = 3
+  @NR_OF_FIELDS = 3
+#BLOCK_END
+
+;set configurable attributes according to OI-configuration
+@NR_OF_SPECIAL_FIELD = 0
+@OBJECT_IDENTIFIERS  = VECTOR()
+
+#LOOP_WITH I = 1 .. 30
+  #IF %I <= %NR_OF_FIELDS #THEN #BLOCK  
+
+    ;define the name of the configurable attribute
+    #IF      %I == %POINTER_STA #THEN @OBJECT_IDENTIFIER_'I'_NAME = "STATION_NAME"
+    #ELSE_IF %I == %POINTER_BAY #THEN @OBJECT_IDENTIFIER_'I'_NAME = "BAY_NAME"
+    #ELSE_IF %I == %POINTER_DEV #THEN @OBJECT_IDENTIFIER_'I'_NAME = "DEVICE_NAME"
+    #ELSE #BLOCK
+      @NR_OF_SPECIAL_FIELD = %NR_OF_SPECIAL_FIELD + 1
+      @OBJECT_IDENTIFIER_'I'_NAME = "SPECIAL_IDENTIFIER_'NR_OF_SPECIAL_FIELD'"
+    #BLOCK_END
+
+    ;set one space between different fields
+    #IF %I < %NR_OF_FIELDS AND %OI_LENGTH'I' > 1 #THEN @OBJECT_IDENTIFIER_'I'_MAX_LENGTH = %OI_LENGTH'I' - 1
+    #ELSE @OBJECT_IDENTIFIER_'I'_MAX_LENGTH = %OI_LENGTH'I'
+
+    ;create a list of previously used identifiers
+    @SECTION  = %OBJECT_IDENTIFIER_'I'_NAME
+    @KEYS     = VECTOR()
+    #LOOP_WITH J = 1 .. 10
+      @NEW_KEY= "'SECTION''J'"
+      @KEY'J' = READ_PARAMETER("PICT/OBJ_IDEN.INI",%SECTION,%NEW_KEY)
+      @KEY    = %KEY'J'
+      #IF KEY:VSTATUS == 0 #THEN #BLOCK
+        @KEYS = APPEND(%KEYS,KEY:VVALUE)
+       #BLOCK_END
+    #LOOP_END
+    @OBJECT_IDENTIFIER_'I'_VALUES = %KEYS
+
+    ;set configuration for SCT
+    #IF %I <= %POINTER_STA #THEN #BLOCK
+      @OBJECT_IDENTIFIER_'I' = LIST(-
+           NAME       = %OBJECT_IDENTIFIER_'I'_NAME,-
+           TYPE       = "EDITABLE_SELECTOR",-
+           INPUT_TYPE = "TEXT",-
+           VALUES     = %OBJECT_IDENTIFIER_'I'_VALUES,-
+           REPRESENT  = %OBJECT_IDENTIFIER_'I'_VALUES,-
+           MAX_LENGTH = %OBJECT_IDENTIFIER_'I'_MAX_LENGTH)
+      @OBJECT_IDENTIFIERS = APPEND(%OBJECT_IDENTIFIERS, %OBJECT_IDENTIFIER_'I')
+    #BLOCK_END
+  #BLOCK_END
+  #ELSE #LOOP_EXIT
+#LOOP_END
+
+@I_RES = DO(READ_TEXT("F5_INST/FDI_SCT_BEGIN_COMMON.SCL"))
+
+;lists for cmd parameter
+@CMD_PARAMETER_LIST = LIST(-
+     VALUES    = (5,-
+                  6,-
+                  45,-
+                  46),-
+     REPRESENT = ("Direct",-
+                  "Direct-No ack.",-
+                  "Single command",-
+                  "Double command"))
+
+@CMD_PARAMETER_LIST1 = LIST(-
+     VALUES    = (5,-
+                  6),-
+     REPRESENT = ("Direct",-
+                  "Direct-No ack."))
+
+@CMD_PARAMETER_LIST2 = LIST(-
+     VALUES    = (45,-
+                  46,-
+						58,-
+						59),-
+     REPRESENT = ("Single command (ASDU 45)",-
+                  "Double command (ASDU 46)",-
+						"Single command with time tag (ASDU 58)",-
+						"Double command with time tag (ASDU 59)"))
+
+;set default lists for cmd parameter
+@CMD_PARAMETER_VALUES    = CMD_PARAMETER_LIST1:VVALUES
+@CMD_PARAMETER_REPRESENT = CMD_PARAMETER_LIST1:VREPRESENT
+
+;read the list of data acquisition units
+#DO READ_TEXT("SAGR_INST/SAI_DAU.TXT")
+
+;create a list of all existing authorization groups
+#ERROR IGNORE
+@AUTHORIZATION_GROUPS = LIST_ATTR(MON:BSV(9))
+#IF DATA_TYPE(%AUTHORIZATION_GROUPS) <> "VECTOR" #THEN @AUTHORIZATION_GROUPS = VECTOR()
+#ERROR CONTINUE
+
+#IF ROOT.ST_GET_LIB_REVISION > " 2.3" #THEN #BLOCK
+   @FUNC_DEF=LIST(-
+      CONFIGURABLE_ATTRIB = (-
+                  "STATION_NAME",-
+                  "SPECIAL_IDENTIFIER_1",-
+                  "SPECIAL_IDENTIFIER_2",-
+                  "SPECIAL_IDENTIFIER_3",-
+                  "PICTURE_FUNCTION_VISIBLE",-
+                  "P_OBJECT_LN",-
+                  "P_OBJECT_INDEXES",-
+                  "STATION_TYPE",-
+                  "OPC_ITEM_PREFIX",-
+                  "OPC_LN_INSTANCES",-
+		  "CMD_PARAMETER",-
+		  "OUTPUT_STATUS",-
+                  "AUTHORIZATION_GROUP",-
+                  "STATION_LR_IN_USE",-
+                  "LR_REMOTELY_CONTROLLABLE",-
+                  "IND_DOUBLE_BINARY",-
+                  "EVENT_RECORDING"),-
+      SCT_ATTRIBUTES = (-
+                  LIST(NAME            =  "P_OBJECT_LN",-
+                       TYPE            =  "TEXT",-
+                       MAX_LENGTH      =  63),-
+                  LIST(NAME            =  "STATION_TYPE",-
+                       TYPE            =  "SELECTOR",-
+                       VALUES          =  %STATION_TYPE_VALUES,-
+                       REPRESENT       =  %STATION_TYPE_REPRESENT,-
+                       CHANGE_CALLBACK =  VECTOR("#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_STATION_TYPE"")")),-
+                  LIST(NAME              =  "DEFINE_ITEM_NAME",-
+                       TYPE              =  "BOOLEAN",-
+                       CHANGE_CALLBACK   =  VECTOR("#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_DEFINE_ITEM_NAME"")")),-
+                  LIST(NAME              =  "OPC_ITEM_PREFIX",-
+                       TYPE              =  "TEXT",-
+                       MAX_LENGTH        =  255),-
+                  LIST(NAME              =  "OPC_LN_INSTANCES",-
+                       TYPE              =  "VECTOR",-
+                       ELEMENT_TYPE      =  "TEXT",-
+                       MAX_LENGTH        =  4,-
+                       MAX_ELEMENT_LENGTH=  15,-
+                       MIN_ELEMENT_LENGTH=  0),-
+		  LIST(NAME		 =  "CMD_PARAMETER",-
+		       TYPE		 =  "SELECTOR",-
+                       VALUES		 =  %CMD_PARAMETER_VALUES,-
+		       REPRESENT         =  %CMD_PARAMETER_REPRESENT),-
+		  LIST(NAME            =  "OUTPUT_STATUS",-
+                       TYPE            =  "BOOLEAN"),-
+                  LIST(NAME            =  "AUTHORIZATION_GROUP",-
+                       TYPE            =  "EDITABLE_SELECTOR",-
+                       INPUT_TYPE      =  "TEXT",-
+                       VALUES          =  %AUTHORIZATION_GROUPS,-
+                       REPRESENT       =  %AUTHORIZATION_GROUPS,-
+                       MAX_LENGTH      =  63),-
+                  LIST(NAME            =  "STATION_LR_IN_USE",-
+                       TYPE            =  "BOOLEAN",-
+                       CHANGE_CALLBACK =  VECTOR("#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_STATION_LR_IN_USE"")")),-
+                  LIST(NAME            =  "IND_DOUBLE_BINARY",-
+                       TYPE            =  "BOOLEAN"),-
+                  LIST(NAME            =  "LR_REMOTELY_CONTROLLABLE",-
+                       TYPE            =  "BOOLEAN")),-
+-;                  LIST(NAME            =  "EVENT_RECORDING",-
+-;                       TYPE            =  "BOOLEAN")),-
+      SCT_HELP_FILE  =  "F5_INST/FDI_PLA_HLP.SCL")
+#BLOCK_END
+
+;add configurable attributes for object identifiers
+#SET FUNC_DEF:VSCT_ATTRIBUTES = APPEND(%OBJECT_IDENTIFIERS, FUNC_DEF:VSCT_ATTRIBUTES)
+                           
+;read object identification from database when SCT opens
+@S = STATUS
+#ERROR IGNORE
+@PRODUCT_ID = .PRODUCT_ID
+#ERROR CONTINUE
+@S = STATUS
+#IF %S == 0 #THEN #BLOCK
+  #IF UPPER_CASE(.PRODUCT_ID) == "PF_CONF" #THEN #BLOCK
+    #ERROR IGNORE
+    @S = STATUS
+    @DB_LN = 'ID'_PICTURE_FUNCTION_CONF:VP_OBJECT_LN
+    @DB_IX = 'ID'_PICTURE_FUNCTION_CONF:VP_OBJECT_INDEXES(1)
+    @DB_OI = 'DB_LN':POI'DB_IX'
+    @OI_START_POS = 1
+    #ERROR CONTINUE
+    @S = STATUS
+    #IF %S == 0 #THEN #BLOCK
+      #LOOP_WITH I = 1..30
+        #IF  %I <= %POINTER_STA AND %I < %NR_OF_FIELDS #THEN #BLOCK  
+          @TEXT_FROM_DB = EDIT(SUBSTR(%DB_OI,%OI_START_POS,%OI_LENGTH'I'-1),"TRIM")
+          @CONF_VALUE = .ST_GET_ATTRIBUTE(%OBJECT_IDENTIFIER_'I'_NAME)
+          #IF %TEXT_FROM_DB <> %CONF_VALUE #THEN .ST_SET_ATTRIBUTE(%OBJECT_IDENTIFIER_'I'_NAME,%TEXT_FROM_DB)
+          @OI_START_POS = %OI_START_POS + %OI_LENGTH'I'
+        #BLOCK_END
+        #ELSE_IF %I == %POINTER_STA AND %I == %NR_OF_FIELDS #THEN #BLOCK  
+          @TEXT_FROM_DB = EDIT(SUBSTR(%DB_OI,%OI_START_POS,%OI_LENGTH'I'),"TRIM")
+          @CONF_VALUE = .ST_GET_ATTRIBUTE(%OBJECT_IDENTIFIER_'I'_NAME)
+          #IF %TEXT_FROM_DB <> %CONF_VALUE #THEN .ST_SET_ATTRIBUTE(%OBJECT_IDENTIFIER_'I'_NAME,%TEXT_FROM_DB)
+          @OI_START_POS = %OI_START_POS + %OI_LENGTH'I'
+        #BLOCK_END
+        #ELSE #LOOP_EXIT
+      #LOOP_END
+    #BLOCK_END
+  #BLOCK_END
+#BLOCK_END
+
+##FUNC_DEF_END
+
+;-------- Callback programs -----------------
+
+;callback station type
+##CALLBACK_PICTURE_FUNCTION_VISIBLE_BEGIN
+
+@PICTURE_FUNCTION_VISIBLE = ROOT.ST_GET_ATTRIBUTE("PICTURE_FUNCTION_VISIBLE")
+#IF NOT %INITIALIZATION AND NOT %PICTURE_FUNCTION_VISIBLE #THEN ROOT.ST_SET_ATTRIBUTE_DEFINITION("STATION_LABEL",LIST(VALUE=""))
+#IF %PICTURE_FUNCTION_VISIBLE #THEN ROOT.ST_ENABLE_ATTRIBUTE("STATION_LABEL")
+#ELSE ROOT.ST_DISABLE_ATTRIBUTE("STATION_LABEL")
+
+##CALLBACK_PICTURE_FUNCTION_VISIBLE_END
+
+;callback station type
+##CALLBACK_STATION_TYPE_BEGIN
+
+@B_PASTE_ON = ROOT.ST_IS_PASTING
+@STATION_TYPE = ROOT.ST_GET_ATTRIBUTE("STATION_TYPE")
+
+;#IF NOT %INITIALIZATION #THEN #BLOCK
+;  #IF NOT %B_PASTE_ON #THEN #BLOCK
+;     #IF %STATION_TYPE=="RTU" OR %STATION_TYPE=="RTU_E" #THEN ROOT.ST_SET_ATTRIBUTE_DEFINITION("EVENT_RECORDING",LIST(VALUE=TRUE))
+;     #ELSE ROOT.ST_SET_ATTRIBUTE_DEFINITION("EVENT_RECORDING",LIST(VALUE=FALSE))
+;   #BLOCK_END
+;#BLOCK_END
+
+#IF ROOT.ST_GET_LIB_REVISION > " 2.3" #THEN #BLOCK
+#CASE %STATION_TYPE
+	#WHEN "IEC101" #BLOCK       
+		ROOT.ST_SET_ATTRIBUTE_DEFINITION("CMD_PARAMETER",%CMD_PARAMETER_LIST2)
+                ROOT.ST_ENABLE_ATTRIBUTE("CMD_PARAMETER")
+		#IF NOT %INITIALIZATION #THEN #BLOCK
+                 #IF NOT %B_PASTE_ON #THEN #BLOCK
+		   ROOT.ST_DISABLE_ATTRIBUTE("OUTPUT_STATUS") 
+		   ROOT.ST_SET_ATTRIBUTE_DEFINITION("OUTPUT_STATUS",LIST(VALUE=FALSE))
+		   ROOT.ST_SET_ATTRIBUTE_DEFINITION("CMD_PARAMETER",LIST(VALUE=46))
+                 #BLOCK_END
+		#BLOCK_END
+	#BLOCK_END
+	#WHEN "DNP_30" #BLOCK
+		ROOT.ST_ENABLE_ATTRIBUTE("OUTPUT_STATUS")
+                ROOT.ST_SET_ATTRIBUTE_DEFINITION("CMD_PARAMETER",%CMD_PARAMETER_LIST1)
+		ROOT.ST_ENABLE_ATTRIBUTE("CMD_PARAMETER")
+                #IF NOT %INITIALIZATION #THEN #BLOCK
+                 #IF NOT %B_PASTE_ON #THEN #BLOCK
+  		   ROOT.ST_SET_ATTRIBUTE_DEFINITION("OUTPUT_STATUS",LIST(VALUE=FALSE))
+        	   ROOT.ST_SET_ATTRIBUTE_DEFINITION("CMD_PARAMETER",LIST(VALUE=5))
+                 #BLOCK_END
+		#BLOCK_END
+	#BLOCK_END
+        #WHEN "IEC61850" #BLOCK  
+                ROOT.ST_SET_ATTRIBUTE_DEFINITION("CMD_PARAMETER",%CMD_PARAMETER_LIST)
+                ROOT.ST_SET_ATTRIBUTE_DEFINITION("CMD_PARAMETER",LIST(VALUE=5))
+		#IF NOT %INITIALIZATION #THEN #BLOCK
+                   ROOT.ST_SET_ATTRIBUTE_DEFINITION("IND_DOUBLE_BINARY",LIST(VALUE=FALSE))
+		   ROOT.ST_SET_ATTRIBUTE_DEFINITION("OUTPUT_STATUS",LIST(VALUE=FALSE))
+                   ROOT.ST_ENABLE_ATTRIBUTE("DEFINE_ITEM_NAME")
+		#BLOCK_END
+	#BLOCK_END
+	#OTHERWISE #BLOCK  
+                ROOT.ST_SET_ATTRIBUTE_DEFINITION("CMD_PARAMETER",%CMD_PARAMETER_LIST)
+                ROOT.ST_SET_ATTRIBUTE_DEFINITION("CMD_PARAMETER",LIST(VALUE=5))
+		#IF NOT %INITIALIZATION #THEN #BLOCK 
+		   ROOT.ST_SET_ATTRIBUTE_DEFINITION("OUTPUT_STATUS",LIST(VALUE=FALSE))
+		#BLOCK_END
+	#BLOCK_END
+#CASE_END
+#IF %STATION_TYPE=="DNP_30" #THEN ROOT.ST_ENABLE_ATTRIBUTE("OUTPUT_STATUS")
+#ELSE ROOT.ST_DISABLE_ATTRIBUTE("OUTPUT_STATUS")
+#IF %STATION_TYPE=="DNP_30" OR %STATION_TYPE=="IEC101" #THEN ROOT.ST_ENABLE_ATTRIBUTE("CMD_PARAMETER")
+#ELSE ROOT.ST_DISABLE_ATTRIBUTE("CMD_PARAMETER")
+#BLOCK_END
+;#IF %STATION_TYPE=="RTU" OR %STATION_TYPE=="RTU_E" OR %STATION_TYPE=="DNP_30" #THEN ROOT.ST_ENABLE_ATTRIBUTE("EVENT_RECORDING")
+;#ELSE ROOT.ST_DISABLE_ATTRIBUTE("EVENT_RECORDING")
+
+#IF %STATION_TYPE <> "IEC61850" #THEN #BLOCK
+   ROOT.ST_DISABLE_ATTRIBUTE("DEFINE_ITEM_NAME")
+   ROOT.ST_DISABLE_ATTRIBUTE("OPC_ITEM_PREFIX")
+   ROOT.ST_DISABLE_ATTRIBUTE("OPC_LN_INSTANCES")
+   ROOT.ST_SET_ATTRIBUTE_DEFINITION("OPC_ITEM_PREFIX",LIST(VALUE=""))
+   ROOT.ST_SET_ATTRIBUTE_DEFINITION("OPC_LN_INSTANCES",LIST(VALUE=VECTOR()))   
+
+#BLOCK_END
+#ELSE #BLOCK
+   #IF ROOT.ST_GET_ATTRIBUTE("DEFINE_ITEM_NAME") #THEN #BLOCK
+      ROOT.ST_ENABLE_ATTRIBUTE("OPC_ITEM_PREFIX")
+      ROOT.ST_ENABLE_ATTRIBUTE("OPC_LN_INSTANCES")
+   #BLOCK_END
+   #ELSE #BLOCK
+      ROOT.ST_DISABLE_ATTRIBUTE("OPC_ITEM_PREFIX")
+      ROOT.ST_DISABLE_ATTRIBUTE("OPC_LN_INSTANCES")
+   #BLOCK_END
+#BLOCK_END
+
+
+##CALLBACK_STATION_TYPE_END
+
+##CALLBACK_DEFINE_ITEM_NAME_BEGIN
+   #IF ROOT.ST_GET_ATTRIBUTE("DEFINE_ITEM_NAME") #THEN #BLOCK
+      ROOT.ST_ENABLE_ATTRIBUTE("OPC_ITEM_PREFIX")
+      ROOT.ST_ENABLE_ATTRIBUTE("OPC_LN_INSTANCES")
+      #IF ROOT.ST_GET_ATTRIBUTE("OPC_ITEM_PREFIX") == "" #THEN  ROOT.ST_SET_ATTRIBUTE_DEFINITION("OPC_ITEM_PREFIX",LIST(VALUE="IEC61850 Subnetwork.IED1.LD1"))
+      @v_tmp = ROOT.ST_GET_ATTRIBUTE("OPC_LN_INSTANCES")
+      @v_LNs = vector("LLN0")
+      #IF LENGTH(%v_tmp) == 0 #THEN ROOT.ST_SET_ATTRIBUTE_DEFINITION("OPC_LN_INSTANCES",LIST(VALUE=%v_LNs))
+      #ELSE_IF %v_tmp(1) == "" #THEN ROOT.ST_SET_ATTRIBUTE_DEFINITION("OPC_LN_INSTANCES",LIST(VALUE=%v_LNs))
+   #BLOCK_END
+   #ELSE #BLOCK
+      ROOT.ST_DISABLE_ATTRIBUTE("OPC_ITEM_PREFIX")
+      ROOT.ST_DISABLE_ATTRIBUTE("OPC_LN_INSTANCES")
+   #BLOCK_END
+##CALLBACK_DEFINE_ITEM_NAME_END
+
+
+;callback station local/remote-switch in use
+##CALLBACK_STATION_LR_IN_USE_BEGIN
+
+#IF NOT ROOT.ST_GET_ATTRIBUTE("STATION_LR_IN_USE") #THEN #BLOCK
+  #IF NOT %INITIALIZATION #THEN #BLOCK
+    ROOT.ST_SET_ATTRIBUTE_DEFINITION("LR_REMOTELY_CONTROLLABLE",LIST(VALUE=FALSE))
+  #BLOCK_END
+  ROOT.ST_DISABLE_ATTRIBUTE("LR_REMOTELY_CONTROLLABLE")
+  ROOT.ST_DISABLE_ATTRIBUTE("IND_DOUBLE_BINARY")
+#BLOCK_END
+#ELSE #BLOCK
+  ROOT.ST_ENABLE_ATTRIBUTE("LR_REMOTELY_CONTROLLABLE")
+  ROOT.ST_ENABLE_ATTRIBUTE("IND_DOUBLE_BINARY")
+#BLOCK_END
+
+##CALLBACK_STATION_LR_IN_USE_END
+
+;-------- SCT Initialization -----------------
+##SCT_INIT_BEGIN
+
+;execute callbacks once to initialize SCT
+@INITIALIZATION = TRUE
+#DO .ST_READ_DATA_FILE_SECTION("CALLBACK_PICTURE_FUNCTION_VISIBLE")
+#DO .ST_READ_DATA_FILE_SECTION("CALLBACK_STATION_TYPE")
+#DO .ST_READ_DATA_FILE_SECTION("CALLBACK_STATION_LR_IN_USE")
+@INITIALIZATION = FALSE
+
+##SCT_INIT_END
+
+;-------- Define Configuration Tool Menu -----------------
+##MENU_TXT_BEGIN
+
+   .ENABLE_POT
+
+##MENU_TXT_END
+
+##MENU_PROG_BEGIN
+
+##MENU_PROG_END
+
+
+;-------- Define Process Objects -----------------
+##P_OBJECTS_BEGIN
+
+   #DO READ_TEXT("F5_INST/FDI_PLA.POT",1,10000)
+
+##P_OBJECTS_END
+
+;-------- Program Executed when OK -----------------
+##OK_BEGIN
+
+;save the object identifier (OI-attribute) for the future use
+#LOOP_WITH I = 1 .. %POINTER_STA
+  @SECTION    = %OBJECT_IDENTIFIER_'I'_NAME
+  @CONF_VALUE = .ST_GET_ATTRIBUTE(%SECTION)
+
+  ;if field not empty
+  #IF %CONF_VALUE<>"" #THEN #BLOCK
+    ;check if identifier already exists
+    @NEW_IDENTIFIER=TRUE
+    #LOOP_WITH J = 1 .. 10
+      @KEY          = "'SECTION''J'"
+      @KEY_VALUE'J' = READ_PARAMETER("PICT/OBJ_IDEN.INI",%SECTION,%KEY)
+      @KEY_VALUE    = %KEY_VALUE'J'
+      #IF KEY_VALUE:VSTATUS == 0 #THEN #BLOCK
+        #IF KEY_VALUE:VVALUE == %CONF_VALUE #THEN @NEW_IDENTIFIER=FALSE
+      #BLOCK_END
+    #LOOP_END
+
+    ;replace the last identifier with a new one
+    #IF %NEW_IDENTIFIER #THEN #BLOCK
+      #LOOP_WITH J = 1 .. 9
+        @CNTR1 = 10 - %J
+        @CNTR2 = %CNTR1 + 1
+        @KEY_OLD = "'SECTION''CNTR1'"
+        @KEY_NEW = "'SECTION''CNTR2'"
+        @KEY_VALUE'CNTR1' = READ_PARAMETER("PICT/OBJ_IDEN.INI",%SECTION,%KEY_OLD)
+        @KEY_PREV = %KEY_VALUE'CNTR1'
+        #IF KEY_PREV:VSTATUS == 0 #THEN #BLOCK
+          @KEY_OLD_VALUE = KEY_PREV:VVALUE
+          @NEW = WRITE_PARAMETER("PICT/OBJ_IDEN.INI",%SECTION,%KEY_NEW,%KEY_OLD_VALUE)
+          @OLD = DELETE_PARAMETER("PICT/OBJ_IDEN.INI",%SECTION,%KEY_OLD)
+        #BLOCK_END
+      #LOOP_END
+      @FIRST_KEY = "'SECTION'"+"1"
+      @KEY'I' = WRITE_PARAMETER("PICT/OBJ_IDEN.INI",%SECTION,%FIRST_KEY,%CONF_VALUE)
+    #BLOCK_END
+  #BLOCK_END
+#LOOP_END
+
+##OK_END
+
+;-------- Program Executed when CANCEL -----------------
+##CANCEL_BEGIN
+ 
+ 
+ 
+##CANCEL_END
+
+;-------- Program Executed when DELETE -----------------
+##DELETE_BEGIN
+
+
+
+##DELETE_END
+

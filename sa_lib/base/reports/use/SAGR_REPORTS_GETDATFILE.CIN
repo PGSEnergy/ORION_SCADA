@@ -1,0 +1,39 @@
+; Function:    SAGR_REPORTS_GETDATFILE:C
+; Version:     3.0.6 (build 21.11.2013)
+; Parameters:  Conf_Name=
+; Return data: Status, DisplayConfiguration data
+; Description: common Function, read display configuration from runtime data APL:BSV37.Objects
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;21.11.2013 3.0.6    HoDa   translation for summary information title added
+;--------------------------------------------------------------------------------------------------
+#argument t_aDisplayConfName
+#local i, cot, l_ = list()
+
+@l_DisplayConf=list()
+@Report_Type = "NONE"
+
+#if substr(t_aDisplayConfName,1,13) == "QUICK_REPORT_" #then #block
+   @QUICK_REPORT = true
+   @REPORT_TYPE  = replace(t_aDisplayConfName,"QUICK_REPORT_","")
+#block_end
+#else @l_DisplayConf = %l_DisplayObjects.OBJ_'t_aDisplayConfName'
+
+#if data_type(%l_DisplayConf.INTERNAL_TYPE) <> "NONE" #then -
+   @REPORT_TYPE = %l_DisplayConf.INTERNAL_TYPE
+
+#if %Report_Type == "NONE" #then #block
+   cot = console_output("SAGR_REPORTS_GetDatFile:C - "+-
+                        "Invalid value for attribute INTERNAL_TYPE in display configuration 't_DisplayConfName'","E","MREP")
+   #return false
+#block_end
+
+;*** return the translated summary information titles
+#loop_with i = 1 .. 6
+	#if attribute_exists(%l_DisplayConf, "SUMMARY_INFO_'i'") #then -
+		@l_DisplayConf.SUMMARY_INFO_'i' = translation(%l_DisplayConf.SUMMARY_INFO_'i')
+#loop_end
+
+
+#return true

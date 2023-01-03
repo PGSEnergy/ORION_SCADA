@@ -1,0 +1,660 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Markku Hamarila/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">Discrete</Parameter>
+		<Parameter name="Caption">objectTypeCaption</Parameter>
+		<Parameter name="Description">objectTypeDesc</Parameter>
+		<Parameter name="Group">Event Classes</Parameter>
+		<Parameter name="Type">EVENT</Parameter>
+		<Parameter name="IconFileName">ae.ico</Parameter>
+		<Parameter name="Tools"/>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="Visible">True</Parameter>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="PCMObjectType">DiscreteEventGroup</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+	<Parameters type="DynamicPropertyLists">
+		<Parameter name="NumberOfStates">
+			<List value="2" properties="BaseType, SendConditionEventOnEveryUpdate, NumberOfStates, State0EventGenerationType, State0Description, State0Severity, State0SubConditionName, State0AckReq, State1EventGenerationType, State1Description, State1Severity, State1SubConditionName, State1AckReq, ConditionCategory, InActiveDescription, InActiveAckReq, SimpleEventCategory"/>
+			<List value="4" properties="BaseType, SendConditionEventOnEveryUpdate, NumberOfStates, State0EventGenerationType, State0Description, State0Severity, State0SubConditionName, State0AckReq, State1EventGenerationType, State1Description, State1Severity, State1SubConditionName, State1AckReq, State2EventGenerationType, State2Description, State2Severity, State2SubConditionName, State2AckReq, State3EventGenerationType, State3Description, State3Severity, State3SubConditionName, State3AckReq,ConditionCategory, InActiveDescription, InActiveAckReq, SimpleEventCategory"/>
+			<List value="8" properties="BaseType, SendConditionEventOnEveryUpdate, NumberOfStates, State0EventGenerationType, State0Description, State0Severity, State0SubConditionName, State0AckReq, State1EventGenerationType, State1Description, State1Severity, State1SubConditionName, State1AckReq, State2EventGenerationType, State2Description, State2Severity, State2SubConditionName, State2AckReq, State3EventGenerationType, State3Description, State3Severity, State3SubConditionName, State3AckReq, State4EventGenerationType, State4Description, State4Severity, State4SubConditionName, State4AckReq, State5EventGenerationType, State5Description, State5Severity, State5SubConditionName, State5AckReq, State6EventGenerationType, State6Description, State6Severity, State6SubConditionName, State6AckReq, State7EventGenerationType, State7Description, State7Severity, State7SubConditionName, State7AckReq, ConditionCategory, InActiveDescription, InActiveAckReq, SimpleEventCategory"/>
+		</Parameter>
+	</Parameters>
+	<Parameters type="SCLExport">
+		<Export name="CDATA">
+			<ConfigurationProperties>NumberOfStates</ConfigurationProperties>
+			<List value="2" properties="BaseType, SendConditionEventOnEveryUpdate, NumberOfStates, State0, State1,  ConditionCategory, InActiveDescription, InActiveAckReq, SimpleEventCategory"/>
+			<List value="4" properties="BaseType, SendConditionEventOnEveryUpdate, NumberOfStates, State0, State1, State2, State3, ConditionCategory, InActiveDescription, InActiveAckReq, SimpleEventCategory"/>
+			<List value="8" properties="BaseType, SendConditionEventOnEveryUpdate, NumberOfStates, State0, State1, State2, State3, State4, State5, State6, State7, ConditionCategory, InActiveDescription, InActiveAckReq, SimpleEventCategory"/>
+		</Export>
+		<Export name="State0" exportType="ElementBlock">
+			<ConfigurationProperties>State0EventGenerationType</ConfigurationProperties>
+			<List value="0" properties="State0EventGenerationType"/>
+			<List value="1" properties="State0EventGenerationType, State0Description, State0Severity, State0SubConditionName, State0AckReq"/>
+			<List value="2" properties="State0EventGenerationType, State0Description, State0Severity"/>
+			<List value="3" properties="State0EventGenerationType, State0Description, State0Severity, State0SubConditionName, State0AckReq"/>
+		</Export>
+		<Export name="State1" exportType="ElementBlock">
+			<ConfigurationProperties>State1EventGenerationType</ConfigurationProperties>
+			<List value="0" properties="State1EventGenerationType"/>
+			<List value="1" properties="State1EventGenerationType, State1Description, State1Severity, State1SubConditionName, State1AckReq"/>
+			<List value="2" properties="State1EventGenerationType, State1Description, State1Severity"/>
+			<List value="3" properties="State1EventGenerationType, State1Description, State1Severity, State1SubConditionName, State1AckReq"/>		
+		</Export>
+		<Export name="State2" exportType="ElementBlock">
+			<ConfigurationProperties>State2EventGenerationType</ConfigurationProperties>
+			<List value="0" properties="State2EventGenerationType"/>
+			<List value="1" properties="State2EventGenerationType, State2Description, State2Severity, State2SubConditionName, State2AckReq"/>
+			<List value="2" properties="State2EventGenerationType, State2Description, State2Severity"/>
+			<List value="3" properties="State2EventGenerationType, State2Description, State2Severity, State2SubConditionName, State2AckReq"/>
+		</Export>
+		<Export name="State3" exportType="ElementBlock">
+			<ConfigurationProperties>State3EventGenerationType</ConfigurationProperties>
+			<List value="0" properties="State3EventGenerationType"/>
+			<List value="1" properties="State3EventGenerationType, State3Description, State3Severity, State3SubConditionName, State3AckReq"/>
+			<List value="2" properties="State3EventGenerationType, State3Description, State3Severity"/>
+			<List value="3" properties="State3EventGenerationType, State3Description, State3Severity, State3SubConditionName, State3AckReq"/>
+		</Export>
+		<Export name="State4" exportType="ElementBlock">
+			<ConfigurationProperties>State4EventGenerationType</ConfigurationProperties>
+			<List value="0" properties="State4EventGenerationType"/>
+			<List value="1" properties="State4EventGenerationType, State4Description, State4Severity, State4SubConditionName, State4AckReq"/>
+			<List value="2" properties="State4EventGenerationType, State4Description, State4Severity"/>
+			<List value="3" properties="State4EventGenerationType, State4Description, State4Severity, State4SubConditionName, State4AckReq"/>
+		</Export>
+		<Export name="State5" exportType="ElementBlock">
+			<ConfigurationProperties>State5EventGenerationType</ConfigurationProperties>
+			<List value="0" properties="State5EventGenerationType"/>
+			<List value="1" properties="State5EventGenerationType, State5Description, State5Severity, State5SubConditionName, State5AckReq"/>
+			<List value="2" properties="State5EventGenerationType, State5Description, State5Severity"/>
+			<List value="3" properties="State5EventGenerationType, State5Description, State5Severity, State5SubConditionName, State5AckReq"/>
+		</Export>
+		<Export name="State6" exportType="ElementBlock">
+			<ConfigurationProperties>State6EventGenerationType</ConfigurationProperties>
+			<List value="0" properties="State6EventGenerationType"/>
+			<List value="1" properties="State6EventGenerationType, State6Description, State6Severity, State6SubConditionName, State6AckReq"/>
+			<List value="2" properties="State6EventGenerationType, State6Description, State6Severity"/>
+			<List value="3" properties="State6EventGenerationType, State6Description, State6Severity, State6SubConditionName, State6AckReq"/>
+		</Export>
+		<Export name="State7" exportType="ElementBlock">
+			<ConfigurationProperties>State7EventGenerationType</ConfigurationProperties>
+			<List value="0" properties="State7EventGenerationType"/>
+			<List value="1" properties="State7EventGenerationType, State7Description, State7Severity, State7SubConditionName, State7AckReq"/>
+			<List value="2" properties="State7EventGenerationType, State7Description, State7Severity"/>
+			<List value="3" properties="State7EventGenerationType, State7Description, State7Severity, State7SubConditionName, State7AckReq"/>
+		</Export>
+	</Parameters>
+	<Properties type="PropertyDefinitions">
+		<Property name="OPCObjectType" category="[010] Basic">
+			<Value>Event Class</Value>
+			<DescID>OPCObjectTypeDesc</DescID>
+			<CaptionID>OPCObjectType</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHR</Access>
+			<AttributeName>OPCObjectType</AttributeName>
+		</Property>
+		<Property name="BaseType" category="[010] Basic">
+			<Value>Discrete</Value>
+			<DescID>Base Type of Event Condition</DescID>
+			<CaptionID>Base Type</CaptionID>
+			<Values type="singleChoice">
+				<Enum textID="Discrete Indication" value="DiscInd"/>
+				<Enum textID="Limit Supervision" value="MVLevelBase"/>
+				<Enum textID="Trip Event" value="Trip"/>
+				<Enum textID="Advanced Discrete Indication" value="Discrete"/>
+				<Enum textID="Device Connection Status" value="DeviceConnectionStatus"/>
+				<Enum textID="Advanced Limit Supervision" value="Level"/>
+				<Enum textID="Quality Texts" value="Quality Texts"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RRR</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="NumberOfStates" category="[010] Basic">
+			<Value>4</Value>
+			<DescID>Number Of States</DescID>
+			<CaptionID>Number Of States</CaptionID>
+			<Values type="singleChoice">
+				<Enum textID="Binary Information" value="2"/>
+				<Enum textID="Double Binary Information" value="4"/>
+				<Enum textID="Quadruple Binary Information" value="8"/>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State0Description" category="[011] State 0">
+			<Value>faulty</Value>
+			<DescID>State0DescriptionDesc</DescID>
+			<CaptionID>State0Description</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State0Severity" category="[011] State 0">
+			<Value>100</Value>
+			<DescID>State0SeverityDesc</DescID>
+			<CaptionID>State0Severity</CaptionID>
+			<Values type="numerical">
+				<Min>1</Min>
+				<Max>1000</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>HWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State0SubConditionName" category="[011] State 0">
+			<Value>faulty</Value>
+			<DescID>State0SubConditionNameDesc</DescID>
+			<CaptionID>State0SubConditionName</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State0AckReq" category="[011] State 0">
+			<Value>False</Value>
+			<DescID>State0AckReqDesc</DescID>
+			<CaptionID>State0AckReq</CaptionID>
+			<Values type="boolean">
+      </Values>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State1Description" category="[012] State 1">
+			<Value>open</Value>
+			<DescID>State1DescriptionDesc</DescID>
+			<CaptionID>State1Description</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State1Severity" category="[012] State 1">
+			<Value>10</Value>
+			<DescID>State1SeverityDesc</DescID>
+			<CaptionID>State1Severity</CaptionID>
+			<Values type="numerical">
+				<Min>1</Min>
+				<Max>1000</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>HWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State1SubConditionName" category="[012] State 1">
+			<Value>open</Value>
+			<DescID>State1SubConditionNameDesc</DescID>
+			<CaptionID>State1SubConditionName</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State1AckReq" category="[012] State 1">
+			<Value>False</Value>
+			<DescID>State1AckReqDesc</DescID>
+			<CaptionID>State1AckReq</CaptionID>
+			<Values type="boolean">
+      </Values>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State2Description" category="[013] State 2">
+			<Value>closed</Value>
+			<DescID>State2DescriptionDesc</DescID>
+			<CaptionID>State2Description</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State2Severity" category="[013] State 2">
+			<Value>10</Value>
+			<DescID>Severity</DescID>
+			<CaptionID>Severity</CaptionID>
+			<Values type="numerical">
+				<Min>1</Min>
+				<Max>1000</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>HWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State2SubConditionName" category="[013] State 2">
+			<Value>closed</Value>
+			<DescID>State2SubConditionNameDesc</DescID>
+			<CaptionID>State2SubConditionName</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State2AckReq" category="[013] State 2">
+			<Value>False</Value>
+			<DescID>State2AckReqDesc</DescID>
+			<CaptionID>State2AckReq</CaptionID>
+			<Values type="boolean">
+      </Values>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State3Description" category="[014] State 3">
+			<Value>intermediate</Value>
+			<DescID>State3DescriptionDesc</DescID>
+			<CaptionID>State3Description</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State3Severity" category="[014] State 3">
+			<Value>3</Value>
+			<DescID>State3SeverityDesc</DescID>
+			<CaptionID>State3Severity</CaptionID>
+			<Values type="numerical">
+				<Min>1</Min>
+				<Max>1000</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>HWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State3SubConditionName" category="[014] State 3">
+			<Value>intermediate</Value>
+			<DescID>State3SubConditionNameDesc</DescID>
+			<CaptionID>SubConditionName</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State3AckReq" category="[014] State 3">
+			<Value>False</Value>
+			<DescID>State3AckReqDesc</DescID>
+			<CaptionID>State3AckReq</CaptionID>
+			<Values type="boolean">
+      </Values>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="InActiveDescription" category="[010] Basic">
+			<Value/>
+			<DescID>InActiveDescriptionDesc</DescID>
+			<CaptionID>InActiveDescription</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="InActiveAckReq" category="[010] Basic">
+			<Value>False</Value>
+			<DescID>InActiveAckReqDesc</DescID>
+			<CaptionID>InActiveAckReq</CaptionID>
+			<Values type="boolean">
+      </Values>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="SendConditionEventOnEveryUpdate" category="[010] Basic">
+			<Value>True</Value>
+			<DescID>SendConditionEventOnEveryUpdateDesc</DescID>
+			<CaptionID>SendConditionEventOnEveryUpdate</CaptionID>
+			<Values type="boolean">
+      </Values>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="ConditionCategory" category="[010] Basic">
+			<Value>ConditionDiscreteEvent</Value>
+			<DescID>ConditionCategoryDesc</DescID>
+			<CaptionID>ConditionCategory</CaptionID>
+			<Values type="singleChoiceDynamic">
+				<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupCommonDefinitions" secondchildObjectType="ConditionEventGroup"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="SimpleEventCategory" category="[010] Basic">
+			<Value>SimpleDiscreteEvent</Value>
+			<DescID>SimpleEventCategoryDesc</DescID>
+			<CaptionID>SimpleEventCategory</CaptionID>
+			<Values type="singleChoiceDynamic">
+				<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupCommonDefinitions" secondchildObjectType="SimpleEventGroup"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State0EventGenerationType" category="[011] State 0">
+			<Value>0</Value>
+			<DescID>What kind of event is generated from this state</DescID>
+			<CaptionID>Event Generation Type</CaptionID>
+			<Values type="singleChoice">
+				<Enum textID="NoEventorAlarm" value="0"/>
+				<Enum textID="AlarmingEvent" value="1"/>
+				<Enum textID="Non-AlarmingEvent" value="2"/>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State1EventGenerationType" category="[012] State 1">
+			<Value>0</Value>
+			<DescID>State1EventGenerationTypeDesc</DescID>
+			<CaptionID>State1EventGenerationType</CaptionID>
+			<Values type="singleChoice">
+				<Enum textID="NoEventorAlarm" value="0"/>
+				<Enum textID="AlarmingEvent" value="1"/>
+				<Enum textID="Non-AlarmingEvent" value="2"/>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State2EventGenerationType" category="[013] State 2">
+			<Value>0</Value>
+			<DescID>State2EventGenerationTypeDesc</DescID>
+			<CaptionID>State2EventGenerationType</CaptionID>
+			<Values type="singleChoice">
+				<Enum textID="NoEventorAlarm" value="0"/>
+				<Enum textID="AlarmingEvent" value="1"/>
+				<Enum textID="Non-AlarmingEvent" value="2"/>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State3EventGenerationType" category="[014] State 3">
+			<Value>0</Value>
+			<DescID>State3EventGenerationTypeDesc</DescID>
+			<CaptionID>State3EventGenerationType</CaptionID>
+			<Values type="singleChoice">
+				<Enum textID="NoEventorAlarm" value="0"/>
+				<Enum textID="AlarmingEvent" value="1"/>
+				<Enum textID="Non-AlarmingEvent" value="2"/>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+
+		<Property name="State4EventGenerationType" category="[015] State 4">
+			<Value>0</Value>
+			<DescID>State4EventGenerationTypeDesc</DescID>
+			<CaptionID>State4EventGenerationType</CaptionID>
+			<Values type="singleChoice">
+				<Enum textID="NoEventorAlarm" value="0"/>
+				<Enum textID="AlarmingEvent" value="1"/>
+				<Enum textID="Non-AlarmingEvent" value="2"/>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State5EventGenerationType" category="[016] State 5">
+			<Value>0</Value>
+			<DescID>State5EventGenerationTypeDesc</DescID>
+			<CaptionID>State5EventGenerationType</CaptionID>
+			<Values type="singleChoice">
+				<Enum textID="NoEventorAlarm" value="0"/>
+				<Enum textID="AlarmingEvent" value="1"/>
+				<Enum textID="Non-AlarmingEvent" value="2"/>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State6EventGenerationType" category="[017] State 6">
+			<Value>0</Value>
+			<DescID>State6EventGenerationTypeDesc</DescID>
+			<CaptionID>State6EventGenerationType</CaptionID>
+			<Values type="singleChoice">
+				<Enum textID="NoEventorAlarm" value="0"/>
+				<Enum textID="AlarmingEvent" value="1"/>
+				<Enum textID="Non-AlarmingEvent" value="2"/>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State7EventGenerationType" category="[018] State 7">
+			<Value>0</Value>
+			<DescID>State7EventGenerationTypeDesc</DescID>
+			<CaptionID>State7EventGenerationType</CaptionID>
+			<Values type="singleChoice">
+				<Enum textID="NoEventorAlarm" value="0"/>
+				<Enum textID="AlarmingEvent" value="1"/>
+				<Enum textID="Non-AlarmingEvent" value="2"/>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+
+		<Property name="State4Description" category="[015] State 4">
+			<Value>faulty</Value>
+			<DescID>State4DescriptionDesc</DescID>
+			<CaptionID>State4Description</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State4Severity" category="[015] State 4">
+			<Value>100</Value>
+			<DescID>State4SeverityDesc</DescID>
+			<CaptionID>State4Severity</CaptionID>
+			<Values type="numerical">
+				<Min>1</Min>
+				<Max>1000</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>HWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State4SubConditionName" category="[015] State 4">
+			<Value>faulty</Value>
+			<DescID>State4SubConditionNameDesc</DescID>
+			<CaptionID>State4SubConditionName</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State4AckReq" category="[015] State 4">
+			<Value>False</Value>
+			<DescID>State4AckReqDesc</DescID>
+			<CaptionID>State4AckReq</CaptionID>
+			<Values type="boolean">
+      </Values>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State5Description" category="[016] State 5">
+			<Value>open</Value>
+			<DescID>State5DescriptionDesc</DescID>
+			<CaptionID>State5Description</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State5Severity" category="[016] State 5">
+			<Value>10</Value>
+			<DescID>State5SeverityDesc</DescID>
+			<CaptionID>State5Severity</CaptionID>
+			<Values type="numerical">
+				<Min>1</Min>
+				<Max>1000</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>HWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State5SubConditionName" category="[016] State 5">
+			<Value>open</Value>
+			<DescID>State5SubConditionNameDesc</DescID>
+			<CaptionID>State5SubConditionName</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State5AckReq" category="[016] State 5">
+			<Value>False</Value>
+			<DescID>State5AckReqDesc</DescID>
+			<CaptionID>State5AckReq</CaptionID>
+			<Values type="boolean">
+      </Values>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State6Description" category="[017] State 6">
+			<Value>closed</Value>
+			<DescID>State6DescriptionDesc</DescID>
+			<CaptionID>State6Description</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State6Severity" category="[017] State 6">
+			<Value>10</Value>
+			<DescID>State6SeverityDesc</DescID>
+			<CaptionID>State6Severity</CaptionID>
+			<Values type="numerical">
+				<Min>1</Min>
+				<Max>1000</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>HWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State6SubConditionName" category="[017] State 6">
+			<Value>closed</Value>
+			<DescID>State6SubConditionNameDesc</DescID>
+			<CaptionID>State6SubConditionName</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State6AckReq" category="[017] State 6">
+			<Value>False</Value>
+			<DescID>State6AckReqDesc</DescID>
+			<CaptionID>State6AckReq</CaptionID>
+			<Values type="boolean">
+      </Values>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State7Description" category="[018] State 7">
+			<Value>intermediate</Value>
+			<DescID>State7DescriptionDesc</DescID>
+			<CaptionID>State7Description</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State7Severity" category="[018] State 7">
+			<Value>10</Value>
+			<DescID>State7SeverityDesc</DescID>
+			<CaptionID>State7Severity</CaptionID>
+			<Values type="numerical">
+				<Min>1</Min>
+				<Max>1000</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>HWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State7SubConditionName" category="[018] State 7">
+			<Value>intermediate</Value>
+			<DescID>State7SubConditionNameDesc</DescID>
+			<CaptionID>State7SubConditionName</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="State7AckReq" category="[018] State 7">
+			<Value>False</Value>
+			<DescID>State7AckReqDesc</DescID>
+			<CaptionID>State7AckReq</CaptionID>
+			<Values type="boolean">
+      </Values>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+	</Properties>
+</ObjectType>

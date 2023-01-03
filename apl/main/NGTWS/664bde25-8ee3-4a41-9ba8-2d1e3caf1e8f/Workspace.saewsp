@@ -1,0 +1,107 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<NGT>
+  <Header>
+    <ModelInfo value="WorkspaceSettings" />
+    <ModelVersion value="1.3.0.0" />
+    <PersistencyVersion value="1.0.0.0" />
+  </Header>
+  <DomModel>
+    <Complex name="Root" type="t0" id="0">
+      <Reference name="workspaceSettings" id="1" />
+      <Collection name="pluginInfo" type="t1" id="0">
+        <Simple name="Capacity" value="4" />
+        <Items>
+          <Reference name="item" id="2" />
+        </Items>
+      </Collection>
+      <Simple name="WorkspaceID" value="664bde25-8ee3-4a41-9ba8-2d1e3caf1e8f" />
+      <Simple name="WorkspaceName" value="MAIN" />
+      <Simple name="FunctionalStructureTemplateName" value="SubstationAutomationTemplate" />
+      <Simple name="LastOpened" value="2021-02-07T09:49:34.8785608Z" />
+      <Simple name="LastSaved" value="2020-08-04T12:45:54.6081380Z" />
+      <Simple name="CreationDate" value="2020-08-04T12:45:54.6081380Z" />
+      <Simple name="FrameworkVersion" value="1.3.7.36" />
+    </Complex>
+    <Complex name="workspaceSettings" type="t2" id="1">
+      <Reference name="entityNameTypes" id="3" />
+      <Reference name="workspaceLanguages" id="4" />
+      <Reference name="primaryWorkspaceLanguage" id="5" />
+      <Reference name="includeWorkspaceInExport" id="6" />
+      <Reference name="doNotShowImportDialogOnStartup" id="7" />
+    </Complex>
+    <Complex name="item" type="t3" id="2">
+      <Simple name="Name" value="SYS600" />
+      <Simple name="Version" value="1.3.7.36" />
+    </Complex>
+    <Complex name="entityNameTypes" type="t4" id="3">
+      <Collection name="internalList" type="t5" id="0">
+        <Simple name="Capacity" value="2" />
+        <Items>
+          <Reference name="item" id="8" />
+          <Reference name="item" id="9" />
+        </Items>
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="1" />
+      <Simple name="PropertyName" value="EntityNameTypes" />
+    </Complex>
+    <Complex name="workspaceLanguages" type="t6" id="4">
+      <Collection name="internalList" type="t7" id="0">
+        <Simple name="Capacity" value="1" />
+        <Items>
+          <Reference name="item" id="10" />
+        </Items>
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="1" />
+      <Simple name="PropertyName" value="WorkspaceLanguages" />
+    </Complex>
+    <Complex name="primaryWorkspaceLanguage" type="t8" id="5">
+      <Reference name="value" id="10" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="1" />
+      <Simple name="PropertyName" value="PrimaryWorkspaceLanguage" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="includeWorkspaceInExport" type="t9" id="6">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="1" />
+      <Simple name="PropertyName" value="IncludeWorkspaceInExport" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="doNotShowImportDialogOnStartup" type="t9" id="7">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="1" />
+      <Simple name="PropertyName" value="DoNotShowImportDialogOnStartup" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="item" type="t10" id="8">
+      <Simple name="NameType" value="ABB Internal Name" />
+      <Simple name="NameAuthority" value="NGT" />
+    </Complex>
+    <Complex name="item" type="t10" id="9">
+      <Simple name="NameType" value="Customer Name" />
+      <Simple name="NameAuthority" value="NGT" />
+    </Complex>
+    <Complex name="item" type="t11" id="10">
+      <Simple name="languageCode" value="en-x-abbsa" />
+      <Simple name="languageDescription" value="English (ABB internal)" />
+    </Complex>
+    <Types>
+      <Type value="ABB.NGT.Application.Workspace.WorkspaceInfo, ABB.NGT.Application.Workspace, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t0" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.ToolConcepts.API.Environment.WorkspaceSettings.IPluginInformation, ABB.NGT.ToolConcepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t1" />
+      <Type value="ABB.NGT.Application.Workspace.WorkspaceSettings, ABB.NGT.Application.Workspace, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t2" />
+      <Type value="ABB.NGT.Application.PackageManager.Implementation.PluginInformation, ABB.NGT.Application.PackageManager.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t3" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldList`3[[ABB.NGT.ToolConcepts.API.Environment.WorkspaceSettings.EntityNameType, ABB.NGT.ToolConcepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Concepts.Contracts.Events.Name.NameAddedEvent, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Concepts.Contracts.Events.Name.NameRemovedEvent, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t4" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.ToolConcepts.API.Environment.WorkspaceSettings.EntityNameType, ABB.NGT.ToolConcepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t5" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldList`3[[ABB.NGT.ToolConcepts.API.Environment.WorkspaceSettings.IWorkspaceLanguage, ABB.NGT.ToolConcepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Concepts.Contracts.Events.Localization.LanguageChildAddedEvent, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Concepts.Contracts.Events.Localization.LanguageChildRemovedEvent, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t6" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.ToolConcepts.API.Environment.WorkspaceSettings.IWorkspaceLanguage, ABB.NGT.ToolConcepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t7" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[ABB.NGT.ToolConcepts.API.Environment.WorkspaceSettings.IWorkspaceLanguage, ABB.NGT.ToolConcepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Concepts.Contracts.Events.Localization.LanguagePropertyChangedEvent, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t8" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[ABB.NGT.Application.Workspace.Events.WorkspacePropertyChangedEvent, ABB.NGT.Application.Workspace, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t9" />
+      <Type value="ABB.NGT.ToolConcepts.API.Environment.WorkspaceSettings.EntityNameType, ABB.NGT.ToolConcepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t10" />
+      <Type value="ABB.NGT.Domain.Concepts.Implementation.Localization.WorkspaceLanguage, ABB.NGT.Domain.Concepts.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t11" />
+    </Types>
+  </DomModel>
+</NGT>

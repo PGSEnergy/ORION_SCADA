@@ -1,0 +1,139 @@
+;Function: BPU_SEARCH_BLOCKINGS:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_search_blockings.scl
+;Version: 1.0
+;Input arguments: Content of CD-attribute, IX (optional)
+;Return data: LIST(Input_Objects=list(), Output_Objects=list())
+;Description: Searches process objects to be blocked/unblocked
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info
+#local l_Result = LIST(Input_Objects=list(), Output_Objects=list()), i_count = 0
+#local l_ois, RX1, RX2, RX3, RX4, RX5, RX6, RX7, RX8, RX9, t_LN, i_IX, t_OI, t_type
+#local t_Filter_Input, t_Filter_Output, t_Device_Type_Filter, l_tmp_objects = list(ln = vector , ix = vector)
+#local v_Attributes =  ("UN","SS","UB","AB","HB","PB","XB","AC","HE","LD","AE", "LN", "IX", "OI")
+#local i_max_nr_of_alarms = 8, b_block_linked = true, i
+
+;****************************************************************************************************
+;redirect command if application specific command procedure is found                               ;*
+#local t_Redirect_Proc = "APLMOD5_BPU_SEARCH_BLOCKINGS"                                            ;*
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    ;*
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            ;*
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 ;*
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  ;*
+         @REDIRECTED = true                                                                        ;*
+         i_ArgCnt = argument_count                                                                 ;*
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        ;*
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" ;*
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       ;*
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     ;*
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    ;*
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        ;*
+         #loop_end                                                                                 ;*
+         #return 't_Redirect_Command' ;;;;;                                                        ;*
+      #block_end                                                                                   ;*
+   #block_end                                                                                      ;*
+   #else #delete REDIRECTED:V                                                                      ;*
+#block_end                                                                                         ;*
+;****************************************************************************************************
+;MAIN START
+
+t_LN = l_object_info.p_object_ln
+
+;define filter condititons
+#if argument_count > 1 #then #block ;only one index comes as argument(2)
+   i_IX = argument(2)
+   t_Filter_Input = "IU == 1 AND SS > 0 AND RZ == 0 AND IX == 'i_IX'"
+   t_Filter_Output = "IU == -2" ;only input objects can come as argument
+#block_end
+#else #block ;search indexes from group(s)
+   #if attribute_exists(l_object_info, "switching_device_type") #then #block
+      #if l_object_info.switching_device_type == "QT" #then i_IX = 30
+      #else i_IX = 10
+      t_Device_Type_Filter = substr('t_LN':PRX'i_IX', 23, 4)
+   #block_end
+   #else  t_Device_Type_Filter = "%%%%"
+
+   ;LIB process objects based on LIB RX-attribute convention (%==free character)
+   RX1 = pad("%",20) + "FPXTAGXIND*"                      ;tagging indication
+   RX2 = pad("%",20) + "FPXTAGXEVT*"                     ;tagging event
+   RX3 = pad("%",22) + t_Device_Type_Filter + "I%%%*"      ;indications (e.g. breaker indication or interlocking signal)
+   RX4 = pad("%",22) + t_Device_Type_Filter + "E%%%*"      ;event recording (RP570 protocol)
+   RX5 = pad("%",22) + t_Device_Type_Filter + "M%%%*"      ;measurements
+   RX6 = pad("%",22) + t_Device_Type_Filter + "X%%%*"      ;internal signals (e.g. selected on monitor)
+   RX7 = pad("%",22) + t_Device_Type_Filter + "C%%%*"      ;commands
+   RX8 = pad("%",22) + t_Device_Type_Filter + "S%%%*"      ;set points
+   RX9 = ""
+   
+   t_Filter_Input = "IU == 1 AND SS > 0 AND RZ == 0 AND RX<>""'RX1'"" AND RX<>""'RX2'"" AND RX<>""'RX6'"" AND ((RX==""'RX3'"" OR RX==""'RX4'"" OR RX==""'RX5'"") OR (RX==""'RX9'"" AND (PT==3 OR PT==6 OR PT==9 OR PT==12 OR PT==13 OR PT==14)))"
+   t_Filter_Output = "IU == 1 AND SS > 0 AND RZ == 0 AND RX<>""'RX6'"" AND ((RX==""'RX7'"" OR RX==""'RX8'"") OR (RX==""'RX9'"" AND (PT==5 OR PT==7 OR PT==11)))"
+#block_end
+
+;search objects
+#if attribute_exists(l_object_info, "type_info") #then #block
+   #if attribute_exists(l_object_info.type_info, "object_level") #then #block 
+      #if upper_case(l_object_info.type_info.object_level) == "DEV" #then #block ;device level
+         t_type = upper_case(l_object_info.type_info.object_type)
+         #case t_type
+            #when "MEASUREMENT", "ALARM_INDICATOR" #block
+               #if data_type(l_object_info.p_object_indexes) == "VECTOR" #then #block 
+                  #if argument_count > 1 #then #block  ;only one index comes as argument(2)
+                     #if 't_LN':piu'i_IX' > 0 and 't_LN':pss'i_IX' > 0 #then #block
+                        l_tmp_objects.ln(1) = t_LN
+                        l_tmp_objects.ix(1) = i_IX
+                     #block_end
+                  #block_end
+                  #else #block
+                     #loop_with i = 1 .. length(l_object_info.p_object_indexes) 
+                        i_IX = l_object_info.p_object_indexes(i)
+                        #if 't_LN':piu'i_IX' > 0 and 't_LN':pss'i_IX' > 0 #then #block
+                           i_count = i_count + 1
+                           l_tmp_objects.ln(i_count) = t_LN
+                           l_tmp_objects.ix(i_count) = i_IX
+                        #block_end
+                     #loop_end
+                     #if b_block_linked #then #block
+                        #if t_type == "ALARM_INDICATOR" #then #block
+                           i_count = length(l_tmp_objects.ln)
+                           #loop_with i = 1 .. i_max_nr_of_alarms
+                              #if l_object_info.type_of_signal'i' == "LINK" #then #block
+                                 t_LN = l_object_info.LINK_SIGNAL'i'_TO_LN
+                                 i_IX = l_object_info.LINK_SIGNAL'i'_TO_IX
+                                 #if 't_LN':piu'i_IX' > 0 and 't_LN':pss'i_IX' > 0 #then #block
+                                    i_count = i_count + 1
+                                    l_tmp_objects.ln(i_count) = t_LN
+                                    l_tmp_objects.ix(i_count) = i_IX
+                                 #block_end
+                              #block_end
+                           #loop_end
+                        #block_end
+                     #block_end
+                  #block_end
+               #block_end
+               l_Result.Input_Objects = application_object_attributes(0, "IX", l_tmp_objects,  v_Attributes)
+               l_Result.Input_Objects = merge_attributes(l_Result.Input_Objects, list(COUNT = length(l_Result.Input_Objects.AB)))
+               l_Result.Output_Objects =  application_object_list(0, "IX", "I", "F", t_LN, t_Filter_Output, v_Attributes)
+            #block_end
+            #otherwise #block
+               l_Result.Input_Objects =  application_object_list(0, "IX", "I", "F", t_LN, t_Filter_Input,  v_Attributes)
+               l_Result.Output_Objects =  application_object_list(0, "IX", "I", "F", t_LN, t_Filter_Output, v_Attributes)
+            #block_end
+         #case_end
+      #block_end
+      #else #block ;L/R switch level
+         l_ois = do(bpu_trim_oi_for_query:c, l_object_info)
+         #if l_object_info.type_info.object_level == "STA" #then t_OI = l_ois.station_name_trimmed
+         #else_if l_object_info.type_info.object_level == "BAY" #then t_OI = l_ois.bay_name_trimmed
+         #else_if substr('t_LN':prx10,23,8) == "AGRPILRS" #then #block
+            #if l_object_info.special_identifier_1 <> "" #then t_OI = l_ois.special_identifier_1_trimmed
+            #if l_object_info.special_identifier_2 <> "" #then t_OI = l_ois.special_identifier_2_trimmed
+            #if l_object_info.special_identifier_3 <> "" #then t_OI = l_ois.special_identifier_3_trimmed
+         #block_end
+         l_Result.Input_Objects = application_object_list(0, "IX",  "OI", "", "'t_OI'*", t_Filter_Input,  v_Attributes)
+         l_Result.Output_Objects = application_object_list(0, "IX",  "OI", "", "'t_OI'*", t_Filter_Output, v_Attributes)
+      #block_end
+   #block_end
+#block_end
+   
+#return l_Result

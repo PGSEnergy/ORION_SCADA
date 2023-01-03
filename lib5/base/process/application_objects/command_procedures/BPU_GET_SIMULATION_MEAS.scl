@@ -1,0 +1,61 @@
+;Function: BPU_GET_SIMULATION_MEAS:C
+;Source file:  sc/lib5/base/process/application_objects/command_procedures/bpu_get_simulation_meas.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute), IX (optional)
+;Return data:
+;Description:
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info
+#local l_result = list(IN_USE = false,  SIMULATED_VALUE = "?", CAN_CHANGE = true, SIMULATION_ONLY = false, status = 0, err_description="")
+#local t_LN, i_IX = 0,    l_Attributes = list()
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_GET_SIMULATION_MEAS"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+         @REDIRECTED = true                                                                        
+         i_ArgCnt = argument_count                                                                 
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+         #loop_end                                                                                 
+         #return 't_Redirect_Command' ;;;;;                                                        
+      #block_end                                                                                   
+   #block_end                                                                                      
+   #else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+
+#if argument_count > 2 #then #block
+   i_IX = argument(3)
+   t_LN = l_object_info.p_object_ln
+   
+   l_Attributes = application_object_attributes(0, "IX", list(ln = vector(t_LN), IX = vector(i_IX)), vector("SS", "IU", "UN", "OS", "OV"))
+   
+   #if l_Attributes.SS(1) > 0 and l_Attributes.IU(1) > 0 #then #block
+      ;process object not connected to process
+      #if l_Attributes.un(1) == 0 and l_Attributes.ss(1) == 1 #then #block
+         l_result.in_use = true
+         l_result.simulation_only = true
+      #block_end
+      #else_if not (l_Attributes.un(1) <> 0 and l_Attributes.ss(1) > 1) #then l_result.in_use = true
+      
+      #if l_Attributes.os(1) < 10 #then l_result.simulated_value = l_Attributes.ov(1)
+   #block_end
+   #else #block
+      l_result.can_change = false
+      l_result.simulation_only = true
+   #block_end   
+#block_end
+
+#return l_result

@@ -1,0 +1,106 @@
+;In: %UPDATE_OBJECTS , vector where elemens are lists conaining LN and IX                   
+;Example:
+;@UPDATE_OBJECTS=VECTOR(LIST(LN "LN1", IX = 10), LIST(LN "LN1", IX = 11))
+;--------------------------------------------------------------------------
+#local tmp_ln, tmp_ix, tmp_un, tmp_un_done=vector(), i, j
+#local tmp_timeout_original=timeout(1000), tmp_timeout
+#local gi_iec61650_done = false, tmp_gi_object, sta_type
+
+;initialize
+#error continue
+
+
+#loop_with i = 1 .. length(%update_objects)
+
+   tmp_ln = %update_objects(i).ln
+   tmp_ix = %update_objects(i).ix
+   tmp_un = 'tmp_ln':pun'tmp_ix'
+
+   #if tmp_un <> 0 and length(select(tmp_un_done,"=='tmp_un'")) ==0 and -
+         ('tmp_ln':pss'tmp_ix'==2 or 'tmp_ln':pss'tmp_ix'==3) #then #block
+      ;case for each station type
+      #case 'tmp_ln':pdx'tmp_ix'
+
+         ;rtu
+         #when "R6","R9","R7S","R7D","R8",-
+               "I6","I9","I7S","I7D","I8" #block
+            tmp_timeout=timeout(5000)
+            ;resolve station type   
+            sta_type = upper_case(sta'tmp_un':bst)
+            ;update objects
+            #if sta_type == "plc" #then #set sta'tmp_un':sgd=1 ;modbus
+            #else #set sta'tmp_un':ssc=1 ;rtu
+            tmp_un_done = append(tmp_un_done,tmp_un)
+         #block_end
+
+         ;ansi
+         #when "9","6","3","12","13","14" #block
+            tmp_timeout=timeout(5000)
+            ;update objects
+            #get 'tmp_ln':p'tmp_ix'
+         #block_end
+
+         ;spa
+         #when "N6","N9","N7S","N7D","N8" #block
+            tmp_timeout=timeout(3000)
+            ;update objects
+            #set sta'tmp_un':sup=1
+            tmp_un_done = append(tmp_un_done,tmp_un)
+         #block_end
+
+        ;IEC61850
+         #when "E6","E9","E7S","E7D","E8" #block
+            #if not gi_iec61650_done #then #block
+               #if data_type(%gi_objects) <> "none" #then #block
+                  #loop_with j = 1 .. length(%gi_objects)
+                     #error continue
+                     tmp_gi_object = %gi_objects(j)
+                     #set 'tmp_gi_object' = 1
+                  #loop_end
+                  #pause 0.5
+                  gi_iec61650_done = true
+               #block_end
+            #block_end
+            tmp_timeout=timeout(3000)
+            ;update objects
+            #set sta'tmp_un':sup=1
+            tmp_un_done = append(tmp_un_done,tmp_un)
+         #block_end
+
+         ;lon
+         #when "X6","X9","X7S","X7D","X8" #block
+            tmp_timeout=timeout(3000)
+            ;update objects
+            #set sta'tmp_un':sgi=1
+            tmp_un_done = append(tmp_un_done,tmp_un)
+         #block_end
+
+         ;iec 870-5-101 and 870-5-103
+         #when "C3","C6","C9","C12","C13","C14" #block
+            tmp_timeout=timeout(3000)
+            ;update objects
+            #set sta'tmp_un':sgi=1
+            tmp_un_done = append(tmp_un_done,tmp_un)
+         #block_end
+
+         ;DNP 3.0
+         #when "D3","D6","D9","D12","D13","D14" #block
+            tmp_timeout=timeout(3000)
+            ;update objects
+            #set sta'tmp_un':sgi=1
+            tmp_un_done = append(tmp_un_done,tmp_un)
+         #block_end
+
+         ;procol
+         #when "O1","O2","O3","O4" #block
+            tmp_timeout=timeout(5000)
+            ;update objects
+            #set sta'tmp_un':ssc=1
+            tmp_un_done = append(tmp_un_done,tmp_un)
+         #block_end
+      #case_end
+   #block_end
+#loop_end
+
+;return net timeout
+tmp_timeout = timeout(tmp_timeout_original)

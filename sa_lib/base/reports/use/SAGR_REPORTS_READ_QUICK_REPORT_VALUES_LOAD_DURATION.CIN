@@ -1,0 +1,36 @@
+;CM =Interface for Monitor Pro Reports, Read Quick report values load duration
+; Function:    SAGR_REPORTS_READ_QUICK_REPORT_VALUES_LOAD_DURATION:C
+; Version:     3.0 (build 2.3.2012)
+; Parameters:  OBJECTS (all Object names)              
+;              REPORT_TYPE  (HOUR,DAY_15...)               
+;              TIME_INTERVAL (60,120,180)               
+;              TIME_FROM, TIME_TO                  
+; Return:      PAGE1=List( 
+;                  Col1=Vector(value1,value2,..)
+;                  ColX=Vector(value1,value2,..)
+;                  ;Col_Totals1=List(Mean, Max,.. Symbol/Color/Value) removed for load_duration, because only visible in curve mode
+;                  OS1=vector(OS value 1, OS value 2,..)
+;                  OSX=vector(OS value 1, OS value 2,..)
+;                  Time=vector(time 1, time 2,...)
+;                  Time_Interval
+; Description: Read quick report values for load duration
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#local i, v_SortedIndexes = vector(), l_PageData = list()
+
+#if SAGR_REPORTS_READ_QUICK_REPORT_VALUES:ccs == 1 #then -
+      #do SAGR_REPORTS_READ_QUICK_REPORT_VALUES:ccp
+#else #do SAGR_REPORTS_READ_QUICK_REPORT_VALUES:c
+
+;Read and calculate report values
+l_PageData = %Output.Page1
+
+#loop_with i = 1..length(%QUICK_REPORT_OBJECTS)
+   v_SortedIndexes   = sort(l_PageData.COL'i')                                  ;ID15697, % char. was missing
+   l_PageData.COL'i' = reverse(pick(l_PageData.COL'i', v_SortedIndexes))
+   l_PageData.OS'i'  = reverse(pick(l_PageData.OS'i' , v_SortedIndexes))
+#loop_end
+
+#modify OUTPUT:V = list(PAGE1 = l_PageData)

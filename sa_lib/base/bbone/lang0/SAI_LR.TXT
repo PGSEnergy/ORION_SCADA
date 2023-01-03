@@ -1,0 +1,22 @@
+
+;
+;   This is text file for the common station objects
+;
+
+;Object text (OX) for process objects, event channels and command procedures 
+#CREATE FPI_STA2:V = LIST(-
+     LR_SWITCH_IND           = "Operator place-switch",-
+     LOCAL_IND               = "Operator place local indication",-
+     REMOTE_IND              = "Operator place remote indication",-
+     MONITOR_EVENT           = "Operator place selection on monitor",-
+     LR_LOCAL_CMD            = "Operator place to local command",-
+     LR_STATION_CMD          = "Operator place to station command",-
+     LR_REMOTE_CMD           = "Operator place to remote command",-
+     LR_RESERVED_CMD         = "Operator place to not in use cmd",-
+     SR_CMD                  = "Operator place command",-
+     BLOCKINGS               = "Operator place blockings",-
+     MONITOR_EVENT           = "Operator place selection on monitor",-
+     AI2DB_COMMENT           = "Updates DB from AI",-
+     BI22DB_COMMENT          = "Updates DB from two BIs - 1",-
+     SETDB_COMMENT           = "Updates DB from two BIs - 2",-
+     UPDATE_COMMENT          = "Used for updating objects from the process")

@@ -1,0 +1,4853 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2011 rel. 3 sp1 (http://www.altova.com) by XMLSpy 2011 Professional Ed., Installed for 10 users (with SMP from 2010-09-23 to 2011-09-24) (ABB Oy) -->
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Markku Hamarila/RSC (ABB OY Substation Automation) -->
+<ObjectTypes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<ObjectType>
+		<Parameters type="InterfaceDefinition">
+			<Parameter name="ObjectType">IEC61850 IED GW 5.0</Parameter>
+			<Parameter name="Caption">objectTypeCaption</Parameter>
+			<Parameter name="Description">objectTypeDesc</Parameter>
+			<Parameter name="Group">IEC61850</Parameter>
+			<Parameter name="Type">IED</Parameter>
+			<Parameter name="IconFileName">GenIED.ico</Parameter>
+			<Parameter name="Tools">SCLImport, OnlineDiagnosticsIedIec61850, PSTFilterTool, SCDExportVerbs, EventTemplateTool</Parameter>
+			<Parameter name="DataServers"/>
+			<Parameter name="Verbs"/>
+			<Parameter name="Visible">True</Parameter>
+			<Parameter name="CanInherit">False</Parameter>
+			<Parameter name="ParentControlConditions">
+				<Structure name="COMMUNICATION">
+					<Condition type="PCMObjectType">IEC61850 Subnetwork</Condition>
+				</Structure>
+			</Parameter>
+		</Parameters>
+		<Parameters type="SCLExport">
+			<Export name="CDATA">SimulationMode, PollTimeout, RCBInitialize, GCBInitialize,StationRemoteSwitchOPCPath, DeviceConnectionStatus, InUse, UseEntryIDSequence, SystemEventLevel, AuthenticationPassword, ConfigurationVersionCheckLocation, Use32BitEntryID, UseSequenceNumberCheck, DynamicCreateDataSets, MMSRequestTimeout, DisturbanceRecorderEnabled, DisturbanceRecorderDeleteRecordings, DisturbanceRecorderMaxTotalFileSize, DisturbanceRecorderPollingPeriod, DisturbanceRecorderRemoteDirectory, DisturbanceRecorderLocalDirectory, DisturbanceRecorderFTP, DisturbanceRecorderFTPUserName, DisturbanceRecorderFTPPassword, PwdOpenSpaParamName, PwdOpenSpaParamValue, PwdCloseSpaParamName, PwdCloseSpaParamValue,  ParamsStoreSpaParamName, ParamsStoreSpaParamValue, ConfigurationRevisionCheck, SynchroCheckOverrideSupported, InterlockOverrideSupported, SendSingleMMSWrites, DisturbanceRecorderEventTriggerEnabled, DisturbanceRecorderEventTriggerSource, DisturbanceRecorderEventTriggerDelay, MeasurementLimitSupervision, AreaName, AreaDesc, AutoAdjustDST, DiscardOldBufferedEvents, MMSKeepaliveTimeout, DataVariablesInReadRequestMax</Export>
+			<Export name="Authentication">none, password, weak, strong, certificate</Export>
+			<Export name="Addresses">IP-GATEWAY, IP-SUBNET, IP, OSI-TSEL, OSI-SSEL, OSI-PSEL, OSI-AP_Title, OSI_AE_Qualifier</Export>
+			<Export name="DeviceConnectionStatus" exportType="csv">DeviceConnectionStatusClass, Section, PrintBlock</Export>
+			<Export name="SCLConfigVersion">SCLConfigVersion</Export>
+			<Export name="SCLIedType">SCLIedType</Export>
+			<Export name="SCLManufacturer">SCLManufacturer</Export>
+			<Export name="SCLPCMObjectTypeName">SCLPCMObjectTypeName</Export>
+		</Parameters>
+		<Properties type="PropertyDefinitions">
+    		<Property name="DataVariablesInReadRequestMax" category="[030] Communication Control">
+				<Value>0</Value>
+				<DescID>DataVariablesInReadRequestMaxDesc</DescID>
+				<CaptionID>DataVariablesInReadRequestMax</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DataVariablesInReadRequestMax</AttributeName>
+			</Property>
+			<Property name="MMSKeepaliveTimeout" category="[030] Communication Control">
+				<Value>60</Value>
+				<DescID>MMSKeepaliveTimeoutDesc</DescID>
+				<CaptionID>MMSKeepaliveTimeout</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>MMSKeepaliveTimeout</AttributeName>
+			</Property>
+			<Property name="DiscardOldBufferedEvents" category="[070] OPC Alarm and Event">
+				<Value>False</Value>
+				<DescID>DiscardOldBufferedEventsDesc</DescID>
+				<CaptionID>DiscardOldBufferedEvents</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DiscardOldBufferedEvents</AttributeName>
+			</Property>
+			<Property name="OPCObjectType" category="[010] Basic">
+				<Value>IEC61850 IED</Value>
+				<DescID>OPCObjectTypeDesc</DescID>
+				<CaptionID>OPCObjectType</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>OPCObjectType</AttributeName>
+			</Property>
+			<Property name="AccessPointName" category="[010] Basic">
+				<Value>1</Value>
+				<DescID>AccessPointNameDesc</DescID>
+				<CaptionID>AccessPointName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>AccessPointName</AttributeName>
+			</Property>
+			<Property name="SynchroCheckOverrideSupported" category="[060] Control Authorization">
+				<Value>False</Value>
+				<DescID>SynchroCheckOverrideSupportedDesc</DescID>
+				<CaptionID>SynchroCheckOverrideSupported</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>SynchroCheckOverrideSupported</AttributeName>
+			</Property>
+			<Property name="InterlockOverrideSupported" category="[060] Control Authorization">
+				<Value>False</Value>
+				<DescID>InterlockOverrideSupportedDesc</DescID>
+				<CaptionID>InterlockOverrideSupported</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>InterlockOverrideSupported</AttributeName>
+			</Property>
+			<Property name="PollTimeout" category="[040] Polling">
+				<Value>0</Value>
+				<DescID>PollTimeoutDesc</DescID>
+				<CaptionID>PollTimeout</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>PollTimeout</AttributeName>
+			</Property>
+			<Property name="RCBInitialize" category="[030] Communication Control">
+				<Value>True</Value>
+				<DescID>RCBInitializeDesc</DescID>
+				<CaptionID>RCBInitialize</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>RCBInitialize</AttributeName>
+			</Property>
+			<!--Property name="GCBInitialize" category="[030] Communication Control">
+				<Value>True</Value>
+				<DescID>GCBInitializeDesc</DescID>
+				<CaptionID>GCBInitialize</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>GCBInitialize</AttributeName>
+			</Property-->
+			<Property name="GCBInitialize" category="[030] Communication Control">
+				<Value>MMS</Value>
+				<DescID>GCBInitializeDesc</DescID>
+				<CaptionID>GCBInitialize</CaptionID>
+				<Values type="singleChoice">
+					<Enum textID="GOOSE" value="GOOSE"/>
+					<Enum textID="MMS" value="MMS"/>
+					<Enum textID="BOTH" value="BOTH"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHR</Access>
+				<AttributeName>GCBInitialize</AttributeName>
+			</Property>
+			<Property name="SimulationMode" category="[010] Basic">
+				<Value>0</Value>
+				<DescID>SimulationModeDesc</DescID>
+				<CaptionID>SimulationMode</CaptionID>
+				<Values type="singleChoice">
+					<Enum textID="False" value="0"/>
+					<Enum textID="True" value="1"/>
+				</Values>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>SimulationMode</AttributeName>
+			</Property>
+			<Property name="AreaName" category="[070] OPC Alarm and Event">
+				<Value/>
+				<DescID>AreaNameDesc</DescID>
+				<CaptionID>AreaName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>AreaName</AttributeName>
+			</Property>
+			<Property name="AreaDesc" category="[070] OPC Alarm and Event">
+				<Value/>
+				<DescID>AreaDescDesc</DescID>
+				<CaptionID>AreaDesc</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>AreaDesc</AttributeName>
+			</Property>
+			<Property name="Section" category="[070] OPC Alarm and Event">
+				<Value>0</Value>
+				<DescID>SectionDesc</DescID>
+				<CaptionID>Section</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>16</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>Section</AttributeName>
+			</Property>
+			<Property name="PrintBlock" category="[070] OPC Alarm and Event">
+				<Value>False</Value>
+				<DescID>PrintBlockDesc</DescID>
+				<CaptionID>PrintBlock</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>PrintBlock</AttributeName>
+			</Property>
+			<Property name="DeviceConnectionStatusClass" category="[070] OPC Alarm and Event">
+				<Value>Device Connection Status</Value>
+				<DescID>DeviceConnectionStatusClassDesc</DescID>
+				<CaptionID>DeviceConnectionStatusClass</CaptionID>
+				<Values type="singleChoiceDynamic">
+					<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupDCSEvents" secondchildObjectType="DeviceConnectionEventGroup"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>DeviceConnectionStatusClass</AttributeName>
+			</Property>
+			<Property name="StationRemoteSwitchOPCPath" category="[060] Control Authorization">
+				<Value/>
+				<DescID>StationRemoteSwitchOPCPathDesc</DescID>
+				<CaptionID>StationRemoteSwitchOPCPath</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>StationRemoteSwitchOPCPath</AttributeName>
+			</Property>
+			<Property name="InUse" category="[010] Basic">
+				<Value>1</Value>
+				<DescID>InUseDesc</DescID>
+				<CaptionID>InUse</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="1" textID="In Use"/>
+					<Enum value="0" textID="Not In Use"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>InUse</AttributeName>
+			</Property>
+			<Property name="IP" category="[020] Addresses">
+				<Value>127.0.0.1</Value>
+				<DescID>IPDesc</DescID>
+				<CaptionID>IP</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>IP</AttributeName>
+			</Property>
+			<Property name="OSI-TSEL" category="[020] Addresses">
+				<Value>0001</Value>
+				<DescID>OSI-TSELDesc</DescID>
+				<CaptionID>OSI-TSEL</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_TSEL</AttributeName>
+			</Property>
+			<Property name="OSI-SSEL" category="[020] Addresses">
+				<Value>0001</Value>
+				<DescID>OSI-SSELDesc</DescID>
+				<CaptionID>OSI-SSEL</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_SSEL</AttributeName>
+			</Property>
+			<Property name="OSI-PSEL" category="[020] Addresses">
+				<Value>00000001</Value>
+				<DescID>OSI-PSELDesc</DescID>
+				<CaptionID>OSI-PSEL</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_PSEL</AttributeName>
+			</Property>
+			<Property name="OSI_AE_Qualifier" category="[020] Addresses">
+				<Value>23</Value>
+				<DescID>OSI_AE_QualifierDesc</DescID>
+				<CaptionID>OSI_AE_Qualifier</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_AE_Qualifier</AttributeName>
+			</Property>
+			<Property name="OSI-AP_Title" category="[020] Addresses">
+				<Value>1,3,9999,23</Value>
+				<DescID>OSI-AP_TitleDesc</DescID>
+				<CaptionID>OSI-AP_Title</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_AP_Title</AttributeName>
+			</Property>
+			<Property name="UseEntryIDSequence" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>EnableEntryIDCheckDesc</DescID>
+				<CaptionID>EnableEntryIDCheck</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>UseEntryIDSequence</AttributeName>
+			</Property>
+			<Property name="SystemEventLevel" category="[010] Basic">
+				<Value>0</Value>
+				<DescID>SystemEventLevelDesc</DescID>
+				<CaptionID>SystemEventLevel</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="0" textID="Level0"/>
+					<Enum value="1" textID="Level1"/>
+					<Enum value="2" textID="Level2"/>
+					<Enum value="3" textID="Level3"/>
+					<Enum value="4" textID="Level4"/>
+					<Enum value="5" textID="Level5"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SystemEventLevel</AttributeName>
+			</Property>
+			<Property name="none" category="[080] Authentication">
+				<Value>True</Value>
+				<DescID>noneDesc</DescID>
+				<CaptionID>none</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>none</AttributeName>
+			</Property>
+			<Property name="password" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>passwordDesc</DescID>
+				<CaptionID>password</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>password</AttributeName>
+			</Property>
+			<Property name="weak" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>weakDesc</DescID>
+				<CaptionID>weak</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>weak</AttributeName>
+			</Property>
+			<Property name="strong" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>strongDesc</DescID>
+				<CaptionID>strong</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>strong</AttributeName>
+			</Property>
+			<Property name="certificate" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>certificateDesc</DescID>
+				<CaptionID>certificate</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>certificate</AttributeName>
+			</Property>
+			<Property name="AuthenticationPassword" category="[080] Authentication">
+				<Value/>
+				<DescID>strPasswordDesc</DescID>
+				<CaptionID>strPassword</CaptionID>
+				<Values type="password"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>AuthenticationPassword</AttributeName>
+			</Property>
+			<Property name="ConfigurationVersionCheckLocation" category="[030] Communication Control">
+				<Value/>
+				<DescID>ConfigurationRevisionCheckLocationDesc</DescID>
+				<CaptionID>ConfigurationRevisionCheckLocation</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>ConfigurationVersionCheckLocation</AttributeName>
+			</Property>
+			<Property name="SCLConfigVersion" category="">
+				<Value/>
+				<DescID>SCLConfigVersionDesc</DescID>
+				<CaptionID>SCLConfigVersion</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>configVersion</AttributeName>
+			</Property>
+			<Property name="UseSequenceNumberCheck" category="[030] Communication Control">
+				<Value>True</Value>
+				<DescID>UseSequenceNumberCheckDesc</DescID>
+				<CaptionID>UseSequenceNumberCheck</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>UseSequenceNumberCheck</AttributeName>
+			</Property>
+			<Property name="DynamicCreateDataSets" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>DynamicCreateDataSetsDesc</DescID>
+				<CaptionID>DynamicCreateDataSets</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>207</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>DynamicCreateDataSets</AttributeName>
+			</Property>
+			<Property name="MMSRequestTimeout" category="[030] Communication Control">
+				<Value>3000</Value>
+				<DescID>MMSRequestTimeoutDesc</DescID>
+				<CaptionID>MMSRequestTimeout</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>MMSRequestTimeout</AttributeName>
+			</Property>
+			<Property name="Use32BitEntryID" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>Use32BitEntryIDDesc</DescID>
+				<CaptionID>Use32BitEntryID</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>Use32BitEntryID</AttributeName>
+			</Property>
+			<Property name="SCLTechnicalKey" category="">
+				<Value/>
+				<DescID>SCLTechnicalKeyDesc</DescID>
+				<CaptionID>SCLTechnicalKey</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>SCLTechnicalKey</AttributeName>
+			</Property>
+			<Property name="SCLIedType" category="">
+				<Value>IEC61850 IED</Value>
+				<DescID>SCLIedTypeDesc</DescID>
+				<CaptionID>SCLIedType</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>SCLIedType</AttributeName>
+			</Property>
+			<Property name="SCLManufacturer" category="">
+				<Value/>
+				<DescID>SCLManufacturerDesc</DescID>
+				<CaptionID>SCLManufacturer</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>SCLManufacturer</AttributeName>
+			</Property>
+			<Property name="SCLPCMObjectTypeName" category="">
+				<Value/>
+				<DescID>SCLPCMObjectTypeName</DescID>
+				<CaptionID>SCLPCMObjectTypeName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>SCLPCMObjectTypeName</AttributeName>
+			</Property>
+			<Property name="ProtocolName" category="[010] Basic">
+				<Value>IEC61850SPA</Value>
+				<DescID>ProtocolNameDesc</DescID>
+				<CaptionID>ProtocolName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="DisturbanceRecorderEnabled" category="[096] Disturbance Recording">
+				<Value>False</Value>
+				<DescID>DisturbanceRecorderEnabledDesc</DescID>
+				<CaptionID>DisturbanceRecorderEnabled</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderEnabled</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderDeleteRecordings" category="[096] Disturbance Recording">
+				<Value>False</Value>
+				<DescID>DisturbanceRecorderDeleteRecordingsDesc</DescID>
+				<CaptionID>DisturbanceRecorderDeleteRecordings</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderDeleteRecordings</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderMaxTotalFileSize" category="[096] Disturbance Recording">
+				<Value>0</Value>
+				<DescID>DisturbanceRecorderMaxTotalFileSizeDesc</DescID>
+				<CaptionID>DisturbanceRecorderMaxTotalFileSize</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>2147483647</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderMaxTotalFileSize</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderPollingPeriod" category="[096] Disturbance Recording">
+				<Value>120</Value>
+				<DescID>DisturbanceRecorderPollingPeriodDesc</DescID>
+				<CaptionID>DisturbanceRecorderPollingPeriod</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>2147483647</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderPollingPeriod</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderRemoteDirectory" category="[096] Disturbance Recording">
+				<Value>COMTRADE/</Value>
+				<DescID>DisturbanceRecorderRemoteDirectoryDesc</DescID>
+				<CaptionID>DisturbanceRecorderRemoteDirectory</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderRemoteDirectory</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderLocalDirectory" category="[096] Disturbance Recording">
+				<Value/>
+				<DescID>DisturbanceRecorderLocalDirectoryDesc</DescID>
+				<CaptionID>DisturbanceRecorderLocalDirectory</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderLocalDirectory</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderFTP" category="[096] Disturbance Recording via FTP">
+				<Value>False</Value>
+				<DescID>DisturbanceRecorderFTPDesc</DescID>
+				<CaptionID>DisturbanceRecorderFTP</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderFTP</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderFTPUserName" category="[096] Disturbance Recording via FTP">
+				<Value/>
+				<DescID>DisturbanceRecorderFTPUserNameDesc</DescID>
+				<CaptionID>DisturbanceRecorderFTPUserName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderFTPUserName</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderFTPPassword" category="[096] Disturbance Recording via FTP">
+				<Value/>
+				<DescID>DisturbanceRecorderFTPPasswordDesc</DescID>
+				<CaptionID>DisturbanceRecorderFTPPassword</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderFTPPassword</AttributeName>
+			</Property>
+			<Property name="PwdOpenSpaParamName" category="[080] SPA Access">
+				<Value>V160</Value>
+				<DescID>PwdOpenSpaParamNameDesc</DescID>
+				<CaptionID>PwdOpenSpaParamName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey>419</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>PwdOpenSpaParamName</AttributeName>
+			</Property>
+			<Property name="PwdCloseSpaParamName" category="[080] SPA Access">
+				<Value>V161</Value>
+				<DescID>PwdCloseSpaParamNameDesc</DescID>
+				<CaptionID>PwdCloseSpaParamName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey>420</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>PwdCloseSpaParamName</AttributeName>
+			</Property>
+			<Property name="PwdOpenSpaParamValue" category="[080] SPA Access">
+				<Value>1</Value>
+				<DescID>PwdOpenSpaParamValueDesc</DescID>
+				<CaptionID>PwdOpenSpaParamValue</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65536</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey>421</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>PwdOpenSpaParamValue</AttributeName>
+			</Property>
+			<Property name="PwdCloseSpaParamValue" category="[080] SPA Access">
+				<Value>1</Value>
+				<DescID>PwdCloseSpaParamValueDesc</DescID>
+				<CaptionID>PwdCloseSpaParamValue</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65536</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey>422</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>PwdCloseSpaParamValue</AttributeName>
+			</Property>
+			<Property name="ParamsStoreSpaParamName" category="[080] SPA Access">
+				<Value/>
+				<DescID>ParamsStoreSpaParamNameDesc</DescID>
+				<CaptionID>ParamsStoreSpaParamName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey>420</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>ParamsStoreSpaParamName</AttributeName>
+			</Property>
+			<Property name="ParamsStoreSpaParamValue" category="[080] SPA Access">
+				<Value>1</Value>
+				<DescID>ParamsStoreSpaParamValueDesc</DescID>
+				<CaptionID>ParamsStoreSpaParamValue</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65536</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey>421</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>ParamsStoreSpaParamValue</AttributeName>
+			</Property>
+			<Property name="WebServerIP" category="[099] Web Server Configuration">
+				<Value/>
+				<DescID>WebServerIPDesc</DescID>
+				<CaptionID>WebServerIP</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey>421</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>WebServerIP</AttributeName>
+			</Property>
+			<Property name="WebServerIPEnabled" category="[099] Web Server Configuration">
+				<Value>False</Value>
+				<DescID>WebServerIPEnabledDesc</DescID>
+				<CaptionID>WebServerIPEnabled</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>WebServerIPEnabled</AttributeName>
+			</Property>
+			<Property name="ConfigurationRevisionCheck" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>ConfigurationRevisionCheckDesc</DescID>
+				<CaptionID>ConfigurationRevisionCheck</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>ConfigurationRevisionCheck</AttributeName>
+			</Property>
+			<Property name="SendSingleMMSWrites" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>SendSingleMMSWritesDesc</DescID>
+				<CaptionID>SendSingleMMSWrites</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>SendSingleMMSWrites</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderEventTriggerEnabled" category="[096] Disturbance Recording">
+				<Value>False</Value>
+				<DescID>DisturbanceRecorderEventTriggerEnabledDesc</DescID>
+				<CaptionID>DisturbanceRecorderEventTriggerEnabled</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderEventTriggerEnabled</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderEventTriggerSource" category="[096] Disturbance Recording">
+				<Value/>
+				<DescID>DisturbanceRecorderEventTriggerSourceDesc</DescID>
+				<CaptionID>DisturbanceRecorderEventTriggerSource</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderEventTriggerSource</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderEventTriggerDelay" category="[096] Disturbance Recording">
+				<Value>0</Value>
+				<DescID>DisturbanceRecorderEventTriggerDelayDesc</DescID>
+				<CaptionID>DisturbanceRecorderEventTriggerDelay</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderEventTriggerDelay</AttributeName>
+			</Property>
+			<Property name="MeasurementLimitSupervision" category="[070] OPC Alarm and Event">
+				<Value>0</Value>
+				<DescID>MeasurementLimitSupervisionDesc</DescID>
+				<CaptionID>MeasurementLimitSupervision</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="-1" textID="MeasLimitSupervisionBackwardCompMode"/>
+					<Enum value="0" textID="IEDBasedLimitSupervision"/>
+					<Enum value="1" textID="OPCServerBasedLimitSupervision"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>MeasurementLimitSupervision</AttributeName>
+			</Property>
+			<Property name="AutoAdjustDST" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>AutoAdjustDSTDesc</DescID>
+				<CaptionID>AutoAdjustDST</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>AutoAdjustDST</AttributeName>
+			</Property>
+			<Property name="IP-GATEWAY" category="[020] Addresses">
+				<Value>127.0.0.1</Value>
+				<DescID>IP-GATEWAYDesc</DescID>
+				<CaptionID>IP-GATEWAY</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>IP_GATEWAY</AttributeName>
+			</Property>
+			<Property name="IP-SUBNET" category="[020] Addresses">
+				<Value>255.255.255.0</Value>
+				<DescID>IP-SUBNETDesc</DescID>
+				<CaptionID>IP-SUBNET</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>IP_SUBNET</AttributeName>
+			</Property>
+		</Properties>
+	</ObjectType>
+	<ObjectType>
+		<Parameters type="InterfaceDefinition">
+			<Parameter name="ObjectType">IEC61850 IED GW 4.1</Parameter>
+			<Parameter name="Caption">objectTypeCaption</Parameter>
+			<Parameter name="Description">objectTypeDesc</Parameter>
+			<Parameter name="Group">IEC61850</Parameter>
+			<Parameter name="Type">IED</Parameter>
+			<Parameter name="IconFileName">GenIED.ico</Parameter>
+			<Parameter name="Tools">SCLImport, OnlineDiagnosticsIedIec61850, PSTFilterTool, SCDExportVerbs, EventTemplateTool</Parameter>
+			<Parameter name="DataServers"/>
+			<Parameter name="Verbs"/>
+			<Parameter name="Visible">True</Parameter>
+			<Parameter name="CanInherit">False</Parameter>
+			<Parameter name="ParentControlConditions">
+				<Structure name="COMMUNICATION">
+					<Condition type="PCMObjectType">IEC61850 Subnetwork</Condition>
+				</Structure>
+			</Parameter>
+		</Parameters>
+		<Parameters type="SCLExport">
+			<Export name="CDATA">SimulationMode, PollTimeout, RCBInitialize, GCBInitialize,StationRemoteSwitchOPCPath, DeviceConnectionStatus, InUse, UseEntryIDSequence, SystemEventLevel, AuthenticationPassword, ConfigurationVersionCheckLocation, Use32BitEntryID, UseSequenceNumberCheck, DynamicCreateDataSets, MMSRequestTimeout, DisturbanceRecorderEnabled, DisturbanceRecorderDeleteRecordings, DisturbanceRecorderMaxTotalFileSize, DisturbanceRecorderPollingPeriod, DisturbanceRecorderRemoteDirectory, DisturbanceRecorderLocalDirectory, DisturbanceRecorderFTP, DisturbanceRecorderFTPUserName, DisturbanceRecorderFTPPassword, PwdOpenSpaParamName, PwdOpenSpaParamValue, PwdCloseSpaParamName, PwdCloseSpaParamValue,  ParamsStoreSpaParamName, ParamsStoreSpaParamValue, ConfigurationRevisionCheck, SynchroCheckOverrideSupported, InterlockOverrideSupported, SendSingleMMSWrites, DisturbanceRecorderEventTriggerEnabled, DisturbanceRecorderEventTriggerSource,  MeasurementLimitSupervision, AreaName, AreaDesc, AutoAdjustDST, DiscardOldBufferedEvents, MMSKeepaliveTimeout</Export>
+			<Export name="Authentication">none, password, weak, strong, certificate</Export>
+			<Export name="Addresses">IP-GATEWAY, IP-SUBNET, IP, OSI-TSEL, OSI-SSEL, OSI-PSEL, OSI-AP_Title, OSI_AE_Qualifier</Export>
+			<Export name="DeviceConnectionStatus" exportType="csv">DeviceConnectionStatusClass, Section, PrintBlock</Export>
+			<Export name="SCLConfigVersion">SCLConfigVersion</Export>
+			<Export name="SCLIedType">SCLIedType</Export>
+			<Export name="SCLManufacturer">SCLManufacturer</Export>
+			<Export name="SCLPCMObjectTypeName">SCLPCMObjectTypeName</Export>
+		</Parameters>
+		<Properties type="PropertyDefinitions">
+			<Property name="MMSKeepaliveTimeout" category="[030] Communication Control">
+				<Value>60</Value>
+				<DescID>MMSKeepaliveTimeoutDesc</DescID>
+				<CaptionID>MMSKeepaliveTimeout</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>MMSKeepaliveTimeout</AttributeName>
+			</Property>
+			<Property name="DiscardOldBufferedEvents" category="[070] OPC Alarm and Event">
+				<Value>False</Value>
+				<DescID>DiscardOldBufferedEventsDesc</DescID>
+				<CaptionID>DiscardOldBufferedEvents</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DiscardOldBufferedEvents</AttributeName>
+			</Property>
+			<Property name="OPCObjectType" category="[010] Basic">
+				<Value>IEC61850 IED</Value>
+				<DescID>OPCObjectTypeDesc</DescID>
+				<CaptionID>OPCObjectType</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>OPCObjectType</AttributeName>
+			</Property>
+			<Property name="AccessPointName" category="[010] Basic">
+				<Value>1</Value>
+				<DescID>AccessPointNameDesc</DescID>
+				<CaptionID>AccessPointName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>AccessPointName</AttributeName>
+			</Property>
+			<Property name="SynchroCheckOverrideSupported" category="[060] Control Authorization">
+				<Value>False</Value>
+				<DescID>SynchroCheckOverrideSupportedDesc</DescID>
+				<CaptionID>SynchroCheckOverrideSupported</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>SynchroCheckOverrideSupported</AttributeName>
+			</Property>
+			<Property name="InterlockOverrideSupported" category="[060] Control Authorization">
+				<Value>False</Value>
+				<DescID>InterlockOverrideSupportedDesc</DescID>
+				<CaptionID>InterlockOverrideSupported</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>InterlockOverrideSupported</AttributeName>
+			</Property>
+			<Property name="PollTimeout" category="[040] Polling">
+				<Value>0</Value>
+				<DescID>PollTimeoutDesc</DescID>
+				<CaptionID>PollTimeout</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>PollTimeout</AttributeName>
+			</Property>
+			<Property name="RCBInitialize" category="[030] Communication Control">
+				<Value>True</Value>
+				<DescID>RCBInitializeDesc</DescID>
+				<CaptionID>RCBInitialize</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>RCBInitialize</AttributeName>
+			</Property>
+			<!--Property name="GCBInitialize" category="[030] Communication Control">
+				<Value>True</Value>
+				<DescID>GCBInitializeDesc</DescID>
+				<CaptionID>GCBInitialize</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>GCBInitialize</AttributeName>
+			</Property-->
+			<Property name="GCBInitialize" category="[030] Communication Control">
+				<Value>MMS</Value>
+				<DescID>GCBInitializeDesc</DescID>
+				<CaptionID>GCBInitialize</CaptionID>
+				<Values type="singleChoice">
+					<Enum textID="GOOSE" value="GOOSE"/>
+					<Enum textID="MMS" value="MMS"/>
+					<Enum textID="BOTH" value="BOTH"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHR</Access>
+				<AttributeName>GCBInitialize</AttributeName>
+			</Property>
+			<Property name="SimulationMode" category="[010] Basic">
+				<Value>0</Value>
+				<DescID>SimulationModeDesc</DescID>
+				<CaptionID>SimulationMode</CaptionID>
+				<Values type="singleChoice">
+					<Enum textID="False" value="0"/>
+					<Enum textID="True" value="1"/>
+				</Values>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>SimulationMode</AttributeName>
+			</Property>
+			<Property name="AreaName" category="[070] OPC Alarm and Event">
+				<Value/>
+				<DescID>AreaNameDesc</DescID>
+				<CaptionID>AreaName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>AreaName</AttributeName>
+			</Property>
+			<Property name="AreaDesc" category="[070] OPC Alarm and Event">
+				<Value/>
+				<DescID>AreaDescDesc</DescID>
+				<CaptionID>AreaDesc</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>AreaDesc</AttributeName>
+			</Property>
+			<Property name="Section" category="[070] OPC Alarm and Event">
+				<Value>0</Value>
+				<DescID>SectionDesc</DescID>
+				<CaptionID>Section</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>16</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>Section</AttributeName>
+			</Property>
+			<Property name="PrintBlock" category="[070] OPC Alarm and Event">
+				<Value>False</Value>
+				<DescID>PrintBlockDesc</DescID>
+				<CaptionID>PrintBlock</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>PrintBlock</AttributeName>
+			</Property>
+			<Property name="DeviceConnectionStatusClass" category="[070] OPC Alarm and Event">
+				<Value>Device Connection Status</Value>
+				<DescID>DeviceConnectionStatusClassDesc</DescID>
+				<CaptionID>DeviceConnectionStatusClass</CaptionID>
+				<Values type="singleChoiceDynamic">
+					<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupDCSEvents" secondchildObjectType="DeviceConnectionEventGroup"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>DeviceConnectionStatusClass</AttributeName>
+			</Property>
+			<Property name="StationRemoteSwitchOPCPath" category="[060] Control Authorization">
+				<Value/>
+				<DescID>StationRemoteSwitchOPCPathDesc</DescID>
+				<CaptionID>StationRemoteSwitchOPCPath</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>StationRemoteSwitchOPCPath</AttributeName>
+			</Property>
+			<Property name="InUse" category="[010] Basic">
+				<Value>1</Value>
+				<DescID>InUseDesc</DescID>
+				<CaptionID>InUse</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="1" textID="In Use"/>
+					<Enum value="0" textID="Not In Use"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>InUse</AttributeName>
+			</Property>
+			<Property name="IP" category="[020] Addresses">
+				<Value>127.0.0.1</Value>
+				<DescID>IPDesc</DescID>
+				<CaptionID>IP</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>IP</AttributeName>
+			</Property>
+			<Property name="OSI-TSEL" category="[020] Addresses">
+				<Value>0001</Value>
+				<DescID>OSI-TSELDesc</DescID>
+				<CaptionID>OSI-TSEL</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_TSEL</AttributeName>
+			</Property>
+			<Property name="OSI-SSEL" category="[020] Addresses">
+				<Value>0001</Value>
+				<DescID>OSI-SSELDesc</DescID>
+				<CaptionID>OSI-SSEL</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_SSEL</AttributeName>
+			</Property>
+			<Property name="OSI-PSEL" category="[020] Addresses">
+				<Value>00000001</Value>
+				<DescID>OSI-PSELDesc</DescID>
+				<CaptionID>OSI-PSEL</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_PSEL</AttributeName>
+			</Property>
+			<Property name="OSI_AE_Qualifier" category="[020] Addresses">
+				<Value>23</Value>
+				<DescID>OSI_AE_QualifierDesc</DescID>
+				<CaptionID>OSI_AE_Qualifier</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_AE_Qualifier</AttributeName>
+			</Property>
+			<Property name="OSI-AP_Title" category="[020] Addresses">
+				<Value>1,3,9999,23</Value>
+				<DescID>OSI-AP_TitleDesc</DescID>
+				<CaptionID>OSI-AP_Title</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_AP_Title</AttributeName>
+			</Property>
+			<Property name="UseEntryIDSequence" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>EnableEntryIDCheckDesc</DescID>
+				<CaptionID>EnableEntryIDCheck</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>UseEntryIDSequence</AttributeName>
+			</Property>
+			<Property name="SystemEventLevel" category="[010] Basic">
+				<Value>0</Value>
+				<DescID>SystemEventLevelDesc</DescID>
+				<CaptionID>SystemEventLevel</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="0" textID="Level0"/>
+					<Enum value="1" textID="Level1"/>
+					<Enum value="2" textID="Level2"/>
+					<Enum value="3" textID="Level3"/>
+					<Enum value="4" textID="Level4"/>
+					<Enum value="5" textID="Level5"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SystemEventLevel</AttributeName>
+			</Property>
+			<Property name="none" category="[080] Authentication">
+				<Value>True</Value>
+				<DescID>noneDesc</DescID>
+				<CaptionID>none</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>none</AttributeName>
+			</Property>
+			<Property name="password" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>passwordDesc</DescID>
+				<CaptionID>password</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>password</AttributeName>
+			</Property>
+			<Property name="weak" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>weakDesc</DescID>
+				<CaptionID>weak</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>weak</AttributeName>
+			</Property>
+			<Property name="strong" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>strongDesc</DescID>
+				<CaptionID>strong</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>strong</AttributeName>
+			</Property>
+			<Property name="certificate" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>certificateDesc</DescID>
+				<CaptionID>certificate</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>certificate</AttributeName>
+			</Property>
+			<Property name="AuthenticationPassword" category="[080] Authentication">
+				<Value/>
+				<DescID>strPasswordDesc</DescID>
+				<CaptionID>strPassword</CaptionID>
+				<Values type="password"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>AuthenticationPassword</AttributeName>
+			</Property>
+			<Property name="ConfigurationVersionCheckLocation" category="[030] Communication Control">
+				<Value/>
+				<DescID>ConfigurationRevisionCheckLocationDesc</DescID>
+				<CaptionID>ConfigurationRevisionCheckLocation</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>ConfigurationVersionCheckLocation</AttributeName>
+			</Property>
+			<Property name="SCLConfigVersion" category="">
+				<Value/>
+				<DescID>SCLConfigVersionDesc</DescID>
+				<CaptionID>SCLConfigVersion</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>configVersion</AttributeName>
+			</Property>
+			<Property name="UseSequenceNumberCheck" category="[030] Communication Control">
+				<Value>True</Value>
+				<DescID>UseSequenceNumberCheckDesc</DescID>
+				<CaptionID>UseSequenceNumberCheck</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>UseSequenceNumberCheck</AttributeName>
+			</Property>
+			<Property name="DynamicCreateDataSets" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>DynamicCreateDataSetsDesc</DescID>
+				<CaptionID>DynamicCreateDataSets</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>207</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>DynamicCreateDataSets</AttributeName>
+			</Property>
+			<Property name="MMSRequestTimeout" category="[030] Communication Control">
+				<Value>3000</Value>
+				<DescID>MMSRequestTimeoutDesc</DescID>
+				<CaptionID>MMSRequestTimeout</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>MMSRequestTimeout</AttributeName>
+			</Property>
+			<Property name="Use32BitEntryID" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>Use32BitEntryIDDesc</DescID>
+				<CaptionID>Use32BitEntryID</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>Use32BitEntryID</AttributeName>
+			</Property>
+			<Property name="SCLTechnicalKey" category="">
+				<Value/>
+				<DescID>SCLTechnicalKeyDesc</DescID>
+				<CaptionID>SCLTechnicalKey</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>SCLTechnicalKey</AttributeName>
+			</Property>
+			<Property name="SCLIedType" category="">
+				<Value>IEC61850 IED</Value>
+				<DescID>SCLIedTypeDesc</DescID>
+				<CaptionID>SCLIedType</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>SCLIedType</AttributeName>
+			</Property>
+			<Property name="SCLManufacturer" category="">
+				<Value/>
+				<DescID>SCLManufacturerDesc</DescID>
+				<CaptionID>SCLManufacturer</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>SCLManufacturer</AttributeName>
+			</Property>
+			<Property name="SCLPCMObjectTypeName" category="">
+				<Value/>
+				<DescID>SCLPCMObjectTypeName</DescID>
+				<CaptionID>SCLPCMObjectTypeName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>SCLPCMObjectTypeName</AttributeName>
+			</Property>
+			<Property name="ProtocolName" category="[010] Basic">
+				<Value>IEC61850SPA</Value>
+				<DescID>ProtocolNameDesc</DescID>
+				<CaptionID>ProtocolName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="DisturbanceRecorderEnabled" category="[096] Disturbance Recording">
+				<Value>False</Value>
+				<DescID>DisturbanceRecorderEnabledDesc</DescID>
+				<CaptionID>DisturbanceRecorderEnabled</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderEnabled</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderDeleteRecordings" category="[096] Disturbance Recording">
+				<Value>False</Value>
+				<DescID>DisturbanceRecorderDeleteRecordingsDesc</DescID>
+				<CaptionID>DisturbanceRecorderDeleteRecordings</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderDeleteRecordings</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderMaxTotalFileSize" category="[096] Disturbance Recording">
+				<Value>0</Value>
+				<DescID>DisturbanceRecorderMaxTotalFileSizeDesc</DescID>
+				<CaptionID>DisturbanceRecorderMaxTotalFileSize</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>2147483647</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderMaxTotalFileSize</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderPollingPeriod" category="[096] Disturbance Recording">
+				<Value>120</Value>
+				<DescID>DisturbanceRecorderPollingPeriodDesc</DescID>
+				<CaptionID>DisturbanceRecorderPollingPeriod</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>2147483647</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderPollingPeriod</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderRemoteDirectory" category="[096] Disturbance Recording">
+				<Value>COMTRADE/</Value>
+				<DescID>DisturbanceRecorderRemoteDirectoryDesc</DescID>
+				<CaptionID>DisturbanceRecorderRemoteDirectory</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderRemoteDirectory</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderLocalDirectory" category="[096] Disturbance Recording">
+				<Value/>
+				<DescID>DisturbanceRecorderLocalDirectoryDesc</DescID>
+				<CaptionID>DisturbanceRecorderLocalDirectory</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderLocalDirectory</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderFTP" category="[096] Disturbance Recording via FTP">
+				<Value>False</Value>
+				<DescID>DisturbanceRecorderFTPDesc</DescID>
+				<CaptionID>DisturbanceRecorderFTP</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderFTP</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderFTPUserName" category="[096] Disturbance Recording via FTP">
+				<Value/>
+				<DescID>DisturbanceRecorderFTPUserNameDesc</DescID>
+				<CaptionID>DisturbanceRecorderFTPUserName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderFTPUserName</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderFTPPassword" category="[096] Disturbance Recording via FTP">
+				<Value/>
+				<DescID>DisturbanceRecorderFTPPasswordDesc</DescID>
+				<CaptionID>DisturbanceRecorderFTPPassword</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderFTPPassword</AttributeName>
+			</Property>
+			<Property name="PwdOpenSpaParamName" category="[080] SPA Access">
+				<Value>V160</Value>
+				<DescID>PwdOpenSpaParamNameDesc</DescID>
+				<CaptionID>PwdOpenSpaParamName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey>419</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>PwdOpenSpaParamName</AttributeName>
+			</Property>
+			<Property name="PwdCloseSpaParamName" category="[080] SPA Access">
+				<Value>V161</Value>
+				<DescID>PwdCloseSpaParamNameDesc</DescID>
+				<CaptionID>PwdCloseSpaParamName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey>420</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>PwdCloseSpaParamName</AttributeName>
+			</Property>
+			<Property name="PwdOpenSpaParamValue" category="[080] SPA Access">
+				<Value>1</Value>
+				<DescID>PwdOpenSpaParamValueDesc</DescID>
+				<CaptionID>PwdOpenSpaParamValue</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65536</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey>421</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>PwdOpenSpaParamValue</AttributeName>
+			</Property>
+			<Property name="PwdCloseSpaParamValue" category="[080] SPA Access">
+				<Value>1</Value>
+				<DescID>PwdCloseSpaParamValueDesc</DescID>
+				<CaptionID>PwdCloseSpaParamValue</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65536</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey>422</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>PwdCloseSpaParamValue</AttributeName>
+			</Property>
+			<Property name="ParamsStoreSpaParamName" category="[080] SPA Access">
+				<Value/>
+				<DescID>ParamsStoreSpaParamNameDesc</DescID>
+				<CaptionID>ParamsStoreSpaParamName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey>420</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>ParamsStoreSpaParamName</AttributeName>
+			</Property>
+			<Property name="ParamsStoreSpaParamValue" category="[080] SPA Access">
+				<Value>1</Value>
+				<DescID>ParamsStoreSpaParamValueDesc</DescID>
+				<CaptionID>ParamsStoreSpaParamValue</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65536</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey>421</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>ParamsStoreSpaParamValue</AttributeName>
+			</Property>
+			<Property name="WebServerIP" category="[099] Web Server Configuration">
+				<Value/>
+				<DescID>WebServerIPDesc</DescID>
+				<CaptionID>WebServerIP</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey>421</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>WebServerIP</AttributeName>
+			</Property>
+			<Property name="WebServerIPEnabled" category="[099] Web Server Configuration">
+				<Value>False</Value>
+				<DescID>WebServerIPEnabledDesc</DescID>
+				<CaptionID>WebServerIPEnabled</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>WebServerIPEnabled</AttributeName>
+			</Property>
+			<Property name="ConfigurationRevisionCheck" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>ConfigurationRevisionCheckDesc</DescID>
+				<CaptionID>ConfigurationRevisionCheck</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>ConfigurationRevisionCheck</AttributeName>
+			</Property>
+			<Property name="SendSingleMMSWrites" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>SendSingleMMSWritesDesc</DescID>
+				<CaptionID>SendSingleMMSWrites</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>SendSingleMMSWrites</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderEventTriggerEnabled" category="[096] Disturbance Recording">
+				<Value>False</Value>
+				<DescID>DisturbanceRecorderEventTriggerEnabledDesc</DescID>
+				<CaptionID>DisturbanceRecorderEventTriggerEnabled</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderEventTriggerEnabled</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderEventTriggerSource" category="[096] Disturbance Recording">
+				<Value/>
+				<DescID>DisturbanceRecorderEventTriggerSourceDesc</DescID>
+				<CaptionID>DisturbanceRecorderEventTriggerSource</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderEventTriggerSource</AttributeName>
+			</Property>
+			<Property name="MeasurementLimitSupervision" category="[070] OPC Alarm and Event">
+				<Value>0</Value>
+				<DescID>MeasurementLimitSupervisionDesc</DescID>
+				<CaptionID>MeasurementLimitSupervision</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="-1" textID="MeasLimitSupervisionBackwardCompMode"/>
+					<Enum value="0" textID="IEDBasedLimitSupervision"/>
+					<Enum value="1" textID="OPCServerBasedLimitSupervision"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>MeasurementLimitSupervision</AttributeName>
+			</Property>
+			<Property name="AutoAdjustDST" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>AutoAdjustDSTDesc</DescID>
+				<CaptionID>AutoAdjustDST</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>AutoAdjustDST</AttributeName>
+			</Property>
+			<Property name="IP-GATEWAY" category="[020] Addresses">
+				<Value>127.0.0.1</Value>
+				<DescID>IP-GATEWAYDesc</DescID>
+				<CaptionID>IP-GATEWAY</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>IP_GATEWAY</AttributeName>
+			</Property>
+			<Property name="IP-SUBNET" category="[020] Addresses">
+				<Value>255.255.255.0</Value>
+				<DescID>IP-SUBNETDesc</DescID>
+				<CaptionID>IP-SUBNET</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>IP_SUBNET</AttributeName>
+			</Property>
+		</Properties>
+	</ObjectType>
+	<ObjectType>
+		<Parameters type="InterfaceDefinition">
+			<Parameter name="ObjectType">IEC61850 IED GW 4.0</Parameter>
+			<Parameter name="Caption">objectTypeCaption</Parameter>
+			<Parameter name="Description">objectTypeDesc</Parameter>
+			<Parameter name="Group">IEC61850</Parameter>
+			<Parameter name="Type">IED</Parameter>
+			<Parameter name="IconFileName">GenIED.ico</Parameter>
+			<Parameter name="Tools">SCLImport, OnlineDiagnosticsIedIec61850, PSTFilterTool, SCDExportVerbs, EventTemplateTool</Parameter>
+			<Parameter name="DataServers"/>
+			<Parameter name="Verbs"/>
+			<Parameter name="Visible">True</Parameter>
+			<Parameter name="CanInherit">False</Parameter>
+			<Parameter name="ParentControlConditions">
+				<Structure name="COMMUNICATION">
+					<Condition type="PCMObjectType">IEC61850 Subnetwork</Condition>
+				</Structure>
+			</Parameter>
+		</Parameters>
+		<Parameters type="SCLExport">
+			<Export name="CDATA">SimulationMode, PollTimeout, RCBInitialize, GCBInitialize,StationRemoteSwitchOPCPath, DeviceConnectionStatus, InUse, UseEntryIDSequence, SystemEventLevel, AuthenticationPassword, ConfigurationVersionCheckLocation, Use32BitEntryID, UseSequenceNumberCheck, DynamicCreateDataSets, MMSRequestTimeout, DisturbanceRecorderEnabled, DisturbanceRecorderDeleteRecordings, DisturbanceRecorderMaxTotalFileSize, DisturbanceRecorderPollingPeriod, DisturbanceRecorderRemoteDirectory, DisturbanceRecorderLocalDirectory, DisturbanceRecorderFTP, DisturbanceRecorderFTPUserName, DisturbanceRecorderFTPPassword, PwdOpenSpaParamName, PwdOpenSpaParamValue, PwdCloseSpaParamName, PwdCloseSpaParamValue,  ParamsStoreSpaParamName, ParamsStoreSpaParamValue, ConfigurationRevisionCheck, SynchroCheckOverrideSupported, InterlockOverrideSupported, SendSingleMMSWrites, DisturbanceRecorderEventTriggerEnabled, DisturbanceRecorderEventTriggerSource,  MeasurementLimitSupervision, AreaName, AreaDesc, AutoAdjustDST</Export>
+			<Export name="Authentication">none, password, weak, strong, certificate</Export>
+			<Export name="Addresses">IP, OSI-TSEL, OSI-SSEL, OSI-PSEL, OSI-AP_Title, OSI_AE_Qualifier</Export>
+			<Export name="DeviceConnectionStatus" exportType="csv">DeviceConnectionStatusClass, Section, PrintBlock</Export>
+			<Export name="SCLConfigVersion">SCLConfigVersion</Export>
+			<Export name="SCLIedType">SCLIedType</Export>
+			<Export name="SCLManufacturer">SCLManufacturer</Export>
+			<Export name="SCLPCMObjectTypeName">SCLPCMObjectTypeName</Export>
+		</Parameters>
+		<Properties type="PropertyDefinitions">
+			<Property name="OPCObjectType" category="[010] Basic">
+				<Value>IEC61850 IED</Value>
+				<DescID>OPCObjectTypeDesc</DescID>
+				<CaptionID>OPCObjectType</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>OPCObjectType</AttributeName>
+			</Property>
+			<Property name="AccessPointName" category="[010] Basic">
+				<Value>1</Value>
+				<DescID>AccessPointNameDesc</DescID>
+				<CaptionID>AccessPointName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>AccessPointName</AttributeName>
+			</Property>
+			<Property name="SynchroCheckOverrideSupported" category="[060] Control Authorization">
+				<Value>False</Value>
+				<DescID>SynchroCheckOverrideSupportedDesc</DescID>
+				<CaptionID>SynchroCheckOverrideSupported</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>SynchroCheckOverrideSupported</AttributeName>
+			</Property>
+			<Property name="InterlockOverrideSupported" category="[060] Control Authorization">
+				<Value>False</Value>
+				<DescID>InterlockOverrideSupportedDesc</DescID>
+				<CaptionID>InterlockOverrideSupported</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>InterlockOverrideSupported</AttributeName>
+			</Property>
+			<Property name="PollTimeout" category="[040] Polling">
+				<Value>0</Value>
+				<DescID>PollTimeoutDesc</DescID>
+				<CaptionID>PollTimeout</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>PollTimeout</AttributeName>
+			</Property>
+			<Property name="RCBInitialize" category="[030] Communication Control">
+				<Value>True</Value>
+				<DescID>RCBInitializeDesc</DescID>
+				<CaptionID>RCBInitialize</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>RCBInitialize</AttributeName>
+			</Property>
+			<!--Property name="GCBInitialize" category="[030] Communication Control">
+				<Value>True</Value>
+				<DescID>GCBInitializeDesc</DescID>
+				<CaptionID>GCBInitialize</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>GCBInitialize</AttributeName>
+			</Property-->
+			<Property name="GCBInitialize" category="[030] Communication Control">
+				<Value>MMS</Value>
+				<DescID>GCBInitializeDesc</DescID>
+				<CaptionID>GCBInitialize</CaptionID>
+				<Values type="singleChoice">
+					<Enum textID="GOOSE" value="GOOSE"/>
+					<Enum textID="MMS" value="MMS"/>
+					<Enum textID="BOTH" value="BOTH"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHR</Access>
+				<AttributeName>GCBInitialize</AttributeName>
+			</Property>
+			<Property name="SimulationMode" category="[010] Basic">
+				<Value>0</Value>
+				<DescID>SimulationModeDesc</DescID>
+				<CaptionID>SimulationMode</CaptionID>
+				<Values type="singleChoice">
+					<Enum textID="False" value="0"/>
+					<Enum textID="True" value="1"/>
+				</Values>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>SimulationMode</AttributeName>
+			</Property>
+			<Property name="AreaName" category="[070] OPC Alarm and Event">
+				<Value/>
+				<DescID>AreaNameDesc</DescID>
+				<CaptionID>AreaName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>AreaName</AttributeName>
+			</Property>
+			<Property name="AreaDesc" category="[070] OPC Alarm and Event">
+				<Value/>
+				<DescID>AreaDescDesc</DescID>
+				<CaptionID>AreaDesc</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>AreaDesc</AttributeName>
+			</Property>
+			<Property name="Section" category="[070] OPC Alarm and Event">
+				<Value>0</Value>
+				<DescID>SectionDesc</DescID>
+				<CaptionID>Section</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>16</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>Section</AttributeName>
+			</Property>
+			<Property name="PrintBlock" category="[070] OPC Alarm and Event">
+				<Value>False</Value>
+				<DescID>PrintBlockDesc</DescID>
+				<CaptionID>PrintBlock</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>PrintBlock</AttributeName>
+			</Property>
+			<Property name="DeviceConnectionStatusClass" category="[070] OPC Alarm and Event">
+				<Value>Device Connection Status</Value>
+				<DescID>DeviceConnectionStatusClassDesc</DescID>
+				<CaptionID>DeviceConnectionStatusClass</CaptionID>
+				<Values type="singleChoiceDynamic">
+					<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupDCSEvents" secondchildObjectType="DeviceConnectionEventGroup"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>DeviceConnectionStatusClass</AttributeName>
+			</Property>
+			<Property name="StationRemoteSwitchOPCPath" category="[060] Control Authorization">
+				<Value/>
+				<DescID>StationRemoteSwitchOPCPathDesc</DescID>
+				<CaptionID>StationRemoteSwitchOPCPath</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>StationRemoteSwitchOPCPath</AttributeName>
+			</Property>
+			<Property name="InUse" category="[010] Basic">
+				<Value>1</Value>
+				<DescID>InUseDesc</DescID>
+				<CaptionID>InUse</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="1" textID="In Use"/>
+					<Enum value="0" textID="Not In Use"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>InUse</AttributeName>
+			</Property>
+			<Property name="IP" category="[020] Addresses">
+				<Value>127.0.0.1</Value>
+				<DescID>IPDesc</DescID>
+				<CaptionID>IP</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>IP</AttributeName>
+			</Property>
+			<Property name="OSI-TSEL" category="[020] Addresses">
+				<Value>0001</Value>
+				<DescID>OSI-TSELDesc</DescID>
+				<CaptionID>OSI-TSEL</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_TSEL</AttributeName>
+			</Property>
+			<Property name="OSI-SSEL" category="[020] Addresses">
+				<Value>0001</Value>
+				<DescID>OSI-SSELDesc</DescID>
+				<CaptionID>OSI-SSEL</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_SSEL</AttributeName>
+			</Property>
+			<Property name="OSI-PSEL" category="[020] Addresses">
+				<Value>00000001</Value>
+				<DescID>OSI-PSELDesc</DescID>
+				<CaptionID>OSI-PSEL</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_PSEL</AttributeName>
+			</Property>
+			<Property name="OSI_AE_Qualifier" category="[020] Addresses">
+				<Value>23</Value>
+				<DescID>OSI_AE_QualifierDesc</DescID>
+				<CaptionID>OSI_AE_Qualifier</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_AE_Qualifier</AttributeName>
+			</Property>
+			<Property name="OSI-AP_Title" category="[020] Addresses">
+				<Value>1,3,9999,23</Value>
+				<DescID>OSI-AP_TitleDesc</DescID>
+				<CaptionID>OSI-AP_Title</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_AP_Title</AttributeName>
+			</Property>
+			<Property name="UseEntryIDSequence" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>EnableEntryIDCheckDesc</DescID>
+				<CaptionID>EnableEntryIDCheck</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>UseEntryIDSequence</AttributeName>
+			</Property>
+			<Property name="SystemEventLevel" category="[010] Basic">
+				<Value>0</Value>
+				<DescID>SystemEventLevelDesc</DescID>
+				<CaptionID>SystemEventLevel</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="0" textID="Level0"/>
+					<Enum value="1" textID="Level1"/>
+					<Enum value="2" textID="Level2"/>
+					<Enum value="3" textID="Level3"/>
+					<Enum value="4" textID="Level4"/>
+					<Enum value="5" textID="Level5"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SystemEventLevel</AttributeName>
+			</Property>
+			<Property name="none" category="[080] Authentication">
+				<Value>True</Value>
+				<DescID>noneDesc</DescID>
+				<CaptionID>none</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>none</AttributeName>
+			</Property>
+			<Property name="password" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>passwordDesc</DescID>
+				<CaptionID>password</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>password</AttributeName>
+			</Property>
+			<Property name="weak" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>weakDesc</DescID>
+				<CaptionID>weak</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>weak</AttributeName>
+			</Property>
+			<Property name="strong" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>strongDesc</DescID>
+				<CaptionID>strong</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>strong</AttributeName>
+			</Property>
+			<Property name="certificate" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>certificateDesc</DescID>
+				<CaptionID>certificate</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>certificate</AttributeName>
+			</Property>
+			<Property name="AuthenticationPassword" category="[080] Authentication">
+				<Value/>
+				<DescID>strPasswordDesc</DescID>
+				<CaptionID>strPassword</CaptionID>
+				<Values type="password"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>AuthenticationPassword</AttributeName>
+			</Property>
+			<Property name="ConfigurationVersionCheckLocation" category="[030] Communication Control">
+				<Value/>
+				<DescID>ConfigurationRevisionCheckLocationDesc</DescID>
+				<CaptionID>ConfigurationRevisionCheckLocation</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>ConfigurationVersionCheckLocation</AttributeName>
+			</Property>
+			<Property name="SCLConfigVersion" category="">
+				<Value/>
+				<DescID>SCLConfigVersionDesc</DescID>
+				<CaptionID>SCLConfigVersion</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>configVersion</AttributeName>
+			</Property>
+			<Property name="UseSequenceNumberCheck" category="[030] Communication Control">
+				<Value>True</Value>
+				<DescID>UseSequenceNumberCheckDesc</DescID>
+				<CaptionID>UseSequenceNumberCheck</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>UseSequenceNumberCheck</AttributeName>
+			</Property>
+			<Property name="DynamicCreateDataSets" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>DynamicCreateDataSetsDesc</DescID>
+				<CaptionID>DynamicCreateDataSets</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>207</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>DynamicCreateDataSets</AttributeName>
+			</Property>
+			<Property name="MMSRequestTimeout" category="[030] Communication Control">
+				<Value>3000</Value>
+				<DescID>MMSRequestTimeoutDesc</DescID>
+				<CaptionID>MMSRequestTimeout</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>MMSRequestTimeout</AttributeName>
+			</Property>
+			<Property name="Use32BitEntryID" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>Use32BitEntryIDDesc</DescID>
+				<CaptionID>Use32BitEntryID</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>Use32BitEntryID</AttributeName>
+			</Property>
+			<Property name="SCLTechnicalKey" category="">
+				<Value/>
+				<DescID>SCLTechnicalKeyDesc</DescID>
+				<CaptionID>SCLTechnicalKey</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>SCLTechnicalKey</AttributeName>
+			</Property>
+			<Property name="SCLIedType" category="">
+				<Value>IEC61850 IED</Value>
+				<DescID>SCLIedTypeDesc</DescID>
+				<CaptionID>SCLIedType</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>SCLIedType</AttributeName>
+			</Property>
+			<Property name="SCLManufacturer" category="">
+				<Value/>
+				<DescID>SCLManufacturerDesc</DescID>
+				<CaptionID>SCLManufacturer</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>SCLManufacturer</AttributeName>
+			</Property>
+			<Property name="SCLPCMObjectTypeName" category="">
+				<Value/>
+				<DescID>SCLPCMObjectTypeName</DescID>
+				<CaptionID>SCLPCMObjectTypeName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>SCLPCMObjectTypeName</AttributeName>
+			</Property>
+			<Property name="ProtocolName" category="[010] Basic">
+				<Value>IEC61850SPA</Value>
+				<DescID>ProtocolNameDesc</DescID>
+				<CaptionID>ProtocolName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="DisturbanceRecorderEnabled" category="[096] Disturbance Recording">
+				<Value>False</Value>
+				<DescID>DisturbanceRecorderEnabledDesc</DescID>
+				<CaptionID>DisturbanceRecorderEnabled</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderEnabled</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderDeleteRecordings" category="[096] Disturbance Recording">
+				<Value>False</Value>
+				<DescID>DisturbanceRecorderDeleteRecordingsDesc</DescID>
+				<CaptionID>DisturbanceRecorderDeleteRecordings</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderDeleteRecordings</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderMaxTotalFileSize" category="[096] Disturbance Recording">
+				<Value>0</Value>
+				<DescID>DisturbanceRecorderMaxTotalFileSizeDesc</DescID>
+				<CaptionID>DisturbanceRecorderMaxTotalFileSize</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>2147483647</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderMaxTotalFileSize</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderPollingPeriod" category="[096] Disturbance Recording">
+				<Value>120</Value>
+				<DescID>DisturbanceRecorderPollingPeriodDesc</DescID>
+				<CaptionID>DisturbanceRecorderPollingPeriod</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>2147483647</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderPollingPeriod</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderRemoteDirectory" category="[096] Disturbance Recording">
+				<Value>COMTRADE/</Value>
+				<DescID>DisturbanceRecorderRemoteDirectoryDesc</DescID>
+				<CaptionID>DisturbanceRecorderRemoteDirectory</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderRemoteDirectory</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderLocalDirectory" category="[096] Disturbance Recording">
+				<Value/>
+				<DescID>DisturbanceRecorderLocalDirectoryDesc</DescID>
+				<CaptionID>DisturbanceRecorderLocalDirectory</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderLocalDirectory</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderFTP" category="[096] Disturbance Recording via FTP">
+				<Value>False</Value>
+				<DescID>DisturbanceRecorderFTPDesc</DescID>
+				<CaptionID>DisturbanceRecorderFTP</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderFTP</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderFTPUserName" category="[096] Disturbance Recording via FTP">
+				<Value/>
+				<DescID>DisturbanceRecorderFTPUserNameDesc</DescID>
+				<CaptionID>DisturbanceRecorderFTPUserName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderFTPUserName</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderFTPPassword" category="[096] Disturbance Recording via FTP">
+				<Value/>
+				<DescID>DisturbanceRecorderFTPPasswordDesc</DescID>
+				<CaptionID>DisturbanceRecorderFTPPassword</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderFTPPassword</AttributeName>
+			</Property>
+			<Property name="PwdOpenSpaParamName" category="[080] SPA Access">
+				<Value>V160</Value>
+				<DescID>PwdOpenSpaParamNameDesc</DescID>
+				<CaptionID>PwdOpenSpaParamName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey>419</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>PwdOpenSpaParamName</AttributeName>
+			</Property>
+			<Property name="PwdCloseSpaParamName" category="[080] SPA Access">
+				<Value>V161</Value>
+				<DescID>PwdCloseSpaParamNameDesc</DescID>
+				<CaptionID>PwdCloseSpaParamName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey>420</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>PwdCloseSpaParamName</AttributeName>
+			</Property>
+			<Property name="PwdOpenSpaParamValue" category="[080] SPA Access">
+				<Value>1</Value>
+				<DescID>PwdOpenSpaParamValueDesc</DescID>
+				<CaptionID>PwdOpenSpaParamValue</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65536</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey>421</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>PwdOpenSpaParamValue</AttributeName>
+			</Property>
+			<Property name="PwdCloseSpaParamValue" category="[080] SPA Access">
+				<Value>1</Value>
+				<DescID>PwdCloseSpaParamValueDesc</DescID>
+				<CaptionID>PwdCloseSpaParamValue</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65536</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey>422</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>PwdCloseSpaParamValue</AttributeName>
+			</Property>
+			<Property name="ParamsStoreSpaParamName" category="[080] SPA Access">
+				<Value/>
+				<DescID>ParamsStoreSpaParamNameDesc</DescID>
+				<CaptionID>ParamsStoreSpaParamName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey>420</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>ParamsStoreSpaParamName</AttributeName>
+			</Property>
+			<Property name="ParamsStoreSpaParamValue" category="[080] SPA Access">
+				<Value>1</Value>
+				<DescID>ParamsStoreSpaParamValueDesc</DescID>
+				<CaptionID>ParamsStoreSpaParamValue</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65536</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey>421</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>ParamsStoreSpaParamValue</AttributeName>
+			</Property>
+			<Property name="WebServerIP" category="[099] Web Server Configuration">
+				<Value/>
+				<DescID>WebServerIPDesc</DescID>
+				<CaptionID>WebServerIP</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey>421</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>WebServerIP</AttributeName>
+			</Property>
+			<Property name="WebServerIPEnabled" category="[099] Web Server Configuration">
+				<Value>False</Value>
+				<DescID>WebServerIPEnabledDesc</DescID>
+				<CaptionID>WebServerIPEnabled</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>WebServerIPEnabled</AttributeName>
+			</Property>
+			<Property name="ConfigurationRevisionCheck" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>ConfigurationRevisionCheckDesc</DescID>
+				<CaptionID>ConfigurationRevisionCheck</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>ConfigurationRevisionCheck</AttributeName>
+			</Property>
+			<Property name="SendSingleMMSWrites" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>SendSingleMMSWritesDesc</DescID>
+				<CaptionID>SendSingleMMSWrites</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>SendSingleMMSWrites</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderEventTriggerEnabled" category="[096] Disturbance Recording">
+				<Value>False</Value>
+				<DescID>DisturbanceRecorderEventTriggerEnabledDesc</DescID>
+				<CaptionID>DisturbanceRecorderEventTriggerEnabled</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderEventTriggerEnabled</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderEventTriggerSource" category="[096] Disturbance Recording">
+				<Value/>
+				<DescID>DisturbanceRecorderEventTriggerSourceDesc</DescID>
+				<CaptionID>DisturbanceRecorderEventTriggerSource</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderEventTriggerSource</AttributeName>
+			</Property>
+			<Property name="MeasurementLimitSupervision" category="[070] OPC Alarm and Event">
+				<Value>0</Value>
+				<DescID>MeasurementLimitSupervisionDesc</DescID>
+				<CaptionID>MeasurementLimitSupervision</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="-1" textID="MeasLimitSupervisionBackwardCompMode"/>
+					<Enum value="0" textID="IEDBasedLimitSupervision"/>
+					<Enum value="1" textID="OPCServerBasedLimitSupervision"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>MeasurementLimitSupervision</AttributeName>
+			</Property>
+			<Property name="AutoAdjustDST" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>AutoAdjustDSTDesc</DescID>
+				<CaptionID>AutoAdjustDST</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>AutoAdjustDST</AttributeName>
+			</Property>
+		</Properties>
+	</ObjectType>
+	<ObjectType>
+		<Parameters type="InterfaceDefinition">
+			<Parameter name="ObjectType">IEC61850 IED GW 3.5</Parameter>
+			<Parameter name="Caption">objectTypeCaption</Parameter>
+			<Parameter name="Description">objectTypeDesc</Parameter>
+			<Parameter name="Group">IEC61850</Parameter>
+			<Parameter name="Type">IED</Parameter>
+			<Parameter name="IconFileName">GenIED.ico</Parameter>
+			<Parameter name="Tools">SCLImport, OnlineDiagnosticsIedIec61850, PSTFilterTool, SCDExportVerbs, EventTemplateTool</Parameter>
+			<Parameter name="DataServers"/>
+			<Parameter name="Verbs"/>
+			<Parameter name="Visible">True</Parameter>
+			<Parameter name="CanInherit">False</Parameter>
+			<Parameter name="ParentControlConditions">
+				<Structure name="COMMUNICATION">
+					<Condition type="PCMObjectType">IEC61850 Subnetwork</Condition>
+				</Structure>
+			</Parameter>
+		</Parameters>
+		<Parameters type="SCLExport">
+			<Export name="CDATA">SimulationMode, PollTimeout, RCBInitialize, GCBInitialize,StationRemoteSwitchOPCPath, DeviceConnectionStatus, InUse, UseEntryIDSequence, SystemEventLevel, AuthenticationPassword, ConfigurationVersionCheckLocation, Use32BitEntryID, UseSequenceNumberCheck, DynamicCreateDataSets, MMSRequestTimeout, DisturbanceRecorderEnabled, DisturbanceRecorderDeleteRecordings, DisturbanceRecorderMaxTotalFileSize, DisturbanceRecorderPollingPeriod, DisturbanceRecorderRemoteDirectory, DisturbanceRecorderLocalDirectory, DisturbanceRecorderFTP, DisturbanceRecorderFTPUserName, DisturbanceRecorderFTPPassword, PwdOpenSpaParamName, PwdOpenSpaParamValue, PwdCloseSpaParamName, PwdCloseSpaParamValue,  ParamsStoreSpaParamName, ParamsStoreSpaParamValue, ConfigurationRevisionCheck, SynchroCheckOverrideSupported, InterlockOverrideSupported, SendSingleMMSWrites, DisturbanceRecorderEventTriggerEnabled, DisturbanceRecorderEventTriggerSource </Export>
+			<Export name="Authentication">none, password, weak, strong, certificate</Export>
+			<Export name="Addresses">IP, OSI-TSEL, OSI-SSEL, OSI-PSEL, OSI-AP_Title, OSI_AE_Qualifier</Export>
+			<Export name="DeviceConnectionStatus" exportType="csv">DeviceConnectionStatusClass, Section, PrintBlock</Export>
+			<Export name="SCLConfigVersion">SCLConfigVersion</Export>
+			<Export name="SCLIedType">SCLIedType</Export>
+			<Export name="SCLManufacturer">SCLManufacturer</Export>
+			<Export name="SCLPCMObjectTypeName">SCLPCMObjectTypeName</Export>
+		</Parameters>
+		<Properties type="PropertyDefinitions">
+			<Property name="OPCObjectType" category="[010] Basic">
+				<Value>IEC61850 IED</Value>
+				<DescID>OPCObjectTypeDesc</DescID>
+				<CaptionID>OPCObjectType</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>OPCObjectType</AttributeName>
+			</Property>
+			<Property name="AccessPointName" category="[010] Basic">
+				<Value>1</Value>
+				<DescID>AccessPointNameDesc</DescID>
+				<CaptionID>AccessPointName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>AccessPointName</AttributeName>
+			</Property>
+			<Property name="SynchroCheckOverrideSupported" category="[060] Control Authorization">
+				<Value>False</Value>
+				<DescID>SynchroCheckOverrideSupportedDesc</DescID>
+				<CaptionID>SynchroCheckOverrideSupported</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>SynchroCheckOverrideSupported</AttributeName>
+			</Property>
+			<Property name="InterlockOverrideSupported" category="[060] Control Authorization">
+				<Value>False</Value>
+				<DescID>InterlockOverrideSupportedDesc</DescID>
+				<CaptionID>InterlockOverrideSupported</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>InterlockOverrideSupported</AttributeName>
+			</Property>
+			<Property name="PollTimeout" category="[040] Polling">
+				<Value>0</Value>
+				<DescID>PollTimeoutDesc</DescID>
+				<CaptionID>PollTimeout</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>PollTimeout</AttributeName>
+			</Property>
+			<Property name="RCBInitialize" category="[030] Communication Control">
+				<Value>True</Value>
+				<DescID>RCBInitializeDesc</DescID>
+				<CaptionID>RCBInitialize</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>RCBInitialize</AttributeName>
+			</Property>
+			<!--Property name="GCBInitialize" category="[030] Communication Control">
+				<Value>True</Value>
+				<DescID>GCBInitializeDesc</DescID>
+				<CaptionID>GCBInitialize</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>GCBInitialize</AttributeName>
+			</Property-->
+			<Property name="GCBInitialize" category="[030] Communication Control">
+				<Value>MMS</Value>
+				<DescID>GCBInitializeDesc</DescID>
+				<CaptionID>GCBInitialize</CaptionID>
+				<Values type="singleChoice">
+					<Enum textID="GOOSE" value="GOOSE"/>
+					<Enum textID="MMS" value="MMS"/>
+					<Enum textID="BOTH" value="BOTH"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>GCBInitialize</AttributeName>
+			</Property>
+			<Property name="SimulationMode" category="[010] Basic">
+				<Value>0</Value>
+				<DescID>SimulationModeDesc</DescID>
+				<CaptionID>SimulationMode</CaptionID>
+				<Values type="singleChoice">
+					<Enum textID="False" value="0"/>
+					<Enum textID="True" value="1"/>
+				</Values>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>SimulationMode</AttributeName>
+			</Property>
+			<Property name="Section" category="[070] OPC Alarm and Event">
+				<Value>0</Value>
+				<DescID>SectionDesc</DescID>
+				<CaptionID>Section</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>16</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>Section</AttributeName>
+			</Property>
+			<Property name="PrintBlock" category="[070] OPC Alarm and Event">
+				<Value>False</Value>
+				<DescID>PrintBlockDesc</DescID>
+				<CaptionID>PrintBlock</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>PrintBlock</AttributeName>
+			</Property>
+			<Property name="DeviceConnectionStatusClass" category="[070] OPC Alarm and Event">
+				<Value>Device Connection Status</Value>
+				<DescID>DeviceConnectionStatusClassDesc</DescID>
+				<CaptionID>DeviceConnectionStatusClass</CaptionID>
+				<Values type="singleChoiceDynamic">
+					<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupDCSEvents" secondchildObjectType="DeviceConnectionEventGroup"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>DeviceConnectionStatusClass</AttributeName>
+			</Property>
+			<Property name="StationRemoteSwitchOPCPath" category="[060] Control Authorization">
+				<Value/>
+				<DescID>StationRemoteSwitchOPCPathDesc</DescID>
+				<CaptionID>StationRemoteSwitchOPCPath</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>StationRemoteSwitchOPCPath</AttributeName>
+			</Property>
+			<Property name="InUse" category="[010] Basic">
+				<Value>1</Value>
+				<DescID>InUseDesc</DescID>
+				<CaptionID>InUse</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="1" textID="In Use"/>
+					<Enum value="0" textID="Not In Use"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>InUse</AttributeName>
+			</Property>
+			<Property name="IP" category="[020] Addresses">
+				<Value>127.0.0.1</Value>
+				<DescID>IPDesc</DescID>
+				<CaptionID>IP</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>IP</AttributeName>
+			</Property>
+			<Property name="OSI-TSEL" category="[020] Addresses">
+				<Value>0001</Value>
+				<DescID>OSI-TSELDesc</DescID>
+				<CaptionID>OSI-TSEL</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_TSEL</AttributeName>
+			</Property>
+			<Property name="OSI-SSEL" category="[020] Addresses">
+				<Value>0001</Value>
+				<DescID>OSI-SSELDesc</DescID>
+				<CaptionID>OSI-SSEL</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_SSEL</AttributeName>
+			</Property>
+			<Property name="OSI-PSEL" category="[020] Addresses">
+				<Value>00000001</Value>
+				<DescID>OSI-PSELDesc</DescID>
+				<CaptionID>OSI-PSEL</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_PSEL</AttributeName>
+			</Property>
+			<Property name="OSI_AE_Qualifier" category="[020] Addresses">
+				<Value>23</Value>
+				<DescID>OSI_AE_QualifierDesc</DescID>
+				<CaptionID>OSI_AE_Qualifier</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_AE_Qualifier</AttributeName>
+			</Property>
+			<Property name="OSI-AP_Title" category="[020] Addresses">
+				<Value>1,3,9999,23</Value>
+				<DescID>OSI-AP_TitleDesc</DescID>
+				<CaptionID>OSI-AP_Title</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_AP_Title</AttributeName>
+			</Property>
+			<Property name="UseEntryIDSequence" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>EnableEntryIDCheckDesc</DescID>
+				<CaptionID>EnableEntryIDCheck</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>UseEntryIDSequence</AttributeName>
+			</Property>
+			<Property name="SystemEventLevel" category="[010] Basic">
+				<Value>0</Value>
+				<DescID>SystemEventLevelDesc</DescID>
+				<CaptionID>SystemEventLevel</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="0" textID="Level0"/>
+					<Enum value="1" textID="Level1"/>
+					<Enum value="2" textID="Level2"/>
+					<Enum value="3" textID="Level3"/>
+					<Enum value="4" textID="Level4"/>
+					<Enum value="5" textID="Level5"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SystemEventLevel</AttributeName>
+			</Property>
+			<Property name="none" category="[080] Authentication">
+				<Value>True</Value>
+				<DescID>noneDesc</DescID>
+				<CaptionID>none</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>none</AttributeName>
+			</Property>
+			<Property name="password" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>passwordDesc</DescID>
+				<CaptionID>password</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>password</AttributeName>
+			</Property>
+			<Property name="weak" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>weakDesc</DescID>
+				<CaptionID>weak</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>weak</AttributeName>
+			</Property>
+			<Property name="strong" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>strongDesc</DescID>
+				<CaptionID>strong</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>strong</AttributeName>
+			</Property>
+			<Property name="certificate" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>certificateDesc</DescID>
+				<CaptionID>certificate</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>certificate</AttributeName>
+			</Property>
+			<Property name="AuthenticationPassword" category="[080] Authentication">
+				<Value/>
+				<DescID>strPasswordDesc</DescID>
+				<CaptionID>strPassword</CaptionID>
+				<Values type="password"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>AuthenticationPassword</AttributeName>
+			</Property>
+			<Property name="ConfigurationVersionCheckLocation" category="[030] Communication Control">
+				<Value/>
+				<DescID>ConfigurationRevisionCheckLocationDesc</DescID>
+				<CaptionID>ConfigurationRevisionCheckLocation</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>ConfigurationVersionCheckLocation</AttributeName>
+			</Property>
+			<Property name="SCLConfigVersion" category="">
+				<Value/>
+				<DescID>SCLConfigVersionDesc</DescID>
+				<CaptionID>SCLConfigVersion</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>configVersion</AttributeName>
+			</Property>
+			<Property name="UseSequenceNumberCheck" category="[030] Communication Control">
+				<Value>True</Value>
+				<DescID>UseSequenceNumberCheckDesc</DescID>
+				<CaptionID>UseSequenceNumberCheck</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>UseSequenceNumberCheck</AttributeName>
+			</Property>
+			<Property name="DynamicCreateDataSets" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>DynamicCreateDataSetsDesc</DescID>
+				<CaptionID>DynamicCreateDataSets</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>207</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>DynamicCreateDataSets</AttributeName>
+			</Property>
+			<Property name="MMSRequestTimeout" category="[030] Communication Control">
+				<Value>3000</Value>
+				<DescID>MMSRequestTimeoutDesc</DescID>
+				<CaptionID>MMSRequestTimeout</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>MMSRequestTimeout</AttributeName>
+			</Property>
+			<Property name="Use32BitEntryID" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>Use32BitEntryIDDesc</DescID>
+				<CaptionID>Use32BitEntryID</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>Use32BitEntryID</AttributeName>
+			</Property>
+			<Property name="SCLTechnicalKey" category="">
+				<Value/>
+				<DescID>SCLTechnicalKeyDesc</DescID>
+				<CaptionID>SCLTechnicalKey</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>SCLTechnicalKey</AttributeName>
+			</Property>
+			<Property name="SCLIedType" category="">
+				<Value>IEC61850 IED</Value>
+				<DescID>SCLIedTypeDesc</DescID>
+				<CaptionID>SCLIedType</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>SCLIedType</AttributeName>
+			</Property>
+			<Property name="SCLManufacturer" category="">
+				<Value/>
+				<DescID>SCLManufacturerDesc</DescID>
+				<CaptionID>SCLManufacturer</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>SCLManufacturer</AttributeName>
+			</Property>
+			<Property name="SCLPCMObjectTypeName" category="">
+				<Value/>
+				<DescID>SCLPCMObjectTypeName</DescID>
+				<CaptionID>SCLPCMObjectTypeName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>SCLPCMObjectTypeName</AttributeName>
+			</Property>
+			<Property name="ProtocolName" category="[010] Basic">
+				<Value>IEC61850SPA</Value>
+				<DescID>ProtocolNameDesc</DescID>
+				<CaptionID>ProtocolName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="DisturbanceRecorderEnabled" category="[096] Disturbance Recording">
+				<Value>False</Value>
+				<DescID>DisturbanceRecorderEnabledDesc</DescID>
+				<CaptionID>DisturbanceRecorderEnabled</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderEnabled</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderDeleteRecordings" category="[096] Disturbance Recording">
+				<Value>False</Value>
+				<DescID>DisturbanceRecorderDeleteRecordingsDesc</DescID>
+				<CaptionID>DisturbanceRecorderDeleteRecordings</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderDeleteRecordings</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderMaxTotalFileSize" category="[096] Disturbance Recording">
+				<Value>0</Value>
+				<DescID>DisturbanceRecorderMaxTotalFileSizeDesc</DescID>
+				<CaptionID>DisturbanceRecorderMaxTotalFileSize</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>2147483647</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderMaxTotalFileSize</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderPollingPeriod" category="[096] Disturbance Recording">
+				<Value>120</Value>
+				<DescID>DisturbanceRecorderPollingPeriodDesc</DescID>
+				<CaptionID>DisturbanceRecorderPollingPeriod</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>2147483647</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderPollingPeriod</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderRemoteDirectory" category="[096] Disturbance Recording">
+				<Value>COMTRADE/</Value>
+				<DescID>DisturbanceRecorderRemoteDirectoryDesc</DescID>
+				<CaptionID>DisturbanceRecorderRemoteDirectory</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderRemoteDirectory</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderLocalDirectory" category="[096] Disturbance Recording">
+				<Value/>
+				<DescID>DisturbanceRecorderLocalDirectoryDesc</DescID>
+				<CaptionID>DisturbanceRecorderLocalDirectory</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderLocalDirectory</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderFTP" category="[096] Disturbance Recording via FTP">
+				<Value>False</Value>
+				<DescID>DisturbanceRecorderFTPDesc</DescID>
+				<CaptionID>DisturbanceRecorderFTP</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderFTP</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderFTPUserName" category="[096] Disturbance Recording via FTP">
+				<Value/>
+				<DescID>DisturbanceRecorderFTPUserNameDesc</DescID>
+				<CaptionID>DisturbanceRecorderFTPUserName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderFTPUserName</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderFTPPassword" category="[096] Disturbance Recording via FTP">
+				<Value/>
+				<DescID>DisturbanceRecorderFTPPasswordDesc</DescID>
+				<CaptionID>DisturbanceRecorderFTPPassword</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderFTPPassword</AttributeName>
+			</Property>
+			<Property name="PwdOpenSpaParamName" category="[080] SPA Access">
+				<Value>V160</Value>
+				<DescID>PwdOpenSpaParamNameDesc</DescID>
+				<CaptionID>PwdOpenSpaParamName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey>419</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>PwdOpenSpaParamName</AttributeName>
+			</Property>
+			<Property name="PwdCloseSpaParamName" category="[080] SPA Access">
+				<Value>V161</Value>
+				<DescID>PwdCloseSpaParamNameDesc</DescID>
+				<CaptionID>PwdCloseSpaParamName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey>420</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>PwdCloseSpaParamName</AttributeName>
+			</Property>
+			<Property name="PwdOpenSpaParamValue" category="[080] SPA Access">
+				<Value>1</Value>
+				<DescID>PwdOpenSpaParamValueDesc</DescID>
+				<CaptionID>PwdOpenSpaParamValue</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65536</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey>421</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>PwdOpenSpaParamValue</AttributeName>
+			</Property>
+			<Property name="PwdCloseSpaParamValue" category="[080] SPA Access">
+				<Value>1</Value>
+				<DescID>PwdCloseSpaParamValueDesc</DescID>
+				<CaptionID>PwdCloseSpaParamValue</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65536</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey>422</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>PwdCloseSpaParamValue</AttributeName>
+			</Property>
+			<Property name="ParamsStoreSpaParamName" category="[080] SPA Access">
+				<Value/>
+				<DescID>ParamsStoreSpaParamNameDesc</DescID>
+				<CaptionID>ParamsStoreSpaParamName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey>420</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>ParamsStoreSpaParamName</AttributeName>
+			</Property>
+			<Property name="ParamsStoreSpaParamValue" category="[080] SPA Access">
+				<Value>1</Value>
+				<DescID>ParamsStoreSpaParamValueDesc</DescID>
+				<CaptionID>ParamsStoreSpaParamValue</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65536</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey>421</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>ParamsStoreSpaParamValue</AttributeName>
+			</Property>
+			<Property name="WebServerIP" category="[099] Web Server Configuration">
+				<Value/>
+				<DescID>WebServerIPDesc</DescID>
+				<CaptionID>WebServerIP</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey>421</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>WebServerIP</AttributeName>
+			</Property>
+			<Property name="WebServerIPEnabled" category="[099] Web Server Configuration">
+				<Value>False</Value>
+				<DescID>WebServerIPEnabledDesc</DescID>
+				<CaptionID>WebServerIPEnabled</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>WebServerIPEnabled</AttributeName>
+			</Property>
+			<Property name="ConfigurationRevisionCheck" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>ConfigurationRevisionCheckDesc</DescID>
+				<CaptionID>ConfigurationRevisionCheck</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>ConfigurationRevisionCheck</AttributeName>
+			</Property>
+			<Property name="SendSingleMMSWrites" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>SendSingleMMSWritesDesc</DescID>
+				<CaptionID>SendSingleMMSWrites</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>SendSingleMMSWrites</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderEventTriggerEnabled" category="[096] Disturbance Recording">
+				<Value>False</Value>
+				<DescID>DisturbanceRecorderEventTriggerEnabledDesc</DescID>
+				<CaptionID>DisturbanceRecorderEventTriggerEnabled</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>DisturbanceRecorderEventTriggerEnabled</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderEventTriggerSource" category="[096] Disturbance Recording">
+				<Value/>
+				<DescID>DisturbanceRecorderEventTriggerSourceDesc</DescID>
+				<CaptionID>DisturbanceRecorderEventTriggerSource</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>DisturbanceRecorderEventTriggerSource</AttributeName>
+			</Property>
+		</Properties>
+	</ObjectType>
+	<ObjectType>
+		<Parameters type="InterfaceDefinition">
+			<Parameter name="ObjectType">IEC61850 IED GW 3.4</Parameter>
+			<Parameter name="Caption">objectTypeCaption</Parameter>
+			<Parameter name="Description">objectTypeDesc</Parameter>
+			<Parameter name="Group">IEC61850</Parameter>
+			<Parameter name="Type">IED</Parameter>
+			<Parameter name="IconFileName">GenIED.ico</Parameter>
+			<Parameter name="Tools">SCLImport, OnlineDiagnosticsIedIec61850, PSTFilterTool, SCDExportVerbs</Parameter>
+			<Parameter name="DataServers"/>
+			<Parameter name="Verbs"/>
+			<Parameter name="Visible">True</Parameter>
+			<Parameter name="CanInherit">False</Parameter>
+			<Parameter name="ParentControlConditions">
+				<Structure name="COMMUNICATION">
+					<Condition type="PCMObjectType">IEC61850 Subnetwork</Condition>
+				</Structure>
+			</Parameter>
+		</Parameters>
+		<Parameters type="SCLExport">
+			<Export name="CDATA">SimulationMode, PollTimeout, RCBInitialize, StationRemoteSwitchOPCPath, DeviceConnectionStatus, InUse, UseEntryIDSequence, SystemEventLevel, AuthenticationPassword, ConfigurationVersionCheckLocation, Use32BitEntryID, UseSequenceNumberCheck, DynamicCreateDataSets, MMSRequestTimeout, DisturbanceRecorderEnabled, DisturbanceRecorderDeleteRecordings, DisturbanceRecorderMaxTotalFileSize, DisturbanceRecorderPollingPeriod, DisturbanceRecorderRemoteDirectory, DisturbanceRecorderLocalDirectory, DisturbanceRecorderFTP, DisturbanceRecorderFTPUserName, DisturbanceRecorderFTPPassword, PwdOpenSpaParamName, PwdOpenSpaParamValue, PwdCloseSpaParamName, PwdCloseSpaParamValue,  ParamsStoreSpaParamName, ParamsStoreSpaParamValue, ConfigurationRevisionCheck, SynchroCheckOverrideSupported, InterlockOverrideSupported, SendSingleMMSWrites </Export>
+			<Export name="Authentication">none, password, weak, strong, certificate</Export>
+			<Export name="Addresses">IP, OSI-TSEL, OSI-SSEL, OSI-PSEL, OSI-AP_Title, OSI_AE_Qualifier</Export>
+			<Export name="DeviceConnectionStatus" exportType="csv">DeviceConnectionStatusClass, Section, PrintBlock</Export>
+			<Export name="SCLConfigVersion">SCLConfigVersion</Export>
+			<Export name="SCLIedType">SCLIedType</Export>
+			<Export name="SCLManufacturer">SCLManufacturer</Export>
+			<Export name="SCLPCMObjectTypeName">SCLPCMObjectTypeName</Export>
+		</Parameters>
+		<Properties type="PropertyDefinitions">
+			<Property name="OPCObjectType" category="[010] Basic">
+				<Value>IEC61850 IED</Value>
+				<DescID>OPCObjectTypeDesc</DescID>
+				<CaptionID>OPCObjectType</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>OPCObjectType</AttributeName>
+			</Property>
+			<Property name="AccessPointName" category="[010] Basic">
+				<Value>1</Value>
+				<DescID>AccessPointNameDesc</DescID>
+				<CaptionID>AccessPointName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>AccessPointName</AttributeName>
+			</Property>
+			<Property name="SynchroCheckOverrideSupported" category="[060] Control Authorization">
+				<Value>False</Value>
+				<DescID>SynchroCheckOverrideSupportedDesc</DescID>
+				<CaptionID>SynchroCheckOverrideSupported</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>SynchroCheckOverrideSupported</AttributeName>
+			</Property>
+			<Property name="InterlockOverrideSupported" category="[060] Control Authorization">
+				<Value>False</Value>
+				<DescID>InterlockOverrideSupportedDesc</DescID>
+				<CaptionID>InterlockOverrideSupported</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>InterlockOverrideSupported</AttributeName>
+			</Property>
+			<Property name="PollTimeout" category="[040] Polling">
+				<Value>0</Value>
+				<DescID>PollTimeoutDesc</DescID>
+				<CaptionID>PollTimeout</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>PollTimeout</AttributeName>
+			</Property>
+			<Property name="RCBInitialize" category="[030] Communication Control">
+				<Value>True</Value>
+				<DescID>RCBInitializeDesc</DescID>
+				<CaptionID>RCBInitialize</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>RCBInitialize</AttributeName>
+			</Property>
+			<Property name="SimulationMode" category="[010] Basic">
+				<Value>0</Value>
+				<DescID>SimulationModeDesc</DescID>
+				<CaptionID>SimulationMode</CaptionID>
+				<Values type="singleChoice">
+					<Enum textID="False" value="0"/>
+					<Enum textID="True" value="1"/>
+				</Values>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>SimulationMode</AttributeName>
+			</Property>
+			<Property name="Section" category="[070] OPC Alarm and Event">
+				<Value>0</Value>
+				<DescID>SectionDesc</DescID>
+				<CaptionID>Section</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>16</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>Section</AttributeName>
+			</Property>
+			<Property name="PrintBlock" category="[070] OPC Alarm and Event">
+				<Value>False</Value>
+				<DescID>PrintBlockDesc</DescID>
+				<CaptionID>PrintBlock</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>PrintBlock</AttributeName>
+			</Property>
+			<Property name="DeviceConnectionStatusClass" category="[070] OPC Alarm and Event">
+				<Value>Device Connection Status</Value>
+				<DescID>DeviceConnectionStatusClassDesc</DescID>
+				<CaptionID>DeviceConnectionStatusClass</CaptionID>
+				<Values type="singleChoiceDynamic">
+					<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupDCSEvents" secondchildObjectType="DeviceConnectionEventGroup"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>DeviceConnectionStatusClass</AttributeName>
+			</Property>
+			<Property name="StationRemoteSwitchOPCPath" category="[060] Control Authorization">
+				<Value/>
+				<DescID>StationRemoteSwitchOPCPathDesc</DescID>
+				<CaptionID>StationRemoteSwitchOPCPath</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>StationRemoteSwitchOPCPath</AttributeName>
+			</Property>
+			<Property name="InUse" category="[010] Basic">
+				<Value>1</Value>
+				<DescID>InUseDesc</DescID>
+				<CaptionID>InUse</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="1" textID="In Use"/>
+					<Enum value="0" textID="Not In Use"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>InUse</AttributeName>
+			</Property>
+			<Property name="IP" category="[020] Addresses">
+				<Value>127.0.0.1</Value>
+				<DescID>IPDesc</DescID>
+				<CaptionID>IP</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>IP</AttributeName>
+			</Property>
+			<Property name="OSI-TSEL" category="[020] Addresses">
+				<Value>0001</Value>
+				<DescID>OSI-TSELDesc</DescID>
+				<CaptionID>OSI-TSEL</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_TSEL</AttributeName>
+			</Property>
+			<Property name="OSI-SSEL" category="[020] Addresses">
+				<Value>0001</Value>
+				<DescID>OSI-SSELDesc</DescID>
+				<CaptionID>OSI-SSEL</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_SSEL</AttributeName>
+			</Property>
+			<Property name="OSI-PSEL" category="[020] Addresses">
+				<Value>00000001</Value>
+				<DescID>OSI-PSELDesc</DescID>
+				<CaptionID>OSI-PSEL</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_PSEL</AttributeName>
+			</Property>
+			<Property name="OSI_AE_Qualifier" category="[020] Addresses">
+				<Value>23</Value>
+				<DescID>OSI_AE_QualifierDesc</DescID>
+				<CaptionID>OSI_AE_Qualifier</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_AE_Qualifier</AttributeName>
+			</Property>
+			<Property name="OSI-AP_Title" category="[020] Addresses">
+				<Value>1,3,9999,23</Value>
+				<DescID>OSI-AP_TitleDesc</DescID>
+				<CaptionID>OSI-AP_Title</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_AP_Title</AttributeName>
+			</Property>
+			<Property name="UseEntryIDSequence" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>EnableEntryIDCheckDesc</DescID>
+				<CaptionID>EnableEntryIDCheck</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>UseEntryIDSequence</AttributeName>
+			</Property>
+			<Property name="SystemEventLevel" category="[010] Basic">
+				<Value>0</Value>
+				<DescID>SystemEventLevelDesc</DescID>
+				<CaptionID>SystemEventLevel</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="0" textID="Level0"/>
+					<Enum value="1" textID="Level1"/>
+					<Enum value="2" textID="Level2"/>
+					<Enum value="3" textID="Level3"/>
+					<Enum value="4" textID="Level4"/>
+					<Enum value="5" textID="Level5"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SystemEventLevel</AttributeName>
+			</Property>
+			<Property name="none" category="[080] Authentication">
+				<Value>True</Value>
+				<DescID>noneDesc</DescID>
+				<CaptionID>none</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>none</AttributeName>
+			</Property>
+			<Property name="password" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>passwordDesc</DescID>
+				<CaptionID>password</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>password</AttributeName>
+			</Property>
+			<Property name="weak" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>weakDesc</DescID>
+				<CaptionID>weak</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>weak</AttributeName>
+			</Property>
+			<Property name="strong" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>strongDesc</DescID>
+				<CaptionID>strong</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>strong</AttributeName>
+			</Property>
+			<Property name="certificate" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>certificateDesc</DescID>
+				<CaptionID>certificate</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>certificate</AttributeName>
+			</Property>
+			<Property name="AuthenticationPassword" category="[080] Authentication">
+				<Value/>
+				<DescID>strPasswordDesc</DescID>
+				<CaptionID>strPassword</CaptionID>
+				<Values type="password"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>AuthenticationPassword</AttributeName>
+			</Property>
+			<Property name="ConfigurationVersionCheckLocation" category="[030] Communication Control">
+				<Value/>
+				<DescID>ConfigurationRevisionCheckLocationDesc</DescID>
+				<CaptionID>ConfigurationRevisionCheckLocation</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>ConfigurationVersionCheckLocation</AttributeName>
+			</Property>
+			<Property name="SCLConfigVersion" category="">
+				<Value/>
+				<DescID>SCLConfigVersionDesc</DescID>
+				<CaptionID>SCLConfigVersion</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>configVersion</AttributeName>
+			</Property>
+			<Property name="UseSequenceNumberCheck" category="[030] Communication Control">
+				<Value>True</Value>
+				<DescID>UseSequenceNumberCheckDesc</DescID>
+				<CaptionID>UseSequenceNumberCheck</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>UseSequenceNumberCheck</AttributeName>
+			</Property>
+			<Property name="DynamicCreateDataSets" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>DynamicCreateDataSetsDesc</DescID>
+				<CaptionID>DynamicCreateDataSets</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>207</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>DynamicCreateDataSets</AttributeName>
+			</Property>
+			<Property name="MMSRequestTimeout" category="[030] Communication Control">
+				<Value>3000</Value>
+				<DescID>MMSRequestTimeoutDesc</DescID>
+				<CaptionID>MMSRequestTimeout</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>MMSRequestTimeout</AttributeName>
+			</Property>
+			<Property name="Use32BitEntryID" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>Use32BitEntryIDDesc</DescID>
+				<CaptionID>Use32BitEntryID</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>Use32BitEntryID</AttributeName>
+			</Property>
+			<Property name="SCLTechnicalKey" category="">
+				<Value/>
+				<DescID>SCLTechnicalKeyDesc</DescID>
+				<CaptionID>SCLTechnicalKey</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>SCLTechnicalKey</AttributeName>
+			</Property>
+			<Property name="SCLIedType" category="">
+				<Value>IEC61850 IED</Value>
+				<DescID>SCLIedTypeDesc</DescID>
+				<CaptionID>SCLIedType</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>SCLIedType</AttributeName>
+			</Property>
+			<Property name="SCLManufacturer" category="">
+				<Value/>
+				<DescID>SCLManufacturerDesc</DescID>
+				<CaptionID>SCLManufacturer</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>SCLManufacturer</AttributeName>
+			</Property>
+			<Property name="SCLPCMObjectTypeName" category="">
+				<Value/>
+				<DescID>SCLPCMObjectTypeName</DescID>
+				<CaptionID>SCLPCMObjectTypeName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>SCLPCMObjectTypeName</AttributeName>
+			</Property>
+			<Property name="ProtocolName" category="[010] Basic">
+				<Value>IEC61850SPA</Value>
+				<DescID>ProtocolNameDesc</DescID>
+				<CaptionID>ProtocolName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="DisturbanceRecorderEnabled" category="[096] Disturbance Recording">
+				<Value>False</Value>
+				<DescID>DisturbanceRecorderEnabledDesc</DescID>
+				<CaptionID>DisturbanceRecorderEnabled</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderEnabled</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderDeleteRecordings" category="[096] Disturbance Recording">
+				<Value>False</Value>
+				<DescID>DisturbanceRecorderDeleteRecordingsDesc</DescID>
+				<CaptionID>DisturbanceRecorderDeleteRecordings</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderDeleteRecordings</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderMaxTotalFileSize" category="[096] Disturbance Recording">
+				<Value>0</Value>
+				<DescID>DisturbanceRecorderMaxTotalFileSizeDesc</DescID>
+				<CaptionID>DisturbanceRecorderMaxTotalFileSize</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>2147483647</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderMaxTotalFileSize</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderPollingPeriod" category="[096] Disturbance Recording">
+				<Value>120</Value>
+				<DescID>DisturbanceRecorderPollingPeriodDesc</DescID>
+				<CaptionID>DisturbanceRecorderPollingPeriod</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>2147483647</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderPollingPeriod</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderRemoteDirectory" category="[096] Disturbance Recording">
+				<Value>COMTRADE/</Value>
+				<DescID>DisturbanceRecorderRemoteDirectoryDesc</DescID>
+				<CaptionID>DisturbanceRecorderRemoteDirectory</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderRemoteDirectory</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderLocalDirectory" category="[096] Disturbance Recording">
+				<Value/>
+				<DescID>DisturbanceRecorderLocalDirectoryDesc</DescID>
+				<CaptionID>DisturbanceRecorderLocalDirectory</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderLocalDirectory</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderFTP" category="[096] Disturbance Recording via FTP">
+				<Value>False</Value>
+				<DescID>DisturbanceRecorderFTPDesc</DescID>
+				<CaptionID>DisturbanceRecorderFTP</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderFTP</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderFTPUserName" category="[096] Disturbance Recording via FTP">
+				<Value/>
+				<DescID>DisturbanceRecorderFTPUserNameDesc</DescID>
+				<CaptionID>DisturbanceRecorderFTPUserName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderFTPUserName</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderFTPPassword" category="[096] Disturbance Recording via FTP">
+				<Value/>
+				<DescID>DisturbanceRecorderFTPPasswordDesc</DescID>
+				<CaptionID>DisturbanceRecorderFTPPassword</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderFTPPassword</AttributeName>
+			</Property>
+			<Property name="PwdOpenSpaParamName" category="[080] SPA Access">
+				<Value>V160</Value>
+				<DescID>PwdOpenSpaParamNameDesc</DescID>
+				<CaptionID>PwdOpenSpaParamName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey>419</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>PwdOpenSpaParamName</AttributeName>
+			</Property>
+			<Property name="PwdCloseSpaParamName" category="[080] SPA Access">
+				<Value>V161</Value>
+				<DescID>PwdCloseSpaParamNameDesc</DescID>
+				<CaptionID>PwdCloseSpaParamName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey>420</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>PwdCloseSpaParamName</AttributeName>
+			</Property>
+			<Property name="PwdOpenSpaParamValue" category="[080] SPA Access">
+				<Value>1</Value>
+				<DescID>PwdOpenSpaParamValueDesc</DescID>
+				<CaptionID>PwdOpenSpaParamValue</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65536</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey>421</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>PwdOpenSpaParamValue</AttributeName>
+			</Property>
+			<Property name="PwdCloseSpaParamValue" category="[080] SPA Access">
+				<Value>1</Value>
+				<DescID>PwdCloseSpaParamValueDesc</DescID>
+				<CaptionID>PwdCloseSpaParamValue</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65536</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey>422</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>PwdCloseSpaParamValue</AttributeName>
+			</Property>
+			<Property name="ParamsStoreSpaParamName" category="[080] SPA Access">
+				<Value/>
+				<DescID>ParamsStoreSpaParamNameDesc</DescID>
+				<CaptionID>ParamsStoreSpaParamName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey>420</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>ParamsStoreSpaParamName</AttributeName>
+			</Property>
+			<Property name="ParamsStoreSpaParamValue" category="[080] SPA Access">
+				<Value>1</Value>
+				<DescID>ParamsStoreSpaParamValueDesc</DescID>
+				<CaptionID>ParamsStoreSpaParamValue</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65536</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey>421</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>ParamsStoreSpaParamValue</AttributeName>
+			</Property>
+			<Property name="WebServerIP" category="[099] Web Server Configuration">
+				<Value/>
+				<DescID>WebServerIPDesc</DescID>
+				<CaptionID>WebServerIP</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey>421</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>WebServerIP</AttributeName>
+			</Property>
+			<Property name="WebServerIPEnabled" category="[099] Web Server Configuration">
+				<Value>False</Value>
+				<DescID>WebServerIPEnabledDesc</DescID>
+				<CaptionID>WebServerIPEnabled</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>WebServerIPEnabled</AttributeName>
+			</Property>
+			<Property name="ConfigurationRevisionCheck" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>ConfigurationRevisionCheckDesc</DescID>
+				<CaptionID>ConfigurationRevisionCheck</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>ConfigurationRevisionCheck</AttributeName>
+			</Property>
+			<Property name="SendSingleMMSWrites" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>SendSingleMMSWritesDesc</DescID>
+				<CaptionID>SendSingleMMSWrites</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>SendSingleMMSWrites</AttributeName>
+			</Property>
+		</Properties>
+	</ObjectType>
+	<ObjectType>
+		<Parameters type="InterfaceDefinition">
+			<Parameter name="ObjectType">IEC61850 IED GW 3.3</Parameter>
+			<Parameter name="Caption">objectTypeCaption</Parameter>
+			<Parameter name="Description">objectTypeDesc</Parameter>
+			<Parameter name="Group">IEC61850</Parameter>
+			<Parameter name="Type">IED</Parameter>
+			<Parameter name="IconFileName">GenIED.ico</Parameter>
+			<Parameter name="Tools">SCLImport, OnlineDiagnosticsIedIec61850, PSTFilterTool, SCDExportVerbs</Parameter>
+			<Parameter name="DataServers"/>
+			<Parameter name="Verbs"/>
+			<Parameter name="Visible">True</Parameter>
+			<Parameter name="CanInherit">False</Parameter>
+			<Parameter name="ParentControlConditions">
+				<Structure name="COMMUNICATION">
+					<Condition type="PCMObjectType">IEC61850 Subnetwork</Condition>
+				</Structure>
+			</Parameter>
+		</Parameters>
+		<Parameters type="SCLExport">
+			<Export name="CDATA">SimulationMode, PollTimeout, RCBInitialize, StationRemoteSwitchOPCPath, DeviceConnectionStatus, InUse, UseEntryIDSequence, SystemEventLevel, AuthenticationPassword, ConfigurationVersionCheckLocation, Use32BitEntryID, UseSequenceNumberCheck, DynamicCreateDataSets, MMSRequestTimeout, DisturbanceRecorderEnabled, DisturbanceRecorderDeleteRecordings, DisturbanceRecorderMaxTotalFileSize, DisturbanceRecorderPollingPeriod, DisturbanceRecorderRemoteDirectory, DisturbanceRecorderLocalDirectory, DisturbanceRecorderFTP, DisturbanceRecorderFTPUserName, DisturbanceRecorderFTPPassword, PwdOpenSpaParamName, PwdOpenSpaParamValue, PwdCloseSpaParamName, PwdCloseSpaParamValue,  ParamsStoreSpaParamName, ParamsStoreSpaParamValue, ConfigurationRevisionCheck </Export>
+			<Export name="Authentication">none, password, weak, strong, certificate</Export>
+			<Export name="Addresses">IP, OSI-TSEL, OSI-SSEL, OSI-PSEL, OSI-AP_Title, OSI_AE_Qualifier</Export>
+			<Export name="DeviceConnectionStatus" exportType="csv">DeviceConnectionStatusClass, Section, PrintBlock</Export>
+			<Export name="SCLConfigVersion">SCLConfigVersion</Export>
+			<Export name="SCLIedType">SCLIedType</Export>
+			<Export name="SCLManufacturer">SCLManufacturer</Export>
+			<Export name="SCLPCMObjectTypeName">SCLPCMObjectTypeName</Export>
+		</Parameters>
+		<Properties type="PropertyDefinitions">
+			<Property name="OPCObjectType" category="[010] Basic">
+				<Value>IEC61850 IED</Value>
+				<DescID>OPCObjectTypeDesc</DescID>
+				<CaptionID>OPCObjectType</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>OPCObjectType</AttributeName>
+			</Property>
+			<Property name="AccessPointName" category="[010] Basic">
+				<Value>1</Value>
+				<DescID>AccessPointNameDesc</DescID>
+				<CaptionID>AccessPointName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>AccessPointName</AttributeName>
+			</Property>
+			<Property name="PollTimeout" category="[040] Polling">
+				<Value>0</Value>
+				<DescID>PollTimeoutDesc</DescID>
+				<CaptionID>PollTimeout</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>PollTimeout</AttributeName>
+			</Property>
+			<Property name="RCBInitialize" category="[030] Communication Control">
+				<Value>True</Value>
+				<DescID>RCBInitializeDesc</DescID>
+				<CaptionID>RCBInitialize</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>RCBInitialize</AttributeName>
+			</Property>
+			<Property name="SimulationMode" category="[010] Basic">
+				<Value>0</Value>
+				<DescID>SimulationModeDesc</DescID>
+				<CaptionID>SimulationMode</CaptionID>
+				<Values type="singleChoice">
+					<Enum textID="False" value="0"/>
+					<Enum textID="True" value="1"/>
+				</Values>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>SimulationMode</AttributeName>
+			</Property>
+			<Property name="Section" category="[070] OPC Alarm and Event">
+				<Value>0</Value>
+				<DescID>SectionDesc</DescID>
+				<CaptionID>Section</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>16</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>Section</AttributeName>
+			</Property>
+			<Property name="PrintBlock" category="[070] OPC Alarm and Event">
+				<Value>False</Value>
+				<DescID>PrintBlockDesc</DescID>
+				<CaptionID>PrintBlock</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>PrintBlock</AttributeName>
+			</Property>
+			<Property name="DeviceConnectionStatusClass" category="[070] OPC Alarm and Event">
+				<Value>Device Connection Status</Value>
+				<DescID>DeviceConnectionStatusClassDesc</DescID>
+				<CaptionID>DeviceConnectionStatusClass</CaptionID>
+				<Values type="singleChoiceDynamic">
+					<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupDCSEvents" secondchildObjectType="DeviceConnectionEventGroup"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>DeviceConnectionStatusClass</AttributeName>
+			</Property>
+			<Property name="StationRemoteSwitchOPCPath" category="[060] Control Authorization">
+				<Value/>
+				<DescID>StationRemoteSwitchOPCPathDesc</DescID>
+				<CaptionID>StationRemoteSwitchOPCPath</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>StationRemoteSwitchOPCPath</AttributeName>
+			</Property>
+			<Property name="InUse" category="[010] Basic">
+				<Value>1</Value>
+				<DescID>InUseDesc</DescID>
+				<CaptionID>InUse</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="1" textID="In Use"/>
+					<Enum value="0" textID="Not In Use"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>InUse</AttributeName>
+			</Property>
+			<Property name="IP" category="[020] Addresses">
+				<Value>127.0.0.1</Value>
+				<DescID>IPDesc</DescID>
+				<CaptionID>IP</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>IP</AttributeName>
+			</Property>
+			<Property name="OSI-TSEL" category="[020] Addresses">
+				<Value>0001</Value>
+				<DescID>OSI-TSELDesc</DescID>
+				<CaptionID>OSI-TSEL</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_TSEL</AttributeName>
+			</Property>
+			<Property name="OSI-SSEL" category="[020] Addresses">
+				<Value>0001</Value>
+				<DescID>OSI-SSELDesc</DescID>
+				<CaptionID>OSI-SSEL</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_SSEL</AttributeName>
+			</Property>
+			<Property name="OSI-PSEL" category="[020] Addresses">
+				<Value>00000001</Value>
+				<DescID>OSI-PSELDesc</DescID>
+				<CaptionID>OSI-PSEL</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_PSEL</AttributeName>
+			</Property>
+			<Property name="OSI_AE_Qualifier" category="[020] Addresses">
+				<Value>23</Value>
+				<DescID>OSI_AE_QualifierDesc</DescID>
+				<CaptionID>OSI_AE_Qualifier</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_AE_Qualifier</AttributeName>
+			</Property>
+			<Property name="OSI-AP_Title" category="[020] Addresses">
+				<Value>1,3,9999,23</Value>
+				<DescID>OSI-AP_TitleDesc</DescID>
+				<CaptionID>OSI-AP_Title</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_AP_Title</AttributeName>
+			</Property>
+			<Property name="UseEntryIDSequence" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>EnableEntryIDCheckDesc</DescID>
+				<CaptionID>EnableEntryIDCheck</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>UseEntryIDSequence</AttributeName>
+			</Property>
+			<Property name="SystemEventLevel" category="[010] Basic">
+				<Value>0</Value>
+				<DescID>SystemEventLevelDesc</DescID>
+				<CaptionID>SystemEventLevel</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="0" textID="Level0"/>
+					<Enum value="1" textID="Level1"/>
+					<Enum value="2" textID="Level2"/>
+					<Enum value="3" textID="Level3"/>
+					<Enum value="4" textID="Level4"/>
+					<Enum value="5" textID="Level5"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SystemEventLevel</AttributeName>
+			</Property>
+			<Property name="none" category="[080] Authentication">
+				<Value>True</Value>
+				<DescID>noneDesc</DescID>
+				<CaptionID>none</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>none</AttributeName>
+			</Property>
+			<Property name="password" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>passwordDesc</DescID>
+				<CaptionID>password</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>password</AttributeName>
+			</Property>
+			<Property name="weak" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>weakDesc</DescID>
+				<CaptionID>weak</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>weak</AttributeName>
+			</Property>
+			<Property name="strong" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>strongDesc</DescID>
+				<CaptionID>strong</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>strong</AttributeName>
+			</Property>
+			<Property name="certificate" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>certificateDesc</DescID>
+				<CaptionID>certificate</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>certificate</AttributeName>
+			</Property>
+			<Property name="AuthenticationPassword" category="[080] Authentication">
+				<Value/>
+				<DescID>strPasswordDesc</DescID>
+				<CaptionID>strPassword</CaptionID>
+				<Values type="password"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>AuthenticationPassword</AttributeName>
+			</Property>
+			<Property name="ConfigurationVersionCheckLocation" category="[030] Communication Control">
+				<Value/>
+				<DescID>ConfigurationRevisionCheckLocationDesc</DescID>
+				<CaptionID>ConfigurationRevisionCheckLocation</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>ConfigurationVersionCheckLocation</AttributeName>
+			</Property>
+			<Property name="SCLConfigVersion" category="">
+				<Value/>
+				<DescID>SCLConfigVersionDesc</DescID>
+				<CaptionID>SCLConfigVersion</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>configVersion</AttributeName>
+			</Property>
+			<Property name="UseSequenceNumberCheck" category="[030] Communication Control">
+				<Value>True</Value>
+				<DescID>UseSequenceNumberCheckDesc</DescID>
+				<CaptionID>UseSequenceNumberCheck</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>UseSequenceNumberCheck</AttributeName>
+			</Property>
+			<Property name="DynamicCreateDataSets" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>DynamicCreateDataSetsDesc</DescID>
+				<CaptionID>DynamicCreateDataSets</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>207</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>DynamicCreateDataSets</AttributeName>
+			</Property>
+			<Property name="MMSRequestTimeout" category="[030] Communication Control">
+				<Value>5000</Value>
+				<DescID>MMSRequestTimeoutDesc</DescID>
+				<CaptionID>MMSRequestTimeout</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>MMSRequestTimeout</AttributeName>
+			</Property>
+			<Property name="Use32BitEntryID" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>Use32BitEntryIDDesc</DescID>
+				<CaptionID>Use32BitEntryID</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>Use32BitEntryID</AttributeName>
+			</Property>
+			<Property name="SCLTechnicalKey" category="">
+				<Value/>
+				<DescID>SCLTechnicalKeyDesc</DescID>
+				<CaptionID>SCLTechnicalKey</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>SCLTechnicalKey</AttributeName>
+			</Property>
+			<Property name="SCLIedType" category="">
+				<Value>IEC61850 IED</Value>
+				<DescID>SCLIedTypeDesc</DescID>
+				<CaptionID>SCLIedType</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>SCLIedType</AttributeName>
+			</Property>
+			<Property name="SCLManufacturer" category="">
+				<Value/>
+				<DescID>SCLManufacturerDesc</DescID>
+				<CaptionID>SCLManufacturer</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>SCLManufacturer</AttributeName>
+			</Property>
+			<Property name="SCLPCMObjectTypeName" category="">
+				<Value/>
+				<DescID>SCLPCMObjectTypeName</DescID>
+				<CaptionID>SCLPCMObjectTypeName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>SCLPCMObjectTypeName</AttributeName>
+			</Property>
+			<Property name="ProtocolName" category="[010] Basic">
+				<Value>IEC61850SPA</Value>
+				<DescID>ProtocolNameDesc</DescID>
+				<CaptionID>ProtocolName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="DisturbanceRecorderEnabled" category="[096] Disturbance Recording">
+				<Value>False</Value>
+				<DescID>DisturbanceRecorderEnabledDesc</DescID>
+				<CaptionID>DisturbanceRecorderEnabled</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderEnabled</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderDeleteRecordings" category="[096] Disturbance Recording">
+				<Value>False</Value>
+				<DescID>DisturbanceRecorderDeleteRecordingsDesc</DescID>
+				<CaptionID>DisturbanceRecorderDeleteRecordings</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderDeleteRecordings</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderMaxTotalFileSize" category="[096] Disturbance Recording">
+				<Value>0</Value>
+				<DescID>DisturbanceRecorderMaxTotalFileSizeDesc</DescID>
+				<CaptionID>DisturbanceRecorderMaxTotalFileSize</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>2147483647</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderMaxTotalFileSize</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderPollingPeriod" category="[096] Disturbance Recording">
+				<Value>120</Value>
+				<DescID>DisturbanceRecorderPollingPeriodDesc</DescID>
+				<CaptionID>DisturbanceRecorderPollingPeriod</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>2147483647</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderPollingPeriod</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderRemoteDirectory" category="[096] Disturbance Recording">
+				<Value>COMTRADE/</Value>
+				<DescID>DisturbanceRecorderRemoteDirectoryDesc</DescID>
+				<CaptionID>DisturbanceRecorderRemoteDirectory</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderRemoteDirectory</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderLocalDirectory" category="[096] Disturbance Recording">
+				<Value/>
+				<DescID>DisturbanceRecorderLocalDirectoryDesc</DescID>
+				<CaptionID>DisturbanceRecorderLocalDirectory</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderLocalDirectory</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderFTP" category="[096] Disturbance Recording via FTP">
+				<Value>False</Value>
+				<DescID>DisturbanceRecorderFTPDesc</DescID>
+				<CaptionID>DisturbanceRecorderFTP</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderFTP</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderFTPUserName" category="[096] Disturbance Recording via FTP">
+				<Value/>
+				<DescID>DisturbanceRecorderFTPUserNameDesc</DescID>
+				<CaptionID>DisturbanceRecorderFTPUserName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderFTPUserName</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderFTPPassword" category="[096] Disturbance Recording via FTP">
+				<Value/>
+				<DescID>DisturbanceRecorderFTPPasswordDesc</DescID>
+				<CaptionID>DisturbanceRecorderFTPPassword</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderFTPPassword</AttributeName>
+			</Property>
+			<Property name="PwdOpenSpaParamName" category="[080] SPA Access">
+				<Value>V160</Value>
+				<DescID>PwdOpenSpaParamNameDesc</DescID>
+				<CaptionID>PwdOpenSpaParamName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey>419</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>PwdOpenSpaParamName</AttributeName>
+			</Property>
+			<Property name="PwdCloseSpaParamName" category="[080] SPA Access">
+				<Value>V161</Value>
+				<DescID>PwdCloseSpaParamNameDesc</DescID>
+				<CaptionID>PwdCloseSpaParamName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey>420</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>PwdCloseSpaParamName</AttributeName>
+			</Property>
+			<Property name="PwdOpenSpaParamValue" category="[080] SPA Access">
+				<Value>1</Value>
+				<DescID>PwdOpenSpaParamValueDesc</DescID>
+				<CaptionID>PwdOpenSpaParamValue</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65536</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey>421</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>PwdOpenSpaParamValue</AttributeName>
+			</Property>
+			<Property name="PwdCloseSpaParamValue" category="[080] SPA Access">
+				<Value>1</Value>
+				<DescID>PwdCloseSpaParamValueDesc</DescID>
+				<CaptionID>PwdCloseSpaParamValue</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65536</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey>422</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>PwdCloseSpaParamValue</AttributeName>
+			</Property>
+			<Property name="ParamsStoreSpaParamName" category="[080] SPA Access">
+				<Value/>
+				<DescID>ParamsStoreSpaParamNameDesc</DescID>
+				<CaptionID>ParamsStoreSpaParamName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey>420</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>ParamsStoreSpaParamName</AttributeName>
+			</Property>
+			<Property name="ParamsStoreSpaParamValue" category="[080] SPA Access">
+				<Value>1</Value>
+				<DescID>ParamsStoreSpaParamValueDesc</DescID>
+				<CaptionID>ParamsStoreSpaParamValue</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65536</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey>421</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>ParamsStoreSpaParamValue</AttributeName>
+			</Property>
+			<Property name="WebServerIP" category="[099] Web Server Configuration">
+				<Value/>
+				<DescID>WebServerIPDesc</DescID>
+				<CaptionID>WebServerIP</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey>421</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>WebServerIP</AttributeName>
+			</Property>
+			<Property name="WebServerIPEnabled" category="[099] Web Server Configuration">
+				<Value>False</Value>
+				<DescID>WebServerIPEnabledDesc</DescID>
+				<CaptionID>WebServerIPEnabled</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>WebServerIPEnabled</AttributeName>
+			</Property>
+			<Property name="ConfigurationRevisionCheck" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>ConfigurationRevisionCheckDesc</DescID>
+				<CaptionID>ConfigurationRevisionCheck</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>ConfigurationRevisionCheck</AttributeName>
+			</Property>
+		</Properties>
+	</ObjectType>
+	<ObjectType>
+		<Parameters type="InterfaceDefinition">
+			<Parameter name="ObjectType">IEC61850 IED GW</Parameter>
+			<Parameter name="Caption">objectTypeCaption</Parameter>
+			<Parameter name="Description">objectTypeDesc</Parameter>
+			<Parameter name="Group">IEC61850</Parameter>
+			<Parameter name="Type">IED</Parameter>
+			<Parameter name="IconFileName">GenIED.ico</Parameter>
+			<Parameter name="Tools">SCLImport, OnlineDiagnosticsIedIec61850, PSTFilterTool, SCDExportVerbs</Parameter>
+			<Parameter name="DataServers"/>
+			<Parameter name="Verbs"/>
+			<Parameter name="Visible">True</Parameter>
+			<Parameter name="CanInherit">False</Parameter>
+			<Parameter name="ParentControlConditions">
+				<Structure name="COMMUNICATION">
+					<Condition type="PCMObjectType">IEC61850 Subnetwork</Condition>
+				</Structure>
+			</Parameter>
+		</Parameters>
+		<Parameters type="SCLExport">
+			<Export name="CDATA">SimulationMode, PollTimeout, RCBInitialize, StationRemoteSwitchOPCPath, DeviceConnectionStatus, InUse, UseEntryIDSequence, SystemEventLevel, AuthenticationPassword, ConfigurationVersionCheckLocation, Use32BitEntryID, UseSequenceNumberCheck, DynamicCreateDataSets, MMSRequestTimeout, DisturbanceRecorderEnabled, DisturbanceRecorderDeleteRecordings, DisturbanceRecorderMaxTotalFileSize, DisturbanceRecorderPollingPeriod, DisturbanceRecorderRemoteDirectory, DisturbanceRecorderLocalDirectory, DisturbanceRecorderFTP, DisturbanceRecorderFTPUserName, DisturbanceRecorderFTPPassword, PwdOpenSpaParamName, PwdOpenSpaParamValue, PwdCloseSpaParamName, PwdCloseSpaParamValue,  ParamsStoreSpaParamName, ParamsStoreSpaParamValue</Export>
+			<Export name="Authentication">none, password, weak, strong, certificate</Export>
+			<Export name="Addresses">IP, OSI-TSEL, OSI-SSEL, OSI-PSEL, OSI-AP_Title, OSI_AE_Qualifier</Export>
+			<Export name="DeviceConnectionStatus" exportType="csv">DeviceConnectionStatusClass, Section, PrintBlock</Export>
+			<Export name="SCLConfigVersion">SCLConfigVersion</Export>
+			<Export name="SCLIedType">SCLIedType</Export>
+			<Export name="SCLManufacturer">SCLManufacturer</Export>
+			<Export name="SCLPCMObjectTypeName">SCLPCMObjectTypeName</Export>
+		</Parameters>
+		<Properties type="PropertyDefinitions">
+			<Property name="OPCObjectType" category="[010] Basic">
+				<Value>IEC61850 IED</Value>
+				<DescID>OPCObjectTypeDesc</DescID>
+				<CaptionID>OPCObjectType</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>OPCObjectType</AttributeName>
+			</Property>
+			<Property name="AccessPointName" category="[010] Basic">
+				<Value>1</Value>
+				<DescID>AccessPointNameDesc</DescID>
+				<CaptionID>AccessPointName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>AccessPointName</AttributeName>
+			</Property>
+			<Property name="PollTimeout" category="[040] Polling">
+				<Value>0</Value>
+				<DescID>PollTimeoutDesc</DescID>
+				<CaptionID>PollTimeout</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>PollTimeout</AttributeName>
+			</Property>
+			<Property name="RCBInitialize" category="[030] Communication Control">
+				<Value>True</Value>
+				<DescID>RCBInitializeDesc</DescID>
+				<CaptionID>RCBInitialize</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>RCBInitialize</AttributeName>
+			</Property>
+			<Property name="SimulationMode" category="[010] Basic">
+				<Value>0</Value>
+				<DescID>SimulationModeDesc</DescID>
+				<CaptionID>SimulationMode</CaptionID>
+				<Values type="singleChoice">
+					<Enum textID="False" value="0"/>
+					<Enum textID="True" value="1"/>
+				</Values>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>SimulationMode</AttributeName>
+			</Property>
+			<Property name="Section" category="[070] OPC Alarm and Event">
+				<Value>0</Value>
+				<DescID>SectionDesc</DescID>
+				<CaptionID>Section</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>16</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>Section</AttributeName>
+			</Property>
+			<Property name="PrintBlock" category="[070] OPC Alarm and Event">
+				<Value>False</Value>
+				<DescID>PrintBlockDesc</DescID>
+				<CaptionID>PrintBlock</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>PrintBlock</AttributeName>
+			</Property>
+			<Property name="DeviceConnectionStatusClass" category="[070] OPC Alarm and Event">
+				<Value>Device Connection Status</Value>
+				<DescID>DeviceConnectionStatusClassDesc</DescID>
+				<CaptionID>DeviceConnectionStatusClass</CaptionID>
+				<Values type="singleChoiceDynamic">
+					<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupDCSEvents" secondchildObjectType="DeviceConnectionEventGroup"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>DeviceConnectionStatusClass</AttributeName>
+			</Property>
+			<Property name="StationRemoteSwitchOPCPath" category="[060] Control Authorization">
+				<Value/>
+				<DescID>StationRemoteSwitchOPCPathDesc</DescID>
+				<CaptionID>StationRemoteSwitchOPCPath</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>StationRemoteSwitchOPCPath</AttributeName>
+			</Property>
+			<Property name="InUse" category="[010] Basic">
+				<Value>1</Value>
+				<DescID>InUseDesc</DescID>
+				<CaptionID>InUse</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="1" textID="In Use"/>
+					<Enum value="0" textID="Not In Use"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>InUse</AttributeName>
+			</Property>
+			<Property name="IP" category="[020] Addresses">
+				<Value>127.0.0.1</Value>
+				<DescID>IPDesc</DescID>
+				<CaptionID>IP</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>IP</AttributeName>
+			</Property>
+			<Property name="OSI-TSEL" category="[020] Addresses">
+				<Value>0001</Value>
+				<DescID>OSI-TSELDesc</DescID>
+				<CaptionID>OSI-TSEL</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_TSEL</AttributeName>
+			</Property>
+			<Property name="OSI-SSEL" category="[020] Addresses">
+				<Value>0001</Value>
+				<DescID>OSI-SSELDesc</DescID>
+				<CaptionID>OSI-SSEL</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_SSEL</AttributeName>
+			</Property>
+			<Property name="OSI-PSEL" category="[020] Addresses">
+				<Value>00000001</Value>
+				<DescID>OSI-PSELDesc</DescID>
+				<CaptionID>OSI-PSEL</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_PSEL</AttributeName>
+			</Property>
+			<Property name="OSI_AE_Qualifier" category="[020] Addresses">
+				<Value>23</Value>
+				<DescID>OSI_AE_QualifierDesc</DescID>
+				<CaptionID>OSI_AE_Qualifier</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_AE_Qualifier</AttributeName>
+			</Property>
+			<Property name="OSI-AP_Title" category="[020] Addresses">
+				<Value>1,3,9999,23</Value>
+				<DescID>OSI-AP_TitleDesc</DescID>
+				<CaptionID>OSI-AP_Title</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>OSI_AP_Title</AttributeName>
+			</Property>
+			<Property name="UseEntryIDSequence" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>EnableEntryIDCheckDesc</DescID>
+				<CaptionID>EnableEntryIDCheck</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>UseEntryIDSequence</AttributeName>
+			</Property>
+			<Property name="SystemEventLevel" category="[010] Basic">
+				<Value>0</Value>
+				<DescID>SystemEventLevelDesc</DescID>
+				<CaptionID>SystemEventLevel</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="0" textID="Level0"/>
+					<Enum value="1" textID="Level1"/>
+					<Enum value="2" textID="Level2"/>
+					<Enum value="3" textID="Level3"/>
+					<Enum value="4" textID="Level4"/>
+					<Enum value="5" textID="Level5"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SystemEventLevel</AttributeName>
+			</Property>
+			<Property name="none" category="[080] Authentication">
+				<Value>True</Value>
+				<DescID>noneDesc</DescID>
+				<CaptionID>none</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>none</AttributeName>
+			</Property>
+			<Property name="password" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>passwordDesc</DescID>
+				<CaptionID>password</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>password</AttributeName>
+			</Property>
+			<Property name="weak" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>weakDesc</DescID>
+				<CaptionID>weak</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>weak</AttributeName>
+			</Property>
+			<Property name="strong" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>strongDesc</DescID>
+				<CaptionID>strong</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>strong</AttributeName>
+			</Property>
+			<Property name="certificate" category="[080] Authentication">
+				<Value>False</Value>
+				<DescID>certificateDesc</DescID>
+				<CaptionID>certificate</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>certificate</AttributeName>
+			</Property>
+			<Property name="AuthenticationPassword" category="[080] Authentication">
+				<Value/>
+				<DescID>strPasswordDesc</DescID>
+				<CaptionID>strPassword</CaptionID>
+				<Values type="password"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>AuthenticationPassword</AttributeName>
+			</Property>
+			<Property name="ConfigurationVersionCheckLocation" category="[030] Communication Control">
+				<Value/>
+				<DescID>ConfigurationRevisionCheckLocationDesc</DescID>
+				<CaptionID>ConfigurationRevisionCheckLocation</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>ConfigurationVersionCheckLocation</AttributeName>
+			</Property>
+			<Property name="SCLConfigVersion" category="">
+				<Value/>
+				<DescID>SCLConfigVersionDesc</DescID>
+				<CaptionID>SCLConfigVersion</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>configVersion</AttributeName>
+			</Property>
+			<Property name="UseSequenceNumberCheck" category="[030] Communication Control">
+				<Value>True</Value>
+				<DescID>UseSequenceNumberCheckDesc</DescID>
+				<CaptionID>UseSequenceNumberCheck</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>UseSequenceNumberCheck</AttributeName>
+			</Property>
+			<Property name="DynamicCreateDataSets" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>DynamicCreateDataSetsDesc</DescID>
+				<CaptionID>DynamicCreateDataSets</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>207</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>DynamicCreateDataSets</AttributeName>
+			</Property>
+			<Property name="MMSRequestTimeout" category="[030] Communication Control">
+				<Value>5000</Value>
+				<DescID>MMSRequestTimeoutDesc</DescID>
+				<CaptionID>MMSRequestTimeout</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>MMSRequestTimeout</AttributeName>
+			</Property>
+			<Property name="Use32BitEntryID" category="[030] Communication Control">
+				<Value>False</Value>
+				<DescID>Use32BitEntryIDDesc</DescID>
+				<CaptionID>Use32BitEntryID</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>Use32BitEntryID</AttributeName>
+			</Property>
+			<Property name="SCLTechnicalKey" category="">
+				<Value/>
+				<DescID>SCLTechnicalKeyDesc</DescID>
+				<CaptionID>SCLTechnicalKey</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>SCLTechnicalKey</AttributeName>
+			</Property>
+			<Property name="SCLIedType" category="">
+				<Value>IEC61850 IED</Value>
+				<DescID>SCLIedTypeDesc</DescID>
+				<CaptionID>SCLIedType</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>SCLIedType</AttributeName>
+			</Property>
+			<Property name="SCLManufacturer" category="">
+				<Value/>
+				<DescID>SCLManufacturerDesc</DescID>
+				<CaptionID>SCLManufacturer</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RRR</Access>
+				<AttributeName>SCLManufacturer</AttributeName>
+			</Property>
+			<Property name="SCLPCMObjectTypeName" category="">
+				<Value/>
+				<DescID>SCLPCMObjectTypeName</DescID>
+				<CaptionID>SCLPCMObjectTypeName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>SCLPCMObjectTypeName</AttributeName>
+			</Property>
+			<Property name="ProtocolName" category="[010] Basic">
+				<Value>IEC61850SPA</Value>
+				<DescID>ProtocolNameDesc</DescID>
+				<CaptionID>ProtocolName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="DisturbanceRecorderEnabled" category="[096] Disturbance Recording">
+				<Value>False</Value>
+				<DescID>DisturbanceRecorderEnabledDesc</DescID>
+				<CaptionID>DisturbanceRecorderEnabled</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderEnabled</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderDeleteRecordings" category="[096] Disturbance Recording">
+				<Value>False</Value>
+				<DescID>DisturbanceRecorderDeleteRecordingsDesc</DescID>
+				<CaptionID>DisturbanceRecorderDeleteRecordings</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderDeleteRecordings</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderMaxTotalFileSize" category="[096] Disturbance Recording">
+				<Value>0</Value>
+				<DescID>DisturbanceRecorderMaxTotalFileSizeDesc</DescID>
+				<CaptionID>DisturbanceRecorderMaxTotalFileSize</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>2147483647</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderMaxTotalFileSize</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderPollingPeriod" category="[096] Disturbance Recording">
+				<Value>120</Value>
+				<DescID>DisturbanceRecorderPollingPeriodDesc</DescID>
+				<CaptionID>DisturbanceRecorderPollingPeriod</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>2147483647</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderPollingPeriod</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderRemoteDirectory" category="[096] Disturbance Recording">
+				<Value>COMTRADE/</Value>
+				<DescID>DisturbanceRecorderRemoteDirectoryDesc</DescID>
+				<CaptionID>DisturbanceRecorderRemoteDirectory</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderRemoteDirectory</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderLocalDirectory" category="[096] Disturbance Recording">
+				<Value/>
+				<DescID>DisturbanceRecorderLocalDirectoryDesc</DescID>
+				<CaptionID>DisturbanceRecorderLocalDirectory</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderLocalDirectory</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderFTP" category="[096] Disturbance Recording via FTP">
+				<Value>False</Value>
+				<DescID>DisturbanceRecorderFTPDesc</DescID>
+				<CaptionID>DisturbanceRecorderFTP</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderFTP</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderFTPUserName" category="[096] Disturbance Recording via FTP">
+				<Value/>
+				<DescID>DisturbanceRecorderFTPUserNameDesc</DescID>
+				<CaptionID>DisturbanceRecorderFTPUserName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderFTPUserName</AttributeName>
+			</Property>
+			<Property name="DisturbanceRecorderFTPPassword" category="[096] Disturbance Recording via FTP">
+				<Value/>
+				<DescID>DisturbanceRecorderFTPPasswordDesc</DescID>
+				<CaptionID>DisturbanceRecorderFTPPassword</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>DisturbanceRecorderFTPPassword</AttributeName>
+			</Property>
+			<Property name="PwdOpenSpaParamName" category="[080] SPA Access">
+				<Value>V160</Value>
+				<DescID>PwdOpenSpaParamNameDesc</DescID>
+				<CaptionID>PwdOpenSpaParamName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey>419</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>PwdOpenSpaParamName</AttributeName>
+			</Property>
+			<Property name="PwdCloseSpaParamName" category="[080] SPA Access">
+				<Value>V161</Value>
+				<DescID>PwdCloseSpaParamNameDesc</DescID>
+				<CaptionID>PwdCloseSpaParamName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey>420</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>PwdCloseSpaParamName</AttributeName>
+			</Property>
+			<Property name="PwdOpenSpaParamValue" category="[080] SPA Access">
+				<Value>1</Value>
+				<DescID>PwdOpenSpaParamValueDesc</DescID>
+				<CaptionID>PwdOpenSpaParamValue</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65536</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey>421</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>PwdOpenSpaParamValue</AttributeName>
+			</Property>
+			<Property name="PwdCloseSpaParamValue" category="[080] SPA Access">
+				<Value>1</Value>
+				<DescID>PwdCloseSpaParamValueDesc</DescID>
+				<CaptionID>PwdCloseSpaParamValue</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65536</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey>422</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>PwdCloseSpaParamValue</AttributeName>
+			</Property>
+			<Property name="ParamsStoreSpaParamName" category="[080] SPA Access">
+				<Value/>
+				<DescID>ParamsStoreSpaParamNameDesc</DescID>
+				<CaptionID>ParamsStoreSpaParamName</CaptionID>
+				<Values type="string">
+      </Values>
+				<DataType>System.String</DataType>
+				<HelpKey>420</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>ParamsStoreSpaParamName</AttributeName>
+			</Property>
+			<Property name="ParamsStoreSpaParamValue" category="[080] SPA Access">
+				<Value>1</Value>
+				<DescID>ParamsStoreSpaParamValueDesc</DescID>
+				<CaptionID>ParamsStoreSpaParamValue</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65536</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey>421</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>ParamsStoreSpaParamValue</AttributeName>
+			</Property>
+			<Property name="WebServerIP" category="[099] Web Server Configuration">
+				<Value/>
+				<DescID>WebServerIPDesc</DescID>
+				<CaptionID>WebServerIP</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey>421</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>WebServerIP</AttributeName>
+			</Property>
+			<Property name="WebServerIPEnabled" category="[099] Web Server Configuration">
+				<Value>False</Value>
+				<DescID>WebServerIPEnabledDesc</DescID>
+				<CaptionID>WebServerIPEnabled</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>WebServerIPEnabled</AttributeName>
+			</Property>
+		</Properties>
+	</ObjectType>
+</ObjectTypes>

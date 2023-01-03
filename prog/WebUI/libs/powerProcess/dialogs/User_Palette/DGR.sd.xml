@@ -1,0 +1,1328 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="SAVersionInfo" content="2" />
+    <d:meta name="SAObjectType" content="Measurement Symbol" />
+    <d:variable type="external" name="control" default="''" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Measurement Symbol" />
+    <d:meta name="dv-custom-attribute|SATopology" content="" />
+    <d:meta name="dv-custom-attribute|SASnapToMiddle" content="" />
+    <d:meta name="dv-custom-attribute|SARepresentation" content="Current Transducer ANSI" />
+    <d:meta name="dv-custom-attribute|ToolLauncherProgId" content="ControlDlgs.Launcher" />
+    <d:meta name="dv-custom-attribute|SANoRotate" content="" />
+    <d:meta name="dv-custom-attribute|SAOrientation" content="Vertical" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="Measurement" />
+    <d:meta name="dv-custom-attribute|SADisplayName" content="Current_Transducer_ANSI" />
+    <d:meta name="dv-custom-attribute|SAVersionInfo" content="2" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="status-color" default="0" />
+    <d:mapping name="f1427" parameters="value">
+      <d:step value="colors[57]" when="value &lt;= 0.488" />
+      <d:step value="'rgb(255, 255, 128)'" when="value &lt;= 1.472" />
+      <d:step value="'rgb(255, 0, 0)'" when="value &lt;= 2.449" />
+      <d:step value="'rgb(0, 255, 0)'" when="value &lt;= 3.433" />
+      <d:step value="'rgb(0, 0, 255)'" when="value &lt;= 4.410" />
+      <d:step value="'rgb(255, 0, 255)'" when="value &lt;= 5.394" />
+      <d:step value="'rgb(255, 255, 0)'" when="value &lt;= 6.371" />
+      <d:step value="'rgb(0, 255, 255)'" when="value &lt;= 7.355" />
+      <d:step value="'rgb(255, 128, 0)'" when="value &lt;= 8.331" />
+      <d:step value="'rgb(128, 255, 0)'" when="value &lt;= 9.315" />
+      <d:step value="'rgb(0, 255, 128)'" when="value &lt;= 10.292" />
+      <d:step value="'rgb(0, 128, 255)'" when="value &lt;= 11.276" />
+      <d:step value="'rgb(128, 0, 255)'" when="value &lt;= 12.253" />
+      <d:step value="'rgb(255, 0, 128)'" when="value &lt;= 13.237" />
+      <d:step value="'rgb(128, 128, 128)'" when="value &lt;= 14.214" />
+      <d:step value="'rgb(255, 255, 255)'" when="value &lt;= 15.198" />
+      <d:step value="colors[16]" when="value &lt;= 16.174" />
+      <d:step value="colors[17]" when="value &lt;= 17.159" />
+      <d:step value="colors[18]" when="value &lt;= 18.135" />
+      <d:step value="colors[19]" when="value &lt;= 19.119" />
+      <d:step value="colors[20]" when="value &lt;= 20.096" />
+      <d:step value="colors[21]" when="value &lt;= 21.080" />
+      <d:step value="colors[22]" when="value &lt;= 22.057" />
+      <d:step value="colors[23]" when="value &lt;= 23.041" />
+      <d:step value="colors[24]" when="value &lt;= 24.017" />
+      <d:step value="colors[25]" when="value &lt;= 25.002" />
+      <d:step value="colors[26]" when="value &lt;= 25.978" />
+      <d:step value="colors[27]" when="value &lt;= 26.962" />
+      <d:step value="colors[28]" when="value &lt;= 27.939" />
+      <d:step value="colors[29]" when="value &lt;= 28.923" />
+      <d:step value="colors[30]" when="value &lt;= 29.900" />
+      <d:step value="colors[31]" when="value &lt;= 30.884" />
+      <d:step value="colors[32]" when="value &lt;= 31.860" />
+      <d:step value="colors[33]" when="value &lt;= 32.845" />
+      <d:step value="colors[34]" when="value &lt;= 33.821" />
+      <d:step value="colors[35]" when="value &lt;= 34.805" />
+      <d:step value="colors[36]" when="value &lt;= 35.782" />
+      <d:step value="colors[37]" when="value &lt;= 36.766" />
+      <d:step value="colors[38]" when="value &lt;= 37.743" />
+      <d:step value="colors[39]" when="value &lt;= 38.727" />
+      <d:step value="colors[40]" when="value &lt;= 39.703" />
+      <d:step value="colors[41]" when="value &lt;= 40.688" />
+      <d:step value="colors[42]" when="value &lt;= 41.664" />
+      <d:step value="colors[43]" when="value &lt;= 42.648" />
+      <d:step value="colors[44]" when="value &lt;= 43.625" />
+      <d:step value="colors[45]" when="value &lt;= 44.609" />
+      <d:step value="colors[46]" when="value &lt;= 45.586" />
+      <d:step value="colors[47]" when="value &lt;= 46.570" />
+      <d:step value="colors[48]" when="value &lt;= 47.546" />
+      <d:step value="colors[49]" when="value &lt;= 48.531" />
+      <d:step value="colors[50]" when="value &lt;= 49.507" />
+      <d:step value="colors[51]" when="value &lt;= 50.491" />
+      <d:step value="colors[52]" when="value &lt;= 51.468" />
+      <d:step value="colors[53]" when="value &lt;= 52.452" />
+      <d:step value="colors[54]" when="value &lt;= 53.429" />
+      <d:step value="colors[55]" when="value &lt;= 54.413" />
+      <d:step value="colors[56]" when="value &lt;= 55.389" />
+      <d:step value="colors[57]" when="value &lt;= 56.374" />
+      <d:step value="colors[58]" when="value &lt;= 57.350" />
+      <d:step value="colors[59]" when="value &lt;= 58.334" />
+      <d:step value="colors[60]" when="value &lt;= 59.311" />
+      <d:step value="colors[61]" when="value &lt;= 60.295" />
+      <d:step value="colors[62]" when="value &lt;= 61.272" />
+      <d:step value="colors[63]" when="value &lt;= 62.256" />
+      <d:step value="colors[64]" when="value &lt;= 63.232" />
+      <d:step value="colors[65]" when="value &lt;= 64.217" />
+      <d:step value="colors[66]" when="value &lt;= 65.193" />
+      <d:step value="colors[67]" when="value &lt;= 66.177" />
+      <d:step value="colors[68]" when="value &lt;= 67.154" />
+      <d:step value="colors[69]" when="value &lt;= 68.138" />
+      <d:step value="colors[70]" when="value &lt;= 69.115" />
+      <d:step value="colors[71]" when="value &lt;= 70.099" />
+      <d:step value="colors[72]" when="value &lt;= 71.075" />
+      <d:step value="colors[73]" when="value &lt;= 72.060" />
+      <d:step value="colors[74]" when="value &lt;= 73.036" />
+      <d:step value="colors[75]" when="value &lt;= 74.020" />
+      <d:step value="colors[76]" when="value &lt;= 74.997" />
+      <d:step value="colors[77]" when="value &lt;= 75.981" />
+      <d:step value="colors[78]" when="value &lt;= 76.958" />
+      <d:step value="colors[79]" when="value &lt;= 77.942" />
+      <d:step value="colors[80]" when="value &lt;= 78.918" />
+      <d:step value="colors[81]" when="value &lt;= 79.903" />
+      <d:step value="colors[82]" when="value &lt;= 80.879" />
+      <d:step value="colors[83]" when="value &lt;= 81.863" />
+      <d:step value="colors[84]" when="value &lt;= 82.840" />
+      <d:step value="colors[85]" when="value &lt;= 83.824" />
+      <d:step value="colors[86]" when="value &lt;= 84.801" />
+      <d:step value="colors[87]" when="value &lt;= 85.785" />
+      <d:step value="colors[88]" when="value &lt;= 86.761" />
+      <d:step value="colors[89]" when="value &lt;= 87.746" />
+      <d:step value="colors[90]" when="value &lt;= 88.722" />
+      <d:step value="colors[91]" when="value &lt;= 89.706" />
+      <d:step value="colors[92]" when="value &lt;= 90.683" />
+      <d:step value="colors[93]" when="value &lt;= 91.667" />
+      <d:step value="colors[94]" when="value &lt;= 92.644" />
+      <d:step value="colors[95]" when="value &lt;= 93.628" />
+      <d:step value="colors[96]" when="value &lt;= 94.604" />
+      <d:step value="colors[97]" when="value &lt;= 95.589" />
+      <d:step value="colors[98]" when="value &lt;= 96.565" />
+      <d:step value="colors[99]" when="value &lt;= 97.549" />
+      <d:step value="colors[100]" when="value &lt;= 98.526" />
+      <d:step value="colors[101]" when="value &lt;= 99.510" />
+      <d:step value="colors[102]" when="value &lt;= 100.487" />
+      <d:step value="colors[103]" when="value &lt;= 101.471" />
+      <d:step value="colors[104]" when="value &lt;= 102.448" />
+      <d:step value="colors[105]" when="value &lt;= 103.432" />
+      <d:step value="colors[106]" when="value &lt;= 104.408" />
+      <d:step value="colors[107]" when="value &lt;= 105.392" />
+      <d:step value="colors[108]" when="value &lt;= 106.369" />
+      <d:step value="colors[109]" when="value &lt;= 107.353" />
+      <d:step value="colors[110]" when="value &lt;= 108.330" />
+      <d:step value="colors[111]" when="value &lt;= 109.314" />
+      <d:step value="colors[112]" when="value &lt;= 110.291" />
+      <d:step value="colors[113]" when="value &lt;= 111.275" />
+      <d:step value="colors[114]" when="value &lt;= 112.251" />
+      <d:step value="colors[115]" when="value &lt;= 113.235" />
+      <d:step value="colors[116]" when="value &lt;= 114.212" />
+      <d:step value="'rgb(255, 64, 64)'" when="value &lt;= 115.196" />
+      <d:step value="'rgb(255, 128, 128)'" when="value &lt;= 116.180" />
+      <d:step value="'rgb(255, 192, 192)'" when="value &lt;= 117.157" />
+      <d:step value="'rgb(64, 0, 64)'" when="value &lt;= 118.134" />
+      <d:step value="'rgb(128, 0, 128)'" when="value &lt;= 119.118" />
+      <d:step value="'rgb(192, 0, 192)'" when="value &lt;= 120.094" />
+      <d:step value="'rgb(255, 0, 255)'" when="value &lt;= 121.078" />
+      <d:step value="'rgb(255, 64, 255)'" when="value &lt;= 122.055" />
+      <d:step value="'rgb(255, 128, 255)'" when="value &lt;= 123.039" />
+      <d:step value="'rgb(255, 192, 255)'" when="value &lt;= 124.016" />
+      <d:step value="'rgb(255, 255, 255)'" when="value &lt;= 125" />
+      <d:step value="'rgb(0, 51, 0)'" when="value &lt;= 125.977" />
+      <d:step value="'rgb(0, 102, 0)'" when="value &lt;= 126.953" />
+      <d:step value="'rgb(0, 153, 0)'" when="value &lt;= 127.937" />
+      <d:step value="'rgb(0, 204, 0)'" when="value &lt;= 128.914" />
+      <d:step value="'rgb(0, 255, 0)'" when="value &lt;= 129.898" />
+      <d:step value="'rgb(64, 255, 64)'" when="value &lt;= 130.875" />
+      <d:step value="'rgb(128, 255, 128)'" when="value &lt;= 131.859" />
+      <d:step value="'rgb(192, 255, 192)'" when="value &lt;= 132.835" />
+      <d:step value="'rgb(51, 51, 0)'" when="value &lt;= 133.820" />
+      <d:step value="'rgb(102, 102, 0)'" when="value &lt;= 134.796" />
+      <d:step value="'rgb(153, 153, 0)'" when="value &lt;= 135.780" />
+      <d:step value="'rgb(204, 204, 0)'" when="value &lt;= 136.757" />
+      <d:step value="'rgb(255, 255, 0)'" when="value &lt;= 137.741" />
+      <d:step value="'rgb(255, 255, 64)'" when="value &lt;= 138.718" />
+      <d:step value="'rgb(255, 255, 128)'" when="value &lt;= 139.702" />
+      <d:step value="'rgb(255, 255, 192)'" when="value &lt;= 140.678" />
+      <d:step value="'rgb(0, 0, 51)'" when="value &lt;= 141.663" />
+      <d:step value="'rgb(0, 0, 102)'" when="value &lt;= 142.639" />
+      <d:step value="'rgb(0, 0, 153)'" when="value &lt;= 143.623" />
+      <d:step value="'rgb(0, 0, 204)'" when="value &lt;= 144.600" />
+      <d:step value="'rgb(0, 0, 255)'" when="value &lt;= 145.584" />
+      <d:step value="'rgb(64, 64, 255)'" when="value &lt;= 146.561" />
+      <d:step value="'rgb(128, 128, 255)'" when="value &lt;= 147.545" />
+      <d:step value="'rgb(192, 192, 255)'" when="value &lt;= 148.521" />
+      <d:step value="'rgb(0, 51, 51)'" when="value &lt;= 149.506" />
+      <d:step value="'rgb(0, 102, 102)'" when="value &lt;= 150.482" />
+      <d:step value="'rgb(0, 153, 153)'" when="value &lt;= 151.466" />
+      <d:step value="'rgb(0, 204, 204)'" when="value &lt;= 152.443" />
+      <d:step value="'rgb(0, 255, 255)'" when="value &lt;= 153.427" />
+      <d:step value="'rgb(64, 255, 255)'" when="value &lt;= 154.404" />
+      <d:step value="'rgb(128, 255, 255)'" when="value &lt;= 155.388" />
+      <d:step value="'rgb(192, 255, 255)'" when="value &lt;= 156.364" />
+      <d:step value="'rgb(51, 25, 0)'" when="value &lt;= 157.349" />
+      <d:step value="'rgb(102, 51, 0)'" when="value &lt;= 158.325" />
+      <d:step value="'rgb(153, 76, 0)'" when="value &lt;= 159.309" />
+      <d:step value="'rgb(204, 102, 0)'" when="value &lt;= 160.286" />
+      <d:step value="'rgb(255, 128, 0)'" when="value &lt;= 161.270" />
+      <d:step value="'rgb(255, 160, 64)'" when="value &lt;= 162.247" />
+      <d:step value="'rgb(255, 192, 128)'" when="value &lt;= 163.231" />
+      <d:step value="'rgb(255, 224, 192)'" when="value &lt;= 164.207" />
+      <d:step value="'rgb(0, 25, 51)'" when="value &lt;= 165.192" />
+      <d:step value="'rgb(0, 51, 102)'" when="value &lt;= 166.168" />
+      <d:step value="'rgb(0, 76, 153)'" when="value &lt;= 167.152" />
+      <d:step value="'rgb(0, 102, 204)'" when="value &lt;= 168.129" />
+      <d:step value="'rgb(0, 128, 255)'" when="value &lt;= 169.113" />
+      <d:step value="'rgb(64, 160, 255)'" when="value &lt;= 170.090" />
+      <d:step value="'rgb(128, 192, 255)'" when="value &lt;= 171.074" />
+      <d:step value="'rgb(192, 224, 255)'" when="value &lt;= 172.050" />
+      <d:step value="'rgb(25, 0, 51)'" when="value &lt;= 173.035" />
+      <d:step value="'rgb(51, 0, 102)'" when="value &lt;= 174.011" />
+      <d:step value="'rgb(76, 0, 153)'" when="value &lt;= 174.995" />
+      <d:step value="'rgb(102, 0, 204)'" when="value &lt;= 175.972" />
+      <d:step value="'rgb(128, 0, 255)'" when="value &lt;= 176.956" />
+      <d:step value="'rgb(160, 64, 255)'" when="value &lt;= 177.933" />
+      <d:step value="'rgb(192, 128, 255)'" when="value &lt;= 178.917" />
+      <d:step value="'rgb(224, 192, 255)'" when="value &lt;= 179.893" />
+      <d:step value="'rgb(51, 0, 25)'" when="value &lt;= 180.878" />
+      <d:step value="'rgb(102, 0, 51)'" when="value &lt;= 181.854" />
+      <d:step value="'rgb(153, 0, 76)'" when="value &lt;= 182.838" />
+      <d:step value="'rgb(204, 0, 102)'" when="value &lt;= 183.815" />
+      <d:step value="'rgb(255, 0, 128)'" when="value &lt;= 184.799" />
+      <d:step value="'rgb(255, 64, 160)'" when="value &lt;= 185.776" />
+      <d:step value="'rgb(255, 128, 192)'" when="value &lt;= 186.760" />
+      <d:step value="'rgb(255, 192, 224)'" when="value &lt;= 187.737" />
+      <d:step value="'rgb(255, 0, 0)'" when="value &lt;= 188.721" />
+      <d:step value="'rgb(255, 32, 0)'" when="value &lt;= 189.697" />
+      <d:step value="'rgb(255, 64, 0)'" when="value &lt;= 190.681" />
+      <d:step value="'rgb(255, 96, 0)'" when="value &lt;= 191.658" />
+      <d:step value="'rgb(255, 128, 0)'" when="value &lt;= 192.642" />
+      <d:step value="'rgb(255, 160, 0)'" when="value &lt;= 193.619" />
+      <d:step value="'rgb(255, 192, 0)'" when="value &lt;= 194.603" />
+      <d:step value="'rgb(255, 224, 0)'" when="value &lt;= 195.580" />
+      <d:step value="'rgb(255, 255, 0)'" when="value &lt;= 196.564" />
+      <d:step value="'rgb(224, 255, 0)'" when="value &lt;= 197.540" />
+      <d:step value="'rgb(192, 255, 0)'" when="value &lt;= 198.524" />
+      <d:step value="'rgb(160, 255, 0)'" when="value &lt;= 199.501" />
+      <d:step value="'rgb(128, 255, 0)'" when="value &lt;= 200.485" />
+      <d:step value="'rgb(96, 255, 0)'" when="value &lt;= 201.462" />
+      <d:step value="'rgb(64, 255, 0)'" when="value &lt;= 202.446" />
+      <d:step value="'rgb(32, 255, 0)'" when="value &lt;= 203.423" />
+      <d:step value="'rgb(0, 255, 0)'" when="value &lt;= 204.407" />
+      <d:step value="'rgb(0, 255, 32)'" when="value &lt;= 205.383" />
+      <d:step value="'rgb(0, 255, 64)'" when="value &lt;= 206.367" />
+      <d:step value="'rgb(0, 255, 96)'" when="value &lt;= 207.344" />
+      <d:step value="'rgb(0, 255, 128)'" when="value &lt;= 208.328" />
+      <d:step value="'rgb(0, 255, 160)'" when="value &lt;= 209.305" />
+      <d:step value="'rgb(0, 255, 192)'" when="value &lt;= 210.289" />
+      <d:step value="'rgb(0, 255, 224)'" when="value &lt;= 211.266" />
+      <d:step value="'rgb(0, 255, 255)'" when="value &lt;= 212.250" />
+      <d:step value="'rgb(0, 224, 255)'" when="value &lt;= 213.226" />
+      <d:step value="'rgb(0, 192, 255)'" when="value &lt;= 214.211" />
+      <d:step value="'rgb(0, 160, 255)'" when="value &lt;= 215.187" />
+      <d:step value="'rgb(0, 128, 255)'" when="value &lt;= 216.171" />
+      <d:step value="'rgb(0, 96, 255)'" when="value &lt;= 217.148" />
+      <d:step value="'rgb(0, 64, 255)'" when="value &lt;= 218.132" />
+      <d:step value="'rgb(0, 32, 255)'" when="value &lt;= 219.109" />
+      <d:step value="'rgb(0, 0, 255)'" when="value &lt;= 220.093" />
+      <d:step value="'rgb(32, 0, 255)'" when="value &lt;= 221.069" />
+      <d:step value="'rgb(64, 0, 255)'" when="value &lt;= 222.054" />
+      <d:step value="'rgb(96, 0, 255)'" when="value &lt;= 223.030" />
+      <d:step value="'rgb(128, 0, 255)'" when="value &lt;= 224.014" />
+      <d:step value="'rgb(160, 0, 255)'" when="value &lt;= 224.991" />
+      <d:step value="'rgb(192, 0, 255)'" when="value &lt;= 225.975" />
+      <d:step value="'rgb(224, 0, 255)'" when="value &lt;= 226.952" />
+      <d:step value="'rgb(255, 0, 255)'" when="value &lt;= 227.936" />
+      <d:step value="'rgb(255, 0, 224)'" when="value &lt;= 228.912" />
+      <d:step value="'rgb(255, 0, 192)'" when="value &lt;= 229.897" />
+      <d:step value="'rgb(255, 0, 160)'" when="value &lt;= 230.873" />
+      <d:step value="'rgb(255, 0, 128)'" when="value &lt;= 231.857" />
+      <d:step value="'rgb(255, 0, 96)'" when="value &lt;= 232.834" />
+      <d:step value="'rgb(255, 0, 64)'" when="value &lt;= 233.818" />
+      <d:step value="'rgb(255, 0, 32)'" when="value &lt;= 234.795" />
+      <d:step value="'rgb(16, 16, 16)'" when="value &lt;= 235.779" />
+      <d:step value="'rgb(32, 32, 32)'" when="value &lt;= 236.755" />
+      <d:step value="'rgb(48, 48, 48)'" when="value &lt;= 237.740" />
+      <d:step value="'rgb(64, 64, 64)'" when="value &lt;= 238.716" />
+      <d:step value="'rgb(80, 80, 80)'" when="value &lt;= 239.700" />
+      <d:step value="'rgb(96, 96, 96)'" when="value &lt;= 240.677" />
+      <d:step value="'rgb(112, 112, 112)'" when="value &lt;= 241.661" />
+      <d:step value="'rgb(128, 128, 128)'" when="value &lt;= 242.638" />
+      <d:step value="'rgb(144, 144, 144)'" when="value &lt;= 243.622" />
+      <d:step value="'rgb(160, 160, 160)'" when="value &lt;= 244.598" />
+      <d:step value="'rgb(176, 176, 176)'" when="value &lt;= 245.583" />
+      <d:step value="'rgb(192, 192, 192)'" when="value &lt;= 246.559" />
+      <d:step value="'rgb(208, 208, 208)'" when="value &lt;= 247.543" />
+      <d:step value="'rgb(224, 224, 224)'" when="value &lt;= 248.520" />
+      <d:step value="'rgb(240, 240, 240)'" when="value &lt;= 249.504" />
+      <d:otherwise value="'rgb(255, 255, 255)'" />
+    </d:mapping>
+    <d:mapping name="f1428" parameters="value">
+      <d:step value="colors[57]" when="value &lt;= 0.488" />
+      <d:step value="'rgb(255, 255, 128)'" when="value &lt;= 1.472" />
+      <d:step value="'rgb(255, 0, 0)'" when="value &lt;= 2.449" />
+      <d:step value="'rgb(0, 255, 0)'" when="value &lt;= 3.433" />
+      <d:step value="'rgb(0, 0, 255)'" when="value &lt;= 4.410" />
+      <d:step value="'rgb(255, 0, 255)'" when="value &lt;= 5.394" />
+      <d:step value="'rgb(255, 255, 0)'" when="value &lt;= 6.371" />
+      <d:step value="'rgb(0, 255, 255)'" when="value &lt;= 7.355" />
+      <d:step value="'rgb(255, 128, 0)'" when="value &lt;= 8.331" />
+      <d:step value="'rgb(128, 255, 0)'" when="value &lt;= 9.315" />
+      <d:step value="'rgb(0, 255, 128)'" when="value &lt;= 10.292" />
+      <d:step value="'rgb(0, 128, 255)'" when="value &lt;= 11.276" />
+      <d:step value="'rgb(128, 0, 255)'" when="value &lt;= 12.253" />
+      <d:step value="'rgb(255, 0, 128)'" when="value &lt;= 13.237" />
+      <d:step value="'rgb(128, 128, 128)'" when="value &lt;= 14.214" />
+      <d:step value="'rgb(255, 255, 255)'" when="value &lt;= 15.198" />
+      <d:step value="colors[16]" when="value &lt;= 16.174" />
+      <d:step value="colors[17]" when="value &lt;= 17.159" />
+      <d:step value="colors[18]" when="value &lt;= 18.135" />
+      <d:step value="colors[19]" when="value &lt;= 19.119" />
+      <d:step value="colors[20]" when="value &lt;= 20.096" />
+      <d:step value="colors[21]" when="value &lt;= 21.080" />
+      <d:step value="colors[22]" when="value &lt;= 22.057" />
+      <d:step value="colors[23]" when="value &lt;= 23.041" />
+      <d:step value="colors[24]" when="value &lt;= 24.017" />
+      <d:step value="colors[25]" when="value &lt;= 25.002" />
+      <d:step value="colors[26]" when="value &lt;= 25.978" />
+      <d:step value="colors[27]" when="value &lt;= 26.962" />
+      <d:step value="colors[28]" when="value &lt;= 27.939" />
+      <d:step value="colors[29]" when="value &lt;= 28.923" />
+      <d:step value="colors[30]" when="value &lt;= 29.900" />
+      <d:step value="colors[31]" when="value &lt;= 30.884" />
+      <d:step value="colors[32]" when="value &lt;= 31.860" />
+      <d:step value="colors[33]" when="value &lt;= 32.845" />
+      <d:step value="colors[34]" when="value &lt;= 33.821" />
+      <d:step value="colors[35]" when="value &lt;= 34.805" />
+      <d:step value="colors[36]" when="value &lt;= 35.782" />
+      <d:step value="colors[37]" when="value &lt;= 36.766" />
+      <d:step value="colors[38]" when="value &lt;= 37.743" />
+      <d:step value="colors[39]" when="value &lt;= 38.727" />
+      <d:step value="colors[40]" when="value &lt;= 39.703" />
+      <d:step value="colors[41]" when="value &lt;= 40.688" />
+      <d:step value="colors[42]" when="value &lt;= 41.664" />
+      <d:step value="colors[43]" when="value &lt;= 42.648" />
+      <d:step value="colors[44]" when="value &lt;= 43.625" />
+      <d:step value="colors[45]" when="value &lt;= 44.609" />
+      <d:step value="colors[46]" when="value &lt;= 45.586" />
+      <d:step value="colors[47]" when="value &lt;= 46.570" />
+      <d:step value="colors[48]" when="value &lt;= 47.546" />
+      <d:step value="colors[49]" when="value &lt;= 48.531" />
+      <d:step value="colors[50]" when="value &lt;= 49.507" />
+      <d:step value="colors[51]" when="value &lt;= 50.491" />
+      <d:step value="colors[52]" when="value &lt;= 51.468" />
+      <d:step value="colors[53]" when="value &lt;= 52.452" />
+      <d:step value="colors[54]" when="value &lt;= 53.429" />
+      <d:step value="colors[55]" when="value &lt;= 54.413" />
+      <d:step value="colors[56]" when="value &lt;= 55.389" />
+      <d:step value="colors[57]" when="value &lt;= 56.374" />
+      <d:step value="colors[58]" when="value &lt;= 57.350" />
+      <d:step value="colors[59]" when="value &lt;= 58.334" />
+      <d:step value="colors[60]" when="value &lt;= 59.311" />
+      <d:step value="colors[61]" when="value &lt;= 60.295" />
+      <d:step value="colors[62]" when="value &lt;= 61.272" />
+      <d:step value="colors[63]" when="value &lt;= 62.256" />
+      <d:step value="colors[64]" when="value &lt;= 63.232" />
+      <d:step value="colors[65]" when="value &lt;= 64.217" />
+      <d:step value="colors[66]" when="value &lt;= 65.193" />
+      <d:step value="colors[67]" when="value &lt;= 66.177" />
+      <d:step value="colors[68]" when="value &lt;= 67.154" />
+      <d:step value="colors[69]" when="value &lt;= 68.138" />
+      <d:step value="colors[70]" when="value &lt;= 69.115" />
+      <d:step value="colors[71]" when="value &lt;= 70.099" />
+      <d:step value="colors[72]" when="value &lt;= 71.075" />
+      <d:step value="colors[73]" when="value &lt;= 72.060" />
+      <d:step value="colors[74]" when="value &lt;= 73.036" />
+      <d:step value="colors[75]" when="value &lt;= 74.020" />
+      <d:step value="colors[76]" when="value &lt;= 74.997" />
+      <d:step value="colors[77]" when="value &lt;= 75.981" />
+      <d:step value="colors[78]" when="value &lt;= 76.958" />
+      <d:step value="colors[79]" when="value &lt;= 77.942" />
+      <d:step value="colors[80]" when="value &lt;= 78.918" />
+      <d:step value="colors[81]" when="value &lt;= 79.903" />
+      <d:step value="colors[82]" when="value &lt;= 80.879" />
+      <d:step value="colors[83]" when="value &lt;= 81.863" />
+      <d:step value="colors[84]" when="value &lt;= 82.840" />
+      <d:step value="colors[85]" when="value &lt;= 83.824" />
+      <d:step value="colors[86]" when="value &lt;= 84.801" />
+      <d:step value="colors[87]" when="value &lt;= 85.785" />
+      <d:step value="colors[88]" when="value &lt;= 86.761" />
+      <d:step value="colors[89]" when="value &lt;= 87.746" />
+      <d:step value="colors[90]" when="value &lt;= 88.722" />
+      <d:step value="colors[91]" when="value &lt;= 89.706" />
+      <d:step value="colors[92]" when="value &lt;= 90.683" />
+      <d:step value="colors[93]" when="value &lt;= 91.667" />
+      <d:step value="colors[94]" when="value &lt;= 92.644" />
+      <d:step value="colors[95]" when="value &lt;= 93.628" />
+      <d:step value="colors[96]" when="value &lt;= 94.604" />
+      <d:step value="colors[97]" when="value &lt;= 95.589" />
+      <d:step value="colors[98]" when="value &lt;= 96.565" />
+      <d:step value="colors[99]" when="value &lt;= 97.549" />
+      <d:step value="colors[100]" when="value &lt;= 98.526" />
+      <d:step value="colors[101]" when="value &lt;= 99.510" />
+      <d:step value="colors[102]" when="value &lt;= 100.487" />
+      <d:step value="colors[103]" when="value &lt;= 101.471" />
+      <d:step value="colors[104]" when="value &lt;= 102.448" />
+      <d:step value="colors[105]" when="value &lt;= 103.432" />
+      <d:step value="colors[106]" when="value &lt;= 104.408" />
+      <d:step value="colors[107]" when="value &lt;= 105.392" />
+      <d:step value="colors[108]" when="value &lt;= 106.369" />
+      <d:step value="colors[109]" when="value &lt;= 107.353" />
+      <d:step value="colors[110]" when="value &lt;= 108.330" />
+      <d:step value="colors[111]" when="value &lt;= 109.314" />
+      <d:step value="colors[112]" when="value &lt;= 110.291" />
+      <d:step value="colors[113]" when="value &lt;= 111.275" />
+      <d:step value="colors[114]" when="value &lt;= 112.251" />
+      <d:step value="colors[115]" when="value &lt;= 113.235" />
+      <d:step value="colors[116]" when="value &lt;= 114.212" />
+      <d:step value="'rgb(255, 64, 64)'" when="value &lt;= 115.196" />
+      <d:step value="'rgb(255, 128, 128)'" when="value &lt;= 116.180" />
+      <d:step value="'rgb(255, 192, 192)'" when="value &lt;= 117.157" />
+      <d:step value="'rgb(64, 0, 64)'" when="value &lt;= 118.134" />
+      <d:step value="'rgb(128, 0, 128)'" when="value &lt;= 119.118" />
+      <d:step value="'rgb(192, 0, 192)'" when="value &lt;= 120.094" />
+      <d:step value="'rgb(255, 0, 255)'" when="value &lt;= 121.078" />
+      <d:step value="'rgb(255, 64, 255)'" when="value &lt;= 122.055" />
+      <d:step value="'rgb(255, 128, 255)'" when="value &lt;= 123.039" />
+      <d:step value="'rgb(255, 192, 255)'" when="value &lt;= 124.016" />
+      <d:step value="'rgb(255, 255, 255)'" when="value &lt;= 125" />
+      <d:step value="'rgb(0, 51, 0)'" when="value &lt;= 125.977" />
+      <d:step value="'rgb(0, 102, 0)'" when="value &lt;= 126.953" />
+      <d:step value="'rgb(0, 153, 0)'" when="value &lt;= 127.937" />
+      <d:step value="'rgb(0, 204, 0)'" when="value &lt;= 128.914" />
+      <d:step value="'rgb(0, 255, 0)'" when="value &lt;= 129.898" />
+      <d:step value="'rgb(64, 255, 64)'" when="value &lt;= 130.875" />
+      <d:step value="'rgb(128, 255, 128)'" when="value &lt;= 131.859" />
+      <d:step value="'rgb(192, 255, 192)'" when="value &lt;= 132.835" />
+      <d:step value="'rgb(51, 51, 0)'" when="value &lt;= 133.820" />
+      <d:step value="'rgb(102, 102, 0)'" when="value &lt;= 134.796" />
+      <d:step value="'rgb(153, 153, 0)'" when="value &lt;= 135.780" />
+      <d:step value="'rgb(204, 204, 0)'" when="value &lt;= 136.757" />
+      <d:step value="'rgb(255, 255, 0)'" when="value &lt;= 137.741" />
+      <d:step value="'rgb(255, 255, 64)'" when="value &lt;= 138.718" />
+      <d:step value="'rgb(255, 255, 128)'" when="value &lt;= 139.702" />
+      <d:step value="'rgb(255, 255, 192)'" when="value &lt;= 140.678" />
+      <d:step value="'rgb(0, 0, 51)'" when="value &lt;= 141.663" />
+      <d:step value="'rgb(0, 0, 102)'" when="value &lt;= 142.639" />
+      <d:step value="'rgb(0, 0, 153)'" when="value &lt;= 143.623" />
+      <d:step value="'rgb(0, 0, 204)'" when="value &lt;= 144.600" />
+      <d:step value="'rgb(0, 0, 255)'" when="value &lt;= 145.584" />
+      <d:step value="'rgb(64, 64, 255)'" when="value &lt;= 146.561" />
+      <d:step value="'rgb(128, 128, 255)'" when="value &lt;= 147.545" />
+      <d:step value="'rgb(192, 192, 255)'" when="value &lt;= 148.521" />
+      <d:step value="'rgb(0, 51, 51)'" when="value &lt;= 149.506" />
+      <d:step value="'rgb(0, 102, 102)'" when="value &lt;= 150.482" />
+      <d:step value="'rgb(0, 153, 153)'" when="value &lt;= 151.466" />
+      <d:step value="'rgb(0, 204, 204)'" when="value &lt;= 152.443" />
+      <d:step value="'rgb(0, 255, 255)'" when="value &lt;= 153.427" />
+      <d:step value="'rgb(64, 255, 255)'" when="value &lt;= 154.404" />
+      <d:step value="'rgb(128, 255, 255)'" when="value &lt;= 155.388" />
+      <d:step value="'rgb(192, 255, 255)'" when="value &lt;= 156.364" />
+      <d:step value="'rgb(51, 25, 0)'" when="value &lt;= 157.349" />
+      <d:step value="'rgb(102, 51, 0)'" when="value &lt;= 158.325" />
+      <d:step value="'rgb(153, 76, 0)'" when="value &lt;= 159.309" />
+      <d:step value="'rgb(204, 102, 0)'" when="value &lt;= 160.286" />
+      <d:step value="'rgb(255, 128, 0)'" when="value &lt;= 161.270" />
+      <d:step value="'rgb(255, 160, 64)'" when="value &lt;= 162.247" />
+      <d:step value="'rgb(255, 192, 128)'" when="value &lt;= 163.231" />
+      <d:step value="'rgb(255, 224, 192)'" when="value &lt;= 164.207" />
+      <d:step value="'rgb(0, 25, 51)'" when="value &lt;= 165.192" />
+      <d:step value="'rgb(0, 51, 102)'" when="value &lt;= 166.168" />
+      <d:step value="'rgb(0, 76, 153)'" when="value &lt;= 167.152" />
+      <d:step value="'rgb(0, 102, 204)'" when="value &lt;= 168.129" />
+      <d:step value="'rgb(0, 128, 255)'" when="value &lt;= 169.113" />
+      <d:step value="'rgb(64, 160, 255)'" when="value &lt;= 170.090" />
+      <d:step value="'rgb(128, 192, 255)'" when="value &lt;= 171.074" />
+      <d:step value="'rgb(192, 224, 255)'" when="value &lt;= 172.050" />
+      <d:step value="'rgb(25, 0, 51)'" when="value &lt;= 173.035" />
+      <d:step value="'rgb(51, 0, 102)'" when="value &lt;= 174.011" />
+      <d:step value="'rgb(76, 0, 153)'" when="value &lt;= 174.995" />
+      <d:step value="'rgb(102, 0, 204)'" when="value &lt;= 175.972" />
+      <d:step value="'rgb(128, 0, 255)'" when="value &lt;= 176.956" />
+      <d:step value="'rgb(160, 64, 255)'" when="value &lt;= 177.933" />
+      <d:step value="'rgb(192, 128, 255)'" when="value &lt;= 178.917" />
+      <d:step value="'rgb(224, 192, 255)'" when="value &lt;= 179.893" />
+      <d:step value="'rgb(51, 0, 25)'" when="value &lt;= 180.878" />
+      <d:step value="'rgb(102, 0, 51)'" when="value &lt;= 181.854" />
+      <d:step value="'rgb(153, 0, 76)'" when="value &lt;= 182.838" />
+      <d:step value="'rgb(204, 0, 102)'" when="value &lt;= 183.815" />
+      <d:step value="'rgb(255, 0, 128)'" when="value &lt;= 184.799" />
+      <d:step value="'rgb(255, 64, 160)'" when="value &lt;= 185.776" />
+      <d:step value="'rgb(255, 128, 192)'" when="value &lt;= 186.760" />
+      <d:step value="'rgb(255, 192, 224)'" when="value &lt;= 187.737" />
+      <d:step value="'rgb(255, 0, 0)'" when="value &lt;= 188.721" />
+      <d:step value="'rgb(255, 32, 0)'" when="value &lt;= 189.697" />
+      <d:step value="'rgb(255, 64, 0)'" when="value &lt;= 190.681" />
+      <d:step value="'rgb(255, 96, 0)'" when="value &lt;= 191.658" />
+      <d:step value="'rgb(255, 128, 0)'" when="value &lt;= 192.642" />
+      <d:step value="'rgb(255, 160, 0)'" when="value &lt;= 193.619" />
+      <d:step value="'rgb(255, 192, 0)'" when="value &lt;= 194.603" />
+      <d:step value="'rgb(255, 224, 0)'" when="value &lt;= 195.580" />
+      <d:step value="'rgb(255, 255, 0)'" when="value &lt;= 196.564" />
+      <d:step value="'rgb(224, 255, 0)'" when="value &lt;= 197.540" />
+      <d:step value="'rgb(192, 255, 0)'" when="value &lt;= 198.524" />
+      <d:step value="'rgb(160, 255, 0)'" when="value &lt;= 199.501" />
+      <d:step value="'rgb(128, 255, 0)'" when="value &lt;= 200.485" />
+      <d:step value="'rgb(96, 255, 0)'" when="value &lt;= 201.462" />
+      <d:step value="'rgb(64, 255, 0)'" when="value &lt;= 202.446" />
+      <d:step value="'rgb(32, 255, 0)'" when="value &lt;= 203.423" />
+      <d:step value="'rgb(0, 255, 0)'" when="value &lt;= 204.407" />
+      <d:step value="'rgb(0, 255, 32)'" when="value &lt;= 205.383" />
+      <d:step value="'rgb(0, 255, 64)'" when="value &lt;= 206.367" />
+      <d:step value="'rgb(0, 255, 96)'" when="value &lt;= 207.344" />
+      <d:step value="'rgb(0, 255, 128)'" when="value &lt;= 208.328" />
+      <d:step value="'rgb(0, 255, 160)'" when="value &lt;= 209.305" />
+      <d:step value="'rgb(0, 255, 192)'" when="value &lt;= 210.289" />
+      <d:step value="'rgb(0, 255, 224)'" when="value &lt;= 211.266" />
+      <d:step value="'rgb(0, 255, 255)'" when="value &lt;= 212.250" />
+      <d:step value="'rgb(0, 224, 255)'" when="value &lt;= 213.226" />
+      <d:step value="'rgb(0, 192, 255)'" when="value &lt;= 214.211" />
+      <d:step value="'rgb(0, 160, 255)'" when="value &lt;= 215.187" />
+      <d:step value="'rgb(0, 128, 255)'" when="value &lt;= 216.171" />
+      <d:step value="'rgb(0, 96, 255)'" when="value &lt;= 217.148" />
+      <d:step value="'rgb(0, 64, 255)'" when="value &lt;= 218.132" />
+      <d:step value="'rgb(0, 32, 255)'" when="value &lt;= 219.109" />
+      <d:step value="'rgb(0, 0, 255)'" when="value &lt;= 220.093" />
+      <d:step value="'rgb(32, 0, 255)'" when="value &lt;= 221.069" />
+      <d:step value="'rgb(64, 0, 255)'" when="value &lt;= 222.054" />
+      <d:step value="'rgb(96, 0, 255)'" when="value &lt;= 223.030" />
+      <d:step value="'rgb(128, 0, 255)'" when="value &lt;= 224.014" />
+      <d:step value="'rgb(160, 0, 255)'" when="value &lt;= 224.991" />
+      <d:step value="'rgb(192, 0, 255)'" when="value &lt;= 225.975" />
+      <d:step value="'rgb(224, 0, 255)'" when="value &lt;= 226.952" />
+      <d:step value="'rgb(255, 0, 255)'" when="value &lt;= 227.936" />
+      <d:step value="'rgb(255, 0, 224)'" when="value &lt;= 228.912" />
+      <d:step value="'rgb(255, 0, 192)'" when="value &lt;= 229.897" />
+      <d:step value="'rgb(255, 0, 160)'" when="value &lt;= 230.873" />
+      <d:step value="'rgb(255, 0, 128)'" when="value &lt;= 231.857" />
+      <d:step value="'rgb(255, 0, 96)'" when="value &lt;= 232.834" />
+      <d:step value="'rgb(255, 0, 64)'" when="value &lt;= 233.818" />
+      <d:step value="'rgb(255, 0, 32)'" when="value &lt;= 234.795" />
+      <d:step value="'rgb(16, 16, 16)'" when="value &lt;= 235.779" />
+      <d:step value="'rgb(32, 32, 32)'" when="value &lt;= 236.755" />
+      <d:step value="'rgb(48, 48, 48)'" when="value &lt;= 237.740" />
+      <d:step value="'rgb(64, 64, 64)'" when="value &lt;= 238.716" />
+      <d:step value="'rgb(80, 80, 80)'" when="value &lt;= 239.700" />
+      <d:step value="'rgb(96, 96, 96)'" when="value &lt;= 240.677" />
+      <d:step value="'rgb(112, 112, 112)'" when="value &lt;= 241.661" />
+      <d:step value="'rgb(128, 128, 128)'" when="value &lt;= 242.638" />
+      <d:step value="'rgb(144, 144, 144)'" when="value &lt;= 243.622" />
+      <d:step value="'rgb(160, 160, 160)'" when="value &lt;= 244.598" />
+      <d:step value="'rgb(176, 176, 176)'" when="value &lt;= 245.583" />
+      <d:step value="'rgb(192, 192, 192)'" when="value &lt;= 246.559" />
+      <d:step value="'rgb(208, 208, 208)'" when="value &lt;= 247.543" />
+      <d:step value="'rgb(224, 224, 224)'" when="value &lt;= 248.520" />
+      <d:step value="'rgb(240, 240, 240)'" when="value &lt;= 249.504" />
+      <d:otherwise value="'rgb(255, 255, 255)'" />
+    </d:mapping>
+    <d:mapping name="f1429" parameters="value">
+      <d:step value="colors[57]" when="value &lt;= 0.488" />
+      <d:step value="'rgb(255, 255, 128)'" when="value &lt;= 1.472" />
+      <d:step value="'rgb(255, 0, 0)'" when="value &lt;= 2.449" />
+      <d:step value="'rgb(0, 255, 0)'" when="value &lt;= 3.433" />
+      <d:step value="'rgb(0, 0, 255)'" when="value &lt;= 4.410" />
+      <d:step value="'rgb(255, 0, 255)'" when="value &lt;= 5.394" />
+      <d:step value="'rgb(255, 255, 0)'" when="value &lt;= 6.371" />
+      <d:step value="'rgb(0, 255, 255)'" when="value &lt;= 7.355" />
+      <d:step value="'rgb(255, 128, 0)'" when="value &lt;= 8.331" />
+      <d:step value="'rgb(128, 255, 0)'" when="value &lt;= 9.315" />
+      <d:step value="'rgb(0, 255, 128)'" when="value &lt;= 10.292" />
+      <d:step value="'rgb(0, 128, 255)'" when="value &lt;= 11.276" />
+      <d:step value="'rgb(128, 0, 255)'" when="value &lt;= 12.253" />
+      <d:step value="'rgb(255, 0, 128)'" when="value &lt;= 13.237" />
+      <d:step value="'rgb(128, 128, 128)'" when="value &lt;= 14.214" />
+      <d:step value="'rgb(255, 255, 255)'" when="value &lt;= 15.198" />
+      <d:step value="colors[16]" when="value &lt;= 16.174" />
+      <d:step value="colors[17]" when="value &lt;= 17.159" />
+      <d:step value="colors[18]" when="value &lt;= 18.135" />
+      <d:step value="colors[19]" when="value &lt;= 19.119" />
+      <d:step value="colors[20]" when="value &lt;= 20.096" />
+      <d:step value="colors[21]" when="value &lt;= 21.080" />
+      <d:step value="colors[22]" when="value &lt;= 22.057" />
+      <d:step value="colors[23]" when="value &lt;= 23.041" />
+      <d:step value="colors[24]" when="value &lt;= 24.017" />
+      <d:step value="colors[25]" when="value &lt;= 25.002" />
+      <d:step value="colors[26]" when="value &lt;= 25.978" />
+      <d:step value="colors[27]" when="value &lt;= 26.962" />
+      <d:step value="colors[28]" when="value &lt;= 27.939" />
+      <d:step value="colors[29]" when="value &lt;= 28.923" />
+      <d:step value="colors[30]" when="value &lt;= 29.900" />
+      <d:step value="colors[31]" when="value &lt;= 30.884" />
+      <d:step value="colors[32]" when="value &lt;= 31.860" />
+      <d:step value="colors[33]" when="value &lt;= 32.845" />
+      <d:step value="colors[34]" when="value &lt;= 33.821" />
+      <d:step value="colors[35]" when="value &lt;= 34.805" />
+      <d:step value="colors[36]" when="value &lt;= 35.782" />
+      <d:step value="colors[37]" when="value &lt;= 36.766" />
+      <d:step value="colors[38]" when="value &lt;= 37.743" />
+      <d:step value="colors[39]" when="value &lt;= 38.727" />
+      <d:step value="colors[40]" when="value &lt;= 39.703" />
+      <d:step value="colors[41]" when="value &lt;= 40.688" />
+      <d:step value="colors[42]" when="value &lt;= 41.664" />
+      <d:step value="colors[43]" when="value &lt;= 42.648" />
+      <d:step value="colors[44]" when="value &lt;= 43.625" />
+      <d:step value="colors[45]" when="value &lt;= 44.609" />
+      <d:step value="colors[46]" when="value &lt;= 45.586" />
+      <d:step value="colors[47]" when="value &lt;= 46.570" />
+      <d:step value="colors[48]" when="value &lt;= 47.546" />
+      <d:step value="colors[49]" when="value &lt;= 48.531" />
+      <d:step value="colors[50]" when="value &lt;= 49.507" />
+      <d:step value="colors[51]" when="value &lt;= 50.491" />
+      <d:step value="colors[52]" when="value &lt;= 51.468" />
+      <d:step value="colors[53]" when="value &lt;= 52.452" />
+      <d:step value="colors[54]" when="value &lt;= 53.429" />
+      <d:step value="colors[55]" when="value &lt;= 54.413" />
+      <d:step value="colors[56]" when="value &lt;= 55.389" />
+      <d:step value="colors[57]" when="value &lt;= 56.374" />
+      <d:step value="colors[58]" when="value &lt;= 57.350" />
+      <d:step value="colors[59]" when="value &lt;= 58.334" />
+      <d:step value="colors[60]" when="value &lt;= 59.311" />
+      <d:step value="colors[61]" when="value &lt;= 60.295" />
+      <d:step value="colors[62]" when="value &lt;= 61.272" />
+      <d:step value="colors[63]" when="value &lt;= 62.256" />
+      <d:step value="colors[64]" when="value &lt;= 63.232" />
+      <d:step value="colors[65]" when="value &lt;= 64.217" />
+      <d:step value="colors[66]" when="value &lt;= 65.193" />
+      <d:step value="colors[67]" when="value &lt;= 66.177" />
+      <d:step value="colors[68]" when="value &lt;= 67.154" />
+      <d:step value="colors[69]" when="value &lt;= 68.138" />
+      <d:step value="colors[70]" when="value &lt;= 69.115" />
+      <d:step value="colors[71]" when="value &lt;= 70.099" />
+      <d:step value="colors[72]" when="value &lt;= 71.075" />
+      <d:step value="colors[73]" when="value &lt;= 72.060" />
+      <d:step value="colors[74]" when="value &lt;= 73.036" />
+      <d:step value="colors[75]" when="value &lt;= 74.020" />
+      <d:step value="colors[76]" when="value &lt;= 74.997" />
+      <d:step value="colors[77]" when="value &lt;= 75.981" />
+      <d:step value="colors[78]" when="value &lt;= 76.958" />
+      <d:step value="colors[79]" when="value &lt;= 77.942" />
+      <d:step value="colors[80]" when="value &lt;= 78.918" />
+      <d:step value="colors[81]" when="value &lt;= 79.903" />
+      <d:step value="colors[82]" when="value &lt;= 80.879" />
+      <d:step value="colors[83]" when="value &lt;= 81.863" />
+      <d:step value="colors[84]" when="value &lt;= 82.840" />
+      <d:step value="colors[85]" when="value &lt;= 83.824" />
+      <d:step value="colors[86]" when="value &lt;= 84.801" />
+      <d:step value="colors[87]" when="value &lt;= 85.785" />
+      <d:step value="colors[88]" when="value &lt;= 86.761" />
+      <d:step value="colors[89]" when="value &lt;= 87.746" />
+      <d:step value="colors[90]" when="value &lt;= 88.722" />
+      <d:step value="colors[91]" when="value &lt;= 89.706" />
+      <d:step value="colors[92]" when="value &lt;= 90.683" />
+      <d:step value="colors[93]" when="value &lt;= 91.667" />
+      <d:step value="colors[94]" when="value &lt;= 92.644" />
+      <d:step value="colors[95]" when="value &lt;= 93.628" />
+      <d:step value="colors[96]" when="value &lt;= 94.604" />
+      <d:step value="colors[97]" when="value &lt;= 95.589" />
+      <d:step value="colors[98]" when="value &lt;= 96.565" />
+      <d:step value="colors[99]" when="value &lt;= 97.549" />
+      <d:step value="colors[100]" when="value &lt;= 98.526" />
+      <d:step value="colors[101]" when="value &lt;= 99.510" />
+      <d:step value="colors[102]" when="value &lt;= 100.487" />
+      <d:step value="colors[103]" when="value &lt;= 101.471" />
+      <d:step value="colors[104]" when="value &lt;= 102.448" />
+      <d:step value="colors[105]" when="value &lt;= 103.432" />
+      <d:step value="colors[106]" when="value &lt;= 104.408" />
+      <d:step value="colors[107]" when="value &lt;= 105.392" />
+      <d:step value="colors[108]" when="value &lt;= 106.369" />
+      <d:step value="colors[109]" when="value &lt;= 107.353" />
+      <d:step value="colors[110]" when="value &lt;= 108.330" />
+      <d:step value="colors[111]" when="value &lt;= 109.314" />
+      <d:step value="colors[112]" when="value &lt;= 110.291" />
+      <d:step value="colors[113]" when="value &lt;= 111.275" />
+      <d:step value="colors[114]" when="value &lt;= 112.251" />
+      <d:step value="colors[115]" when="value &lt;= 113.235" />
+      <d:step value="colors[116]" when="value &lt;= 114.212" />
+      <d:step value="'rgb(255, 64, 64)'" when="value &lt;= 115.196" />
+      <d:step value="'rgb(255, 128, 128)'" when="value &lt;= 116.180" />
+      <d:step value="'rgb(255, 192, 192)'" when="value &lt;= 117.157" />
+      <d:step value="'rgb(64, 0, 64)'" when="value &lt;= 118.134" />
+      <d:step value="'rgb(128, 0, 128)'" when="value &lt;= 119.118" />
+      <d:step value="'rgb(192, 0, 192)'" when="value &lt;= 120.094" />
+      <d:step value="'rgb(255, 0, 255)'" when="value &lt;= 121.078" />
+      <d:step value="'rgb(255, 64, 255)'" when="value &lt;= 122.055" />
+      <d:step value="'rgb(255, 128, 255)'" when="value &lt;= 123.039" />
+      <d:step value="'rgb(255, 192, 255)'" when="value &lt;= 124.016" />
+      <d:step value="'rgb(255, 255, 255)'" when="value &lt;= 125" />
+      <d:step value="'rgb(0, 51, 0)'" when="value &lt;= 125.977" />
+      <d:step value="'rgb(0, 102, 0)'" when="value &lt;= 126.953" />
+      <d:step value="'rgb(0, 153, 0)'" when="value &lt;= 127.937" />
+      <d:step value="'rgb(0, 204, 0)'" when="value &lt;= 128.914" />
+      <d:step value="'rgb(0, 255, 0)'" when="value &lt;= 129.898" />
+      <d:step value="'rgb(64, 255, 64)'" when="value &lt;= 130.875" />
+      <d:step value="'rgb(128, 255, 128)'" when="value &lt;= 131.859" />
+      <d:step value="'rgb(192, 255, 192)'" when="value &lt;= 132.835" />
+      <d:step value="'rgb(51, 51, 0)'" when="value &lt;= 133.820" />
+      <d:step value="'rgb(102, 102, 0)'" when="value &lt;= 134.796" />
+      <d:step value="'rgb(153, 153, 0)'" when="value &lt;= 135.780" />
+      <d:step value="'rgb(204, 204, 0)'" when="value &lt;= 136.757" />
+      <d:step value="'rgb(255, 255, 0)'" when="value &lt;= 137.741" />
+      <d:step value="'rgb(255, 255, 64)'" when="value &lt;= 138.718" />
+      <d:step value="'rgb(255, 255, 128)'" when="value &lt;= 139.702" />
+      <d:step value="'rgb(255, 255, 192)'" when="value &lt;= 140.678" />
+      <d:step value="'rgb(0, 0, 51)'" when="value &lt;= 141.663" />
+      <d:step value="'rgb(0, 0, 102)'" when="value &lt;= 142.639" />
+      <d:step value="'rgb(0, 0, 153)'" when="value &lt;= 143.623" />
+      <d:step value="'rgb(0, 0, 204)'" when="value &lt;= 144.600" />
+      <d:step value="'rgb(0, 0, 255)'" when="value &lt;= 145.584" />
+      <d:step value="'rgb(64, 64, 255)'" when="value &lt;= 146.561" />
+      <d:step value="'rgb(128, 128, 255)'" when="value &lt;= 147.545" />
+      <d:step value="'rgb(192, 192, 255)'" when="value &lt;= 148.521" />
+      <d:step value="'rgb(0, 51, 51)'" when="value &lt;= 149.506" />
+      <d:step value="'rgb(0, 102, 102)'" when="value &lt;= 150.482" />
+      <d:step value="'rgb(0, 153, 153)'" when="value &lt;= 151.466" />
+      <d:step value="'rgb(0, 204, 204)'" when="value &lt;= 152.443" />
+      <d:step value="'rgb(0, 255, 255)'" when="value &lt;= 153.427" />
+      <d:step value="'rgb(64, 255, 255)'" when="value &lt;= 154.404" />
+      <d:step value="'rgb(128, 255, 255)'" when="value &lt;= 155.388" />
+      <d:step value="'rgb(192, 255, 255)'" when="value &lt;= 156.364" />
+      <d:step value="'rgb(51, 25, 0)'" when="value &lt;= 157.349" />
+      <d:step value="'rgb(102, 51, 0)'" when="value &lt;= 158.325" />
+      <d:step value="'rgb(153, 76, 0)'" when="value &lt;= 159.309" />
+      <d:step value="'rgb(204, 102, 0)'" when="value &lt;= 160.286" />
+      <d:step value="'rgb(255, 128, 0)'" when="value &lt;= 161.270" />
+      <d:step value="'rgb(255, 160, 64)'" when="value &lt;= 162.247" />
+      <d:step value="'rgb(255, 192, 128)'" when="value &lt;= 163.231" />
+      <d:step value="'rgb(255, 224, 192)'" when="value &lt;= 164.207" />
+      <d:step value="'rgb(0, 25, 51)'" when="value &lt;= 165.192" />
+      <d:step value="'rgb(0, 51, 102)'" when="value &lt;= 166.168" />
+      <d:step value="'rgb(0, 76, 153)'" when="value &lt;= 167.152" />
+      <d:step value="'rgb(0, 102, 204)'" when="value &lt;= 168.129" />
+      <d:step value="'rgb(0, 128, 255)'" when="value &lt;= 169.113" />
+      <d:step value="'rgb(64, 160, 255)'" when="value &lt;= 170.090" />
+      <d:step value="'rgb(128, 192, 255)'" when="value &lt;= 171.074" />
+      <d:step value="'rgb(192, 224, 255)'" when="value &lt;= 172.050" />
+      <d:step value="'rgb(25, 0, 51)'" when="value &lt;= 173.035" />
+      <d:step value="'rgb(51, 0, 102)'" when="value &lt;= 174.011" />
+      <d:step value="'rgb(76, 0, 153)'" when="value &lt;= 174.995" />
+      <d:step value="'rgb(102, 0, 204)'" when="value &lt;= 175.972" />
+      <d:step value="'rgb(128, 0, 255)'" when="value &lt;= 176.956" />
+      <d:step value="'rgb(160, 64, 255)'" when="value &lt;= 177.933" />
+      <d:step value="'rgb(192, 128, 255)'" when="value &lt;= 178.917" />
+      <d:step value="'rgb(224, 192, 255)'" when="value &lt;= 179.893" />
+      <d:step value="'rgb(51, 0, 25)'" when="value &lt;= 180.878" />
+      <d:step value="'rgb(102, 0, 51)'" when="value &lt;= 181.854" />
+      <d:step value="'rgb(153, 0, 76)'" when="value &lt;= 182.838" />
+      <d:step value="'rgb(204, 0, 102)'" when="value &lt;= 183.815" />
+      <d:step value="'rgb(255, 0, 128)'" when="value &lt;= 184.799" />
+      <d:step value="'rgb(255, 64, 160)'" when="value &lt;= 185.776" />
+      <d:step value="'rgb(255, 128, 192)'" when="value &lt;= 186.760" />
+      <d:step value="'rgb(255, 192, 224)'" when="value &lt;= 187.737" />
+      <d:step value="'rgb(255, 0, 0)'" when="value &lt;= 188.721" />
+      <d:step value="'rgb(255, 32, 0)'" when="value &lt;= 189.697" />
+      <d:step value="'rgb(255, 64, 0)'" when="value &lt;= 190.681" />
+      <d:step value="'rgb(255, 96, 0)'" when="value &lt;= 191.658" />
+      <d:step value="'rgb(255, 128, 0)'" when="value &lt;= 192.642" />
+      <d:step value="'rgb(255, 160, 0)'" when="value &lt;= 193.619" />
+      <d:step value="'rgb(255, 192, 0)'" when="value &lt;= 194.603" />
+      <d:step value="'rgb(255, 224, 0)'" when="value &lt;= 195.580" />
+      <d:step value="'rgb(255, 255, 0)'" when="value &lt;= 196.564" />
+      <d:step value="'rgb(224, 255, 0)'" when="value &lt;= 197.540" />
+      <d:step value="'rgb(192, 255, 0)'" when="value &lt;= 198.524" />
+      <d:step value="'rgb(160, 255, 0)'" when="value &lt;= 199.501" />
+      <d:step value="'rgb(128, 255, 0)'" when="value &lt;= 200.485" />
+      <d:step value="'rgb(96, 255, 0)'" when="value &lt;= 201.462" />
+      <d:step value="'rgb(64, 255, 0)'" when="value &lt;= 202.446" />
+      <d:step value="'rgb(32, 255, 0)'" when="value &lt;= 203.423" />
+      <d:step value="'rgb(0, 255, 0)'" when="value &lt;= 204.407" />
+      <d:step value="'rgb(0, 255, 32)'" when="value &lt;= 205.383" />
+      <d:step value="'rgb(0, 255, 64)'" when="value &lt;= 206.367" />
+      <d:step value="'rgb(0, 255, 96)'" when="value &lt;= 207.344" />
+      <d:step value="'rgb(0, 255, 128)'" when="value &lt;= 208.328" />
+      <d:step value="'rgb(0, 255, 160)'" when="value &lt;= 209.305" />
+      <d:step value="'rgb(0, 255, 192)'" when="value &lt;= 210.289" />
+      <d:step value="'rgb(0, 255, 224)'" when="value &lt;= 211.266" />
+      <d:step value="'rgb(0, 255, 255)'" when="value &lt;= 212.250" />
+      <d:step value="'rgb(0, 224, 255)'" when="value &lt;= 213.226" />
+      <d:step value="'rgb(0, 192, 255)'" when="value &lt;= 214.211" />
+      <d:step value="'rgb(0, 160, 255)'" when="value &lt;= 215.187" />
+      <d:step value="'rgb(0, 128, 255)'" when="value &lt;= 216.171" />
+      <d:step value="'rgb(0, 96, 255)'" when="value &lt;= 217.148" />
+      <d:step value="'rgb(0, 64, 255)'" when="value &lt;= 218.132" />
+      <d:step value="'rgb(0, 32, 255)'" when="value &lt;= 219.109" />
+      <d:step value="'rgb(0, 0, 255)'" when="value &lt;= 220.093" />
+      <d:step value="'rgb(32, 0, 255)'" when="value &lt;= 221.069" />
+      <d:step value="'rgb(64, 0, 255)'" when="value &lt;= 222.054" />
+      <d:step value="'rgb(96, 0, 255)'" when="value &lt;= 223.030" />
+      <d:step value="'rgb(128, 0, 255)'" when="value &lt;= 224.014" />
+      <d:step value="'rgb(160, 0, 255)'" when="value &lt;= 224.991" />
+      <d:step value="'rgb(192, 0, 255)'" when="value &lt;= 225.975" />
+      <d:step value="'rgb(224, 0, 255)'" when="value &lt;= 226.952" />
+      <d:step value="'rgb(255, 0, 255)'" when="value &lt;= 227.936" />
+      <d:step value="'rgb(255, 0, 224)'" when="value &lt;= 228.912" />
+      <d:step value="'rgb(255, 0, 192)'" when="value &lt;= 229.897" />
+      <d:step value="'rgb(255, 0, 160)'" when="value &lt;= 230.873" />
+      <d:step value="'rgb(255, 0, 128)'" when="value &lt;= 231.857" />
+      <d:step value="'rgb(255, 0, 96)'" when="value &lt;= 232.834" />
+      <d:step value="'rgb(255, 0, 64)'" when="value &lt;= 233.818" />
+      <d:step value="'rgb(255, 0, 32)'" when="value &lt;= 234.795" />
+      <d:step value="'rgb(16, 16, 16)'" when="value &lt;= 235.779" />
+      <d:step value="'rgb(32, 32, 32)'" when="value &lt;= 236.755" />
+      <d:step value="'rgb(48, 48, 48)'" when="value &lt;= 237.740" />
+      <d:step value="'rgb(64, 64, 64)'" when="value &lt;= 238.716" />
+      <d:step value="'rgb(80, 80, 80)'" when="value &lt;= 239.700" />
+      <d:step value="'rgb(96, 96, 96)'" when="value &lt;= 240.677" />
+      <d:step value="'rgb(112, 112, 112)'" when="value &lt;= 241.661" />
+      <d:step value="'rgb(128, 128, 128)'" when="value &lt;= 242.638" />
+      <d:step value="'rgb(144, 144, 144)'" when="value &lt;= 243.622" />
+      <d:step value="'rgb(160, 160, 160)'" when="value &lt;= 244.598" />
+      <d:step value="'rgb(176, 176, 176)'" when="value &lt;= 245.583" />
+      <d:step value="'rgb(192, 192, 192)'" when="value &lt;= 246.559" />
+      <d:step value="'rgb(208, 208, 208)'" when="value &lt;= 247.543" />
+      <d:step value="'rgb(224, 224, 224)'" when="value &lt;= 248.520" />
+      <d:step value="'rgb(240, 240, 240)'" when="value &lt;= 249.504" />
+      <d:otherwise value="'rgb(255, 255, 255)'" />
+    </d:mapping>
+    <d:mapping name="f1430" parameters="value">
+      <d:step value="colors[57]" when="value &lt;= 0.488" />
+      <d:step value="'rgb(255, 255, 128)'" when="value &lt;= 1.472" />
+      <d:step value="'rgb(255, 0, 0)'" when="value &lt;= 2.449" />
+      <d:step value="'rgb(0, 255, 0)'" when="value &lt;= 3.433" />
+      <d:step value="'rgb(0, 0, 255)'" when="value &lt;= 4.410" />
+      <d:step value="'rgb(255, 0, 255)'" when="value &lt;= 5.394" />
+      <d:step value="'rgb(255, 255, 0)'" when="value &lt;= 6.371" />
+      <d:step value="'rgb(0, 255, 255)'" when="value &lt;= 7.355" />
+      <d:step value="'rgb(255, 128, 0)'" when="value &lt;= 8.331" />
+      <d:step value="'rgb(128, 255, 0)'" when="value &lt;= 9.315" />
+      <d:step value="'rgb(0, 255, 128)'" when="value &lt;= 10.292" />
+      <d:step value="'rgb(0, 128, 255)'" when="value &lt;= 11.276" />
+      <d:step value="'rgb(128, 0, 255)'" when="value &lt;= 12.253" />
+      <d:step value="'rgb(255, 0, 128)'" when="value &lt;= 13.237" />
+      <d:step value="'rgb(128, 128, 128)'" when="value &lt;= 14.214" />
+      <d:step value="'rgb(255, 255, 255)'" when="value &lt;= 15.198" />
+      <d:step value="colors[16]" when="value &lt;= 16.174" />
+      <d:step value="colors[17]" when="value &lt;= 17.159" />
+      <d:step value="colors[18]" when="value &lt;= 18.135" />
+      <d:step value="colors[19]" when="value &lt;= 19.119" />
+      <d:step value="colors[20]" when="value &lt;= 20.096" />
+      <d:step value="colors[21]" when="value &lt;= 21.080" />
+      <d:step value="colors[22]" when="value &lt;= 22.057" />
+      <d:step value="colors[23]" when="value &lt;= 23.041" />
+      <d:step value="colors[24]" when="value &lt;= 24.017" />
+      <d:step value="colors[25]" when="value &lt;= 25.002" />
+      <d:step value="colors[26]" when="value &lt;= 25.978" />
+      <d:step value="colors[27]" when="value &lt;= 26.962" />
+      <d:step value="colors[28]" when="value &lt;= 27.939" />
+      <d:step value="colors[29]" when="value &lt;= 28.923" />
+      <d:step value="colors[30]" when="value &lt;= 29.900" />
+      <d:step value="colors[31]" when="value &lt;= 30.884" />
+      <d:step value="colors[32]" when="value &lt;= 31.860" />
+      <d:step value="colors[33]" when="value &lt;= 32.845" />
+      <d:step value="colors[34]" when="value &lt;= 33.821" />
+      <d:step value="colors[35]" when="value &lt;= 34.805" />
+      <d:step value="colors[36]" when="value &lt;= 35.782" />
+      <d:step value="colors[37]" when="value &lt;= 36.766" />
+      <d:step value="colors[38]" when="value &lt;= 37.743" />
+      <d:step value="colors[39]" when="value &lt;= 38.727" />
+      <d:step value="colors[40]" when="value &lt;= 39.703" />
+      <d:step value="colors[41]" when="value &lt;= 40.688" />
+      <d:step value="colors[42]" when="value &lt;= 41.664" />
+      <d:step value="colors[43]" when="value &lt;= 42.648" />
+      <d:step value="colors[44]" when="value &lt;= 43.625" />
+      <d:step value="colors[45]" when="value &lt;= 44.609" />
+      <d:step value="colors[46]" when="value &lt;= 45.586" />
+      <d:step value="colors[47]" when="value &lt;= 46.570" />
+      <d:step value="colors[48]" when="value &lt;= 47.546" />
+      <d:step value="colors[49]" when="value &lt;= 48.531" />
+      <d:step value="colors[50]" when="value &lt;= 49.507" />
+      <d:step value="colors[51]" when="value &lt;= 50.491" />
+      <d:step value="colors[52]" when="value &lt;= 51.468" />
+      <d:step value="colors[53]" when="value &lt;= 52.452" />
+      <d:step value="colors[54]" when="value &lt;= 53.429" />
+      <d:step value="colors[55]" when="value &lt;= 54.413" />
+      <d:step value="colors[56]" when="value &lt;= 55.389" />
+      <d:step value="colors[57]" when="value &lt;= 56.374" />
+      <d:step value="colors[58]" when="value &lt;= 57.350" />
+      <d:step value="colors[59]" when="value &lt;= 58.334" />
+      <d:step value="colors[60]" when="value &lt;= 59.311" />
+      <d:step value="colors[61]" when="value &lt;= 60.295" />
+      <d:step value="colors[62]" when="value &lt;= 61.272" />
+      <d:step value="colors[63]" when="value &lt;= 62.256" />
+      <d:step value="colors[64]" when="value &lt;= 63.232" />
+      <d:step value="colors[65]" when="value &lt;= 64.217" />
+      <d:step value="colors[66]" when="value &lt;= 65.193" />
+      <d:step value="colors[67]" when="value &lt;= 66.177" />
+      <d:step value="colors[68]" when="value &lt;= 67.154" />
+      <d:step value="colors[69]" when="value &lt;= 68.138" />
+      <d:step value="colors[70]" when="value &lt;= 69.115" />
+      <d:step value="colors[71]" when="value &lt;= 70.099" />
+      <d:step value="colors[72]" when="value &lt;= 71.075" />
+      <d:step value="colors[73]" when="value &lt;= 72.060" />
+      <d:step value="colors[74]" when="value &lt;= 73.036" />
+      <d:step value="colors[75]" when="value &lt;= 74.020" />
+      <d:step value="colors[76]" when="value &lt;= 74.997" />
+      <d:step value="colors[77]" when="value &lt;= 75.981" />
+      <d:step value="colors[78]" when="value &lt;= 76.958" />
+      <d:step value="colors[79]" when="value &lt;= 77.942" />
+      <d:step value="colors[80]" when="value &lt;= 78.918" />
+      <d:step value="colors[81]" when="value &lt;= 79.903" />
+      <d:step value="colors[82]" when="value &lt;= 80.879" />
+      <d:step value="colors[83]" when="value &lt;= 81.863" />
+      <d:step value="colors[84]" when="value &lt;= 82.840" />
+      <d:step value="colors[85]" when="value &lt;= 83.824" />
+      <d:step value="colors[86]" when="value &lt;= 84.801" />
+      <d:step value="colors[87]" when="value &lt;= 85.785" />
+      <d:step value="colors[88]" when="value &lt;= 86.761" />
+      <d:step value="colors[89]" when="value &lt;= 87.746" />
+      <d:step value="colors[90]" when="value &lt;= 88.722" />
+      <d:step value="colors[91]" when="value &lt;= 89.706" />
+      <d:step value="colors[92]" when="value &lt;= 90.683" />
+      <d:step value="colors[93]" when="value &lt;= 91.667" />
+      <d:step value="colors[94]" when="value &lt;= 92.644" />
+      <d:step value="colors[95]" when="value &lt;= 93.628" />
+      <d:step value="colors[96]" when="value &lt;= 94.604" />
+      <d:step value="colors[97]" when="value &lt;= 95.589" />
+      <d:step value="colors[98]" when="value &lt;= 96.565" />
+      <d:step value="colors[99]" when="value &lt;= 97.549" />
+      <d:step value="colors[100]" when="value &lt;= 98.526" />
+      <d:step value="colors[101]" when="value &lt;= 99.510" />
+      <d:step value="colors[102]" when="value &lt;= 100.487" />
+      <d:step value="colors[103]" when="value &lt;= 101.471" />
+      <d:step value="colors[104]" when="value &lt;= 102.448" />
+      <d:step value="colors[105]" when="value &lt;= 103.432" />
+      <d:step value="colors[106]" when="value &lt;= 104.408" />
+      <d:step value="colors[107]" when="value &lt;= 105.392" />
+      <d:step value="colors[108]" when="value &lt;= 106.369" />
+      <d:step value="colors[109]" when="value &lt;= 107.353" />
+      <d:step value="colors[110]" when="value &lt;= 108.330" />
+      <d:step value="colors[111]" when="value &lt;= 109.314" />
+      <d:step value="colors[112]" when="value &lt;= 110.291" />
+      <d:step value="colors[113]" when="value &lt;= 111.275" />
+      <d:step value="colors[114]" when="value &lt;= 112.251" />
+      <d:step value="colors[115]" when="value &lt;= 113.235" />
+      <d:step value="colors[116]" when="value &lt;= 114.212" />
+      <d:step value="'rgb(255, 64, 64)'" when="value &lt;= 115.196" />
+      <d:step value="'rgb(255, 128, 128)'" when="value &lt;= 116.180" />
+      <d:step value="'rgb(255, 192, 192)'" when="value &lt;= 117.157" />
+      <d:step value="'rgb(64, 0, 64)'" when="value &lt;= 118.134" />
+      <d:step value="'rgb(128, 0, 128)'" when="value &lt;= 119.118" />
+      <d:step value="'rgb(192, 0, 192)'" when="value &lt;= 120.094" />
+      <d:step value="'rgb(255, 0, 255)'" when="value &lt;= 121.078" />
+      <d:step value="'rgb(255, 64, 255)'" when="value &lt;= 122.055" />
+      <d:step value="'rgb(255, 128, 255)'" when="value &lt;= 123.039" />
+      <d:step value="'rgb(255, 192, 255)'" when="value &lt;= 124.016" />
+      <d:step value="'rgb(255, 255, 255)'" when="value &lt;= 125" />
+      <d:step value="'rgb(0, 51, 0)'" when="value &lt;= 125.977" />
+      <d:step value="'rgb(0, 102, 0)'" when="value &lt;= 126.953" />
+      <d:step value="'rgb(0, 153, 0)'" when="value &lt;= 127.937" />
+      <d:step value="'rgb(0, 204, 0)'" when="value &lt;= 128.914" />
+      <d:step value="'rgb(0, 255, 0)'" when="value &lt;= 129.898" />
+      <d:step value="'rgb(64, 255, 64)'" when="value &lt;= 130.875" />
+      <d:step value="'rgb(128, 255, 128)'" when="value &lt;= 131.859" />
+      <d:step value="'rgb(192, 255, 192)'" when="value &lt;= 132.835" />
+      <d:step value="'rgb(51, 51, 0)'" when="value &lt;= 133.820" />
+      <d:step value="'rgb(102, 102, 0)'" when="value &lt;= 134.796" />
+      <d:step value="'rgb(153, 153, 0)'" when="value &lt;= 135.780" />
+      <d:step value="'rgb(204, 204, 0)'" when="value &lt;= 136.757" />
+      <d:step value="'rgb(255, 255, 0)'" when="value &lt;= 137.741" />
+      <d:step value="'rgb(255, 255, 64)'" when="value &lt;= 138.718" />
+      <d:step value="'rgb(255, 255, 128)'" when="value &lt;= 139.702" />
+      <d:step value="'rgb(255, 255, 192)'" when="value &lt;= 140.678" />
+      <d:step value="'rgb(0, 0, 51)'" when="value &lt;= 141.663" />
+      <d:step value="'rgb(0, 0, 102)'" when="value &lt;= 142.639" />
+      <d:step value="'rgb(0, 0, 153)'" when="value &lt;= 143.623" />
+      <d:step value="'rgb(0, 0, 204)'" when="value &lt;= 144.600" />
+      <d:step value="'rgb(0, 0, 255)'" when="value &lt;= 145.584" />
+      <d:step value="'rgb(64, 64, 255)'" when="value &lt;= 146.561" />
+      <d:step value="'rgb(128, 128, 255)'" when="value &lt;= 147.545" />
+      <d:step value="'rgb(192, 192, 255)'" when="value &lt;= 148.521" />
+      <d:step value="'rgb(0, 51, 51)'" when="value &lt;= 149.506" />
+      <d:step value="'rgb(0, 102, 102)'" when="value &lt;= 150.482" />
+      <d:step value="'rgb(0, 153, 153)'" when="value &lt;= 151.466" />
+      <d:step value="'rgb(0, 204, 204)'" when="value &lt;= 152.443" />
+      <d:step value="'rgb(0, 255, 255)'" when="value &lt;= 153.427" />
+      <d:step value="'rgb(64, 255, 255)'" when="value &lt;= 154.404" />
+      <d:step value="'rgb(128, 255, 255)'" when="value &lt;= 155.388" />
+      <d:step value="'rgb(192, 255, 255)'" when="value &lt;= 156.364" />
+      <d:step value="'rgb(51, 25, 0)'" when="value &lt;= 157.349" />
+      <d:step value="'rgb(102, 51, 0)'" when="value &lt;= 158.325" />
+      <d:step value="'rgb(153, 76, 0)'" when="value &lt;= 159.309" />
+      <d:step value="'rgb(204, 102, 0)'" when="value &lt;= 160.286" />
+      <d:step value="'rgb(255, 128, 0)'" when="value &lt;= 161.270" />
+      <d:step value="'rgb(255, 160, 64)'" when="value &lt;= 162.247" />
+      <d:step value="'rgb(255, 192, 128)'" when="value &lt;= 163.231" />
+      <d:step value="'rgb(255, 224, 192)'" when="value &lt;= 164.207" />
+      <d:step value="'rgb(0, 25, 51)'" when="value &lt;= 165.192" />
+      <d:step value="'rgb(0, 51, 102)'" when="value &lt;= 166.168" />
+      <d:step value="'rgb(0, 76, 153)'" when="value &lt;= 167.152" />
+      <d:step value="'rgb(0, 102, 204)'" when="value &lt;= 168.129" />
+      <d:step value="'rgb(0, 128, 255)'" when="value &lt;= 169.113" />
+      <d:step value="'rgb(64, 160, 255)'" when="value &lt;= 170.090" />
+      <d:step value="'rgb(128, 192, 255)'" when="value &lt;= 171.074" />
+      <d:step value="'rgb(192, 224, 255)'" when="value &lt;= 172.050" />
+      <d:step value="'rgb(25, 0, 51)'" when="value &lt;= 173.035" />
+      <d:step value="'rgb(51, 0, 102)'" when="value &lt;= 174.011" />
+      <d:step value="'rgb(76, 0, 153)'" when="value &lt;= 174.995" />
+      <d:step value="'rgb(102, 0, 204)'" when="value &lt;= 175.972" />
+      <d:step value="'rgb(128, 0, 255)'" when="value &lt;= 176.956" />
+      <d:step value="'rgb(160, 64, 255)'" when="value &lt;= 177.933" />
+      <d:step value="'rgb(192, 128, 255)'" when="value &lt;= 178.917" />
+      <d:step value="'rgb(224, 192, 255)'" when="value &lt;= 179.893" />
+      <d:step value="'rgb(51, 0, 25)'" when="value &lt;= 180.878" />
+      <d:step value="'rgb(102, 0, 51)'" when="value &lt;= 181.854" />
+      <d:step value="'rgb(153, 0, 76)'" when="value &lt;= 182.838" />
+      <d:step value="'rgb(204, 0, 102)'" when="value &lt;= 183.815" />
+      <d:step value="'rgb(255, 0, 128)'" when="value &lt;= 184.799" />
+      <d:step value="'rgb(255, 64, 160)'" when="value &lt;= 185.776" />
+      <d:step value="'rgb(255, 128, 192)'" when="value &lt;= 186.760" />
+      <d:step value="'rgb(255, 192, 224)'" when="value &lt;= 187.737" />
+      <d:step value="'rgb(255, 0, 0)'" when="value &lt;= 188.721" />
+      <d:step value="'rgb(255, 32, 0)'" when="value &lt;= 189.697" />
+      <d:step value="'rgb(255, 64, 0)'" when="value &lt;= 190.681" />
+      <d:step value="'rgb(255, 96, 0)'" when="value &lt;= 191.658" />
+      <d:step value="'rgb(255, 128, 0)'" when="value &lt;= 192.642" />
+      <d:step value="'rgb(255, 160, 0)'" when="value &lt;= 193.619" />
+      <d:step value="'rgb(255, 192, 0)'" when="value &lt;= 194.603" />
+      <d:step value="'rgb(255, 224, 0)'" when="value &lt;= 195.580" />
+      <d:step value="'rgb(255, 255, 0)'" when="value &lt;= 196.564" />
+      <d:step value="'rgb(224, 255, 0)'" when="value &lt;= 197.540" />
+      <d:step value="'rgb(192, 255, 0)'" when="value &lt;= 198.524" />
+      <d:step value="'rgb(160, 255, 0)'" when="value &lt;= 199.501" />
+      <d:step value="'rgb(128, 255, 0)'" when="value &lt;= 200.485" />
+      <d:step value="'rgb(96, 255, 0)'" when="value &lt;= 201.462" />
+      <d:step value="'rgb(64, 255, 0)'" when="value &lt;= 202.446" />
+      <d:step value="'rgb(32, 255, 0)'" when="value &lt;= 203.423" />
+      <d:step value="'rgb(0, 255, 0)'" when="value &lt;= 204.407" />
+      <d:step value="'rgb(0, 255, 32)'" when="value &lt;= 205.383" />
+      <d:step value="'rgb(0, 255, 64)'" when="value &lt;= 206.367" />
+      <d:step value="'rgb(0, 255, 96)'" when="value &lt;= 207.344" />
+      <d:step value="'rgb(0, 255, 128)'" when="value &lt;= 208.328" />
+      <d:step value="'rgb(0, 255, 160)'" when="value &lt;= 209.305" />
+      <d:step value="'rgb(0, 255, 192)'" when="value &lt;= 210.289" />
+      <d:step value="'rgb(0, 255, 224)'" when="value &lt;= 211.266" />
+      <d:step value="'rgb(0, 255, 255)'" when="value &lt;= 212.250" />
+      <d:step value="'rgb(0, 224, 255)'" when="value &lt;= 213.226" />
+      <d:step value="'rgb(0, 192, 255)'" when="value &lt;= 214.211" />
+      <d:step value="'rgb(0, 160, 255)'" when="value &lt;= 215.187" />
+      <d:step value="'rgb(0, 128, 255)'" when="value &lt;= 216.171" />
+      <d:step value="'rgb(0, 96, 255)'" when="value &lt;= 217.148" />
+      <d:step value="'rgb(0, 64, 255)'" when="value &lt;= 218.132" />
+      <d:step value="'rgb(0, 32, 255)'" when="value &lt;= 219.109" />
+      <d:step value="'rgb(0, 0, 255)'" when="value &lt;= 220.093" />
+      <d:step value="'rgb(32, 0, 255)'" when="value &lt;= 221.069" />
+      <d:step value="'rgb(64, 0, 255)'" when="value &lt;= 222.054" />
+      <d:step value="'rgb(96, 0, 255)'" when="value &lt;= 223.030" />
+      <d:step value="'rgb(128, 0, 255)'" when="value &lt;= 224.014" />
+      <d:step value="'rgb(160, 0, 255)'" when="value &lt;= 224.991" />
+      <d:step value="'rgb(192, 0, 255)'" when="value &lt;= 225.975" />
+      <d:step value="'rgb(224, 0, 255)'" when="value &lt;= 226.952" />
+      <d:step value="'rgb(255, 0, 255)'" when="value &lt;= 227.936" />
+      <d:step value="'rgb(255, 0, 224)'" when="value &lt;= 228.912" />
+      <d:step value="'rgb(255, 0, 192)'" when="value &lt;= 229.897" />
+      <d:step value="'rgb(255, 0, 160)'" when="value &lt;= 230.873" />
+      <d:step value="'rgb(255, 0, 128)'" when="value &lt;= 231.857" />
+      <d:step value="'rgb(255, 0, 96)'" when="value &lt;= 232.834" />
+      <d:step value="'rgb(255, 0, 64)'" when="value &lt;= 233.818" />
+      <d:step value="'rgb(255, 0, 32)'" when="value &lt;= 234.795" />
+      <d:step value="'rgb(16, 16, 16)'" when="value &lt;= 235.779" />
+      <d:step value="'rgb(32, 32, 32)'" when="value &lt;= 236.755" />
+      <d:step value="'rgb(48, 48, 48)'" when="value &lt;= 237.740" />
+      <d:step value="'rgb(64, 64, 64)'" when="value &lt;= 238.716" />
+      <d:step value="'rgb(80, 80, 80)'" when="value &lt;= 239.700" />
+      <d:step value="'rgb(96, 96, 96)'" when="value &lt;= 240.677" />
+      <d:step value="'rgb(112, 112, 112)'" when="value &lt;= 241.661" />
+      <d:step value="'rgb(128, 128, 128)'" when="value &lt;= 242.638" />
+      <d:step value="'rgb(144, 144, 144)'" when="value &lt;= 243.622" />
+      <d:step value="'rgb(160, 160, 160)'" when="value &lt;= 244.598" />
+      <d:step value="'rgb(176, 176, 176)'" when="value &lt;= 245.583" />
+      <d:step value="'rgb(192, 192, 192)'" when="value &lt;= 246.559" />
+      <d:step value="'rgb(208, 208, 208)'" when="value &lt;= 247.543" />
+      <d:step value="'rgb(224, 224, 224)'" when="value &lt;= 248.520" />
+      <d:step value="'rgb(240, 240, 240)'" when="value &lt;= 249.504" />
+      <d:otherwise value="'rgb(255, 255, 255)'" />
+    </d:mapping>
+    <d:value-list name="f1431" min="0" max="255">
+      <d:option expression="colors[57]" />
+      <d:option text="rgb(255, 255, 128)" />
+      <d:option text="rgb(255, 0, 0)" />
+      <d:option text="rgb(0, 255, 0)" />
+      <d:option text="rgb(0, 0, 255)" />
+      <d:option text="rgb(255, 0, 255)" />
+      <d:option text="rgb(255, 255, 0)" />
+      <d:option text="rgb(0, 255, 255)" />
+      <d:option text="rgb(255, 128, 0)" />
+      <d:option text="rgb(128, 255, 0)" />
+      <d:option text="rgb(0, 255, 128)" />
+      <d:option text="rgb(0, 128, 255)" />
+      <d:option text="rgb(128, 0, 255)" />
+      <d:option text="rgb(255, 0, 128)" />
+      <d:option text="rgb(128, 128, 128)" />
+      <d:option text="rgb(255, 255, 255)" />
+      <d:option expression="colors[16]" />
+      <d:option expression="colors[17]" />
+      <d:option expression="colors[18]" />
+      <d:option expression="colors[19]" />
+      <d:option expression="colors[20]" />
+      <d:option expression="colors[21]" />
+      <d:option expression="colors[22]" />
+      <d:option expression="colors[23]" />
+      <d:option expression="colors[24]" />
+      <d:option expression="colors[25]" />
+      <d:option expression="colors[26]" />
+      <d:option expression="colors[27]" />
+      <d:option expression="colors[28]" />
+      <d:option expression="colors[29]" />
+      <d:option expression="colors[30]" />
+      <d:option expression="colors[31]" />
+      <d:option expression="colors[32]" />
+      <d:option expression="colors[33]" />
+      <d:option expression="colors[34]" />
+      <d:option expression="colors[35]" />
+      <d:option expression="colors[36]" />
+      <d:option expression="colors[37]" />
+      <d:option expression="colors[38]" />
+      <d:option expression="colors[39]" />
+      <d:option expression="colors[40]" />
+      <d:option expression="colors[41]" />
+      <d:option expression="colors[42]" />
+      <d:option expression="colors[43]" />
+      <d:option expression="colors[44]" />
+      <d:option expression="colors[45]" />
+      <d:option expression="colors[46]" />
+      <d:option expression="colors[47]" />
+      <d:option expression="colors[48]" />
+      <d:option expression="colors[49]" />
+      <d:option expression="colors[50]" />
+      <d:option expression="colors[51]" />
+      <d:option expression="colors[52]" />
+      <d:option expression="colors[53]" />
+      <d:option expression="colors[54]" />
+      <d:option expression="colors[55]" />
+      <d:option expression="colors[56]" />
+      <d:option expression="colors[57]" />
+      <d:option expression="colors[58]" />
+      <d:option expression="colors[59]" />
+      <d:option expression="colors[60]" />
+      <d:option expression="colors[61]" />
+      <d:option expression="colors[62]" />
+      <d:option expression="colors[63]" />
+      <d:option expression="colors[64]" />
+      <d:option expression="colors[65]" />
+      <d:option expression="colors[66]" />
+      <d:option expression="colors[67]" />
+      <d:option expression="colors[68]" />
+      <d:option expression="colors[69]" />
+      <d:option expression="colors[70]" />
+      <d:option expression="colors[71]" />
+      <d:option expression="colors[72]" />
+      <d:option expression="colors[73]" />
+      <d:option expression="colors[74]" />
+      <d:option expression="colors[75]" />
+      <d:option expression="colors[76]" />
+      <d:option expression="colors[77]" />
+      <d:option expression="colors[78]" />
+      <d:option expression="colors[79]" />
+      <d:option expression="colors[80]" />
+      <d:option expression="colors[81]" />
+      <d:option expression="colors[82]" />
+      <d:option expression="colors[83]" />
+      <d:option expression="colors[84]" />
+      <d:option expression="colors[85]" />
+      <d:option expression="colors[86]" />
+      <d:option expression="colors[87]" />
+      <d:option expression="colors[88]" />
+      <d:option expression="colors[89]" />
+      <d:option expression="colors[90]" />
+      <d:option expression="colors[91]" />
+      <d:option expression="colors[92]" />
+      <d:option expression="colors[93]" />
+      <d:option expression="colors[94]" />
+      <d:option expression="colors[95]" />
+      <d:option expression="colors[96]" />
+      <d:option expression="colors[97]" />
+      <d:option expression="colors[98]" />
+      <d:option expression="colors[99]" />
+      <d:option expression="colors[100]" />
+      <d:option expression="colors[101]" />
+      <d:option expression="colors[102]" />
+      <d:option expression="colors[103]" />
+      <d:option expression="colors[104]" />
+      <d:option expression="colors[105]" />
+      <d:option expression="colors[106]" />
+      <d:option expression="colors[107]" />
+      <d:option expression="colors[108]" />
+      <d:option expression="colors[109]" />
+      <d:option expression="colors[110]" />
+      <d:option expression="colors[111]" />
+      <d:option expression="colors[112]" />
+      <d:option expression="colors[113]" />
+      <d:option expression="colors[114]" />
+      <d:option expression="colors[115]" />
+      <d:option expression="colors[116]" />
+      <d:option text="rgb(255, 64, 64)" />
+      <d:option text="rgb(255, 128, 128)" />
+      <d:option text="rgb(255, 192, 192)" />
+      <d:option text="rgb(64, 0, 64)" />
+      <d:option text="rgb(128, 0, 128)" />
+      <d:option text="rgb(192, 0, 192)" />
+      <d:option text="rgb(255, 0, 255)" />
+      <d:option text="rgb(255, 64, 255)" />
+      <d:option text="rgb(255, 128, 255)" />
+      <d:option text="rgb(255, 192, 255)" />
+      <d:option text="rgb(255, 255, 255)" />
+      <d:option text="rgb(0, 51, 0)" />
+      <d:option text="rgb(0, 102, 0)" />
+      <d:option text="rgb(0, 153, 0)" />
+      <d:option text="rgb(0, 204, 0)" />
+      <d:option text="rgb(0, 255, 0)" />
+      <d:option text="rgb(64, 255, 64)" />
+      <d:option text="rgb(128, 255, 128)" />
+      <d:option text="rgb(192, 255, 192)" />
+      <d:option text="rgb(51, 51, 0)" />
+      <d:option text="rgb(102, 102, 0)" />
+      <d:option text="rgb(153, 153, 0)" />
+      <d:option text="rgb(204, 204, 0)" />
+      <d:option text="rgb(255, 255, 0)" />
+      <d:option text="rgb(255, 255, 64)" />
+      <d:option text="rgb(255, 255, 128)" />
+      <d:option text="rgb(255, 255, 192)" />
+      <d:option text="rgb(0, 0, 51)" />
+      <d:option text="rgb(0, 0, 102)" />
+      <d:option text="rgb(0, 0, 153)" />
+      <d:option text="rgb(0, 0, 204)" />
+      <d:option text="rgb(0, 0, 255)" />
+      <d:option text="rgb(64, 64, 255)" />
+      <d:option text="rgb(128, 128, 255)" />
+      <d:option text="rgb(192, 192, 255)" />
+      <d:option text="rgb(0, 51, 51)" />
+      <d:option text="rgb(0, 102, 102)" />
+      <d:option text="rgb(0, 153, 153)" />
+      <d:option text="rgb(0, 204, 204)" />
+      <d:option text="rgb(0, 255, 255)" />
+      <d:option text="rgb(64, 255, 255)" />
+      <d:option text="rgb(128, 255, 255)" />
+      <d:option text="rgb(192, 255, 255)" />
+      <d:option text="rgb(51, 25, 0)" />
+      <d:option text="rgb(102, 51, 0)" />
+      <d:option text="rgb(153, 76, 0)" />
+      <d:option text="rgb(204, 102, 0)" />
+      <d:option text="rgb(255, 128, 0)" />
+      <d:option text="rgb(255, 160, 64)" />
+      <d:option text="rgb(255, 192, 128)" />
+      <d:option text="rgb(255, 224, 192)" />
+      <d:option text="rgb(0, 25, 51)" />
+      <d:option text="rgb(0, 51, 102)" />
+      <d:option text="rgb(0, 76, 153)" />
+      <d:option text="rgb(0, 102, 204)" />
+      <d:option text="rgb(0, 128, 255)" />
+      <d:option text="rgb(64, 160, 255)" />
+      <d:option text="rgb(128, 192, 255)" />
+      <d:option text="rgb(192, 224, 255)" />
+      <d:option text="rgb(25, 0, 51)" />
+      <d:option text="rgb(51, 0, 102)" />
+      <d:option text="rgb(76, 0, 153)" />
+      <d:option text="rgb(102, 0, 204)" />
+      <d:option text="rgb(128, 0, 255)" />
+      <d:option text="rgb(160, 64, 255)" />
+      <d:option text="rgb(192, 128, 255)" />
+      <d:option text="rgb(224, 192, 255)" />
+      <d:option text="rgb(51, 0, 25)" />
+      <d:option text="rgb(102, 0, 51)" />
+      <d:option text="rgb(153, 0, 76)" />
+      <d:option text="rgb(204, 0, 102)" />
+      <d:option text="rgb(255, 0, 128)" />
+      <d:option text="rgb(255, 64, 160)" />
+      <d:option text="rgb(255, 128, 192)" />
+      <d:option text="rgb(255, 192, 224)" />
+      <d:option text="rgb(255, 0, 0)" />
+      <d:option text="rgb(255, 32, 0)" />
+      <d:option text="rgb(255, 64, 0)" />
+      <d:option text="rgb(255, 96, 0)" />
+      <d:option text="rgb(255, 128, 0)" />
+      <d:option text="rgb(255, 160, 0)" />
+      <d:option text="rgb(255, 192, 0)" />
+      <d:option text="rgb(255, 224, 0)" />
+      <d:option text="rgb(255, 255, 0)" />
+      <d:option text="rgb(224, 255, 0)" />
+      <d:option text="rgb(192, 255, 0)" />
+      <d:option text="rgb(160, 255, 0)" />
+      <d:option text="rgb(128, 255, 0)" />
+      <d:option text="rgb(96, 255, 0)" />
+      <d:option text="rgb(64, 255, 0)" />
+      <d:option text="rgb(32, 255, 0)" />
+      <d:option text="rgb(0, 255, 0)" />
+      <d:option text="rgb(0, 255, 32)" />
+      <d:option text="rgb(0, 255, 64)" />
+      <d:option text="rgb(0, 255, 96)" />
+      <d:option text="rgb(0, 255, 128)" />
+      <d:option text="rgb(0, 255, 160)" />
+      <d:option text="rgb(0, 255, 192)" />
+      <d:option text="rgb(0, 255, 224)" />
+      <d:option text="rgb(0, 255, 255)" />
+      <d:option text="rgb(0, 224, 255)" />
+      <d:option text="rgb(0, 192, 255)" />
+      <d:option text="rgb(0, 160, 255)" />
+      <d:option text="rgb(0, 128, 255)" />
+      <d:option text="rgb(0, 96, 255)" />
+      <d:option text="rgb(0, 64, 255)" />
+      <d:option text="rgb(0, 32, 255)" />
+      <d:option text="rgb(0, 0, 255)" />
+      <d:option text="rgb(32, 0, 255)" />
+      <d:option text="rgb(64, 0, 255)" />
+      <d:option text="rgb(96, 0, 255)" />
+      <d:option text="rgb(128, 0, 255)" />
+      <d:option text="rgb(160, 0, 255)" />
+      <d:option text="rgb(192, 0, 255)" />
+      <d:option text="rgb(224, 0, 255)" />
+      <d:option text="rgb(255, 0, 255)" />
+      <d:option text="rgb(255, 0, 224)" />
+      <d:option text="rgb(255, 0, 192)" />
+      <d:option text="rgb(255, 0, 160)" />
+      <d:option text="rgb(255, 0, 128)" />
+      <d:option text="rgb(255, 0, 96)" />
+      <d:option text="rgb(255, 0, 64)" />
+      <d:option text="rgb(255, 0, 32)" />
+      <d:option text="rgb(16, 16, 16)" />
+      <d:option text="rgb(32, 32, 32)" />
+      <d:option text="rgb(48, 48, 48)" />
+      <d:option text="rgb(64, 64, 64)" />
+      <d:option text="rgb(80, 80, 80)" />
+      <d:option text="rgb(96, 96, 96)" />
+      <d:option text="rgb(112, 112, 112)" />
+      <d:option text="rgb(128, 128, 128)" />
+      <d:option text="rgb(144, 144, 144)" />
+      <d:option text="rgb(160, 160, 160)" />
+      <d:option text="rgb(176, 176, 176)" />
+      <d:option text="rgb(192, 192, 192)" />
+      <d:option text="rgb(208, 208, 208)" />
+      <d:option text="rgb(224, 224, 224)" />
+      <d:option text="rgb(240, 240, 240)" />
+      <d:option text="rgb(255, 255, 255)" />
+    </d:value-list>
+  </d:head>
+  <d:body n:LN="{LN(control)}" n:IX="{IX(control)}" x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <d:action type="control" when="`control_action_enabled`">
+      <d:parameter name="LN" value="LN(control)" />
+      <d:parameter name="IX" value="IX(control)" />
+      <d:parameter name="opc-id" value="control" />
+    </d:action>
+    <d:arc x="0" y="0" angle1="85.426" angle2="189.148" radius="5.016" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="{if(`subdrawing_dynamics`, f1427(`status-color`), colors[31])}" y:vector-effect="non-scaling-stroke" y:stroke-width="4" />
+    <d:arc x="0" y="-10" angle1="85.426" angle2="189.148" radius="5.016" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="{if(`subdrawing_dynamics`, f1428(`status-color`), colors[31])}" y:vector-effect="non-scaling-stroke" y:stroke-width="4" />
+    <d:arc x="0" y="-20" angle1="85.426" angle2="189.148" radius="5.016" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="{if(`subdrawing_dynamics`, f1429(`status-color`), colors[31])}" y:vector-effect="non-scaling-stroke" y:stroke-width="4" />
+    <d:arc x="0" y="-30" angle1="85.426" angle2="189.148" radius="5.016" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="{if(`subdrawing_dynamics`, f1430(`status-color`), colors[31])}" y:vector-effect="non-scaling-stroke" y:stroke-width="4" />
+    <s:line x1="-6" y1="-35" x2="-6" y2="5" d:transform-anchor="center-center" y:stroke="{if(`subdrawing_dynamics`, f1431(`status-color`), colors[31])}" y:vector-effect="non-scaling-stroke" y:stroke-width="4" y:shape-rendering="crispEdges" />
+  </d:body>
+</d:document>

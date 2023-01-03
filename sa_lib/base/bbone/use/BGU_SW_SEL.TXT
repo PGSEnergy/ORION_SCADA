@@ -1,0 +1,95 @@
+; This program is used as a selection service for medium voltage switching device picture
+; functions
+;
+; DO NOT EDIT!
+;
+; In:  %SELECT_LN,    text, The name of the selection object
+;      %SELECT_IX,    int,  The index of the selection object
+;      %SELECT_VALUE, int,  The set value for selection
+;      %STA_TYPE,     text, The station type (SPA/ANSI/LON/LONMARK/RTU/RTU_E/IEC101/IEC103/MODBUS_RTU ...)
+;      %CMD_TYPE,     text, The control type (SEC-4BO/SEC-2BO/SEC-2DO/SEC-BO/DIR-BO/AO ...)
+;
+; Out: %NACK,         int,  The status code of the operation
+;---------------------------------------------------------------------------------------------
+;backward compatibility for command parameter
+@INT_CHECK=FALSE
+#IF (DATA_TYPE(%COMMAND_PARAMETER)=="INTEGER") #THEN #BLOCK
+	@INT_CHECK=(%COMMAND_PARAMETER==-1)
+#BLOCK_END
+#IF DATA_TYPE(%COMMAND_PARAMETER)=="NONE" OR %INT_CHECK #THEN -
+	@COMMAND_PARAMETER='SELECT_LN':PTY'SELECT_IX'
+
+;initialize output variable
+@NACK
+
+;case for each control type
+@NACK = STATUS         
+#CASE %CMD_TYPE
+  ;secured control with four binary outputs
+  #WHEN "SEC-4BO", "SEC-5BO", "SEC-5AO" #BLOCK
+    #CASE %STA_TYPE
+      #WHEN "IEC101", "ICCP" #BLOCK
+         #SET 'SELECT_LN':PTY'SELECT_IX'=%COMMAND_PARAMETER
+         #SET 'SELECT_LN':P'SELECT_IX'=LIST(OV=1, CT=6,  OG=SYS:BSA)
+      #BLOCK_END
+      #WHEN "IEC103" #SET 'SELECT_LN':P'SELECT_IX'=LIST(OV=1, CT=20, OG=SYS:BSA)
+      #WHEN "DNP_30" #SET 'SELECT_LN':P'SELECT_IX'=LIST(OV=1,TY=3, QL=2)
+      #WHEN "IEC61850" #SET 'SELECT_LN':POV'SELECT_IX'= %SELECT_VALUE
+      #OTHERWISE #block
+         ;@COMMAND_LIST=LIST(OV=1)
+         ;#if data_type(%QUALIFIER)<>"NONE" #then #MODIFY COMMAND_LIST:V=LIST(QL=%QUALIFIER)
+         ;#SET 'SELECT_LN':POV'SELECT_IX'=%COMMAND_LIST
+         #SET 'SELECT_LN':POV'SELECT_IX'=1
+      #block_end
+    #CASE_END
+  #BLOCK_END
+
+  ;secured control with single analog output
+  #WHEN "AO" #BLOCK
+    #CASE %STA_TYPE
+      #WHEN "IEC101", "ICCP" #BLOCK
+         #SET 'SELECT_LN':PTY'SELECT_IX'=%COMMAND_PARAMETER
+         #SET 'SELECT_LN':P'SELECT_IX'=LIST(OV=%SELECT_VALUE, CT=6,  OG=SYS:BSA)
+      #BLOCK_END
+      #WHEN "IEC103" #SET 'SELECT_LN':P'SELECT_IX'=LIST(OV=%SELECT_VALUE, CT=20, OG=SYS:BSA)
+      #WHEN "DNP_30" #SET 'SELECT_LN':P'SELECT_IX'=LIST(OV=%SELECT_VALUE,QL=2)
+      #OTHERWISE #BLOCK
+         ;@COMMAND_LIST=LIST(OV=%SELECT_VALUE)
+         ;#if data_type(%QUALIFIER)<>"NONE" #then #block
+         ;   #MODIFY COMMAND_LIST:V=LIST(QL=%QUALIFIER)
+         ;   #SET 'SELECT_LN':POV'SELECT_IX'=%COMMAND_LIST
+         ;#block_end
+         ;#else #block
+         ;   ;#IF %SELECT_VALUE<>0 #THEN #SET 'SELECT_LN':POV'SELECT_IX'=%COMMAND_LIST
+            #IF %SELECT_VALUE<>0 #THEN #SET 'SELECT_LN':POV'SELECT_IX'=%SELECT_VALUE
+         ;#block_end
+      #BLOCK_END
+    #CASE_END
+  #BLOCK_END
+
+  ;secured control with single binary output
+  #WHEN "SEC-BO" #BLOCK
+    #CASE %STA_TYPE
+      #WHEN "RTU","RTU_E" #SET 'SELECT_LN':PSE'SELECT_IX'=1
+      #WHEN "MODBUS_RTU"  #SET 'SELECT_LN':PSE'SELECT_IX'=1   
+      #WHEN "IEC101", "ICCP" #BLOCK
+         #SET 'SELECT_LN':PTY'SELECT_IX'=%COMMAND_PARAMETER
+         #SET 'SELECT_LN':PSE'SELECT_IX'=LIST(OV=%SELECT_VALUE, CT=6, OG=SYS:BSA)
+      #BLOCK_END
+      #WHEN "IEC103" #SET 'SELECT_LN':PSE'SELECT_IX'=LIST(OV=%SELECT_VALUE, CT=20, OG=SYS:BSA)
+      #WHEN "DNP_30" #SET 'SELECT_LN':PSE'SELECT_IX'=LIST(OV=%SELECT_VALUE,TY=3, QL=2)
+      #WHEN "LON"    #block
+         #if data_type(%QUALIFIER)=="NONE" #then @QUALIFIER=1
+         #if %COMMAND_PARAMETER < 45 #then @COMMAND_PARAMETER = 45
+         #SET 'SELECT_LN':PSE'SELECT_IX'=LIST(OV=%SELECT_VALUE, CT=6, OG=SYS:BSA, TY=%COMMAND_PARAMETER, QL=%QUALIFIER)
+      #block_end
+      #OTHERWISE #block
+         ;@COMMAND_LIST=LIST(SE=1)
+         ;#if data_type(%QUALIFIER)<>"NONE" #then #MODIFY COMMAND_LIST:V=LIST(QL=%QUALIFIER)
+         ;#SET 'SELECT_LN':POV'SELECT_IX'=%COMMAND_LIST
+         #SET 'SELECT_LN':PSE'SELECT_IX'= 1
+      #block_end
+    #CASE_END
+  #BLOCK_END
+#CASE_END
+@NACK = STATUS

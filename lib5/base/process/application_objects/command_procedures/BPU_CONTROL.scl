@@ -1,0 +1,55 @@
+;Function: BPU_CONTROL:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_control.scl
+;Version: 1.0
+;Parameters:
+;Return data: 
+;Description: Routes the calls and commands from VS-dialog to correct command procedures
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+
+#argument t_command_selector
+#local t_procedure = "", i, t_command, i_res
+#local l_object_info = list(), l_object_type
+
+#if t_command_selector == "GET_OBJECT_INFO" #then #block
+   #if application_object_exists(0, "C", "APLMOD5_'t_command_selector'") #then t_procedure = "APLMOD5_'t_command_selector'"
+   #else t_procedure = "BPU_'t_command_selector'"
+#block_end
+#else #block
+   #if argument_count > 1 #then #block
+      #if application_object_exists(0, "C", "APLMOD5_'t_command_selector'") #then t_procedure = "APLMOD5_'t_command_selector'"
+      #else #block
+         l_object_info = argument(2)
+         #if data_type(l_object_info) == "LIST" #then #block
+            #if attribute_exists(l_object_info, "type_info") #then #block
+               l_object_type = l_object_info.type_info
+               #if attribute_exists(l_object_type, "command_procedures") #then #block
+                  #if attribute_exists(l_object_type.command_procedures, t_command_selector) #then -
+                     t_procedure = l_object_type.command_procedures.'t_command_selector'
+                  #else t_procedure = "BPU_'t_command_selector'"
+               #block_end
+               #else t_procedure = "BPU_'t_command_selector'"
+            #block_end
+            #else t_procedure = "BPU_'t_command_selector'"
+         #block_end
+         #else #return list(STATUS = -1, ERR_DESCRIPTION = translation("Argument(2) needs to be type of LIST"))
+      #block_end
+   #block_end
+   #else #return list(STATUS = -1, ERR_DESCRIPTION = translation("Argument(2) missing"))
+#block_end
+
+#if not application_object_exists(0, "C", t_procedure) #then -
+   #return list(STATUS = -1, ERR_DESCRIPTION = translation("Command procedure does not exist:") + "'t_procedure'")
+
+#if sys:bdm == 1 #then t_command = "do('t_procedure':C"
+#else_if 't_procedure':ccs == 1 #then t_command = "do('t_procedure':CCP"
+#else t_command = "do('t_procedure':C"
+
+#loop_with i = 2 .. argument_count
+   t_command = t_command + ",argument('i')"
+#loop_end
+t_command = t_command + ")"
+
+#return 't_command'

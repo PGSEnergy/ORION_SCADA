@@ -1,0 +1,50 @@
+;Attr_Views.scl
+;Defines view structures for objects displayed in cnt_Attribute_Tree.
+;-----------------------------
+
+#case argument(1)
+   
+   #when "F" #block
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "Standard",-
+    NAME_TEXT = translate("@l_Standard"),-
+         GROUPS = VECTOR(-
+            LIST(GNAME = "Type Definition",-
+             GNAME_TEXT = translate("@l_Type_Definition"),-
+                            ATTRIBUTES = ("LN","PT","OV","CX","NA","ZT")),-
+            LIST(GNAME = "Attribute Definition",-
+             GNAME_TEXT = translate("@l_Attribute_Definition"),-
+                            ATTRIBUTES = ("AN","AI","AT","AL","AP","AA","AH","AE","AD","AS","AX","AO"))))
+   #block_end
+   
+   #when "UP" #block
+      @v_Attrib_Views(1) = LIST(-
+         NAME = "Standard",-
+    NAME_TEXT = translate("@l_standard"),-
+         GROUPS = VECTOR(-
+            LIST(GNAME = "Identification",-
+       GNAME_TEXT = translate("@l_Identification"),-
+                 ATTRIBUTES = ("LN","UN","OA","OB","IN","OI","ON","ES","OT","OX","CX","PT","ZT")),-
+             LIST(GNAME = "Switches",-
+       GNAME_TEXT = translate("@l_Switches"),-
+                 ATTRIBUTES = ("IU","SS","EE")),-
+             LIST(GNAME = "Alarm Handling",-
+        GNAME_TEXT = translate("@l_Alarm_Handling"),-
+                 ATTRIBUTES = ("RC","AB","AC","PI","AD","PD")),-
+-;             LIST(GNAME = "Post Processing",-
+-;       GNAME_TEXT = translate("@l_Post_Processing"),-
+-;                 ATTRIBUTES = vector("PO")),-
+             LIST(GNAME = "Printout Handling",-
+       GNAME_TEXT = translate("@l_Printout_Handling"),-
+                 ATTRIBUTES = ("PF","PA","PU","LD")),-
+             LIST(GNAME = "Event Handling",-
+       GNAME_TEXT = translate("@l_Event_Handling"),-
+                 ATTRIBUTES = vector("AN")),-
+             LIST(GNAME = "History Registrations",-
+       GNAME_TEXT = translate("@l_History_Registrations"),-
+                 ATTRIBUTES = ("HE","HL"))))
+   #block_end
+
+#case_end
+
+#return %v_Attrib_Views

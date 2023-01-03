@@ -1,0 +1,102 @@
+
+
+@t_system_name = "<SA_LIB/TOOL_MONITOR>"
+#if argument_count > 0 #then @t_system_name = argument(1)
+
+
+
+;create and open invisible monitor for automated functions of the relay tools in LIB500/LIB510
+;This mechanism is also used in the standalone SMS 510 and  SMS version embedded in the HSI 8xx product
+;try to find the dedicated monitor 
+;
+@i_dedicated_monitor = 0
+@b_decicated_monitor_found = false
+#loop_with i = 1 .. MAX_MONITOR_NUMBER
+
+   #if mon'i':bcx == %t_system_name #then #block
+      @b_decicated_monitor_found = true
+      @i_dedicated_monitor = %i      
+      #loop_exit
+   #block_end
+   
+
+   #if mon'i':ban == 0 and mon'i':bap==0  and mon'i':bdt=="VS"#then #block
+      @b_decicated_monitor_found = true
+      @i_dedicated_monitor = %i
+      #set mon'i':bcx=%t_system_name
+      #loop_exit
+   #block_end
+
+#loop_end
+
+
+
+;if no free monitors available so return 
+#if %i_dedicated_monitor == 0 #then #block
+   @ret=vector(-1,vector("","",""))
+
+   #return %ret
+#block_end
+
+
+
+;map this monitor to the application
+#set apl:bmo'i_dedicated_monitor' = -1 
+
+
+
+;try to find the pre_defined monitor number for the invisible monitor and 
+;if not found, the latest free monitor number is used
+@i_pre_defined_monitor_number_for_dedicaded_monitor = 0
+@i_free_pre_defined_monitor_number = 800
+@t_system_name = upper_case(edit(%t_system_name, "TRIM"))
+@i = 999
+#loop %i > 800
+   @l_pre_defined_monitor = read_parameter("sys_/monitors.dat", "'i'", "DEDICATED")
+   #if l_pre_defined_monitor:vstatus > 0 #then #block
+   #modify l_pre_defined_monitor:v = list(value = "")
+   #if %i_free_pre_defined_monitor_number == 800 #then @i_free_pre_defined_monitor_number = %i
+   #block_end
+
+   #if upper_case(edit(l_pre_defined_monitor:vValue, "TRIM")) == %t_system_name #then #block
+      @i_pre_defined_monitor_number_for_dedicaded_monitor = %i
+      #loop_exit
+   #block_end
+
+   @i = %i - 1
+#loop_end
+
+;create or update pre_defined monitor for the invisible monitor
+#if %i_pre_defined_monitor_number_for_dedicaded_monitor == 0 #then @i_pre_defined_monitor_number_for_dedicaded_monitor = %i_free_pre_defined_monitor_number
+@a = write_parameter("sys_/monitors.dat", "'i_pre_defined_monitor_number_for_dedicaded_monitor'", "DEDICATED", %t_system_name)
+@a = write_parameter("sys_/monitors.dat", "'i_pre_defined_monitor_number_for_dedicaded_monitor'", "SCS_MON_TYPE", "LVS")
+@a = write_parameter("sys_/monitors.dat", "'i_pre_defined_monitor_number_for_dedicaded_monitor'", "SCS_MS_WINDOWS_APPLICATION", dec(apl:ban,0,0))   
+@a = write_parameter("sys_/monitors.dat", "'i_pre_defined_monitor_number_for_dedicaded_monitor'", "SCS_MS_WINDOWS_MONITOR", "'i_dedicated_monitor'") 
+@a = write_parameter("sys_/monitors.dat", "'i_pre_defined_monitor_number_for_dedicaded_monitor'", "SCS_X_TERMINAL_FONT", "family:MicroSCADA0810-size:10")       
+@a = write_parameter("sys_/monitors.dat", "'i_pre_defined_monitor_number_for_dedicaded_monitor'", "DISPLAY", "")     
+
+
+;read product name
+@l_product_name = read_parameter("cmd_tool/bgu_product.ini", "General", "Product_name_")
+#if l_product_name:vstatus > 0 #then #set l_product_name:vvalue = ""
+
+;open monitor         
+@t_computer_name = environment("ComputerName")
+
+
+
+@s_dir=fm_represent(fm_directory(parse_file_name("START")))
+
+@s_file=fm_represent(fm_combine(fm_directory(parse_file_name("START")), fm_file("mons.exe")))
+
+@s_params= " -start_as_logon_user -n -d 't_computer_name' 'i_pre_defined_monitor_number_for_dedicaded_monitor'"
+
+@t_cmd="START "+"/D's_dir'"+" "+%s_file+" "+%s_params
+
+
+
+@ret=vector('i_dedicated_monitor',vector(%s_file,%s_dir,%s_params))
+
+
+#return %ret
+

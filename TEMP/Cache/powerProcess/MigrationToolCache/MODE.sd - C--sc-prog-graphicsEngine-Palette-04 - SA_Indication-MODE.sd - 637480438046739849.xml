@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="utf-8"?>
+<view comment="" box="-829.0 -721.0 826.0 732.0" scale="0.0" delay="0" minortickspacing="1" middletickspacing="1" majortickspacing="1" import_filename="C:/sc/prog/graphicsEngine/Palette/04 - SA_Indication" pathname="C:/sc/prog/graphicsEngine/Palette/04 - SA_Indication" filename="MODE.sd" usetooltip="0">
+  <searchpath>
+    <dir idx="1" dname="C:/sc/prog/graphicsEngine/Palette"/>
+    <dir idx="2" dname="C:/sc/prog/graphicsEngine/etc"/>
+    <dir idx="3" dname="C:/sc/prog/graphicsEngine/lib"/>
+    <dir idx="4" dname="C:/sc/prog/graphicsEngine/lib/views"/>
+    <dir idx="5" dname="C:/sc/prog/graphicsEngine/lib/fonts"/>
+    <dir idx="6" dname="C:/sc/prog/graphicsEngine/lib/Templates"/>
+    <dir idx="7" dname="C:/sc/prog/graphicsEngine/lib/Templates/drawings"/>
+    <dir idx="8" dname="views"/>
+    <dir idx="9" dname="drawings"/>
+    <dir idx="10" dname="datafiles"/>
+    <dir idx="11" dname="layouts"/>
+    <dir idx="12" dname="images"/>
+    <dir idx="13" dname="icons"/>
+    <dir idx="14" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\etc"/>
+    <dir idx="15" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\fonts"/>
+    <dir idx="16" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\views"/>
+    <dir idx="17" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\drawings"/>
+    <dir idx="18" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\templates_sftext"/>
+    <dir idx="19" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\templates_sftext\drawings"/>
+    <dir idx="20" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\templates"/>
+    <dir idx="21" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\templates\drawings"/>
+    <dir idx="22" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\datafiles"/>
+    <dir idx="23" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\layouts"/>
+    <dir idx="24" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\images"/>
+    <dir idx="25" dname="C:\Program Files (x86)\ABB\MicroSCADA Pro\DV2XML\lib\gipsy\lib\icons"/>
+  </searchpath>
+  <datasources>
+    <dps id="dps-22afc98" type="memory" format="binary" name="default.mem">
+      <dp id="dp-21d35c8" type="float" name="State Signal" rows="1" columns="1" delimiter="" global="1" initval="0.0" strinitval=""/>
+      <dp id="dp-22ac5f0" type="float" name="Status Color" rows="1" columns="1" delimiter="" global="1" initval="0.0" strinitval=""/>
+      <dp id="dp-22b0228" type="text" name="Caption" rows="1" columns="17" delimiter="" global="1" initval="0.0" strinitval=""/>
+    </dps>
+    <dps id="dps-22b0440" type="function" format="binary" name="MAIN [1]" behavior="FDScustom" openfcn="Open" readfcn="Read" closefcn="Close" writefcn="WriteDSV" createdpsfcn="CreateDS" destroydpsfcn="DestroyDS" savedpsfcn="SaveDS" restoredpsfcn="RestoreDS" customdpsfcn="CustomDSArgs">
+      <readfcnarg idx="1" text="OpcConnection.SignalConnector"/>
+      <restoredpsfcnarg idx="1" integer="2"/>
+      <customdpsfcnarg idx="1" text="MicroSCADA DV DataSource"/>
+      <customdpsfcnarg idx="2" integer="1"/>
+      <customdpsfcnarg idx="3" double="0.0"/>
+      <customdpsfcnarg idx="4" double="0.0"/>
+      <customdpsfcnarg idx="5" integer="1000"/>
+      <dp id="dp-22b0c40" type="float" name="ST1BAY3KTS.Value.2.OV" rows="1" columns="1" delimiter="" global="0" initval="0.0" strinitval="" selectfcn="Select" wselectfcn="WriteSelectDSV" createdpfcn="CreateDSV" destroydpfcn="DestroyDSV" customdpfcn="CustomDSVArgs">
+        <customdpfcnarg idx="1" integer="0"/>
+        <customdpfcnarg idx="2" text="\\APL\1\P\ST1BAY3KTS\2:OV"/>
+        <customdpfcnarg idx="3" integer="2"/>
+        <customdpfcnarg idx="4" double="0.0"/>
+      </dp>
+      <dp id="dp-22b1290" type="float" name="ST1BAY3KTS.Color.2" rows="1" columns="1" delimiter="" global="0" initval="0.0" strinitval="" selectfcn="Select" wselectfcn="WriteSelectDSV" createdpfcn="CreateDSV" destroydpfcn="DestroyDSV" customdpfcn="CustomDSVArgs">
+        <customdpfcnarg idx="1" integer="0"/>
+        <customdpfcnarg idx="2" text="\\APL\1\P\ST1BAY3KTS\2"/>
+        <customdpfcnarg idx="3" integer="1"/>
+        <customdpfcnarg idx="4" text="0,0,0"/>
+      </dp>
+      <dp id="dp-22b1908" type="text" name="ST1BAY3KTS.Value.2.ST" rows="1" columns="256" delimiter="" global="0" initval="0.0" strinitval="" selectfcn="Select" wselectfcn="WriteSelectDSV" createdpfcn="CreateDSV" destroydpfcn="DestroyDSV" customdpfcn="CustomDSVArgs">
+        <customdpfcnarg idx="1" integer="0"/>
+        <customdpfcnarg idx="2" text="\\APL\1\P\ST1BAY3KTS\2:ST"/>
+        <customdpfcnarg idx="3" integer="2"/>
+        <customdpfcnarg idx="4" double="0.0"/>
+      </dp>
+      <dp id="dp-22b2360" type="float" name="ST1BAY3KTS.Value.2.DP" rows="1" columns="1" delimiter="" global="0" initval="0.0" strinitval="" selectfcn="Select" wselectfcn="WriteSelectDSV" createdpfcn="CreateDSV" destroydpfcn="DestroyDSV" customdpfcn="CustomDSVArgs">
+        <customdpfcnarg idx="1" integer="0"/>
+        <customdpfcnarg idx="2" text="\\APL\1\P\ST1BAY3KTS\2:DP"/>
+        <customdpfcnarg idx="3" integer="2"/>
+        <customdpfcnarg idx="4" double="0.0"/>
+      </dp>
+    </dps>
+  </datasources>
+  <graphics layer="1073741823" lod="all" invisible="0" foregroundcolor="empty" backgroundcolor="249">
+    <sk name="V_CDVObjectInternals" type="external" size="0" value="0"/>
+    <sk name="V_CDVBASECLASS_NAME" type="string" size="0" value="CDVViewWrapper"/>
+    <sk name="V_CDVBASECLASSHDR_NAME" type="string" size="0" value="DVViewWrapper.h"/>
+    <sk name="SAObjectType" type="string" size="0" value="Bay"/>
+    <sk name="ToolLauncherProgId" type="string" size="0" value="ControlDlgs.Launcher"/>
+    <sk name="SANoRotate" type="string" size="0" value=""/>
+    <sk name="DV_RULE_SCRIPT_NAME" type="string" size="0" value="\sc\prog\graphicsEngine\etc\SYS600_scripts.bas"/>
+    <sk name="SASuperType" type="string" size="0" value="Authorization Switch"/>
+    <sk name="SARepresentation" type="string" size="0" value="Binary Input"/>
+    <sk name="DV_SEARCH_PATH" type="string" size="0" value="C:\SC\APL\MAIN\PICT;C:\SC\APL\MAIN\AplMod4\Palette;C:\sc\prog\graphicsengine\Palette;C:\sc\prog\graphicsengine\etc;C:\sc\prog\graphicsengine\lib;C:\sc\prog\graphicsengine\lib\views;C:\sc\prog\graphicsengine\lib\fonts;C:\sc\prog\graphicsengine\lib\Templates;C:\sc\prog\graphicsengine\lib\templates\drawings;C:\sc\prog\graphicsengine\support"/>
+    <sk name="DV_SA_REV_INFO" type="string" size="0" value="1"/>
+    <text id="go-27fffe8" type="scalable" string="ÒÅÑÒ" textfont="Arial 1 0 0 0 0.0 1419.12158203125 0.0" textdirection="horizontal" textposition="center-center" textjustification="center" drname="Local Text" layer="1073741823" lod="all" invisible="0" foregroundcolor="15" backgroundcolor="empty" bfg="empty" bbg="empty" bfreq="0">
+      <pt x="-235.0" y="-65.0"/>
+      <dfs id="dfs-287ffd8" erasemethod="redrawdelayed" erasecolor="empty" xformanchor="center-center">
+        <dy id="dy-1-287ffd8" type="foregroundcolor" rangelow="0.0" rangehigh="0.0" dprangelow="0.0" dprangehigh="50.0">
+          <refdp dp="#dp-22ac5f0" varinfo="default.mem:Status Color"/>
+          <thresholdtable id="tt-2900050" type="co" dytype="foregroundcolor" dprangelow="0.0" dprangehigh="50.0">
+            <ttentry normalized="-1" threshold="-1.0" color="15"/>
+            <ttentry normalized="23265" threshold="35.49957275390625" color="38"/>
+            <ttentry normalized="23921" threshold="36.50054931640625" color="15"/>
+            <ttentry normalized="24577" threshold="37.50152587890625" color="38"/>
+            <ttentry normalized="25888" threshold="39.501953125" color="15"/>
+          </thresholdtable>
+        </dy>
+        <dy id="dy-45-287ffd8" type="visibility" rangelow="0.0" rangehigh="0.0" dprangelow="2.0" dprangehigh="4.0">
+          <refdp dp="#dp-21d35c8" varinfo="default.mem:State Signal"/>
+          <thresholdtable id="tt-28fffc8" type="int" dytype="visibility" dprangelow="2.0" dprangehigh="4.0">
+            <ttentry normalized="-1" threshold="1.0" raw="0"/>
+            <ttentry normalized="6553" threshold="2.39996337890625" raw="1"/>
+            <ttentry normalized="26214" threshold="3.5999755859375" raw="0"/>
+          </thresholdtable>
+        </dy>
+      </dfs>
+    </text>
+    <text id="go-2800160" type="scalable" string="ÒÅÑÒ-ÁËÎÊ" textfont="Arial 1 0 0 0 0.0 1419.12158203125 0.0" textdirection="horizontal" textposition="center-center" textjustification="center" drname="Local Text" layer="1073741823" lod="all" invisible="0" foregroundcolor="15" backgroundcolor="empty" bfg="empty" bbg="empty" bfreq="0">
+      <pt x="-281.0" y="-55.0"/>
+      <dfs id="dfs-2880038" erasemethod="redrawdelayed" erasecolor="empty" xformanchor="center-center">
+        <dy id="dy-1-2880038" type="foregroundcolor" rangelow="0.0" rangehigh="0.0" dprangelow="0.0" dprangehigh="50.0">
+          <refdp dp="#dp-22ac5f0" varinfo="default.mem:Status Color"/>
+          <thresholdtable id="tt-2900160" type="co" dytype="foregroundcolor" dprangelow="0.0" dprangehigh="50.0">
+            <ttentry normalized="-1" threshold="-1.0" color="15"/>
+            <ttentry normalized="23265" threshold="35.49957275390625" color="38"/>
+            <ttentry normalized="23921" threshold="36.50054931640625" color="15"/>
+            <ttentry normalized="24577" threshold="37.50152587890625" color="38"/>
+            <ttentry normalized="25888" threshold="39.501953125" color="15"/>
+          </thresholdtable>
+        </dy>
+        <dy id="dy-45-2880038" type="visibility" rangelow="0.0" rangehigh="0.0" dprangelow="3.0" dprangehigh="5.0">
+          <refdp dp="#dp-21d35c8" varinfo="default.mem:State Signal"/>
+          <thresholdtable id="tt-29000d8" type="int" dytype="visibility" dprangelow="3.0" dprangehigh="5.0">
+            <ttentry normalized="-1" threshold="2.0" raw="0"/>
+            <ttentry normalized="9831" threshold="3.60003662109375" raw="1"/>
+            <ttentry normalized="23265" threshold="4.41998291015625" raw="0"/>
+          </thresholdtable>
+        </dy>
+      </dfs>
+    </text>
+    <text id="go-28002d8" type="scalable" string="ÂÈÂÅÄÅÍÈÉ " textfont="Arial 1 0 0 0 0.0 1450.65771484375 0.0" textdirection="horizontal" textposition="center-center" textjustification="center" drname="Local Text" layer="1073741823" lod="all" invisible="0" foregroundcolor="113" backgroundcolor="empty" bfg="empty" bbg="empty" bfreq="0">
+      <pt x="-55.0" y="-55.0"/>
+      <dfs id="dfs-2880098" erasemethod="redrawdelayed" erasecolor="empty" xformanchor="center-center">
+        <dy id="dy-1-2880098" type="foregroundcolor" rangelow="0.0" rangehigh="0.0" dprangelow="0.0" dprangehigh="50.0">
+          <refdp dp="#dp-22ac5f0" varinfo="default.mem:Status Color"/>
+          <thresholdtable id="tt-2900270" type="co" dytype="foregroundcolor" dprangelow="0.0" dprangehigh="50.0">
+            <ttentry normalized="-1" threshold="-1.0" color="2"/>
+            <ttentry normalized="23265" threshold="35.49957275390625" color="38"/>
+            <ttentry normalized="23921" threshold="36.50054931640625" color="2"/>
+            <ttentry normalized="24577" threshold="37.50152587890625" color="38"/>
+            <ttentry normalized="25888" threshold="39.501953125" color="2"/>
+          </thresholdtable>
+        </dy>
+        <dy id="dy-45-2880098" type="visibility" rangelow="0.0" rangehigh="0.0" dprangelow="4.0" dprangehigh="6.0">
+          <refdp dp="#dp-21d35c8" varinfo="default.mem:State Signal"/>
+          <thresholdtable id="tt-29001e8" type="int" dytype="visibility" dprangelow="4.0" dprangehigh="6.0">
+            <ttentry normalized="-1" threshold="3.0" raw="0"/>
+            <ttentry normalized="6553" threshold="4.39996337890625" raw="1"/>
+            <ttentry normalized="26214" threshold="5.5999755859375" raw="0"/>
+          </thresholdtable>
+        </dy>
+      </dfs>
+    </text>
+    <text id="go-2800450" type="scalable" string="ÂÂÅÄÅÍÈÉ" textfont="Arial 1 0 0 0 0.0 1419.12158203125 0.0" textdirection="horizontal" textposition="center-center" textjustification="center" drname="Local Text" layer="1073741823" lod="all" invisible="0" foregroundcolor="15" backgroundcolor="empty" bfg="empty" bbg="empty" bfreq="0">
+      <pt x="-145.0" y="-67.0"/>
+      <dfs id="dfs-28800f8" erasemethod="redrawdelayed" erasecolor="empty" xformanchor="center-center">
+        <dy id="dy-1-28800f8" type="foregroundcolor" rangelow="0.0" rangehigh="0.0" dprangelow="0.0" dprangehigh="50.0">
+          <refdp dp="#dp-22ac5f0" varinfo="default.mem:Status Color"/>
+          <thresholdtable id="tt-2900380" type="co" dytype="foregroundcolor" dprangelow="0.0" dprangehigh="50.0">
+            <ttentry normalized="-1" threshold="-1.0" color="15"/>
+            <ttentry normalized="23265" threshold="35.49957275390625" color="38"/>
+            <ttentry normalized="23921" threshold="36.50054931640625" color="15"/>
+            <ttentry normalized="24577" threshold="37.50152587890625" color="38"/>
+            <ttentry normalized="25888" threshold="39.501953125" color="15"/>
+          </thresholdtable>
+        </dy>
+        <dy id="dy-45-28800f8" type="visibility" rangelow="0.0" rangehigh="0.0" dprangelow="0.0" dprangehigh="1.5">
+          <refdp dp="#dp-21d35c8" varinfo="default.mem:State Signal"/>
+          <thresholdtable id="tt-29002f8" type="int" dytype="visibility" dprangelow="0.0" dprangehigh="1.5">
+            <ttentry normalized="-1" threshold="-1.0" raw="0"/>
+            <ttentry normalized="10923" threshold="0.5000152587890625" raw="1"/>
+            <ttentry normalized="23920" threshold="1.094970703125" raw="0"/>
+          </thresholdtable>
+        </dy>
+      </dfs>
+    </text>
+    <text id="go-28005c8" type="scalable" string="ÃÎÒÎÂÈÉ" textfont="Arial 1 0 0 0 0.0 1419.12158203125 0.0" textdirection="horizontal" textposition="center-center" textjustification="center" drname="Remote Text" layer="1073741823" lod="all" invisible="0" foregroundcolor="15" backgroundcolor="empty" bfg="empty" bbg="empty" bfreq="0">
+      <pt x="-222.0" y="-62.0"/>
+      <dfs id="dfs-2880158" erasemethod="redrawdelayed" erasecolor="empty" xformanchor="center-center">
+        <dy id="dy-1-2880158" type="foregroundcolor" rangelow="0.0" rangehigh="0.0" dprangelow="0.0" dprangehigh="50.0">
+          <refdp dp="#dp-22ac5f0" varinfo="default.mem:Status Color"/>
+          <thresholdtable id="tt-2900490" type="co" dytype="foregroundcolor" dprangelow="0.0" dprangehigh="50.0">
+            <ttentry normalized="-1" threshold="-1.0" color="15"/>
+            <ttentry normalized="23265" threshold="35.49957275390625" color="38"/>
+            <ttentry normalized="23921" threshold="36.50054931640625" color="15"/>
+            <ttentry normalized="24577" threshold="37.50152587890625" color="38"/>
+            <ttentry normalized="25888" threshold="39.501953125" color="15"/>
+          </thresholdtable>
+        </dy>
+        <dy id="dy-45-2880158" type="visibility" rangelow="0.0" rangehigh="0.0" dprangelow="1.0" dprangehigh="3.0">
+          <refdp dp="#dp-21d35c8" varinfo="default.mem:State Signal"/>
+          <thresholdtable id="tt-2900408" type="int" dytype="visibility" dprangelow="1.0" dprangehigh="3.0">
+            <ttentry normalized="-1" threshold="0.0" raw="0"/>
+            <ttentry normalized="8192" threshold="1.5" raw="1"/>
+            <ttentry normalized="23265" threshold="2.41998291015625" raw="0"/>
+          </thresholdtable>
+        </dy>
+      </dfs>
+    </text>
+    <polygon id="go-293ffc0" drname="Frame Top Left" layer="1073741823" lod="all" invisible="1" foregroundcolor="16" backgroundcolor="251" linewidth="1" strokewidth="0.0" linetype="1" capstyle="butt" joinstyle="miter" dashmode="transparent" fillstatus="edge" curvetype="default" bfg="empty" bbg="empty" bfreq="0">
+      <pt x="-829.0" y="-721.0"/>
+      <pt x="-829.0" y="688.0"/>
+      <pt x="-793.0" y="732.0"/>
+      <pt x="826.0" y="732.0"/>
+    </polygon>
+    <text id="go-2800740" type="scalable" string="??? " textfont="Arial 1 0 0 0 0.0 1419.12158203125 0.0" textdirection="horizontal" textposition="center-center" textjustification="center" drname="Remote Text" layer="1073741823" lod="all" invisible="0" foregroundcolor="232" backgroundcolor="empty" bfg="empty" bbg="empty" bfreq="0">
+      <pt x="198.0" y="-70.0"/>
+      <dfs id="dfs-28801b8" erasemethod="redrawdelayed" erasecolor="empty" xformanchor="center-center">
+        <dy id="dy-45-28801b8" type="visibility" rangelow="0.0" rangehigh="0.0" dprangelow="-1.0" dprangehigh="1.0">
+          <refdp dp="#dp-21d35c8" varinfo="default.mem:State Signal"/>
+          <thresholdtable id="tt-2900518" type="int" dytype="visibility" dprangelow="-1.0" dprangehigh="1.0">
+            <ttentry normalized="-1" threshold="-2.0" raw="0"/>
+            <ttentry normalized="6553" threshold="-0.60003662109375" raw="1"/>
+            <ttentry normalized="26214" threshold="0.5999755859375" raw="0"/>
+          </thresholdtable>
+        </dy>
+      </dfs>
+    </text>
+  </graphics>
+</view>
+

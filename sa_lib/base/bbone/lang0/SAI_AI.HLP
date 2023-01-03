@@ -1,0 +1,249 @@
+COMMON ALARM INDICATOR
+
+1. Environmental requirements
+
+If the value of the attribute
+TYPE_OF_SIGNAL'number' is not linked, it is
+recommended to install the following components.
+
+SA-LIB
+
+   - Station
+   - Bay
+
+2. Configurable attributes
+
+It is important to configure attributes in the order
+of appearance since setting one attribute may
+enable/disable and/or reset another attribute
+later.
+
+STATION_NAME
+
+A selector type of an editable combo-box to
+select or enter the name of the substation. As a
+default, the maximum length of the text is 9
+characters. The selection list shows up to ten
+latest entries.
+
+The configurable attribute is being read directly
+from the process object database if there is any
+process object linked to the selected alarm
+indicator. Therefore, the configurable attribute
+within a standard function has meaning only when the
+process objects have not been created.
+
+This text will be used as a substation identifier of
+the alarm indicator objects on event list, alarm
+list, printout, database query, etc. It is very
+important that this text is similar to all objects
+within the same substation.
+
+BAY_NAME
+
+A selector type of an editable combo box to
+select or enter the name of the bay (feeder). As a
+default, the maximum length of the text is 14
+characters. The selection list shows up to ten
+latest entries.
+
+The configurable attribute is being read directly
+from the process object database, if there is any
+process object linked to the selected alarm
+indicator. Therefore, the configurable attribute
+within a standard function has meaning only when the
+process objects have not been created.
+
+This text will be used as a bay (feeder) identifier
+of the alarm indicator objects on event list,
+alarm list, printout, database query, etc. It is
+very important that this text is similar to all
+objects within the same bay (feeder).
+
+DEVICE_NAME
+
+A selector type of an editable combo box to
+select or enter the name (identifier) of the alarm
+indicator. As a default, the maximum length of the
+text is 5 characters. The selection list shows up to
+ten latest entries.
+
+The configurable attribute is being read directly
+from the process object database, if there is any
+process object linked to the selected alarm
+indicator. Therefore, the configurable attribute
+within a standard function has meaning only when the
+process objects have not been created.
+
+This text will be used as an identifier of the
+alarm indicator on event list, alarm list,
+printout, database query, etc.
+
+P_OBJECT_LN
+
+The logical name of the database process objects.
+The maximum length of the text is 10 characters.
+Allowed characters are the letters A-Z, all
+digits and the underscore (_).
+
+The logical names of process objects have to be
+unique throughout the entire system, that is,
+different objects cannot have the same logical
+name. Therefore, it is very important to have a
+proper naming convention for the process object
+database.
+
+Certain naming convention is also required to speed
+up the opening time of the main dialogs. With the
+predefined naming convention, it is possible to
+collect all station and bay related database
+objects without searching through the complete
+database. Therefore, it is advisable to use the
+following naming convention:
+
+  - The first three characters identify the substation
+  - The following four characters identify the bay
+  - The last three characters can be freely used to
+    identify the source of the signal i.e. device,
+    unit, etc.
+
+The following list is presented as an example of a
+proper naming convention within one bay. The
+station name is Green Bay and the bay name is HA12
+Downtown:
+
+  - GRB, station
+  - GRBHA12BAY, bay
+  - GRBHA12Q0, circuit breaker Q0
+  - GRBHA12Q1, truck Q1
+  - GRBHA12Q9, earth switch Q9
+  - GRBHA12CT, measurements/current transformer
+  - GRBHA12VT, measurements/voltage
+    transformer
+  - GRBHA12ALA, alarm indicator
+  - GRBHA12AR, auto-reclosing tag
+  - GRBHA12TRP, tripping tag
+  - GRBHA12R1, feeder terminal or protection unit
+    1
+  - GRBHA12R2, feeder terminal or protection unit
+    1
+  - GRBHA12LS1, line segment 1 of busbar
+    coloring
+  - GRBHA12LS2, line segment 2 of busbar
+    coloring
+  - GRBHA12LS3, line segment 3 of busbar
+    coloring
+  - GRBHA12LI, line indicator of busbar
+    coloring
+
+STATION_TYPE
+
+A selector type of a combo box to select the
+station type of the objects.
+
+The database process objects will be created for
+the station type defined here. The list of supported
+protocols is as follows:
+
+  - SPA
+  - ANSI
+  - LON
+  - RP570
+  - RP570 with FTABs
+  - IEC 870-5-101
+  - IEC 870-5-103
+  - ICCP
+  - DNP 3.0
+  - MODBUS RTU
+  - IEC 61850-8
+  - PROCOL
+
+TYPE_OF_SIGNAL'number'
+
+A selector type of a combo box to select the type
+of the signal. The list of supported input signals
+is as follows:
+
+  - Binary Input (BI)
+  - Double Binary (DB)
+  - Analog Input (AI)
+  - Linked
+
+If any of the first three choices is selected, the
+process objects are created by using the Process
+Object Tool. When Linked is selected, the
+logical name and the index of the process object
+where the signal is connected to has to be given.
+When an empty string is selected, it means that the
+signal is discarded by the alarm indicator.
+
+SIGNAL'number'_TEXT
+
+This text will be used as an identifier of the
+signal on event list, alarm list, printout etc.
+
+ALARMING_STATE_OF_SIGNAL'number'
+
+The alarming state of the signal is defined by this
+attribute. The value of the attribute is related
+to the type of the signal. The following examples
+clarify how this attribute should be defined.
+
+  - Type of signal is BI, alarming state is 1
+    value to be set: (1)
+  - Type of signal is DB, alarming states are 0
+    and 3 values to be set: (1,0,0,1)
+  - Type of signal is AI, high alarm = 12, high
+    warning = 10, low warning = 8, low alarm = 6
+    values to be set: (12,10,8,6)
+
+LINK_SIGNAL'number'_TO_LN
+
+The logical name of the process object to which
+signal is linked.
+
+LINK_SIGNAL'number'_TO_IX
+
+The index of the process object to which signal is
+linked.
+
+AUTHORIZATION_GROUP
+
+A selector type of an editable combo box to
+select the authorization group for the object. The
+maximum length of the text is 63 characters. The
+given text has to be usable as a SCIL list
+attribute name (see SCIL manual). The contents
+of the selection list is taken from the existing
+authorization groups.
+
+NOTE! The name may not be composed of two
+letters followed by a number.
+
+The attribute can be defined, if the object is
+wanted to be included in some authorization group.
+The authorization level of each user in this group
+can be defined afterwards by the system manager with
+User Management pictures.
+
+EVENT_RECORDING
+
+An ON/OFF type of a toggle button to select
+whether there is need for event recording process
+objects with the RP 570 protocol. If
+STATION_TYPE is other than RTU 2xx or RTU
+2xx/FTABs, the configurable attribute is being
+disabled, and the value has no meaning.
+
+With the RP 570 the time stamp from process device
+comes into the event recording process object. If no
+accurate time stamp is needed or available, or the
+device is emulating the RP 570 without an event
+recording possibility, do not set this attribute ON.
+
+3. Configurations made with the Process Object
+Tool
+
+THE DATABASE OBJECTS WILL NOT BE
+CREATED UNTIL THE PROCESS OBJECT
+TOOL HAS BEEN USED TO CREATE THEM.

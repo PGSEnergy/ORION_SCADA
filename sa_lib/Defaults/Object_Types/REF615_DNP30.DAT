@@ -1,0 +1,43 @@
+LIST(-
+-;
+-; Attributes for converting values for control dialog
+-;
+METHOD_GET_INDICATIONS=VECTOR(-
+"@RESULT=LIST()",-
+"#IF ''OPEN_ILOCK_LN'':POV''OPEN_ILOCK_IX'' == 1 #THEN #MODIFY RESULT:V=LIST(OPEN_ILOCK_OV=1)",-
+"#ELSE #MODIFY RESULT:V=LIST(OPEN_ILOCK_OV=0)",-
+"#IF ''CLOSE_ILOCK_LN'':POV''CLOSE_ILOCK_IX'' == 1 #THEN #MODIFY RESULT:V=LIST(CLOSE_ILOCK_OV=1)",-
+"#ELSE #MODIFY RESULT:V=LIST(CLOSE_ILOCK_OV=0)"),-
+-;
+-; Methods Executed by POT
+-;
+METHOD_CUSTOMIZE_OBJECTS=VECTOR(-
+"#ERROR STOP",-
+"#LOOP_WITH I = 1 .. LENGTH(%OBJECTS)",-
+  "@OBJECT=%OBJECTS(%I)",-
+  "@LN=%OBJECT.LN",-
+  "@IX=%OBJECT.IX",-
+  "#CASE %IX",-
+    "#WHEN 16,17 #SET ''LN'':PEH''IX''=""SAGR_FORM5FPBI1_43""",-
+    "#WHEN 110 #BLOCK",-
+      "#IF ''LN'':PDX''IX'' == ""D9"" #THEN #BLOCK",-
+        "#SET ''LN'':PAN''IX''=""BGU_AI2DB_DNP""",-
+        "@C_SEARCH = FETCH(0,""C"",""BGU_AI2DB_DNP"")",-
+        "#IF C_SEARCH:VIU == -1 #THEN #BLOCK",-
+          "#CREATE BGU_AI2DB_DNP:C = LIST(-",-
+               "IU = 1,-",-
+               "MO = 1,-",-
+               "CM = ""UPDATES DB FROM AI"",-",-
+               "IN = (""@INDEX = %IX-100"",""#IF TRUNC(%AI) == 2 #THEN @VALUE = 1"",""#ELSE_IF TRUNC(%AI) == 1 #THEN @VALUE = 2"",""#ELSE @VALUE = TRUNC(%AI)"",""#SET ''''LN'''':P''''INDEX'''' = LIST(DB=TRUNC(%VALUE),RT=%RT,RM=%RM,OS=%OS)""))",-
+        "#BLOCK_END",-
+        "@A_SEARCH = FETCH(0,""A"",""BGU_AI2DB_DNP"")",-
+        "#IF A_SEARCH:VIU == -1 #THEN #BLOCK",-
+          "#CREATE BGU_AI2DB_DNP:A = LIST(-",-
+               "CM = ""UPDATES DB FROM AI"",-",-
+               "OT = ""C"",-",-
+               "ON = ""BGU_AI2DB_DNP"")",-
+         "#BLOCK_END",-
+      "#BLOCK_END",-
+    "#BLOCK_END",-
+  "#CASE_END",-
+"#LOOP_END"))

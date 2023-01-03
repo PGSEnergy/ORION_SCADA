@@ -1,0 +1,32 @@
+; File: SSS_Setup.scl()
+; Version: SYS 600 9.3
+; Parameters: none
+; Return data: list, application parameters of System Self Supervision
+; Description: This is the text file for SYS 600 System Self Supervision
+; ----------------------------------------------------------------------
+
+;read in path definitions
+@v_File_Path = path("SSS_PATH")
+@v_Lang_Path = path("SSS_LANG")
+@t_File_Path = fm_scil_represent(fm_directory(%v_File_Path(1)))
+@t_Lang_Path = fm_scil_represent(fm_directory(%v_Lang_Path(1)))
+
+;define general application parameters
+#CREATE SYS_SSSET:V           = LIST(-
+   FILE_PATH                  = %t_File_Path,-                    ;File path for System Self Supervision under application
+   FILE_NAME_OF_CONF_INI      = "'t_File_Path'/SSSConf.ini",-     ;File path and name for the configuration file
+   FILE_NAME_OF_FILTER_INI    = "'t_File_Path'/SSSFilter.ini",-   ;File path and name for the filter file
+   FILE_NAME_OF_EVENT_INI     = "'t_File_Path'/SSSEvent.ini",-    ;File path and name for the event file
+   FILE_NAME_OF_LANG_INI      = "'t_Lang_Path'/SSSTexts.ini",-    ;File path and name for the text file
+   APL_STATUS_CHECK_INTERVAL  = 20,-                              ;Interval for application status checking from external base system (in case of ext. apl or HSB)
+   NET_STATUS_CHECK_INTERVAL  = 20,-                              ;Interval for communication unit status checking
+   TIMEOUT_LENGTH             = 1000,-                            ;Default timeout length used within System Self Supervision
+   ENABLE_STATION_EVENTS      = TRUE,-                            ;Enable/Disable events in station (i.e. APL_EVENT)
+   ENABLE_STATION_MESSAGES    = TRUE,-                            ;Enable/Disable system messages in station
+   ENABLE_ANALOG_MODEL        = TRUE,-                            ;Enable/Disable support for analog model for stations and lines
+   ENABLE_BINARY_MODEL        = TRUE,-                            ;Enable/Disable support for binary model for stations and lines
+   ENABLE_LOG                 = FALSE,-                           ;Enable/Disable activation of the log file events
+   ENABLE_EVENT               = TRUE,-                            ;Enable/Disable activation of the events
+   ENABLE_ALARM               = TRUE,-                            ;Enable/Disable activation of the alarms
+   MAX_LENGTH_OF_LOG          = 1000,-                            ;Default length of the log file
+   LOG_SEPARATOR              = ",")                              ;Default separator used in the log file

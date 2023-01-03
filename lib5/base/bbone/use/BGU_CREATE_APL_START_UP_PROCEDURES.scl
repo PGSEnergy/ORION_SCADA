@@ -1,0 +1,224 @@
+;create application start-up handling
+
+;create event channel APL_INIT_1, if it does not exist already
+#IF NOT APPLICATION_OBJECT_EXISTS(0, "A", "APL_INIT_1") #THEN #BLOCK
+   #CREATE APL_INIT_1:A = LIST(-
+      IU = 1,-
+      LN = "APL_INIT_1",-
+      CM = translation("Executed when application is set hot"),-
+      SN1= "LIB5INIT_1",-
+      ST1= "C",-
+      ON = "APL_INIT_1",-
+      OT = "C")
+#BLOCK_END
+
+;if it exists, then add LIB5INIT_1 execution to event channel
+#IF LENGTH(APL_INIT_1:ASN)<10 #THEN #BLOCK
+   #IF LENGTH(SELECT(APL_INIT_1:ASN,"==""LIB5INIT_1"""))==0 #THEN #BLOCK
+      @TMP=LENGTH(APL_INIT_1:ASN)
+      @TMP2=APL_INIT_1:ASN
+      @TMP2(%TMP+1)="LIB5INIT_1"
+      @TMP3=APL_INIT_1:AST
+      @TMP3(%TMP+1)="C"
+      #MODIFY APL_INIT_1:A=LIST(-
+                        SN=%TMP2,-
+                        ST=%TMP3)
+   #BLOCK_END
+#BLOCK_END
+#ELSE #BLOCK
+   #IF LENGTH(SELECT(APL_INIT_1:ASN,"==""LIB5INIT_1"""))==0 #THEN #BLOCK
+      @TMP=LENGTH(APL_INIT_1:ASN)
+      @TMP2=APL_INIT_1:ASN
+      @TMP3=APL_INIT_1:AST
+      @i_Warning = console_output("WARNING Max. number of secondary objects exceeded in APL_INIT_1:A. Existing " + %TMP2(10) + ":" + %TMP3(10) + " replaced with LIB5INIT_1:C.")
+      @TMP2(10)="LIB5INIT_1"
+      @TMP3(10)="C"
+      #MODIFY APL_INIT_1:A=LIST(-
+                        SN=%TMP2,-
+                        ST=%TMP3)
+   #BLOCK_END
+#BLOCK_END
+
+;create LIB5INIT_1:C, if it does not exist already
+#IF NOT APPLICATION_OBJECT_EXISTS(0, "C", "LIB5INIT_1") #THEN #BLOCK
+   #CREATE LIB5INIT_1:C = LIST(-
+   IU = 1,-
+   TS = 1,-
+   CM = translation("Executed when application is set hot"),-
+   IN = (";This is executed when application gets hot",-
+         ";",-
+         ";execute LIB5 specific application start up routines",- 
+         "#DO READ_TEXT(""/LIB5/BASE/BBONE/USE/BGU_APL_START.SCL"")"))
+#BLOCK_END
+#ELSE #BLOCK
+   @CHECK = SELECT(LOCATE(LIB5INIT_1:CIN,"#DO READ_TEXT(""/LIB5/BASE/BBONE/USE/BGU_APL_START.SCL"")"),"<>0")
+   #IF LENGTH(%CHECK) == 0 #THEN #BLOCK
+      #MODIFY LIB5INIT_1:C = LIST(-
+         IN = APPEND(LIB5INIT_1:CIN, -
+              VECTOR("",";execute LIB5 specific application start up routines","#DO READ_TEXT(""/LIB5/BASE/BBONE/USE/BGU_APL_START.SCL"")")))
+   #BLOCK_END
+#BLOCK_END
+
+@ERROR_STATE_APLOBJ = ERROR_STATE
+#ERROR IGNORE
+   #DO LIB5INIT_1:C
+#ERROR 'ERROR_STATE_APLOBJ'
+
+;create application start-up handling (APL_INIT_2)
+;create event channel APL_INIT_2, if it does not exist already
+#IF NOT APPLICATION_OBJECT_EXISTS(0, "A", "APL_INIT_2") #THEN #BLOCK
+   #CREATE APL_INIT_2:A = LIST(-
+      IU = 1,-
+      LN = "APL_INIT_2",-
+      CM = translation("Executed when application is set hot"),-
+      SN1= "LIB5INIT_2",-
+      ST1= "C",-
+      ON = "APL_INIT_2",-
+      OT = "C")
+#BLOCK_END
+
+;if it exists, then add LIB5INIT_2 execution to event channel
+#IF LENGTH(APL_INIT_2:ASN)<10 #THEN #BLOCK
+   #IF LENGTH(SELECT(APL_INIT_2:ASN,"==""LIB5INIT_2"""))==0 #THEN #BLOCK
+      @TMP=LENGTH(APL_INIT_2:ASN)
+      @TMP2=APL_INIT_2:ASN
+      @TMP2(%TMP+1)="LIB5INIT_2"
+      @TMP3=APL_INIT_2:AST
+      @TMP3(%TMP+1)="C"
+      #MODIFY APL_INIT_2:A=LIST(-
+                        SN=%TMP2,-
+                        ST=%TMP3)
+   #BLOCK_END
+#BLOCK_END
+#ELSE #BLOCK
+   #IF LENGTH(SELECT(APL_INIT_2:ASN,"==""LIB5INIT_2"""))==0 #THEN #BLOCK
+      @TMP=LENGTH(APL_INIT_2:ASN)
+      @TMP2=APL_INIT_2:ASN
+      @TMP3=APL_INIT_2:AST
+      @i_Warning = console_output("WARNING Max. number of secondary objects exceeded in APL_INIT_1:A. Existing " + %TMP2(10) + ":" + %TMP3(10) + " replaced with LIB5INIT_2:C.")
+      @TMP2(10)="LIB5INIT_2"
+      @TMP3(10)="C"
+      #MODIFY APL_INIT_2:A=LIST(-
+                        SN=%TMP2,-
+                        ST=%TMP3)
+   #BLOCK_END
+#BLOCK_END
+
+;create LIB5INIT_2:C, if it does not exist already
+#IF NOT APPLICATION_OBJECT_EXISTS(0, "C", "LIB5INIT_2") #THEN #BLOCK
+   #CREATE LIB5INIT_2:C = LIST(-
+      IU = 1,-
+      TS = 1,-
+      CM = TRANSLATION("Executed when application is set hot"),-
+      IN = (";This is executed when application is set to hot and",-
+            ";the reporting has caught real time"))
+#BLOCK_END
+
+;create application start-up handling for take-over (LIB5INIT_H)
+;create event channel APL_INIT_H, if it does not exist already
+#IF NOT APPLICATION_OBJECT_EXISTS(0, "A", "APL_INIT_H") #THEN #BLOCK
+   #CREATE APL_INIT_H:A = LIST(-
+      IU = 1,-
+      LN = "APL_INIT_H",-
+      CM = TRANSLATION("Executed after take-over in hot stand-by"),-
+      SN1= "LIB5INIT_H",-
+      ST1= "C",-
+      ON = "APL_INIT_H",-
+      OT = "C")
+#BLOCK_END
+
+;if it exists, then add LIB5INIT_H execution to event channel
+#IF LENGTH(APL_INIT_H:ASN)<10 #THEN #BLOCK
+   #IF LENGTH(SELECT(APL_INIT_H:ASN,"==""LIB5INIT_H"""))==0 #THEN #BLOCK
+      @TMP=LENGTH(APL_INIT_H:ASN)
+      @TMP2=APL_INIT_H:ASN
+      @TMP2(%TMP+1)="LIB5INIT_H"
+      @TMP3=APL_INIT_H:AST
+      @TMP3(%TMP+1)="C"
+      #MODIFY APL_INIT_H:A=LIST(-
+                        SN=%TMP2,-
+                        ST=%TMP3)
+   #BLOCK_END
+#BLOCK_END
+#ELSE #BLOCK
+   #IF LENGTH(SELECT(APL_INIT_H:ASN,"==""LIB5INIT_H"""))==0 #THEN #BLOCK
+      @TMP=LENGTH(APL_INIT_H:ASN)
+      @TMP2=APL_INIT_H:ASN
+      @TMP3=APL_INIT_H:AST
+      @i_Warning = console_output("WARNING Max. number of secondary objects exceeded in APL_INIT_1:A. Existing " + %TMP2(10) + ":" + %TMP3(10) + " replaced with LIB5INIT_H:C.")
+      @TMP2(10)="LIB5INIT_H"
+      @TMP3(10)="C"
+      #MODIFY APL_INIT_H:A=LIST(-
+                        SN=%TMP2,-
+                        ST=%TMP3)
+   #BLOCK_END
+#BLOCK_END
+
+;create LIB5INIT_H:C, if it does not exist already
+#IF NOT APPLICATION_OBJECT_EXISTS(0, "C", "LIB5INIT_H") #THEN #BLOCK
+   #CREATE LIB5INIT_H:C = LIST(-
+      IU = 1,-
+      TS = 1,-
+      CM = translation("Executed after take-over in hot stand-by system"),-
+      IN = (";This is executed after take-over in hot stand-by system",-
+            "",-
+         ";execute LIB5 specific application start up routines",- 
+         "#DO READ_TEXT(""/LIB5/BASE/BBONE/USE/BGU_APL_START.SCL"")"))
+#BLOCK_END
+#ELSE #BLOCK
+   @CHECK = SELECT(LOCATE(LIB5INIT_H:CIN,"#DO READ_TEXT(""/LIB5/BASE/BBONE/USE/BGU_APL_START.SCL"")"),"<>0")
+   #IF LENGTH(%CHECK) == 0 #THEN #BLOCK
+      #MODIFY LIB5INIT_H:C = LIST(-
+         IN = APPEND(LIB5INIT_H:CIN, -
+               VECTOR("",";execute LIB5 specific application start up routines","#DO READ_TEXT(""/LIB5/BASE/BBONE/USE/BGU_APL_START.SCL"")")))
+   #BLOCK_END
+#BLOCK_END
+
+;create APL_INIT_1:C, if it does not exist already
+#IF NOT APPLICATION_OBJECT_EXISTS(0, "C", "APL_INIT_1") #THEN #BLOCK
+   #CREATE APL_INIT_1:C = LIST(-
+      IU = 1,-
+      TS = 1,-
+      CM = translation("This is executed when application gets hot"),-
+      IN = vector(";This is executed when application gets hot"))
+#BLOCK_END
+
+;create APL_INIT_2:C, if it does not exist already
+#IF NOT APPLICATION_OBJECT_EXISTS(0, "C", "APL_INIT_2") #THEN #BLOCK
+   #CREATE APL_INIT_2:C = LIST(-
+      IU = 1,-
+      TS = 1,-
+      CM = translation("This is executed when application gets hot"),-
+      IN = vector(";This is executed when application gets hot"))
+#BLOCK_END
+
+;create APL_INIT_H:C, if it does not exist already
+#IF NOT APPLICATION_OBJECT_EXISTS(0, "C", "APL_INIT_H") #THEN #BLOCK
+   #CREATE APL_INIT_H:C = LIST(-
+      IU = 1,-
+      TS = 1,-
+      CM = translation("This is executed when application gets hot"),-
+      IN = vector(";This is executed after take-over in hot stand-by system"))
+#BLOCK_END
+
+;create event channel APL_CLOSE, if it does not exist already
+#IF NOT APPLICATION_OBJECT_EXISTS(0, "A", "APL_CLOSE") #THEN #BLOCK
+   #CREATE APL_CLOSE:A = LIST(-
+      IU = 1,-
+      LN = "APL_CLOSE",-
+      CM = translation("Executed When application goes from HOT to WARM"),-
+      SN1= "LIB5INIT_1",-
+      ST1= "C",-
+      ON = "APL_CLOSE",-
+      OT = "C")
+#BLOCK_END
+
+;create APL_CLOSE:C, if it does not exist already
+#IF NOT APPLICATION_OBJECT_EXISTS(0, "C", "APL_CLOSE") #THEN #BLOCK
+   #CREATE APL_CLOSE:C = LIST(-
+      IU = 1,-
+      TS = 1,-
+      CM = translation("Executed When application goes from HOT to WARM"),-
+      IN = VECTOR())
+
+#BLOCK_END

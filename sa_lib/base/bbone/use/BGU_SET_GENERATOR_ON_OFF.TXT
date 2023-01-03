@@ -1,0 +1,21 @@
+;re-route generator state values known by SYS600 NTC to index 10
+
+#local -
+   i_Generator_State = %OV,-
+   i_topology_index = 10,-
+   i_value
+   
+#case i_Generator_State
+   #when 0 i_value = 0     ;stopped
+   #when 1 i_value = 0     ;starting
+   #when 2 i_value = 1     ;running
+   #when 3 i_value = 1     ;stopping
+#case_end
+
+#if data_type(i_value) == "INTEGER" #then #block
+   #if 'LN':POS'i_topology_index' < 10 #then #block
+      #if 'LN':POV'i_topology_index' <> i_value #then -
+         #set 'LN':POV'i_topology_index' = i_value
+   #block_end
+   #else #set 'LN':POV'i_topology_index' = i_value
+#block_end

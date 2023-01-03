@@ -1,0 +1,61 @@
+; Function:    BMU_BP_SUM1:C
+; Version:     3.0 (Build 23.02.2012)
+; Parameters:  GLOBAL VAR:
+;              DATA_ID,t_ObjectName - object name
+;              l_ReportObject - Config. whose VALUE has been manually entered
+;              T1 - start time
+;              T2 - end time
+; Return data: none
+; Description: Update data of calculated data objects,
+;              run when measured data edited in reports, called by #exec with arguments
+;-------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;-------------------------------------------------------------------------------
+#local i,j, i_Status = status, cot, trash, b_Update = false,-
+       t_CalcObjectName = "", l_CalcReportObject = list(), v_CalcData = vector(),-
+       v_CalcOrderBP = vector(), l_Calc = list(), v_SearchList = vector()
+#error ignore
+
+#if BMU_GLOBAL:CCS==1 #then #DO BMU_GLOBAL:CCP
+#else #DO BMU_GLOBAL:C
+
+#if BMU_BP_IND:CCS==1 #then #do BMU_BP_IND:CCP
+#else #DO BMU_BP_IND:C
+
+l_Calc = LIST(T1 = %T1, T2 = %T2, LE = %NP)
+v_CalcOrderBP = %l_Calculation.Order_BP
+v_SearchList = vector(upper_case(%t_ObjectName))                                ;*** search list, %t_ObjectName from caller (SET_VALUE)
+
+#if length(v_CalcOrderBP) > 0 #then #block
+   #loop_with i = 1..length(v_CalcOrderBP)
+      t_CalcObjectName = substr(upper_case(v_CalcOrderBP(i)),5,0)
+      l_CalcReportObject = %l_ReportObjects.OBJ_'t_CalcObjectName'
+
+      #if attribute_exists(l_CalcReportObject, "CalcData") #then #block
+         v_CalcData = l_CalcReportObject.CalcData
+         #loop_with j = 1..length(v_SearchList)                                 ;*** check input/-s       
+            #if length(select(locate(v_CalcData,v_SearchList(j)),"<>0")) >0 #then b_Update = true
+         #loop_end
+         
+         #if b_Update #then #block                                              ;*** update calculated objects, if input/-s included
+            v_SearchList = append(v_SearchList,t_CalcObjectName)
+            #DO v_CalcData
+            @t_ObjectName = t_CalcObjectName
+            #loop_with j = 1..(l_Calc.LE)
+               @T1 = l_Calc.T1 + (j-1)*%l_ReportObject.BP                       ;*** assume that all Input Object are using the same BasePeriod
+               @T2
+               #if BMU_BP_IND:CCS==1 #then #do BMU_BP_IND:CCP
+               #else #DO BMU_BP_IND:C
+               
+               #if BMU_BP_SUM2:CCS==1 #then #do BMU_BP_SUM2:CCP
+               #else #DO BMU_BP_SUM2:C
+            #loop_end
+            b_Update = false
+         #block_end
+      #block_end
+   #loop_end
+#block_end
+
+i_Status = status
+#if i_Status <> 0 #then cot = console_output("BMU_BP_SUM1:C - SCIL Error='i_Status'","E","MREP") 

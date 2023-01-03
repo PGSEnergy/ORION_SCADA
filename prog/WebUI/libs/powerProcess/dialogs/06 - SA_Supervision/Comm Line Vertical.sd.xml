@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="SAVersionInfo" content="1" />
+    <d:variable type="external" name="control" default="''" />
+    <d:meta name="dv-custom-attribute|SANoRotate" content="" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="Communication" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Communication Line V" />
+    <d:meta name="dv-custom-attribute|SAAllowStretch" content="" />
+    <d:meta name="dv-custom-attribute|SASnapToMiddle" content="" />
+    <d:meta name="dv-custom-attribute|SAAllowSnapToMiddle" content="" />
+    <d:meta name="dv-custom-attribute|SAVersionInfo" content="1" />
+    <d:meta name="dv-custom-attribute|SAOpenVSCILOnClickVso" content="SYS_TOOL/SSS_CtrlDlg.VSO@1MAIN@2LIST(LN=&quot;%LN%&quot;,IX=%IX%)@31SGTS:0" />
+    <d:meta name="dv-custom-attribute|SATopology" content="" />
+    <d:meta name="dv-custom-attribute|SADefaultColor" content="0" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="status" default="0" />
+    <d:variable type="external" name="status-color" default="0" />
+    <d:value-list name="f1376" min="0" max="51" default-expression="[colors[38], 'none']">
+      <d:option value="32" expression="[colors[32], 'none']" />
+      <d:option value="33" expression="[colors[33], 'none']" />
+      <d:option value="34" expression="[colors[34], 'none']" />
+      <d:option value="35" expression="[colors[35], 'none']" />
+      <d:option value="36" expression="[colors[36], 'none']" />
+      <d:option value="37" expression="[colors[37], 'none']" />
+      <d:option value="39" expression="[colors[39], 'none']" />
+      <d:option value="40" expression="[colors[40], 'none']" />
+      <d:option value="41" expression="[colors[41], 'none']" />
+      <d:option value="42" expression="[[colors[42], colors[49]], ['none', 'none']]" />
+      <d:option value="43" expression="[colors[42], 'none']" />
+      <d:option value="44" expression="[colors[44], 'none']" />
+      <d:option value="45" expression="[colors[45], 'none']" />
+      <d:option value="46" expression="[[colors[46], colors[48]], ['none', 'none']]" />
+      <d:option value="47" expression="[colors[47], 'none']" />
+      <d:option value="48" expression="[colors[48], 'none']" />
+      <d:option value="49" expression="[colors[49], 'none']" />
+      <d:option value="50" expression="[colors[50], 'none']" />
+      <d:option value="51" expression="[colors[45], 'none']" />
+    </d:value-list>
+  </d:head>
+  <d:body n:LN="{LN(control)}" n:IX="{IX(control)}" x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <s:line x1="-2" y1="-10" x2="-2" y2="-10" y:stroke="rgb(255, 0, 0)" y:stroke-dasharray="2,6" y:vector-effect="non-scaling-stroke" y:stroke-width="1" y:shape-rendering="crispEdges" s:visibility="hidden" d:object-name="Fill1" />
+    <s:line x1="2" y1="-10" x2="2" y2="-10" y:stroke="rgb(255, 0, 0)" y:stroke-dasharray="2,6" y:vector-effect="non-scaling-stroke" y:stroke-width="1" y:shape-rendering="crispEdges" s:visibility="hidden" d:object-name="Fill2" />
+    <s:rect width="1.600" height="20" x="-0.800" y="-10" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="{subdrawing_color}" y:fill-rule="evenodd" y:stroke="none" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Line">
+      <d:animate attributes="fill, stroke" values="if(`subdrawing_dynamics`, f1376(`status-color`), subdrawing_color)" />
+    </s:rect>
+  </d:body>
+</d:document>

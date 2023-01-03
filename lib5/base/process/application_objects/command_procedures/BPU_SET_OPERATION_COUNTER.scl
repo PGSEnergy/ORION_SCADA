@@ -1,0 +1,68 @@
+;Function: BPU_SET_OPERATION_COUNTER:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_set_operation_counter.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute), l_data
+;Return data: : LIST(STATUS=integer, err_description=text)
+;Description:
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data, l_set_counter
+#local l_result = list(status = 0, err_description="")
+#local t_LN, i_IX = 0
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_SET_OPERATION_COUNTER"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+         @REDIRECTED = true                                                                        
+         i_ArgCnt = argument_count                                                                 
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+         #loop_end                                                                                 
+         #return 't_Redirect_Command' ;;;;;                                                        
+      #block_end                                                                                   
+   #block_end                                                                                      
+   #else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+
+#if attribute_exists(l_data.all_objects, "indication_db_ix") #then #block ;switch devices
+
+   i_IX = l_data.all_objects.indication_db_ix
+   t_LN = l_object_info.p_object_ln
+   
+   #if 't_LN':pss'i_IX' > 0 and 't_LN':piu'i_IX' > 0 #then #block
+      #if 't_LN':pce'i_IX' == 0 and l_set_counter.in_use #then #set 't_LN':pce'i_IX' = 1
+      #else_if 't_LN':pce'i_IX' == 1 and not l_set_counter.in_use #then #set 't_LN':pce'i_IX' = 0
+      
+      #if attribute_exists(l_set_counter, "limit_value") #then #block
+         #if l_set_counter.limit_value <> 't_LN':pcl'i_IX' #then #set 't_LN':pcl'i_IX' = l_set_counter.limit_value
+      #block_end
+   #block_end
+#block_end
+#else_if attribute_exists(l_data.all_objects, "counter_ix") #then #block ;trafo
+
+   i_IX = l_data.all_objects.counter_ix
+   t_LN = l_object_info.p_object_ln
+   
+   #if 't_LN':ppt'i_IX' == 9 #then #block
+      #if attribute_exists(l_set_counter, "limit_value") #then #block
+         #if l_set_counter.limit_value <> 't_LN':phi'i_IX' #then #set 't_LN':phi'i_IX' = l_set_counter.limit_value
+      #block_end
+      #if l_set_counter.in_use #then #set 't_LN':piu'i_IX' = 1
+      #else #set 't_LN':piu'i_IX' = 0
+   #block_end
+   
+#block_end
+
+#return l_result

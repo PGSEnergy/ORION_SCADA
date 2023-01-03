@@ -1,0 +1,94 @@
+
+GENERATOR SYMBOL 
+
+
+1. Configurable attributes
+
+STATION_NAME
+      
+The name of the substation. As a default the maximum length of
+the text is 9 characters. 
+
+This text will be used as a substation identifier of the 
+objects on event list, alarm list, printout, database
+query, etc. It is very important that this text is consistent
+for all objects within the same substation.
+
+
+BAY_NAME 
+      
+The name of the bay/feeder. As a default the maximum length of
+the text is 14 characters. 
+
+This text will be used as a bay/feeder identifier of the 
+objects on event list, alarm list, printout, database
+query, etc. It is very important that this text is consistent
+for all objects within the same bay/feeder.
+
+
+DEVICE_NAME 
+      
+The name (identifier) of the object. As a default the maximum
+length of the text is 5 characters. 
+
+This text will be used as a identifier of the object on event
+list, alarm list, printout, database query, etc.
+
+
+SPECIAL_IDENTIFIER_'number' 
+      
+A special identifier of the objects (e.g. utility, region,
+control zone etc.). As a default this identifier is not in use
+i.e. it is not configurable with SCT.
+
+This text will be used as an additional identifier of the 
+generator on event list, alarm list, printout, database query,
+etc.
+
+
+P_OBJECT_LN 
+      
+The logical name of the database process objects. The maximum
+length of the text is 10 characters. 
+
+Allowed characters are the letters A-Z, all digits, underscore
+(_) and point (.). However, an object name can not begin with
+underscore or point.
+
+The logical names of process objects has to be unique 
+throughout the entire system, that is, different objects can
+not have the same logical name. Therefore it is very important
+to have a proper naming convention for the process object
+database.
+
+The following example is presented as an example of the well
+proven naming convention. 
+
+   XXX_YYYYZZ,
+
+   XXX      = substation
+   YYYY     = bay/feeder
+   ZZ       = object
+
+
+TOPO_OBJECT_COLOR_NR
+
+This variable defines the initial color value for the generator
+picture function. The generator color value will be distributed
+on the adjected line picture functions.
+
+
+2. Configurations made with Process Object Tool
+
+THE DATABASE OBJECTS WILL NOT BE CREATED UNTIL
+THE PROCESS OBJECT TOOL HAS BEEN USED TO CREATE
+THEM. 
+
+Process Object Tool is used for creating objects for the
+following purposes:
+
+topology coloring, generator coloring object
+	used for coloring the symbol of this picture function
+
+
+    

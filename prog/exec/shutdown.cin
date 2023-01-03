@@ -1,0 +1,42 @@
+; This is the SCIL sequence to be executed when the MicroSCADA 
+; service is stopped.
+#local apl,lin,wdapls = vector(), i_wd = 0, wdapl
+
+#error ignore
+
+; Insert site specific code here
+
+
+; Shut down applications
+; Search watch dog applications (normally there is one wd in a system)
+#loop_with apl = 1 .. MAX_APPLICATION_NUMBER
+   #if apl'apl':bsw <> 0 #then #block
+      i_wd = i_wd + 1
+      wdapls(i_wd) = apl'apl':bsw
+   #block_end
+#loop_end
+wdapls = remove_duplicates(wdapls)
+; Shut down applications - except watch dog applications
+#loop_with apl = 1 .. MAX_APPLICATION_NUMBER
+   #if (apl'apl':btt == "LOCAL") #then #block
+      #if apl'apl':bsp == "HOT_RC" #then #set apl'apl':bss = "NONE"
+      #if find_element(wdapls, apl) == 0 #then #set apl'apl':bas = "COLD"
+   #block_end
+#loop_end
+#pause 1
+; Shut down watch dog applications
+#loop_with apl = 1 .. length(wdapls)
+   wdapl = wdapls(apl)
+   #set apl'wdapl':bas = "COLD"
+#loop_end
+
+; Stop PC_NETS
+#loop_with lin = 1 .. MAX_LINK_NUMBER
+   #if lin'lin':blt == "INTEGRATED" #then #set lin'lin':blt = "NONE"
+#loop_end
+
+; Stop OPC Server
+#set sys:bop = 0
+
+#pause 2
+

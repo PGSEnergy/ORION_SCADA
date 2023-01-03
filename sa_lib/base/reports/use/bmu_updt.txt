@@ -1,0 +1,100 @@
+; Function:    BMU_UPDT.TXT
+; Version:     3.1.0 (Build 10.4.2014)
+; Parameters:  none
+; Return data: none
+; Description: Update Reports application objects
+;-------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;10.04.2014 3.1.0    HoDa   SYS600 9.4
+;20.11.2013 3.0.6    HoDa
+;19.07.2013 3.0.5    HoDa   
+;19.04.2013 3.0.4    HoDa   
+; 8.04.2013 3.0.3    HoDa   initial version
+;-------------------------------------------------------------------------------
+#local i, v_=vector(), l_=list(), t_="", i_=-1, cot
+#local t_CurrentVersion = "Reports 3.1.0"   ;SA_LIB 9.4;Reports 3.1.0
+#local t_BMU_ALARM_CX = "SA_LIB 9.4;Reports 3.1.0"
+#local t_InstalledVersion = ""
+#local v_ToDelete = vector(), v_toAdd = vector(), v_ToUpdate = vector(), v_ToUpdateIfExists = vector(),-
+       t_ReportsUseDir = fm_represent(fm_scil_directory("/sa_lib/base/reports/use")),-
+       t_FileList = vector(), t_FileName ="", l_Compile=list(), t_CmdProcName = ""
+
+#error continue
+
+#if application_object_exists(0, "IX", list(LN="BMU_ALARM",IX=10)) #then #block ;### BMU_ALARM exists -> MR version >= 3.0 (since 9.3 FP2)
+   v_ = separate(BMU_ALARM:PCX10,";")
+   t_InstalledVersion = v_(2)
+
+   #if not equal(t_CurrentVersion, t_InstalledVersion) #then #block
+
+      #case t_CurrentVersion
+         #when "Reports 3.0.3" #block                                           ;### 9.3 FP2 HF2
+            v_ToUpdate = vector("BMU_BP_CAL2")
+         #block_end
+         #when "Reports 3.0.4" #block                                           ;### 9.3 FP2 HF3 (in case HF2 not installed because of missing version check)
+            v_ToUpdate = vector("BMU_BP_CAL2")
+            v_ToUpdateIfExists = vector("BGU_READSF", "BGU_READPF")             ;### old classic LIB510 general Reports interface command procedures 
+                                                                                ;### which might has been used in some SCIL instructions attributes
+         #block_end
+         #when "Reports 3.1.0" #block 						                          ;### 9.4
+            v_ToUpdate = vector("BMU_BP_CAL2","BMU_STARTUPDATE1",-              
+                                "SAGR_REPORTS_GETDATFILE",-
+                                "SAGR_REPORTS_GET_VALUES",-
+                                "SAGR_REPORTS_READ_QUICK_REPORT_VALUES",-
+                                "SAGR_REPORTS_READ_QUICK_REPORT_VALUES_HOUR",-
+                                "SAGR_REPORTS_READ_QUICK_REPORT_VALUES_OTHER")
+            v_ToUpdateIfExists = vector("BGU_READSF", "BGU_READPF")             ;### old classic LIB510 general Reports interface command procedures 
+                                                                                ;### which might has been used in some SCIL instructions attributes
+         #block_end
+			#case_end
+      
+      #if length(v_ToDelete) > 0 #then #block
+         #loop_with i = 1 .. length(v_ToDelete)
+            t_CmdProcName = v_toDelete(i)
+            #delete 't_CmdProcName':C 
+         #loop_end
+      #block_end
+
+      #if length(v_ToAdd) > 0 or length(v_ToUpdate)>0 or length(v_ToUpdateIfExists)>0 #then #block
+         v_ = append(v_ToAdd, v_ToUpdate)
+
+         #if length(v_ToUpdateIfExists)>0 #then #block
+            #loop_with i = 1 .. length(v_ToUpdateIfExists)
+               t_CmdProcName = v_ToUpdateIfExists(i)
+               #if application_object_exists(0,"C",t_CmdProcName) #then -
+                  v_ = insert_element(v_, length(v_)+1, t_CmdProcName)
+            #loop_end
+         #block_end
+         
+         #loop_with i = 1 .. length(v_)
+            t_CmdProcName = v_(i)
+            #if application_object_exists(0,"C",t_CmdProcName) #then -
+               #delete 't_CmdProcName':C 
+            
+            t_FileName = t_CmdProcname + ".cin"
+            l_ = text_read(t_ReportsUseDir + "\" + t_FileName)
+            #if length(l_.TEXT)> 0 #then #block
+               t_ = l_.TEXT(1)
+               i_ = locate(t_,";CM =")
+               #if i_ > 0 #then t_ = Edit(substr(t_,6,0),"TRIM")
+               #else            t_ = "Reports calculation and sampling procedures"
+            #block_end
+            #create 't_CMDProcName':C = list(-
+                 IU = 1,-
+                 HN = 30,-
+                 PE = 1,-
+                 PQ = 3,-
+                 TC = "",-
+                 MO = 0,-
+                 CM = t_,-
+                 IN = l_.TEXT(2..))
+            l_Compile = compile(l_.TEXT(2..))
+            #if l_Compile.STATUS == 0 #then #modify 't_CMDProcName':C = list(CP = l_Compile.CODE)
+            cot = console_output("'t_CMDProcName' updated to 't_CurrentVersion'","I","MREP")
+         #loop_end
+      #block_end
+
+      #set BMU_ALARM:PCX10 = t_BMU_ALARM_CX
+   #block_end
+#block_end   

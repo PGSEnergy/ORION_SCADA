@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="SAVersionInfo" content="1" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="SYS 600 Application" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="SYS 600" />
+    <d:meta name="dv-custom-attribute|SATopology" content="" />
+    <d:meta name="dv-custom-attribute|SAVersionInfo" content="1" />
+    <d:meta name="dv-custom-attribute|SAOpenVSCILOnClickVso" content="SYS_TOOL/SSS_CtrlDlg.VSO@1MAIN@2LIST(LN=&quot;%LN%&quot;,IX=%IX%)@31SGTS:0" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="applicationstatus" default="0" />
+    <d:variable type="external" name="applicationstatustext" default="''" />
+    <d:mapping name="f1400" parameters="value">
+      <d:step value="['rgb(128, 128, 128)', 'rgb(0, 0, 0)']" when="value &lt;= 1.500" />
+      <d:step value="[colors[44], 'rgb(0, 0, 0)']" when="value &lt;= 2.500" />
+      <d:step value="[colors[32], 'rgb(0, 0, 0)']" when="value &lt;= 4.500" />
+      <d:step value="[[colors[32], colors[23]], ['rgb(0, 0, 0)', colors[63]]]" when="value &lt;= 7.500" />
+      <d:step value="[colors[32], 'rgb(0, 0, 0)']" when="value &lt;= 8.500" />
+      <d:step value="[[colors[44], colors[23]], ['rgb(0, 0, 0)', colors[63]]]" when="value &lt;= 11.500" />
+      <d:step value="[colors[44], 'rgb(0, 0, 0)']" when="value &lt;= 12.500" />
+      <d:otherwise value="[colors[46], 'rgb(0, 0, 0)']" />
+    </d:mapping>
+  </d:head>
+  <d:body x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <s:rect width="80" height="10" x="-40" y="-5" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="{colors[19]}" y:fill-rule="evenodd" y:stroke="rgb(0, 0, 0)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Application State">
+      <d:animate attributes="fill, stroke" values="if(`subdrawing_dynamics`, f1400(`applicationstatus`), colors[19])" />
+    </s:rect>
+    <s:text font-weight="bold" font-size="8.840" fill="{colors[30]}" x="0" y="0" text-anchor="middle" dominant-baseline="central" d:textScaleAdjustment="true" d:transform-anchor="center-center" y:fill="{colors[30]}" y:fill-rule="evenodd" d:object-name="Application State Text">{if(`subdrawing_dynamics`, format('%s', `applicationstatustext`), 'X X X')}</s:text>
+  </d:body>
+</d:document>

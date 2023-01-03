@@ -1,0 +1,125 @@
+;CM =Interface for Monitor Pro Reports, Main procedure
+;Function:     SAGR_REPORTS:C
+; Version:     3.0 (build 2.3.2012)
+; Parameters:  command and optional argument  list
+; Return data: depends on command
+; Description: Main interface for Monitor PRO Meas.Report GUI
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#local t_ = "", b_ = false, trash, cot, i_Status = Status
+
+#error ignore
+@COMMAND_SELECTOR = argument(1)
+@b_Enable_Debugging = sys:bdm==1
+
+#if %b_Enable_Debugging #then #block
+   trash = trace_begin("pict/TRACE_SAGR_REPORTS_'COMMAND_SELECTOR'.txt","TIME_TAGS")
+   @xs = sys_time
+   #on error #block
+      #if %b_Enable_Debugging #then #block
+         @i_Status = status
+         @cot = console_output(-
+            "SAGR_REPORTS:C error when executing 'COMMAND_SELECTOR': 'i_Status'. Trace created to PICT/TRACE_SAGR_REPORTS_'COMMAND_SELECTOR'.txt","E","MREP")
+         @trash=trace_end
+         @b_Enable_Debugging=false
+      #block_end
+      #return
+   #block_end
+#block_end
+
+#if data_type(%COMMAND_SELECTOR)<>"TEXT" #then #error raise
+
+#if application_object_exists(0,"C","BMU_GLOBAL") #then #block
+   #if BMU_Global:ccs==1 #then #DO BMU_GLOBAL:CCP
+   #else #DO BMU_GLOBAL:C
+   #if not %b_ #then #block 
+      #if %b_Enable_Debugging #then cot = console_output("Error in Measurement Report configuration","E","MREP")
+      #return
+   #block_end 
+#block_end    
+#else #block
+   #if %b_Enable_Debugging #then cot = console_output("No Meas.Report package installed","I","MREP")
+   #return
+#block_end
+
+@QUICK_REPORT  = FALSE
+@ArgumentList=LIST()
+
+#if argument_count>1 #then #block
+   @ArgumentList=argument(2)
+   #if %b_Enable_Debugging #then #block
+      #error ignore
+      @iMinSec = minute+second
+      @vArgListAttr = list_attr(%ArgumentList)
+      @trash = write_text("pict/trace_sagr_reports_dump_ArgumentList_'command_selector'.txt",dump(%ArgumentList))
+      #if length(%vArgListAttr)> 0 #then #block
+         @tt = ""
+         @tcs = substr(%COMMAND_SELECTOR+"                     ",1,20)
+         #loop_with i = 1..length(%vArgListAttr)
+            @tAttr = %vArgListAttr(%i)
+            @t = %ArgumentList.'tAttr'
+            @tt = %tt + " | 'tAttr' = 't'"
+         #loop_end
+         cot = console_output("DBG.SAGR_REPORTS:C 'COMMAND_SELECTOR':C 'tt'")
+      #block_end
+      #error stop
+   #block_end
+#block_end
+
+#if %COMMAND_SELECTOR=="READ_QUICK_REPORT_VALUES" or -
+    %COMMAND_SELECTOR=="READ_QUICK_REPORT_VALUES_LOAD_DURATION" or -
+    %COMMAND_SELECTOR=="GET_CONF_FILE" or -
+    %COMMAND_SELECTOR=="GET_VALUES" or -
+    %COMMAND_SELECTOR=="GET_LOAD_DURATION_VALUES" or -
+    %COMMAND_SELECTOR=="GET_COLUMN_SETUP" or -
+    %COMMAND_SELECTOR=="GET_ALL_NOTES" or -
+    %COMMAND_SELECTOR=="GET_NOTE" or -
+    %COMMAND_SELECTOR=="GET_REPORT_SETTING" or -
+    %COMMAND_SELECTOR=="GET_PRECONFIGURATION_NAMES" or -
+    %COMMAND_SELECTOR=="GET_QUICK_REPORT_TIME_INTERVAL_CONF" or -
+    %COMMAND_SELECTOR=="GET_ALL_QUICK_REPORT_OBJECTS" or - 
+    %COMMAND_SELECTOR=="GET_QUICK_REPORT_DESCRIPTIONS" or -
+    %COMMAND_SELECTOR=="GET_QUICK_REPORT_COLUMN_SETUP" #then #block
+    
+   #if %b_Enable_Debugging or sagr_reports_'command_selector':ccs==0 #then -
+         #do sagr_reports_'command_selector':c
+   #else #do sagr_reports_'command_selector':ccp
+
+   #if %b_Enable_Debugging #then #block
+      @i_Trash=trace_end
+      @xE = sys_time
+      @xD = sys_time_interval(%xs,%xe)
+      @s = dec(xD:vs,2)
+      @ms = "000"+edit(dec(xD:vms),"COLLAPSE")
+      @ms=substr(%ms,length(%ms)-2,3)
+      @t=edit("["+dec(xD:vs,2)+"."+%ms+"]","COLLAPSE")
+      cot   = console_output("DBG.SAGR_REPORTS_'command_selector':C 't'" )
+      #if %COMMAND_SELECTOR=="GET_CONF_FILE" #then t_ = %ArgumentList.CONF_Name
+      trash = write_text("PICT/TRACE_SAGR_REPORTS_OutPutDump_'command_selector'_'t_'.TXT", dump(%Output))
+   #block_end
+   
+   #return %Output
+#block_end
+#else_if %COMMAND_SELECTOR== "SET_VALUE" or -
+         %COMMAND_SELECTOR== "SET_NOTE" #then #block
+
+   #if %b_Enable_Debugging or sagr_reports_'command_selector':ccs==0 #then -
+         #do sagr_reports_'command_selector':c
+   #else #do sagr_reports_'command_selector':ccp
+
+   #if %b_Enable_Debugging #then #block
+      @i_Trash=trace_end
+      @xE = sys_time
+      @xD = sys_time_interval(%xs,%xe)
+      @s = dec(xD:vs,2)
+      @ms = "000"+edit(dec(xD:vms),"COLLAPSE")
+      @ms=substr(%ms,length(%ms)-2,3)
+      @t=edit("["+dec(xD:vs,2)+"."+%ms+"]","COLLAPSE")
+      cot = console_output("DBG.SAGR_REPORTS_'command_selector':C 't'")
+   #block_end
+   #return
+#block_end
+
+

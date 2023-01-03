@@ -1,0 +1,42 @@
+;set text databases
+#local v_files, i, j, l_info, t_file_tag, v_text_dbs = vector
+#local e_State = ERROR_STATE, s, tag_file
+
+v_files = DO(read_text("B5_BBONE/BGU_GET_LIBRARIES.SCL"))
+
+#loop_with i = 1 .. length(v_files)
+	l_Info = v_files(I)
+
+	#if attribute_exists(l_info, "base_path") and attribute_exists(l_info, "texts") and-
+		attribute_exists(l_info, "prepared") #then #block
+		#if l_info.prepared #then #block
+			#if data_type(l_info.texts) == "VECTOR" #then #block
+				#loop_with j = 1 .. length(l_info.TEXTS)
+					t_file_tag = l_info.Texts(j) 
+					#error ignore
+					s = status
+					tag_file = fm_scil_file(t_file_tag)
+					s = status
+					#error 'e_state'
+					#if file_manager("exists", tag_file) #then #block
+						v_text_dbs(length(v_text_dbs) + 1) = t_file_tag 
+					#block_end
+				#loop_end
+			#block_end
+			#else #block
+				t_file_tag = l_info.Texts 
+				#error ignore
+				s = status
+				tag_file = fm_scil_file(t_file_tag)
+				s = status
+				#error 'e_state'
+				#if file_manager("exists", tag_file) #then #block
+					v_text_dbs(length(v_text_dbs) + 1) = t_file_tag 
+				#block_end
+			#block_end
+		#block_end
+	#block_end
+#loop_end
+
+v_text_dbs = remove_duplicates(append(apl:btd, v_text_dbs))
+#set apl:btd = v_text_dbs

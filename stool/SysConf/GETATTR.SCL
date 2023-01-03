@@ -1,0 +1,403 @@
+; Method: GetAttr(t_Obj_Type, i_Obj_Nr, t_Attr_Name, i_Obj_Net_Nr, b_Return_as_Text)
+; Version: 1.0
+; Parameters: t_Obj_Type, type of object having attribute value, e.g. "BASE_SYSTEM_LINK"
+;             i_Obj_Nr, number of the object having attribute value, e.g. 12
+;             t_Attr_Name, name of the attribute having required value, e.g. "LT"
+;             [i_Obj_Net_Nr], number of the NET object.
+;             [b_Return_as_Text], return value as text format, default as real format.
+; Description: Reads attribute value from the configuration file and returns in specified
+;              format.
+; ---------------------------------------------------------------------------------------
+#argument t_Obj_Type,-
+          i_Obj_Nr,-
+          t_Attr_Name
+#local b_Return_as_Text = false,-
+       i_Obj_Net_Nr,-
+       l_System_Configuration_Data = SYS:BSV2,-
+       t_System_Conf_File = l_System_Configuration_Data.t_System_Configuration_File,-
+       t_Attr_Mapping,-
+       t_Obj_Section,-
+       t_Key_Name_Prefix,-
+       l_Ini_Read,-
+       l_test_1,-
+       l_test_2,-
+       v_Ini_Values,-
+       b_Found_as_Vector,-
+       b_Found_as_List,-
+       i_Attr_Index,-
+       v_Ini_Values_as_Text,-
+       v_Ini_Values_as_Real,-
+       i_1,-
+       i_Offset,-
+       v_All_Values,-
+       i,-
+       i_Status,-
+       v_Current_Values,-
+       v_Int_Values_as_Real,-
+       t_Start_Line,-
+       t_End_Line,-
+       v_IS,-
+       t_tmp,-
+       t_Line,-
+       b_Continue = FALSE,-
+       v_Fields,-
+       ii
+
+#if argument_count == 4 #then #block
+   #if t_Obj_Type == "NET_LINK" #then i_Obj_Net_Nr = argument(4)
+   #else b_Return_as_Text = true
+#block_end
+
+#if argument_count == 5 #then #block
+   i_Obj_Net_Nr = argument(4)
+   b_Return_as_Text = true
+#block_end
+
+#case t_Obj_Type
+
+   #when "BASE_SYSTEM_LINK" #block
+
+      t_Attr_Mapping = "Link_Attributes"
+      t_Obj_Section = "LINKS"
+      t_Key_Name_Prefix = "Link"
+
+   #block_end
+
+   #when "BASE_SYSTEM_NODE" #block
+
+      t_Attr_Mapping = "Node_B_Attributes"
+      t_Obj_Section = "NODES"
+      
+      #error ignore
+         i_Status = status
+         l_Ini_Read = read_parameter(t_System_Conf_File, "ATTRIBUTE_MAPPING", t_Attr_Mapping)
+         i_Status = status
+      #error stop
+      #if l_Ini_Read.Status == status_code("SCIL_KEY_DOES_NOT_EXIST") #then #block
+         t_Attr_Mapping = "Node_Attributes"
+      #block_end
+      
+      t_Key_Name_Prefix = "Node_B"
+      
+      #loop_with i = 1 .. MAX_NODE_NUMBER
+      
+         l_test_1 = read_parameter(t_System_Conf_File, t_Obj_Section, "Node_B" + "_'i'")
+
+         #if l_test_1.Status == status_code("SCIL_KEY_DOES_NOT_EXIST") #then #block
+         
+            l_test_2 = read_parameter(t_System_Conf_File, t_Obj_Section, "Node" + "_'i'")
+            
+            #if l_test_2.Status == 0 #then #block
+               t_Key_Name_Prefix = "Node"
+               #loop_exit
+            #block_end
+            
+         #block_end
+         #else_if l_test_1.Status == 0 #then #block
+         
+            t_Key_Name_Prefix = "Node_B"
+            #loop_exit
+            
+         #block_end
+                  
+      #loop_end      
+
+   #block_end
+   
+   #when "NET_NODE" #block
+
+      t_Attr_Mapping = "Node_N_Attributes"
+      t_Obj_Section = "NODES"
+      t_Key_Name_Prefix = "Node_N"
+      
+      l_Ini_Read = read_parameter(t_System_Conf_File, "ATTRIBUTE_MAPPING", t_Attr_Mapping)
+
+      #if l_Ini_Read.Status == status_code("SCIL_KEY_DOES_NOT_EXIST") #then #block
+         #return "#"
+      #block_end
+      
+   #block_end
+
+   #when "BASE_SYSTEM_STATION" #block
+
+      t_Attr_Mapping = "Station_B_Attributes"
+      t_Obj_Section = "STATIONS"
+      t_Key_Name_Prefix = "Station_B"
+
+   #block_end
+
+   #when "BASE_SYSTEM_STATION_TYPE" #block
+
+      t_Attr_Mapping = "Station_Type_Attributes"
+      t_Obj_Section = "STATION_TYPES"
+      t_Key_Name_Prefix = "Station_Type"
+
+   #block_end
+
+   #when "NET_STATION" #block
+
+      t_Attr_Mapping = "Station_N_Attributes"
+      t_Obj_Section = "STATIONS"
+      t_Key_Name_Prefix = "Station_N"
+
+   #block_end
+
+   #when "NET_LINK" #block
+
+      t_Attr_Mapping = "Node_Link_Attributes"
+      t_Obj_Section = "NODE_'i_Obj_Net_Nr'_LINKS"
+      t_Key_Name_Prefix = "Node_Link"
+
+   #block_end
+
+#case_end
+
+l_Ini_Read = read_parameter(t_System_Conf_File, "ATTRIBUTE_MAPPING", t_Attr_Mapping)
+v_Ini_Values = separate(l_Ini_Read.VALUE, ",")
+b_Found_as_Vector = false
+b_Found_as_List = false
+i_Attr_Index = find_element(v_Ini_Values, t_Attr_Name)
+
+#if i_Attr_Index == 0 #then #block
+
+   l_Ini_Read = read_parameter(t_System_Conf_File, "ATTRIBUTE_MAPPING", t_Attr_Mapping + "_Vector")
+
+   #if l_Ini_Read.STATUS == 0 #then #block
+
+      v_Ini_Values = separate(l_Ini_Read.VALUE, ",")
+      i_Attr_Index = find_element(v_Ini_Values, t_Attr_Name)
+
+      #if i_Attr_Index > 0 #then #block
+
+         b_Found_as_Vector = true
+
+         l_Ini_Read = read_parameter(t_System_Conf_File, t_Obj_Section, t_Key_Name_Prefix + "_'i_Obj_Nr'_'t_Attr_Name'_Vector")
+         #if l_Ini_Read.STATUS == 0 #then #block
+         
+            v_Ini_Values = separate(l_Ini_Read.VALUE, ",")
+            #if (t_Attr_Name == "XA" or t_Attr_Name == "NC" or t_Attr_Name == "SY") and length(l_Ini_Read.VALUE) == 0 #then #return vector()
+
+            #if length(l_Ini_Read.VALUE) == 1 #then #block
+
+               #if b_Return_as_Text #then #return "vector('l_Ini_Read.VALUE')"
+               #else #return vector(evaluate(l_Ini_Read.VALUE))
+
+            #block_end
+;;;AAa
+            #if length(l_Ini_Read.VALUE) <= 1 #then #return ""
+;;;AAa
+            #if substr(l_Ini_Read.VALUE, length(l_Ini_Read.VALUE) - 1, 2) == ",-" #then v_Ini_Values = v_Ini_Values(1 .. length(v_Ini_Values) - 1)
+            #else #block
+
+               v_Ini_Values_as_Text = separate(l_Ini_Read.VALUE, ",")
+               v_Ini_Values_as_Real = vector()
+               i_1 = 1
+
+               #if t_Attr_Name == "XA" #then i_Offset = 6
+               #else_if t_Attr_Name == "NC" #then i_Offset = 5
+               #else_if t_Attr_Name == "SY" #then i_Offset = 2
+               #else_if t_Attr_Name == "NE" #then i_Offset = 2
+               #else_if t_Attr_Name == "IS" #then i_Offset = 2
+
+               #loop (i_1 < (length(v_Ini_Values_as_Text) + 1))
+
+                  #if t_Attr_Name == "XA" or t_Attr_Name == "NC" or -
+                      t_Attr_Name == "SY" or t_Attr_Name == "NE" or t_Attr_Name == "IS" #then #block
+
+                    v_Ini_Values_as_Real(length(v_Ini_Values_as_Real) + 1) = evaluate(collect(v_Ini_Values_as_Text((i_Offset * (length(v_Ini_Values_as_Real) + 1) - (i_Offset - 1)) .. (i_Offset * (length(v_Ini_Values_as_Real) + 1))), ","))
+                    i_1 = i_1 + i_Offset
+
+                  #block_end
+                  #else #block
+
+                     v_Ini_Values_as_Real(length(v_Ini_Values_as_Real) + 1) = evaluate(v_Ini_Values_as_Text(i_1))
+                     i_1 = i_1 + 1
+
+                  #block_end
+
+               #loop_end
+
+               #if t_Attr_Name == "XA" or t_Attr_Name == "NC" or -
+                   t_Attr_Name == "SY" or t_Attr_Name == "NE" or t_Attr_Name == "IS" #then #return v_Ini_Values_as_Real
+               #else_if t_Attr_Name <> "CT" #then #if b_Return_as_Text #then #return "vector('l_Ini_Read.VALUE')"
+               #else #return v_Ini_Values_as_Real
+            
+            #block_end
+
+            v_All_Values = v_Ini_Values
+
+            #loop_with i = 2 .. 10000
+
+               v_Ini_Values = vector()
+               l_Ini_Read = read_parameter(t_System_Conf_File, t_Obj_Section, t_Key_Name_Prefix + "_'i_Obj_Nr'_'t_Attr_Name'_Vector_'i'")
+
+               #if l_Ini_Read.STATUS == 0 #then #block
+
+                  #if (t_Attr_Name == "XA" or t_Attr_Name == "NC" or -
+                       t_Attr_Name == "SY" or t_Attr_Name == "NE" or t_Attr_Name == "IS") and l_Ini_Read.VALUE == "" #then #block
+
+                     v_Current_Values = vector()
+                     l_Ini_Read.VALUE = "  "
+
+                  #block_end
+                  #else v_Current_Values = separate(l_Ini_Read.VALUE, ",")
+
+                  #if v_Current_Values(length(v_Current_Values)) == "-" #then #block
+
+                     v_Current_Values = v_Current_Values(1 .. length(v_Current_Values) - 1)
+                     v_All_Values = append(v_All_Values, v_Current_Values)
+
+                  #block_end
+                  #else #block
+
+                     v_All_Values = append(v_All_Values, v_Current_Values)
+                     v_Int_Values_as_Real = vector()
+                     i_1 = 1
+
+                     #if t_Attr_Name == "XA" #then i_Offset = 6
+                     #else_if t_Attr_Name == "NC" #then i_Offset = 5
+                     #else_if t_Attr_Name == "SY" #then i_Offset = 2
+                     #else_if t_Attr_Name == "NE" #then i_Offset = 2
+                     #else_if t_Attr_Name == "IS" #then i_Offset = 2
+
+                     #loop (i_1 < (length(v_All_Values) + 1))
+
+                        #if t_Attr_Name == "XA" or t_Attr_Name == "NC" or -
+                            t_Attr_Name == "SY" or t_Attr_Name == "NE" or t_Attr_Name == "IS" #then #block
+
+                           v_Int_Values_as_Real(length(v_Int_Values_as_Real) + 1) = evaluate(collect(v_All_Values((i_Offset * (length(v_Int_Values_as_Real) + 1) - (i_Offset - 1)) .. (i_Offset * (length(v_Int_Values_as_Real) + 1))), ","))
+                           i_1 = i_1 + i_Offset
+
+                        #block_end
+                        #else #block
+
+                           v_Int_Values_as_Real(length(v_Int_Values_as_Real) + 1) = evaluate(v_All_Values(i_1))
+                           i_1 = i_1 + 1
+
+                        #block_end
+
+                     #loop_end
+
+;                     #if t_Attr_Name <> "CT" #then #return v_Int_Values_as_Real   ?????
+;                     #else #return v_Int_Values_as_Real                           ?????
+
+                      #if t_Attr_Name == "XA" or t_Attr_Name == "NC" or -
+                      t_Attr_Name == "SY" or t_Attr_Name == "NE" or t_Attr_Name == "IS" or -
+                      t_Attr_Name == "CT" #then #return v_Int_Values_as_Real
+                      #else_if b_Return_as_Text #then #block
+                         t_tmp = collect(v_All_Values,",")
+                         #return "vector('t_tmp')"
+                      #block_end
+                      #else #return v_Int_Values_as_Real
+
+                  #block_end
+
+               #block_end
+               #else #loop_exit
+
+            #loop_end
+
+         #block_end
+         #else #return "#"
+
+      #block_end
+      
+      #else #block   ;LIST begin
+      
+         b_Found_as_List = true
+
+         l_Ini_Read = read_parameter(t_System_Conf_File, t_Obj_Section, t_Key_Name_Prefix + "_'i_Obj_Nr'_'t_Attr_Name'_List")
+         #if l_Ini_Read.STATUS == 0 #then #block
+            
+            #return evaluate(l_ini_read.VALUE)
+            
+         #block_end
+      
+      #block_end  ;LIST end
+
+   #block_end
+
+#block_end
+
+#if not b_Found_as_Vector #then #block
+
+   l_Ini_Read = read_parameter(t_System_Conf_File, t_Obj_Section, t_Key_Name_Prefix + "_'i_Obj_Nr'")
+
+   #if l_Ini_Read.STATUS == 0 #then #block
+
+      v_Ini_Values = separate(l_Ini_Read.VALUE, ",")
+
+      #if substr(l_Ini_Read.VALUE, length(l_Ini_Read.VALUE), 1) <> "-" #then #block
+
+         #if b_Return_as_Text #then #return v_Ini_Values(i_Attr_Index)
+         #else #block
+
+            #if i_Attr_Index == 0 #then #return list(STATUS = "SCF_ATTRIBUTE_NAME_NOT_FOUND")
+            #if v_Ini_Values(i_Attr_Index) <> "" #then #return evaluate(v_Ini_Values(i_Attr_Index))
+            #else #return "#"
+
+         #block_end
+
+      #block_end
+      #else #block
+
+         #if substr(l_Ini_Read.VALUE, length(l_Ini_Read.VALUE) - 1, 1) == "," #then v_Ini_Values = v_Ini_Values(1 .. length(v_Ini_Values) - 1)
+ 
+         #else_if substr(l_Ini_Read.VALUE, length(l_Ini_Read.VALUE) - 1, 1) == "+" #then b_Continue = TRUE
+
+         #loop_with i = 2 .. 10000
+
+            l_Ini_Read = read_parameter(t_System_Conf_File, t_Obj_Section, t_Key_Name_Prefix + "_'i_Obj_Nr'_'i'")
+
+            #if l_Ini_Read.STATUS == 0 #then #block
+
+               v_Fields = separate(l_Ini_Read.VALUE, ",")
+
+               #loop_with ii = 1 .. length(v_Fields)
+                  #if b_Continue #then #block
+                     v_Ini_Values(length(v_Ini_Values)) = -
+                     substr(v_Ini_Values(length(v_Ini_Values)),1,length(v_Ini_Values(length(v_Ini_Values))) - 3 ) + substr(v_Fields(ii),2,length(v_Fields(ii))-1)
+                     b_Continue = FALSE
+                  #block_end
+                  #else #block
+                     v_Ini_Values(length(v_Ini_Values) + 1) = v_Fields(ii)
+                  #block_end
+               #loop_end
+               
+               #if substr(l_Ini_Read.VALUE, length(l_Ini_Read.VALUE), 1) == "-" #then #block
+
+                  #if substr(l_Ini_Read.VALUE, length(l_Ini_Read.VALUE) - 1, 1) == "," #then v_Ini_Values = v_Ini_Values(1 .. length(v_Ini_Values) - 1)
+                  
+                  #else_if substr(l_Ini_Read.VALUE, length(l_Ini_Read.VALUE) - 1, 1) == "+" #then b_Continue = TRUE
+
+               #block_end
+
+            #block_end
+            #else #loop_exit
+
+         #loop_end
+
+         #if length(v_Ini_Values(i_Attr_Index)) > 1 #then #block
+
+            #if substr(v_Ini_Values(i_Attr_Index), length(v_Ini_Values(i_Attr_Index)) - 1, 1) == "+" #then #block
+
+               t_Start_Line = substr(v_Ini_Values(i_Attr_Index), 1, length(v_Ini_Values(i_Attr_Index)) - 3)
+               t_End_Line = substr(v_Ini_Values(i_Attr_Index + 1), 2, length(v_Ini_Values(i_Attr_Index + 1)) - 1)
+
+               #if b_Return_as_Text #then #return t_Start_Line + t_End_Line
+               #else #return evaluate(t_Start_Line + t_End_Line)
+
+            #block_end
+
+         #block_end
+
+         #if b_Return_as_Text #then #return v_Ini_Values(i_Attr_Index)
+;;         #else #return evaluate(v_Ini_Values(i_Attr_Index))
+         #else_if v_Ini_Values(i_Attr_Index) <> "" #then #return evaluate(v_Ini_Values(i_Attr_Index))
+            #else #return "#"
+
+      #block_end
+
+   #block_end
+
+#block_end

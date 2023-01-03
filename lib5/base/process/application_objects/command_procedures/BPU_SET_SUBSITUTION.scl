@@ -1,0 +1,47 @@
+;Function: BPU_SET_SUBSTITUTION:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_set_substitution.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute),  l_data (search_result9, l_item (signal to be substituted) 
+;Return data:
+;Description: Enables/Disables substitution and sets substituted value
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data, l_Item
+
+#local t_LN, i_IX, i_UN, t_LD, t_logNode, t_DO, t_DA, subVal, value, b_Enable, response
+#local l_result = list(STATUS = 0, err_description = ""), s
+
+t_LN = l_Item.LOGICAL_NAME
+i_IX = l_Item.OBJECT_INDEX
+i_UN = 't_LN':PUN'i_IX'
+t_LD = l_Item.LOGICAL_DEVICE
+t_logNode = l_Item.LOGICAL_NODE
+t_DO = l_Item.DATA_OBJECT
+t_DA = l_Item.DATA_ATTRIBUTE
+subVal = "subVal"
+
+#if locate('t_LN':PRX'i_IX', "MEAM") > 0 #then #block
+   subVal = separate(t_DA, "$")
+   #if length(subVal) > 1 #then subVal = subVal(1) + "$subCVal$mag$f"
+   #else subVal = "subMag$f"
+#block_end
+value = l_Item.object_value
+#if i_UN <> 0 #then #block
+   s= status
+   #error ignore
+   #if l_Item.SUBSITUTION_ENABLED == 1 #then #block
+      b_Enable = "True"
+      #SET STA'i_UN':SXT = "SetDataValue&LDInst='t_LD'&LNName='t_logNode'&DORef='t_DO'&Attr='subVal'&FunConstr=SV&v='value'"
+      response = STA'i_UN':SXT
+   #block_end
+   #else b_Enable = "False"
+
+   #SET STA'i_UN':SXT = "SetDataValue&LDInst='t_LD'&LNName='t_logNode'&DORef='t_DO'&Attr='t_DA'&FunConstr=SV&v='b_Enable'"
+   response = STA'i_UN':SXT
+#block_end
+s =  status
+#if s <> 0 #then l_result = list(status = s, err_description=status_code_name(s))
+
+#return l_result

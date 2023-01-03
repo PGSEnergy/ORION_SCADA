@@ -1,0 +1,20 @@
+; LOCAL SHADOWING RECEIVER STATE CHANGES
+;
+
+#DO SHADGLOBAL:C
+#SET SHADAPLSP:D(%APL)  = %SP
+#DO  SHADCVSTAT:C
+#SET SHADSTATE:D(%APL)  = %NEW_STATE
+#CASE %SP
+   #WHEN 0       #BLOCK                         ;NONE
+      #BLOCK_END
+   #WHEN 5,7 #BLOCK                             ;TO_WARM_RECV,TO_HOT_R
+      #BLOCK_END
+   #WHEN 6,8     #BLOCK                         ;WARM_RECEIVE,HOT_RECE
+      #EXEC SHADBCKRDY:C (@APL=%APL)
+      #BLOCK_END
+   #OTHERWISE    #BLOCK
+      #BLOCK_END
+#CASE_END
+
+

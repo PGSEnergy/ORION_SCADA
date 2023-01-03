@@ -1,0 +1,113 @@
+;Function: BPU_SELECT_TRAFO:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_select_trafo.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute),  l_data, search_result, command, forced operation
+;Return data:
+;Description: Prepares selec command for operation
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data,  command, t_command_selector
+#local t_select_ln, t_sta_type, i_execute = 0, t_control_type, l_execution, i_IX, l_POs, t_Filter = ""
+#local i_select_ix, i_select_value, i_cmd_parameter, t_procedure = "", trash
+#local l_result = list(status = 0, err_description = "")
+
+t_select_ln = l_object_info.p_object_ln
+t_sta_type = l_object_info.station_type
+;t_control_type = l_object_info.control_type
+t_control_type = ""
+i_select_ix = l_data.all_objects.'t_command_selector'_IX
+
+#case t_command_selector
+   #when "LOWER_SELECT" #block
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "RAISE_LOWER_CONTROL_TYPE") #then -
+         t_control_type = l_object_info.type_info.fixed_sct_values.RAISE_LOWER_CONTROL_TYPE
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "LOWER_CONTROL_VALUE") #then -
+         i_select_value = l_object_info.type_info.fixed_sct_values.LOWER_CONTROL_VALUE
+      t_Filter = "*AVRCPOS*"
+   #block_end
+   #when "RAISE_SELECT" #block
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "RAISE_LOWER_CONTROL_TYPE") #then -
+         t_control_type = l_object_info.type_info.fixed_sct_values.RAISE_LOWER_CONTROL_TYPE
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "RAISE_CONTROL_VALUE") #then -
+         i_select_value = l_object_info.type_info.fixed_sct_values.RAISE_CONTROL_VALUE
+      t_Filter = "*AVRCPOS*"
+   #block_end
+   #when "MANUAL_SELECT" #block
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "AUTO_MANUAL_CONTROL_TYPE") #then -
+         t_control_type = l_object_info.type_info.fixed_sct_values.AUTO_MANUAL_CONTROL_TYPE
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "MANUAL_CONTROL_VALUE") #then -
+         i_select_value = l_object_info.type_info.fixed_sct_values.MANUAL_CONTROL_VALUE
+      t_Filter = "*AVRCMAN*"
+   #block_end
+   #when "AUTO_SELECT" #block
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "AUTO_MANUAL_CONTROL_TYPE") #then -
+         t_control_type = l_object_info.type_info.fixed_sct_values.AUTO_MANUAL_CONTROL_TYPE
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "AUTO_CONTROL_VALUE") #then -
+         i_select_value = l_object_info.type_info.fixed_sct_values.AUTO_CONTROL_VALUE
+      t_Filter = "*AVRCMAN*"
+   #block_end
+   #when "SINGLE_SELECT" #block
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "SINGLE_PARALLEL_CONTROL_TYPE") #then -
+         t_control_type = l_object_info.type_info.fixed_sct_values.SINGLE_PARALLEL_CONTROL_TYPE
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "SINGLE_CONTROL_VALUE") #then -
+         i_select_value = l_object_info.type_info.fixed_sct_values.SINGLE_CONTROL_VALUE
+      t_Filter = "*AVRCSGL*"
+   #block_end
+   #when "PARALLEL_SELECT" #block
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "SINGLE_PARALLEL_CONTROL_TYPE") #then -
+         t_control_type = l_object_info.type_info.fixed_sct_values.SINGLE_PARALLEL_CONTROL_TYPE
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "PARALLEL_CONTROL_VALUE") #then -
+         i_select_value = l_object_info.type_info.fixed_sct_values.PARALLEL_CONTROL_VALUE
+      t_Filter = "*AVRCSGL*"
+   #block_end
+   #when "FOLLOWER_SELECT" #block
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "MASTER_SLAVE_CONTROL_TYPE") #then -
+         t_control_type = l_object_info.type_info.fixed_sct_values.MASTER_SLAVE_CONTROL_TYPE
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "SLAVE_CONTROL_VALUE") #then -
+         i_select_value = l_object_info.type_info.fixed_sct_values.SLAVE_CONTROL_VALUE
+      t_Filter = "*AVRISGL RX WRONG IN DB*"
+   #block_end
+   #when "MASTER_SELECT" #block
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "SINGLE_PARALLEL_CONTROL_TYPE") #then -
+         t_control_type = l_object_info.type_info.fixed_sct_values.SINGLE_PARALLEL_CONTROL_TYPE
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "MASTER_CONTROL_VALUE") #then -
+         i_select_value = l_object_info.type_info.fixed_sct_values.MASTER_CONTROL_VALUE
+      t_Filter = "*AVRISGL RX WRONG IN DB*"
+   #block_end
+   #when "REF_VOLTAGE_SELECT" #block
+      t_Filter = "*AVRSRVO*"
+   #block_end
+   #when "SET_COUNTER_SELECT" #block
+      t_Filter = "*AVRICNR*"
+   #block_end
+   #otherwise #block      
+      trash = console_output(translation("Not supported command") + ": 't_command_selector'", "D", "LIB5")
+      #return list(status = -1, err_description = translation("Not supported command") + ": 't_command_selector'")
+   #block_end
+#case_end
+
+t_procedure =  l_object_info.type_info.command_procedures.get_control_type_trafo
+#if t_control_type == "" #then t_control_type = do('t_procedure':c, t_select_ln, t_sta_type, t_filter)
+t_procedure = l_object_info.type_info.command_procedures.get_control_value_trafo
+#if data_type(i_select_value) == "NONE" #then i_select_value = do('t_procedure':c, t_control_type, t_sta_type, t_command_selector)
+
+#if t_sta_type == "IEC101" or t_sta_type == "DNP_30" or t_sta_type == "ICCP" #then i_cmd_parameter = 't_select_ln':pty'i_select_ix'
+;send select command
+t_procedure =  l_object_info.type_info.command_procedures.select
+i_execute = do('t_procedure':c, t_select_ln, i_select_ix, i_select_value, t_sta_type, t_control_type, i_cmd_parameter)
+
+#if i_execute <> 0 #then #block ;error code of failure
+   l_result.status = i_execute
+   l_result.err_description = status_code_name(i_execute)
+#block_end
+
+;set command event
+#if attribute_exists(l_data.all_objects, "cmd_event_ix") #then #block
+   i_IX = l_data.all_objects.cmd_event_ix
+   #if 't_select_ln':pub'i_IX' == 0 and not ('t_select_ln':PSS'i_IX' > 1 and -
+   't_select_ln':pun'i_IX'<>0) #then #set 't_select_ln':pov'i_IX' = 1 ;
+#block_end
+
+#return l_result

@@ -1,0 +1,243 @@
+; Command Procedure: SYS_OSER
+; Version: SYS 600 9.3
+; Description: This is command procedure for receiving OS_EVENT events
+; ---------------------------------------------------------------------
+; For SYS600C HW Monitoring
+; all variables are empty or 0 except for:
+; %RT == Event time, as normal
+; %TYPE == "INFORMATION"
+; %LOG == "APPLICATION"
+; %USER == "HARDWARE MONITOR"
+; %SOURCE == "SYS600C HARDWARE MONITOR"
+; %COMPUTER == (computer hostname from OS; *not* SYS600-configured node name)
+; %CATEGORY == (hardware measurement category, 1..5)
+; %MESSAGE == VECTOR("measurement name;iValue;unit name") where measurement name
+;   is name of the measurement or status signal, iValue is an integer value
+;   and unit name is the unit of the integer value, eg.
+; "Sys Temp;58;C" for Sys Temp measurement of 58 degrees Celsius
+; "+1.5VDimm;1242;mV" for voltage measurement of 1.242V for the memory modules
+; "Power1 Status;1;IS_OK" for IS_OK is True for Power1 Status
+; "Power2 Status;0;IS_OK" for IS_OK is False for Power2 Status (i.e. something
+;   is wrong with Power2)
+; "LAN Link status;11111101;BITSTRING" means LAN ports 1-6 and 8 are not
+;   connected, port 7 has connection
+; The hardware reader categories are:
+; %CATEGORY == 1 : Temperature readers
+; %CATEGORY == 2 : Voltage readers
+; %CATEGORY == 3 : PSU Status signals
+; %CATEGORY == 4 : LAN Link status signals
+; %CATEGORY == 5 : Case Open status signal
+#local t_LN = "SYS600C_HW_" + DEC(SYS:BND, 0), l_Fetch, i_IX = 0, x_value, t_OX, l_common = LIST()
+#local x_Temp, t_OI = "", I, l_Level, t_Unit, t_Name, i_lanIX, t_ReadValue, i_Dev_Len = 3, v_High_Temp = vector(60, 75)
+
+#if %SOURCE == "SYS600C HARDWARE MONITOR" AND data_type(%MESSAGE) == "VECTOR" #then #block ; separate processing
+	x_Temp = separate(%MESSAGE(1),";")
+	#if length(x_Temp) < 3 #then #return
+
+	t_Name = upper_case(x_Temp(1))
+	t_ReadValue = x_Temp(2)
+	t_Unit = x_Temp(3)
+
+	x_Temp = APL:BOI
+	#loop_with I = 1 .. x_Temp.DEPTH
+		l_Level = x_Temp.Levels(I)
+		#if l_Level.name == "STA" #then t_OI = SUBSTR(SYS:BCX, 1, l_Level.WIDTH) 
+		#else_if l_Level.NAME == "BAY" #then t_OI = t_OI + SUBSTR("HW", 1, l_Level.WIDTH)
+		#else_if l_level.Name == "DEV" #then #block
+			i_Dev_Len = l_Level.WIDTH
+			#loop_exit
+		#block_end
+		#else t_OI = t_OI + PAD("", " ", l_Level.WIDTH)
+	#loop_end
+
+	l_common = LIST(SS = 1,-
+	IU = 1,-
+	PF = "FORM5SAGR1",-
+	OS = 10)
+
+	#case %CATEGORY
+		#when 1 #block ; Temperature reading
+			x_value = DEC_SCAN(t_ReadValue)
+			i_IX = 0
+			#if t_Name == "CPU TEMP" #then #block 
+				i_IX = 1
+				t_OX = "SYS600C_CPU_TEMPERATURE"
+				t_OI = t_OI + SUBSTR("CPU", 1, i_Dev_Len)
+				v_High_Temp = VECTOR(70, 80)
+			#block_end
+			#else_if t_Name == "SYS TEMP" #then #block
+				i_IX = 2
+				t_OX = "SYS600C_SYSTEM_TEMPERATURE"
+				t_OI = t_OI + SUBSTR("System", 1, i_Dev_Len)
+				v_High_Temp = VECTOR(60, 75)
+			#block_end
+
+			#if i_IX > 0 #then #block
+				l_Fetch = FETCH(0, "P", t_LN, i_IX)
+				#if l_Fetch.IU == -1 #then #block
+					#CREATE 't_LN':P'i_IX' = merge_attributes(l_common, LIST(PT = 9,-
+					DX = "9",-
+					OX = t_OX,-
+					SN = "1_1",-
+					AC = 1,-
+					RC = 1,-
+					HI = v_High_Temp(2),-
+					HW = v_High_Temp(1),-
+					LW = 20.0,-
+					LI = 5.0,-
+					DP = 0,-
+					RX = PAD("", " ", 20) + "FPPMEAMTMP",-
+					ST = t_Unit,-
+					OI = t_OI))
+
+					l_Fetch = FETCH(0, "P", t_LN, i_IX)
+				#block_end
+			#block_end
+		#block_end
+		#when 2 #block ; Voltage reading
+			i_ix = 0
+			x_value = DEC_SCAN(t_ReadValue)
+			#case t_Name
+				#when "+CPU_CORE" i_ix = 40
+				#when "+5VS" i_ix = 41
+				#when "+12VS" i_IX = 42
+				#when "+1.5VDIMM" i_IX = 43
+				#when "VSB5V" i_IX = 44
+				#when "VCC3V" i_IX = 45
+				#when "VSB3V" i_IX = 46
+				#when "VBAT"  i_IX = 47
+				#otherwise i_IX = 0
+			#case_end
+			l_Fetch = FETCH(0, "P", t_LN, i_IX)
+
+			#if l_Fetch.IU == -1 AND i_IX > 0 #then #block
+				#CREATE 't_LN':P'i_IX' = merge_attributes(l_common,-
+				LIST(PT = 9,-
+				OI = t_OI + SUBSTR(t_Name, 1, i_Dev_Len),-
+				DX = "9",-
+				SN = "1_1",-
+				ST = t_Unit,-
+				DP = 0,-
+				RX = PAD("", " ", 20) + "FPPMEAMVOL",-
+				OX = "SYS600C_'t_Name'_VOLTAGE"))
+
+				l_Fetch = FETCH(0, "P", t_LN, i_IX)
+			#block_end
+		#block_end
+		#when 3 #block ; PSU Status signal
+			x_value = DEC_SCAN(t_ReadValue)
+			#case t_Name
+				#when "BATTERY STATUS" i_ix = 30
+				#when "POWER1 STATUS" i_ix = 31
+				#when "POWER2 STATUS" i_IX = 32
+				#otherwise i_IX = 0
+			#case_end
+
+			l_Fetch = FETCH(0, "P", t_LN, i_IX)
+			#if l_Fetch.IU == -1 AND i_IX <> 0 #then #block
+				#CREATE 't_LN':P'i_IX' = merge_attributes(l_common,-
+				LIST(PT = 3,-
+				DX = "3",-
+				AC = 1,-
+				AG = 0,-
+				RC = 1,-
+				NV = 1,-
+				RX = PAD("", " ", 20) + "FPHALAIALA",-
+				OI = t_OI + SUBSTR(t_Name, 1, MIN(LOCATE(t_Name, " "), i_Dev_Len)),-
+				OX = "SYS600C_" + SUBSTR(t_Name, 1, LOCATE(t_Name, " ")-1) + "_STATUS"))
+
+				l_Fetch = FETCH(0, "P", t_LN, i_IX)
+			#block_end
+		#block_end
+		#when 4 #block ; LAN Link status signals
+			x_Temp = bit_scan(t_ReadValue)
+			#loop_with I = 1 .. length(t_ReadValue)
+				i_lanIX = I + 9
+				x_value = 2
+				#if bit(x_Temp, I) == 0 #then x_value = 1
+				#else_if bit(x_Temp, I) == 1 #then x_value = 0
+
+				l_Fetch = FETCH(0, "P", t_LN, i_lanIX)
+				#if l_Fetch.IU == -1 AND i_lanIX <> 0 #then #block
+					#CREATE 't_LN':P'i_lanIX' = merge_attributes(l_common,-
+					LIST(PT = 3,-
+					AC = 1,-
+					AG = 0,-
+					RC = 1,-
+					NV = 1,-
+					DX = "3",-
+					RX = PAD("", " ", 20) + "FPHALAIALA",-
+					OI = t_OI + SUBSTR("NIC'I'",1, i_Dev_Len),-
+					OX = "SYS600C_LANLINK'I'_STATUS"))
+					l_Fetch = FETCH(0, "P", t_LN, i_lanIX)
+				#block_end
+
+				#if l_Fetch.IU == 1 #then #if l_Fetch.SS <> 0 #then #SET 't_LN':P'i_lanIX' = x_value
+			#loop_end
+		#block_end
+		#when 5 #block ; Case open warning status
+			; Currently unsupported
+	#block_end
+	#case_end ; Category
+
+; Set values for everything else, but the LANs (those have been set already)
+	#if data_type(l_Fetch) == "LIST" and data_type(x_value) <> "NONE" and data_type(i_IX) == "INTEGER" #then-
+	#if l_Fetch.IU == 1 and i_IX > 0 #then #if l_Fetch.SS <> 0 #then #SET 't_LN':P'i_IX' = x_value
+#block_end
+#else #block 
+	;read in filtering info
+	@l_Filtering_Info = do(apl:bsv40, "SSS", "GetFilterAttributes", "OS_EVENT", %LOG, %TYPE)
+
+	;read in general info
+	@l_General_Info = APL:BSV45
+
+	#if l_Filtering_Info:vSTATUS == 0 #then #block ; 1
+
+		;write to log, if requested
+		#if l_Filtering_Info:vLOG and l_General_Info:vENABLE_LOG #then -
+		@i_Log_Write = do(apl:bsv40, "SSS", "WriteLogItem", "OSE")
+
+		;activate event, if requested
+		#if l_Filtering_Info:vEVENT and l_General_Info:vENABLE_EVENT #then #block
+			@l_Event_Point = do(apl:bsv40, "SSS", "GetEvents", "EVENT", "OPERATING_SYSTEM", 0, list(SOURCE = %LOG, EVENT = %TYPE))
+
+			#if l_Event_Point:vSTATUS == 0 #then #set 'l_Event_Point:vEVENT' = 1
+			#else #block
+				@l_Event_Point = do(apl:bsv40, "SSS", "CreateProcessObject", "OPERATING_SYSTEM", "EVENT", 0, list(SOURCE = %LOG, EVENT = %TYPE))
+				#set 'l_Event_Point:vEVENT' = 1
+			#block_end      
+		#block_end
+
+		;activate alarm, if requested
+		#if l_Filtering_Info:vALARM and l_General_Info:vENABLE_ALARM #then #block
+			@l_Alarm_Point = do(apl:bsv40, "SSS", "GetEvents", "ALARM", "OPERATING_SYSTEM", 0, list(SOURCE = %LOG, EVENT = %TYPE))
+
+			#if l_Alarm_Point:vSTATUS == 0 #then #set 'l_Alarm_Point:vALARM' = abs(1 - 'l_Alarm_Point:vALARM')
+			#else #block
+				@l_Alarm_Point = do(apl:bsv40, "SSS", "CreateProcessObject", "OPERATING_SYSTEM", "ALARM", 0, list(SOURCE = %LOG, EVENT = %TYPE))
+				#set 'l_Alarm_Point:vALARM' = 1
+			#block_end      
+		#block_end
+
+		;update indication process object (binary input)
+		#if l_Filtering_Info:vALARM #then #block
+
+			#case %LOG
+				#when "SYSTEM", "SECURITY" @t_Log_Type = substr(%LOG, 1, 3)
+				#when "APPLICATION" @t_Log_Type = "APL"
+			#case_end
+
+			@l_Indication = do(apl:bsv40, "SSS", "GetObjectAttribute", "OPERATING_SYSTEM", %t_Log_Type)
+
+			#if l_Indication:vSTATUS == 0 #then #if l_Indication:v't_Log_Type' <> "#" #then #block
+				@t_Indication_Point = l_Indication:v't_Log_Type'
+				#set 't_Indication_Point' = 1
+			#block_end
+			#else_if l_Indication:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_oser:c]", l_Indication:vDESCRIPTIVE_TEXT)
+
+		#block_end
+
+	#block_end ; 1
+	#else_if l_Filtering_Info:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_oser:c]", l_Filtering_Info:vDESCRIPTIVE_TEXT)
+#block_end
+

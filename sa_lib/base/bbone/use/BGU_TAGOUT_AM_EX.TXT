@@ -1,0 +1,145 @@
+; Function:    SAGR_TAGOUT_AM_EX:C
+; Version:     0.4 (Build 17.12.2008) 
+; Parameters:  
+; Return data: 
+; Description: Force update to com500 in case of ..
+;----------------------------------------------------------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;
+;----------------------------------------------------------------------------------------------------------------------------------------------------
+#argument ArglAplObjects,i1
+#local lAplObjects
+lAplObjects=ArglAplObjects
+
+@OS = lAplObjects.OS(i1)
+@IX = lAplObjects.IX(i1)
+@LN = lAplObjects.LN(i1)                     
+#CASE lAplObjects.DX(i1) ; 5
+  ;if RTU 200 event recording object and not sampled, read from lower index
+  #WHEN "I10S","R10S","I11","R11","I10D","R10D" #BLOCK ; 6
+     #IF (%OS == 10 OR %OS == 2) #THEN #BLOCK ; 7
+        @LOW_IX = %IX - 100
+        @LOW_OS = 'LN':POS'LOW_IX'
+        #IF %LOW_OS < 10 #THEN #BLOCK ; 8
+           @OS = %LOW_OS
+           lAplObjects.OV(i1) = 'LN':POV'LOW_IX'
+           lAplObjects.AL(i1) = 'LN':PAL'LOW_IX'
+           lAplObjects.RT(i1) = 'LN':PRT'LOW_IX'
+           lAplObjects.RM(i1) = 'LN':PRM'LOW_IX'
+           lAplObjects.BL(i1) = 'LN':PBL'LOW_IX'
+           lAplObjects.SB(i1) = 'LN':PSB'LOW_IX'
+           lAplObjects.OR(i1) = 'LN':POR'LOW_IX'
+           lAplObjects.CT(i1) = 'LN':PCT'LOW_IX' 
+           lAplObjects.OG(i1) = 'LN':POG'LOW_IX'                       
+        #BLOCK_END ; 8
+     #BLOCK_END ; 7                
+  #BLOCK_END ; 6
+#CASE_END ; 5
+#CASE lAplObjects.PT(i1) ; 5
+  #WHEN 3 #BLOCK ; binary input
+     #IF %OS < 10 #THEN #BLOCK
+        @BI = lAplObjects.OV(i1)
+        @AL = lAplObjects.AL(i1)
+     #BLOCK_END
+     #ELSE #BLOCK
+        @BI = 1
+        @AL = 1
+     #BLOCK_END
+     @CA = "BI"
+     @COM_PROC = "COM_USBI"
+  #BLOCK_END
+  #WHEN 5 #BLOCK ; binary output
+     #IF %OS < 10 #THEN #BLOCK
+        @BO = lAplObjects.OV(i1)
+     #BLOCK_END
+     #ELSE #BLOCK
+        @BO = 0
+        @AL = 1
+     #BLOCK_END
+     @COM_PROC = "COM_USBO"
+  #BLOCK_END            
+  #WHEN 6 #BLOCK ; digital input
+     #IF %OS < 10 #THEN #BLOCK
+        @DI = lAplObjects.OV(i1)
+        @AL = lAplObjects.AL(i1)
+     #BLOCK_END
+     #ELSE #BLOCK
+        @DI = 0
+        @AL = 1
+     #BLOCK_END                    
+     @CA = "DI"
+     @COM_PROC = "COM_USDI"
+  #BLOCK_END
+  #WHEN 9 #BLOCK ; analog input
+     #IF %OS < 10 #THEN #BLOCK
+        @AI = lAplObjects.OV(i1)
+        @AL = lAplObjects.AL(i1)
+     #BLOCK_END
+     #ELSE #BLOCK
+        @AI = 0
+        @AL = 1
+     #BLOCK_END                    
+     @CA = "AI"
+     @COM_PROC = "COM_USAI"
+  #BLOCK_END
+  #WHEN 11 #BLOCK ; analog output
+     #IF %OS < 10 #THEN #BLOCK
+        @AO = lAplObjects.OV(i1)
+     #BLOCK_END
+     #ELSE #BLOCK
+        @BO = 0
+     #BLOCK_END
+     @COM_PROC = "COM_USAO"
+  #BLOCK_END                        
+  #WHEN 12 #BLOCK ; double binary input
+     #IF %OS < 10 #THEN #BLOCK
+        @DB = lAplObjects.OV(i1)
+        @AL = lAplObjects.AL(i1)
+     #BLOCK_END
+     #ELSE #BLOCK
+        @DB = 1
+        @AL = 1
+     #BLOCK_END
+     @CA = "DB"
+     @COM_PROC = "COM_USDB"
+  #BLOCK_END
+  #WHEN 13 #BLOCK ; pulse counter
+     #IF %OS < 10 #THEN @PC = lAplObjects.OV(i1)
+     #ELSE @PC = 0
+     @CA = "PC"
+     @COM_PROC = "COM_USPC"
+  #BLOCK_END
+  #WHEN 14 #BLOCK ; bit stream
+     #IF %OS < 10 #THEN @BS = lAplObjects.OV(i1)
+     #ELSE @BS = BIT_STRING(65535)
+     @CA = "BS"
+     @COM_PROC = "COM_USBS"
+  #BLOCK_END
+  #WHEN 16 #BLOCK ; OPC_EVENT
+     #IF %OS < 10 #THEN #BLOCK
+        @OE = lAplObjects.OV(i1)
+        @AL = lAplObjects.AL(i1)
+     #BLOCK_END
+     #ELSE #BLOCK
+        @OE = 1
+        @AL = 1
+     #BLOCK_END
+     @CA = "OE"
+     @COM_PROC = "COM_USOE"
+  #BLOCK_END
+  #OTHERWISE @COM_PROC = ""
+#CASE_END ; 6
+#IF %COM_PROC <> "" #THEN #BLOCK
+  @RT = lAplObjects.RT(i1)
+  @RM = lAplObjects.RM(i1)
+  @BL = lAplObjects.BL(i1)
+  @SB = lAplObjects.SB(i1)
+  @OR = lAplObjects.OR(i1)
+  @CT = lAplObjects.CT(i1)  
+  @OG = lAplObjects.OG(i1)  
+  @RZ = lAplObjects.RZ(i1)   
+  #IF 'COM_PROC':CCS == 1 #THEN #DO 'COM_PROC':CCP
+  #ELSE #DO 'COM_PROC':CIN            
+#BLOCK_END ; 5
+

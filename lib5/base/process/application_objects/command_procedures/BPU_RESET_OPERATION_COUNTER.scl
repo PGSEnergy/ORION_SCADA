@@ -1,0 +1,60 @@
+;Function: BPU_RESET_OPERATION_COUNTER:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_reset_operation_counter.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute), l_data
+;Return data: : LIST(STATUS=integer, err_description=text)
+;Description:
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data
+#local l_result = list(status = 0, err_description="")
+#local t_LN, i_IX = 0, l_attributes
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_RESET_OPERATION_COUNTER"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+		#if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+			@REDIRECTED = true                                                                        
+			i_ArgCnt = argument_count                                                                 
+			#if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"						      
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"											      
+			#loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+				t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+				#if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+			#loop_end                                                                                 
+			#return 't_Redirect_Command' ;;;;;                                                        
+		#block_end                                                                                   
+	#block_end                                                                                      
+	#else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+
+#if attribute_exists(l_data.all_objects, "indication_db_ix") #then #block
+
+	i_IX = l_data.all_objects.indication_db_ix
+	t_LN = l_object_info.p_object_ln
+	
+	#set 't_LN':pcv'i_IX' = 0
+		
+#block_end
+#else_if attribute_exists(l_data.all_objects, "counter_ix") #then #block ;trafo
+
+   i_IX = l_data.all_objects.counter_ix
+   t_LN = l_object_info.p_object_ln
+   
+   l_attributes = application_object_attributes(0, "IX", list(ln = vector(t_LN), IX = vector(i_IX)), vector("IU", "SS", "UN"))
+   
+   #if l_attributes.iu(1) == 1 and l_attributes.ss(1) > 0 #then #block
+      #if l_attributes.ss(1) == 1 or (l_attributes.ss(1) > 1 and l_attributes.un(1) == 0) #then -
+         #set 't_LN':pov'i_IX' = 0
+   #block_end
+#block_end
+
+#return l_result

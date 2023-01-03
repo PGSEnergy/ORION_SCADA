@@ -1,0 +1,38 @@
+; Resolves the control places for bay L/R switch based on data object name
+; --------------------------------------------------------------------------------------------------------
+#argument l_objects
+#local l_result = list(), dataObject = "", ln = "", ix = 0, IN
+#local convention = vector
+
+#if l_objects.bay_lr_object #then #block
+   ln = l_objects.bay_lr_object_ln
+   ix = l_objects.bay_lr_object_ix 
+   IN = separate('ln':PIN'ix', ".")
+   #if length(IN) > 1 #then dataObject = IN(length(IN) - 1)         
+   #case dataObject
+      #when "LocKeyHMI" #block
+         ;Relion 615
+         convention = VECTOR(-
+            LIST(VALUE = 0, CONTROL_PLACES = VECTOR("OFF")),-
+            LIST(VALUE = 1, CONTROL_PLACES = VECTOR("LOCAL")),-
+            LIST(VALUE = 3, CONTROL_PLACES = VECTOR("STATION")),-
+            LIST(VALUE = 5, CONTROL_PLACES = VECTOR("LOCAL", "STATION")),-
+            LIST(VALUE = 6, CONTROL_PLACES = VECTOR("ALL")),-
+            LIST(VALUE = 7, CONTROL_PLACES = VECTOR("STATION", "NCC")))
+      #block_end
+      #when "CtlAuthInd" #block                
+         ;Relion 670
+         convention = VECTOR(-
+            LIST(VALUE = 0, CONTROL_PLACES = VECTOR("OFF")),-
+            LIST(VALUE = 1, CONTROL_PLACES = VECTOR("LOCAL")),-
+            LIST(VALUE = 2, CONTROL_PLACES = VECTOR("STATION", "NCC")),-
+            LIST(VALUE = 3, CONTROL_PLACES = VECTOR("OFF")),-
+            LIST(VALUE = 5, CONTROL_PLACES = VECTOR("ALL")),-
+            LIST(VALUE = 6, CONTROL_PLACES = VECTOR("STATION")),-
+            LIST(VALUE = 7, CONTROL_PLACES = VECTOR("NCC")))
+      #block_end
+   #case_end   
+   #if length(convention) > 0 #then l_result = merge_attributes(l_result, list(ied_specific_bay_lr = convention))
+#block_end
+
+#return l_result

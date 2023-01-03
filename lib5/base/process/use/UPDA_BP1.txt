@@ -1,0 +1,9 @@
+;check if application is prepared for base library
+#local l_info, t_file, l_result
+t_file = "/LIB5/BASE/PROCESS/USE/INIT_PACKAGE.scl"
+l_info = do(read_text(t_file), "GET_INFO")
+#if data_type(l_info) == "LIST" #then #block
+	#if attribute_exists(l_info, "prepared") and attribute_exists(l_info, "update") #then #block
+		#if l_info.prepared and l_info.update #then l_result = do(read_text(t_file), "PREPARE_APPLICATION", l_info)
+	#block_end
+#block_end

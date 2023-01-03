@@ -1,0 +1,71 @@
+#local sys_bsv11,-
+       l_Now,-
+       l_Now_Information,-
+       l_Hour_Ago,-
+       l_Hour_Ago_Information,-
+       i_Shift,-
+       apl_bap,-
+       v_Mapped_Apls,-
+       i,-
+       t_CP_Name,-
+       i_Apl,-
+       l_Fetch
+
+#local argCnt, tRedirectProc, tRedirectCommand, iArgLoop
+tRedirectProc="APLMOD_DST2"
+#if APPLICATION_OBJECT_EXISTS(0,"C",tRedirectProc) AND -
+DATA_TYPE(%REDIRECTED)=="NONE" #then #block
+   #if 'tRedirectProc':CIU==1 #then #block
+      @REDIRECTED=TRUE
+      argCnt=ARGUMENT_COUNT
+      tRedirectCommand="DO('tRedirectProc':C"
+      #loop_with iArgLoop=1..argCnt
+         tRedirectCommand=tRedirectCommand+",argument('iArgLoop')"
+         #if iArgLoop==argCnt #then #block
+            tRedirectCommand=tRedirectCommand+")"
+         #block_end
+      #loop_end
+      #return 'tRedirectCommand'
+   #block_end
+#block_end
+
+#error continue
+
+sys_bsv11 = SYS:BSV(11)
+
+;check if function in use and I am the controlling application
+
+#if sys_bsv11.b_daylight_saving_time_in_use == 1 and -
+    APL:BAN == sys_bsv11.b_handled_by_apl #then #block
+
+   ;Find out which switch and the amount of time shift
+   
+   l_Now = local_time
+   l_Now_Information = local_time_information(l_Now)
+   l_Hour_Ago = local_time_add(l_Now, -3600)
+   l_Hour_Ago_Information = local_time_information(l_Hour_Ago)
+   i_Shift = l_Now_Information.BIAS - l_Hour_Ago_Information.BIAS
+   
+   #if i_Shift <> 0 #then #block
+   
+      ;Application specific actions
+      apl_bap = APL:BAP
+      v_Mapped_Apls = select(apl_bap," <> 0")
+      v_Mapped_Apls = append(vector(0), v_Mapped_Apls)
+      
+      #if i_Shift > 0 #then t_CP_Name = "BGU_TIMEFO"
+      #else                 t_CP_Name = "BGU_TIMEBA"
+      
+      #loop_with i = 1 .. length(v_Mapped_Apls)
+         i_Apl = v_Mapped_Apls(i)
+         #if i_Apl == 0 or (i_Apl > 0 and APL:BNA <> APL:'i_Apl'BNA) #then #block
+            #if APL:'i_Apl'BAS == "HOT" #then #block
+               l_Fetch = fetch(i_Apl, "C", t_CP_Name)
+               #if l_Fetch.IU > 0 #then #exec 't_CP_Name':'i_Apl'C
+            #block_end
+         #block_end
+      #loop_end
+      
+   #block_end
+
+#block_end

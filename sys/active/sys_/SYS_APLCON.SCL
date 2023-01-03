@@ -1,0 +1,27 @@
+;Prepare application for SA_LIB, LIB5 Bbone and LIB5 Process libraries at first start up.
+
+#LOCAL -
+   t_SA_LIB_File = "\sc\sa_lib\base\bbone\use\BGU_INIT.TXT",-
+   v_LIB5_Files = ("\sc\lib5\base\bbone\use\INIT_PACKAGE.scl", "\sc\lib5\base\process\use\INIT_PACKAGE.scl"),-
+   l_info,-
+   result,-
+   t_File,-
+   i
+
+#IF FILE_MANAGER("EXISTS", FM_FILE(t_SA_LIB_File)) #THEN #BLOCK
+   result = DO(READ_TEXT(t_SA_LIB_File))
+#BLOCK_END
+
+#LOOP_WITH i = 1 .. LENGTH(v_LIB5_Files)
+   t_File = v_LIB5_Files(i)
+   #IF FILE_MANAGER("EXISTS", FM_FILE(t_File)) #THEN #BLOCK
+      l_info = DO(READ_TEXT(t_File), "GET_INFO")
+      #IF DATA_TYPE(l_info) == "LIST" #THEN #BLOCK
+         #IF ATTRIBUTE_EXISTS(l_info, "PREPARED") #THEN #BLOCK
+            #IF NOT l_info.prepared #THEN result = DO(READ_TEXT(t_File), "PREPARE_APPLICATION", l_info)
+         #BLOCK_END
+      #BLOCK_END
+   #BLOCK_END
+#LOOP_END
+
+#RETURN 0

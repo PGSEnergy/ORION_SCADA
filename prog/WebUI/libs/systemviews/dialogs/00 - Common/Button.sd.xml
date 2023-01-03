@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:variable type="external" name="control" default="''" />
+    <d:meta name="dv-custom-attribute|ABB SA Symbols" content="v1.0" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="Button" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Advanced Button" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="top-text" default="''" />
+    <d:variable type="external" name="middle-text" default="''" />
+    <d:variable type="external" name="bottom-text" default="''" />
+    <d:variable type="external" name="status-color" default="0" />
+    <d:variable type="external" name="show-status-color" default="0" />
+    <d:variable type="external" name="normal-text-visibility" default="0" />
+    <d:variable type="external" name="bold-text-visibility" default="0" />
+    <d:variable type="external" name="state-color" default="0" />
+    <d:variable type="external" name="show-state-color" default="0" />
+    <d:variable type="external" name="sunken" default="0" />
+    <d:variable type="external" name="toggle" default="0" />
+  </d:head>
+  <d:body n:LN="{LN(control)}" n:IX="{IX(control)}" x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <d:view name="00 - Common/Button - Raw.sd" s:transform="translate(0,0) scale(1,1)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="top-text" value="`top-text`" />
+      <d:parameter name="middle-text" value="`middle-text`" />
+      <d:parameter name="bottom-text" value="`bottom-text`" />
+      <d:parameter name="status-color" value="`status-color`" />
+      <d:parameter name="show-status-color" value="`show-status-color`" />
+      <d:parameter name="normal-text-visibility" value="`normal-text-visibility`" />
+      <d:parameter name="bold-text-visibility" value="`bold-text-visibility`" />
+      <d:parameter name="state-color" value="`state-color`" />
+      <d:parameter name="show-state-color" value="`show-state-color`" />
+      <d:parameter name="sunken" value="`sunken`" />
+      <d:meta name="dv-variable-mapping|Top Text" content="Top Text" />
+      <d:meta name="dv-variable-mapping|Middle Text" content="Middle Text" />
+      <d:meta name="dv-variable-mapping|Bottom Text" content="Bottom Text" />
+      <d:meta name="dv-variable-mapping|Status Color" content="Status Color" />
+      <d:meta name="dv-variable-mapping|Show Status Color" content="Show Status Color" />
+      <d:meta name="dv-variable-mapping|Normal Text Visibility" content="Normal Text Visibility" />
+      <d:meta name="dv-variable-mapping|Bold Text Visibility" content="Bold Text Visibility" />
+      <d:meta name="dv-variable-mapping|State Color" content="State Color" />
+      <d:meta name="dv-variable-mapping|Show State Color" content="Show State Color" />
+      <d:meta name="dv-variable-mapping|Sunken" content="Sunken" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node1" />
+      <d:action type="inc" when="`toggle` &lt;= 1.000000" event="mousedown" name="toggle" value="1.0" />
+      <d:action type="dec" when="`toggle` &gt; 1.5" event="mousedown" name="toggle" value="2.0" />
+    </d:view>
+  </d:body>
+</d:document>

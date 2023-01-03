@@ -1,0 +1,15 @@
+Object type for REF 615 with DNP 3.0 protocol
+
+To use this object type make the following configuration
+in Standard Configuration Tool
+
+LIB_OBJECT_TYPE = REF615_DNP30.DAT
+STATION_TYPE = DNP 3.0
+INDICATION_TYPE = Analog input
+
+Object type has the following functionality
+                                                                  
+1. Converts the interlocking signals for control dialog  (indexes 16 and 17)
+2. Changes the event handling object for interlocking signals
+3. Creates event channel and command procedure for updating the indication object
+   from AI to DB and connects these to index 110 

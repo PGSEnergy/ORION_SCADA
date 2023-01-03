@@ -1,0 +1,268 @@
+﻿;OBJECT       : SAI_DUO.DAT
+;Copyright Hitachi Power Grids. All rights reserved.
+;
+;DESCRIPTION  : The configuration data file for the Duo driver server standard function
+;	                             
+;--------------------------------------------------------------------------------
+
+##FUNC_INIT_BEGIN
+
+#DO READ_TEXT("SAGR_LANG/SAI_DUOS.TXT")
+
+@'.ID'_PICTURE_FUNCTION_CONF = LIST(-
+   STATION_NAME             = SYS:BCX,-
+   BAY_NAME                 = SAI_DUO:VDUO_DRIVER,-
+   DEVICE_NAME              = "",-
+   SPECIAL_IDENTIFIER_1     = "",-
+   SPECIAL_IDENTIFIER_2     = "",-
+   SPECIAL_IDENTIFIER_3     = "",-
+   P_OBJECT_LN              = "",-
+   CREATED_BY               = "SA_LIB",-
+   CONFIG_DATA_FILE         = "SAI_DUO.DAT",-
+   LIB_REVISION             = " 3.0",-
+   TYPE_PF                  = "?REQUIRED_PF_NAME?",-
+   P_OBJECT_LN              = "SYS_D0001I",-
+   P_OBJECT_INDEXES         = "",-
+   STATION_TYPE             = "IEC61850",-
+   INSTANCE_NAME            = VECTOR("DD1"),-
+   LINE_A                   = VECTOR("Line A"),-
+   LINE_B                   = VECTOR("Line B"),-
+   UNIT_NUMBER               = 0,-
+   DA_CONFIG_FILE            = "",-
+   AUTHORIZATION_GROUP      = "SUPERVISION")
+
+##FUNC_INIT_END
+
+##FUNC_DEF_BEGIN
+
+;check the usage of object identification (OI) -attribute
+@S = STATUS
+@POINTER_STA  = 0
+@POINTER_BAY  = 0
+@POINTER_DEV  = 0
+#ERROR IGNORE
+@APL_BSV15      = APL:BSV15
+@PROCESSOBJECTS = APL_BSV15:VPROCESS_OBJECTS
+@OI             = PROCESSOBJECTS:VOI
+#LOOP_WITH I = 1 .. 30
+  #IF DATA_TYPE(OI:VLENGTH'I')=="INTEGER" #THEN #BLOCK  
+    @OI_LENGTH'I' = OI:VLENGTH'I'
+    ;if field in use
+    #IF %OI_LENGTH'I' > 0 #THEN #BLOCK  
+      @NR_OF_FIELDS = %I
+      @OI_TITLE'I'  = OI:VTITLE'I'
+      @OI_FIELD'I'  = OI:VFIELD'I'
+      #IF      LENGTH(SELECT(%OI_FIELD'I',"==""STA"""))>0 #THEN @POINTER_STA = %I
+      #ELSE_IF LENGTH(SELECT(%OI_FIELD'I',"==""BAY"""))>0 #THEN @POINTER_BAY = %I
+      #ELSE_IF LENGTH(SELECT(%OI_FIELD'I',"==""DEV"""))>0 #THEN @POINTER_DEV = %I
+    #BLOCK_END
+    #ELSE #BLOCK
+      @OI_TITLE'I'  = ""
+      @OI_FIELD'I'  = ""
+    #BLOCK_END
+  #BLOCK_END
+  #ELSE #LOOP_EXIT
+#LOOP_END
+#ERROR CONTINUE
+
+;set defaults if APL:BSV15 not correctly defined
+@S = STATUS
+#IF %S <> 0 #THEN #BLOCK
+  @OI_TITLE1    = "Substation"
+  @OI_TITLE2    = "Bay"
+  @OI_TITLE3    = "Device"
+  @OI_TITLE4    = ""
+  @OI_TITLE5    = ""
+  @OI_LENGTH1   = 10
+  @OI_LENGTH2   = 15
+  @OI_LENGTH3   = 5
+  @OI_LENGTH4   = 0
+  @OI_LENGTH5   = 0
+  @POINTER_STA  = 1
+  @POINTER_BAY  = 2
+  @POINTER_DEV  = 3
+  @NR_OF_FIELDS = 3
+#BLOCK_END
+
+;set configurable attributes according to OI-configuration
+@NR_OF_SPECIAL_FIELD = 0
+@OBJECT_IDENTIFIERS  = VECTOR()
+
+#LOOP_WITH I = 1 .. 30
+  #IF %I <= %NR_OF_FIELDS #THEN #BLOCK  
+
+    ;define the name of the configurable attribute
+    #IF      %I == %POINTER_STA #THEN @OBJECT_IDENTIFIER_'I'_NAME = "STATION_NAME"
+    #ELSE_IF %I == %POINTER_BAY #THEN @OBJECT_IDENTIFIER_'I'_NAME = "BAY_NAME"
+    #ELSE_IF %I == %POINTER_DEV #THEN @OBJECT_IDENTIFIER_'I'_NAME = "DEVICE_NAME"
+    #ELSE #BLOCK
+      @NR_OF_SPECIAL_FIELD = %NR_OF_SPECIAL_FIELD + 1
+      @OBJECT_IDENTIFIER_'I'_NAME = "SPECIAL_IDENTIFIER_'NR_OF_SPECIAL_FIELD'"
+    #BLOCK_END
+
+    ;set one space between different fields
+    #IF %I < %NR_OF_FIELDS AND %OI_LENGTH'I' > 1 #THEN @OBJECT_IDENTIFIER_'I'_MAX_LENGTH = %OI_LENGTH'I' - 1
+    #ELSE @OBJECT_IDENTIFIER_'I'_MAX_LENGTH = %OI_LENGTH'I'
+
+    ;create a list of previously used identifiers
+    @SECTION  = %OBJECT_IDENTIFIER_'I'_NAME
+    @KEYS     = VECTOR()
+    #LOOP_WITH J = 1 .. 10
+      @NEW_KEY= "'SECTION''J'"
+      @KEY'J' = READ_PARAMETER("PICT/OBJ_IDEN.INI",%SECTION,%NEW_KEY)
+      @KEY    = %KEY'J'
+      #IF KEY:VSTATUS == 0 #THEN #BLOCK
+        @KEYS = APPEND(%KEYS,KEY:VVALUE)
+       #BLOCK_END
+    #LOOP_END
+    @OBJECT_IDENTIFIER_'I'_VALUES = %KEYS
+
+    ;set configuration for SCT
+    @OBJECT_IDENTIFIER_'I' = LIST(-
+         NAME       = %OBJECT_IDENTIFIER_'I'_NAME,-
+         TYPE       = "EDITABLE_SELECTOR",-
+         INPUT_TYPE = "TEXT",-
+         VALUES     = %OBJECT_IDENTIFIER_'I'_VALUES,-
+         REPRESENT  = %OBJECT_IDENTIFIER_'I'_VALUES,-
+         MAX_LENGTH = %OBJECT_IDENTIFIER_'I'_MAX_LENGTH)
+    @OBJECT_IDENTIFIERS = APPEND(%OBJECT_IDENTIFIERS, %OBJECT_IDENTIFIER_'I')
+  #BLOCK_END
+  #ELSE #LOOP_EXIT
+#LOOP_END
+
+;create a list of all existing authorization groups
+#ERROR IGNORE
+@AUTHORIZATION_GROUPS = LIST_ATTR(MON:BSV(9))
+#IF DATA_TYPE(%AUTHORIZATION_GROUPS) <> "VECTOR" #THEN @AUTHORIZATION_GROUPS = VECTOR()
+#ERROR CONTINUE
+
+@FUNC_DEF=LIST(-
+      CONFIGURABLE_ATTRIB = (-
+                  "P_OBJECT_LN",-
+                  "P_OBJECT_INDEXES",-
+                  "STATION_TYPE",-
+                  "INSTANCE_NAME" ,-
+   		  "LINE_A",-
+                  "LINE_B",-
+                  "AUTHORIZATION_GROUP"),-
+      SCT_ATTRIBUTES = (-
+                  LIST(NAME            =  "P_OBJECT_LN",-
+                       TYPE            =  "TEXT",-
+                       MAX_LENGTH      =  63),-
+                  LIST(NAME              =  "INSTANCE_NAME",-
+                       TYPE              =  "VECTOR",-
+                       ELEMENT_TYPE      =  "TEXT",-
+                       MAX_LENGTH        =  10,-
+                       MAX_ELEMENT_LENGTH=  63,-
+                       MIN_ELEMENT_LENGTH=  0),-
+                  LIST(NAME              =  "LINE_A",-
+                       TYPE              =  "VECTOR",-
+                       ELEMENT_TYPE      =  "TEXT",-
+                       MAX_LENGTH        =  10,-
+                       MAX_ELEMENT_LENGTH=  63,-
+                       MIN_ELEMENT_LENGTH=  0),-
+                  LIST(NAME              =  "LINE_B",-
+                       TYPE              =  "VECTOR",-
+                       ELEMENT_TYPE      =  "TEXT",-
+                       MAX_LENGTH        =  10,-
+                       MAX_ELEMENT_LENGTH=  63,-
+                       MIN_ELEMENT_LENGTH=  0),-
+                  LIST(NAME            =  "AUTHORIZATION_GROUP",-
+                       TYPE            =  "EDITABLE_SELECTOR",-
+                       INPUT_TYPE      =  "TEXT",-
+                       VALUES          =  %AUTHORIZATION_GROUPS,-
+                       REPRESENT       =  %AUTHORIZATION_GROUPS,-
+                       MAX_LENGTH      =  63)),-
+      SCT_HELP_FILE  =  "SAGR_LANG/SAI_DUOs.HLP")
+
+;add configurable attributes for object identifiers
+#SET FUNC_DEF:VSCT_ATTRIBUTES = APPEND(%OBJECT_IDENTIFIERS, FUNC_DEF:VSCT_ATTRIBUTES)
+
+##FUNC_DEF_END
+
+
+;-------- Callback programs -----------------
+
+
+
+##SCT_INIT_END
+
+
+;-------- Define Configuration Tool Menu -----------------
+##MENU_TXT_BEGIN
+
+.ENABLE_POT
+.ENABLE_REPRESENTATION_TOOL
+
+##MENU_TXT_END
+
+##MENU_PROG_BEGIN
+
+##MENU_PROG_END
+
+
+;-------- Define Process Objects -----------------
+##P_OBJECTS_BEGIN
+
+   #DO READ_TEXT("SAGR_INST/SAI_DUOS.POT",1,10000)
+
+##P_OBJECTS_END
+
+;-------- Program Executed when OK -----------------
+##OK_BEGIN
+
+;save the object identifier (OI-attribute) for the future use
+#LOOP_WITH I = 1 .. %NR_OF_FIELDS
+  @SECTION    = %OBJECT_IDENTIFIER_'I'_NAME
+  @CONF_VALUE = .ST_GET_ATTRIBUTE(%SECTION)
+
+  ;if field not empty
+  #IF %CONF_VALUE<>"" #THEN #BLOCK
+    ;check if identifier already exists
+    @NEW_IDENTIFIER=TRUE
+    #LOOP_WITH J = 1 .. 10
+      @KEY          = "'SECTION''J'"
+      @KEY_VALUE'J' = READ_PARAMETER("PICT/OBJ_IDEN.INI",%SECTION,%KEY)
+      @KEY_VALUE    = %KEY_VALUE'J'
+      #IF KEY_VALUE:VSTATUS == 0 #THEN #BLOCK
+        #IF KEY_VALUE:VVALUE == %CONF_VALUE #THEN @NEW_IDENTIFIER=FALSE
+      #BLOCK_END
+    #LOOP_END
+
+    ;replace the last identifier with a new one
+    #IF %NEW_IDENTIFIER #THEN #BLOCK
+      #LOOP_WITH J = 1 .. 9
+        @CNTR1 = 10 - %J
+        @CNTR2 = %CNTR1 + 1
+        @KEY_OLD = "'SECTION''CNTR1'"
+        @KEY_NEW = "'SECTION''CNTR2'"
+        @KEY_VALUE'CNTR1' = READ_PARAMETER("PICT/OBJ_IDEN.INI",%SECTION,%KEY_OLD)
+        @KEY_PREV = %KEY_VALUE'CNTR1'
+        #IF KEY_PREV:VSTATUS == 0 #THEN #BLOCK
+          @KEY_OLD_VALUE = KEY_PREV:VVALUE
+          @NEW = WRITE_PARAMETER("PICT/OBJ_IDEN.INI",%SECTION,%KEY_NEW,%KEY_OLD_VALUE)
+          @OLD = DELETE_PARAMETER("PICT/OBJ_IDEN.INI",%SECTION,%KEY_OLD)
+        #BLOCK_END
+      #LOOP_END
+      @FIRST_KEY = "'SECTION'"+"1"
+      @KEY'I' = WRITE_PARAMETER("PICT/OBJ_IDEN.INI",%SECTION,%FIRST_KEY,%CONF_VALUE)
+    #BLOCK_END
+  #BLOCK_END
+#LOOP_END
+
+##OK_END
+
+;-------- Program Executed when CANCEL -----------------
+##CANCEL_BEGIN
+ 
+ 
+ 
+##CANCEL_END
+
+;-------- Program Executed when DELETE -----------------
+##DELETE_BEGIN
+
+
+
+##DELETE_END
+

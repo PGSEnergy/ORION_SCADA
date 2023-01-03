@@ -1,0 +1,79 @@
+;LAN_MKEYS.TXT   1995-07-05 / TL
+;REV.   8.4   1996-10-03 / TL
+
+;       PIC_KEYS
+;
+;       In:     PICT_NUMBER
+;               PICT_PFNUMBER
+;
+;       Out:    PICT_STATUS
+;               PICT_KEYS        Vector of list values. Attributes:
+;                                   X1            Position
+;                                   Y1            of
+;                                   X2            the
+;                                   Y2            function key
+;                                   TYPE          "COMMAND","STRING" or
+;                                                 "LINE_COMMAND"
+;                                   BLINKING      Boolean
+;                                   PROGRAM       The SCIL program (vector)
+;                                   HEADER        Header text (vector)
+;                                   HELP          Help text (vector)
+;                                   EDIT_PROGRAM  Edit program (vector)
+;
+;       Note:   Internal variables have the prefix PSX
+
+@PICT_STATUS = STATUS
+
+@PICT_KEYS = VECTOR()
+
+#ERROR IGNORE
+@PICT_STATUS = GET_STATUS(%PICT_PFNUMBER)
+#IF %PICT_STATUS == 0 #THEN #BLOCK
+   #IF DATA_TYPE(%PICT_PFNUMBER) == "INTEGER" #THEN #BLOCK
+      #IF %PICT_PFNUMBER < 0 #THEN -
+         @PICT_STATUS = 201 ;SCIL_INTEGER_ARGUMENT_OUT_OF_RANGE
+   #BLOCK_END
+   #ELSE @PICT_STATUS = 202 ;SCIL_INTEGER_ARGUMENT_EXPECTED
+#BLOCK_END
+#IF %PICT_STATUS == 0 #THEN #BLOCK
+   #IF %PICT_PFNUMBER == 0 #THEN @PSXSOURCE_ = ""
+   #ELSE #BLOCK
+      @PSXPFUNCTIONS_ = PSXP'PICT_NUMBER'.GET_PICTURE_FUNCTIONS
+      @PICT_STATUS = STATUS
+      #IF %PICT_STATUS == 0 #THEN #BLOCK
+         #IF %PICT_PFNUMBER <= LENGTH(%PSXPFUNCTIONS_) #THEN #BLOCK
+            @PSXPFUNCTION_ = %PSXPFUNCTIONS_(%PICT_PFNUMBER)
+            @PSXSOURCE_ = PSXPFUNCTION_:VNAME
+         #BLOCK_END
+         #ELSE @PICT_STATUS = 201 ;SCIL_INTEGER_ARGUMENT_OUT_OF_RANGE
+      #BLOCK_END
+   #BLOCK_END
+   #IF %PICT_STATUS == 0 #THEN #BLOCK
+      @PSXFKEYS_ = PSXP'PICT_NUMBER'.GET_FUNCTION_KEYS(%PSXSOURCE_)
+      @PICT_STATUS = STATUS
+   #BLOCK_END
+   #IF %PICT_STATUS == 0 #THEN #BLOCK
+      @PSXI_ = 0
+      #LOOP %PSXI_ < LENGTH(%PSXFKEYS_)
+         @PSXI_ = %PSXI_ + 1
+         @PSXFKEY_ = %PSXFKEYS_(%PSXI_)
+         @PSXFKEYDEF_ = -
+            PSXP'PICT_NUMBER'.GET_FUNCTION_KEY_DEFINITION(PSXFKEY_:VID)
+         @PICT_STATUS = STATUS
+         #IF %PICT_STATUS <> 0 #THEN #LOOP_EXIT
+         @PXSPICT_FKEYDEF_ = LIST(-
+            X1 = PSXFKEYDEF_:VX,-
+            Y1 = PSXFKEYDEF_:VY,-
+            X2 = PSXFKEYDEF_:VX + PSXFKEYDEF_:VWIDTH - 1,-
+            Y2 = PSXFKEYDEF_:VY + PSXFKEYDEF_:VHEIGHT - 1,-
+            TYPE = PSXFKEYDEF_:VTYPE,-
+            BLINKING = PSXFKEYDEF_:VBLINKING,-
+            PROGRAM = PSXFKEYDEF_:VPROGRAM,-
+            HEADER = PSXFKEYDEF_:VHEADER,-
+            HELP = PSXFKEYDEF_:VHELP,-
+            EDIT_PROGRAM = PSXFKEYDEF_:VEDIT_PROGRAM)
+         @PICT_KEYS(%PSXI_) = %PXSPICT_FKEYDEF_
+      #LOOP_END
+   #BLOCK_END
+#BLOCK_END
+

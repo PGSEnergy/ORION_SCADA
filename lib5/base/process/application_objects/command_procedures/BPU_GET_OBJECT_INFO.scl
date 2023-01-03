@@ -1,0 +1,111 @@
+;Function: BPU_GET_OBJECT_INFO:C
+;Source file:sc/lib5/base/process/application_objects/command_procedures/bpu_get_object_info.scl
+;Version: 1.0
+;Parameters: LN, IX
+;Return data:  LIST('LN':PCD, STATUS=integer, err_description=text) 
+;Description: returns the content of CD-attribute  
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#local l_object_info = list, l_tmp_info, v_indexes, lib_object_type
+#local t_LN, i_IX, v_attrs, v_check, v_check1, t_attr, i, l_type_info
+
+;****************************************************************************************************
+;redirect command if application specific command procedure is found                               ;*
+#local t_Redirect_Proc = "APLMOD5_BPU_GET_OBJECT_INFO"                                             ;*
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    ;*
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            ;*
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 ;*
+		#if 't_Redirect_Proc':CIU == 1 #then #block                                                  ;*
+			@REDIRECTED = true                                                                        ;*
+			i_ArgCnt = argument_count                                                                 ;*
+			#if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"						      ;*
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" ;*
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"											      ;*
+			#loop_with i_arg_loop = 1 .. i_ArgCnt                                                     ;*
+				t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    ;*
+				#if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        ;*
+			#loop_end                                                                                 ;*
+			#return 't_Redirect_Command' ;;;;;                                                        ;*
+		#block_end                                                                                   ;*
+	#block_end                                                                                      ;*
+	#else #delete REDIRECTED:V                                                                      ;*
+#block_end                                                                                         ;*
+;****************************************************************************************************
+;MAIN START
+
+#if argument_count >= 2 #then #block
+   t_LN = argument(1)
+   i_IX = argument(2)
+   ;check correct data type of arguments
+   #if data_type(t_LN) == "TEXT" and data_type(i_IX) == "INTEGER" #then #block
+      ;check that ix is in correct range
+      #if validate("APPLICATION_OBJECT_NAME", t_LN) == 0 #then #block
+         #if (i_IX > 0 and i_IX < 1000001) #then #block
+            ;check that process object exists
+            #if application_object_exists(0, "IX", list(ln = t_LN, ix = i_ix))  #then #block
+               ;read object configuration from CD-attribute
+               l_object_info = 't_LN':PCD
+               #if length(l_object_info) > 0 #then #block
+                  ;check if sa_lib function
+                  #if attribute_exists(l_object_info, "created_by") #then #block
+                     ;check if complex CD (can be in switching devices (truck, 3-state switch) and measurements)
+                     #if lower_case(l_object_info.created_by) == "sa_lib" #then #block
+                        v_attrs = list_attr(l_object_info)
+                        v_Check = pick(v_attrs, select(v_Attrs, "==""L_CD*""", "WILDCARDS"))         
+                        #if length(v_Check) > 0 #then #block
+                           #loop_with i = 1 .. length(v_Check)
+                              t_attr = v_Check(i)
+                              l_tmp_info = l_object_info.l_cd'i'
+                              v_indexes = l_Tmp_info.p_Object_Indexes
+                              v_Check1 = select(v_indexes, "=='i_IX'")
+                              #if length(v_Check1) > 0 #then #block
+                                 l_object_info = merge_attributes(l_tmp_info, list(status = 0))
+                                 #loop_exit
+                              #block_end
+                           #loop_end
+                        #block_end
+                        #else l_object_info = merge_attributes(l_object_info, list(status = 0))
+                     #block_end
+                     #else l_object_info = merge_attributes(l_object_info, list(status = -1, err_description = "Unkown standard function 'l_object_info.created_by'"))
+                  #block_end
+                  #else l_object_info = merge_attributes(l_object_info, list(status = 0)) ;ok not from sa_lib but at least not complex, so lets try
+               #block_end
+               #else l_object_info = merge_attributes(l_object_info, list(status = -1, err_description = "CD - attribute empty"))
+            #block_end
+            #else l_object_info = merge_attributes(l_object_info, list(status = -1, err_description = "Process object does not exist"))
+         #block_end
+         #else l_object_info = merge_attributes(l_object_info, list(status = -1, err_description = "IX out of range"))
+      #block_end
+      #else l_object_info = merge_attributes(l_object_info, list(status = -1, err_description = "Not valid object name"))
+   #block_end
+   #else l_object_info = merge_attributes(l_object_info, list(status = -1, err_description = "Argument(s) wrong data type"))
+#block_end
+#else l_object_info = merge_attributes(l_object_info, list(status = -1, err_description = "Wrong number of arguments in procedure call"))
+
+;add object type description to CD-attribute
+#if l_object_info.status == 0 #then #block
+   #if attribute_exists(l_object_info, "object_type_description") #then #block
+      l_type_info = do(read_text(l_object_info.object_type_description), l_object_info.type_pf)
+      #if data_type(l_type_info) == "LIST" #then #if attribute_exists(l_type_info, "object_type") #then -
+			l_object_info = merge_attributes(l_object_info, list(type_info = l_type_info))
+		;override sct attributes if they are defined in object type definition
+		#if attribute_exists(l_type_info, "fixed_sct_values") #then #block
+			#if data_type(l_type_info.fixed_sct_values) == "LIST" #then #block
+				v_attrs = list_attr(l_type_info.fixed_sct_values)
+				#loop_with i = 1 .. length(v_attrs)
+					t_attr = v_attrs(i)
+					#if attribute_exists(l_object_info, t_Attr) #then l_object_info.'t_attr' = l_type_info.fixed_sct_values.'t_attr'
+				#loop_end
+			#block_end
+		#block_end
+   #block_end
+#block_end
+
+;p_object_ln attribute can be different in CD-attribute than it actually is
+#if attribute_exists(l_object_info, "p_object_ln") #then #block
+	#if l_object_info.p_object_ln <> t_LN #then l_object_info = merge_attributes(l_object_info, list(p_object_ln = t_LN))
+#block_end
+
+#return l_object_info

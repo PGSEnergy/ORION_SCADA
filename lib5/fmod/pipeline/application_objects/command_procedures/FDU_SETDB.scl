@@ -1,0 +1,21 @@
+@t0=pack_time(year,month,day,0,0,0)
+
+#case %ix
+  #when 316 #block
+    @ix1 = %ix
+    @ix2  =%ix + 1 
+    @ix3 = %ix + 2
+	 @ix4 = %ix + 1
+  #block_end
+  #when 317 #block
+    @ix1 = %ix - 1
+    @ix2  =%ix
+    @ix3 = %ix + 1
+    @ix4 = %ix - 1
+  #block_end
+#case_end
+
+@value = 2*'ln':p'ix1' + 'ln':p'ix2'
+#if ('ln':prt'ix' - %t0) + 'ln':prm'ix'/1000 >= -
+    ('ln':prt'ix4' - %t0) + 'ln':prm'ix4'/1000 -
+    #then #set 'ln':p'ix3' = list(db = round(%value), rt = %rt ,rm = %rm, os = %os)

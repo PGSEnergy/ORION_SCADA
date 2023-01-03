@@ -1,0 +1,83 @@
+; Command Procedure: SYS_SLCMR
+; Version: SYS 600 9.3
+; Description: This is command procedure for receiving clock status information from LON Clock Master
+; ----------------------------------------------------------------------------------------------------
+
+;read in object data
+@l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectDefinitions", "ROUTINGS_SLCM", %LN, %IX)
+
+#if l_Obj_Data:vSTATUS == 0 and %OV <> 0 #then #if l_Obj_Data:vINDICATION <> "#" #then #block ; 1
+
+   ;read in filtering info
+   @l_Filtering_Info = do(apl:bsv40, "SSS", "GetFilterAttributes", "SYS_MSG_SLCM", trunc(%OV))
+
+   ;read in general info
+   @l_General_Info = APL:BSV45
+   
+   ;write to log, event/alarm activation
+   #if l_Filtering_Info:vSTATUS == 0 #then #block ; 2
+
+      ;write to log, if requested
+      #if l_Filtering_Info:vLOG and l_General_Info:vENABLE_LOG #then -
+         @i_Log_Write = do(apl:bsv40, "SSS", "WriteLogItem", "STE", "MSG_SLCM")
+ 
+      ;activate event, if requested
+      #if l_Filtering_Info:vEVENT and l_General_Info:vENABLE_EVENT #then #block
+         @l_Event_Point = do(apl:bsv40, "SSS", "GetEvents", "EVENT", "SLCM", l_Obj_Data:vNUMBER, list(EVENT = l_Filtering_Info:vSTATE))
+         
+         #if l_Event_Point:vSTATUS == 0 #then #set 'l_Event_Point:vEVENT' = 1
+         #else #block
+            @l_Event_Point = do(apl:bsv40, "SSS", "CreateProcessObject", "SLCM", "EVENT", l_Obj_Data:vNUMBER, list(EVENT = l_Filtering_Info:vSTATE))
+            #set 'l_Event_Point:vEVENT' = 1
+         #block_end      
+      #block_end
+      
+      ;activate alarm, if requested
+      #if l_Filtering_Info:vALARM and l_General_Info:vENABLE_ALARM #then #block
+         @l_Alarm_Point = do(apl:bsv40, "SSS", "GetEvents", "ALARM", "SLCM", l_Obj_Data:vNUMBER, list(EVENT = l_Filtering_Info:vSTATE))
+         
+         #if l_Alarm_Point:vSTATUS == 0 #then #set 'l_Alarm_Point:vALARM' = abs(1 - 'l_Alarm_Point:vALARM')
+         #else #block
+            @l_Alarm_Point = do(apl:bsv40, "SSS", "CreateProcessObject", "SLCM", "ALARM", l_Obj_Data:vNUMBER, list(EVENT = l_Filtering_Info:vSTATE))
+            #set 'l_Alarm_Point:vALARM' = 1
+         #block_end
+      #block_end
+   
+   #block_end ; 2
+      #else_if l_Filtering_Info:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_slcmr:c]", l_Filtering_Info:vDESCRIPTIVE_TEXT)
+   
+   ;update indication point
+   @i_Timeout = timeout(l_General_Info:vTIMEOUT_LENGTH)
+   #error ignore
+      @i_Status = status
+      @i_IU = STA'l_Obj_Data:vNUMBER':SIU
+   #error stop
+   @i_Timeout = timeout(%i_Timeout)   
+   
+   #if status == 0 #then #block
+      #if %i_IU == 0 #then #set 'l_Obj_Data:vINDICATION' = -1
+      #else #block
+         #if l_Filtering_Info:vSTATUS == 0 #then #block
+            #if l_Filtering_Info:vALARM #then #set 'l_Obj_Data:vINDICATION' = 10
+               #else #set 'l_Obj_Data:vINDICATION' = 0
+         #block_end
+         #else_if l_Filtering_Info:vSTATUS < 0 #then #set 'l_Obj_Data:vINDICATION' = 0
+         #else #block
+            #error ignore
+               @i_OV = 1
+               @i_OV = 'l_Obj_Data:vINDICATION'
+            #error stop
+            #set 'l_Obj_Data:vINDICATION' = list(OV = %i_OV, OS = 4)
+         #block_end
+      #block_end      
+   #block_end
+   #else #block
+      #error ignore
+         @i_OV = 1
+         @i_OV = 'l_Obj_Data:vINDICATION'
+      #error stop
+      #set 'l_Obj_Data:vINDICATION' = list(OV = %i_OV, OS = 4)
+   #block_end
+
+#block_end ; 1
+   #else_if l_Obj_Data:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_slcmr:c]", l_Obj_Data:vDESCRIPTIVE_TEXT)

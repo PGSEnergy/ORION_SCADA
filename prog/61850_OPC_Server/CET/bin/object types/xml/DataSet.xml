@@ -1,0 +1,105 @@
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Mikko Ripatti/RSC (ABB OY Substation Automation) -->
+<ObjectTypes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">	
+<ObjectType >
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">DataSet 3.5</Parameter>
+		<Parameter name="Caption">Data Set</Parameter>
+		<Parameter name="Description">objectTypeDesc</Parameter>
+		<Parameter name="Group">Communication</Parameter>
+		<Parameter name="Type">DATASET</Parameter>
+		<Parameter name="IconFileName">ds.ico</Parameter>
+		<Parameter name="Tools">DatasetEdit</Parameter>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="PCMObjectType">IEC61850 LLN0, IEC61850 LN, IEC61850GW LD0 LLN0, SSS LLN0, IEC61850 Proxy LLN0, IEC61850 Proxy LN</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+	<Parameters type="SCLExport">
+		<Export name="sclXML">DataSetSCL</Export>
+	</Parameters>
+	<Properties type="PropertyDefinitions">
+		<Property name="DataSetSCL" category="[010] Basic">
+			<Value>&lt;DataSet name="Data Set" xmlns="http://www.iec.ch/61850/2003/SCL" /&gt;</Value>
+			<DescID>DataSetSCLDesc</DescID>
+			<CaptionID>DataSetSCL</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>LNClass</AttributeName>
+		</Property>
+	</Properties>
+</ObjectType>
+<ObjectType >
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">DataSet 3.4</Parameter>
+		<Parameter name="Caption">Data Set</Parameter>
+		<Parameter name="Description">objectTypeDesc</Parameter>
+		<Parameter name="Group">Communication</Parameter>
+		<Parameter name="Type">DATASET</Parameter>
+		<Parameter name="IconFileName">ds.ico</Parameter>
+		<Parameter name="Tools">DatasetEdit</Parameter>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="PCMObjectType">IEC61850 LLN0, IEC61850 LN, IEC61850GW LD0 LLN0, SSS LLN0</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+	<Parameters type="SCLExport">
+		<Export name="sclXML">DataSetSCL</Export>
+	</Parameters>
+	<Properties type="PropertyDefinitions">
+		<Property name="DataSetSCL" category="[010] Basic">
+			<Value>&lt;DataSet name="Data Set" xmlns="http://www.iec.ch/61850/2003/SCL" /&gt;</Value>
+			<DescID>DataSetSCLDesc</DescID>
+			<CaptionID>DataSetSCL</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>LNClass</AttributeName>
+		</Property>
+	</Properties>
+</ObjectType>
+<ObjectType>
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">DataSet</Parameter>
+		<Parameter name="Caption">Data Set</Parameter>
+		<Parameter name="Description">objectTypeDesc</Parameter>
+		<Parameter name="Group">Communication</Parameter>
+		<Parameter name="Type">DATASET</Parameter>
+		<Parameter name="IconFileName">ds.ico</Parameter>
+		<Parameter name="Tools">DatasetEdit</Parameter>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="PCMObjectType">IEC61850 LLN0, IEC61850 LN, IEC61850GW LD0 LLN0</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+	<Parameters type="SCLExport">
+		<Export name="sclXML">DataSetSCL</Export>
+	</Parameters>
+	<Properties type="PropertyDefinitions">
+		<Property name="DataSetSCL" category="[010] Basic">
+			<Value>&lt;DataSet name="Data Set" xmlns="http://www.iec.ch/61850/2003/SCL" /&gt;</Value>
+			<DescID>DataSetSCLDesc</DescID>
+			<CaptionID>DataSetSCL</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>LNClass</AttributeName>
+		</Property>
+	</Properties>
+</ObjectType>
+</ObjectTypes>

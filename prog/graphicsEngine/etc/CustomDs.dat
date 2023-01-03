@@ -1,0 +1,86 @@
+#==============================================================================
+#
+#                  Copyright (c) 2000   GE Fanuc DataViews 
+#                              All Rights Reserved
+#
+#==============================================================================
+#
+# CustomDs.dat
+#
+#   This simple datafile is used by DV-Draw to locate default and custom 
+#   datasources.  In order for DV-Draw to locate this file, it must be in 
+#   %DVHOME%\etc and be named "CustomDs.dat".
+#
+#   The format is simply a list of name-value pairs:
+#
+#	<menu display> <ProgID>
+#
+#		      or
+#
+#	<menu display> <datasource name>
+#
+#   where <menu display> is a single word (no spaces) and is the text
+#   that will appear in the data source editor's list of datasources.
+#   This field may be edited to change the appearance of the menu display.
+#   
+#   <ProgID>, is the programmatic ID of the registered datasource dll (see 
+#   MicroSoft (TM) documentation for more information on programmatic ID's).
+#   
+#   <datasource name> is reserved for DataViews datasources.  Do not edit.
+#
+#   Finally, the pound sign ('#') can be used for comments, and can come at
+#   the start or end of a line.  Tabs are allowed for spacing.
+#
+#==============================================================================
+
+
+#==============================================================================
+#
+#  Data source for LIB 500 modelled RTDB of MicroSCADA Pro
+#
+#==============================================================================
+MicroSCADA  OpcConnection.SignalConnector
+
+
+#==============================================================================
+#
+#  Default datasources
+#
+#==============================================================================
+    File	DVDefault.File
+    Memory	DVDefault.Memory
+    Constant	DVDefault.Constant
+#    FDSeval	DVFunction.FDSeval      # Mathematical expression evaluator.
+#    FDSrandom	DVFunction.FDSrandom    # Random number generator.
+#    ODBC	DVCustODBC.DVODBC	# Standard DataViews ODBC interface.
+#    OPC	        DVCustOPC.DVOPC		# DataViews OLE for Process Control (OPC) interface.
+
+#==============================================================================
+#
+#  Custom datasources available from GE Fanuc DataViews. These datasources
+#  are optional and can be selected during the DataViews installation. 
+#
+#==============================================================================
+
+#   Prototype_Samples 	DVCustGraphical.DVGraphicalCDS	# Simple mathematical functions.
+#   SmartSockets	DVSmartSocket.SmartSocketCDS	# SmartSockets interface.
+#   SNMP		DVCustSNMP.DVSNMP # Simple Network Management Protocol interface.
+#   TIB/Rendezvous	DVTIBCO.TIBCOcds  # TIBCO interface.
+#   VBA_Scripting 	DVCustScripting.DVScriptingCDS	# VBA scripting interface.
+#==============================================================================
+#
+#  The following two examples, complete with source code, are available for
+#  DataViews Custom Datasource Add-on customers. If you have this add-on, you
+#  can learn more about creating your custom data source in the "DataViews
+#  Custom Data Editor Tool Kit, Programming Custom Data Sources" section of the
+#  documentation.
+#
+#  The source code for these two examples can be found in:
+#
+#	%DVHOME%\Demos&Examples\DataSources\datamodel
+#
+#==============================================================================
+
+#   Cosine	DVCustom.CosineWave     # Visual Basic example
+#   Sine	DVCustom.SineWave       # Visual C++ example
+

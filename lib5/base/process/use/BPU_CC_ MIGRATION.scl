@@ -1,0 +1,137 @@
+;Script for setting supervision timeout for switch devices (CC - attribute)
+;
+#local -
+   l_Groups,-
+   l_CD_Orig,-
+   l_CD,-
+   l_CC = list(),-
+   l_Cc_Sec_5AO_5BO = list(-
+      Indexes = list(-
+         II = 10,-
+         XO = 13,-
+         XC = 14)),-
+   l_Cc_Sec_4BO = list(-
+      Indexes = list(-
+         II = 10,-
+         SO = 11,-
+         SC = 12,-
+         XI = 13)),-
+   l_Cc_Sec_2BO_2DO = list(-
+      Indexes = list(-
+         II = 10,-
+         XO = 11,-
+         XC = 12)),-
+   l_Cc_Sec_BO = list(-
+      Indexes = list(-
+         II = 10,-
+         XI = 13),-
+      values = list(-
+         VO = 0,-
+         VC = 1)),-
+   l_Cc_Dir_BO = list(-
+      Indexes = list(-
+         II = 10,-
+         XI = 13),-
+      values = list(-
+         VO = 0,-
+         VC = 1)),-
+   l_Cc_AO = list(-
+      Indexes = list(-
+         II = 10,-
+         XI = 13)),-
+   t_MT = "SAGR_CTRL_SUPERVISION",-
+   v_Control_Bits,-
+   v_Attrs,-
+   t_Attr,-
+   i_Timeout = 15000,-
+   i_AC = 1,-
+   b_All_Exists,-
+   t_LN,-
+   i,-
+   j,-
+   k,-
+   s,-
+   l_Indexes,-
+   i_Index_Offset = 0,-
+   i_RC = 1,-
+   i_Loops = 1
+
+l_Groups = application_object_list(0, "P", "", "" , "", "", vector("CD"), 100000)
+
+#loop_with i = 1 .. l_Groups.COUNT
+   l_CD_Orig = l_Groups.CD(i)
+   t_LN = l_Groups.LN(i)
+   
+   #if attribute_exists(l_CD_Orig, "l_CD1") and attribute_exists(l_CD_Orig, "l_CD2") #then #block
+      i_Loops = 2
+   #block_end
+   #else i_Loops = 1
+   
+   #loop_with j = 1 .. i_Loops
+   
+      #if i_Loops == 1 #then l_CD = l_CD_Orig
+      #else l_CD = l_CD_Orig.l_CD'j'
+      
+      #if attribute_exists(l_CD, "SWITCHING_DEVICE_TYPE") and attribute_exists(l_CD, "CONTROL_TYPE") #then #block
+      
+         #if l_CD.SWITCHING_DEVICE_TYPE <> "Q3" #then #block
+         
+            #if l_CD.SWITCHING_DEVICE_TYPE == "QT" #then i_Index_Offset = 20
+            #else i_Index_Offset = 0
+         
+            #case l_CD.CONTROL_TYPE
+               #when "SEC-5AO", "SEC-5BO" #block
+                  l_Indexes = l_Cc_Sec_5AO_5BO.Indexes
+                  l_CC = list(II = l_Cc_Sec_5AO_5BO.Indexes.II + i_Index_Offset, XO = l_Cc_Sec_5AO_5BO.Indexes.XO + i_Index_Offset, XC = l_Cc_Sec_5AO_5BO.Indexes.XC + i_Index_Offset)
+               #block_end
+               #when "SEC-4BO" #block
+                  l_Indexes = l_Cc_Sec_4BO.Indexes
+                  l_CC = list(II = l_Cc_Sec_4BO.Indexes.II + i_Index_Offset, SO = l_Cc_Sec_4BO.Indexes.SO + i_Index_Offset, SC = l_Cc_Sec_4BO.Indexes.SC + i_Index_Offset,  XI = l_Cc_Sec_4BO.Indexes.XI + i_Index_Offset)
+               #block_end
+               #when "SEC-2BO", "SEC-2DO" #block
+                  l_Indexes = l_Cc_Sec_2BO_2DO.Indexes
+                  l_CC = list(II = l_Cc_Sec_2BO_2DO.Indexes.II + i_Index_Offset, XO = l_Cc_Sec_2BO_2DO.Indexes.XO + i_Index_Offset, XC = l_Cc_Sec_2BO_2DO.Indexes.XC + i_Index_Offset)
+               #block_end
+               #when "SEC-BO" #block
+                  l_Indexes = l_Cc_Sec_BO.Indexes
+                  l_CC = list(II = l_Cc_Sec_BO.Indexes.II + i_Index_Offset, XI = l_Cc_Sec_BO.Indexes.XI + i_Index_Offset, VO = l_Cc_Sec_BO.Values.VO, VC = l_Cc_Sec_BO.Values.VC)
+               #block_end
+               #when "DIR-BO" #block
+                  l_Indexes = l_Cc_Dir_BO.Indexes
+                  l_CC = list(II = l_Cc_Dir_BO.Indexes.II + i_Index_Offset, XI = l_Cc_Dir_BO.Indexes.XI + i_Index_Offset, VO = l_Cc_Dir_BO.Values.VO, VC = l_Cc_Dir_BO.Values.VC)
+               #block_end
+               #when "AO" #block
+                  l_Indexes = l_Cc_AO.Indexes
+                  v_Control_Bits = l_CD.Control_Bits
+                  #if length(v_Control_Bits) == 4 #then -
+                     l_CC = list(II = l_Cc_AO.Indexes.II + i_Index_Offset, XI = l_Cc_AO.Indexes.XI + i_Index_Offset, VO = 2**v_Control_Bits(1), VC = 2**v_Control_Bits(2), VX = 2**v_Control_Bits(3))
+                  #else_if length(v_Control_Bits) == 2 #then -
+                     l_CC = list(II = l_Cc_AO.Indexes.II + i_Index_Offset, XI = l_Cc_AO.Indexes.XI + i_Index_Offset, VO = 2**v_Control_Bits(1), VC = 2**v_Control_Bits(2))
+                  #else -
+                     l_CC = list(II = l_Cc_AO.Indexes.II + i_Index_Offset, XI = l_Cc_AO.Indexes.XI + i_Index_Offset, VO = 0, VC = 1)
+               #block_end
+               #otherwise #block
+                  l_Indexes = list()
+               #block_end
+            #case_end
+            
+            b_All_Exists = false
+            v_Attrs = list_attr(l_Indexes)
+            #loop_with k = 1 .. length(v_Attrs)
+               t_Attr = v_Attrs(k)
+               b_All_Exists = application_object_exists(0, "IX", list(ln = t_LN, IX = l_CC.'t_Attr'))
+               #if not b_All_Exists #then #loop_exit
+            #loop_end                
+            
+            #if b_All_Exists #then #block
+               l_CC = merge_attributes(l_CC, list(AD = i_Timeout, MT = t_MT, RC = i_RC, AC = i_AC))
+               #error ignore
+               s = status
+               #set 't_LN':pcc = l_CC
+               s = status
+               #if s <> 0 #then s = console_output("Error when setting cc to 't_LN': " + "'s'") 
+            #block_end
+         #block_end
+      #block_end
+   #loop_end
+#loop_end

@@ -1,0 +1,206 @@
+﻿; This command procedure is used for checking and sending group alarm 
+; object value in a COM application 
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @LN, @IX, @BS, @RI, from the group alarm process object
+
+;--------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+;initialize
+@ALARM_STATE_CHANGED = FALSE
+@ENABLE_DATA_SENDING_AFTER_STARTUP = COM_GENVAR:PBZ(4)
+@ENABLE_LOGGING = COM_GENVAR:PBZ(3)
+@ENABLE_ALARM_GROUP_TO_ALARM_LIST = COM_GENVAR:PBZ(15)
+@ALARM_GROUP_SENDING_WITH_LONG_TIME_TAG = BIT('LN':PFI'IX',2)
+@SEND_ALARM_GROUP_ALWAYS_WHEN_ALARMING = BIT('LN':PFI'IX',3)
+@SEND_ALARM_GROUP_WITHOUT_TIME = BIT('LN':PFI'IX',4)
+@UN = 'LN':PUN'IX'
+
+
+;read cross-reference information from the group alarm process object (if any found)
+@XREF_TEXT = 'LN':PFX'IX'
+#IF LENGTH(%XREF_TEXT) > 0 AND LENGTH(LOCATE(%XREF_TEXT," ","ALL")) <> LENGTH(%XREF_TEXT) AND - 
+  %ENABLE_DATA_SENDING_AFTER_STARTUP #THEN #BLOCK
+   ;read previous alarm state from the RI attribute (0=not alarming,1=alarming)
+   ;and check if the alarm state is to be changed (all bits = 0 -> not alarming)
+   ;if alarm state has changed, set the tag and the new state to RI
+   #IF BIT('LN':PRI'IX',0) == 0 #THEN #BLOCK
+      #IF %BS <> BIT_STRING(LENGTH(%OV)) #THEN #BLOCK
+         @ALARM_STATE_CHANGED = TRUE
+         #SET 'LN':PRI'IX' = 1
+      #BLOCK_END
+   #BLOCK_END
+   #ELSE_IF BIT('LN':PRI'IX',0) == 1 #THEN #BLOCK
+      #IF %BS == BIT_STRING(LENGTH(%OV)) #THEN #BLOCK
+         @ALARM_STATE_CHANGED = TRUE
+         #SET 'LN':PRI'IX' = 0
+      #BLOCK_END
+      #IF %SEND_ALARM_GROUP_ALWAYS_WHEN_ALARMING == 1 #THEN #BLOCK
+         #IF BIT('LN':PRI'IX',1) == 1 #THEN #BLOCK
+            @ALARM_STATE_CHANGED = TRUE
+            #SET 'LN':PRI'IX' = 1
+         #BLOCK_END
+      #BLOCK_END
+   #BLOCK_END
+   ;if the state has changed
+   #IF %ALARM_STATE_CHANGED #THEN #BLOCK
+      ;find NCC number from the logical name
+      @NCC_NUMBER = DEC_SCAN(SUBSTR(%LN,5,1))
+      ;find NCC protocol and STA number from the NCC xref table
+      @NCC_XREF_TABLE = APL:BSV(21)
+      @NCC_VECTOR = %NCC_XREF_TABLE(%NCC_NUMBER)
+      @STA_NUMBER = %NCC_VECTOR(1)
+      @NCC_PROTOCOL = %NCC_VECTOR(2)
+      @NCC_SUBPROTOCOL = %NCC_VECTOR(10)
+      @NCC_UTC_LOCAL_TIME = %NCC_VECTOR(17)
+      ;decode NCC address and write the alarm state from RI to NET
+      ;assume zero status, send always with time tag
+      ;invert value if required
+      @GROUP_ALARM_STATE = 'LN':PRI'IX'
+      #IF BIT('LN':PFI'IX',0) == 1 #THEN @GROUP_ALARM_STATE = 1 - %GROUP_ALARM_STATE
+      ;write alarm group state to alarm list
+      #IF %ENABLE_ALARM_GROUP_TO_ALARM_LIST #THEN #SET 'LN'_AS:POV'IX' = %GROUP_ALARM_STATE 
+      ;do not send if data sending is diabled from tool
+      @DISABLE_NCC_DATA_SENDING = COM_GENVAR:PBZ(%NCC_NUMBER+4)
+      #IF NOT %DISABLE_NCC_DATA_SENDING #THEN #BLOCK
+         #CASE %NCC_PROTOCOL
+            #WHEN 1 #BLOCK ; RP570 slave
+               @BLOCK_NR = DEC_SCAN(SUBSTR('LN':PFX'IX',1,3))
+               @BIT_NR = DEC_SCAN(SUBSTR('LN':PFX'IX',4,3))
+               #SET STA'STA_NUMBER':SID(%BLOCK_NR) = (RTU_ATIME(%RT,%RM),%BIT_NR,%GROUP_ALARM_STATE,0,1)
+               ;Time Stamp to COM500 Communication diagnostics
+               #SET 'LN':PCX'IX' = TIMEMS(%RT,%RM,"FULL")
+               #IF %ENABLE_LOGGING #THEN #BLOCK
+                  @S=STATUS
+                  @INFO="'rt':'rm',GRPAL,'UN','LN':P'IX','STA_NUMBER',,'GROUP_ALARM_STATE',RP570,0,'BLOCK_NR'^'BIT_NR','GROUP_ALARM_STATE',,,,,,,0,'S',,,"
+                  @CMDP_CP = COM_LOG:CCP
+                  #IF LENGTH(%CMDP_CP) == 0 #THEN #BLOCK
+                     #DO COM_LOG:CIN
+                  #BLOCK_END      
+                  #ELSE #DO COM_LOG:CCP
+               #BLOCK_END
+            #BLOCK_END
+            #WHEN 2 #BLOCK; IEC101 slave
+               #IF %NCC_SUBPROTOCOL == 2 #THEN #BLOCK ;ICCP 
+                  @IEC_ADDR = DEC_SCAN(SUBSTR('LN':PFX'IX',1,0))             
+                  #SET  STA'STA_NUMBER':SDV(%IEC_ADDR)=(%GROUP_ALARM_STATE,1,0,0,%RT,%RM)
+                  ;Time Stamp to COM500 Communication diagnostics
+                  #SET 'LN':PCX'IX' = TIMEMS(%RT,%RM,"FULL")
+                  #IF %ENABLE_LOGGING #THEN #BLOCK
+                     @S=STATUS                                
+                     @INFO="'rt':'rm',GRPAL,'UN','LN':P'IX','STA_NUMBER',,'GROUP_ALARM_STATE',ICCP,0,'IEC_ADDR','GROUP_ALARM_STATE',,,,,,,0,'S',,,"
+                     @CMDP_CP = COM_LOG:CCP
+                     #IF LENGTH(%CMDP_CP) == 0 #THEN #BLOCK
+                        #DO COM_LOG:CIN
+                     #BLOCK_END      
+                     #ELSE #DO COM_LOG:CCP                       
+                  #BLOCK_END
+               #BLOCK_END
+               #ELSE #BLOCK
+                  @EV_CTRL = 0
+                  #IF %NCC_UTC_LOCAL_TIME == 1 #THEN #BLOCK
+                     @EV_CTRL = BIT_SET(%EV_CTRL,3)
+                  #BLOCK_END
+                  #ELSE_IF %NCC_UTC_LOCAL_TIME == 2 #THEN #BLOCK
+                     @EV_CTRL = BIT_SET(%EV_CTRL,2)
+                  #BLOCK_END
+                  @IEC_ADDR = DEC_SCAN(SUBSTR('LN':PFX'IX',1,0))
+                  #IF %SEND_ALARM_GROUP_WITHOUT_TIME == 1 #THEN #BLOCK
+                     #SET STA'STA_NUMBER':SSD(1) = ("M_SP_NA_1",%IEC_ADDR,%GROUP_ALARM_STATE,3,0,2)
+                  #BLOCK_END
+                  #ELSE_IF %ALARM_GROUP_SENDING_WITH_LONG_TIME_TAG == 0 #THEN #BLOCK
+                     #SET STA'STA_NUMBER':SEV(1) = ("M_SP_TA_1",%IEC_ADDR,%GROUP_ALARM_STATE,3,0,2,%RT,%RM,%EV_CTRL)
+                  #BLOCK_END
+                  #ELSE #BLOCK
+                     #SET STA'STA_NUMBER':SEV(1) = ("M_SP_TB_1",%IEC_ADDR,%GROUP_ALARM_STATE,3,0,2,%RT,%RM,%EV_CTRL)
+                  #BLOCK_END
+                  ;Time Stamp to COM500 Communication diagnostics
+                  #SET 'LN':PCX'IX' = TIMEMS(%RT,%RM,"FULL")
+                  #IF %ENABLE_LOGGING #THEN #BLOCK
+                     @S=STATUS                                
+                     @INFO="'rt':'rm',GRPAL,'UN','LN':P'IX','STA_NUMBER',,'GROUP_ALARM_STATE',IEC101/104,0,'IEC_ADDR','GROUP_ALARM_STATE',,M_SP_TA_1,3,,,,2,'S',,,"
+                     @CMDP_CP = COM_LOG:CCP
+                     #IF LENGTH(%CMDP_CP) == 0 #THEN #BLOCK
+                        #DO COM_LOG:CIN
+                     #BLOCK_END      
+                     #ELSE #DO COM_LOG:CCP                       
+                  #BLOCK_END
+               #BLOCK_END
+            #BLOCK_END
+            #WHEN 3 #BLOCK ; CPI interface
+               @BLOCK_NR = DEC_SCAN(SUBSTR('LN':PFX'IX',1,3))
+               @BIT_NR = DEC_SCAN(SUBSTR('LN':PFX'IX',4,3))
+               #SET STA'STA_NUMBER':SID(%BLOCK_NR) = (RTU_ATIME(%RT,%RM),%BIT_NR,%GROUP_ALARM_STATE,0,1)
+               ;Time Stamp to COM500 Communication diagnostics
+               #SET 'LN':PCX'IX' = TIMEMS(%RT,%RM,"FULL")
+               #IF %ENABLE_LOGGING #THEN #BLOCK
+                  @S=STATUS
+                  @INFO="'rt':'rm',GRPAL,'UN','LN':P'IX','STA_NUMBER',,'GROUP_ALARM_STATE',MODBUS/CPI,0,'BLOCK_NR'^'BIT_NR','GROUP_ALARM_STATE',,,,,,,0,'S',,,"
+                  @CMDP_CP = COM_LOG:CCP
+                  #IF LENGTH(%CMDP_CP) == 0 #THEN #BLOCK
+                     #DO COM_LOG:CIN
+                  #BLOCK_END      
+                  #ELSE #DO COM_LOG:CCP
+               #BLOCK_END
+            #BLOCK_END
+            #WHEN 4 #BLOCK ; DNP 3.0 slave
+               @EV_CTRL = 0
+               ;compose control byte
+               #IF LENGTH(%NCC_VECTOR) > 4 #THEN @NCC_OPERATION_MODE = %NCC_VECTOR(5)
+               #ELSE @NCC_OPERATION_MODE = 1               
+               #CASE %NCC_OPERATION_MODE
+                  #WHEN 1 @CTRL = 7  ; quiescent mode                     
+                  #WHEN 2 @CTRL = 3  ; unsolicited report-by-exception mode
+                  #WHEN 3 @CTRL = 1  ; polled report-by-exception mode
+                  #WHEN 4 @CTRL = 1  ; polled static mode                        
+               #CASE_END
+               @DNP_ADDR = DEC_SCAN('LN':PFX'IX')
+               #IF %NCC_UTC_LOCAL_TIME == 1 #THEN #BLOCK
+                  @EV_CTRL = BIT_SET(%EV_CTRL,1)
+               #BLOCK_END
+               
+               #IF STA'STA_NUMBER':SDI == 0 OR STA'STA_NUMBER':SDI == 2 #THEN #BLOCK
+                  @OBJ=1
+                  @VAR=2
+                  #SET STA'STA_NUMBER':SSD(1) = (%OBJ,%VAR,%DNP_ADDR,%GROUP_ALARM_STATE,1,%CTRL)                  
+               #BLOCK_END
+               #ELSE #BLOCK
+                  @OBJ=2
+                  @VAR=2               
+                  #SET STA'STA_NUMBER':SEV(1) = (%OBJ,%VAR,%DNP_ADDR,%GROUP_ALARM_STATE,1,0,%RT,%RM,%EV_CTRL)
+               #BLOCK_END
+               ;Time Stamp to COM500 Communication diagnostics
+               #SET 'LN':PCX'IX' = TIMEMS(%RT,%RM,"FULL")
+               #IF %ENABLE_LOGGING #THEN #BLOCK
+                  @S=STATUS
+                  @INFO="'rt':'rm',GRPAL,'UN','LN':P'IX','STA_NUMBER',,'GROUP_ALARM_STATE',DNP30,0,'DNP_ADDR','GROUP_ALARM_STATE',,,,'OBJ','VAR',1,'CTRL','S',,,"
+                  @CMDP_CP = COM_LOG:CCP
+                  #IF LENGTH(%CMDP_CP) == 0 #THEN #BLOCK
+                     #DO COM_LOG:CIN
+                  #BLOCK_END      
+                  #ELSE #DO COM_LOG:CCP
+               #BLOCK_END
+            #BLOCK_END
+         #CASE_END
+      #BLOCK_END
+      #ELSE_IF %ENABLE_LOGGING #THEN #BLOCK
+         @INFO="'rt':'rm',GRPAL,'UN','LN':P'IX','STA_NUMBER', disable ncc data sending:'DISABLE_NCC_DATA_SENDING',,,,,,,,,,,,,,,,"
+         @CMDP_CP = COM_LOG:CCP
+         #IF LENGTH(%CMDP_CP) == 0 #THEN #BLOCK
+            #DO COM_LOG:CIN
+         #BLOCK_END      
+         #ELSE #DO COM_LOG:CCP
+      #BLOCK_END
+   #BLOCK_END
+#BLOCK_END
+#ELSE_IF %ENABLE_LOGGING #THEN #BLOCK
+   @INFO="'rt':'rm',GRPAL,'UN','LN':P'IX',,cross-reference for alarm group not found,,,,,,,,,,,,,,,,"
+   #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+   #ELSE #DO COM_LOG:CIN
+#BLOCK_END
+

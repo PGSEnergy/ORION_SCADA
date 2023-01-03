@@ -1,0 +1,2738 @@
+#local argCnt, tRedirectProc, tRedirectCommand, iArgLoop
+
+@COMMAND_SELECTOR=argument(2)
+
+tRedirectProc="APLMOD_TRAFO"
+#if APPLICATION_OBJECT_EXISTS(0,"C",tRedirectProc) AND -
+DATA_TYPE(%REDIRECTED)=="NONE" #then #block
+   #if 'tRedirectProc':CIU==1 #then #block
+      @REDIRECTED=TRUE
+      argCnt=ARGUMENT_COUNT
+      tRedirectCommand="DO('tRedirectProc':C"
+      #loop_with iArgLoop=1..argCnt
+         tRedirectCommand=tRedirectCommand+",argument('iArgLoop')"
+         #if iArgLoop==argCnt #then #block
+            tRedirectCommand=tRedirectCommand+")"
+         #block_end
+      #loop_end
+      #return 'tRedirectCommand'
+   #block_end
+#block_end
+
+#if sys:bdm<>0 #then @b_enable_debugging=true
+#else @b_enable_debugging=false
+@COMMAND_SELECTOR=argument(2) ;Defines the command (open select, close select, execute or cancel)
+#if %b_enable_debugging #then #block
+   @i_Trash=trace_begin("TRACE_BGU_TRAFO_'COMMAND_SELECTOR'.txt")
+   #on error #block
+      #if %b_enable_debugging #then #block
+         @i_Stat=status
+         @i_Trash=console_output(times + " BGU_TRAFO:C error when executing BGU_TRAFO: 'i_Stat'. Trace created to PICT/TRACE_BGU_TRAFO_'COMMAND_SELECTOR'.txt")
+         @i_Trash=trace_end
+         @enable_debugging=false
+      #block_end
+      #return
+   #block_end
+#block_end
+
+#if length(path("SAGR_OT")) == 0 #then #block
+   @source_dir = fm_scil_directory("/SA_LIB/DEFAULTS/OBJECT_TYPES")
+   #if DIRECTORY_MANAGER("EXISTS", %source_dir) #then #block
+      #PATH SAGR_OBJT  +NO_CREATE, /SA_LIB/DEFAULTS/OBJECT_TYPES
+   #block_end
+
+   @t_Apl = apl:bna
+   @source_dir = fm_scil_directory("/APL/'t_Apl'/APLMOD4/DEFAULTS/OBJECT_TYPES")
+   #if DIRECTORY_MANAGER("EXISTS", %source_dir) #then #block
+      #PATH SAGR_OBJT  +NO_CREATE, /APL/'T_APL'/APLMOD4/DEFAULTS/OBJECT_TYPES
+   #block_end
+#block_end
+
+@id_arg=argument(1)
+#if data_type(%id_arg)=="VECTOR" #then #block
+   @PF_ID=%id_arg(1)
+   @TYPE_OF_PF_ID=data_type(%PF_ID)
+   @TYPE_OF_PF_ID_IS="'TYPE_OF_PF_ID'"
+   @PF_INDICATION_INDEX=%id_arg(2)
+#block_end
+#else #block
+   @PF_ID=%id_arg
+#block_end
+
+@ConfPath=path("APL_")
+@ConfPath=%ConfPath(1)
+@ConfPath=substr(%ConfPath,1, length(%ConfPath)-4)
+@AplPath=%ConfPath
+@ConfPath=%ConfPath+"POBJCONF"
+@ConfPathIs="'ConfPath'" ;This is for debugging. Makes path readable in trace file.
+@e_state=error_state
+#error ignore
+@DAT_FILE=evaluate(read_text(%ConfPath+"\'PF_ID'.dat"))
+#error 'e_state'
+#if data_type(%DAT_FILE) <> "LIST" AND data_type(%PF_INDICATION_INDEX)=="INTEGER" #then #block
+   #error ignore
+   @DAT_FILE=evaluate(read_text(%ConfPath+"\'PF_ID'%'PF_INDICATION_INDEX'.dat"))
+   #error 'e_state'
+#block_end
+#if data_type(%DAT_FILE) <> "LIST" #then @DAT_FILE = 'pf_id':pcd
+
+@CONF_DATA=%DAT_FILE
+;@Pf_Id = %pf_id          ;Picture function ID
+@Ln    = %CONF_DATA.P_OBJECT_LN     ;Logical name of process objects
+
+;@DAT_FILE=%DAT_FILE
+#IF DAT_FILE:VP_OBJECT_LN == "" #THEN #SET DAT_FILE:VP_OBJECT_LN =  "ABCDEFGHIJ"
+
+#MODIFY CONF_DATA:V = LIST(-
+T_DIALOG_OPEN = FALSE,-
+R_TAP_POSITION=10,-
+R_AUTO=11,-
+R_PARALLEL=12,-
+R_MASTER=13,-
+W_AUTO_OFF=14,-
+W_AUTO_ON=15,-
+W_TAP_RAISE=16,-
+W_TAP_LOWER=17,-
+W_REF_VOLTAGE=26,-
+W_TAP_POSITION=28,-
+R_VOLTAGE=24,-
+R_REF_VOLTAGE=25,-
+R_INTERLOCKED=20,-
+COUNTER_IX=29,-
+SELECTED_ON_MON=30,-
+R_UP_AUTO=111,-
+R_DEVICE_LOC_IX=0,-
+R_DEVICE_LOCSTA_IX=0,-
+W_DEVICE_LOCSTA_CMD_IX=0,-
+LN=UPPER_CASE(DAT_FILE:VP_OBJECT_LN),-
+MIN_POSITION=DAT_FILE:VMIN_POSITION,-
+MAX_POSITION=DAT_FILE:VMAX_POSITION,-
+PT_TYPE=DAT_FILE:VAUTO_MANUAL_IND_TYPE,-
+STATION_NAME=DAT_FILE:VSTATION_NAME,-
+BAY_NAME=DAT_FILE:VBAY_NAME,-
+DEVICE_NAME=DAT_FILE:VDEVICE_NAME,-
+SPECIAL_IDENTIFIER_1 = DAT_FILE:VSPECIAL_IDENTIFIER_1,-
+SPECIAL_IDENTIFIER_2 = DAT_FILE:VSPECIAL_IDENTIFIER_2,-
+SPECIAL_IDENTIFIER_3 = DAT_FILE:VSPECIAL_IDENTIFIER_3,-
+STATION_TYPE=DAT_FILE:VSTATION_TYPE,-
+IND_TYPE=DAT_FILE:VAUTO_MANUAL_IND_TYPE,-
+REPRESENTATION      = DAT_FILE:VREPRESENTATION,-
+CONTROL_DIALOG_WINDOW = DAT_FILE:VCONTROL_DIALOG_WINDOW,-
+CONTROL_DIALOG      = DAT_FILE:VCONTROL_DIALOG,-
+DATA_BASE_CREATED=FALSE,-
+PR_VOLTAGE_LN="DUMMY",-     ;logical name of primary voltage object
+PR_VOLTAGE_IX=1 ,-          ;index of primary voltage object
+PR_TEXT="DUMMY")            ;field text for primary voltage object
+
+#if %Conf_Data.Station_Type == "IEC61850" #then #block
+   #set Conf_Data:vR_Master = 31
+   #set Conf_Data:vR_Slave = 32
+   #set Conf_Data:vW_Master = 33
+   #set Conf_Data:vW_Slave = 34
+   
+   #if attribute_exists(%dat_file, "OPERATOR_PLACE_HANDLING") #then #block
+      #IF %dat_file.operator_place_handling == "LOC" or -
+         %dat_file.operator_place_handling == "LOC_AND_LOCSTA" #then -
+         #modify conf_data:v = list(r_device_loc_ix = 70)
+      #if %dat_file.operator_place_handling == "LOCSTA" or -
+         %dat_file.operator_place_handling == "LOC_AND_LOCSTA" #then #block
+         #modify conf_data:v = list(-
+            r_device_locsta_ix = 71,-
+            w_device_locsta_cmd_ix = 72)
+      #block_end
+   #block_end
+#block_end
+
+#if data_type(DAT_FILE:VOPERATION_MODE) == "NONE" #then #modify DAT_FILE:V = list(OPERATION_MODE = "")
+#if data_type(CONF_DATA:VOPERATION_MODE) == "NONE" #then #modify Conf_Data:V = list(OPERATION_MODE = "")
+
+;Load object type settings:
+@OBJECT_TYPE_ATTRS=VECTOR(- 
+"R_TAP_POSITION",-
+"R_AUTO",-
+"R_PARALLEL",-
+"R_MASTER",-
+"W_AUTO_OFF",-
+"W_AUTO_ON",-
+"W_TAP_RAISE",-
+"W_TAP_LOWER",-
+"W_REF_VOLTAGE",-
+"W_TAP_POSITION",-
+"R_VOLTAGE",-
+"R_REF_VOLTAGE",-
+"R_INTERLOCKED",-
+"COUNTER_IX",-
+"SELECTED_ON_MON",-
+"R_UP_AUTO",-
+"PR_VOLTAGE_IX",-
+"PARALLEL_SETTING",-
+"OPERATION_MODE",-
+"R_DEVICE_LOC_IX",-
+"R_DEVICE_LOCSTA_IX",-
+"W_DEVICE_LOCSTA_CMD_IX")
+
+@LIB_OBJECT_TYPE=""
+#IF DATA_TYPE(DAT_FILE:VLIB_OBJECT_TYPE)<>"NONE" #THEN #BLOCK
+   @LIB_OBJECT_TYPE=DAT_FILE:VLIB_OBJECT_TYPE
+#BLOCK_END
+#IF %LIB_OBJECT_TYPE<>"" #THEN #BLOCK
+   ;Object type is defined. Read object type file:
+
+   @e_state=error_state
+   #error ignore
+   @OBJECT_TYPE_FILE=evaluate(read_text(%AplPath+"\APLMOD4\DEFAULTS\OBJECT_TYPES\'LIB_OBJECT_TYPE'"))
+   #error 'e_state'
+   @trash=status
+
+   #if data_type(%OBJECT_TYPE_FILE)=="NONE" #then #block
+      #error ignore
+      @OBJECT_TYPE_FILE=evaluate(read_text("/SA_LIB/DEFAULTS/OBJECT_TYPES/'LIB_OBJECT_TYPE'"))
+      #error 'e_state'
+      @trash=status
+   #block_end
+
+   #if data_type(%OBJECT_TYPE_FILE)<>"NONE" #then #block
+      #loop_with ind=1..length(%OBJECT_TYPE_ATTRS)
+         @current_attr=%OBJECT_TYPE_ATTRS(%ind)
+         #if data_type(%OBJECT_TYPE_FILE.'current_attr')<>"NONE" #then #block
+            #modify CONF_DATA:V = LIST('current_attr'=%OBJECT_TYPE_FILE.'current_attr')
+         #block_end
+      #loop_end
+   #block_end
+#BLOCK_END   
+
+
+;Indexes of the process objects
+
+@R_TapPositionIx         = %CONF_DATA.R_Tap_Position
+@R_AutoManualIx          = %CONF_DATA.R_Auto
+@R_ParallelIx            = %CONF_DATA.R_Parallel
+@R_MasterSlaveIx         = %CONF_DATA.R_Master
+@R_VoltageIx             = %CONF_DATA.R_Voltage
+@R_InterlockedIx         = %CONF_DATA.R_Interlocked
+@Sel_On_Mon              = %CONF_DATA.Selected_On_Mon
+@R_CounterIx             = %CONF_DATA.Counter_Ix
+@R_device_loc_ix          = %CONF_DATA.R_device_loc_ix
+@R_device_locsta_ix       = %CONF_DATA.R_device_locsta_ix
+
+
+#if data_type(%CONF_DATA.R_Master) <> "NONE" #then #block 
+   @R_MasterIx              = %CONF_DATA.R_Master
+#block_end
+#if data_type(%CONF_DATA.R_Slave) <> "NONE" #then #block 
+   @R_SlaveIx               = %CONF_DATA.R_Slave
+#block_end
+
+@t_OperationId           = ""
+@i_PtType                = DAT_FILE:vAuto_Manual_Ind_Type
+@t_StationType           = DAT_FILE:vstation_type
+@Control_Type            = "SEC-BO"
+@b_SelectionInProgress   = false
+@b_DeviceSelected        = false
+@b_Auto_Ind_Only         = false
+@B_MS_Ind_Only           = false
+
+#create Result_List:v               ;09.07.2010 HoDa
+
+;READ_OI_CONVENTION START
+@pointer_sta  = 0
+@pointer_bay  = 0
+@pointer_dev  = 0
+
+@POINTER_SPECIAL1 = 0
+@POINTER_SPECIAL2 = 0
+@POINTER_SPECIAL3 = 0
+#error ignore
+@s = status
+@apl_bsv15      = apl:bsv15
+@processobjects = apl_bsv15:vprocess_objects
+@oi             = processobjects:voi
+@J = 1
+#loop_with i = 1 .. 30
+   #if data_type(oi:vlength'i')=="INTEGER" #then #block  
+      @oi_length'i' = oi:vlength'i'
+      ;if field in use
+      #if %oi_length'i' > 0 #then #block  
+         @nr_of_fields = %i
+         @oi_field'i'  = oi:vfield'i'
+         #if      length(select(%oi_field'i',"==""STA"""))>0 -
+         #then @pointer_sta = %i
+         #else_if length(select(%oi_field'i',"==""BAY"""))>0 -
+         #then @pointer_bay = %i
+         #else_if length(select(%oi_field'i',"==""DEV"""))>0 -
+         #then @pointer_dev = %i
+         #ELSE_IF LENGTH(%OI_FIELD'I') > 0 #THEN #BLOCK
+            @POINTER_SPECIAL'J' = %I
+            @J = %J + 1
+         #BLOCK_END
+      #block_end
+   #block_end
+   #else #loop_exit
+#loop_end
+#error stop
+;#error continue
+
+;set defaults if apl:bsv15 not correctly defined
+@s = status
+#if %s <> 0 #then #block
+   @oi_length1   = 10
+   @oi_length2   = 15
+   @oi_length3   = 5
+   @oi_length4   = 0
+   @oi_length5   = 0
+   @pointer_sta  = 1
+   @pointer_bay  = 2
+   @pointer_dev  = 3
+   @nr_of_fields = 3
+#block_end
+
+;set starting points of oi-attribute for station, bay and device
+@start_of_sta = 1
+@start_of_bay = 1
+@start_of_dev = 1
+
+;station
+#loop_with i = 1 .. %pointer_sta
+   #if %i > 1 #then #block
+      @previous_field = %i - 1
+      @start_of_sta = %start_of_sta + %oi_length'previous_field'
+   #block_end
+#loop_end
+
+;bay
+#loop_with i = 1 .. %pointer_bay
+   #if %i > 1 #then #block
+      @previous_field = %i - 1
+      @start_of_bay = %start_of_bay + %oi_length'previous_field'
+   #block_end
+#loop_end
+
+;special identifiers
+#LOOP_WITH J = 1 .. 3
+   #IF %POINTER_SPECIAL'J' > 0 #THEN #BLOCK
+      @START_OF_SPECIAL'J' = 1
+      #LOOP_WITH I = 1 .. %POINTER_SPECIAL'J'
+         #IF %I > 1 #THEN #BLOCK
+            @PREVIOUS_FIELD = %I - 1
+            @START_OF_SPECIAL'J' = %START_OF_SPECIAL'J' + %OI_LENGTH'PREVIOUS_FIELD'
+         #BLOCK_END
+      #LOOP_END
+   #BLOCK_END
+#LOOP_END
+
+;device
+#if %pointer_dev > 0 #then #block
+   #loop_with i = 1 .. %pointer_dev
+      #if %i > 1 #then #block
+         @previous_field = %i - 1
+         @start_of_dev = %start_of_dev + %oi_length'previous_field'
+      #block_end
+   #loop_end
+#block_end
+#else @start_of_dev = 0
+
+;check how the object identification (oi) -attribute should be shown
+@s = status
+#error ignore
+@apl_bsv11        = apl:bsv11
+@show_oi_from     = apl_bsv11:vb_show_oi_from
+@show_oi_length   = apl_bsv11:vb_show_oi_length
+;#error continue
+#error stop
+
+;set defaults if apl:bsv11 not correctly defined
+@s = status
+#if %s <> 0 #then #block
+   @show_oi_from   = 1
+   @show_oi_length = 30
+#block_end
+
+;new configurable attribute since lib510 rev. 4.0.0
+@s=status
+#error ignore
+@special_identifier_1 = %CONF_DATA.special_identifier_1
+@special_identifier_2 = %CONF_DATA.special_identifier_2
+@special_identifier_3 = %CONF_DATA.special_identifier_3
+#error stop
+@s=status
+#if %s <> 0 #then #block
+   @special_identifier_1   = ""
+   @special_identifier_2   = ""
+   @special_identifier_3   = ""
+#block_end
+
+;define texts to be shown on the dialog
+@db_check=fetch(0,"p","'Ln'",'R_TapPositionIx')
+
+@oi_name1 = ""
+@oi_name2 = ""
+@oi_name3 = ""
+@oi_name4 = ""
+@oi_name5 = ""
+@nr_of_special_field = 0
+
+@SPECIAL_LR_OBJECT1_LN = ""
+@SPECIAL_LR_OBJECT2_LN = ""
+@SPECIAL_LR_OBJECT3_LN = ""
+
+;read object identification from database
+#if db_check:viu<>-1 #then #block
+   @field_starting = 1
+   @indication_db_oi = 'Ln':poi'R_TapPositionIx'
+   #loop_with i = 1 .. 5
+      #if %i <= %nr_of_fields #then #block  
+         #if      %i == %pointer_sta #then @station_name = edit(substr(%indication_db_oi,%field_starting,%oi_length'i'),"right_trim")
+         #else_if %i == %pointer_bay #then @bay_name     = edit(substr(%indication_db_oi,%field_starting,%oi_length'i'),"right_trim")
+         #else_if %i == %pointer_dev #then @device_name  = edit(substr(%indication_db_oi,%field_starting,%oi_length'i'),"right_trim")
+         #else #block
+            @nr_of_special_field = %nr_of_special_field + 1
+            @special_identifier_'nr_of_special_field' = edit(substr(%indication_db_oi,%field_starting,%oi_length'i'),"right_trim")
+         #block_end
+         @field_starting = %field_starting + %oi_length'i'
+      #block_end
+      #else #loop_exit
+   #loop_end
+#block_end
+
+@nr_of_special_field = 0
+#loop_with i = 1 .. 5
+   #if %i <= %nr_of_fields #then #block  
+      #if      %i == %pointer_sta #then @oi_name'i' = %station_name
+      #else_if %i == %pointer_bay #then @oi_name'i' = %bay_name
+      #else_if %i == %pointer_dev #then @oi_name'i' = %device_name
+      #else #block
+         @nr_of_special_field = %nr_of_special_field + 1
+         @oi_name'i' = %special_identifier_'nr_of_special_field'
+      #block_end
+   #block_end
+   #else #loop_exit
+#loop_end
+
+@field_starting        = 1
+@field_ending          = 0
+@object_identification = ""
+#loop_with i = 1 .. 5
+   @field_ending   = %field_ending + %oi_length'i'
+   #if %field_starting >= %show_oi_from and -
+   %field_ending < (%show_oi_from + %show_oi_length) #then #block
+      @object_identification = %object_identification + %oi_name'i' + "   "
+   #block_end
+   @field_starting = %field_starting + %oi_length'i'
+#loop_end
+
+;trim station name for queries
+@station_name_trimmed = ""
+
+@tmp_special = 1
+#loop_with i = 1 .. %pointer_sta
+   #if %oi.field'i'(1) == "STA" #then #block
+      @station_name_trimmed = %station_name_trimmed + substr(%station_name, 1, %oi.length'i')
+   #block_end
+   #else #block
+      @station_name_trimmed = %station_name_trimmed + substr(%special_identifier_'tmp_special', 1, %oi.length'i')
+      @tmp_special = %tmp_special + 1
+   #block_end
+#loop_end
+
+;trim bay name for queries
+@bay_name_trimmed = ""
+
+@tmp_special = 1
+#loop_with i = 1 .. %pointer_bay
+   #if %oi.field'i'(1) == "STA" #then #block
+      @bay_name_trimmed = %bay_name_trimmed + substr(%station_name, 1, %oi.length'i')
+   #block_end
+   #else_if %oi.field'i'(1) == "BAY" #then #block
+      @bay_name_trimmed = %bay_name_trimmed + substr(%bay_name, 1, %oi.length'i')
+   #block_end
+   #else #block
+      @bay_name_trimmed = %bay_name_trimmed + substr(%special_identifier_'tmp_special', 1, %oi.length'i')
+      @tmp_special = %tmp_special + 1
+   #block_end
+#loop_end
+
+;trim special identifiers
+@tmp_special = 1
+#loop_with j = 1 .. 3
+   #if %pointer_special'j' > 0 #then #block
+      @special_identifier_'j'_trimmed = ""
+
+      #loop_with i = 1 .. %pointer_special'j'
+         #if %oi.field'i'(1) == "STA" #then #block
+            @special_identifier_'j'_trimmed = %special_identifier_'j'_trimmed + substr(%station_name, 1, %oi.length'i')
+         #block_end
+         #else_if %oi.field'i'(1) == "BAY" #then #block
+            @special_identifier_'j'_trimmed = %special_identifier_'j'_trimmed + substr(%bay_name, 1, %oi.length'i')
+         #block_end
+         #else_if %oi.field'i'(1) == "DEV" #then #block
+            @special_identifier_'j'_trimmed = %special_identifier_'j'_trimmed + substr(%device_name, 1, %oi.length'i') + "*"
+         #block_end
+         #else #block
+            @special_identifier_'j'_trimmed = %special_identifier_'j'_trimmed + substr(%special_identifier_'tmp_special', 1, %oi.length'i')
+            @tmp_special = %tmp_special + 1
+         #block_end
+      #loop_end
+   #block_end
+#loop_end
+
+;trim device name for queries
+
+#if %pointer_dev > 0 #then #block
+   @tmp_special = 1
+   @device_name_trimmed = ""
+   #loop_with i = 1 .. %pointer_dev
+      #if %oi.field'i'(1) == "STA" #then #block
+         @device_name_trimmed = %device_name_trimmed + substr(%station_name, 1, %oi.length'i')
+      #block_end
+      #else_if %oi.field'i'(1) == "BAY" #then #block
+         @device_name_trimmed = %device_name_trimmed + substr(%bay_name, 1, %oi.length'i')
+      #block_end
+      #else_if %oi.field'i'(1) == "DEV" #then #block
+         @device_name_trimmed = %bay_name_trimmed + substr(%device_name, 1, %oi.length'i') + "*"
+      #block_end
+      #else #block
+         @device_name_trimmed = %device_name_trimmed + substr(%special_identifier_'tmp_special', 1, %oi.length'i')
+         @tmp_special = %tmp_special + 1
+      #block_end
+   #loop_end
+#block_end
+#else @device_name_trimmed = "*"
+
+
+#case %t_StationType
+   #when "LON","SPA","ANSI","PROC" #block
+      @W_AutoOffIx       = %CONF_DATA.W_Auto_Off
+      @W_AutoOnIx        = %CONF_DATA.W_Auto_On
+      @W_TapRaiseIx      = %CONF_DATA.W_Tap_Raise
+      @W_TapLowerIx      = %CONF_DATA.W_Tap_Lower
+   #block_end
+   #when "RTU","RTU_E","MODBUS_RTU","DNP_30"#block
+      @W_AutoOffIx       = %CONF_DATA.W_Auto_Off
+      @W_AutoOnIx        = %W_AutoOffIx
+      @W_TapRaiseIx      = %CONF_DATA.W_Tap_Raise
+      @W_TapLowerIx      = %W_TapRaiseIx
+   #block_end
+   #when "IEC101","IEC103", "ICCP" #block
+      @W_AutoOffIx       = %CONF_DATA.W_Auto_Off
+      @W_AutoOnIx        = %CONF_DATA.W_Auto_On
+      @W_TapRaiseIx      = %CONF_DATA.W_Tap_Raise
+      @W_TapLowerIx      = %CONF_DATA.W_Tap_Lower
+
+      ;bacward compatibility for 4.0.2
+      @l_CheckCommandType = fetch(0,"P",%Ln,%W_AutoOnIx)
+      #if l_CheckCommandType:viu == -1 #then #block
+         @W_AutoOnIx        = %W_AutoOffIx
+         @W_TapLowerIx      = %W_TapRaiseIx
+      #block_end
+      #else @Control_Type      = "SEC-2BO"
+   #block_end
+   #when "IEC61850" #block
+      @W_AutoOffIx       = %CONF_DATA.W_Auto_Off
+      @W_AutoOnIx        = %W_AutoOffIx
+      @l_Check = fetch(0,"P",%Ln,%W_AutoOnIx)
+      #if l_Check:viu > -1 #then #if 'Ln':Piu'W_AutoOnIx' == 0 #then @b_Auto_Ind_Only = true
+      #else @b_Auto_Ind_Only = false
+      @W_TapRaiseIx      = 13 ;'Pf_Id'.W_Tap_Raise
+      @W_TapLowerIx      = %W_TapRaiseIx
+      @W_Single_Parallel = (15,16,17,18,19)
+      @Control_Type      = "DIR-BO"
+      @t_SP_Control_Type = "SEC-5BO"
+      @W_MasterIx = %Conf_Data.W_Master  
+      @W_SlaveIx = %Conf_Data.W_Slave
+      @l_Check = fetch(0,"P",%Ln,%W_MasterIx)
+      #if l_Check:viu > -1 #then #if 'Ln':Piu'W_MasterIx' == 0 #then @B_MS_Ind_Only = true
+      @l_Check = fetch(0,"P",%Ln,%W_SlaveIx)
+      #if l_Check:viu > -1 #then #if 'Ln':Piu'W_SlaveIx' == 0 #then @B_MS_Ind_Only = true
+   #block_end 
+#case_end
+
+;max/min position
+@i_MinPosition           = %CONF_DATA.Min_Position
+@i_MaxPosition           = %CONF_DATA.Max_Position
+
+
+@DataBaseCreated         = %CONF_DATA.Data_Base_Created
+
+;Station, Bay, device
+@Station_Name            = %CONF_DATA.Station_Name
+@Bay_Name                = %CONF_DATA.Bay_Name
+@Device_Name             = %CONF_DATA.Device_Name
+@Sta_Lr_Object_ln        = ""
+@Sta_Lr_Object_Ix        = 0
+@Bay_Lr_Object_ln        = ""
+@Bay_Lr_Object_Ix        = 0
+
+@BAY_OP_OBJECT_LN = ""
+@BAY_OP_OBJECT_IX = 0
+
+@Bay_Mlt_Object_ln        = ""
+@Bay_Mlt_Object_Ix        = 0
+
+;name of the window
+;@Win_Name                = %CONF_DATA.Win_name
+
+;scale of the voltage object
+@r_Scale                = 20
+#error ignore
+#if %t_StationType <> "IEC61850" #then #block
+   @TmpScale            = 'Ln':psn'R_VoltageIx'
+   @l_ScaleAttr         = fetch(0,"X",%TmpScale)
+   @r_Scale             = l_ScaleAttr:vsc(4)
+#block_end
+
+#error stop
+@Tc_SubDialog_Open = false
+;set dlg_spau.window_name = .Win_Name
+
+;command parameter from revision 4.0.3
+#IF DATA_TYPE(DAT_FILE:VCMD_PARAMETER) <> "NONE" #THEN -
+@COMMAND_PARAMETER = DAT_FILE:VCMD_PARAMETER
+;command parameter not defined
+#ELSE @COMMAND_PARAMETER = -1
+
+;command type for DNP 3.0
+#if %t_StationType == "DNP_30" #then #if %Command_Parameter > 4 #then @Control_Type = "DIR-BO"
+
+;window attributes used by type pf
+@W_TAP_RAISE    = %CONF_DATA.W_TAP_RAISE
+@W_TAP_LOWER    = %CONF_DATA.W_TAP_LOWER
+@R_TAP_POSITION = %CONF_DATA.R_TAP_POSITION
+@R_AUTO         = %CONF_DATA.R_AUTO
+@R_VOLTAGE      = %CONF_DATA.R_VOLTAGE
+;SEARCH_OBJECTS START
+@Sta_Lr_Object               = FALSE
+@Bay_Lr_Object               = FALSE
+@Sta_Lr_Required             = TRUE
+@Bay_Lr_Required             = TRUE
+@Blockings                   = FALSE
+@BAY_OP_OBJECT               = FALSE
+@BAY_MLT_OBJECT              = FALSE
+;SEARCH_BY_HARD_CODED_LNS      
+;searching station and bay objects by using the hard coded logical names (ln)
+
+;read hard coded lns from picture function
+@sta_ln = ""
+@bay_ln = ""
+@s = status
+#error ignore
+;'pf_id'.u_other_objects
+@HARD_CODED_INFO = DO(%CONF_DATA.U_OTHER_OBJECTS) 
+@sta_ln = hard_coded_info:vstation_ln
+@bay_ln = hard_coded_info:vbay_ln
+;#error continue
+#error stop
+@s = status
+
+;if any hard coded information has been defined
+#if %s==0 and %sta_ln<>"" #then #block 
+
+   ;station local/remote-switch
+   #if (data_type(%sta_ln)=="TEXT" or (data_type(%sta_ln)=="VECTOR" and length(%sta_ln)==1)) #then #block
+      ;if station local/remote-switch not required
+      #if data_type(%sta_ln)=="TEXT" #then #block
+         #if %sta_ln=="NONE" #then @sta_lr_required = false
+      #block_end
+      #else #block
+         #if %sta_ln(1)=="NONE" #then @sta_lr_required = false
+         @sta_ln = %sta_ln(1)
+      #block_end
+      #if %sta_lr_required and %sta_ln<>"" #then #block
+
+         @L_OBJECTS = APPLICATION_OBJECT_LIST(0, "IX", "I", "F", %STA_LN, "RX==""%%%%%%%%%%%%%%%%%%%%%%ASTAILRS*""",vector("IU"))
+         #IF %L_OBJECTS.COUNT > 0 #THEN #BLOCK
+            #LOOP_WITH I = 1 .. %L_OBJECTS.COUNT
+               #IF %L_OBJECTS.IU(%I) == 1 #THEN #BLOCK                    
+                  @sta_lr_object = TRUE
+                  @sta_lr_object_ln = %L_OBJECTS.LN(%I)
+                  @sta_lr_object_ix = %L_OBJECTS.IX(%I)
+                  #MODIFY RESULT_LIST:V=LIST(STA_LR_OBJECT_LN = %sta_lr_object_ln)
+                  #MODIFY RESULT_LIST:V=LIST(STA_LR_OBJECT_IX = %sta_lr_object_ix)
+               #BLOCK_END
+            #LOOP_END
+         #BLOCK_END
+      #block_end
+   #block_end
+#block_end
+
+#if %s == 0 and %bay_ln<>"" #then #block
+   ;bay objects
+   #if (data_type(%bay_ln)=="TEXT" or (data_type(%bay_ln)=="VECTOR" and length(%bay_ln)==1)) #then #block
+      ;if bay local/remote-switch not required
+      #if data_type(%bay_ln)=="TEXT" #then #block
+         #if %bay_ln=="NONE" #then @bay_lr_required = false
+      #block_end
+      #else #block
+         #if %bay_ln(1)=="NONE" #then @bay_lr_required = false
+         @bay_ln = %bay_ln(1)
+      #block_end
+      #if %bay_lr_required and %bay_ln<>"" #then #block
+         ;** TiLi 10.11.2003: ID 7299
+         ;@bay_search = "oi==""'station_name_trimmed'""+""'bay_name_trimmed'*"" and (rx==""%%%%%%%%%%%%%%%%%%%%%%ABAYILRS"" or rx==""%%%%%%%%%%%%%%%%%%%%%%ABAYXBLK"" or rx==""%%%%%%%%%%%%%%%%%%%%%%ABAYIINH"")"
+         @bay_search = "(RX==""%%%%%%%%%%%%%%%%%%%%%%ABAYILRS*"" OR RX==""%%%%%%%%%%%%%%%%%%%%%%ABAYIOPS*"" OR RX==""%%%%%%%%%%%%%%%%%%%%%%ABAYIMLT*"" OR RX==""%%%%%%%%%%%%%%%%%%%%%%ABAYXBLK*"" OR RX==""%%%%%%%%%%%%%%%%%%%%%%ABAYIINH*"")"
+         ;**
+
+         @L_OBJECTS = APPLICATION_OBJECT_LIST(0, "IX", "I", "F", %BAY_LN, %BAY_SEARCH, vector("IU", "RX"))
+
+         #loop_with i = 1 .. %l_Objects.COUNT
+
+            ;bay local/remote-switch
+            #if not %bay_lr_object and substr(%l_Objects.RX(%i),23,8)=="ABAYILRS" #then #block
+               @bay_lr_object    = true
+               @bay_lr_object_ln = %l_Objects.LN(%i)
+               @bay_lr_object_ix = %l_Objects.IX(%i)
+            #block_end
+
+            ;bay multilevel control
+            #IF NOT %BAY_MLT_OBJECT AND SUBSTR(%L_OBJECTS.RX(%I),23,8)=="ABAYIMLT" #THEN #BLOCK
+               @bay_mlt_object   = true
+               @bay_mlt_object_ln = %l_Objects.LN(%i)
+               @bay_mlt_object_ix = %l_Objects.IX(%i)
+            #BLOCK_END
+
+            ;bay software local/remote-switch
+            #IF NOT %BAY_OP_OBJECT AND SUBSTR(%l_Objects.RX(%i),23,8)=="ABAYIOPS" #THEN #BLOCK
+               @BAY_OP_OBJECT    = TRUE
+               @BAY_OP_OBJECT_LN = %l_Objects.LN(%i)
+               @BAY_OP_OBJECT_IX = %l_Objects.IX(%i)
+            #BLOCK_END
+
+            ;blocking printout
+            #else_if not %blockings and substr(%l_Objects.RX(%i),23,8)=="ABAYXBLK" #then #block
+               @blockings    = true
+               @blockings_ln = %l_Objects.LN(%i)
+               @blockings_ix = %l_Objects.IX(%i)
+            #block_end
+
+            ;all objects already found
+            #else_if %bay_lr_object and %blockings and %bay_op_object and %bay_mlt_object #then #loop_exit
+         #loop_end
+      #block_end
+   #block_end
+#block_end
+
+@v_tmp_ln=vector()
+@v_tmp_ix=vector()
+
+#if not %sta_lr_object #then  #block
+   @l_Station = APPLICATION_OBJECT_LIST(0, "IX",  "OI", "", "'STATION_NAME_TRIMMED'") 
+   #IF %L_STATION.COUNT > 0 #THEN #BLOCK
+      @v_tmp_ln = %L_STATION.LN
+      @v_tmp_ix = %L_STATION.IX
+   #BLOCK_END
+#block_end
+
+#if not %bay_lr_object #then #block
+   @RX1 = "%%%%%%%%%%%%%%%%%%%%%%ABAYILRS*"
+   @RX2 = "%%%%%%%%%%%%%%%%%%%%%%ABAYIOPS*"
+   @RX3 = "%%%%%%%%%%%%%%%%%%%%%%ABAYXBLK*"
+   @RX4 = "%%%%%%%%%%%%%%%%%%%%%%ABAYIMLT*"
+
+   @L_BAY = APPLICATION_OBJECT_LIST(0, "IX",  "OI", "", "'BAY_NAME_TRIMMED'*", "RX==""'RX1'"" OR RX==""'RX2'"" OR RX==""'RX3'"" OR RX==""'RX4'""")
+   #IF %L_BAY.COUNT > 0 #THEN #BLOCK
+      @v_tmp_ln = APPEND(%v_tmp_ln, %L_BAY.LN)
+      @v_tmp_ix = APPEND(%v_tmp_ix, %L_BAY.IX)
+   #BLOCK_END
+#block_end
+
+
+#if length(%v_tmp_ln) > 0 #then #block
+   #loop_with i = 1 .. length(%v_tmp_ln)
+      @tmp_ln = %v_tmp_ln('i')
+      @ix = %v_tmp_ix('i')
+
+      ;station local/remote -switch
+      #if substr('tmp_ln':prx'ix',23,8) == "ASTAILRS" and not %sta_lr_object and %sta_lr_required #then #block
+         @sta_lr_object    = true
+         @sta_lr_object_ln = %v_tmp_ln('i')
+         @sta_lr_object_ix = %v_tmp_ix('i')
+      #block_end
+
+      ;bay local/remote -switch
+      #else_if substr('tmp_ln':prx'ix',23,8) == "ABAYILRS" and not %bay_lr_object and %bay_lr_required #then #block
+         @bay_lr_object    = true
+         @bay_lr_object_ln = %v_tmp_ln('i')
+         @bay_lr_object_ix = %v_tmp_ix('i')
+      #block_end
+
+      ;bay local/remote -switch
+      #else_if substr('tmp_ln':prx'ix',23,8) == "ABAYIMLT" and not %bay_mlt_object and %bay_lr_required#then #block
+         @bay_mlt_object    = true
+         @bay_mlt_object_ln = %v_tmp_ln('i')
+         @bay_mlt_object_ix = %v_tmp_ix('i')
+      #block_end
+
+      ;bay software local/remote -switch
+      #ELSE_IF SUBSTR('Tmp_Ln':PRX'IX',23,8) == "ABAYIOPS" AND NOT %BAY_OP_OBJECT AND %BAY_LR_REQUIRED #THEN #BLOCK
+         @BAY_OP_OBJECT    = TRUE
+         @BAY_OP_OBJECT_LN = %V_TMP_LN('I')
+         @BAY_OP_OBJECT_IX = %V_TMP_IX('I')
+      #BLOCK_END
+
+      ;bay blocking objects
+      #else_if substr('tmp_ln':prx'ix',23,8) == "ABAYXBLK" and not %blockings #then #block
+         @blockings    = true
+         @blockings_ln = %v_tmp_ln('i')
+         @blockings_ix = %v_tmp_ix('i')
+      #block_end
+
+   #loop_end
+#block_end
+
+;add allowed values if LR type is AI
+@customLrFound = false
+@CUSTOM_BAY_LR_ALLOW_VALUES = vector()
+#if %BAY_LR_OBJECT #then #block
+   ;read default convention for known IEDs
+   @tmpDO = ""
+   @valueConvention = LIST(THIS_SYSTEM_NAME = "", SIGNALS = VECTOR())
+   @tmpIN = separate('Bay_Lr_Object_ln':PIN'Bay_Lr_Object_Ix', ".")
+   #if length(%tmpIN) > 1 #then @tmpDO = %tmpIN(length(%tmpIN) -1)                    
+   
+   @applicationFile = "aplmod4/use/BGU_U_LR_VALUE_CONVENTION.TXT"
+   @systemFile = "/sa_lib/base/bbone/use/BGU_U_LR_VALUE_CONVENTION.TXT"
+   #error ignore        
+   #if file_manager("EXISTS", fm_application_file(%applicationFile)) #then -
+      @tmpRes = do(read_text(fm_application_file(%applicationFile)), %tmpDO, %Bay_Lr_Object_ln, %Bay_Lr_Object_Ix)
+   #else_if file_manager("EXISTS", fm_scil_file(%systemFile)) #then -
+      @tmpRes = do(read_text(fm_scil_file(%systemFile)), %tmpDO, %Bay_Lr_Object_ln, %Bay_Lr_Object_Ix)
+   
+   #if data_type(%tmpRes) == "VECTOR" and length(%tmpRes) > 0 #then @valueConvention.SIGNALS = %tmpRes  
+           
+    @bayLN = %BAY_LR_OBJECT_LN
+    @bayCD = 'bayLN':PCD
+    @s = status
+    @tmpRes = do(%bayCD.U_LR_VALUE_CONVENTION)
+    
+    #if data_type(%tmpRes.THIS_SYSTEM_NAME) == "TEXT" #then @valueConvention = merge_attributes(%valueConvention, list(THIS_SYSTEM_NAME = %tmpRes.THIS_SYSTEM_NAME))
+    #if data_type(%tmpRes.SIGNALS) == "VECTOR" #then @valueConvention = merge_attributes(%valueConvention, list(SIGNALS = %tmpRes.SIGNALS))  
+    @s = status
+    #if %s == 0 or length(%valueConvention.SIGNALS) > 0  #then #block
+        #if data_type(%valueConvention.THIS_SYSTEM_NAME) == "TEXT" #then #block
+         #if length(%valueConvention.THIS_SYSTEM_NAME) > 0 #then @myLocation = %valueConvention.THIS_SYSTEM_NAME
+         #else #block
+             #if APL:BSV3 > 0 #then @myLocation = "STATION"
+             #else @myLocation = "NCC"
+         #block_end
+        #block_end
+        #else #block
+           #if APL:BSV3 > 0 #then @myLocation = "STATION"
+            #else @myLocation = "NCC"
+        #block_end
+        #if data_type(%valueConvention.SIGNALS) == "VECTOR" #then #block
+            @customLrFound = true
+            #loop_with i = 1 .. length(%valueConvention.SIGNALS)
+                @allowed = false
+                #if attribute_exists(%valueConvention.SIGNALS(%i), "VALUE") and attribute_exists(%valueConvention.SIGNALS(%i), "CONTROL_PLACES") #then #block                                    
+                    @loc = locate(%valueConvention.SIGNALS(%i).CONTROL_PLACES, "ALL")
+                    #if length(select(%loc, "==1")) > 0  #then #block
+                        @CUSTOM_BAY_LR_ALLOW_VALUES = append(%CUSTOM_BAY_LR_ALLOW_VALUES, %valueConvention.SIGNALS(%i).VALUE)
+                        @allowed = true
+                    #block_end
+                    #if not %allowed #then #block
+                       @loc = locate(%valueConvention.SIGNALS(%i).CONTROL_PLACES, %myLocation)
+                       #if length(select(%loc, "==1")) > 0  #then -
+                           @CUSTOM_BAY_LR_ALLOW_VALUES = append(%CUSTOM_BAY_LR_ALLOW_VALUES, %valueConvention.SIGNALS(%i).VALUE)
+                    #block_end
+                #block_end
+            #loop_end
+        #block_end
+    #block_end
+#block_end
+
+;search for objects by checking the complete process object database
+#LOOP_WITH J = 1 .. 3
+   #IF DATA_TYPE(%SPECIAL_IDENTIFIER_'J'_TRIMMED) <> "NONE" #THEN #BLOCK
+      #IF %SPECIAL_IDENTIFIER_'J'_TRIMMED <> "" #THEN #BLOCK
+
+         @TMP_IDENT = %SPECIAL_IDENTIFIER_'J'_TRIMMED
+
+         @TMP_LN=VECTOR()
+         @TMP_IX=VECTOR()
+
+         @l_Special = APPLICATION_OBJECT_LIST(0, "IX",  "OI", "", "'TMP_IDENT'", "RX==""%%%%%%%%%%%%%%%%%%%%%%AGRPILRS*""")
+
+         #IF %l_Special.COUNT > 0 #THEN #BLOCK
+            @TMP_LN = %l_Special.LN
+            @TMP_IX = %l_Special.IX
+         #BLOCK_END
+
+         #IF LENGTH(%TMP_LN) > 0 #THEN #BLOCK
+            #LOOP_WITH I = 1 .. LENGTH(%TMP_LN)
+               @tLN = %TMP_LN('I')
+               @iIX = %TMP_IX('I')
+               ;station local/remote -switch
+               #IF SUBSTR('tLN':PRX'iIX',23,8) == "AGRPILRS" #THEN #BLOCK ;AND NOT %STA_LR_OBJECT AND %STA_LR_REQUIRED #THEN #BLOCK
+                  ;@STA_LR_OBJECT    = TRUE
+                  @SPECIAL_LR_OBJECT'J'_LN = %TMP_LN('I')
+                  @SPECIAL_LR_OBJECT'J'_IX = %TMP_IX('I')
+               #BLOCK_END
+            #LOOP_END
+         #BLOCK_END
+      #BLOCK_END
+   #BLOCK_END
+#LOOP_END
+
+;SEARCH_OBJECTS_END
+;#DO READ_TEXT("BBONE/PATH4.TXT")
+@for_trace="COMMAND_SELECTOR='COMMAND_SELECTOR'"
+
+#if 'ln':pdx'R_AutoManualIx' == "12" #then #block
+   @i_TmpIx = 'R_AutoManualIx' + 100
+   #if %t_StationType == "PROC" #then @i_TmpIx = %i_TmpIx + 1
+   @attr=application_object_attributes(0,"IX",list(LN=VECTOR(%ln), IX=VECTOR(%i_TmpIx)), VECTOR("IU"))
+   #if get_status(attr:viu(1)) == 0 #then @i_TmpAuto = %i_TmpIx
+   #else @i_TmpAuto = %R_AutoManualIx
+#block_end
+#else @i_TmpAuto = %R_AutoManualIx
+;@b_Simulated = not ('ln':pss'i_TmpAuto'>=2 AND 'ln':pun'i_TmpAuto'<>0)
+@b_Simulated = not ('ln':pss'R_TapPositionIx'>=2 AND 'ln':pun'R_TapPositionIx'<>0)
+
+#case %COMMAND_SELECTOR
+   #when "RAISE_CANCEL", "LOWER_CANCEL","AUTOMATIC_CANCEL","MANUAL_CANCEL","SINGLE_CANCEL", "PARALLEL_CANCEL" #block
+      @CONTROL_METHOD = "STANDARD"
+      #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+         #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_CANCEL) <> "NONE" #THEN #BLOCK
+            #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_CANCEL) > 0 #THEN @CONTROL_METHOD = "OBJECT_TYPE"
+         #BLOCK_END
+      #BLOCK_END
+
+      @Nack = status
+      #if %CONTROL_METHOD == "STANDARD" #then #block
+
+         #if substr(%t_StationType,1,3) == "IEC" #then #block
+            @CMD_TYPE=%CONTROL_TYPE
+            @STA_TYPE=%T_STATIONTYPE
+            #case %COMMAND_SELECTOR
+               #when "RAISE_CANCEL","LOWER_CANCEL" @EXECUTE_CMD_IX = %W_TapRaiseIx
+               #when "AUTOMATIC_CANCEL","MANUAL_CANCEL" @EXECUTE_CMD_IX = %W_AutoOnIx
+               #when "SINGLE_CANCEL", "PARALLEL_CANCEL" #block
+                  @EXECUTE_CMD_IX = %W_Single_Parallel(5)
+                  @CMD_TYPE=%t_SP_Control_Type
+               #block_end
+            #case_end
+            @EXECUTE_CMD_LN = %Ln
+            @CANCEL_LN = %EXECUTE_CMD_LN
+            @CANCEL_IX = %EXECUTE_CMD_IX
+            ;set control selection cancelled
+            #ERROR IGNORE
+            #DO READ_TEXT("/SA_LIB/BASE/BBONE/USE/BGU_SW_CAN.TXT")
+            #ERROR STOP
+         #block_end
+      #block_end
+      #else #block
+         #DO OBJECT_TYPE_FILE:VMETHOD_CANCEL
+      #block_end
+      ;.Init_Dialog_State
+      ;!erase subs
+   #block_end
+   #when "SELECT_ON_MONITOR" #block
+      ; set object selected on monitor
+
+      @sel_on_mon_ln=%ln
+      ;read old update block (ub)
+      @tmp_ub='sel_on_mon_ln':pub'sel_on_mon'
+
+      ;if object not sampled
+      #if 'sel_on_mon_ln':pos'sel_on_mon' ==10 #then #block
+         ;set unblocked
+         #if %tmp_ub ==1 #then #set 'sel_on_mon_ln':pub'sel_on_mon'=0
+
+         ;set selected
+         #set 'sel_on_mon_ln':pov'sel_on_mon' = 1
+
+         ;return blocking state
+         #if %tmp_ub ==1 #then #set 'sel_on_mon_ln':pub'sel_on_mon'=1
+         @this_monitor_num=round('sel_on_mon_ln':pov'sel_on_mon')
+         @old_this_monitor_num=round('sel_on_mon_ln':pov'sel_on_mon')
+
+      #block_end
+      #else #block
+
+         ;set unblocked
+         #if %tmp_ub ==1 #then #set 'sel_on_mon_ln':pub'sel_on_mon'=0
+
+         ;just in case.
+         #if 'sel_on_mon_ln':pov'sel_on_mon' < 0 #then #block
+            #set 'sel_on_mon_ln':pov'sel_on_mon' = 1
+         #block_end
+         #else #block
+            ;set selected
+            #set 'sel_on_mon_ln':pov'sel_on_mon' = -
+            'sel_on_mon_ln':pov'sel_on_mon' + 1
+         #block_end
+
+         ;return blocking state
+         #if %tmp_ub ==1 #then #set 'sel_on_mon_ln':pub'sel_on_mon'=1
+         @this_monitor_num=round('sel_on_mon_ln':pov'sel_on_mon')
+         @old_this_monitor_num=round('sel_on_mon_ln':pov'sel_on_mon')
+
+      #block_end
+
+      @b_Selected = false
+      @e_state=error_state
+      #error ignore
+      #if 'sel_on_mon_ln':pov'sel_on_mon' > 1 #then @b_Selected = true
+      #error 'e_state'
+
+      #return %this_monitor_num      
+
+   #block_end
+   #when "UNSELECT_ON_MONITOR" #block
+      ; set object unselected on monitor
+      #error ignore
+      @sel_on_mon_ln=%ln
+
+      ;if object exists
+      @tmp=fetch(0,"p","'sel_on_mon_ln'",'sel_on_mon')
+      #if tmp:viu <> -1 #then #block
+
+         ;read old update block (ub)
+         @tmp_ub=0
+         @tmp_ub='sel_on_mon_ln':pub'sel_on_mon'
+
+         ;set unblocked
+         #if %tmp_ub ==1 #then #set 'sel_on_mon_ln':pub'sel_on_mon'=0
+
+         ;set unselected
+         @ov = 'sel_on_mon_ln':pov'sel_on_mon' - 1
+         #if %ov < 0 #then @ov = 0
+         #set 'sel_on_mon_ln':pov'sel_on_mon' = %ov
+
+         ;return blocking state
+         #if %tmp_ub ==1 #then #set 'sel_on_mon_ln':pub'sel_on_mon'=1
+
+      #block_end
+   #block_end
+   #when "OBJECT_CONF" #block
+
+      @t_Unit = "kV"
+      #error ignore
+      @t_Unit = 'Ln':pst'R_VoltageIx'      
+      #error stop
+      @st=status
+      #modify CONF_DATA:V=LIST(VOLTAGE_UNIT=%t_unit)
+
+      #if %STA_LR_OBJECT_LN <> "" #then #block
+         #modify CONF_DATA:V=LIST(STA_LR_OBJECT_LN=%STA_LR_OBJECT_LN)
+         #modify CONF_DATA:V=LIST(STA_LR_OBJECT_IX=%STA_LR_OBJECT_IX)
+      #block_end
+
+      #if %BAY_LR_OBJECT_LN <> "" #then #block
+         #modify CONF_DATA:V=LIST(BAY_LR_OBJECT_LN=%BAY_LR_OBJECT_LN)
+         #modify CONF_DATA:V=LIST(BAY_LR_OBJECT_IX=%BAY_LR_OBJECT_IX)
+      #block_end
+
+      #if %BAY_MLT_OBJECT_LN <> "" #then #block
+         #modify CONF_DATA:V=LIST(BAY_MLT_OBJECT_LN=%BAY_MLT_OBJECT_LN)
+         #modify CONF_DATA:V=LIST(BAY_MLT_OBJECT_IX=%BAY_MLT_OBJECT_IX)
+      #block_end
+
+      #if %BAY_OP_OBJECT_LN <> "" #then #block
+         #modify CONF_DATA:V=LIST(BAY_OP_OBJECT_LN=%BAY_OP_OBJECT_LN)
+         #modify CONF_DATA:V=LIST(BAY_OP_OBJECT_IX=%BAY_OP_OBJECT_IX)
+      #block_end
+
+      #if %SPECIAL_LR_OBJECT1_LN <> "" #then #block
+         #modify CONF_DATA:V=LIST(SPECIAL_LR_OBJECT1_LN=%SPECIAL_LR_OBJECT1_LN)
+         #modify CONF_DATA:V=LIST(SPECIAL_LR_OBJECT1_IX=%SPECIAL_LR_OBJECT1_IX)
+      #block_end
+
+      #if %SPECIAL_LR_OBJECT2_LN <> "" #then #block
+         #modify CONF_DATA:V=LIST(SPECIAL_LR_OBJECT2_LN=%SPECIAL_LR_OBJECT2_LN)
+         #modify CONF_DATA:V=LIST(SPECIAL_LR_OBJECT2_IX=%SPECIAL_LR_OBJECT2_IX)
+      #block_end
+
+      #if %SPECIAL_LR_OBJECT3_LN <> "" #then #block
+         #modify CONF_DATA:V=LIST(SPECIAL_LR_OBJECT3_LN=%SPECIAL_LR_OBJECT3_LN)
+         #modify CONF_DATA:V=LIST(SPECIAL_LR_OBJECT3_IX=%SPECIAL_LR_OBJECT3_IX)
+      #block_end
+
+      @st=status
+
+      #return %CONF_DATA
+
+   #block_End
+   #when "GET_STATES","GET_MESSAGES" #block
+
+      ;station local/remote inhibits control
+      @sta_lr_missing=false
+      @bay_lr_missing=false
+      @sta_lr_not_sampled=false
+      @sta_lr_inhibits_bv = false
+      ;read general authorization level, if < 1 not authorizied to control
+
+
+      #error ignore
+      @center_not_auth_bv=false
+      #error stop
+
+      ;inputs for command procedure, returns %controls_allowed, integer 0,1,-1,-2
+      @auth_level=1
+      #IF %STA_LR_OBJECT #THEN #BLOCK
+
+         @lr_object_ln = %sta_lr_object_ln
+         @lr_object_ix = %sta_lr_object_ix
+         @command_source_id = apl:bna
+         #if length(%sta_lr_object_ln)>0 #then #block
+            #if apl:bsv3 > 0 #then @command_source_type="LOCAL"
+            #else @command_source_type="REMOTE"
+            #do read_text("/sa_lib/base/bbone/use/bgu_auth.txt")
+            ;if returns 1=authorized, 0=not authorized -1=error, -2=wrong center
+            #if %controls_allowed<>1 #then @auth_level=0
+            #if %controls_allowed==-2 #then @center_not_auth_bv = true
+         #block_end
+      #block_end
+      #else_if not %Sta_Lr_Object and %Sta_Lr_Required #then @Auth_Level = 0      
+
+      #if length(%sta_lr_object_ln)>0 #then #block
+         #if 'sta_lr_object_ln':pos'sta_lr_object_ix' <> 10 #then #block
+            #if %auth_level==0 and not %center_not_auth_bv #then #block
+               @sta_lr_inhibits_bv = true
+            #block_end
+         #block_end
+         #else @sta_lr_not_sampled=true
+      #block_end
+
+      #if apl:bsv3 >0 #then @command_source_type="LOCAL"
+      #else @command_source_type="REMOTE"
+      @command_source_id = apl:bna
+
+      @special_lr_inhibits_bv = false
+      @auth_level=1
+      @b_Special_LR_Found = False
+      @i_Special_LR_ItemVal = -1
+      @i_Special_LR_ItemVal_1 = -1
+      @i_Special_LR_ItemVal_2 = -1
+      @i_Special_LR_ItemVal_3 = -1
+      #loop_with i = 1 .. 3
+         #if length(%SPECIAL_LR_OBJECT'I'_LN)>0 #then #block
+            @lr_object_ln = %SPECIAL_LR_OBJECT'I'_LN
+            @lr_object_ix = %SPECIAL_LR_OBJECT'I'_IX
+            #do read_text("/sa_lib/base/bbone/use/bgu_auth.txt")
+            ;if returns 1=authorized, 0=not authorized -1=error, -2=wrong center
+            #if %controls_allowed<>1 #then @auth_level=0
+            #if %controls_allowed==-2 #then @center_not_auth_bv = true
+            #if 'lr_object_ln':pos'lr_object_ix' <> 10 #then #block
+               @i_Special_LR_ItemVal_'i' = 'lr_object_ln':pov'lr_object_ix'
+               #if %auth_level==0 and not %center_not_auth_bv #then #block
+                  @special_lr_inhibits_bv = true
+               #block_end
+            #block_end
+            #else @a = true
+            @b_Special_LR_Found = True
+         #block_end
+      #loop_end
+
+      #if %i_Special_LR_ItemVal_1 == 0 or %i_Special_LR_ItemVal_2 == 0 or %i_Special_LR_ItemVal_3 == 0 #then @i_Special_LR_ItemVal = 0
+
+      @auth_level=1
+      @bay_op_inhibits_bv = false
+      @b_Bay_Mlt_allows_bv = false
+      @b_Bay_OP_Found = False
+      @b_Bay_OP_ItemVal = -1
+      @i_Bay_OP_PO_Type = 3
+      #if length(%BAY_OP_OBJECT_LN)>0 #then #block
+         @lr_object_ln = %BAY_OP_OBJECT_LN
+         @lr_object_ix = %BAY_OP_OBJECT_IX
+         @i_Bay_OP_PO_Type = 'lr_object_ln':ppt'lr_object_ix'
+         #do read_text("/sa_lib/base/bbone/use/bgu_auth.txt")
+         ;if returns 1=authorized, 0=not authorized -1=error, -2=wrong center
+         #if %controls_allowed<>1 #then @auth_level=0
+         #if %controls_allowed==-2 #then @center_not_auth_bv = true
+         #if 'lr_object_ln':pos'lr_object_ix' <> 10 #then #block
+            @b_Bay_OP_ItemVal = 'lr_object_ln':pov'lr_object_ix'
+            #if %auth_level==0 and not %center_not_auth_bv #then #block
+               @bay_op_inhibits_bv = true
+            #block_end
+         #block_end
+         #else @a = true
+         @b_Bay_OP_Found = True
+      #block_end
+
+      #if %command_source_type == "LOCAL" #then #block
+         ;#if not %sta_lr_inhibits_bv and %b_Special_LR_Found and %i_Special_LR_ItemVal <> 0 #then  @special_lr_inhibits_bv = false
+         #if not %sta_lr_inhibits_bv and %STA_LR_REQUIRED #then #block ;and %i_Special_LR_ItemVal <> 0 #then  @special_lr_inhibits_bv = false
+            #if %i_Special_LR_ItemVal <> 0 #then  @special_lr_inhibits_bv = false
+            #if (%b_Bay_OP_ItemVal <> 0 and %i_Bay_OP_PO_Type == 12) #then @bay_op_inhibits_bv = false
+            #if (%b_Bay_OP_ItemVal <> 0 and %i_Bay_OP_PO_Type == 3) #then @bay_op_inhibits_bv = false
+         #block_end
+         
+         #if %bay_mlt_object #then #block
+            #if 'bay_mlt_object_ln':pos'bay_mlt_object_ix' < 10 #then #block
+               #if 'bay_mlt_object_ln':pov'bay_mlt_object_ix' == 1 #then #block
+                  @bay_op_inhibits_bv = false
+                   @b_Bay_Mlt_allows_bv = true
+                #block_end
+            #block_end
+         #block_end
+
+         #if %b_Special_LR_Found and not %special_lr_inhibits_bv and %i_Special_LR_ItemVal <> 0 #then @sta_lr_inhibits_bv = false
+         #if %b_Special_LR_Found and not %special_lr_inhibits_bv and %i_Special_LR_ItemVal <> 0 #then @bay_op_inhibits_bv = false
+         #if %b_Bay_OP_Found and not %bay_op_inhibits_bv #then #block
+            #if %b_Special_LR_Found and %i_Special_LR_ItemVal <> 0 #then @special_lr_inhibits_bv = false
+            @sta_lr_inhibits_bv = false
+         #block_end
+      #block_end
+    
+   #if %R_device_locsta_ix == 0  and not %b_Bay_Mlt_allows_bv  #then #block
+   
+       #if (%b_Bay_OP_ItemVal == 0 and apl:bsv(3) == 1) or (%b_Bay_OP_ItemVal == 1 and apl:bsv(3) == 0) #then #block
+         @bay_op_inhibits_bv = true
+       #block_end
+
+      #if %b_Bay_OP_ItemVal == 3 and %i_Special_LR_ItemVal <> 0 #then #block
+         @sta_lr_inhibits_bv = false
+         @special_lr_inhibits_bv = false
+         @bay_op_inhibits_bv = false
+      #block_end
+   #block_end
+
+
+      ;bay in local use only
+      @bay_in_local_bv = false
+      @bay_lr_not_sampled=false
+      #if not %customLrFound #then #block
+         #if length(%bay_lr_object_ln)>0 #then #block
+            #if 'bay_lr_object_ln':pos'bay_lr_object_ix'==10 #then -
+            @bay_lr_not_sampled = true
+            #else #block
+               ;if double binary (db)
+               #if 'bay_lr_object_ln':ppt'bay_lr_object_ix'==12 #then #block
+                  #if 'bay_lr_object_ln':pov'bay_lr_object_ix'==1 or 'bay_lr_object_ln':pov'bay_lr_object_ix'==0 #then #block
+                     @bay_in_local_bv = true
+                  #block_end
+               #block_end
+               ;if binary (bi)
+               #else_if 'bay_lr_object_ln':ppt'bay_lr_object_ix'==3 #then #block
+                  #if 'bay_lr_object_ln':pdx'bay_lr_object_ix' <> "E7S" #then #block
+                     #if attribute_exists(%dat_file, "BAY_LR_POLARITY") #then #block
+                        #if %dat_file.bay_lr_polarity == "L1" #then #block
+                           #if 'bay_lr_object_ln':pov'bay_lr_object_ix'==1 #then @bay_in_local_bv = true
+                        #block_end
+                        #else_if 'bay_lr_object_ln':pov'bay_lr_object_ix'==0 #then #block
+                           @bay_in_local_bv = true
+                        #block_end
+                     #block_end
+                     #else_if 'bay_lr_object_ln':pov'bay_lr_object_ix'==0 #then #block
+                        @bay_in_local_bv = true
+                     #block_end
+                  #block_end
+                  #else #block
+                     #if 'bay_lr_object_ln':pov'bay_lr_object_ix'==1 #then #block
+                        @bay_in_local_bv = true
+                     #block_end
+                  #block_end
+               #block_end
+               #else_if 'bay_lr_object_ln':ppt'bay_lr_object_ix' == 9 #then #block
+                  #case 'bay_lr_object_ln':pov'bay_lr_object_ix'
+                     #when 0, 1, 3, 4 @bay_in_local_bv = true
+                     #otherwise @bay_in_local_bv = false
+                  #case_end 
+               #block_end
+               #else @bay_in_local_bv = false
+            #block_end
+         #block_end
+      #block_end
+      #else #block
+         #if 'bay_lr_object_ln':pos'bay_lr_object_ix' < 10 #then #block
+            @bay_in_local_bv = true
+            #loop_with i = 1 .. length(%CUSTOM_BAY_LR_ALLOW_VALUES)
+               #if round('bay_lr_object_ln':pov'bay_lr_object_ix') == %CUSTOM_BAY_LR_ALLOW_VALUES(%i) #then #block
+                  @bay_in_local_bv = false
+                  @bay_op_inhibits_bv = false
+                  #loop_exit
+               #block_end
+            #loop_end
+         #block_end
+      #block_end
+    
+      ;INDICATIONS START
+      @Ln    = %CONF_DATA.P_OBJECT_LN
+
+      @b_BlockedByDevice   = false
+      @b_Substituted_e     = false
+      @b_Substituted_i     = false
+      
+      ;Device L/R state
+      ;Out dev_in_local_bv: TRUE | FALSE 
+      ;---------------------------------------------------
+      @dev_in_local_bv = false
+      @Dev_In_Local_Not_Sampled = false
+      #if %R_device_loc_ix > 0 #then #block
+         #if 'Ln':pos'R_device_loc_ix' < 10 #then #block
+            #if 'Ln':pov'R_device_loc_ix' == 1 #then @dev_in_local_bv = true
+         #block_end
+         #else @Dev_In_Local_Not_Sampled = true
+      #block_end
+      
+      ;Device Station/NCC state
+      ;---------------------------------------------------
+      @dev_LocSta_Inhibits_bv = false
+      #if %R_device_locsta_ix > 0 #then #block
+         #if 'Ln':pos'R_device_locsta_ix' < 10 #then #block
+            #if 'Ln':pov'R_device_locsta_ix' == 1 and apl:bsv3 == 0 #then #block
+               @dev_LocSta_Inhibits_bv = true
+            #block_end
+            #else_if 'Ln':pov'R_device_locsta_ix' == 0 and apl:bsv3 == 1 and not %b_bay_mlt_allows_bv #then #block
+               ;#if not(not %sta_lr_inhibits_bv or not %bay_op_inhibits_bv) #then @dev_LocSta_Inhibits_bv = true
+               @dev_LocSta_Inhibits_bv = true
+               #if not %sta_lr_inhibits_bv and %sta_lr_object #then @dev_LocSta_Inhibits_bv = false
+               #if not %bay_op_inhibits_bv and %bay_op_object #then @dev_LocSta_Inhibits_bv = false
+            #block_end
+         #block_end
+       #else @dev_LocSta_Inhibits_bv = true
+
+         ;Override bay Operator place blocking
+         #if apl:bsv3 == 1 #then #block
+            #if not %dev_LocSta_Inhibits_bv #then #block
+               @sta_lr_inhibits_bv = false
+               @bay_op_inhibits_bv = false
+            #block_end
+         #block_end   
+    #block_end
+   
+
+      ;auto or manual state
+      ;Out .i_AutoState: 0 = Manual, 1 = Auto, -1 = error
+      ;---------------------------------------------------
+      #if 'Ln':pdx'R_AutoManualIx' == "12" #then #block
+         @i_TmpIx = 'R_AutoManualIx' + 100
+         #if %t_StationType == "PROC" #then @i_TmpIx = %i_TmpIx + 1
+         @attr=application_object_attributes(0,"IX",list(LN=vector(%Ln), IX=vector(%i_TmpIx)), vector("IU"))
+         #if get_status(attr:viu(1)) == 0 #then #block
+            @i_AutoManOs = max('Ln':pos'i_TmpIx','Ln':pos'R_AutoManualIx')
+         #block_end
+         #else @i_AutoManOs = 10
+      #block_end
+      #else @i_AutoManOs = 'Ln':pos'R_AutoManualIx'
+
+      #case %i_AutoManOs
+         #when 10 #block
+            @i_TmpState  = -1
+            @i_AutoState = -1 
+         #block_end  
+         #otherwise #block
+            @i_TmpState = 'Ln':pov'R_AutoManualIx'
+            ;blocked by device
+            #if 'Ln':pbl'R_AutoManualIx' == 1 #then @b_BlockedByDevice = true
+            ;substituted, external
+            #if 'Ln':psb'R_AutoManualIx' == 1 #then @b_Substituted_e = true
+            ;substituted, internal
+            #if 'Ln':psu'R_AutoManualIx' == 1 #then @b_Substituted_i = true
+         #block_end
+      #case_end
+
+      #case %i_TmpState
+         #when 0 #block
+            #case %i_PtType
+               #when 1 @i_AutoState = 0 
+               #when 2 @i_AutoState = 1
+               #when 3,4 @i_AutoState = -2
+            #case_end
+         #block_end
+         #when 1 #block
+            #case %i_PtType
+               #when 1,4 @i_AutoState = 1 
+               #when 2,3 @i_AutoState = 0
+            #case_end
+         #block_end
+         #when 2 #block
+            #case %i_PtType
+               #when 3 @i_AutoState = 1 
+               #when 4 @i_AutoState = 0
+            #case_end
+         #block_end
+         #when 3 #block
+            @i_AutoState = -3
+         #block_end
+      #case_end
+
+      ;External blocking
+      ;Out i_BlockingState: 0 = not blocked, 1 = blocked, -1 = error
+      ;----------------------------------------------------
+      #case 'Ln':pos'R_InterlockedIx'
+         #when 10 -
+         @i_BlockingState = -1
+         #otherwise #block
+            @i_BlockingState = 'Ln':pov'R_InterlockedIx'
+            #if %t_StationType == "IEC61850" #then #block
+               @i_BlockingState = round(%i_BlockingState)
+               #if %i_BlockingState <> 1 #then @i_BlockingState = 1
+               #else @i_BlockingState = 0
+            #block_end
+         #block_end
+      #case_end
+
+      ;Master/Slave indication
+      ;Out i_Parallel: 0= slave, 1 = master, -1 = error
+      ;----------------------------------------------------
+      #if %Conf_Data.Station_Type <> "IEC61850" #then #block
+         #case 'Ln':pos'R_MasterSlaveIx'
+            #when 10 -
+            @i_MasterSlave = -1
+            #otherwise -
+            @i_MasterSlave = 'Ln':pov'R_MasterSlaveIx'
+         #case_end
+      #block_end
+      #else #block
+
+         @i_Master = -1
+         @i_Slave = -1
+         @R_Master = %Conf_Data.R_Master
+         @R_Slave = %Conf_Data.R_Slave
+         @l_Check1 = fetch(0, "P", %Ln, %R_Master)
+         @l_Check2 = fetch(0, "P", %Ln, %R_Slave)
+
+         #if l_Check1:Viu > 0 and l_Check2:Viu > 0 #then #block
+
+            #case 'Ln':pos'R_Master'
+               #when 10 -
+               @i_Master = -1
+               #otherwise -
+               @i_Master = 'Ln':pov'R_Master'
+            #case_end
+
+            #case 'Ln':pos'R_Slave'
+               #when 10 -
+               @i_Slave = -1
+               #otherwise -
+               @i_Slave = 'Ln':pov'R_Slave'
+            #case_end
+         #block_end
+
+         #if %i_Master == 1 and %i_Slave == 0 #then @i_MasterSlave = 1
+         #else_if  %i_Master == 0 and %i_Slave == 1 #then @i_MasterSlave = 0
+         #else @i_MasterSlave = -1
+
+      #block_end
+
+      ;Parallel
+      ;Out i_Parallel: 0= single, 1 = parallel, -1 = error
+      ;----------------------------------------------------
+      #case 'Ln':pos'R_ParallelIx'
+         #when 10 -
+         @i_Parallel = -1
+         #otherwise -
+         @i_Parallel = 'Ln':pov'R_ParallelIx'
+      #case_end
+
+      ;Tap positon
+      ;Out i_TapPosition: -10000 = error
+      ;----------------------------------------------------
+      @i_TapPosition = -10000
+      @i_TapPosOs = 'Ln':pos'R_TapPositionIx'
+      #case %i_TapPosOs
+         #when 10 -
+         @i_TapPosition = -10000
+         #otherwise -
+         @i_TapPosition = round('Ln':pov'R_TapPositionIx')
+      #case_end
+
+      ;value of the voltage
+      ;Out r_Voltage: -10000 = error ,i_AlarmZoneForVoltage: 0=normal, 1=alarm,2=warning
+      ;----------------------------------------------------
+
+      @i_VolValOs = 'Ln':pos'R_VoltageIx'
+      #case %i_VolValOs
+         #when 10 -
+         @r_Voltage = -10000.0  
+         #otherwise -
+         @r_Voltage = 'Ln':pov'R_VoltageIx'
+      #case_end
+
+      #case 'Ln':paz'R_VoltageIx'
+         #when 0   @i_AlarmZoneForVoltage = 0
+         #when 1,2 @i_AlarmZoneForVoltage = 1
+         #when 3,4 @i_AlarmZoneForVoltage = 2
+      #case_end
+      @t_Unit = 'Ln':pst'R_VoltageIx'      
+      ;INDICATIONS END
+
+      ;update blocked
+      #if 'ln':pub'R_TapPositionIx'==1 #then @update_blocked=1
+      #else @update_blocked=0
+
+      ;control blocked
+      #if 'ln':pub'W_TapLowerIx'==1 or -
+      'ln':pub'W_TapRaiseIx'==1 #then @control_blocked=1
+      #else @control_blocked=0
+
+      ;alarms blocked
+      #if 'ln':pab'R_TapPositionIx'==1 #then @alarms_blocked=1
+      #else @alarms_blocked=0
+
+      ;history blocked
+      #if 'ln':phb'R_TapPositionIx'==1 #then @history_blocked=1
+      #else @history_blocked=0
+
+      ;printout blocked
+      #if 'ln':ppb'R_TapPositionIx'==1 #then @printout_blocked=1
+      #else @printout_blocked=0
+
+      ;reprocessing blocked
+      #if 'ln':pxb'R_TapPositionIx'==1 #then @reprocessing_blocked=1
+      #else @reprocessing_blocked=0
+
+      @Auth_Level_Bv = false
+
+      #if %Sta_Lr_Required #then #block
+         #if %sta_lr_inhibits_bv #then #block
+            @Auth_Level_Bv = true
+         #block_end
+      #block_end
+
+      #if %center_not_auth_bv and %Sta_Lr_Required #then #block
+         @Auth_Level_Bv = true
+      #block_end
+
+      @b_OperationsBlocked = false
+
+      #if -;(%Bay_Lr_Required           and -
+         -;not %Bay_Lr_Object)          or -
+         %Bay_Lr_Not_Sampled or -
+         -;(%Sta_Lr_Required           and -
+         -;not %Sta_Lr_Object)          or -    
+         %Sta_Lr_Not_Sampled or -
+         %Bay_In_Local_Bv or -
+         %Dev_in_local_bv or -
+         %Dev_In_Local_Not_Sampled or -
+         %dev_LocSta_Inhibits_bv or -
+         -;%b_selected                  or -
+         %i_BlockingState == 1 or -
+         %special_lr_inhibits_bv or -
+         %bay_op_inhibits_bv or -
+         %Control_Blocked == 1 or -
+         %Update_Blocked == 1 or -
+         %Auth_Level_Bv -
+         #then @b_OperationsBlocked = true
+
+      @RESULT_LIST=LIST(-
+      rad_parSet_State_Set=FALSE,-  
+      rad_singSet_State_Set=FALSE,-  
+      rad_1Set_State_Set=FALSE,-  
+      rad_2Set_State_Set=FALSE,-  
+      rad_parSet_State_Sensitive=FALSE,-  
+      rad_SingSet_State_Sensitive=FALSE,-  
+      rad_1Set_State_Sensitive=FALSE,-  
+      rad_2Set_State_Sensitive=FALSE,-  
+      btn_LowerSet_State_Sensitive=FALSE,-  
+      btn_RaiseSet_State_Sensitive=FALSE,-  
+      MASTER_SLAVE_LABEL_TXT=0,-
+      MASTER_SLAVE_LABEL_VISIBLE=FALSE,-
+      t_VolCol=0,-
+      t_Voltage=0,-
+      b_OperationsBlocked = %b_OperationsBlocked -
+      )
+      ;#do sys_gprc:vDraw_Field_Lowered
+      #if %i_TapPosition <> -10000 #then #block
+         @Colour = 14
+         ;define location of the arrow
+         @Steps = %i_MaxPosition - %i_MinPosition
+         @Step  = 150/%Steps
+         @i_Location = 379 + (%Step * (%i_TapPosition - %i_MinPosition))
+
+         #if %i_Location < 379 #then @i_Location = 379
+         #if %i_Location > 532 #then @i_Location = 532
+
+
+      #block_end
+      #else #block
+         ;%btn_LowerSet_State_Insensitive
+         ;%btn_RaiseSet_State_Insensitive
+         #modify RESULT_LIST:V=LIST(btn_LowerSet_State_Sensitive=false)
+         #modify RESULT_LIST:V=LIST(btn_RaiseSet_State_Sensitive=false)
+      #block_end
+
+      ;auto/manual buttons
+      #if %t_StationType <> "IEC61850" #then #block
+
+         #if %Conf_Data.Operation_Mode == "SINGLE" #then #block
+            @OptButtonID1 = "rad_ParSet_State_Set"
+            @OptButtonID2 = "rad_SingSet_State_Set" 
+         #block_end
+         #else #block
+            @OptButtonID1 = "rad_1Set_State_Set"
+            @OptButtonID2 = "rad_2Set_State_Set"
+         #block_end
+
+         #if %i_AutoState == 0 #then #block
+            #modify RESULT_LIST:V=list('OptButtonID1'=false);
+            #modify RESULT_LIST:V=list('OptButtonID2'=true)
+            ;rad_parSet_State_Unset
+            ;rad_singSet_State_Set
+         #block_end
+         #else_if %i_AutoState == 1 #then #block
+            #modify RESULT_LIST:V=list('OptButtonID1'=true)
+            #modify RESULT_LIST:V=LIST('OptButtonID2'=false)
+            ;rad_parSet_State_Set
+            ;rad_singSet_State_Unset
+         #block_end
+         #else_if %i_AutoState == -1 or %i_AutoState == -2 or %i_AutoState == -3 #then #block
+            #modify RESULT_LIST:V=LIST('OptButtonID1'=false)
+            #modify RESULT_LIST:V=LIST('OptButtonID2'=false)
+            ;rad_parSet_State_UnSet
+            ;rad_singSet_State_Unset
+         #block_end
+
+
+         @OptButtonID1 = "rad_parSet_State_Set"
+         @OptButtonID2 = "rad_singSet_State_Set"
+
+         #if %Conf_Data.Operation_Mode <> "SINGLE" #then #block
+
+            #if %i_Parallel == 1 #then #block
+
+               #modify RESULT_LIST:V=LIST('OptButtonID1'=TRUE)  
+               #modify RESULT_LIST:V=LIST('OptButtonID2'=FALSE)
+               #if %Conf_Data.Operation_Mode == "M_S" #then #block
+                  #modify RESULT_LIST:V=LIST(MASTER_SLAVE_LABEL_VISIBLE=TRUE)
+                  #if %i_MasterSlave == 1 #then #modify RESULT_LIST:V=LIST(MASTER_SLAVE_LABEL_TXT=193) ;MASTER
+                  #else_if %i_MasterSlave == 0 #then #modify RESULT_LIST:V=LIST(MASTER_SLAVE_LABEL_TXT=194) ;SLAVE 
+               #block_end            
+            #block_end
+            #else #block       
+               #modify RESULT_LIST:V=LIST('OptButtonID1'=FALSE)  
+               #modify RESULT_LIST:V=LIST('OptButtonID2'=TRUE)  
+               #modify RESULT_LIST:V=LIST(MASTER_SLAVE_LABEL_VISIBLE=FALSE)
+            #block_end
+         #block_end
+      #block_end
+      #else #block
+         ;#if not %b_Auto_Ind_Only #then #block
+         ;@b_IsParallelMode = (%Conf_Data.Operation_Mode <> "" and %Conf_Data.Operation_Mode <> "SINGLE")
+         #if %i_Parallel == 2 and %Conf_Data.Operation_Mode == "M_S" #then #block
+            #if %i_MasterSlave == 0 #then #block
+               #modify RESULT_LIST:V=LIST(rad_1Set_State_Set=false)
+               #modify RESULT_LIST:V=LIST(rad_2Set_State_Set=true)
+               ;rad_1Set_State_Unset
+               ;rad_2Set_State_Set
+            #block_end
+            #else_if %i_MasterSlave == 1 #then #block
+               #modify RESULT_LIST:V=LIST(rad_1Set_State_Set=true)
+               #modify RESULT_LIST:V=LIST(rad_2Set_State_Set=false)
+               ;rad_1Set_State_Set
+               ;rad_2Set_State_Unset
+            #block_end
+            #else_if %i_MasterSlave == -1 #then #block
+               #modify RESULT_LIST:V=LIST(rad_1Set_State_Set=false)
+               #modify RESULT_LIST:V=LIST(rad_2Set_State_Set=false)
+               ;rad_1Set_State_UnSet
+               ;rad_2Set_State_Unset
+            #block_end
+            #modify RESULT_LIST:V=LIST(rad_1_Caption=193)
+            #modify RESULT_LIST:V=LIST(rad_2_Caption=194)
+            #modify RESULT_LIST:V=LIST(UPDATE_BUTTON_CAPTIONS = True)
+         #block_end
+         #else #block
+            #if %Conf_Data.Operation_Mode == "SINGLE" #then #block
+               @OptButtonID1 = "rad_ParSet_State_Set"
+               @OptButtonID2 = "rad_SingSet_State_Set" 
+            #block_end
+            #else #block
+               @OptButtonID1 = "rad_1Set_State_Set"
+               @OptButtonID2 = "rad_2Set_State_Set"
+            #block_end
+
+            #if %i_AutoState == 0 #then #block
+               #modify RESULT_LIST:V=LIST('OptButtonID1'=false)
+               #modify RESULT_LIST:V=LIST('OptButtonID2'=true)
+               ;rad_1Set_State_Unset
+               ;rad_2Set_State_Set
+            #block_end
+            #else_if %i_AutoState == 1 #then #block
+               #modify RESULT_LIST:V=LIST('OptButtonID1'=true)
+               #modify RESULT_LIST:V=LIST('OptButtonID2'=false)
+               ;rad_1Set_State_Set
+               ;rad_2Set_State_Unset
+            #block_end
+            #else_if %i_AutoState == -1 or %i_AutoState == -2 or %i_AutoState == -3 #then #block
+               #modify RESULT_LIST:V=LIST('OptButtonID1'=false)
+               #modify RESULT_LIST:V=LIST('OptButtonID2'=false)
+               ;rad_1Set_State_UnSet
+               ;rad_2Set_State_Unset
+            #block_end
+            #modify RESULT_LIST:V=LIST(rad_1_Caption=185)
+            #modify RESULT_LIST:V=LIST(rad_2_Caption=184)
+            #if DAT_FILE:VOPERATION_MODE == "SINGLE" #then #block
+               #modify RESULT_LIST:V=LIST(rad_par_Caption=185)
+               #modify RESULT_LIST:V=LIST(rad_sing_Caption=184)
+            #block_end
+            #modify RESULT_LIST:V=LIST(UPDATE_BUTTON_CAPTIONS = True)
+         #block_end
+         ;#else Show_Auto_Manual(i_AutoState)
+
+         #if %Conf_Data.Operation_Mode <> "SINGLE" #then #block
+            #case %i_Parallel
+               #when 1 #block
+                  #modify RESULT_LIST:V=LIST(rad_parSet_State_Set=false)
+                  #modify RESULT_LIST:V=LIST(rad_singSet_State_Set=true)
+                  ;rad_parSet_State_Unset
+                  ;rad_singSet_State_Set
+               #block_end
+               #when 2 #block
+                  #modify RESULT_LIST:V=LIST(rad_parSet_State_Set=true)
+                  #modify RESULT_LIST:V=LIST(rad_singSet_State_Set=false)
+                  ;rad_parSet_State_Set
+                  ;rad_singSet_State_Unset
+               #block_end
+               #otherwise #block
+                  #modify RESULT_LIST:V=LIST(rad_parSet_State_Set=false)
+                  #modify RESULT_LIST:V=LIST(rad_singSet_State_Set=false)
+                  ;rad_parSet_State_Unset
+                  ;rad_singSet_State_Unset
+               #block_end
+            #case_end
+         #block_end
+      #block_end
+
+      #if not %b_OperationsBlocked #then #block
+         ;raise/lower/ buttons when not auto
+         #if %i_AutoState == 0 #then #block
+            #if %i_TapPosition <> -10000 #then #block
+               #if %i_TapPosition < %i_MaxPosition #then #modify RESULT_LIST:V=LIST(btn_RaiseSet_State_Sensitive=true)
+               #else #modify RESULT_LIST:V=LIST(btn_RaiseSet_State_Sensitive=false)    ;btn_RaiseSet_State_Insensitive
+               #if %i_TapPosition > %i_MinPosition #then #modify RESULT_LIST:V=LIST(btn_LowerSet_State_Sensitive=true)
+               #else #modify RESULT_LIST:V=LIST(btn_LowerSet_State_Sensitive=false)
+            #block_end
+         #block_end
+         #else #block
+            #modify RESULT_LIST:V=LIST(btn_LowerSet_State_Sensitive=false)
+            #modify RESULT_LIST:V=LIST(btn_RaiseSet_State_Sensitive=false)
+            ;btn_LowerSet_State_Insensitive
+            ;btn_RaiseSet_State_Insensitive
+         #block_end
+
+         #if %t_StationType == "IEC61850" #then #block
+
+            #if %Conf_Data.Operation_Mode == "" #then #block
+               #modify RESULT_LIST:V=LIST(rad_parSet_State_Sensitive=true)
+               #modify RESULT_LIST:V=LIST(rad_SingSet_State_Sensitive=true)
+            #block_end
+            #else #block
+               #if (%Conf_Data.Operation_Mode == "SINGLE" and not %b_Auto_Ind_Only) or %Conf_Data.Operation_Mode <> "SINGLE" #then #block
+                  #modify RESULT_LIST:V=LIST(rad_parSet_State_Sensitive=true)
+                  #modify RESULT_LIST:V=LIST(rad_SingSet_State_Sensitive=true)
+               #block_end
+            #block_end
+            #if %i_Parallel == 2 #then #block
+               #if %Conf_Data.Operation_Mode == "M_S" #then #block
+                  #if not %b_MS_Ind_Only #then #modify RESULT_LIST:V=LIST(rad_1Set_State_Sensitive=true)
+                  #if not %b_MS_Ind_Only #then #modify RESULT_LIST:V=LIST(rad_2Set_State_Sensitive=true)
+               #block_end
+               #else_if not %b_Auto_Ind_Only #then #block
+                  #modify RESULT_LIST:V=LIST(rad_1Set_State_Sensitive=false)
+                  #modify RESULT_LIST:V=LIST(rad_2Set_State_Sensitive=false)
+                  ;rad_1Set_State_Insensitive
+                  ;rad_2Set_State_Insensitive
+               #block_end
+            #block_end
+            #else #block
+               #if not %b_Auto_Ind_Only #then #block
+                  #modify RESULT_LIST:V=LIST(rad_1Set_State_Sensitive=true)
+                  #modify RESULT_LIST:V=LIST(rad_2Set_State_Sensitive=true)
+               #block_end
+            #block_end
+         #block_end
+         #else #block
+
+            #if %Conf_Data.Operation_Mode == "" or %Conf_Data.Operation_Mode <> "SINGLE" #then #block
+               #modify RESULT_LIST:V=LIST(rad_1Set_State_Sensitive=true)
+               #modify RESULT_LIST:V=LIST(rad_2Set_State_Sensitive=true)
+            #block_end
+
+            #if %Conf_Data.Operation_Mode == "SINGLE" #then #block
+               #modify RESULT_LIST:V=LIST(rad_parSet_State_Sensitive=true)
+               #modify RESULT_LIST:V=LIST(rad_SingSet_State_Sensitive=true)
+            #block_end
+         #block_end
+
+         ;Buttons for reference voltage setting and tap value direct setting:
+         #MODIFY RESULT_LIST:V=LIST(-
+         BTN_REF_VOLTAGE_STATE_SENSITIVE=FALSE ,-
+         BTN_TAP_VALUE_STATE_SENSITIVE=FALSE   )
+         @CHECK_LOGICAL_NAME=%DAT_FILE.P_OBJECT_LN
+
+         @CHECK_INDEX=%CONF_DATA.W_REF_VOLTAGE
+         @CHECK=fetch(0,"P","'CHECK_LOGICAL_NAME'",'CHECK_INDEX')
+         #IF CHECK:VIU <> -1 #THEN #BLOCK
+            #MODIFY RESULT_LIST:V=LIST(BTN_REF_VOLTAGE_STATE_SENSITIVE=TRUE)
+         #BLOCK_END
+
+         @CHECK_INDEX=%CONF_DATA.W_TAP_POSITION
+         @CHECK=fetch(0,"P","'CHECK_LOGICAL_NAME'",'CHECK_INDEX')
+         #IF CHECK:VIU <> -1 #THEN #BLOCK
+            #MODIFY RESULT_LIST:V=LIST(BTN_TAP_VALUE_STATE_SENSITIVE=TRUE)
+         #BLOCK_END
+
+         #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+            #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_GET_INDICATIONS) <> "NONE" #THEN #BLOCK
+               #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_GET_INDICATIONS) > 0 #THEN #DO OBJECT_TYPE_FILE:VMETHOD_GET_INDICATIONS
+            #BLOCK_END
+         #BLOCK_END
+
+      #block_end
+      #else ;Disable_Buttons
+
+      ;voltage
+      #if %r_voltage <> -10000 #then #block
+         #if %i_AlarmZoneForVoltage == 2 #then @t_VolCol = "Y"
+         #else_if %i_AlarmZoneForVoltage == 1 #then @t_VolCol = "R"
+         #else @t_VolCol = "B"
+         @t_Voltage = dec(round(%r_Voltage,1),1,1)             ; + " " + %t_Unit ; 
+         ;!win_level vol_'i_VolCol' on_bottom
+         ;!show 'Win_Name'/vol_'i_VolCol' t_Voltage
+      #block_end
+      #else #block
+         @t_VolCol = "B"
+         @t_Voltage = "?"
+         ;!win_level vol_'t_VolCol' on_bottom
+         ;!show 'Win_Name'/vol_'t_VolCol' t_Voltage
+      #block_end
+      #modify RESULT_LIST:V=LIST(t_VolCol=%t_VolCol)
+      #modify RESULT_LIST:V=LIST(t_Voltage=%t_Voltage)
+      #modify RESULT_LIST:V=LIST(i_TapPosition=%i_TapPosition)
+  
+      #if %command_selector=="GET_STATES" #then #block
+         #return %RESULT_LIST
+      #block_end
+      #else #block
+         ;defines the messages to be shown on the infobar
+
+         @sel_on_mon_ln=%ln
+         @t_Message = ""
+         @Auth_Level_Bv = false
+
+         @b_Selected = false
+         @e_state=error_state
+         #error ignore
+         #if 'sel_on_mon_ln':pov'sel_on_mon' > 1 #then @b_Selected = true
+         #error 'e_state'
+
+         @msg_vector = vector()
+
+         ;infobar text
+         ;Check_Secondary_Objects
+
+         #if %reprocessing_blocked==1 #then -
+         @msg_vector = append(%msg_vector,226)
+
+         #if %printout_blocked==1 #then -
+         @msg_vector = append(%msg_vector,227)
+
+         #if %history_blocked==1 #then -
+         @msg_vector = append(%msg_vector,228)
+
+         #if %alarms_blocked==1 #then -
+         @msg_vector = append(%msg_vector,229)
+
+         #if %update_blocked==1 #then -
+         @msg_vector = append(%msg_vector,230)
+
+         #if %b_BlockedByDevice #then -
+         @msg_vector = append(%msg_vector,231)
+
+         #if %control_blocked==1 #then -
+         @msg_vector = append(%msg_vector,232)
+
+         #if %i_BlockingState==1 #then -
+         @msg_vector = append(%msg_vector,233)
+
+         #case %i_VolValOs
+            #when 1 @msg_vector = append(%msg_vector,234)
+            #when 2 @msg_vector = append(%msg_vector,235)
+            #when 10 @msg_vector = append(%msg_vector,236)
+         #case_end
+
+         #if 'Ln':por'R_VoltageIx' == 1 #then -
+         @msg_vector = append(%msg_vector,237)
+
+         #case %i_AutoManOs
+            #when 0 #block
+               #if %i_AutoState == -2 #then -
+               @msg_vector = append(%msg_vector,238)
+               #else_if %i_AutoState == -3 #then -
+               @msg_vector = append(%msg_vector,239)
+            #block_end
+            #when 1 @msg_vector = append(%msg_vector,240)
+            #when 2 @msg_vector = append(%msg_vector,241)
+            #when 3 @msg_vector = append(%msg_vector,242)
+            #when 10 @msg_vector = append(%msg_vector,243)
+         #case_end
+
+         #case %i_TapPosOs
+            #when 1 @msg_vector = append(%msg_vector,244)
+            #when 2 @msg_vector = append(%msg_vector,245)
+            #when 10 @msg_vector = append(%msg_vector,246)
+         #case_end
+
+         #if 'Ln':por'R_TapPositionIx' == 1 #then -
+         @msg_vector = append(%msg_vector,247)
+
+         #if %b_Simulated #then -
+         @msg_vector = append(%msg_vector,248)
+
+         #if %b_Substituted_e #then -
+         @msg_vector = append(%msg_vector,249)
+
+         #if %b_Substituted_i #then -
+         @msg_vector = append(%msg_vector,250)
+
+         #if %Bay_Lr_Required #then #block
+            #if %bay_lr_not_sampled #then -
+            @msg_vector = append(%msg_vector,251)
+         #block_end
+
+         #if %Sta_Lr_Required #then #block
+            #if %sta_lr_not_sampled #then -
+            @msg_vector = append(%msg_vector,252)
+         #block_end      
+         
+         #if %Bay_Lr_Required #then #block
+            #if %dev_LocSta_Inhibits_bv #then -
+            @msg_vector = append(%msg_vector,581)
+            #if %Dev_In_Local_Not_Sampled #then -
+            @msg_vector = append(%msg_vector,596)
+         #block_end
+         
+         #if %Bay_Lr_Required #then #block
+            #if %dev_in_local_bv #then -
+            @msg_vector = append(%msg_vector,580)
+         #block_end
+         
+         #if %Bay_Lr_Required #then #block
+            #if %bay_in_local_bv #then -
+            @msg_vector = append(%msg_vector,253)
+         #block_end
+
+         #if %Sta_Lr_Required #then #block
+            #if %sta_lr_inhibits_bv #then #block
+               @msg_vector = append(%msg_vector,254)
+               @Auth_Level_Bv = true
+            #block_end
+         #block_end
+
+         #if %special_lr_inhibits_bv #then #block
+            @msg_vector = append(%msg_vector,3020)
+            @Auth_Level_Bv = true
+         #block_end
+
+         #if %bay_op_inhibits_bv #then #block
+            @msg_vector = append(%msg_vector,3019)
+            @Auth_Level_Bv = true
+         #block_end
+
+         #if %center_not_auth_bv and %Sta_Lr_Required #then #block
+            @msg_vector = append(%msg_vector,255)
+            @Auth_Level_Bv = true
+         #block_end
+
+         #if %Bay_Lr_Required #then #block
+            #if %bay_lr_missing #then -
+            @msg_vector = append(%msg_vector,257)
+         #block_end
+
+         #if %Sta_Lr_Required #then #block
+            #if %sta_lr_missing #then -
+            @msg_vector = append(%msg_vector,258)
+         #block_end
+
+         @sel_on_mon_ln=%ln
+         #if %b_selected #then -
+         @msg_vector = append(%msg_vector,259)
+
+         #return %msg_vector
+      #block_end
+   #block_end
+   #when "AUTOMATIC_SELECT","AUTOMATIC_EXECUTE" #block
+      #if %COMMAND_SELECTOR=="AUTOMATIC_SELECT" #then #block
+         @CONTROL_METHOD = "STANDARD"
+         #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+            #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_AUTOMATIC_SELECT) <> "NONE" #THEN #BLOCK
+               #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_AUTOMATIC_SELECT) > 0 #THEN @CONTROL_METHOD = "OBJECT_TYPE"
+            #BLOCK_END
+         #BLOCK_END
+
+         @Nack = 0  
+         #if %CONTROL_METHOD == "STANDARD" #then #block
+            #if substr(%t_StationType,1,3) == "IEC"  or substr(%t_StationType,1,3) == "DNP" #then #block
+               @b_SelectionInProgress = true
+               @SELECT_LN         = %Ln
+               @SELECT_IX         = %W_AutoOnIx
+               @SELECT_VALUE      = 1
+               @CMD_TYPE          = %Control_Type
+               @STA_TYPE          = %t_StationType
+               ;@COMMAND_PARAMETER = %COMMAND_PARAMETER
+               ;execute the actual set command
+               #ERROR IGNORE
+               #DO READ_TEXT("/SA_LIB/BASE/BBONE/USE/BGU_SW_SEL.TXT")
+               #ERROR STOP
+            #block_end
+         #block_end
+         #else #block
+            #DO OBJECT_TYPE_FILE:VMETHOD_AUTOMATIC_SELECT
+         #block_end
+      #block_end
+      #else #block
+         ;@t_Message = fpu_transa:vstatus_operating
+         ;Show_Message
+
+         @CONTROL_METHOD = "STANDARD"
+         #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+            #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_AUTOMATIC_EXECUTE) <> "NONE" #THEN #BLOCK
+               #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_AUTOMATIC_EXECUTE) > 0 #THEN @CONTROL_METHOD = "OBJECT_TYPE"
+            #BLOCK_END
+         #BLOCK_END
+
+         @Nack = status
+         #if %CONTROL_METHOD == "STANDARD" #then #block
+            #error ignore
+            @EXECUTE_LN    = %Ln
+            @EXECUTE_IX    = %W_AutoOnIx
+            #if substr(%t_StationType,1,3) == "RTU" #then -
+            #set 'Ln':pov'W_AutoOnIx' = 0
+            #else_if substr(%t_StationType,1,3) == "IEC" or substr(%t_StationType,1,3) == "DNP" #then #block
+               @CMD_TYPE      = %CONTROL_TYPE
+               @STA_TYPE      = %t_StationType
+               @EXECUTE_VALUE = 1
+               ;@COMMAND_PARAMETER = COMMAND_PARAMETER
+               ;execute the actual set command
+               #ERROR IGNORE
+               #DO READ_TEXT("/SA_LIB/BASE/BBONE/USE/BGU_SW_EXE.TXT")
+               #ERROR STOP
+            #block_end 
+            #else -
+            #set 'Ln':pov'W_AutoOnIx' = 1
+         #block_end
+         #else #block
+            #DO OBJECT_TYPE_FILE:VMETHOD_AUTOMATIC_EXECUTE
+         #block_end
+
+         #if %b_simulated #then #block
+            #case %i_PtType
+               #when 1 #set 'Ln':pov'R_AutoManualIx' = 1 
+               #when 2 #set 'Ln':pov'R_AutoManualIx' = 0
+               #when 3 #set 'Ln':pov'R_AutoManualIx' = 2
+               #when 4 #set 'Ln':pov'R_AutoManualIx' = 1
+            #case_end
+         #block_end
+
+         #if substr(%t_StationType,1,3) == "IEC" #then -
+         @i_StatusCode = %Nack
+         #else -
+         @i_StatusCode = status
+
+         @Print_User_Identification_IX=%W_AutoOnIx
+
+      #block_end
+   #block_end
+   #when "LOWER_SELECT","LOWER_EXECUTE" #block
+      #if %COMMAND_SELECTOR=="LOWER_SELECT" #then #block
+
+         @CONTROL_METHOD = "STANDARD"
+         #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+            #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_LOWER_SELECT) <> "NONE" #THEN #BLOCK
+               #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_LOWER_SELECT) > 0 #THEN @CONTROL_METHOD = "OBJECT_TYPE"
+            #BLOCK_END
+         #BLOCK_END
+
+         @Nack = status
+         #if %CONTROL_METHOD == "STANDARD" #then #block
+            @Nack = 0
+            ;.set root._busy = true
+            #if substr(%t_StationType,1,3) == "IEC" or substr(%t_StationType,1,3) == "DNP" #then #block
+               @b_SelectionInProgress = true
+               @SELECT_LN         = %Ln
+               @SELECT_IX         = %W_TapLowerIx
+               @SELECT_VALUE      = 0
+               @CMD_TYPE          = %Control_Type
+               @STA_TYPE          = %t_StationType
+               ;@COMMAND_PARAMETER = %COMMAND_PARAMETER
+               ;execute the actual set command
+               #ERROR IGNORE
+               #DO READ_TEXT("/SA_LIB/BASE/BBONE/USE/BGU_SW_SEL.TXT")
+               #ERROR STOP
+            #block_end
+         #block_end
+         #else #block
+            #DO OBJECT_TYPE_FILE:VMETHOD_LOWER_SELECT
+         #block_end
+      #block_end
+      #else #block
+         ;@t_Message = fpu_transa:vstatus_operating
+         ;Show_Message
+
+         @CONTROL_METHOD = "STANDARD"
+         #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+            #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_LOWER_EXECUTE) <> "NONE" #THEN #BLOCK
+               #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_LOWER_EXECUTE) > 0 #THEN @CONTROL_METHOD = "OBJECT_TYPE"
+            #BLOCK_END
+         #BLOCK_END
+
+         @Nack = status
+         #if %CONTROL_METHOD == "STANDARD" #then #block
+            @Nack = 0
+            @s = status
+            #error ignore
+            @EXECUTE_LN    = %Ln
+            @EXECUTE_IX    = %W_TapLowerIx
+            #if substr(%t_StationType,1,3) == "RTU" #then -
+            #set 'Ln':pov'W_TapLowerIx' = 0 
+            #else_if substr(%t_StationType,1,3) == "IEC" or substr(%t_StationType,1,3) == "DNP" #then #block
+               @CMD_TYPE      = %CONTROL_TYPE
+               @STA_TYPE      = %t_StationType
+
+               #if %t_StationType == "IEC61850" #then @EXECUTE_VALUE = 1
+               #else_if %CMD_TYPE == "SEC-BO" OR %CMD_TYPE == "DIR-BO" #THEN @EXECUTE_VALUE = 0
+               #ELSE @EXECUTE_VALUE = 1
+
+
+               ;@COMMAND_PARAMETER = COMMAND_PARAMETER
+               ;execute the actual set command
+               #ERROR IGNORE
+               #DO READ_TEXT("/SA_LIB/BASE/BBONE/USE/BGU_SW_EXE.TXT")
+               #ERROR STOP
+               @nack=status
+
+               ;Decrement direct tap position command:
+               @IX=%CONF_DATA.W_TAP_POSITION
+               @obj_check=application_object_list(0,"IX","","","","LN==""'LN'"" AND IX=='IX'")
+               #if %obj_check.COUNT>0 #then #block
+                  #set 'LN':POV'IX'= 'LN':POV'IX'-1 
+               #block_end
+
+
+               @b_DeviceSelected = false
+            #block_end
+            #else -
+            #set 'Ln':pov'W_TapLowerIx' = 1
+         #block_end
+         #else #block
+            #DO OBJECT_TYPE_FILE:VMETHOD_LOWER_EXECUTE
+         #block_end 
+
+         #if %b_simulated #then #block
+            #set 'Ln':pov'R_TapPositionIx' = 'Ln':pov'R_TappositionIx' - 1
+            ;@TmpSetValue = %r_Scale * 0.85 + (%r_Scale * 1.15 - %r_Scale * 0.85) / (%i_MaxPosition - %i_MinPosition) * -
+            ;'Ln':pov'R_TapPositionIx'
+            @TmpSetValue = 0.85 + 0.3 * ('Ln':pov'R_TapPositionIx' - %i_MinPosition) / (%i_MaxPosition - %i_MinPosition)
+            @TmpSetValue = %TmpSetValue * %r_Scale
+            #set 'Ln':pov'R_VoltageIx' = %TmpSetValue
+         #block_end
+
+
+         @Print_User_Identification_IX=%W_TapLowerIx
+
+      #block_end
+   #block_end
+   #when "MANUAL_SELECT","MANUAL_EXECUTE" #block
+      #if %COMMAND_SELECTOR=="MANUAL_SELECT" #then #block
+
+         @CONTROL_METHOD = "STANDARD"
+         #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+            #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_MANUAL_SELECT) <> "NONE" #THEN #BLOCK
+               #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_MANUAL_SELECT) > 0 #THEN @CONTROL_METHOD = "OBJECT_TYPE"
+            #BLOCK_END
+         #BLOCK_END
+
+         @Nack = status
+         #if %CONTROL_METHOD == "STANDARD" #then #block
+            @Nack = 0
+            ;.set root._busy = true
+            #if substr(%t_StationType,1,3) == "IEC" or substr(%t_StationType,1,3) == "DNP" #then #block
+               @b_SelectionInProgress = true
+               @SELECT_LN         = %Ln
+               @SELECT_IX         = %W_AutoOffIx
+               @SELECT_VALUE      = 0
+               @CMD_TYPE          = %Control_Type
+               @STA_TYPE          = %t_StationType
+               ;@COMMAND_PARAMETER = COMMAND_PARAMETER
+               ;execute the actual set command
+               #ERROR IGNORE
+               #DO READ_TEXT("/SA_LIB/BASE/BBONE/USE/BGU_SW_SEL.TXT")
+               #ERROR STOP
+            #block_end
+         #block_end
+         #else #block
+            #DO OBJECT_TYPE_FILE:VMETHOD_MANUAL_SELECT
+         #block_end
+      #block_end
+      #else #block
+         ;@t_Message = fpu_transa:vstatus_operating
+         ;Show_Message
+         @CONTROL_METHOD = "STANDARD"
+         #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+            #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_MANUAL_EXECUTE) <> "NONE" #THEN #BLOCK
+               #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_MANUAL_EXECUTE) > 0 #THEN @CONTROL_METHOD = "OBJECT_TYPE"
+            #BLOCK_END
+         #BLOCK_END
+
+         @Nack = status
+         #if %CONTROL_METHOD == "STANDARD" #then #block
+            @nack=0
+
+            @s = status
+            #error ignore
+            @EXECUTE_LN    = %Ln
+            @EXECUTE_IX    = %W_AutoOffIx
+            #if substr(%t_StationType,1,3) == "IEC" or substr(%t_StationType,1,3) == "DNP" #then #block
+               @CMD_TYPE      = %CONTROL_TYPE
+               @STA_TYPE      = %t_StationType
+               #if %CMD_TYPE == "SEC-BO" OR %CMD_TYPE == "DIR-BO" #THEN @EXECUTE_VALUE = 0
+               #ELSE @EXECUTE_VALUE = 1
+               ;@COMMAND_PARAMETER = COMMAND_PARAMETER
+               ;execute the actual set command
+               #ERROR IGNORE
+               #DO READ_TEXT("/SA_LIB/BASE/BBONE/USE/BGU_SW_EXE.TXT")
+               #ERROR STOP
+               @nack=status
+            #block_end
+            #else -
+            #set 'Ln':pov'W_AutoOffIx' = 1
+         #block_end
+         #else #block
+            #DO OBJECT_TYPE_FILE:VMETHOD_MANUAL_EXECUTE
+         #block_end
+
+         #if %b_simulated #then #block
+            #case %i_PtType
+               #when 1 #set 'Ln':pov'R_AutoManualIx' = 0 
+               #when 2 #set 'Ln':pov'R_AutoManualIx' = 1
+               #when 3 #set 'Ln':pov'R_AutoManualIx' = 1
+               #when 4 #set 'Ln':pov'R_AutoManualIx' = 2
+            #case_end
+         #block_end
+
+         #if substr(%t_StationType,1,3) == "IEC" #then -
+         @i_StatusCode = %Nack
+         #else -
+         @i_StatusCode = status
+
+         @Print_User_Identification_IX=%W_AutoOffIx
+
+      #block_end
+   #block_end
+   #when "PARALLEL_SELECT","PARALLEL_EXECUTE" #block
+      #if %COMMAND_SELECTOR=="PARALLEL_SELECT" #then #block
+
+         @CONTROL_METHOD = "STANDARD"
+         #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+            #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_PARALLEL_SELECT) <> "NONE" #THEN #BLOCK
+               #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_PARALLEL_SELECT) > 0 #THEN @CONTROL_METHOD = "OBJECT_TYPE"
+            #BLOCK_END
+         #BLOCK_END
+
+         @Nack = status
+         #if %CONTROL_METHOD == "STANDARD" #then #block
+            @Nack = 0
+
+            @b_SelectionInProgress = true
+            @SELECT_LN         = %Ln
+            @SELECT_IX         = %W_Single_Parallel(1)
+            @SELECT_VALUE      = 1
+            @CMD_TYPE          = %t_SP_Control_Type
+            @STA_TYPE          = %t_StationType
+            ;@COMMAND_PARAMETER = COMMAND_PARAMETER
+            ;execute the actual set command
+            #ERROR IGNORE
+            #DO READ_TEXT("/SA_LIB/BASE/BBONE/USE/BGU_SW_SEL.TXT")
+            #ERROR STOP
+         #block_end
+         #else #block
+            #DO OBJECT_TYPE_FILE:VMETHOD_PARALLEL_SELECT
+         #block_end
+
+      #block_end
+      #else #block
+         ;@t_Message = fpu_transa:vstatus_operating
+         ;Show_Message
+         @CONTROL_METHOD = "STANDARD"
+         #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+            #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_PARALLEL_EXECUTE) <> "NONE" #THEN #BLOCK
+               #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_PARALLEL_EXECUTE) > 0 #THEN @CONTROL_METHOD = "OBJECT_TYPE"
+            #BLOCK_END
+         #BLOCK_END
+
+         @Nack = status
+         #if %CONTROL_METHOD == "STANDARD" #then #block
+            @nack=0
+
+            @s = status
+            ;#error ignore
+            @EXECUTE_LN    = %Ln
+            @EXECUTE_IX    = %W_Single_Parallel(3)
+            #if substr(%t_StationType,1,3) == "IEC" or substr(%t_StationType,1,3) == "DNP" #then #block
+               #if %t_StationType == "IEC61850" #then @CMD_TYPE = %t_SP_Control_Type
+               #else @CMD_TYPE      = %CONTROL_TYPE
+               @STA_TYPE      = %t_StationType
+               #if %CMD_TYPE == "SEC-BO" OR %CMD_TYPE == "DIR-BO" #THEN @EXECUTE_VALUE = 0
+               #ELSE @EXECUTE_VALUE = 1
+               ;@COMMAND_PARAMETER = COMMAND_PARAMETER
+               ;execute the actual set command
+               #ERROR IGNORE
+               #DO READ_TEXT("/SA_LIB/BASE/BBONE/USE/BGU_SW_EXE.TXT")
+               #ERROR STOP
+               @nack=status
+
+               @b_DeviceSelected = false
+            #block_end
+            #else -
+            #set 'Ln':pov'W_AutoOffIx' = 1
+            #error stop
+
+            #if substr(%t_StationType,1,3) == "IEC" #then -
+            @i_StatusCode = %Nack
+            #else -
+            @i_StatusCode = status
+         #block_end
+         #else #block
+            #DO OBJECT_TYPE_FILE:VMETHOD_PARALLEL_EXECUTE
+         #block_end
+
+         #if %b_simulated #then #set 'Ln':pov'R_ParallelIx' = 2 
+         @Print_User_Identification_IX=%W_Single_Parallel(3)
+
+      #block_end
+   #block_end
+   #when "RAISE_SELECT","RAISE_EXECUTE" #block
+      #if %COMMAND_SELECTOR=="RAISE_SELECT" #then #block
+         @CONTROL_METHOD = "STANDARD"
+         #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+            #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_RAISE_SELECT) <> "NONE" #THEN #BLOCK
+               #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_RAISE_SELECT) > 0 #THEN @CONTROL_METHOD = "OBJECT_TYPE"
+            #BLOCK_END
+         #BLOCK_END
+
+         @Nack = status
+         #if %CONTROL_METHOD == "STANDARD" #then #block
+            @Nack = 0
+            ;set root_busy = true
+            #if substr(%t_StationType,1,3) == "IEC" or substr(%t_StationType,1,3) == "DNP" #then #block
+               @b_SelectionInProgress = true
+               @SELECT_LN         = %Ln
+               @SELECT_IX         = %W_TapRaiseIx
+               @SELECT_VALUE      = 1
+               @CMD_TYPE          = %Control_Type
+               @STA_TYPE          = %t_StationType
+               ;@COMMAND_PARAMETER = COMMAND_PARAMETER
+               ;execute the actual set command
+               #ERROR IGNORE
+               #DO READ_TEXT("/SA_LIB/BASE/BBONE/USE/BGU_SW_SEL.TXT")
+               #ERROR STOP
+               @nack=status
+            #block_end
+         #block_end
+         #else #block
+            #DO OBJECT_TYPE_FILE:VMETHOD_RAISE_SELECT
+         #block_end
+
+      #block_end
+      #else #block
+         ;@t_Message = fpu_transa:vstatus_operating
+         ;Show_Message
+         @CONTROL_METHOD = "STANDARD"
+         #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+            #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_RAISE_EXECUTE) <> "NONE" #THEN #BLOCK
+               #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_RAISE_EXECUTE) > 0 #THEN @CONTROL_METHOD = "OBJECT_TYPE"
+            #BLOCK_END
+         #BLOCK_END
+
+         @Nack = status
+         #if %CONTROL_METHOD == "STANDARD" #then #block
+            @nack=0
+
+            @s = status
+            #error ignore
+            @EXECUTE_LN    = %Ln
+            @EXECUTE_IX    = %W_TapRaiseIx
+            #if substr(%t_StationType,1,3) == "IEC" or substr(%t_StationType,1,3) == "DNP" #then #block
+               @CMD_TYPE      = %CONTROL_TYPE
+               @STA_TYPE      = %t_StationType
+               #if %t_StationType == "IEC61850" #then @EXECUTE_VALUE = 2
+               #else @EXECUTE_VALUE = 1
+               ;@COMMAND_PARAMETER = COMMAND_PARAMETER
+               ;execute the actual set command
+               #ERROR IGNORE
+               #DO READ_TEXT("/SA_LIB/BASE/BBONE/USE/BGU_SW_EXE.TXT")
+               #ERROR STOP
+
+               @nack=status
+
+               ;Increment direct tap position command:
+               @IX=%CONF_DATA.W_TAP_POSITION
+               @obj_check=application_object_list(0,"IX","","","","LN==""'LN'"" AND IX=='IX'")
+               #if %obj_check.COUNT>0 #then #block
+                  #set 'LN':POV'IX'= 'LN':POV'IX'+1 
+               #block_end
+
+               @b_DeviceSelected = false
+            #block_end
+            #else -
+            #set 'Ln':pov'W_TapRaiseIx' = 1
+
+
+            #if substr(%t_StationType,1,3) == "IEC" #then -
+            @i_StatusCode = %Nack
+            #else -
+            @i_StatusCode = status
+         #block_end
+         #else #block
+            #DO OBJECT_TYPE_FILE:VMETHOD_RAISE_EXECUTE
+         #block_end
+
+         #if %b_simulated #then #block
+            #set 'Ln':pov'R_TapPositionIx' = 'Ln':pov'R_TappositionIx' + 1
+            ;@TmpSetValue = %r_Scale * 0.85 + (%r_Scale * 1.15 - %r_Scale * 0.85) / (%i_MaxPosition - %i_MinPosition) * -
+            ;'Ln':pov'R_TapPositionIx'
+            @TmpSetValue = 0.85 + 0.3 * ('Ln':pov'R_TapPositionIx' - %i_MinPosition) / (%i_MaxPosition - %i_MinPosition)
+            @TmpSetValue = %TmpSetValue * %r_Scale
+            #set 'Ln':pov'R_VoltageIx' = %TmpSetValue
+         #block_end
+
+         @Print_User_Identification_IX=%W_TapRaiseIx
+
+      #block_end
+   #block_end
+   #when "SINGLE_SELECT","SINGLE_EXECUTE" #block
+      #if %COMMAND_SELECTOR=="SINGLE_SELECT" #then #block
+         ;.set root._busy = true
+         @CONTROL_METHOD = "STANDARD"
+         #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+            #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_SINGLE_SELECT) <> "NONE" #THEN #BLOCK
+               #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_SINGLE_SELECT) > 0 #THEN @CONTROL_METHOD = "OBJECT_TYPE"
+            #BLOCK_END
+         #BLOCK_END
+
+         @Nack = status
+         #if %CONTROL_METHOD == "STANDARD" #then #block
+            @Nack = 0
+
+            @b_SelectionInProgress = true
+            @SELECT_LN         = %Ln
+            @SELECT_IX         = %W_Single_Parallel(2)
+            @SELECT_VALUE      = 1
+            @CMD_TYPE          = %t_SP_Control_Type
+            @STA_TYPE          = %t_StationType
+            ;@COMMAND_PARAMETER = COMMAND_PARAMETER
+            ;execute the actual set command
+            #ERROR IGNORE
+            #DO READ_TEXT("/SA_LIB/BASE/BBONE/USE/BGU_SW_SEL.TXT")
+            #ERROR STOP
+            @nack=status
+
+            ;         #if %Nack == 0 #then #block
+            ;            @b_DeviceSelected = true
+            ;            @t_OperationId = "SINGLE"
+            ;            @t_InfoText = fpu_transa:vexec_text1
+            ;            !win_pic subs f_use/fpu_trc
+            ;            !show subs
+         ;         #block_end
+            ;         #else #block
+            ;            @t_Message = fpu_transa:vError_Message + "'Nack'"
+            ;            .Show_Message
+         ;         #block_end
+         #block_end
+         #else #block
+            #DO OBJECT_TYPE_FILE:VMETHOD_SINGLE_SELECT
+         #block_end
+      #block_end
+      #else #block
+         ;@t_Message = fpu_transa:vstatus_operating
+         ;Show_Message
+         @CONTROL_METHOD = "STANDARD"
+         #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+            #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_SINGLE_EXECUTE) <> "NONE" #THEN #BLOCK
+               #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_SINGLE_EXECUTE) > 0 #THEN @CONTROL_METHOD = "OBJECT_TYPE"
+            #BLOCK_END
+         #BLOCK_END
+
+         @Nack = status
+         #if %CONTROL_METHOD == "STANDARD" #then #block
+            @nack=0         
+            @s = status
+            #error ignore
+            @EXECUTE_LN    = %Ln
+            @EXECUTE_IX    = %W_Single_Parallel(4)
+            #if substr(%t_StationType,1,3) == "IEC" or substr(%t_StationType,1,3) == "DNP" #then #block
+               #if %t_StationType == "IEC61850" #then @CMD_TYPE = %t_SP_Control_Type
+               #else @CMD_TYPE      = %CONTROL_TYPE
+               @STA_TYPE      = %t_StationType
+               #if %CMD_TYPE == "SEC-BO" OR %CMD_TYPE == "DIR-BO" #THEN @EXECUTE_VALUE = 0
+               #ELSE @EXECUTE_VALUE = 1
+               ;@COMMAND_PARAMETER = COMMAND_PARAMETER
+               ;execute the actual set command
+               #ERROR IGNORE
+               #DO READ_TEXT("/SA_LIB/BASE/BBONE/USE/BGU_SW_EXE.TXT")
+               #ERROR STOP
+               @nack=status
+               @b_DeviceSelected = false
+            #block_end
+            #else -
+            #set 'Ln':pov'W_AutoOffIx' = 1
+
+            #if substr(%t_StationType,1,3) == "IEC" #then -
+            @i_StatusCode = %Nack
+            #else -
+            @i_StatusCode = status
+         #block_end
+         #else #block
+            #DO OBJECT_TYPE_FILE:VMETHOD_SINGLE_EXECUTE
+         #block_end
+
+         #if %b_simulated #then #set 'Ln':pov'R_ParallelIx' = 1 
+
+         @Print_User_Identification_IX=%W_Single_Parallel(4)
+
+      #block_end
+   #block_end
+   #when "REF_VOLTAGE_SELECT","REF_VOLTAGE_EXECUTE" #block
+      #if %COMMAND_SELECTOR=="REF_VOLTAGE_SELECT" #then #block
+         @CONTROL_METHOD = "STANDARD"
+         #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+            #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_REF_VOLTAGE_SELECT) <> "NONE" #THEN #BLOCK
+               #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_REF_VOLTAGE_SELECT) > 0 #THEN @CONTROL_METHOD = "OBJECT_TYPE"
+            #BLOCK_END
+         #BLOCK_END
+
+         @Nack = status
+         #if %CONTROL_METHOD == "STANDARD" #then #block
+         #block_end
+         #else #block
+            #DO OBJECT_TYPE_FILE:VREF_VOLTAGE_SELECT
+         #block_end
+      #block_end
+      #else #block
+         @CONTROL_METHOD = "STANDARD"
+         @Execute_Ln = %Ln
+         @Execute_Ix = %CONF_DATA.W_REF_VOLTAGE
+         #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+            #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_REF_VOLTAGE_EXECUTE) <> "NONE" #THEN #BLOCK
+               #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_REF_VOLTAGE_EXECUTE) > 0 #THEN @CONTROL_METHOD = "OBJECT_TYPE"
+            #BLOCK_END
+         #BLOCK_END
+
+         @Nack = status
+         #if %CONTROL_METHOD == "STANDARD" #then #block
+
+            @LN=%DAT_FILE.P_OBJECT_LN
+            @IX=%CONF_DATA.W_REF_VOLTAGE
+            #SET 'LN':POV'IX'=argument(4)
+            #if %b_Simulated #then #block
+               @IX=%CONF_DATA.R_REF_VOLTAGE
+               #SET 'LN':POV'IX'=argument(4)
+            #block_end
+         #block_end
+         #else #block
+            #DO OBJECT_TYPE_FILE:VMETHOD_REF_VOLTAGE_EXECUTE
+         #block_end
+      #block_end
+   #block_end
+   #when "TAP_POSITION_DIRECT_SELECT","TAP_POSITION_DIRECT_EXECUTE" #block
+      #if %COMMAND_SELECTOR=="TAP_POSITION_DIRECT_SELECT" #then #block
+         @CONTROL_METHOD = "STANDARD"
+         #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+            #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_TAP_POSITION_DIRECT_SELECT) <> "NONE" #THEN #BLOCK
+               #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_TAP_POSITION_DIRECT_SELECT) > 0 #THEN @CONTROL_METHOD = "OBJECT_TYPE"
+            #BLOCK_END
+         #BLOCK_END
+
+         @Nack = status
+         #if %CONTROL_METHOD == "STANDARD" #then #block
+         #block_end
+         #else #block
+            #DO OBJECT_TYPE_FILE:VMETHOD_TAP_POSITION_DIRECT_SELECT
+         #block_end
+      #block_end
+      #else #block
+         @Nack = status
+         @LN=%DAT_FILE.P_OBJECT_LN
+         @IX=%CONF_DATA.W_TAP_POSITION
+         #SET 'LN':POV'IX'=argument(4)
+         #if %b_Simulated #then #block
+            @IX=%CONF_DATA.R_TAP_POSITION
+            #SET 'LN':POV'IX'=argument(4)
+            @TmpSetValue = 0.85 + 0.3 * ('Ln':pov'R_TapPositionIx' - %i_MinPosition) / (%i_MaxPosition - %i_MinPosition)
+            @TmpSetValue = %TmpSetValue * %r_Scale
+            #set 'Ln':pov'R_VoltageIx' = %TmpSetValue
+         #block_end
+      #block_end
+   #block_end
+   #when "SLAVE_SELECT","SLAVE_EXECUTE" #block
+      #if %COMMAND_SELECTOR=="SLAVE_SELECT" #then #block
+         @CONTROL_METHOD = "STANDARD"
+         #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+            #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_SLAVE_SELECT) <> "NONE" #THEN #BLOCK
+               #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_SLAVE_SELECT) > 0 #THEN @CONTROL_METHOD = "OBJECT_TYPE"
+            #BLOCK_END
+         #BLOCK_END
+
+         @Nack = 0  
+         #if %CONTROL_METHOD == "STANDARD" #then #block
+            #if substr(%t_StationType,1,3) == "IEC"  or substr(%t_StationType,1,3) == "DNP" #then #block
+               @b_SelectionInProgress = true
+               @SELECT_LN         = %Ln
+               @SELECT_IX         = %W_SlaveIx
+               @SELECT_VALUE      = 1
+               @CMD_TYPE          = %Control_Type
+               @STA_TYPE          = %t_StationType
+               ;@COMMAND_PARAMETER = %COMMAND_PARAMETER
+               ;execute the actual set command
+               #ERROR IGNORE
+               #DO READ_TEXT("/SA_LIB/BASE/BBONE/USE/BGU_SW_SEL.TXT")
+               #ERROR STOP
+            #block_end
+         #block_end
+         #else #block
+            #DO OBJECT_TYPE_FILE:VMETHOD_SLAVE_SELECT
+         #block_end
+      #block_end
+      #else #block
+         ;@t_Message = fpu_transa:vstatus_operating
+         ;Show_Message
+
+         @CONTROL_METHOD = "STANDARD"
+         #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+            #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_SLAVE_EXECUTE) <> "NONE" #THEN #BLOCK
+               #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_SLAVE_EXECUTE) > 0 #THEN @CONTROL_METHOD = "OBJECT_TYPE"
+            #BLOCK_END
+         #BLOCK_END
+
+         @Nack = status
+         #if %CONTROL_METHOD == "STANDARD" #then #block
+            #error ignore
+            @EXECUTE_LN    = %Ln
+            @EXECUTE_IX    = %W_SlaveIx
+            #if substr(%t_StationType,1,3) == "RTU" #then -
+            #set 'Ln':pov'W_SlaveIx' = 0
+            #else_if substr(%t_StationType,1,3) == "IEC" or substr(%t_StationType,1,3) == "DNP" #then #block
+               @CMD_TYPE      = %CONTROL_TYPE
+               @STA_TYPE      = %t_StationType
+               @EXECUTE_VALUE = 1
+               ;@COMMAND_PARAMETER = COMMAND_PARAMETER
+               ;execute the actual set command
+               #ERROR IGNORE
+               #DO READ_TEXT("/SA_LIB/BASE/BBONE/USE/BGU_SW_EXE.TXT")
+               #ERROR STOP
+            #block_end 
+            #else -
+            #set 'Ln':pov'W_SlaveIx' = 1
+         #block_end
+         #else #block
+            #DO OBJECT_TYPE_FILE:VMETHOD_SLAVE_EXECUTE
+         #block_end
+
+         #if %b_simulated #then #block
+            #set 'Ln':pov'R_SlaveIx' = 1 
+            #set 'Ln':pov'R_MasterIx' = 0 
+         #block_end
+
+         #if substr(%t_StationType,1,3) == "IEC" #then -
+         @i_StatusCode = %Nack
+         #else -
+         @i_StatusCode = status
+
+         @Print_User_Identification_IX=%W_AutoOnIx
+
+      #block_end
+   #block_end
+   #when "MASTER_SELECT","MASTER_EXECUTE" #block
+      #if %COMMAND_SELECTOR=="MASTER_SELECT" #then #block
+         @CONTROL_METHOD = "STANDARD"
+         #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+            #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_MASTER_SELECT) <> "NONE" #THEN #BLOCK
+               #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_MASTER_SELECT) > 0 #THEN @CONTROL_METHOD = "OBJECT_TYPE"
+            #BLOCK_END
+         #BLOCK_END
+
+         @Nack = 0  
+         #if %CONTROL_METHOD == "STANDARD" #then #block
+            #if substr(%t_StationType,1,3) == "IEC"  or substr(%t_StationType,1,3) == "DNP" #then #block
+               @b_SelectionInProgress = true
+               @SELECT_LN         = %Ln
+               @SELECT_IX         = %W_MasterIx
+               @SELECT_VALUE      = 1
+               @CMD_TYPE          = %Control_Type
+               @STA_TYPE          = %t_StationType
+               ;@COMMAND_PARAMETER = %COMMAND_PARAMETER
+               ;execute the actual set command
+               #ERROR IGNORE
+               #DO READ_TEXT("/SA_LIB/BASE/BBONE/USE/BGU_SW_SEL.TXT")
+               #ERROR STOP
+            #block_end
+         #block_end
+         #else #block
+            #DO OBJECT_TYPE_FILE:VMETHOD_MASTER_SELECT
+         #block_end
+      #block_end
+      #else #block
+         ;@t_Message = fpu_transa:vstatus_operating
+         ;Show_Message
+
+         @CONTROL_METHOD = "STANDARD"
+         #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+            #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_MASTER_EXECUTE) <> "NONE" #THEN #BLOCK
+               #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_MASTER_EXECUTE) > 0 #THEN @CONTROL_METHOD = "OBJECT_TYPE"
+            #BLOCK_END
+         #BLOCK_END
+
+         @Nack = status
+         #if %CONTROL_METHOD == "STANDARD" #then #block
+            #error ignore
+            @EXECUTE_LN    = %Ln
+            @EXECUTE_IX    = %W_MasterIx
+            #if substr(%t_StationType,1,3) == "RTU" #then -
+            #set 'Ln':pov'W_MasterIx' = 0
+            #else_if substr(%t_StationType,1,3) == "IEC" or substr(%t_StationType,1,3) == "DNP" #then #block
+               @CMD_TYPE      = %CONTROL_TYPE
+               @STA_TYPE      = %t_StationType
+               @EXECUTE_VALUE = 1
+               ;@COMMAND_PARAMETER = COMMAND_PARAMETER
+               ;execute the actual set command
+               #ERROR IGNORE
+               #DO READ_TEXT("/SA_LIB/BASE/BBONE/USE/BGU_SW_EXE.TXT")
+               #ERROR STOP
+            #block_end 
+            #else -
+            #set 'Ln':pov'W_MasterIx' = 1
+         #block_end
+         #else #block
+            #DO OBJECT_TYPE_FILE:VMETHOD_MASTER_EXECUTE
+         #block_end
+
+         #if %b_simulated #then #block
+            #set 'Ln':pov'R_SlaveIx' = 0 
+            #set 'Ln':pov'R_MasterIx' = 1 
+         #block_end
+
+         #if substr(%t_StationType,1,3) == "IEC" #then -
+         @i_StatusCode = %Nack
+         #else -
+         @i_StatusCode = status
+
+         @Print_User_Identification_IX=%W_AutoOnIx
+
+      #block_end
+   #block_end
+   #when "STATION_EXECUTE", "NCC_EXECUTE" #block
+      @Nack = status
+      #if %command_selector == "STATION_EXECUTE" #then @execute_value = 1
+      #else @execute_value = 0
+      
+      #set 'Ln':pov'conf_data:vw_device_locsta_cmd_ix' = %execute_value         
+      #if not ('Ln':pss'conf_data:vw_device_locsta_cmd_ix' > 1 and 'Ln':pun'conf_data:vw_device_locsta_cmd_ix' <> 0) #then #block
+         #pause 0.1
+         #set 'Ln':p'conf_data:vr_device_locsta_ix' = %execute_value
+      #block_end
+      @Nack = status
+   #block_end
+   #when "GET_STRING_REPLACEMENTS" #block
+      @result=list()
+      #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_GET_STRING_REPLACEMENTS) <> "NONE" #THEN #BLOCK
+         @language=argument(3)
+         @result=DO(OBJECT_TYPE_FILE:VMETHOD_GET_STRING_REPLACEMENTS)
+      #BLOCK_END
+      #if %b_enable_debugging #then @trash=trace_end
+      #return %result
+   #block_end
+#case_end
+
+#return %NACK

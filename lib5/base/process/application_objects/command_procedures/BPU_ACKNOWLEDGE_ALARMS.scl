@@ -1,0 +1,45 @@
+;Function: BPU_ACKNOWLEDGE_ALARMS:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_acknowledge_alarms.scl
+;Version: 1.0
+;Parameters: 
+;Return data: 
+;Description: 
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+
+#argument l_object_info, l_Data, v_Alarms
+#local i, t_LN, i_IX
+
+;****************************************************************************************************
+;redirect command if application specific command procedure is found                               ;*
+#local t_Redirect_Proc = "APLMOD5_BPU_ACKNOWLEDGE_ALARMS"                                              ;*
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    ;*
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            ;*
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 ;*
+		#if 't_Redirect_Proc':CIU == 1 #then #block                                                  ;*
+			@REDIRECTED = true                                                                        ;*
+			i_ArgCnt = argument_count                                                                 ;*
+			#if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"						      ;*
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" ;*
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"											      ;*
+			#loop_with i_arg_loop = 1 .. i_ArgCnt                                                     ;*
+				t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    ;*
+				#if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        ;*
+			#loop_end                                                                                 ;*
+			#return 't_Redirect_Command' ;;;;;                                                        ;*
+		#block_end                                                                                   ;*
+	#block_end                                                                                      ;*
+	#else #delete REDIRECTED:V                                                                      ;*
+#block_end                                                                                         ;*
+;****************************************************************************************************
+;MAIN START
+
+#loop_with i = 1 .. length(v_Alarms)
+	
+	t_LN = v_Alarms(i).LN
+	i_IX = V_Alarms(i).IX
+	#set 't_LN':par'i_IX' = 1
+	
+#loop_end

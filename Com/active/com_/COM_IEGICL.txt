@@ -1,0 +1,29 @@
+﻿; This command procedure is used for reseting GI data in IEC101S queues of pc_net
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @COM_EXCLUSIVE_STA_NUMBER, number of the STA object of the NCC sending GI command
+;         @COM_ORIGINATOR, originator address of the NCC
+;         @COM_IEC_GRP, group number
+;         @ASDU_TYPE, number of ASDU type
+;------------------------------------------------------------------------------------
+
+@ENABLE_LOGGING = COM_GENVAR:PBZ(3)
+
+;send deactivation confirmation
+#SET STA'COM_EXCLUSIVE_STA_NUMBER':SCF = (256*%COM_ORIGINATOR+9,0,ROUND(%ASDU_TYPE))
+
+#SET STA'COM_EXCLUSIVE_STA_NUMBER':SRS=(3,%COM_IEC_GRP) 
+
+#SET STA'COM_EXCLUSIVE_STA_NUMBER':SRS=(3,10) 
+
+#IF %ENABLE_LOGGING #THEN #BLOCK ; 1
+   @TIME = HR_CLOCK
+   @RT = TIMES(TIME:VCL)
+   @RM = ROUND(TIME:VUS/1000)      
+   @INFO="'rt':'rm',IEGICL,'COM_EXCLUSIVE_STA_NUMBER',,,Deactivation confirmation,,,,0,,,,,,,,,,,,"
+   #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+   #ELSE #DO COM_LOG:CIN 
+#BLOCK_END

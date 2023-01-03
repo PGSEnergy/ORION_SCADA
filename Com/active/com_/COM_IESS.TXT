@@ -1,0 +1,69 @@
+﻿; This command procedure is used for handling IEC101S system commands
+; in a COM application 
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @LN, @IX, @BS, @OG, from the IEC system command process object
+;--------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+@CMD_ADDR = 0
+@IEC104=FALSE
+
+;STA number and originator address of the NCC
+@NCC_STA_NR = 'LN':PUN'IX'       
+@ORIGINATOR = 'LN':POG'IX'
+
+; check for IEC104 or IEC101
+#ERROR IGNORE
+@S=STATUS
+@IEC104_IP_ADDR = STA'NCC_STA_NR':SIA
+#IF STATUS==0 #THEN @IEC104=TRUE
+@S=STATUS
+#ERROR CONTINUE
+
+@ENABLE_LOGGING = COM_GENVAR:PBZ(3)
+
+;unpack the system command
+@SYS_CMD = UNPACK_STR(%BS,8)
+
+; type of command in IEC104 or IEC101
+#IF %IEC104 #THEN #BLOCK  
+   @CMD_TYPE = %SYS_CMD(2)
+   @STA_ADDR_END = 3 + STA'NCC_STA_NR':SPL + STA'NCC_STA_NR':SCL + STA'NCC_STA_NR':SSL
+   @COT_FIELD = %SYS_CMD(4)
+#BLOCK_END
+#ELSE #BLOCK ; IEC101
+   @CMD_TYPE = %SYS_CMD(2+STA'NCC_STA_NR':SPL)
+   @STA_ADDR_END = 3 + STA'NCC_STA_NR':SPL + STA'NCC_STA_NR':SCL + STA'NCC_STA_NR':SSL
+   @COT_FIELD = %SYS_CMD(4+STA'NCC_STA_NR':SPL)
+#BLOCK_END
+
+;address of the command
+#LOOP_WITH I = 1..(STA'NCC_STA_NR':SIL)
+  @CMD_ADDR = %CMD_ADDR + (256**(%I-1))*(%SYS_CMD(%STA_ADDR_END+%I))
+#LOOP_END
+@PN_BIT = BIT(%COT_FIELD,6)
+@COT = %COT_FIELD MOD 64
+
+#IF %PN_BIT <> 0 OR %COT <> 6 #THEN #BLOCK
+ #SET STA'NCC_STA_NR':SCF = (256*%ORIGINATOR+7+64,ROUND(%CMD_ADDR),%CMD_TYPE)
+#BLOCK_END
+#ELSE #SET STA'NCC_STA_NR':SCF = (256*%ORIGINATOR+7,ROUND(%CMD_ADDR),%CMD_TYPE)
+
+#IF %ENABLE_LOGGING #THEN #BLOCK
+   @INFO="'rt':'rm',IESS,'NCC_STA_NR','LN':P'IX',,IEC system command received,,,,,,,,,,,,,,,,"
+   #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+   #ELSE #DO COM_LOG:CIN
+   @TIME = HR_CLOCK
+   @RT = TIMES(TIME:VCL)
+   @RM = ROUND(TIME:VUS/1000)      
+   @LOG_ADDR = ROUND(%CMD_ADDR)
+   @INFO="'rt':'rm',IESS,'NCC_STA_NR',,,Activation confirmation,,,,'LOG_ADDR',,,,,,,,,,,,"
+   #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+   #ELSE #DO COM_LOG:CIN 
+#BLOCK_END
+

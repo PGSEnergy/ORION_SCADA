@@ -1,0 +1,48 @@
+#IF SG_FONT:VHE==20 #THEN #BLOCK
+
+@X_SFONDESC = LIST(-
+   SCOPE_OF_SETTINGS   = "SYSTEM",-
+   FONT_1 = LIST(FAMILY = "Times New Roman" ,FACE = "Bold"   ,POINT_SIZE = 24),-
+   FONT_2 = LIST(FAMILY = "Times New Roman" ,FACE = "Medium" ,POINT_SIZE = 16),-
+   FONT_3 = LIST(FAMILY = "Times New Roman" ,FACE = "Medium" ,POINT_SIZE = 10),-
+   FONT_4 = LIST(FAMILY = "Arial"           ,FACE = "Bold"   ,POINT_SIZE = 24),-
+   FONT_5 = LIST(FAMILY = "Arial"           ,FACE = "Medium" ,POINT_SIZE = 16),-
+   FONT_6 = LIST(FAMILY = "Arial"           ,FACE = "Medium" ,POINT_SIZE = 10),-
+   FONT_7 = LIST(FAMILY = "Courier New"     ,FACE = "Bold"   ,POINT_SIZE = 24),-
+   FONT_8 = LIST(FAMILY = "Courier New"     ,FACE = "Bold"   ,POINT_SIZE = 16),-
+   FONT_9 = LIST(FAMILY = "Courier New"     ,FACE = "Medium" ,POINT_SIZE = 10),-
+   FONT_10 = LIST(FAMILY = "MS LineDraw"    ,FACE = "Medium" ,POINT_SIZE = 15),-
+   FONT_12 = LIST(FAMILY = "MicroSCALO1620"                  ,POINT_SIZE = 20))
+#BLOCK_END; (#IF SG_FONT:VHE==20)
+
+#IF SG_FONT:VHE==15 #THEN #BLOCK
+@X_SFONDESC = LIST(-
+   SCOPE_OF_SETTINGS   = "SYSTEM",-
+   FONT_1 = LIST(FAMILY = "Times New Roman" ,FACE = "Bold"   ,POINT_SIZE = 18),-
+   FONT_2 = LIST(FAMILY = "Times New Roman" ,FACE = "Medium" ,POINT_SIZE = 12),-
+   FONT_3 = LIST(FAMILY = "Times New Roman" ,FACE = "Medium" ,POINT_SIZE = 8),-
+   FONT_4 = LIST(FAMILY = "Arial"           ,FACE = "Bold"   ,POINT_SIZE = 18),-
+   FONT_5 = LIST(FAMILY = "Arial"           ,FACE = "Medium" ,POINT_SIZE = 12),-
+   FONT_6 = LIST(FAMILY = "Arial"           ,FACE = "Medium" ,POINT_SIZE = 8),-
+   FONT_7 = LIST(FAMILY = "Courier New"     ,FACE = "Bold"   ,POINT_SIZE = 18),-
+   FONT_8 = LIST(FAMILY = "Courier New"     ,FACE = "Medium" ,POINT_SIZE = 12),-
+   FONT_9 = LIST(FAMILY = "Courier New"     ,FACE = "Medium" ,POINT_SIZE = 8),-
+   FONT_10 = LIST(FAMILY = "MS LineDraw"    ,FACE = "Medium" ,POINT_SIZE = 11),-
+   FONT_12 = LIST(FAMILY = "MicroSCALO1215"                  ,POINT_SIZE = 15))
+#BLOCK_END; (#IF SG_FONT:VHE==15
+
+#IF SG_FONT:VHE==10 #THEN #BLOCK
+@X_SFONDESC = LIST(-
+   SCOPE_OF_SETTINGS   = "SYSTEM",-
+   FONT_1 = LIST(FAMILY = "Times New Roman" ,FACE = "Bold"   ,POINT_SIZE = 12),-
+   FONT_2 = LIST(FAMILY = "Times New Roman" ,FACE = "Medium" ,POINT_SIZE = 7),-
+   FONT_3 = LIST(FAMILY = "Times New Roman" ,FACE = "Medium" ,POINT_SIZE = 6),-
+   FONT_4 = LIST(FAMILY = "Arial"           ,FACE = "Bold"   ,POINT_SIZE = 12),-
+   FONT_5 = LIST(FAMILY = "Arial"           ,FACE = "Medium" ,POINT_SIZE = 8),-
+   FONT_6 = LIST(FAMILY = "Arial"           ,FACE = "Medium" ,POINT_SIZE = 6),-
+   FONT_7 = LIST(FAMILY = "Courier New"     ,FACE = "Bold"   ,POINT_SIZE = 12),-
+   FONT_8 = LIST(FAMILY = "Courier New"     ,FACE = "Medium" ,POINT_SIZE = 8),-
+   FONT_9 = LIST(FAMILY = "Courier New"     ,FACE = "Medium" ,POINT_SIZE = 6),-
+   FONT_10 = LIST(FAMILY = "MS LineDraw"    ,FACE = "Medium" ,POINT_SIZE = 8),-
+   FONT_12 = LIST(FAMILY = "MicroSCALO0810"                  ,POINT_SIZE = 10))
+#BLOCK_END; (#IF SG_FONT:VHE==10

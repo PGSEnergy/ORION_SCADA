@@ -1,0 +1,32 @@
+; File: SSS_LogInit.scl()
+; Version: SYS 600 9.3
+; Parameters: none
+; Description: The log file initialization for the SYS 600 System Self Supervision at system start-up
+; ----------------------------------------------------------------------------------------------------
+
+;read in system start-time
+@l_System_Configuration = SYS:BSV2
+
+;define events
+#if length(select(list_attr(%l_System_Configuration), "==""L_SYSTEM_START_TIME""")) > 0 #then #block
+   
+   ;define system start-time
+   @l_System_Start_Time = l_System_Configuration:vL_SYSTEM_START_TIME 
+   @RT = l_System_Start_Time:vCL
+   @RM = l_System_Start_Time:vUS div 1000
+
+   ;common system message events
+   @i_Log_Write = do(apl:bsv40, "SSS", "WriteLogItem", "STE", "acINIT")
+
+   ;unknown process object events
+   @i_Log_Write = do(apl:bsv40, "SSS", "WriteLogItem", "UPE", "acINIT")
+   
+   ;operating system events
+   #if SYS:BOE == 1 #then #block
+      @i_Log_Write = do(apl:bsv40, "SSS", "WriteLogItem", "OSE", "acINIT", "SYSTEM")
+      @i_Log_Write = do(apl:bsv40, "SSS", "WriteLogItem", "OSE", "acINIT", "SECURITY")
+      @i_Log_Write = do(apl:bsv40, "SSS", "WriteLogItem", "OSE", "acINIT", "APPLICATION")
+   #block_end
+
+#block_end
+   #else_if SYS:BSH == 0 #then @i_MsgLog = do(read_text("sys_tool/MsgLog.scl"), "INFO [SSS]", "Could not generate system start time to the log files (SSS_LogInit.scl)")

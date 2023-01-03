@@ -1,0 +1,133 @@
+#------------------------------------------------------------------------------
+# DataViews Configuration File
+#------------------------------------------------------------------------------
+
+# Mandatory DV-Draw variable
+
+DVDEVICE                = GDI       # device name
+
+# Note: there is no need to set an environment variable called DVHOME.
+
+
+# The DV-Tools TInit function gets the value of DVHOME from the registry path
+# HKEY_LOCAL_MACHINE\Software\DataViews\DVtools and uses that to create a 
+# process-level DVHOME environment variable. Setting a user-level environment
+# variable will have no effect on the resolution of DVPATH.
+
+DVPATH = "%DVHOME%\palette;%DVHOME%\etc;%DVHOME%\lib;%DVHOME%\lib\views;%DVHOME%\lib\fonts;%DVHOME%\lib\images;%DVHOME%\lib\icons;%DVHOME%\lib\templates;%DVHOME%\lib\templates\drawings;%DVHOME%\support"
+
+
+# DVdraw-only variables
+
+DVASCIISAVE             = yes   # Save view files in ascii?
+SAVECOLORASINDEX        = yes   # Controls save mode for colors (index=yes, rgb=no)
+
+DVDRAG_COLOR            = 0     # XOR Color for dragging (0==object color)
+DVIHSTB                 = "ih.stb"  # Interaction handlers edit table
+DVMODAL                 = no    # Always use modal approach for object creation?
+DVPRESERVERGB           = no    # Preserve RGB values?
+DVRUBBERBAND            = yes   # Use Dragging/Rubberbanding?
+DVSTRIP_SD_DIRNAMES     = no    # Strip dir names from subdrawing, template,
+                                #  and pixel image filenames?
+
+# General variables
+
+DVPORTABLE_LINETYPES    = 0     # Use the 6 Windows line types (0) or use
+                                #  the 16 portable line types (1) or use
+                                #  Visio line types (2)?  See values for
+                                #  DV_LINESTYLE_MODE in DVBaseInterfaceTypes.h
+DVAVOID_INV_UPDATE      = yes   # Avoid updating invisible graphs?
+
+#DVGRID_SPACING         = 256   # Global grid space setting
+DVGRID_SPACING          = 1000  # Modified for PP
+
+## DVCOLORTABLE         = your_color_table     # Alternate colortable: file of rgb values
+DVCOLORTABLE            = SYS600_colors.clut   # Modified for PP - DO NOT CHANGE!
+
+DVDEVICE_WIDE_LINES     = yes   # Under X, use the driver to draw wide lines?
+DVFDS_CATCH_SIGNAL      = no    # Catch signal if FDSet function fails?
+#DVMATCH_COLORS         = yes   # Match colors to current palette when
+                                #  creating images and icons?
+DVMATCH_COLORS          = no    # Modified for PP
+
+DVMAXSFONTS 16                  # maximum number of scalable fonts to
+                                #  cache at one time
+DVSAVEDYNSTATE          = no    # Save dynamic state
+DVSILENT_FILESEARCH     = no    # Don't complain before seeking a file beyond
+                                #  specified path?
+DVUSE_KEYRELEASE_IN_BUTTON  = no    # Generate "Done" on key release
+                                #  instead of on key press?
+# DVVIEW                  = your_view # Starting view name
+
+DVMOUSEOVERFILTER       = 272   # set the mouse over filter,
+								# old default is named objects only
+                                #  0: DV_MOUSEOVER_ANY_OBJECT
+                                #  1: DV_MOUSEOVER_NAMED_OBJECTS
+                                #  2: DV_MOUSEOVER_NO_OBJECTS
+                                #  3: DV_MOUSEOVER_HREF_OBJECTS
+								# To use a custom highlight color set DVMOUSEOVERFILTER to the desired color index + 256
+								# For example, 272 is the color index 272-256=16 (Frame Highlight color)
+
+HIGHLIGHT_SHADOW        = 17    # Shadow color index for highlight rectangle 
+HIGHLIGHT_OFFSET        = 0     # Offset for highlight rectangle - negative means absolute, positive percentage of box size (100 max)
+HIGHLIGHT_THICKNESS     = 2     # Thickness for highlight rectangle - positive means absolute thickness 
+
+MOUSEMOVE_COLLAPSE      = 30    # Collaps MouseMove events in a certain ms interval.
+								# * 0 disables any collaps, else interval in milliseconds
+
+# Windows-only variables
+#DVPATHCOLLAPSE         = no    # Remove non-existent directories from search
+                                #  path?
+DVPATHCOLLAPSE          = yes   # Modified for PP
+
+# DVTOOLTIP_LIFESPAN     = 3000 # Tooltip timeout value in milliseconds
+
+
+# Initial heap sizes  (general)
+
+DVARINITIALHEAPSIZE     =    50 # arc (ar) initial heap size
+DVCIINITIALHEAPSIZE     =    50 # circle (ci) initial heap size
+DVCOINITIALHEAPSIZE     =    50 # color (co) initial heap size
+DVDQINITIALHEAPSIZE     =    50 # deque (dq) initial heap size
+DVDGINITIALHEAPSIZE     =    50 # datagroup (dg) initial heap size
+DVDRINITIALHEAPSIZE     =    50 # drawing (dr) initial heap size
+DVDYINITIALHEAPSIZE     =    50 # dynamic control (dy) initial heap size
+DVEDGEINITIALHEAPSIZE   =    50 # edge (ed) initial heap size
+DVELINITIALHEAPSIZE     =    50 # ellipse (el) initial heap size
+DVFEINITIALHEAPSIZE     =    50 # fe initial heap size
+DVICONINITIALHEAPSIZE   =    50 # icon (ic) initial heap size
+DVIMAGEINITIALHEAPSIZE  =    50 # image (im) initial heap size
+DVININITIALHEAPSIZE     =    50 # input (in) initial heap size
+DVITINITIALHEAPSIZE     =    50 # input technique (it) initial heap size
+DVLNINITIALHEAPSIZE     =   200 # line (ln) initial heap size
+DVLOINITIALHEAPSIZE     =     5 # location (lo) initial heap size
+DVMCINITIALHEAPSIZE     =    50 # ms control (mc) initial heap size
+DVNODEINITIALHEAPSIZE   =    50 # node (no) initial heap size
+DVPMINITIALHEAPSIZE     =    50 # pixmap (pm) initial heap size
+DVPTINITIALHEAPSIZE     = 16000 # point (pt) initial heap size
+DVPYINITIALHEAPSIZE     =   500 # polygon (py) initial heap size
+DVREINITIALHEAPSIZE     =   500 # rectangle (re) initial heap size
+DVRUINITIALHEAPSIZE     =    50 # rule (ru) initial heap size
+DVSCINITIALHEAPSIZE     =    50 # screen (sc) initial heap size
+DVSDINITIALHEAPSIZE     =    50 # subdrawing (sd) initial heap size
+DVSFINITIALHEAPSIZE     =    50 # scaleable font text (sf) initial heap size
+DVSKINITIALHEAPSIZE     =    50 # slotkey (sk) initial heap size
+DVSLINITIALHEAPSIZE     =    50 # sl initial heap size
+DVSMINITIALHEAPSIZE     =     5 # stream (sm) initial heap size
+DVTTINITIALHEAPSIZE     =    50 # threshold table (tt) initial heap size
+DVTXINITIALHEAPSIZE     =    50 # hardware text (tx) initial heap size
+DVVDINITIALHEAPSIZE     =    50 # variable descriptor (vd) initial heap size
+DVVPINITIALHEAPSIZE     =    50 # viewport (vp) initial heap size
+DVVTINITIALHEAPSIZE     =    50 # vector text (vt) initial heap size
+DVXFINITIALHEAPSIZE     =    50 # transform (xf) initial heap size
+
+
+# Global key bindings for input objects
+
+# DVCANCEL_KEYS (none)
+# DVCLEAR_KEYS (none)                     # affects text and text edit input
+                                          #  objects only
+# DVDONE_KEYS (none)
+DVRESTORE_KEYS          = "<RIGHT>"
+DVSELECT_KEYS           = "<LEFT>"
+DVTOGGLE_POLLING_KEYS   = "<MIDDLE>"    # affects 2D-slider input object only

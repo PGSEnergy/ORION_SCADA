@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Markku Hamarila/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">QualityTexts</Parameter>
+		<Parameter name="Caption">objectTypeCaption</Parameter>
+		<Parameter name="Description">ObjectTypeDesc</Parameter>
+		<Parameter name="Group">Event Classes</Parameter>
+		<Parameter name="Type">EVENT</Parameter>
+		<Parameter name="IconFileName">ae.ico</Parameter>
+		<Parameter name="Tools"/>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="Visible">False</Parameter>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="PCMObjectType">QualityTextsEventGroup</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+	<Parameters type="SCLExport">
+		<Export name="CDATA">BaseType, Good, Questionable, Invalid, OutOfRange, BadReference, Oscillatory, OldData, Inconsistent, Inaccurate, Overflow, Failure, Process, Substituted, Test_False, Test_True, OperatorBlocked_False, OperatorBlocked_True</Export>
+	</Parameters>
+	<Properties type="PropertyDefinitions">
+		<Property name="BaseType" category="[010]Basic">
+			<Value>Quality Texts</Value>
+			<DescID>Base Type of Quality Texts</DescID>
+			<CaptionID>Base Type</CaptionID>
+			<Values type="singleChoice">
+				<Enum textID="Quality Texts" value="Quality Texts"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RRR</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="OPCObjectType" category="[010] Basic">
+			<Value>Event Class</Value>
+			<DescID>OPCObjectTypeDesc</DescID>
+			<CaptionID>OPCObjectType</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHR</Access>
+			<AttributeName>OPCObjectType</AttributeName>
+		</Property>
+		<Property name="Good" category="[020] Quality Text">
+			<Value>good</Value>
+			<DescID>No abnormal condition of the acquisition function or the information source is detected.</DescID>
+			<CaptionID>Good</CaptionID>
+			<Values type="string">
+				</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="Questionable" category="[020] Quality Text">
+			<Value>questionable</Value>
+			<DescID>A supervision function detects an abnormal behaviour, however the value could still be valid. The client shall be responsible for determining whether or not values marked "questionable" should be used.</DescID>
+			<CaptionID>Questionable</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="Invalid" category="[020] Quality Text">
+			<Value>invalid</Value>
+			<DescID>An abnormal condition of the acquisition function or the information source (missing or non-operating updating devices) is detected. The value shall not be defined under this condition. The mark invalid shall be used to indicate to the client that the value may be incorrect and shall not be used</DescID>
+			<CaptionID>Invalid</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="OutOfRange" category="[020] Quality Text">
+			<Value>out of range</Value>
+			<DescID>The attribute to which the quality has been associated is beyond a predefined range of values. The server shall decide if validity shall be set to invalid or questionable (used for measurand information only).</DescID>
+			<CaptionID>Out Of Range</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="Oscillatory" category="[020] Quality Text">
+			<Value>oscillatory</Value>
+			<DescID>If a signal changes in a defined time (tosc) twice in the same direction (from 0 to 1 or from 1 to 0) then it shall be defined as an oscillation and the detail quality identifier "oscillatory" shall be set. If a configured number of transient changes is detected, they shall be suppressed. In this time the validity status "questionable" shall be set. If the signal is still in the oscillating state after the defined number of changes, the value shall be left in the state it was in when the oscillatory flag was set. In this case the validity status "questionable" shall be reset and "invalid" shall be set as long as the signal is oscillating. If the configuration is such that all transient changes should be suppressed, the validity status "invalid" shall be set immediately in addition to the detail quality identifier "oscillatory" (used for status information only).</DescID>
+			<CaptionID>Oscillatory</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="OldData" category="[020] Quality Text">
+			<Value>old data</Value>
+			<DescID>An update is not made during a specific time interval. The value may be an old value that may have changed in the meantime. This specific time interval may be defined by an allowed-age attribute.</DescID>
+			<CaptionID>Old Data</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="Inconsistent" category="[020] Quality Text">
+			<Value>inconsistent</Value>
+			<DescID> An evaluation function has detected an inconsistency.</DescID>
+			<CaptionID>Inconsistent</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="Inaccurate" category="[020] Quality Text">
+			<Value>inaccurate</Value>
+			<DescID>The value does not meet the stated accuracy of the source.</DescID>
+			<CaptionID>Inaccurate</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="Overflow" category="[020] Quality Text">
+			<Value>overflow</Value>
+			<DescID>The attribute to which the quality has been associated is beyond the capability of being represented properly (used for measurand information only).
+</DescID>
+			<CaptionID>Overflow</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="BadReference" category="[020] Quality Text">
+			<Value>bad reference</Value>
+			<DescID>The value may not be a correct value due to a reference being out of calibration.</DescID>
+			<CaptionID>Bad Reference</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="Failure" category="[020] Quality Text">
+			<Value>failure</Value>
+			<DescID>A supervision function has detected an internal or external failure.
+</DescID>
+			<CaptionID>Failure</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="Process" category="[020] Quality Text">
+			<Value>process</Value>
+			<DescID>Provided by an input function from the process I/O or calculated from some application function</DescID>
+			<CaptionID>Process</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="Substituted" category="[020] Quality Text">
+			<Value>substituted</Value>
+			<DescID>Provided by input of an operator or by an automatic source.</DescID>
+			<CaptionID>Substituted</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="Test_False" category="[020] Quality Text">
+			<Value>test false</Value>
+			<DescID>Classifies a value not being a test value.</DescID>
+			<CaptionID>Test False</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="Test_True" category="[020] Quality Text">
+			<Value>test true</Value>
+			<DescID>Classifies a value being a test value and not to be used for operational purpose. The bit shall be completely independent from the other bits within the quality descriptor.</DescID>
+			<CaptionID>Test True</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="OperatorBlocked_True" category="[020] Quality Text">
+			<Value>operator blocked true</Value>
+			<DescID>A further update of the value has been blocked by an operator.</DescID>
+			<CaptionID>Operator Blocked True</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="OperatorBlocked_False" category="[020] Quality Text">
+			<Value>operator blocked false</Value>
+			<DescID>A further update of the value is enabled by an operator.</DescID>
+			<CaptionID>Operator Blocked False</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+	</Properties>
+</ObjectType>

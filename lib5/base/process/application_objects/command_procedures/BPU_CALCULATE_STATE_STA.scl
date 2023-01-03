@@ -1,0 +1,342 @@
+;Function: BPU_CALCULATE_STATE_STA:C
+;Source file:sc/lib5/base/process/application_objects/command_procedures/bpu_calculate_state_sta.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute), search_result, session number of control dialog, name of workstation
+;Return data:
+;Description: Calculates state of main /operator place tabs and messages related to the object
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+
+#argument l_object_info, l_data
+#local i, i_IX, i_session = 0, t_WS = "", l_WP_Auth = list()
+#local v_messages = vector(), i_count = 0, l_cdm_actual_value
+#local i_sta_LR_Authorized, l_connection_state = list, l_Objects, l_capabilities = list()
+#local t_LN = l_object_info.p_object_ln, b_Disable_All = false, b_disable_main = false, b_ind_double_binary = true
+#local l_result = list(-
+   MAIN =(list(-
+      INDICATION_TYPE = "",-
+      OPTION_0_ENABLED = FALSE,-                          
+      OPTION_1_ENABLED = FALSE,-                           
+      OPTION_2_ENABLED = FALSE,-                           
+      OPTION_3_ENABLED = FALSE,-
+      VALUE = 0)),-
+   STATUS = 0,-
+   MESSAGES = vector(),-
+   ERR_DESCRIPTION = "")
+   
+#local v_control_inhibit_reasons = vector
+
+#local l_cdm_default_value = list(-
+   data_quality = 196608,-
+   timestamp = list())
+
+#local l_cdm_authority = list(-
+   control_permitted = true,-
+   level_permitted = true,-
+   control_inhibit_reason = vector())   
+   
+#local l_data_points = list(-
+   user_authorized = list(),-
+   station_local_remote_command = list())
+   
+#local l_default_capabilities = list(-
+   Basic = list(-
+      DATAPOINTS = vector(-
+         "station_local_remote"),-
+      AUTHORIZED = TRUE),-
+   Operation = list(-
+      DATAPOINTS = vector(-
+         "station_local_remote_command"),-
+      AUTHORIZED = FALSE))
+   
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_CALCULATE_STATE_STA"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+         @REDIRECTED = true                                                                        
+         i_ArgCnt = argument_count                                                                 
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+         #loop_end                                                                                 
+         #return 't_Redirect_Command' ;;;;;                                                        
+      #block_end                                                                                   
+   #block_end                                                                                      
+   #else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+
+#if argument_count > 2 #then i_session = argument(3)
+#if argument_count > 3 #then t_WS = argument(4)
+
+#if attribute_exists(l_object_info, "ind_double_binary") #then -
+   b_ind_double_binary = l_object_info.ind_double_binary
+ 
+#if b_ind_double_binary #then l_result.main.indication_type = "DB"
+#else #block
+   #if attribute_exists(l_object_info, "ind_analog_input") #then #block
+      #if l_object_info.ind_analog_input #then l_result.main.indication_type = "AI"
+      #else l_result.main.indication_type = "BI"
+   #block_end
+   #else l_result.main.indication_type = "BI"
+#block_end
+
+;found process objects
+l_objects = l_data.all_objects
+;object state os, ss, un, ub ...
+l_connection_state = do(bpu_define_sta_state:c, l_object_info, l_Objects)
+
+;object status
+#if not l_connection_state.indication_missing #then #block
+   l_capabilities = merge_attributes(l_capabilities, list(basic = l_default_capabilities.basic))
+   #if not (l_connection_state.i_connection_ss == -1 or l_connection_state.i_connection_iu == -1) #then #block
+      #case l_connection_state.i_connection_os
+         #when 1 #block
+            i_count = i_count + 1
+            v_messages(i_count) = translation("Station local/remote-switch value invalid")
+         #block_end
+         #when 2 #block
+            i_count = i_count + 1
+            v_messages(i_count) = translation("Station local/remote-switch value obsolete")
+         #block_end
+         #when 3 #block
+            i_count = i_count + 1
+            v_messages(i_count) = translation("Control device not properly synchronized")
+         #block_end
+         #when 10 #block
+            i_count = i_count + 1
+            v_messages(i_count) = translation("Station local/remote-switch not updated")
+            b_disable_main = true
+            v_control_inhibit_reasons = append(-
+               v_control_inhibit_reasons, list(value = 0, custom_value = 1005, custom_text = v_messages(i_count)))
+         #block_end
+      #case_end
+   #block_end
+   #else #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Object is not in use or switch state is off")
+      b_disable_main = true
+      v_control_inhibit_reasons = append(-
+         v_control_inhibit_reasons, list(value = 0, custom_value = 1047, custom_text = v_messages(i_count)))
+   #block_end
+#block_end
+
+;workplace authority
+#if data_type(t_WS) == "TEXT" #then #block
+   #if t_WS <> "" #then #block
+      l_WP_Auth = do(BPU_WP_AUTHORITY:C, t_WS)
+      #if not l_WP_Auth.allowed #then #block
+         i_count = i_count + 1
+         v_messages(i_count) = l_WP_Auth.error_message
+         b_Disable_All = true
+         v_control_inhibit_reasons = append(-
+            v_control_inhibit_reasons, list(value = 0, custom_value = 1004, custom_text = v_messages(i_count)))
+      #block_end
+   #block_end
+#block_end
+
+;user not authorized
+l_cdm_actual_value = merge_attributes(l_cdm_default_value, list(value = true, timestamp = sys_time))
+#if attribute_exists( l_object_info, "authorization_group") #then #block
+   #if not do(bpu_user_authorized:c, l_object_info, 1) #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Not authorized to control")
+      b_Disable_All = true
+      l_cdm_actual_value = merge_attributes(l_cdm_actual_value, list(value = false))
+      l_cdm_authority.control_permitted = false
+      v_control_inhibit_reasons = append(-
+         v_control_inhibit_reasons, list(value = 0, custom_value = 1022, custom_text = v_messages(i_count)))
+   #block_end
+#block_end
+l_data_points.user_authorized = l_cdm_actual_value
+#if attribute_exists(l_capabilities, "BASIC") #then -
+   l_capabilities.basic.authorized = l_data_points.user_authorized.value
+
+;sta L/R indication missing
+#if l_connection_state.indication_missing #then #block
+   i_count = i_count + 1
+   v_messages(i_count) = translation("Station LR switch missing")
+   b_Disable_All = true
+   v_control_inhibit_reasons = append(-
+      v_control_inhibit_reasons, list(value = 0, custom_value = 1009, custom_text = v_messages(i_count)))
+#block_end
+
+#if not l_connection_state.indication_missing and not l_connection_state.control_missing and l_object_info.station_lr_in_use #then #block
+   
+   ;substituted, internal
+   #if l_connection_state.i_connection_su == 1 #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Values substituted by control application")
+   #block_end
+   
+   ;substituted, external
+   #if l_connection_state.i_connection_sb == 1 #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Values substituted by control device")
+   #block_end
+   
+   ;discrepancy in position indication objects (if input objects not all in same state)
+   #if l_connection_state.i_connection_ss == -1 or l_connection_state.i_connection_un == -1 #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Discrepancy in indication objects")
+      b_disable_main = true
+      v_control_inhibit_reasons = append(-
+         v_control_inhibit_reasons, list(value = 0, custom_value = 1024, custom_text = v_messages(i_count)))
+   #block_end
+   
+   ;discrepancy in command objects (if output objects not all in same state)
+   #if l_object_info.lr_remotely_controllable #then #block
+      #if l_connection_state.o_connection_ss == -1 or l_connection_state.o_connection_un == -1 #then #block
+         i_count = i_count + 1
+         v_messages(i_count) = translation("Discrepancy in command objects")
+         b_disable_main = true
+         v_control_inhibit_reasons = append(-
+            v_control_inhibit_reasons, list(value = 0, custom_value = 1025, custom_text = v_messages(i_count)))
+      #block_end
+   #block_end
+  
+   ;not connected to process
+   #if not (l_connection_state.o_connection_ss == 1 and l_connection_state.o_connection_un == 1) and -
+   not (l_connection_state.i_connection_ss == 1 and l_connection_state.i_connection_un == 1) #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Object is simulated")
+   #block_end
+   
+   ;object not controllable
+   #if not (l_connection_state.o_connection_ss == 1 and l_connection_state.o_connection_un == 1) and -
+    (l_connection_state.i_connection_ss == 1 and l_connection_state.i_connection_un == 1) and l_object_info.lr_remotely_controllable #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Station local/remote-switch not remotely controllable")
+      b_disable_main = true
+      v_control_inhibit_reasons = append(-
+         v_control_inhibit_reasons, list(value = 0, custom_value = 1026, custom_text = v_messages(i_count)))
+   #block_end
+   
+   ;indication not connected to process
+   #if (l_connection_state.o_connection_ss == 1 and l_connection_state.o_connection_un == 1) and -
+   not (l_connection_state.i_connection_ss == 1 and l_connection_state.i_connection_un == 1) #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Station local/remote-switch ind. not connected to process")
+      b_disable_main = true
+      v_control_inhibit_reasons = append(-
+         v_control_inhibit_reasons, list(value = 0, custom_value = 1027, custom_text = v_messages(i_count)))
+   #block_end
+
+#block_end
+
+;control blocked
+#if l_object_info.lr_remotely_controllable and not l_connection_state.control_missing #then #block
+   #if l_connection_state.o_connection_ub == 1 #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Control blocked")
+      b_disable_main = true
+      v_control_inhibit_reasons = append(-
+         v_control_inhibit_reasons, list(value = 0, custom_value = 1030, custom_text = v_messages(i_count)))
+   #block_end
+#block_end
+
+;selected on another monitor
+#if i_session > 1 #then #block
+   i_count = i_count + 1
+   v_messages(i_count) = translation("Selected on another monitor")
+   b_disable_main = true
+   v_control_inhibit_reasons = append(-
+      v_control_inhibit_reasons, list(value = 0, custom_value = 1039, custom_text = v_messages(i_count)))
+#block_end
+
+#if not l_connection_state.indication_missing #then #block
+   ;blocked by device
+   #if l_connection_state.i_connection_bl == 1 #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Signal blocked by control device")
+      b_disable_main = true
+      v_control_inhibit_reasons = append(-
+         v_control_inhibit_reasons, list(value = 0, custom_value = 1048, custom_text = v_messages(i_count)))
+   #block_end
+   ;update blocked
+   #if l_connection_state.i_connection_ub == 1 #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Update blocked")        
+      v_control_inhibit_reasons = append(-
+      v_control_inhibit_reasons, list(value = 0, custom_value = 1042, custom_text = v_messages(i_count)))
+   #block_end
+   ;alarm blocked
+   #if l_connection_state.i_connection_ab == 1 #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Alarm blocked")
+   #block_end
+   ;history blocked
+   #if l_connection_state.i_connection_hb == 1 #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("History blocked")
+   #block_end
+   ;printout blocked
+   #if l_connection_state.i_connection_pb == 1 #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Printout blocked")
+   #block_end
+   ;action blocked
+   #if l_connection_state.i_connection_xb == 1 #then #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Action blocked")
+   #block_end
+
+#block_end
+
+;button states of main tab
+#if not b_disable_main and not b_disable_all and not l_connection_state.control_missing #then #block
+   
+   #if l_object_info.lr_remotely_controllable #then #block
+      #if b_ind_double_binary #then #block
+         i_IX = l_objects.sta_lr_loc_cmd_ix
+         #if 't_LN':piu'i_IX' == 1 #then l_result.main.option_0_enabled = true
+         i_IX = l_objects.sta_lr_sta_cmd_ix
+         #if 't_LN':piu'i_IX' == 1 #then l_result.main.option_1_enabled = true
+         i_IX = l_objects.sta_lr_rem_cmd_ix
+         #if 't_LN':piu'i_IX' == 1 #then l_result.main.option_2_enabled = true
+         i_IX = l_objects.sta_lr_res_cmd_ix
+         #if 't_LN':piu'i_IX' == 1 #then l_result.main.option_3_enabled = true
+      #block_end
+      #else #block
+         i_IX = l_objects.sta_lr_sta_cmd_ix
+         #if 't_LN':piu'i_IX' == 1 #then #block
+            l_result.main.option_0_enabled = true
+            l_result.main.option_1_enabled = true
+         #block_end
+      #block_end
+   #block_end
+   
+#block_end
+
+;button states of main tab
+#if l_result.main.indication_type == "BI" #then #block
+   #if l_object_info.station_type == "IEC61850" #then -
+      l_result.main.value = abs(1 - l_connection_state.indication_state)
+   #else l_result.main.value = l_connection_state.indication_state
+#block_end
+#else l_result.main.value = l_connection_state.indication_state
+
+l_result.messages = v_messages
+
+#if l_object_info.lr_remotely_controllable #then #block
+   l_capabilities = merge_attributes(l_capabilities, list(operation = l_default_capabilities.operation))
+   l_capabilities.operation.authorized = l_data_points.user_authorized.value
+#block_end
+
+;Authorizations
+l_cdm_authority.control_inhibit_reason = v_control_inhibit_reasons
+l_data_points.station_local_remote_command = l_cdm_authority
+l_result = merge_attributes(l_result, l_data_points)
+l_result = merge_attributes(l_result, list(capabilities = l_capabilities))
+l_result = merge_attributes(l_result, list(datapoints = list_attr(l_result)))
+
+#return l_result

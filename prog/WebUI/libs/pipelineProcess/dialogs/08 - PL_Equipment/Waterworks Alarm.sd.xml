@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:variable type="external" name="control" default="''" />
+    <d:meta name="dv-custom-attribute|ABB SA Symbols" content="v1.0" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Waterworks Alarm" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="Alarm" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="status-color" default="0" />
+    <d:mapping name="f1602" parameters="value">
+      <d:step value="colors[109]" when="value &lt;= 43.502" />
+      <d:step value="colors[44]" when="value &lt;= 44.499" />
+      <d:step value="colors[45]" when="value &lt;= 45.503" />
+      <d:step value="colors[46]" when="value &lt;= 46.498" />
+      <d:otherwise value="colors[109]" />
+    </d:mapping>
+    <d:mapping name="f1603" parameters="value">
+      <d:step value="colors[104]" when="value &lt;= 43.502" />
+      <d:step value="colors[44]" when="value &lt;= 44.499" />
+      <d:step value="colors[45]" when="value &lt;= 45.503" />
+      <d:step value="colors[46]" when="value &lt;= 46.498" />
+      <d:otherwise value="colors[104]" />
+    </d:mapping>
+    <d:mapping name="f1603" parameters="value">
+      <d:step value="colors[104]" when="value &lt;= 43.502" />
+      <d:step value="colors[44]" when="value &lt;= 44.499" />
+      <d:step value="colors[45]" when="value &lt;= 45.503" />
+      <d:step value="colors[46]" when="value &lt;= 46.498" />
+      <d:step value="colors[104]" when="value &lt;= 43.502" />
+      <d:step value="colors[44]" when="value &lt;= 44.499" />
+      <d:step value="colors[45]" when="value &lt;= 45.503" />
+      <d:step value="colors[46]" when="value &lt;= 46.498" />
+      <d:otherwise value="colors[104]" />
+    </d:mapping>
+  </d:head>
+  <d:body n:LN="{LN(control)}" n:IX="{IX(control)}" x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <s:rect width="20" height="20" x="-10" y="-10" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f1602(`status-color`), subdrawing_color)}" y:fill-rule="evenodd" y:stroke="none" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Status" />
+    <s:pattern id="i2" width="4" height="4" patternUnits="userSpaceOnUse" d:adjustToScreenCoordSystem="true">
+      <s:rect x="0" y="0" width="4" height="4" fill="{colors[19]}" />
+      <s:path stroke="{subdrawing_color}" stroke-width="1" d="M 0 8 L 8 0 M -4 8 L 4 0 M 4 -4 L -4 4" />
+    </s:pattern>
+    <s:rect width="12" height="12" x="-6" y="-6" s:pointer-events="visiblePainted" d:transform-anchor="center-center" y:fill="url(#i2)" y:fill-rule="evenodd" y:stroke="{if(`subdrawing_dynamics`, f1603(`status-color`), colors[31])}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Status Color" />
+    <s:polyline points="-10,10 10,10 10,-10 " y:fill="none" y:fill-rule="evenodd" y:stroke="{colors[16]}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Frame Right Bottom" />
+    <s:polyline points="-10,10 -10,-10 10,-10 " y:fill="none" y:fill-rule="evenodd" y:stroke="{colors[17]}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Frame Left Top" />
+  </d:body>
+</d:document>

@@ -1,0 +1,39 @@
+﻿; This command procedure is used for synchronizing RP-570 NCCs
+; in a COM application 
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @LN, @IX, from the RP system message process object
+;-------------------------------------------------------------------------------------
+
+@ENABLE_LOGGING = COM_GENVAR:PBZ(3)
+
+;STA number of the NCC
+#IF SUBSTR(%LN,1,4) == "BNCC" #THEN #BLOCK
+   @NCC_NR = DEC_SCAN(SUBSTR(%LN,5,1))
+   @NCC_XREF_TABLE = APL:BSV(21)
+   @NCC = %NCC_XREF_TABLE(%NCC_NR)
+   @STA_NR = %NCC(1)
+#BLOCK_END
+#ELSE_IF 'LN':POA'IX' > 1000 #THEN @STA_NR = 'LN':POA'IX' - 1000  
+#ELSE #BLOCK
+   #LOOP_WITH I = 1..LENGTH(APL:BSV(21))
+      @NCC = %NCC_XREF_TABLE(%I)
+      #IF %NCC(2) == 1 #THEN #BLOCK
+         @STA_NR = %NCC(1)   
+         #LOOP_EXIT
+      #BLOCK_END
+   #LOOP_END
+#BLOCK_END 
+
+;set RTU Synchronized bit
+#IF %AI == 1 AND STA'STA_NR':STI == 0 #THEN #SET STA'STA_NR':STI = 1
+
+#IF %ENABLE_LOGGING #THEN #BLOCK
+   @S=STATUS
+   @INFO="'rt':'rm',RPSY,'STA_NR','LN':P'IX',,RP570 time sync. received and TI attribute set,,,,,,,,,,,,,'S',,,"
+   #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+   #ELSE #DO COM_LOG:CIN
+#BLOCK_END

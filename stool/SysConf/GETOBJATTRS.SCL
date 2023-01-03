@@ -1,0 +1,72 @@
+; File: GetObjAttrs(t_Obj_Type)
+; Parameters: t_Obj_Type, type of object having attribute names, e.g. "BASE_SYSTEM_LINK"
+; Return data type: v_Object_Attrs, objects attributes for specified type.
+; Description: Reads object attributes from the configuration file and returns in specified
+;              format.
+; -----------------------------------------------------------------------------------------
+
+@t_Obj_Type = argument(1)
+
+@l_System_Configuration_Data = SYS:BSV2
+@t_System_Conf_File = l_System_Configuration_Data:vt_System_Configuration_File
+
+#case %t_Obj_Type
+
+   #when "BASE_SYSTEM_LINK" @t_Ini_Par = "Link_Attributes"
+
+   #when "BASE_SYSTEM_NODE" #block
+
+      @t_Ini_Par = "Node_B_Attributes"
+      #error ignore
+         @l_Ini_Read = read_parameter(%t_System_Conf_File, "ATTRIBUTE_MAPPING", %t_Ini_Par)
+      #error stop
+      #if %l_Ini_Read.Status == 559 #then #block
+         @t_Ini_Par = "Node_Attributes"
+      #block_end
+
+   #block_end
+   
+   #when "NET_NODE" @t_Ini_Par = "Node_N_Attributes"
+
+   #when "BASE_SYSTEM_STATION" @t_Ini_Par = "Station_B_Attributes"
+
+   #when "NET_STATION" @t_Ini_Par = "Station_N_Attributes"
+
+   #when "BASE_SYSTEM_STATION_TYPE" @t_Ini_Par = "Station_Type_Attributes"
+
+   #when "NET_LINK" @t_Ini_Par = "Node_Link_Attributes"
+
+#case_end
+
+@v_Obj_Attributes = vector()
+@l_Ini_Read = read_parameter(%t_System_Conf_File, "ATTRIBUTE_MAPPING", %t_Ini_Par)
+
+#if l_Ini_Read:vSTATUS == 0 #then #block
+
+   @v_Objects = separate(l_Ini_Read:vVALUE, ",")
+
+   #if l_Ini_Read:vVALUE <> "" #then @v_Obj_Attributes = %v_Objects
+
+#block_end
+
+@l_Ini_Read = read_parameter(%t_System_Conf_File, "ATTRIBUTE_MAPPING", %t_Ini_Par + "_Vector")
+
+#if l_Ini_Read:vSTATUS == 0 #then #block
+
+   @v_Objects = separate(l_Ini_Read:vVALUE, ",")
+   
+   #if l_Ini_Read:vVALUE <> "" #then @v_Obj_Attributes = append(%v_Obj_Attributes, %v_Objects)
+   
+#block_end
+
+@l_Ini_Read = read_parameter(%t_System_Conf_File, "ATTRIBUTE_MAPPING", %t_Ini_Par + "_List")
+
+#if l_Ini_Read:vSTATUS == 0 #then #block
+
+   @v_Objects = separate(l_Ini_Read:vVALUE, ",")
+   
+   #if l_Ini_Read:vVALUE <> "" #then @v_Obj_Attributes = append(%v_Obj_Attributes, %v_Objects)
+   
+#block_end
+
+#return %v_Obj_Attributes

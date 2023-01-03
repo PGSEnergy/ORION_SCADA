@@ -1,0 +1,29 @@
+; Sets one or more elements of DMT_DATA:CIN vector.
+; This procedure could be used both in VSO files
+; and command procedures.
+; Arguments:
+;   1 - integer, the index of the first element to set, or
+;       text, keyword "APPEND"
+;   2 - text, the new value, or
+;       text vector, values of the subsequent elements.
+; Return value:
+;   None.
+
+@i_Set_Index = argument(1)
+@v_Set_Value = argument(2)
+
+@s = DO(DMT_LOCK:CIN, "LOCK", %gi_Data_Lock)
+
+@v_Data = DMT_DATA:CIN
+#case DATA_TYPE(%i_Set_Index)
+   #when "INTEGER" -
+      #case DATA_TYPE(%v_Set_Value)
+         #when "TEXT"   @v_Data(%i_Set_Index) = %v_Set_Value
+         #when "VECTOR" @v_Data(%i_Set_Index..%i_Set_Index+LENGTH(%v_Set_Value)-1) = %v_Set_Value
+      #case_end
+   #when "TEXT" -
+      @v_Data = APPEND(%v_Data, %v_Set_Value)
+#case_end
+#modify DMT_DATA:C = LIST(IN = %v_Data)
+
+@s = DO(DMT_LOCK:CIN, "UNLOCK", %gi_Data_Lock)

@@ -1,0 +1,20 @@
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">BINSTEPPOSEventGroup</Parameter>
+		<Parameter name="Caption">BINSTEPPOS Event Group</Parameter>
+		<Parameter name="Description">objectTypeDesc</Parameter>
+		<Parameter name="Group">Communication</Parameter>
+		<Parameter name="Type">GENERIC</Parameter>
+		<Parameter name="IconFileName">scale.ico</Parameter>
+		<Parameter name="Tools">SortChildNsoVerb</Parameter>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="Visible">False</Parameter>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="PCMObjectType">EventGroupDOEvents</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+</ObjectType>

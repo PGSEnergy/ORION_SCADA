@@ -1,0 +1,158 @@
+﻿;this command procedure sends the value of all the group alarms to the NCCs
+;in a COM500 application
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @COM_SEND_GRPAL_STA_NUMBER, number of the STA object of the NCC 
+;---------------------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+;NCC xref table
+@NCC_XREF_TABLE = APL:BSV(21)
+@ENABLE_LOGGING = COM_GENVAR:PBZ(3)
+
+@TIME = HR_CLOCK
+@RT = TIMES(TIME:VCL)
+@RM = ROUND(TIME:VUS/1000)
+
+;resolve NCC number
+@NCC_XREF_TABLE = APL:BSV(21)
+#LOOP_WITH NCC_NUMBER = 1..LENGTH(%NCC_XREF_TABLE)
+   @NCC = %NCC_XREF_TABLE(%NCC_NUMBER)
+   @NCC_COUNTER = %NCC_NUMBER
+   #IF %NCC(1) == %COM_SEND_GRPAL_STA_NUMBER #THEN #LOOP_EXIT
+#LOOP_END      
+
+;check if data sending is disabled to this ncc
+@DISABLE_NCC_DATA_SENDING = COM_GENVAR:PBZ(%NCC_COUNTER+4)
+;find all group alarm process objects if sending enabled
+#IF NOT %DISABLE_NCC_DATA_SENDING #THEN #BLOCK
+   #IF DATA_TYPE(%COM_CAUSE_OF_TRANSMISSION) == "INTEGER" #THEN #BLOCK
+      @COT = %COM_CAUSE_OF_TRANSMISSION
+      @INTERROGATED_OR_REQUESTED = TRUE
+   #BLOCK_END   
+   #ELSE #BLOCK
+      @COT = 3
+      @INTERROGATED_OR_REQUESTED = FALSE
+   #BLOCK_END   
+   @ALARM_GROUP_QUERY = "IU == 1 AND SS > 0 AND LN == ""BNCC'NCC_NUMBER'_GRP"""
+   #LOOP
+      @GRPAL_OBJECTS = APPLICATION_OBJECT_LIST(0,"IX","A","F","",%ALARM_GROUP_QUERY,("LN","IX","RT","RM"),10000)
+      #IF LENGTH(GRPAL_OBJECTS:VLN) > 0 #THEN #BLOCK
+         #LOOP_WITH I = 1..LENGTH(GRPAL_OBJECTS:VLN)
+            ;read the state of the group alarm
+            @LN = GRPAL_OBJECTS:VLN(%I)
+            @IX = GRPAL_OBJECTS:VIX(%I)
+            @RT = GRPAL_OBJECTS:VRT(%I)
+            @RM = GRPAL_OBJECTS:VRM(%I)
+            @OV = 'LN':POV'IX'
+            @UN = 'LN':PUN'IX'            
+            #IF %OV == BIT_STRING(LENGTH(%OV)) #THEN @GROUP_ALARM_STATE = 0
+            #ELSE @GROUP_ALARM_STATE = 1
+            ;invert value if required
+            #IF BIT('LN':PFI'IX',0) == 1 #THEN @GROUP_ALARM_STATE = 1 - %GROUP_ALARM_STATE         
+            ;find NCC protocol and STA number from the NCC xref table
+            @NCC_VECTOR = %NCC_XREF_TABLE(%NCC_NUMBER)
+            @NCC_PROTOCOL = %NCC_VECTOR(2)
+            @NCC_SUBPROTOCOL = %NCC_VECTOR(10)
+            ;decode NCC address and write the alarm state to NET
+            ;assume zero status, send always without time tag
+            #CASE %NCC_PROTOCOL
+               #WHEN 1 #BLOCK ; RP570 slave
+                  @BLOCK_NR = DEC_SCAN(SUBSTR('LN':PFX'IX',1,3))
+                  @BIT_NR = DEC_SCAN(SUBSTR('LN':PFX'IX',4,3))
+                  #SET STA'COM_SEND_GRPAL_STA_NUMBER':SID(%BLOCK_NR) = (RTU_ATIME(%RT,%RM),%BIT_NR,%GROUP_ALARM_STATE,0,0)
+                  #IF %ENABLE_LOGGING #THEN #BLOCK
+                     @S=STATUS
+                     @INFO="'rt':'rm',GRPSND,'UN','LN':P'IX','COM_SEND_GRPAL_STA_NUMBER',,'GROUP_ALARM_STATE',RP570,0,'BLOCK_NR'^'BIT_NR','GROUP_ALARM_STATE',,,,,,,0,'S',,,"
+                     @CMDP_CP = COM_LOG:CCP
+                     #IF LENGTH(%CMDP_CP) == 0 #THEN #BLOCK
+                        #DO COM_LOG:CIN
+                     #BLOCK_END      
+                     #ELSE #DO COM_LOG:CCP
+                  #BLOCK_END
+               #BLOCK_END
+               #WHEN 2 #BLOCK; IEC101 slave
+                  #IF %NCC_SUBPROTOCOL == 2 #THEN #BLOCK ;ICCP 
+                     @IEC_ADDR = DEC_SCAN('LN':PFX'IX')              
+                     #SET  STA'COM_SEND_GRPAL_STA_NUMBER':SDV(%IEC_ADDR)=(%GROUP_ALARM_STATE,1,0,0,%RT,%RM)
+                     #IF %ENABLE_LOGGING #THEN #BLOCK
+                        @S=STATUS                                
+                        @INFO="'rt':'rm',GRPSND,'UN','LN':P'IX','COM_SEND_GRPAL_STA_NUMBER',,'GROUP_ALARM_STATE',ICCP,0,'IEC_ADDR','GROUP_ALARM_STATE',,,,,,,0,'S',,,"
+                        @CMDP_CP = COM_LOG:CCP
+                        #IF LENGTH(%CMDP_CP) == 0 #THEN #BLOCK
+                           #DO COM_LOG:CIN
+                        #BLOCK_END      
+                        #ELSE #DO COM_LOG:CCP
+                     #BLOCK_END
+                  #BLOCK_END
+                  #ELSE #BLOCK ;IEC101/104
+                     @IEC_ADDR = DEC_SCAN('LN':PFX'IX')
+                     #IF NOT %INTERROGATED_OR_REQUESTED #THEN #BLOCK
+                        #SET STA'COM_SEND_GRPAL_STA_NUMBER':SSD(1) = ("M_SP_NA_1",%IEC_ADDR,%GROUP_ALARM_STATE,3,2,0)
+                     #BLOCK_END
+                     #ELSE #SET STA'COM_SEND_GRPAL_STA_NUMBER':SSD(1) = ("M_SP_NA_1",%IEC_ADDR,%GROUP_ALARM_STATE,%COT,2,2)
+                     #IF %ENABLE_LOGGING #THEN #BLOCK
+                        @S=STATUS                                
+                        @INFO="'rt':'rm',GRPSND,'UN','LN':P'IX','COM_SEND_GRPAL_STA_NUMBER',,'GROUP_ALARM_STATE',IEC101/104,0,'IEC_ADDR','GROUP_ALARM_STATE',,M_SP_NA_1,3,,,,2,'S',,,"
+                        @CMDP_CP = COM_LOG:CCP
+                        #IF LENGTH(%CMDP_CP) == 0 #THEN #BLOCK
+                           #DO COM_LOG:CIN
+                        #BLOCK_END      
+                        #ELSE #DO COM_LOG:CCP
+                     #BLOCK_END
+                  #BLOCK_END   
+               #BLOCK_END
+               #WHEN 3 #BLOCK ; CPI interface
+                  @BLOCK_NR = DEC_SCAN(SUBSTR('LN':PFX'IX',1,3))
+                  @BIT_NR = DEC_SCAN(SUBSTR('LN':PFX'IX',4,3))
+                  #SET STA'COM_SEND_GRPAL_STA_NUMBER':SID(%BLOCK_NR) = (RTU_ATIME(%RT,%RM),%BIT_NR,%GROUP_ALARM_STATE,0,0)
+                  #IF %ENABLE_LOGGING #THEN #BLOCK
+                     @S=STATUS
+                     @INFO="'rt':'rm',GRPSND,'UN','LN':P'IX','COM_SEND_GRPAL_STA_NUMBER',,'GROUP_ALARM_STATE',MODBUS/CPI,0,'BLOCK_NR'^'BIT_NR','GROUP_ALARM_STATE',,,,,,,0,'S',,,"
+                     @CMDP_CP = COM_LOG:CCP
+                     #IF LENGTH(%CMDP_CP) == 0 #THEN #BLOCK
+                        #DO COM_LOG:CIN
+                     #BLOCK_END      
+                     #ELSE #DO COM_LOG:CCP                       
+                  #BLOCK_END
+               #BLOCK_END
+               #WHEN 4 #BLOCK ; DNP 3.0 slave
+                  ;compose control byte
+                  #IF LENGTH(%NCC_VECTOR) > 4 #THEN @NCC_OPERATION_MODE = %NCC_VECTOR(5)
+                  #ELSE @NCC_OPERATION_MODE = 1               
+                  #CASE %NCC_OPERATION_MODE
+                     #WHEN 1 @CTRL = 7  ; quiescent mode                     
+                     #WHEN 2 @CTRL = 3  ; unsolicited report-by-exception mode
+                     #WHEN 3 @CTRL = 1  ; polled report-by-exception mode
+                     #WHEN 4 @CTRL = 1  ; polled static mode                        
+                  #CASE_END
+                  @DNP_ADDR = DEC_SCAN('LN':PFX'IX')                 
+                  #SET STA'COM_SEND_GRPAL_STA_NUMBER':SSD(1) = (1,2,%DNP_ADDR,%GROUP_ALARM_STATE,1,%CTRL)
+                  #IF %ENABLE_LOGGING #THEN #BLOCK
+                     @S=STATUS
+                     @INFO="'rt':'rm',GRPSND,'UN','LN':P'IX','COM_SEND_GRPAL_STA_NUMBER',,'GROUP_ALARM_STATE',DNP30,0,'DNP_ADDR','GROUP_ALARM_STATE',,,,1,1,1,'CTRL','S',,,"
+                     @CMDP_CP = COM_LOG:CCP
+                     #IF LENGTH(%CMDP_CP) == 0 #THEN #BLOCK
+                        #DO COM_LOG:CIN
+                     #BLOCK_END      
+                     #ELSE #DO COM_LOG:CCP
+                  #BLOCK_END
+               #BLOCK_END   
+            #CASE_END                 
+         #LOOP_END
+      #BLOCK_END
+      #IF END_QUERY #THEN #LOOP_EXIT
+   #LOOP_END 10000
+#BLOCK_END
+#ELSE_IF %ENABLE_LOGGING #THEN #BLOCK ; 5
+   @INFO="'rt':'rm',GRPSND,,,'COM_SEND_GRPAL_STA_NUMBER',disable ncc data sending:'DISABLE_NCC_DATA_SENDING',,,,,,,,,,,,,,,,"
+   #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+   #ELSE #DO COM_LOG:CIN
+#BLOCK_END ; 5                                          
+
+
+

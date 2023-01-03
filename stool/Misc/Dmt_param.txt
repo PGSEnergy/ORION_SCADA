@@ -1,0 +1,50 @@
+; Reads the parameter from a parameter file.
+; Arguments:
+;   1 - text, the parameter name.
+;   2 - any type, the default parameter value.
+;       The allowed types are: TEXT, INTEGER, BOOLEAN
+; Return value:
+;   - when parameter or section does not exists,
+;     the default parameter value;
+;   - when parameter has been read successfully,
+;     but could not be converted to the data type
+;     of argument(2), the text representation
+;     the parameter value;
+;   - when paramteter can be converted to the data type
+;     of argument(2), the result of conversion.
+; Global variables:
+;   gt_Parameter_File    - text, the parameter file
+;   gt_Parameter_Section - text, the parameter section
+
+@t_Param_Name = argument(1)
+@a_Param_Value = argument(2)
+
+@l_Param_Value = READ_PARAMETER(%gt_Parameter_File, %gt_Parameter_Section, %t_Param_Name)
+#if l_Param_Value:vStatus <> 0 #then -
+   #return %a_Param_Value
+
+#case DATA_TYPE(%a_Param_Value)
+   #when "TEXT" -
+      #return l_Param_Value:vValue
+   #when "INTEGER" #block
+      #error ignore
+      @i_Param_Value = DEC_SCAN(l_Param_Value:vValue)
+      #error stop
+      #if status == 0 #then -
+         #return %i_Param_Value
+   #block_end
+   #when "BOOLEAN" #block
+      #error ignore
+      @b_Param_Value = EVALUATE(l_Param_Value:vValue)
+      #error stop
+      #if status <> 0 #then -
+         #return l_Param_Value:vValue
+      #case DATA_TYPE(%b_Param_Value)
+         #when "BOOLEAN" #return %b_Param_Value
+         #when "INTEGER" #return %b_Param_Value <> 0
+      #case_end
+   #block_end
+#case_end
+
+#return l_Param_Value:vValue
+

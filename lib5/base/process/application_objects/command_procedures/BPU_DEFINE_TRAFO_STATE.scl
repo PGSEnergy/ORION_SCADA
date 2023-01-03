@@ -1,0 +1,238 @@
+;Function: BPU_DEFINE_SWITCH_STATE:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_define_trafo_state.scl
+;Version: 1.0
+;Parameters: 
+;Return data: 
+;Description:  
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_Objects
+
+#local t_LN, v_Inputs = vector, v_Outputs = vector, l_Attributes = list(), t_procedure = ""
+#local l_result = list(-
+   tap_position = list(-
+      pt = 0,-
+      ind_only = false,-
+      text = translation("Tap position"),-
+      indication_state = 0,-
+      indication_missing = false,-
+      control_missing = false,-
+      attr_states = list()),-
+   auto_manual_operation_mode = list(-
+      pt = 0,-
+      ind_only = false,-
+      text = translation("Auto/Manual"),-
+      indication_state = 0,-
+      indication_missing = false,-
+      control_missing = false,-
+      attr_states = list()),-
+   co_operation_mode = list(-
+      pt = 0,-
+      ind_only = false,-
+      text = translation("Single/Parallel"),-
+      indication_state = 0,-
+      indication_missing = false,-
+      control_missing = false,-
+      attr_states = list()),-
+   co_operation_role = list(-
+      pt = 0,-
+      ind_only = false,-
+      text = translation("Master/Slave"),-
+      indication_state= 0,-
+      indication_missing = false,-
+      control_missing = false,-
+      attr_states = list()),-
+   master = list(-
+      pt = 0,-
+      ind_only = false,-
+      text = translation("Master"),-
+      indication_state= 0,-
+      indication_missing = false,-
+      control_missing = false,-
+      attr_states = list()),-
+   follower = list(-
+      pt = 0,-
+      ind_only = false,-
+      text = translation("Slave"),-
+      indication_state= 0,-
+      indication_missing = false,-
+      control_missing = false,-
+      attr_states = list()),-
+   counter = list(-
+      pt = 0,-
+      ind_only = true,-
+      text = translation("Counter"),-
+      indication_state = 0,-
+      limit = -1,-
+      indication_missing = false,-
+      control_missing = false,-
+      attr_states = list()),-
+   voltage = list(-
+      pt = 0,-
+      ind_only = true,-
+      text = translation("Voltage"),-
+      indication_state = 0,-
+      indication_missing = false,-
+      control_missing = false,-
+      attr_states = list()),-
+   reference_voltage = list(-
+      pt = 0,-
+      ind_only = false,-
+      text = translation("Reference voltage"),-
+      indication_state = 0,-
+      indication_missing = false,-
+      control_missing = false,-
+      attr_states = list()))
+
+t_LN = l_object_info.p_object_ln
+t_procedure =  l_object_info.type_info.command_procedures.get_po_attribute_states
+
+#if not attribute_exists(l_objects, "tap_position_ix") #then l_result.tap_position.indication_missing = true
+#else #block
+   v_Inputs = vector(l_objects.tap_position_ix)
+   l_result.tap_position.pt = 't_LN':PPT'l_objects.tap_position_ix'
+#block_end
+#if not attribute_exists(l_objects, "raise_select_ix") or -
+   not attribute_exists(l_objects, "lower_select_ix") or -
+   not attribute_exists(l_objects, "raise_execute_ix") or -
+   not attribute_exists(l_objects, "lower_execute_ix") #then l_result.tap_position.control_missing = true
+#if not l_result.tap_position.control_missing #then -
+   v_Outputs = remove_duplicates(vector(l_objects.raise_select_ix, l_objects.lower_select_ix, l_objects.raise_execute_ix, l_objects.lower_execute_ix))
+l_result.tap_position.attr_states = do('t_procedure':c, v_Inputs, v_Outputs, t_LN)
+#if l_result.tap_position.attr_states.i_connection_os < 10 #then #block
+   l_result.tap_position.indication_state = round('t_ln':pov'l_objects.tap_position_ix')
+#block_end
+v_Inputs = vector
+v_Outputs = vector
+
+#if not attribute_exists(l_objects, "auto_manual_ix") #then l_result.auto_manual_operation_mode.indication_missing = true
+#else #block
+   v_Inputs = vector(l_objects.auto_manual_ix)
+   l_result.auto_manual_operation_mode.pt = 't_LN':PPT'l_objects.auto_manual_ix'
+#block_end
+#if not attribute_exists(l_objects, "auto_execute_ix") or -
+   not attribute_exists(l_objects, "manual_execute_ix") #then l_result.auto_manual_operation_mode.control_missing = true
+#if not l_result.auto_manual_operation_mode.control_missing #then -
+   v_Outputs = remove_duplicates(vector(l_objects.auto_execute_ix, l_objects.manual_execute_ix))
+l_result.auto_manual_operation_mode.attr_states  = do('t_procedure':c, v_Inputs, v_Outputs, t_LN)
+#if l_result.tap_position.attr_states.i_connection_os < 10 #then #block
+   l_result.auto_manual_operation_mode.indication_state = 't_ln':pov'l_objects.auto_manual_ix'
+#block_end
+v_Inputs = vector
+v_Outputs = vector
+
+#if not attribute_exists(l_objects, "single_parallel_ix") #then l_result.co_operation_mode.indication_missing = true
+#else #block
+   v_Inputs = vector(l_objects.single_parallel_ix)
+   l_result.co_operation_mode.pt = 't_LN':PPT'l_objects.single_parallel_ix'
+#block_end
+#if not attribute_exists(l_objects, "single_select_ix") or -
+   not attribute_exists(l_objects, "parallel_select_ix") or -
+   not attribute_exists(l_objects, "single_execute_ix") or -
+   not attribute_exists(l_objects, "parallel_execute_ix") #then l_result.co_operation_mode.control_missing = true
+#if not l_result.co_operation_mode.control_missing #then -
+   v_Outputs = remove_duplicates(vector(l_objects.single_select_ix, l_objects.parallel_select_ix, l_objects.single_execute_ix, l_objects.parallel_execute_ix))
+l_result.co_operation_mode.attr_states  = do('t_procedure':c, v_Inputs, v_Outputs, t_LN)
+#if l_result.co_operation_mode.attr_states.i_connection_os < 10 #then #block
+   l_result.co_operation_mode.indication_state = 't_ln':pov'l_objects.single_parallel_ix'
+#block_end
+v_Inputs = vector
+v_Outputs = vector
+
+#if not attribute_exists(l_objects, "master_slave_ix") #then l_result.co_operation_role.indication_missing = true
+#else #block
+   v_Inputs = vector(l_objects.master_slave_ix)
+   l_result.co_operation_role.pt = 't_LN':PPT'l_objects.master_slave_ix'
+#block_end
+
+#if not attribute_exists(l_objects, "master_execute_ix") or -
+   not attribute_exists(l_objects, "follower_execute_ix") #then l_result.co_operation_role.control_missing = true
+#if not l_result.co_operation_role.control_missing #then -
+   v_Outputs = remove_duplicates(vector(l_objects.master_execute_ix, l_objects.follower_execute_ix))
+l_result.co_operation_role.attr_states  = do('t_procedure':c, v_Inputs, v_Outputs, t_LN)
+#if l_result.co_operation_role.attr_states.i_connection_os < 10 #then #block
+   l_result.co_operation_role.indication_state = 't_ln':pov'l_objects.master_slave_ix'
+#block_end
+v_Inputs = vector
+v_Outputs = vector
+
+#if not attribute_exists(l_objects, "voltage_ix") #then l_result.voltage.indication_missing = true
+#else #block
+   v_Inputs = vector(l_objects.voltage_ix)
+   l_result.voltage.pt = 't_LN':PPT'l_objects.voltage_ix'
+#block_end
+l_result.voltage.attr_states = do('t_procedure':c, v_Inputs, v_Outputs, t_LN)
+#if l_result.voltage.attr_states.i_connection_os < 10 #then #block
+   #if 't_ln':pdp'l_objects.voltage_ix' == -1 #then l_result.voltage.indication_state = dec('t_ln':pov'l_objects.voltage_ix',0,3)
+   #else l_result.voltage.indication_state = dec('t_ln':pov'l_objects.voltage_ix', 0, 't_ln':pdp'l_objects.voltage_ix')
+#block_end
+v_Inputs = vector
+
+#if not attribute_exists(l_objects, "ref_voltage_ix") #then l_result.reference_voltage.indication_missing = true
+#else #block
+   v_Inputs = vector(l_objects.ref_voltage_ix)
+   l_result.reference_voltage.pt = 't_LN':PPT'l_objects.ref_voltage_ix'
+#block_end
+#if not attribute_exists(l_objects, "ref_voltage_select_ix") or -
+   not attribute_exists(l_objects, "ref_voltage_execute_ix") #then l_result.reference_voltage.control_missing = true
+#if not l_result.reference_voltage.control_missing #then -
+   v_Outputs = remove_duplicates(vector(l_objects.ref_voltage_select_ix, l_objects.ref_voltage_execute_ix))
+l_result.reference_voltage.attr_states  = do('t_procedure':c, v_Inputs, v_Outputs, t_LN)
+#if l_result.reference_voltage.attr_states.i_connection_os < 10 #then #block
+   #if 't_ln':pdp'l_objects.ref_voltage_ix' == -1 #then l_result.reference_voltage.indication_state = dec('t_ln':pov'l_objects.ref_voltage_ix',0,3)
+   #else l_result.reference_voltage.indication_state = dec('t_ln':pov'l_objects.ref_voltage_ix', 0, 't_ln':pdp'l_objects.ref_voltage_ix')
+#block_end
+v_Inputs = vector
+v_Outputs = vector
+
+#if not attribute_exists(l_objects, "counter_ix") #then l_result.counter.indication_missing = true
+#else #block
+   v_Inputs = vector(l_objects.counter_ix)
+   l_result.counter.pt = 't_LN':PPT'l_objects.counter_ix'
+#block_end
+l_result.counter.attr_states = do('t_procedure':c, v_Inputs, v_Outputs, t_LN)
+#if l_result.counter.attr_states.i_connection_os < 10 and l_result.counter.attr_states.i_connection_os <> -1 #then #block
+   l_result.counter.indication_state = round('t_ln':pov'l_objects.counter_ix')
+   l_result.counter.limit = round('t_ln':phw'l_objects.counter_ix')
+#block_end
+#else #block
+   l_result.counter.indication_state = "-"
+   l_result.counter.limit = "-"
+#block_end
+v_Inputs = vector
+v_Outputs = vector
+
+#if not attribute_exists(l_objects, "master_ix") #then l_result.master.indication_missing = true
+#else #block
+   v_Inputs = vector(l_objects.master_ix)
+   l_result.master.pt = 't_LN':PPT'l_objects.master_ix'
+#block_end
+#if not attribute_exists(l_objects, "master_select_ix") or -
+   not attribute_exists(l_objects, "master_execute_ix") #then l_result.master.control_missing = true
+#if not l_result.master.control_missing #then -
+   v_Outputs = remove_duplicates(vector(l_objects.master_select_ix, l_objects.master_execute_ix))
+l_result.master.attr_states  = do('t_procedure':c, v_Inputs, v_Outputs, t_LN)
+#if l_result.master.attr_states.i_connection_os < 10 #then #block
+   l_result.master.indication_state = 't_ln':pov'l_objects.master_ix'
+#block_end
+
+v_Inputs = vector
+v_Outputs = vector
+
+#if not attribute_exists(l_objects, "follower_ix") #then l_result.follower.indication_missing = true
+#else #block
+   v_Inputs = vector(l_objects.follower_ix)
+   l_result.follower.pt = 't_LN':PPT'l_objects.follower_ix'
+#block_end
+#if not attribute_exists(l_objects, "follower_select_ix") or -
+   not attribute_exists(l_objects, "follower_execute_ix") #then l_result.follower.control_missing = true
+#if not l_result.follower.control_missing #then -
+   v_Outputs = remove_duplicates(vector(l_objects.follower_select_ix, l_objects.follower_execute_ix))
+l_result.follower.attr_states  = do('t_procedure':c, v_Inputs, v_Outputs, t_LN)
+#if l_result.follower.attr_states.i_connection_os < 10 #then #block
+   l_result.follower.indication_state = 't_ln':pov'l_objects.follower_ix'
+#block_end
+
+#return l_result

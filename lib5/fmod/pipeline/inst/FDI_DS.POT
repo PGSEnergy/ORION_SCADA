@@ -1,0 +1,2152 @@
+;collect information for object identifier (OI-attribute)
+@OBJ_IDENT
+#LOOP_WITH I = 1 .. %L_OI_DEF.DEPTH
+	#IF DATA_TYPE(%OBJECT_IDENTIFIER_'I'_NAME) <> "NONE" #THEN #BLOCK
+		@FIELD_IDENT = %OBJECT_IDENTIFIER_'I'_NAME
+		@OBJ_IDENT=%OBJ_IDENT+SUBSTR('ID'_PICTURE_FUNCTION_CONF:V'FIELD_IDENT',1, %L_OI_DEF.LEVELS(%I).WIDTH)
+	#BLOCK_END
+	#IF %L_OI_DEF.LEVELS(%I).NAME == "DEV" #THEN #LOOP_EXIT
+#LOOP_END
+
+@ADDITIONAL_IDENT  = "          "
+@UNIT_IDENT  = "          "
+@XX         = 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+@YY         = 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_PURPOSE
+
+;create needed scales, command procedures and event channels
+
+;command procedure for updating objects from the process
+@C_SEARCH = FETCH(0,"C","BPU_UPDATE")
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+  #CREATE BPU_UPDATE:C = LIST(-
+       IU = 1,-
+       MO = 1,-
+       CM = FPI_SSW:VUPDATE_COMMENT,-
+       IN = ("",-
+             "#DO READ_TEXT(""B5_USE/BPU_UPDATE.TXT"")"))
+#BLOCK_END
+
+;define 1:1 scale for AI object if it does not exist
+@X_SEARCH=FETCH(0,"X","1_1")
+#IF X_SEARCH:VIU == -1 #THEN #BLOCK
+  #CREATE 1_1:X = LIST(SA = 0)
+#BLOCK_END
+
+#CASE 'ID'_PICTURE_FUNCTION_CONF:VINDICATION_TYPE
+  #WHEN "AI" #BLOCK
+    ;define 1/1000 scale for ANSI-AI object if it does not exist
+    @X_SEARCH = FETCH(0,"X","BPU_1_1000")
+    #IF X_SEARCH:VIU == -1 #THEN #BLOCK
+      #CREATE BPU_1_1000:X = LIST(SA = 1, SC = (0,1000,0,1))
+    #BLOCK_END
+  #BLOCK_END
+#CASE_END
+
+#CASE 'ID'_PICTURE_FUNCTION_CONF:VINDICATION_TYPE
+  #WHEN "BI" #BLOCK
+    ;create command procedure for BI to DB updating
+    @C_SEARCH = FETCH(0,"C","BPU_BI2DB")
+    #IF C_SEARCH:VIU == -1 #THEN #BLOCK
+      #CREATE BPU_BI2DB:C = LIST(-
+            IU = 1,-
+            MO = 1,-
+            CM = FPI_SSW:VBI2DB_COMMENT,-
+            IN = ("@INDEX = %IX-100","#IF %BI==0 #THEN #SET ''LN'':P''INDEX'' = LIST(DB=2,RT=%RT,RM=%RM)","#ELSE_IF %BI==1 #THEN #SET ''LN'':P''INDEX'' = LIST(DB=1,RT=%RT,RM=%RM)"))
+    #BLOCK_END
+
+    ;create event channel for BI to DB updating command procedure
+    @A_SEARCH = FETCH(0,"A","BPU_BI2DB")
+    #IF A_SEARCH:VIU == -1 #THEN #BLOCK
+      #CREATE BPU_BI2DB:A = LIST(-
+            CM = FPI_SSW:VBI2DB_COMMENT,-
+            OT = "C",-
+            ON = "BPU_BI2DB")
+    #BLOCK_END
+  #BLOCK_END                                             ;binary input
+
+  #WHEN "AI" #BLOCK
+    ;create command procedure for AI to DB updating
+    @C_SEARCH = FETCH(0,"C","BPU_AI2DB")
+    #IF C_SEARCH:VIU == -1 #THEN #BLOCK
+      #CREATE BPU_AI2DB:C = LIST(-
+            IU = 1,-
+            MO = 1,-
+            CM = FPI_SSW:VAI2DB_COMMENT,-
+            IN = ("@INDEX = %IX-100","#SET ''LN'':P''INDEX'' = LIST(DB=ROUND(%AI),RT=%RT,RM=%RM)"))
+    #BLOCK_END
+
+    ;create event channel for AI to DB updating command procedure
+    @A_SEARCH = FETCH(0,"A","BPU_AI2DB")
+    #IF A_SEARCH:VIU == -1 #THEN #BLOCK
+      #CREATE BPU_AI2DB:A = LIST(-
+            CM = FPI_SSW:VAI2DB_COMMENT,-
+            OT = "C",-
+            ON = "BPU_AI2DB")
+    #BLOCK_END
+  #BLOCK_END                                             ;analog input
+
+  #WHEN "2BI" #BLOCK
+    ;create event channel for 2 BIs to DB updating command procedure
+    @A_SEARCH = FETCH(0,"A","BPU_2BI2DB")
+    #IF A_SEARCH:VIU == -1 #THEN #BLOCK
+      #CREATE BPU_2BI2DB:A = LIST(-
+            CM = FPI_SSW:VBI22DB_COMMENT,-
+            OT = "C",-
+            ON = "BPU_2BI2DB")
+    #BLOCK_END
+    
+    ;create command procedure 1 for 2 BIs to DB updating
+    @C1_SEARCH = FETCH(0,"C","BPU_2BI2DB")
+    ;** TiLi 17.01.2004: Update this procedure to support DNP REF 543
+    @b_Update = False
+    #IF C1_SEARCH:VIU == 1 #THEN #BLOCK
+       #IF 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE == "DNP_30" #THEN #BLOCK
+          #error ignore
+          @t_Version = ""
+          @t_Version = substr(BPU_2BI2DB:CCM,240,0)
+          #if length(%t_Version) > 0 #then #block
+             @i_Check = locate(%t_Version,"MV Process")
+             #if %i_Check > 0 #then #block
+                #if %t_Version < "MV Process 2.9." #then @b_Update = True
+             #block_end
+          #block_end
+          #else @b_Update = True
+       #BLOCK_END
+    #BLOCK_END
+        
+    #IF C1_SEARCH:VIU == -1 or %b_Update #THEN #BLOCK
+      #if %b_Update #then #block
+		  @v_CIN = BPU_2BI2DB:CIN
+		  @xx = write_text("pict/BPU_2BI2DB.BAK",%v_CIN)
+		  @xx = console_output("Command procedure BPU_2BI2DB:C updated")
+		  @xx = console_output("Back up from previous in file pict/BPU_2BI2DB.BAK")
+		  #delete BPU_2BI2DB:C
+      #block_end
+      ;** TiLi end
+	  #CREATE BPU_2BI2DB:C =LIST(-
+            IU = 1,-
+            MO = 1,-
+            CM = FPI_SSW:VBI22DB_COMMENT,-
+            IN = ("#IF %IX==110 OR %IX==111 OR %IX==130 #THEN #BLOCK",-
+                  "  @IX1 = %IX",-
+                  "  @IX2 = %IX-2",-
+                  "#BLOCK_END",-
+                  "#ELSE #BLOCK",-
+                  "  @IX1 = %IX+2",-
+                  "  @IX2 = %IX",-
+                  "#BLOCK_END",-
+                  "#IF %IX > 120 #THEN @IX_FAULTY = 126",-
+                  "#ELSE_IF %IX == 110 OR %IX == 108 #THEN @IX_FAULTY = 106",-
+                  "#ELSE @IX_FAULTY = 107",-
+                  "#ERROR IGNORE",-
+                  "@S = STATUS",-
+                  "@FAULTY_STATUS = ''LN'':POS''IX_FAULTY''",-
+                  "#IF (STATUS == 0) #THEN #BLOCK",-
+                  "  #IF %FAULTY_STATUS < 10 #THEN #IF ''LN'':POV''IX_FAULTY'' == 1 #THEN #RETURN",-
+                  "#BLOCK_END",-
+                  "@OBJ1_STATUS = ''LN'':POS''IX1''",-
+                  "@OBJ2_STATUS = ''LN'':POS''IX2''",-
+                  "#IF %OBJ1_STATUS < 10 AND %OBJ2_STATUS < 10 #THEN #BLOCK",-
+                  "  @OBJ1_VALUE = ''LN'':POV''IX1''",-
+                  "  @OBJ2_VALUE = ''LN'':POV''IX2''",-
+				  "  #IF %OBJ1_VALUE <> %OBJ2_VALUE #THEN #EXEC BPU_SETDB:C (@LN=%LN,@IX=%IX,@RT=%RT,@RM=%RM,@OS=%OS)",-
+				  "  #ELSE #EXEC_AFTER 2 BPU_SETDB:C (@LN=%LN,@IX=%IX,@RT=%RT,@RM=%RM,@OS=%OS)",-
+                  "#BLOCK_END"))
+       #if %b_Update #then #block
+		   @t_Tmp_CM = BPU_2BI2DB:CCM
+          @t_Tmp_CM = substr(%t_Tmp_CM,1,239) + "MV Process 2.9."
+		  #set BPU_2BI2DB:CCM = %t_Tmp_CM
+       #block_end
+    #BLOCK_END
+
+    ;create command procedure 2 for 2 BIs to DB updating
+	@C2_SEARCH = FETCH(0,"C","BPU_SETDB")    
+    #IF C2_SEARCH:VIU == -1 #THEN #BLOCK
+		#CREATE BPU_SETDB:C =LIST(-
+            IU = 1,-
+            MO = 1,-
+            CM = FPI_SSW:VBI22DB_COMMENT,-
+          IN = ("@T0=PACK_TIME(YEAR,MONTH,DAY,0,0,0)",-
+                  "",-
+                  "#CASE %IX",-
+                  "  #WHEN 110 #BLOCK",-
+                  "    @IX1=%IX",-
+                  "    @IX2=%IX-2",-
+                  "    @IX3=10",-
+                  "    @IX4=%IX-2",-
+                  "  #BLOCK_END",-
+                  "  #WHEN 108 #BLOCK",-
+                  "    @IX1=%IX+2",-
+                  "    @IX2=%IX",-
+                  "    @IX3=10",-
+                  "    @IX4=%IX+2",-
+                  "  #BLOCK_END",-
+                  "  #WHEN 111 #BLOCK",-
+                  "    @IX1=%IX",-
+                  "    @IX2=%IX-2",-
+                  "    @IX3=11",-
+                  "    @IX4=%IX-2",-
+                  "  #BLOCK_END",-                 
+                  "  #WHEN 109 #BLOCK",-
+                  "    @IX1=%IX+2",-
+                  "    @IX2=%IX",-
+                  "    @IX3=11",-
+                  "    @IX4=%IX+2",-
+                  "  #BLOCK_END",-                 
+                  "  #WHEN 130 #BLOCK",-
+                  "    @IX1=%IX",-
+                  "    @IX2=%IX-2",-
+                  "    @IX3=30",-
+                  "    @IX4=%IX-2",-
+                  "  #BLOCK_END",-
+                  "  #WHEN 128 #BLOCK",-
+                  "    @IX1=%IX+2",-
+                  "    @IX2=%IX",-
+                  "    @IX3=30",-
+                  "    @IX4=%IX+2",-
+                  "  #BLOCK_END",-
+                  "#CASE_END",-
+                  "@VALUE = 2*''LN'':P''IX1''+''LN'':P''IX2''",-
+                  "#IF (''LN'':PRT''IX''-%T0)+''LN'':PRM''IX''/1000 >= -",-
+                  "    (''LN'':PRT''IX4''-%T0)+''LN'':PRM''IX4''/1000 -",-
+                  "    #THEN #SET ''LN'':P''IX3'' = LIST(DB=ROUND(%VALUE),RT=%RT,RM=%RM)"))
+    #BLOCK_END
+  #BLOCK_END                                             ;two binary inputs
+#CASE_END                                                ;indication type
+
+@IN(1..10) = ""
+
+;switching device type
+#CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+
+  ;=====================================================================================================;
+  ;circuit breaker, disconnector and earth switch                                                       ;
+  ;=====================================================================================================;
+  #WHEN "DS","QB","QS","QI" #BLOCK
+
+    ;initialize variables
+    @DX
+    @OX
+    @HE
+    @EH
+    @PF
+    @RI
+    @RX
+    @LD
+    @P_OBJ01
+    @P_OBJ02
+    @P_OBJ03
+    @P_OBJ04
+    @P_OBJ05
+    @P_OBJ06
+    @P_OBJ07
+    @P_OBJ08
+    @P_OBJ09
+    @P_OBJ10
+    @P_OBJ11
+    @P_OBJ12
+    @P_OBJ13
+    @P_OBJ14
+    @P_OBJ15
+    @P_OBJ16
+    @P_OBJ17
+    @P_OBJ18
+    @P_OBJ19
+    @P_OBJ20
+    @P_OBJ21
+    @P_OBJ22
+    @P_OBJ23  
+    @P_OBJECTS = LIST()
+
+
+    ;define object to be created
+
+    ;double binary indication
+    #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+      #WHEN "SPA" #BLOCK
+        @DX(1)    ="N7D"
+        @HE(1)    = 1                                    ;history enable = yes
+        @PF(1)    = "FORM5BPU1"                         ;physical format for printout
+        @LD(1)    = BIT_MASK(1)                          ;listing device = 1
+      #BLOCK_END
+
+      #WHEN "IEC101","IEC103" #BLOCK
+        @DX(1)    ="C12"
+        @HE(1)    = 1                                    ;history enable = yes
+        @PF(1)    = "FORM5BPU1"                         ;physical format for printout
+        @LD(1)    = BIT_MASK(1)                          ;listing device = 1
+      #BLOCK_END
+
+      #WHEN "ANSI" #BLOCK
+        @DX(1)    ="12"
+        @HE(1)    = 1                                    ;history enable = yes
+        @PF(1)    = "FORM5BPU1"                         ;physical format for printout
+        @LD(1)    = BIT_MASK(1)                          ;listing device = 1
+      #BLOCK_END
+
+      #WHEN "RTU" #BLOCK
+        #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+          @DX(1)  ="I7D"
+          @HE(1)  = 0                                    ;history enable = no
+          @PF(1)  = "DUMMY"                              ;physical format for printout
+          @LD(1)  = 0                                    ;listing device = none
+        #BLOCK_END
+
+        #ELSE #BLOCK
+          @DX(1)  ="I7D"
+          @HE(1)  = 1                                    ;history enable = yes
+          @PF(1)  = "FORM5BPU1"                         ;physical format for printout
+          @LD(1)  = BIT_MASK(1)                          ;listing device = 1
+        #BLOCK_END
+      #BLOCK_END
+
+      #WHEN "RTU_E" #BLOCK
+        #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+          @DX(1)  ="R7D"
+          @HE(1)  = 0                                    ;history enable = no
+          @PF(1)  = "DUMMY"                              ;physical format for printout
+          @LD(1)  = 0                                    ;listing device = none
+        #BLOCK_END
+
+        #ELSE #BLOCK
+          @DX(1)  ="R7D"
+          @HE(1)  = 1                                    ;history enable = yes
+          @PF(1)  = "FORM5BPU1"                         ;physical format for printout
+          @LD(1)  = BIT_MASK(1)                          ;listing device = 1
+        #BLOCK_END
+      #BLOCK_END
+    #CASE_END
+  
+    @t_Sta_Type = 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+
+    #CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+      #WHEN "DS","QB","QS","QI" #BLOCK                   ;Valve (circuit breaker)
+        @OX(1)=FPI_SSW:VCB_POS_IND                       ;signal text for position indication
+        #if %t_Sta_Type <> "IEC61850" #then @RI(1)=3     ;dynamic text for position indication printout
+        #else @RI(1)=17
+        @DB  =1            ;default position closed
+      #BLOCK_END
+    #CASE_END
+
+    @RX(1) = %ADDITIONAL_IDENT+%UNIT_IDENT+ -            ;function block or channel number, data acquisition unit
+             "DP'XX''YY'IPOS"                            ;and group information  ;ob
+   #IF 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE == "IEC61850" #THEN #BLOCK
+      @RX(1) = SUBSTR(%RX(1),1,35) + "CSWI.Pos.stVal"
+      #IF %b_Fill_IN #THEN @IN(1) = %t_OPC_Prefix + "." + %v_CSWI_Instance(1) + ".Pos.stVal"
+      #ELSE @IN(1) = ""
+   #BLOCK_END
+   #ELSE @IN(1) = ""
+
+    #MODIFY P_OBJECTS:V = LIST(P_OBJ01 = LIST(-
+          IX = 10,-                                      ;index = 10
+          PT = 12,-                                      ;process object type = DB
+          DX = %DX(1),-                                  ;directive text
+          DB = %DB,-                                     ;object value = 1
+          NV = 4,-                                       ;normal value = none
+          OI = %OBJ_IDENT,-                              ;substation & bay name
+          OX = %OX(1),-                                  ;object text
+          IU = 1,-                                       ;in use = yes
+          SS = 1,-                                       ;switch state = manual
+          EE = 1,-                                       ;event enable = yes
+          HE = %HE(1),-                                  ;history enable
+          HA = 1,-                                       ;history activation = new value
+          HF = 0,-                                       ;history at first update = no
+          HL = BIT_MASK(15),-                            ;history log number = 15
+          EH = %EH_PT12,-                                ;event handling object  ;ob
+          RC = 1,-                                       ;receipt = acknowledgement required
+          AB = 0,-                                       ;alarm blocking = no
+          AC = 1,-                                       ;alarm class = 1
+          LA = 9,-                                       ;alarm activation = intermediate & faulty alarming
+          AD = 0,-                                       ;alarm delay = 0
+          PD = 0,-                                       ;picture device = none
+          PI = "",-                                      ;alarm picture
+          PF = %PF(1),-                                  ;physical format for printout
+          RI = %RI(1),-                                  ;dynamic texts for printout
+          PA = 1,-                                       ;printout activation = new value
+          PU = 0,-                                       ;picture/ printout at first update = no
+          LD = 0,-                         ;ob %LD(1),-  ;listing device
+          IN = %IN(1),-                                  ;IEC 61850 instance name
+          RX = %RX(1)))                                  ;data acquisition unit and group information
+
+    ;if motorized switching device                           
+    #IF 'ID'_PICTURE_FUNCTION_CONF:VMOTORIZED #THEN #BLOCK
+
+      ;control objects
+      #CASE 'ID'_PICTURE_FUNCTION_CONF:VCONTROL_TYPE
+
+        ;secured control with four binary outputs
+        #WHEN "SEC-4BO" #BLOCK
+
+          ;output objects for control commands (open/close/execute/cancel)
+          #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+            #WHEN "SPA" #BLOCK
+              @DX(2..5) ="N1"
+            #BLOCK_END
+
+            #WHEN "IEC101","IEC103" #BLOCK
+              @DX(2..5) ="C5"
+            #BLOCK_END
+
+            #WHEN "ANSI" #BLOCK
+              @DX(2..5) ="5"
+            #BLOCK_END
+
+            #WHEN "RTU" #BLOCK
+              @DX(2..5) ="I1"
+            #BLOCK_END
+
+            #WHEN "RTU_E" #BLOCK
+              @DX(2..5) ="R1"
+            #BLOCK_END
+
+            #WHEN "MODBUS_RTU" #BLOCK
+               @DX(2..5) ="I1"
+            #BLOCK_END
+
+          #CASE_END
+
+          #CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+            #WHEN "DS","QB","QS","QI" #BLOCK             ;circuit breaker
+              @OX(2)=FPI_SSW:VCB_OPEN_SEL                ;signal text for open select
+              @OX(3)=FPI_SSW:VCB_CLOSE_SEL               ;signal text for close select
+              @OX(4)=FPI_SSW:VCB_EXEC_CMD                ;signal text for execute
+              @OX(5)=FPI_SSW:VCB_CANCEL_CMD              ;signal text for cancel
+              @RI(2)=4                                   ;dynamic text for open select printout
+              @RI(3)=5                                   ;dynamic text for close select printout
+              @RI(4)=6                                   ;dynamic text for execute printout
+              @RI(5)=7                                   ;dynamic text for cancel printout
+              @EH(2) = "FD_FORM5BO1_4"               ;event handling object  ;ob
+              @EH(3) = "FD_FORM5BO1_5"               ;event handling object  ;ob
+              @EH(4) = "FD_FORM5BO1_6"               ;event handling object  ;ob
+              @EH(5) = "FD_FORM5BO1_7"               ;event handling object  ;ob
+            #BLOCK_END
+          #CASE_END
+
+          @RX(2..5) = %ADDITIONAL_IDENT+%UNIT_IDENT+ -   ;function block or channel number, data acquisition unit
+                      "DP'XX''YY'COBC"                   ;and group information  ;ob
+
+          #LOOP_WITH I=2..5
+            @P_OBJ0'I'_LIST = LIST(-
+                  IX = 9+%I,-                            ;index = 11,12,13,14
+                  PT = 5,-                               ;process object type = BO
+                  DX = %DX('I'),-                        ;directive text
+                  OI = %OBJ_IDENT,-                      ;substation & bay name
+                  OX = %OX('I'),-                        ;object text
+                  IU = 1,-                               ;in use = yes
+                  SS = 1,-                               ;switch state = manual
+                  EE = 1,-                               ;event enable = yes
+                  HE = 1,-                               ;history enable = yes
+                  HA = 2,-                               ;history activation = update
+                  HF = 1,-                               ;history at first update = yes
+                  HL = BIT_MASK(15),-                    ;history log number = 15
+                  EH = %EH('I'),-                        ;event handling object  ;ob
+                  PF = "FORM5BPU1",-                    ;physical format for printout
+                  RI = %RI('I'),-                        ;dynamic texts for printout
+                  PA = 2,-                               ;printout activation = update
+                  PU = 1,-                               ;picture/ printout at first update = yes
+                  LD = 0,-            ;ob BIT_MASK(1),-  ;listing device
+                  RX = %RX('I'))                         ;data acquisition unit and group information
+    
+            #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+              #WHEN "IEC101" #MODIFY P_OBJ0'I'_LIST:V = LIST(-
+                  TY = 45)                               ;type identification (ASDU) 45 = single command, 46 = double command
+              #WHEN "IEC103" #MODIFY P_OBJ0'I'_LIST:V = LIST(-
+                  TY = 0)                               ;type identification (ASDU) 20 = general command
+            #CASE_END
+            #MODIFY P_OBJECTS:V = LIST(P_OBJ0'I'=%P_OBJ0'I'_LIST)
+          #LOOP_END
+        #BLOCK_END                                       ;secured control/ 4 x binary outputs
+
+        ;secured control with two binary outputs
+        #WHEN "SEC-2BO" #BLOCK
+
+          ;output objects for control commands (open execute/close execute)
+          #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+            #WHEN "SPA" #BLOCK
+              @DX(2..3) ="N1"
+            #BLOCK_END
+
+            #WHEN "IEC101","IEC103" #BLOCK
+              @DX(2..3) ="C5"
+            #BLOCK_END
+
+            #WHEN "ANSI" #BLOCK
+              @DX(2..3) ="5"
+            #BLOCK_END
+
+            #WHEN "RTU" #BLOCK
+              @DX(2..3) ="I1"
+            #BLOCK_END
+
+            #WHEN "RTU_E" #BLOCK
+              @DX(2..3) ="R1"
+            #BLOCK_END
+
+          #CASE_END
+
+          #CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+            #WHEN "DS","QB","QS","QI" #BLOCK             ;circuit breaker
+              @OX(2)=FPI_SSW:VCB_OPEN_EXEC               ;signal text for open execute
+              @OX(3)=FPI_SSW:VCB_CLOSE_EXEC              ;signal text for close execute
+              @RI(2)=9                                   ;dynamic text for open execute printout
+              @RI(3)=10                                  ;dynamic text for close execute printout
+              @EH(2) = "FD_FORM5BO1_9"               ;event handling object  ;ob
+              @EH(3) = "FD_FORM5BO1_10"              ;event handling object  ;ob
+            #BLOCK_END
+           #CASE_END
+
+          @RX(2..3) = %ADDITIONAL_IDENT+%UNIT_IDENT+ -   ;function block or channel number, data acquisition unit
+                      "DP'XX''YY'COBC"                   ;and group information  ;ob
+
+          #LOOP_WITH I=2..3
+            @P_OBJ0'I'_LIST = LIST(-
+                  IX = 9+%I,-                            ;index = 11,12
+                  PT = 5,-                               ;process object type = BO
+                  DX = %DX('I'),-                        ;directive text
+                  OI = %OBJ_IDENT,-                      ;substation & bay name
+                  OX = %OX('I'),-                        ;object text
+                  IU = 1,-                               ;in use = yes
+                  SS = 1,-                               ;switch state = manual
+                  EE = 1,-                               ;event enable = yes
+                  HE = 1,-                               ;history enable = yes
+                  HA = 2,-                               ;history activation = update
+                  HF = 1,-                               ;history at first update = yes
+                  HL = BIT_MASK(15),-                    ;history log number = 15
+                  EH = %EH('I'),-                        ;event handling object  ;ob
+                  PF = "FORM5BPU1",-                    ;physical format for printout
+                  RI = %RI('I'),-                        ;dynamic texts for printout
+                  PA = 2,-                               ;printout activation = update
+                  PU = 1,-                               ;picture/ printout at first update = yes
+                  LD = 0,-            ;ob BIT_MASK(1),-  ;listing device
+                  RX = %RX('I'))                         ;data acquisition unit and group information
+
+            #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+              #WHEN "IEC101" #MODIFY P_OBJ0'I'_LIST:V = LIST(-
+                  TY = 45)                               ;type identification (ASDU) 45 = single command, 46 = double command
+              #WHEN "IEC103" #MODIFY P_OBJ0'I'_LIST:V = LIST(-
+                  TY = 0)                               ;type identification (ASDU) 20 = general command
+            #CASE_END
+            #MODIFY P_OBJECTS:V = LIST(P_OBJ0'I'=%P_OBJ0'I'_LIST)
+          #LOOP_END
+        #BLOCK_END                                       ;secured control/ 2 x binary outputs
+
+        ;secured control with two digital outputs
+        #WHEN "SEC-2DO" #BLOCK
+
+          ;output objects for control commands (open execute/close execute)
+          #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+            #WHEN "SPA" #BLOCK   
+              @DX(2..3) ="N3"      
+            #BLOCK_END
+
+            #WHEN "IEC101","IEC103" #BLOCK
+              @DX(2..3) ="C7"      
+            #BLOCK_END
+
+            #WHEN "ANSI" #BLOCK
+              @DX(2..3) ="7"      
+            #BLOCK_END
+
+            #WHEN "RTU" #BLOCK
+              @DX(2..3) ="I3"         
+            #BLOCK_END
+
+            #WHEN "RTU_E" #BLOCK
+              @DX(2..3) ="R3"      
+            #BLOCK_END
+
+          #CASE_END
+
+          #CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+            #WHEN "DS","QB","QS","QI" #BLOCK             ;circuit breaker
+              @OX(2)=FPI_SSW:VCB_OPEN_EXEC               ;signal text for open execute
+              @OX(3)=FPI_SSW:VCB_CLOSE_EXEC              ;signal text for close execute
+              @RI(2)=1                                   ;dynamic text for open execute printout
+              @RI(3)=2                                   ;dynamic text for close execute printout
+            #BLOCK_END
+           #CASE_END
+
+          @RX(2..3) = %ADDITIONAL_IDENT+%UNIT_IDENT+ -   ;function block or channel number, data acquisition unit
+                      "DP'XX''YY'COBC"                   ;and group information  ;ob
+
+          #LOOP_WITH I=2..3
+            @P_OBJ0'I'_LIST = LIST(-
+                  IX = 9+%I,-                            ;index = 11,12
+                  PT = 7,-                               ;process object type = DO
+                  DX = %DX('I'),-                        ;directive text
+                  OI = %OBJ_IDENT,-                      ;substation & bay name
+                  OX = %OX('I'),-                        ;object text
+                  IU = 1,-                               ;in use = yes
+                  SS = 1,-                               ;switch state = manual
+                  EE = 1,-                               ;event enable = yes
+                  HE = 1,-                               ;history enable = yes
+                  HA = 2,-                               ;history activation = update
+                  HF = 1,-                               ;history at first update = yes
+                  HL = BIT_MASK(15),-                    ;history log number = 15
+-;ob EH = ... (fehlt noch, da keine Zeit)
+                  PF = "FORM5BPU1",-                    ;physical format for printout
+                  RI = %RI('I'),-                        ;dynamic texts for printout
+                  PA = 2,-                               ;printout activation = update
+                  PU = 1,-                               ;picture/ printout at first update = yes
+                  LD = 0,-            ;ob BIT_MASK(1),-  ;listing device
+                  RX = %RX('I'))                         ;data acquisition unit and group information
+
+            #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+              #WHEN "IEC101" #MODIFY P_OBJ0'I'_LIST:V = LIST(-
+                  TY = 50)                               ;type identification (ASDU) 50 = set point command, short floating point
+              #WHEN "IEC103" #MODIFY P_OBJ0'I'_LIST:V = LIST(-
+                  TY = 0)                               ;type identification (ASDU) 20 = general command
+            #CASE_END
+            #MODIFY P_OBJECTS:V = LIST(P_OBJ0'I'=%P_OBJ0'I'_LIST)
+          #LOOP_END
+        #BLOCK_END                                       ;secured control/ 2 x digital outputs
+
+        ;secured control with a single binary output
+        #WHEN "SEC-BO" #BLOCK
+
+          ;output object for control commands (select & execute)
+          #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+            #WHEN "SPA" #BLOCK
+              @DX(4)    ="N1"
+            #BLOCK_END
+
+            #WHEN "IEC101","IEC103" #BLOCK
+              @DX(4)    ="C5"
+            #BLOCK_END
+
+            #WHEN "ANSI" #BLOCK
+              @DX(4)    ="5"
+            #BLOCK_END
+
+            #WHEN "RTU" #BLOCK
+              @DX(4)    ="I1"
+            #BLOCK_END
+
+            #WHEN "RTU_E" #BLOCK
+              @DX(4)    ="R1"
+            #BLOCK_END
+
+          #CASE_END
+
+          #CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+            #WHEN "DS","QB","QS","QI" #BLOCK             ;circuit breaker
+              @OX(4)=FPI_SSW:VCB_OBJ_CMD                 ;signal text for control object
+              @RI(4)=8                                   ;dynamic text for control object printout
+            #BLOCK_END
+           #CASE_END
+
+          @RX(4) = %ADDITIONAL_IDENT+%UNIT_IDENT+ -      ;function block or channel number, data acquisition unit
+                   "DP'XX''YY'COBC"                      ;and group information  ;ob
+
+          @P_OBJ04_LIST = LIST(-
+                IX = 13,-                                ;index = 13
+                PT = 5,-                                 ;process object type = BO
+                DX = %DX(4),-                            ;directive text
+                OI = %OBJ_IDENT,-                        ;substation & bay name
+                OX = %OX(4),-                            ;object text
+                IU = 1,-                                 ;in use = yes
+                SS = 1,-                                 ;switch state = manual
+                EE = 1,-                                 ;event enable = yes
+                HE = 1,-                                 ;history enable = yes
+                HA = 2,-                                 ;history activation = update
+                HF = 1,-                                 ;history at first update = yes
+                HL = BIT_MASK(15),-                      ;history log number = 15
+                EH = %EH_PT5,-                           ;event handling object  ;ob
+                PF = "FORM5BPU1",-                      ;physical format for printout
+                RI = %RI(4),-                            ;dynamic texts for printout
+                PA = 2,-                                 ;printout activation = update
+                PU = 1,-                                 ;picture/ printout at first update = yes
+                LD = 0,-              ;ob BIT_MASK(1),-  ;listing device
+                RX = %RX(4))                             ;data acquisition unit and group information
+
+          #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+            #WHEN "IEC101" #MODIFY P_OBJ04_LIST:V = LIST(-
+                TY = 'ID'_PICTURE_FUNCTION_CONF:VCMD_PARAMETER) ;type identification (ASDU) 45 = single command, 46 = double command
+            #WHEN "IEC103" #MODIFY P_OBJ04_LIST:V = LIST(-
+                TY = 0)                               ;type identification (ASDU) 20 = general command
+            #CASE_END
+            #MODIFY P_OBJECTS:V = LIST(P_OBJ04=%P_OBJ04_LIST)
+        #BLOCK_END                                       ;secured control/ a single binary output
+
+        ;direct control with a single binary output
+        #WHEN "DIR-BO" #BLOCK
+
+          ;output object for control commands (open & close)
+          #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+            #WHEN "SPA" #BLOCK
+              @DX(4)    ="N1"
+            #BLOCK_END
+
+            #WHEN "IEC101","IEC103" #BLOCK
+              @DX(4)    ="C5"
+            #BLOCK_END
+
+            #WHEN "ANSI" #BLOCK
+              @DX(4)    ="5"
+            #BLOCK_END
+
+            #WHEN "RTU" #BLOCK
+              @DX(4)    ="I1"
+            #BLOCK_END
+
+            #WHEN "RTU_E" #BLOCK
+              @DX(4)    ="R1"
+            #BLOCK_END
+
+          #CASE_END
+
+          #CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+            #WHEN "DS","QB","QS","QI" #BLOCK             ;circuit breaker
+              @OX(4)=FPI_SSW:VCB_OBJ_CMD                 ;signal text for control object
+              @RI(4)=8                                   ;dynamic text for control object printout
+            #BLOCK_END
+           #CASE_END
+
+          @RX(4) = %ADDITIONAL_IDENT+%UNIT_IDENT+ -      ;function block or channel number, data acquisition unit
+                   "DP'XX''YY'COBC"                      ;and group information  ;ob
+
+          @P_OBJ04_LIST = LIST(-
+                IX = 13,-                                ;index = 13
+                PT = 5,-                                 ;process object type = BO
+                DX = %DX(4),-                            ;directive text
+                OI = %OBJ_IDENT,-                        ;substation & bay name
+                OX = %OX(4),-                            ;object text
+                IU = 1,-                                 ;in use = yes
+                SS = 1,-                                 ;switch state = manual
+                EE = 1,-                                 ;event enable = yes
+                HE = 1,-                                 ;history enable = yes
+                HA = 2,-                                 ;history activation = update
+                HF = 1,-                                 ;history at first update = yes
+                HL = BIT_MASK(15),-                      ;history log number = 15
+                EH = %EH_PT5,-                           ;event handling object  ;ob
+                PF = "FORM5BPU1",-                      ;physical format for printout
+                RI = %RI(4),-                            ;dynamic texts for printout
+                PA = 2,-                                 ;printout activation = update
+                PU = 1,-                                 ;picture/ printout at first update = yes
+                LD = 0,-              ;ob BIT_MASK(1),-  ;listing device
+                RX = %RX(4))                             ;data acquisition unit and group information
+
+          #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+            #WHEN "IEC101" #MODIFY P_OBJ04_LIST:V = LIST(-
+                TY = 45)                                 ;type identification (ASDU) 45 = single command, 46 = double command
+            #WHEN "IEC103" #MODIFY P_OBJ04_LIST:V = LIST(-
+                TY = 0)                                 ;type identification (ASDU) 20 = general command
+            #CASE_END
+            #MODIFY P_OBJECTS:V = LIST(P_OBJ04=%P_OBJ04_LIST)
+        #BLOCK_END                                       ;direct control/ a single binary output
+
+        ;control with a single analog output
+        #WHEN "AO" #BLOCK
+
+          ;output object for control commands (select open/close and execute/cancel or open/close execute)
+          #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+            #WHEN "SPA" #BLOCK
+              @DX(4)    ="N4"
+            #BLOCK_END
+
+            #WHEN "IEC101","IEC103" #BLOCK
+              @DX(4)    ="C11"
+            #BLOCK_END
+
+            #WHEN "ANSI" #BLOCK
+              @DX(4)    ="11"
+            #BLOCK_END
+
+            #WHEN "RTU" #BLOCK
+              @DX(4)    ="I4"
+            #BLOCK_END
+
+            #WHEN "RTU_E" #BLOCK
+              @DX(4)    ="R4"
+            #BLOCK_END
+
+          #CASE_END
+
+          #CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+            #WHEN "DS","QB","QS","QI" #BLOCK             ;circuit breaker
+              @OX(4)=FPI_SSW:VCB_OBJ_CMD                 ;signal text for control object
+              @RI(4)=1                                   ;dynamic text for control object printout
+            #BLOCK_END
+           #CASE_END
+
+          @RX(4) = %ADDITIONAL_IDENT+%UNIT_IDENT+ -      ;function block or channel number, data acquisition unit
+                   "DP'XX''YY'COBC"                      ;and group information  ;ob
+
+          @P_OBJ04_LIST = LIST(-
+                IX = 13,-                                ;index = 13
+                PT = 11,-                                ;process object type = AO
+                DX = %DX(4),-                            ;directive text
+                OI = %OBJ_IDENT,-                        ;substation & bay name
+                OX = %OX(4),-                            ;object text
+                IU = 1,-                                 ;in use = yes
+                SS = 1,-                                 ;switch state = manual
+                EE = 1,-                                 ;event enable = yes
+                HE = 1,-                                 ;history enable = yes
+                HA = 2,-                                 ;history activation = update
+                HF = 1,-                                 ;history at first update = yes
+                HL = BIT_MASK(15),-                      ;history log number = 15
+-;ob EH = ... (fehlt noch, da keine Zeit)
+                HO = 0,-                                 ;high alarm limit = 0
+                LO = 0,-                                 ;low alarm limit = 0
+                ST = "Command",-                         ;unit of value
+                SN = "1_1",-                             ;scale name
+                RC = 0,-                                 ;receipt = acknowledgement not required
+                AB = 0,-                                 ;alarm blocking = no
+                AC = 0,-                                 ;alarm class = disabled
+                AD = 0,-                                 ;alarm delay = 0
+                PD = 0,-                                 ;picture device = none
+                PI = "",-                                ;alarm picture
+                PF = "FORM5BPU1",-                      ;physical format for printout
+                RI = %RI(4),-                            ;dynamic texts for printout
+                PA = 2,-                                 ;printout activation = update
+                PU = 1,-                                 ;picture/ printout at first update = yes
+                LD = 0,-              ;ob BIT_MASK(1),-  ;listing device
+                RX = %RX(4))                             ;data acquisition unit and group information
+
+          #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+            #WHEN "IEC101" #MODIFY P_OBJ04_LIST:V = LIST(-
+                TY = 50)                                 ;type identification (ASDU) 48 = set point cmd, normalized value, 49 = set point cmd, scaled valueed value, 50 = set point cmd, short floating point number
+            #WHEN "IEC103" #MODIFY P_OBJ04_LIST:V = LIST(-
+                TY = 0)                                 ;type identification (ASDU) 20 = general command
+          #CASE_END
+          #MODIFY P_OBJECTS:V = LIST(P_OBJ04=%P_OBJ04_LIST)
+        #BLOCK_END                                       ;control/ a single analog output
+      #CASE_END                                          ;control type
+
+      ;input objects for external control blocking and open/close interlocking
+      #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+        #WHEN "SPA" #BLOCK
+          @DX(6..8)   ="N7S"
+          @HE(6..8)   = 1                                ;history enable = yes
+          @PF(6..8)   = "FORM5BPU1"                     ;physical format for printout
+          @LD(6..8)   = BIT_MASK(1)                      ;listing device = 1
+        #BLOCK_END
+
+        #WHEN "IEC101","IEC103" #BLOCK
+          @DX(6..8)   ="C3"
+          @HE(6..8)   = 1                                ;history enable = yes
+          @PF(6..8)   = "FORM5BPU1"                     ;physical format for printout
+          @LD(6..8)   = BIT_MASK(1)                      ;listing device = 1
+        #BLOCK_END
+
+        #WHEN "ANSI" #BLOCK
+          @DX(6..8)   ="3"
+          @HE(6..8)   = 1                                ;history enable = yes
+          @PF(6..8)   = "FORM5BPU1"                     ;physical format for printout
+          @LD(6..8)   = BIT_MASK(1)                      ;listing device = 1
+        #BLOCK_END
+
+        #WHEN "RTU" #BLOCK
+          #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+            @DX(6..8) ="I7S" 
+            @HE(6..8) = 0                                ;history enable = no
+            @PF(6..8) = "DUMMY"                          ;physical format for printout
+            @LD(6..8) = 0                                ;listing device = none
+          #BLOCK_END
+
+          #ELSE #BLOCK
+            @DX(6..8) ="I7S" 
+            @HE(6..8) = 1                                ;history enable = yes
+            @PF(6..8) = "FORM5BPU1"                     ;physical format for printout
+            @LD(6..8) = BIT_MASK(1)                      ;listing device = 1
+          #BLOCK_END
+        #BLOCK_END
+
+        #WHEN "RTU_E" #BLOCK
+          #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+            @DX(6..8) ="R7S"
+            @HE(6..8) = 0                                ;history enable = no
+            @PF(6..8) = "DUMMY"                          ;physical format for printout
+            @LD(6..8) = 0                                ;listing device = none
+          #BLOCK_END
+
+          #ELSE #BLOCK
+            @DX(6..8) ="R7S"
+            @HE(6..8) = 1                                ;history enable = yes
+            @PF(6..8) = "FORM5BPU1"                     ;physical format for printout
+            @LD(6..8) = BIT_MASK(1)                      ;listing device = 1
+          #BLOCK_END
+        #BLOCK_END
+
+        #WHEN "MODBUS_RTU" #BLOCK
+            @DX(6..8) ="I7S" 
+            @HE(6..8) = 1                                ;history enable = yes
+            @PF(6..8) = "FORM5BPU1"                     ;physical format for printout
+            @LD(6..8) = BIT_MASK(1)                      ;listing device = 1
+        #BLOCK_END
+
+      #CASE_END                     
+
+      #CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+        #WHEN "DS","QB","QS","QI" #BLOCK                 ;circuit breaker
+          @OX(6)=FPI_SSW:VCB_EXT_CNTR_BLK                ;signal text for external interlocking
+          @OX(7)=FPI_SSW:VCB_OPEN_ILOCKED                ;signal text for open interlocked
+          @OX(8)=FPI_SSW:VCB_CLOSE_ILOCKED               ;signal text for close interlocked
+          #IF 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE == "IEC61850" #THEN #BLOCK
+             @RI(6)=3
+             @RI(7..8)=43
+          #BLOCK_END
+          #ELSE @RI(6..8)=3                             ;dynamic text for object printout
+        #BLOCK_END
+      #CASE_END
+
+      @RX(6)    = %ADDITIONAL_IDENT+%UNIT_IDENT+ -       ;function block or channel number, data acquisition unit
+                  "DP'XX''YY'IBLK"                       ;and group information  ;ob
+      @RX(7..8) = %ADDITIONAL_IDENT+%UNIT_IDENT+ -       ;function block or channel number, data acquisition unit
+                  "DP'XX''YY'IINH"                       ;and group information  ;ob
+      @I_LOOP_START = 6
+      @i_Default_OV = 0
+      @IN(7..8) = ""
+
+      
+      #LOOP_WITH I=%I_LOOP_START..8
+        #MODIFY P_OBJECTS:V = LIST(P_OBJ0'I' = LIST(-
+              IX = 9+%I,-                                ;index = 15,16,17
+              PT = 3,-                                   ;process object type = BI
+              DX = %DX('I'),-                            ;directive text
+              BI = %i_Default_OV,-                       ;object value
+              OI = %OBJ_IDENT,-                          ;substation & bay name
+              OX = %OX('I'),-                            ;object text
+              IU = 1,-                                   ;in use = yes
+              SS = 1,-                                   ;switch state = manual
+              EE = 1,-                                   ;event enable = yes
+              HE = %HE('I'),-                            ;history enable
+              HA = 1,-                                   ;history activation = new value
+              HF = 0,-                                   ;history at first update = no
+              HL = BIT_MASK(15),-                        ;history log number = 15
+              EH = "FD_FORM5_3_6",-                 		;event handling object
+              RC = 1,-                                   ;receipt = acknowledgement required
+              AB = 0,-                                   ;alarm blocking = no
+              AC = 0,-                                   ;alarm class 
+              AG = 0,-                                   ;alarming value = 0
+              AD = 0,-                                   ;alarm delay = 0
+              PD = 0,-                                   ;picture device = none
+              PI = "",-                                  ;alarm picture
+              PF = %PF('I'),-                            ;physical format for printout
+              RI = %RI('I'),-                            ;dynamic texts for printout
+              PA = 1,-                                   ;printout activation = new value
+              PU = 0,-                                   ;picture/ printout at first update = no
+              LD = 0,-                   ;ob %LD('I'),-  ;listing device
+              IN = %IN(%I),-
+              RX = %RX('I')))                            ;group information
+      #LOOP_END
+
+      ;external interlocking cause
+      #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+        #WHEN "SPA" #BLOCK
+          @DX(9)   ="N6"
+        #BLOCK_END
+
+        #WHEN "IEC101","IEC103" #BLOCK
+          @DX(9)   ="C9"
+        #BLOCK_END
+
+        #WHEN "ANSI" #BLOCK
+          @DX(9)   ="9"
+        #BLOCK_END
+
+        #WHEN "RTU" #BLOCK
+          @DX(9)   ="I6"
+        #BLOCK_END
+
+        #WHEN "RTU_E" #BLOCK
+          @DX(9)   ="R6"
+        #BLOCK_END
+
+      #CASE_END
+
+      #CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+        #WHEN "DS","QB","QS","QI" #BLOCK                 ;circuit breaker
+          @OX(9)=FPI_SSW:VCB_ILOCK_CAUSE                 ;signal text for interlocking cause
+        #BLOCK_END
+       #CASE_END
+
+      @RX(9) = %ADDITIONAL_IDENT+%UNIT_IDENT+ -          ;function block or channel number, data acquisition unit
+               "DP'XX''YY'IINH"                          ;and group information  ;ob
+
+      #MODIFY P_OBJECTS:V = LIST(P_OBJ09 = LIST(-
+            IX = 18,-                                    ;index = 18
+            PT = 9,-                                     ;process object type = AI
+            DX = %DX(9),-                                ;directive text
+            AI = 0,-                                     ;object value = 0
+            OI = %OBJ_IDENT,-                            ;substation & bay name
+            OX = %OX(9),-                                ;object text
+            IU = 1,-                                     ;in use = yes
+            SS = 2,-                                     ;switch state = auto
+            EE = 1,-                                     ;event enable = yes
+            HE = 0,-                                     ;history enable = no
+            HA = 2,-                                     ;history activation = update
+            HF = 1,-                                     ;history at first update = yes
+            HL = BIT_MASK(15),-                          ;history log number = 15
+            HI = 0,-                                     ;upper alarm limit = 0
+            HW = 0,-                                     ;upper warning limit = 0
+            LW = 0,-                                     ;lower warning limit = 0
+            LI = 0,-                                     ;lower alarm limit = 0
+            ST = "Cause",-                               ;unit of value
+            SN = "1_1",-                                 ;scale name
+            SZ = 1,-                                     ;zone supervision = SCADA
+            RC = 0,-                                     ;receipt = acknowledgement not required
+            AB = 0,-                                     ;alarm blocking = no
+            AC = 0,-                                     ;alarm class = disabled
+            AD = 0,-                                     ;alarm delay = 0
+            PD = 0,-                                     ;picture device = none
+            PI = "",-                                    ;alarm picture
+            PF = "",-                                    ;physical format for printout
+            RI = 0,-                                     ;dynamic texts for printout
+            PA = 2,-                                     ;printout activation = update
+            PU = 1,-                                     ;picture/ printout at first update = yes
+            LD = 0,-                                     ;listing device = none
+            RX = %RX(9)))                                ;data acquisition unit and group information
+
+    #BLOCK_END                                           ;motorized
+
+    ;selection on monitor
+    #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+      #WHEN "SPA" #BLOCK
+        @DX(10)   ="N6"
+      #BLOCK_END
+
+      #WHEN "IEC101","IEC103" #BLOCK
+        @DX(10)   ="C9"
+      #BLOCK_END
+
+      #WHEN "ANSI" #BLOCK
+        @DX(10)   ="9"
+      #BLOCK_END
+
+      #WHEN "RTU" #BLOCK
+        @DX(10)   ="I6"
+      #BLOCK_END
+
+      #WHEN "RTU_E" #BLOCK
+        @DX(10)   ="R6"
+      #BLOCK_END
+
+    #CASE_END
+
+    #CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+      #WHEN "DS","QB","QS","QI" #BLOCK                   ;circuit breaker
+        @OX(10)=FPI_SSW:VCB_SEL_ON_MON                   ;signal text for selected on monitor
+      #BLOCK_END
+    #CASE_END
+
+    @RX(10) = %ADDITIONAL_IDENT+%UNIT_IDENT+ -           ;function block or channel number, data acquisition unit
+              "DP'XX''YY'XMEV"                           ;and group information  ;ob
+
+    #MODIFY P_OBJECTS:V = LIST(P_OBJ10 = LIST(-
+          IX = 19,-                                      ;index = 19
+          PT = 9,-                                       ;process object type = AI
+          DX = %DX(10),-                                 ;directive text
+          AI = 0,-                                       ;object value = 0
+          OI = %OBJ_IDENT,-                              ;substation & bay name
+          OX = %OX(10),-                                 ;object text
+          IU = 1,-                                       ;in use = yes
+          SS = 2,-                                       ;switch state = auto
+          EE = 1,-                                       ;event enable = yes
+          HE = 0,-                                       ;history enable = no
+          HA = 2,-                                       ;history activation = update
+          HF = 1,-                                       ;history at first update = yes
+          HL = BIT_MASK(15),-                            ;history log number = 15
+          HI = 0,-                                       ;upper alarm limit = 0
+          HW = 0,-                                       ;upper warning limit = 0
+          LW = 0,-                                       ;lower warning limit = 0
+          LI = 0,-                                       ;lower alarm limit = 0
+          ST = "Sessions",-                              ;unit of value
+          SN = "1_1",-                                   ;scale name
+          SZ = 1,-                                       ;zone supervision = SCADA
+          RC = 0,-                                       ;receipt = acknowledgement not required
+          AB = 0,-                                       ;alarm blocking = no
+          AC = 0,-                                       ;alarm class = disabled
+          AD = 0,-                                       ;alarm delay = 0
+          PD = 0,-                                       ;picture device = none
+          PI = "",-                                      ;alarm picture
+          PF = "",-                                      ;physical format for printout
+          RI = 0,-                                       ;dynamic texts for printout
+          PA = 2,-                                       ;printout activation = update
+          PU = 1,-                                       ;picture/ printout at first update = yes
+          LD = 0,-                                       ;listing device = none
+          RX = %RX(10)))                                 ;group information
+
+    ;if motorized switching device
+    #IF 'ID'_PICTURE_FUNCTION_CONF:VMOTORIZED #THEN #BLOCK
+ 
+      ;input object for command event
+      #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+        #WHEN "SPA" #BLOCK
+          @DX(11)    ="N7S"
+          @HE(11)    = 0                                 ;history enable = no
+          @PF(11)    = "FORM5BPU1"                      ;physical format for printout
+         #BLOCK_END
+
+        #WHEN "IEC101","IEC103" #BLOCK
+          @DX(11)    ="C3"
+          @HE(11)    = 0                                 ;history enable = no
+          @PF(11)    = "FORM5BPU1"                      ;physical format for printout
+        #BLOCK_END
+
+        #WHEN "ANSI" #BLOCK
+          @DX(11)    ="3"
+          @HE(11)    = 0                                 ;history enable = no
+          @PF(11)    = "FORM5BPU1"                      ;physical format for printout
+        #BLOCK_END
+
+        #WHEN "RTU" #BLOCK
+          #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+            @DX(11)  ="I7S" 
+            @HE(11)  = 0                                 ;history enable = no
+            @PF(11)  = "DUMMY"                           ;physical format for printout
+          #BLOCK_END
+
+          #ELSE #BLOCK
+            @DX(11)  ="I7S" 
+            @HE(11)  = 1                                 ;history enable = yes
+            @PF(11)  = "FORM5BPU1"                      ;physical format for printout
+          #BLOCK_END
+        #BLOCK_END
+
+        #WHEN "RTU_E" #BLOCK
+          #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+            @DX(11)  ="R7S"
+            @HE(11)  = 0                                 ;history enable = no
+            @PF(11)  = "DUMMY"                           ;physical format for printout
+          #BLOCK_END
+
+          #ELSE #BLOCK
+            @DX(11)  ="R7S"
+            @HE(11)  = 1                                 ;history enable = yes
+            @PF(11)  = "FORM5BPU1"                      ;physical format for printout
+          #BLOCK_END
+        #BLOCK_END
+
+      #CASE_END               
+
+      #CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+        #WHEN "DS","QB","QS","QI" #BLOCK                 ;circuit breaker
+          @OX(11)=FPI_SSW:VCB_CMD_EVENT                  ;signal text for command event
+          @RI(11)=4                                      ;dynamic text for command event printout
+        #BLOCK_END
+      #CASE_END
+
+      @RX(11) = %ADDITIONAL_IDENT+%UNIT_IDENT+ -         ;function block or channel number, data acquisition unit
+                "DP'XX''YY'ICEV"                         ;and group information  ;ob
+      #IF 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE == "IEC61850" #THEN #BLOCK
+         @RX(11) = SUBSTR(%RX(11),1,35) + "CSWI.Pos.stSeld"
+         #IF %b_Fill_IN #THEN @IN(1) = %t_OPC_Prefix + "." + %v_CSWI_Instance(1) + ".Pos.stSeld"
+         #ELSE @IN(1) = ""
+      #BLOCK_END
+
+      #MODIFY P_OBJECTS:V = LIST(P_OBJ11 = LIST(-
+            IX = 20,-                                    ;index = 20
+            PT = 3,-                                     ;process object type = BI
+            DX = %DX(11),-                               ;directive text
+            BI = 0,-                                     ;object value
+            OI = %OBJ_IDENT,-                            ;substation & bay name
+            OX = %OX(11),-                               ;object text
+            IU = 1,-                                     ;in use = yes
+            SS = 2,-                                     ;switch state = auto
+            EE = 1,-                                     ;event enable = yes
+            HE = %HE(11),-                               ;history enable
+            HA = 1,-                                     ;history activation = new value
+            HF = 0,-                                     ;history at first update = no
+            HL = BIT_MASK(15),-                          ;history log number = 15
+            EH = "FD_FORM5BI1_4",-                   ;event handling object  ;ob
+            RC = 1,-                                     ;receipt = acknowledgement required
+            AB = 0,-                                     ;alarm blocking = no
+            AC = 0,-                                     ;alarm class 
+            AG = 0,-                                     ;alarming value = 0
+            AD = 0,-                                     ;alarm delay = disabled
+            PD = 0,-                                     ;picture device = none
+            PI = "",-                                    ;alarm picture
+            PF = %PF(11),-                               ;physical format for printout
+            RI = %RI(11),-                               ;dynamic texts for printout
+            PA = 1,-                                     ;printout activation = new value
+            PU = 0,-                                     ;picture/ printout at first update = no
+            LD = 0,-                                     ;listing device = none
+            IN = %IN(1),-
+            RX = %RX(11)))                               ;data acquisition unit and group information
+ 
+    #BLOCK_END                                           ;motorized
+
+    ;optional auxiliary plug
+    #IF 'ID'_PICTURE_FUNCTION_CONF:VAUXILIARY_PLUG #THEN #BLOCK
+      #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+        #WHEN "SPA" #BLOCK
+          @DX(12)    ="N7S"
+          @HE(12)    = 1                                 ;history enable = yes
+          @PF(12)    = "FORM5BPU1"                      ;physical format for printout
+        #BLOCK_END
+
+        #WHEN "IEC101","IEC103" #BLOCK
+          @DX(12)    ="C3"
+          @HE(12)    = 1                                 ;history enable = yes
+          @PF(12)    = "FORM5BPU1"                      ;physical format for printout
+        #BLOCK_END
+
+        #WHEN "ANSI" #BLOCK
+          @DX(12)    ="3"
+          @HE(12)    = 1                                 ;history enable = yes
+          @PF(12)    = "FORM5BPU1"                      ;physical format for printout
+        #BLOCK_END
+
+         #WHEN "RTU" #BLOCK
+          #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+            @DX(12)  ="I7S" 
+            @HE(12)  = 0                                 ;history enable = no
+            @PF(12)  = "DUMMY"                           ;physical format for printout
+          #BLOCK_END
+
+          #ELSE #BLOCK
+            @DX(12)  ="I7S" 
+            @HE(12)  = 1                                 ;history enable = yes
+            @PF(12)  = "FORM5BPU1"                      ;physical format for printout
+          #BLOCK_END
+        #BLOCK_END
+
+        #WHEN "RTU_E" #BLOCK
+          #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+            @DX(12)  ="R7S"
+            @HE(12)  = 0                                 ;history enable = no
+            @PF(12)  = "DUMMY"                           ;physical format for printout
+          #BLOCK_END
+
+          #ELSE #BLOCK
+            @DX(12)  ="R7S"
+            @HE(12)  = 1                                 ;history enable = yes
+            @PF(12)  = "FORM5BPU1"                      ;physical format for printout
+          #BLOCK_END
+        #BLOCK_END
+
+      #CASE_END
+
+      #CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+        #WHEN "DS","QB","QS","QI" #BLOCK                 ;circuit breaker
+          @OX(12)=FPI_SSW:VCB_AUX_PLUG                   ;signal text for auxiliary plug
+          @RI(12)=31                                     ;dynamic text for auxiliary plug printout
+        #BLOCK_END
+       #CASE_END
+
+      @RX(12) = %ADDITIONAL_IDENT+%UNIT_IDENT+ -         ;function block or channel number, data acquisition unit
+                "DP'XX''YY'IAUX"                         ;and group information  ;ob
+
+      #MODIFY P_OBJECTS:V = LIST(P_OBJ12 = LIST(-
+            IX = 21,-                                    ;index = 21
+            PT = 3,-                                     ;process object type = BI
+            DX = %DX(12),-                               ;directive text
+            BI = 1,-                                     ;object value
+            OI = %OBJ_IDENT,-                            ;substation & bay name
+            OX = %OX(12),-                               ;object text
+            IU = 1,-                                     ;in use = yes
+            SS = 1,-                                     ;switch state = man
+            EE = 1,-                                     ;event enable = yes
+            HE = %HE(12),-                               ;history enable
+            HA = 1,-                                     ;history activation = new value
+            HF = 0,-                                     ;history at first update = no
+            HL = BIT_MASK(15),-                          ;history log number = 15
+            EH = "FD_FORM5BI1_31",-                  ;event handling object  ;ob
+            RC = 1,-                                     ;receipt = acknowledgement required
+            AB = 0,-                                     ;alarm blocking = no
+            AC = 0,-                                     ;alarm class 
+            AG = 0,-                                     ;alarming value = 0
+            AD = 0,-                                     ;alarm delay = disabled
+            PD = 0,-                                     ;picture device = none
+            PI = "",-                                    ;alarm picture
+            PF = %PF(12),-                               ;physical format for printout
+            RI = %RI(12),-                               ;dynamic texts for printout
+            PA = 1,-                                     ;printout activation = new value
+            PU = 0,-                                     ;picture/ printout at first update = no
+            LD = 0,-                  ;ob BIT_MASK(1),-  ;listing device
+            RX = %RX(12)))                               ;data acquisition unit and group information
+
+    #BLOCK_END                                           ;auxiliary plug
+
+
+;Synchrocheck Bypass
+    #IF 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE == "QS" #THEN #BLOCK
+       
+       ;create command procedure for Synchrocheck Bypass
+       #do read_text("B_INST/fdi_bypass.scl")
+
+           ;Indication Object
+            @RX(22) = %ADDITIONAL_IDENT+%UNIT_IDENT+ -         ;function block or channel number, data acquisition unit
+                      "DP'XX''YY'ISYN"                         ;and group information  ;ob
+           #IF 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE == "IEC61850" #THEN #BLOCK
+              @RX(1) = SUBSTR(%RX(1),1,35) + "RSYN.Rel.stVal"
+              #IF LENGTH(%v_RSYN_Instance) > 0 #THEN #BLOCK
+                 #IF %b_Fill_IN #THEN @IN(1) = %t_OPC_Prefix + "." + %v_RSYN_Instance(1) + ".Rel.stVal"
+                 #ELSE @IN(1) = ""
+              #BLOCK_END
+              #ELSE @IN(1) = ""
+           #BLOCK_END
+           #ELSE @IN(1) = ""
+
+           @T_DX = "X7S"
+           @I_OV = 0
+
+
+           #MODIFY P_OBJECTS:V = LIST(P_OBJ22 = LIST(-
+                  IX = 22,-                                    ;index = 22
+                  PT = 3,-                                     ;process object type = BI
+                  DX = %T_DX,-                                 ;directive text
+                  BI = %I_OV,-                                 ;object value
+                  OI = %OBJ_IDENT,-                            ;substation & bay name
+                  OX = FPI_SSW:VCB_SYN_IND,-                   ;object text
+                  IU = 1,-                                     ;in use = yes
+                  SS = 1,-                                     ;switch state = man
+                  EE = 1,-                                     ;event enable = yes
+                  HE = 1,-                                     ;history enable
+                  HA = 4,-                                     ;history activation = value up
+                  HF = 0,-                                     ;history at first update = no
+                  HL = BIT_MASK(15),-                          ;history log number = 15
+                  RC = 0,-                                     ;receipt = no acknowledgement required
+                  AB = 0,-                                     ;alarm blocking = no
+                  AC = 0,-                                     ;alarm class 
+                  AG = 0,-                                     ;alarming value = 0
+                  AD = 0,-                                     ;alarm delay = disabled
+                  PD = 0,-                                     ;picture device = none
+                  PI = "",-                                    ;alarm picture
+                  PF = "FORM5BPU1",-                          ;physical format for printout
+                  RI = 41,-                                    ;dynamic texts for printout
+                  PA = 4,-                                     ;printout activation = value up
+                  PU = 0,-                                     ;picture/ printout at first update = no
+                  LD = 0,-                  ;ob BIT_MASK(1),-  ;listing device
+                  IN = %IN(1),-
+                  RX = %RX(22)))                               ;data acquisition unit and group information
+
+    #BLOCK_END                                              ;synchrocheck bypass
+;Synchrocheck Bypass End
+
+
+    ;position indication other than double indication
+    #CASE 'ID'_PICTURE_FUNCTION_CONF:VINDICATION_TYPE
+
+      ;analog input
+      #WHEN "AI" #BLOCK
+        #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+          #WHEN "SPA" #BLOCK
+            @DX(13)   ="N6"
+          #BLOCK_END
+
+          #WHEN "IEC101","IEC103" #BLOCK
+            @DX(13)   ="C9"
+          #BLOCK_END
+
+          #WHEN "ANSI" #BLOCK
+            @DX(13)   ="9"
+          #BLOCK_END
+
+          #WHEN "RTU" #BLOCK
+            @DX(13)   ="I6"
+          #BLOCK_END
+
+          #WHEN "RTU_E" #BLOCK
+            @DX(13)   ="R6"
+          #BLOCK_END
+
+        #CASE_END
+
+        #CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+          #WHEN "DS","QB","QS","QI" #BLOCK               ;circuit breaker
+            @OX(13)=FPI_SSW:VCB_POS_IND                  ;signal text for position indication
+          #BLOCK_END
+        #CASE_END
+
+        @RX(13) = %ADDITIONAL_IDENT+%UNIT_IDENT+ -       ;function block or channel number, data acquisition unit
+                  "DP'XX''YY'EPOS"                       ;and group information  ;ob
+
+        ;TiLi 24.11.2003: ID 7833
+				  #if 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE == "ANSI" #then @SN(13) = "FDU_1_1000"
+        #else @SN(13) = "1_1"
+        ;**
+
+        #MODIFY P_OBJECTS:V = LIST(P_OBJ13 = LIST(-
+              IX = 110,-                                 ;index = 110
+              PT = 9,-                                   ;process object type = AI
+              DX = %DX(13),-                             ;directive text
+              AI = 1,-                                   ;object value = 1
+              OI = %OBJ_IDENT,-                          ;substation & bay name
+              OX = %OX(13),-                             ;object text
+              IU = 1,-                                   ;in use = yes
+              SS = 1,-                                   ;switch state = manual
+              EE = 1,-                                   ;event enable = yes
+              HE = 0,-                                   ;history enable = no
+              HA = 0,-                                   ;history activation = alarm
+              HF = 0,-                                   ;history at first update = no
+              HL = BIT_MASK(15),-                        ;history log number = 15
+              HI = 0,-                                   ;upper alarm limit = 0
+              HW = 0,-                                   ;upper warning limit = 0
+              LW = 0,-                                   ;lower warning limit = 0
+              LI = 0,-                                   ;lower alarm limit = 0
+              ST = "POS",-                               ;unit of value
+              SN = %SN(13),-                             ;scale name
+              SZ = 1,-                                   ;zone supervision = SCADA
+              RC = 0,-                                   ;receipt = acknowledgement not required
+              AB = 0,-                                   ;alarm blocking = no
+              AC = 0,-                                   ;alarm class = disabled
+              AD = 0,-                                   ;alarm delay = 0
+              PD = 0,-                                   ;picture device = none
+              PI = "",-                                  ;alarm picture
+              PF = "",-                                  ;physical format for printout
+              RI = 0,-                                   ;dynamic texts for printout
+              PA = 0,-                                   ;printout activation = alarm
+              PU = 0,-                                   ;picture/ printout at first update = no
+              LD = 0,-                                   ;listing device = none
+			  AN = "BPU_AI2DB",-                         ;action name
+              AE = 1,-                                   ;action enabled
+              AA = 2,-                                   ;action activation = update
+              AF = 1,-                                   ;action at first update = yes
+              RX = %RX(13)))                             ;data acquisition unit and group information
+
+      #BLOCK_END                                         ;analog input
+
+      ;binary input
+      #WHEN "BI" #BLOCK
+        #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+          #WHEN "SPA" #BLOCK
+            @DX(13)   ="N7S"
+          #BLOCK_END
+
+          #WHEN "IEC101","IEC103" #BLOCK
+            @DX(13)   ="C3"
+          #BLOCK_END
+
+          #WHEN "ANSI" #BLOCK
+            @DX(13)   ="3"
+          #BLOCK_END
+
+          #WHEN "RTU" #BLOCK
+            @DX(13)   ="I7S"
+          #BLOCK_END
+
+          #WHEN "RTU_E" #BLOCK
+            @DX(13)   ="R7S"
+          #BLOCK_END
+
+        #CASE_END
+
+        #CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+          #WHEN "DS","QB","QS","QI" #BLOCK               ;circuit breaker
+            @OX(13)=FPI_SSW:VCB_POS_IND                  ;signal text for position indication
+          #BLOCK_END
+        #CASE_END
+
+        @RX(13) = %ADDITIONAL_IDENT+%UNIT_IDENT+ -       ;function block or channel number, data acquisition unit
+                  "DP'XX''YY'EPOS"                       ;and group information  ;ob
+
+        #MODIFY P_OBJECTS:V = LIST(P_OBJ13 = LIST(-
+              IX = 110,-                                 ;index = 110
+              PT = 3,-                                   ;process object type = BI
+              DX = %DX(13),-                             ;directive text
+              BI = 1,-                                   ;object value = 1
+              OI = %OBJ_IDENT,-                          ;substation & bay name
+              OX = %OX(13),-                             ;object text
+              IU = 1,-                                   ;in use = yes
+              SS = 1,-                                   ;switch state = manual
+              EE = 1,-                                   ;event enable = yes
+              HE = 0,-                                   ;history enabled = no
+              HA = 1,-                                   ;history activation = new value
+              HF = 0,-                                   ;history at first update = no
+              HL = BIT_MASK(15),-                        ;history log number = 15
+              RC = 0,-                                   ;receipt = acknowledgement not required
+              AB = 0,-                                   ;alarm blocking = no
+              AC = 0,-                                   ;alarm class = disabled
+              AG = 0,-                                   ;alarming value = 0
+              AD = 0,-                                   ;alarm delay = 0
+              PD = 0,-                                   ;picture device = none
+              PI = "",-                                  ;alarm picture
+              PF = "",-                                  ;physical format for printout
+              RI = 0,-                                   ;dynamic texts for printout
+              PA = 1,-                                   ;printout activation = new value
+              PU = 0,-                                   ;picture/ printout at first update = no
+              LD = 0,-                                   ;listing device
+			  AN = "BPU_BI2DB",-                         ;action name
+              AE = 1,-                                   ;action enabled
+              AA = 2,-                                   ;action activation = update
+              AF = 1,-                                   ;action at first update = yes
+              RX = %RX(13)))                             ;data acquisition unit and group information
+
+      #BLOCK_END                                         ;binary input
+
+      ;two binary inputs
+      #WHEN "2BI" #BLOCK
+        #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+          #WHEN "SPA" #BLOCK
+            @DX(13..14)   ="N7S"
+          #BLOCK_END
+
+          #WHEN "IEC101","IEC103" #BLOCK
+            @DX(13..14)   ="C3"
+          #BLOCK_END
+
+          #WHEN "ANSI" #BLOCK
+            @DX(13..14)   ="3"
+          #BLOCK_END
+
+          #WHEN "RTU" #BLOCK
+            @DX(13..14)   ="I7S"
+          #BLOCK_END
+
+          #WHEN "RTU_E" #BLOCK
+            @DX(13..14)   ="R7S"
+          #BLOCK_END
+
+        #CASE_END
+
+        #CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+          #WHEN "DS","QB","QS","QI" #BLOCK               ;circuit breaker
+            @OX(13)=FPI_SSW:VCB_OPEN_IND                 ;signal text for open indication
+            @OX(14)=FPI_SSW:VCB_CLOSE_IND                ;signal text for close indication
+          #BLOCK_END
+        #CASE_END
+
+        @RX(13..14) = %ADDITIONAL_IDENT+%UNIT_IDENT+ -   ;function block or channel number, data acquisition unit
+                      "DP'XX''YY'EPOS"                   ;and group information  ;ob
+
+        #MODIFY P_OBJECTS:V = LIST(P_OBJ13 = LIST(-
+              IX = 110,-                                 ;index = 110
+              PT = 3,-                                   ;process object type = BI
+              DX = %DX(13),-                             ;directive text
+              BI = 0,-                                   ;object value = 0
+              OI = %OBJ_IDENT,-                          ;substation & bay name
+              OX = %OX(13),-                             ;object text
+              IU = 1,-                                   ;in use = yes
+              SS = 1,-                                   ;switch state = manual
+              EE = 1,-                                   ;event enable = yes
+              HE = 0,-                                   ;history enabled = no
+              HA = 1,-                                   ;history activation = new value
+              HF = 0,-                                   ;history at first update = no
+              HL = BIT_MASK(15),-                        ;history log number = 15
+              RC = 0,-                                   ;receipt = acknowledgement not required
+              AB = 0,-                                   ;alarm blocking = no
+              AC = 0,-                                   ;alarm class = disabled
+              AG = 0,-                                   ;alarming value = 0
+              AD = 0,-                                   ;alarm delay = 0
+              PD = 0,-                                   ;picture device = none
+              PI = "",-                                  ;alarm picture
+              PF = "",-                                  ;physical format for printout
+              RI = 0,-                                   ;dynamic texts for printout
+              PA = 1,-                                   ;printout activation = new value
+              PU = 0,-                                   ;picture/ printout at first update = no
+              LD = 0,-                                   ;listing device
+				  AN = "BPU_2BI2DB",-                        ;action name
+              AE = 1,-                                   ;action enabled
+              AA = 2,-                                   ;action activation = update
+              AF = 1,-                                   ;action at first update = yes
+              RX = %RX(13)))                             ;data acquisition unit and group information
+
+        #MODIFY P_OBJECTS:V = LIST(P_OBJ14 = LIST(-
+              IX = 108,-                                 ;index = 108
+              PT = 3,-                                   ;process object type = BI
+              DX = %DX(14),-                             ;directive text
+              BI = 1,-                                   ;object value = 1
+              OI = %OBJ_IDENT,-                          ;substation & bay name
+              OX = %OX(14),-                             ;object text
+              IU = 1,-                                   ;in use = yes
+              SS = 1,-                                   ;switch state = manual
+              EE = 1,-                                   ;event enable = yes
+              HE = 0,-                                   ;history enabled = no
+              HA = 1,-                                   ;history activation = new value
+              HF = 0,-                                   ;history at first update = no
+              HL = BIT_MASK(15),-                        ;history log number = 15
+              RC = 0,-                                   ;receipt = acknowledgement not required
+              AB = 0,-                                   ;alarm blocking = no
+              AC = 0,-                                   ;alarm class = disabled
+              AG = 0,-                                   ;alarming value = 0
+              AD = 0,-                                   ;alarm delay = 0
+              PD = 0,-                                   ;picture device = none
+              PI = "",-                                  ;alarm picture
+              PF = "",-                                  ;physical format for printout
+              RI = 0,-                                   ;dynamic texts for printout
+              PA = 1,-                                   ;printout activation = new value
+              PU = 0,-                                   ;picture/ printout at first update = no
+              LD = 0,-                                   ;listing device
+			     AN = "BPU_2BI2DB",-                        ;action name
+              AE = 1,-                                   ;action enabled
+              AA = 2,-                                   ;action activation = update
+              AF = 1,-                                   ;action at first update = yes
+              RX = %RX(14)))                             ;data acquisition unit and group information
+      #BLOCK_END                                         ;two binary inputs
+    #CASE_END                                            ;indication type
+    
+    ;** TiLi 07.01.2004 additional faulty indication for DNP 3.0 and MODBUS
+    #IF 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE == "DNP_30" #THEN #BLOCK
+
+       #CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+          #WHEN "DS","QB","QS","QI" #BLOCK               ;circuit breaker
+            @OX(24)=FPI_SSW:VCB_FAULTY_IND               ;signal text for close indication
+          #BLOCK_END
+        #CASE_END
+
+       @RX(24) = %ADDITIONAL_IDENT+%UNIT_IDENT+ -   ;function block or channel number, data acquisition unit
+                      "DP'XX''YY'EPOS"                   ;and group information  ;ob
+
+       #MODIFY P_OBJECTS:V = LIST(P_OBJ24 = LIST(-
+              IX = 106,-                                 ;index = 106
+              PT = 3,-                                   ;process object type = BI
+              DX = %DX(24),-                             ;directive text
+              BI = 1,-                                   ;object value = 1
+              OI = %OBJ_IDENT,-                          ;substation & bay name
+              OX = %OX(24),-                             ;object text
+              IU = 1,-                                   ;in use = yes
+              SS = 1,-                                   ;switch state = manual
+              EE = 1,-                                   ;event enable = yes
+              HE = 0,-                                   ;history enabled = no
+              HA = 1,-                                   ;history activation = new value
+              HF = 0,-                                   ;history at first update = no
+              HL = BIT_MASK(15),-                        ;history log number = 15
+              RC = 0,-                                   ;receipt = acknowledgement not required
+              AB = 0,-                                   ;alarm blocking = no
+              AC = 0,-                                   ;alarm class = disabled
+              AG = 0,-                                   ;alarming value = 0
+              AD = 0,-                                   ;alarm delay = 0
+              PD = 0,-                                   ;picture device = none
+              PI = "",-                                  ;alarm picture
+              PF = "",-                                  ;physical format for printout
+              RI = 0,-                                   ;dynamic texts for printout
+              PA = 1,-                                   ;printout activation = new value
+              PU = 0,-                                   ;picture/ printout at first update = no
+              LD = 0,-                                   ;listing device
+			  AN = "FDU_1TO3",-                          ;action name
+              AE = 1,-                                   ;action enabled
+              AA = 2,-                                   ;action activation = update
+              AF = 1,-                                   ;action at first update = yes
+              RX = %RX(24)))                             ;data acquisition unit and group information
+    #BLOCK_END
+    ;** TiLi END
+
+    ;event recording objects
+    #IF ('ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE=="RTU" OR -
+        'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE=="RTU_E" OR 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE=="DNP_30") AND -
+        'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+
+      ;event recording object for position indication (DB)
+      #IF 'ID'_PICTURE_FUNCTION_CONF:VINDICATION_TYPE=="DB" #THEN #BLOCK
+        #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+          #WHEN "RTU" #BLOCK
+            @DX(13)    ="I10D"
+          #BLOCK_END
+
+          #WHEN "RTU_E" #BLOCK
+            @DX(13)    ="R10D"
+          #BLOCK_END
+             
+        #CASE_END
+
+        #CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+          #WHEN "DS","QB","QS","QI" #BLOCK               ;circuit breaker
+            @OX(13)=FPI_SSW:VCB_POS_IND                  ;signal text for position indication
+            @RI(13)=3                                    ;dynamic text for position indication printout
+          #BLOCK_END
+        #CASE_END
+
+        @RX(13) = %ADDITIONAL_IDENT+%UNIT_IDENT+ -       ;function block or channel number, data acquisition unit
+                  "DP'XX''YY'EPOS"                       ;and group information  ;ob
+
+        #MODIFY P_OBJECTS:V = LIST(P_OBJ13 = LIST(-
+              IX = 110,-                                 ;index = 110
+              PT = 12,-                                  ;process object type = DB
+              DX = %DX(13),-                             ;directive text
+              NV = 4,-                                   ;normal value = none
+              OI = %OBJ_IDENT,-                          ;substation & bay name
+              OX = %OX(13),-                             ;object text
+              IU = 1,-                                   ;in use = yes
+              SS = 1,-                                   ;switch state = manual
+              EE = 1,-                                   ;event enable = yes
+              HE = 1,-                                   ;history enable = yes
+              HA = 2,-                                   ;history activation = update
+              HF = 1,-                                   ;history at first update = yes
+              HL = BIT_MASK(15),-                        ;history log number = 15
+              EH = %EH_PT12,-                            ;event handling object  ;ob
+              RC = 0,-                                   ;receipt = acknowledgement not required
+              AB = 0,-                                   ;alarm blocking = no
+              AC = 0,-                                   ;alarm class = disabled
+              LA = 0,-                                   ;alarm activation = none
+              AD = 0,-                                   ;alarm delay = 0
+              PD = 0,-                                   ;picture device = none
+              PI = "",-                                  ;alarm picture
+              PF = "FORM5BPU1",-                        ;physical format for printout
+              RI = %RI(13),-                             ;dynamic texts for printout
+              PA = 2,-                                   ;printout activation = update
+              PU = 1,-                                   ;picture/ printout at first update = yes
+              LD = 0,-                ;ob BIT_MASK(1),-  ;listing device
+              RX = %RX(13)))                             ;data acquisition unit and group information
+
+      #BLOCK_END                                         ;double binary
+
+      ;if motorized switching device
+      #IF 'ID'_PICTURE_FUNCTION_CONF:VMOTORIZED #THEN #BLOCK
+
+        ;event recording objects for external control blocking and open/close interlocking 
+        #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+          #WHEN "RTU" #BLOCK
+            @DX(15..17)    ="I10S"
+          #BLOCK_END
+
+          #WHEN "RTU_E" #BLOCK
+            @DX(15..17)    ="R10S"
+          #BLOCK_END
+               
+        #CASE_END
+
+        #CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+          #WHEN "DS","QB","QS","QI" #BLOCK               ;circuit breaker
+            @OX(15)=FPI_SSW:VCB_EXT_CNTR_BLK             ;signal text for external interlocking
+            @OX(16)=FPI_SSW:VCB_OPEN_ILOCKED             ;signal text for open interlocked
+            @OX(17)=FPI_SSW:VCB_CLOSE_ILOCKED            ;signal text for close interlocked
+            @RI(15..17)=3                                ;dynamic text for object printout
+          #BLOCK_END
+         #CASE_END
+
+        @RX(15)     = %ADDITIONAL_IDENT+%UNIT_IDENT+ -   ;function block or channel number, data acquisition unit
+                      "DP'XX''YY'EBLK"                   ;and group information  ;ob
+        @RX(16..17) = %ADDITIONAL_IDENT+%UNIT_IDENT+ -   ;function block or channel number, data acquisition unit
+                      "DP'XX''YY'EINH"                   ;and group information  ;ob
+
+        #LOOP_WITH I=15..17
+          #MODIFY P_OBJECTS:V = LIST(P_OBJ'I' = LIST(-
+                IX = 100+%I,-                            ;index = 115,116,117
+                PT = 3,-                                 ;process object type = BI
+                DX = %DX('I'),-                          ;directive text
+                BI = 0,-                                 ;object value
+                OI = %OBJ_IDENT,-                        ;substation & bay name
+                OX = %OX('I'),-                          ;object text
+                IU = 1,-                                 ;in use = yes
+                SS = 2,-                                 ;switch state = auto
+                EE = 0,-                                 ;event enable = no
+                HE = 1,-                                 ;history enable = yes
+                HA = 2,-                                 ;history activation = update
+                HF = 1,-                                 ;history at first update = yes
+                HL = BIT_MASK(15),-                      ;history log number = 15
+                EH = "FD_FORM5BI1_3",-               ;event handling object  ;ob
+                RC = 0,-                                 ;receipt = acknowledgement not required
+                AB = 0,-                                 ;alarm blocking = no
+                AC = 0,-                                 ;alarm class 
+                AG = 0,-                                 ;alarming value = 0
+                AD = 0,-                                 ;alarm delay = 0
+                PD = 0,-                                 ;picture device = none
+                PI = "",-                                ;alarm picture
+                PF = "FORM5BPU1",-                      ;physical format for printout
+                RI = %RI('I'),-                          ;dynamic texts for printout
+                PA = 2,-                                 ;printout activation = update
+                PU = 1,-                                 ;picture/ printout at first update = yes
+                LD = 0,-              ;ob BIT_MASK(1),-  ;listing device
+                RX = %RX('I')))                          ;data acquisition unit and group information
+        #LOOP_END
+
+      #BLOCK_END                                         ;motorized
+
+      ;event recording objects for optional auxiliary plug 
+      #IF 'ID'_PICTURE_FUNCTION_CONF:VAUXILIARY_PLUG #THEN #BLOCK
+        #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+          #WHEN "RTU" #BLOCK
+            @DX(18)    ="I10S"
+          #BLOCK_END
+
+          #WHEN "RTU_E" #BLOCK
+            @DX(18)    ="R10S"            
+          #BLOCK_END
+          
+        #CASE_END
+
+        #CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+          #WHEN "DS","QB","QS","QI" #BLOCK               ;circuit breaker
+            @OX(18)=FPI_SSW:VCB_AUX_PLUG                 ;signal text for auxiliary plug
+            @RI(18)=31                                   ;dynamic text for auxiliary plug printout
+          #BLOCK_END
+         #CASE_END
+
+        @RX(18) = %ADDITIONAL_IDENT+%UNIT_IDENT+ -       ;function block or channel number, data acquisition unit
+                  "DP'XX''YY'EAUX"                       ;and group information  ;ob
+
+        #MODIFY P_OBJECTS:V = LIST(P_OBJ18 = LIST(-
+              IX = 121,-                                 ;index = 121
+              PT = 3,-                                   ;process object type = BI
+              DX = %DX(18),-                             ;directive text
+              BI = 0,-                                   ;object value
+              OI = %OBJ_IDENT,-                          ;substation & bay name
+              OX = %OX(18),-                             ;object text
+              IU = 1,-                                   ;in use = yes
+              SS = 2,-                                   ;switch state = auto
+              EE = 0,-                                   ;event enable = no
+              HE = 1,-                                   ;history enable = yes
+              HA = 2,-                                   ;history activation = update
+              HF = 1,-                                   ;history at first update = yes
+              HL = BIT_MASK(15),-                        ;history log number = 15
+              EH = "FD_FORM5BI1_31",-                ;event handling object  ;ob
+              RC = 0,-                                   ;receipt = acknowledgement not required
+              AB = 0,-                                   ;alarm blocking = no
+              AC = 0,-                                   ;alarm class = disabled
+              AG = 0,-                                   ;alarming value = 0
+              AD = 0,-                                   ;alarm delay = 0
+              PD = 0,-                                   ;picture device = none
+              PI = "",-                                  ;alarm picture
+              PF = "FORM5BPU1",-                        ;physical format for printout
+              RI = %RI(18),-                             ;dynamic texts for printout
+              PA = 2,-                                   ;printout activation = update
+              PU = 1,-                                   ;picture/ printout at first update = yes
+              LD = 0,-                ;ob BIT_MASK(1),-  ;listing device
+              RX = %RX(18)))                             ;data acquisition unit and group information
+
+      #BLOCK_END                                         ;auxialiry plug
+
+      ;position indication other than double indication
+      #CASE 'ID'_PICTURE_FUNCTION_CONF:VINDICATION_TYPE
+
+        ;event recording object for position indication of the analog input (AI) type
+        #WHEN "AI" #BLOCK
+          #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+            #WHEN "RTU" #BLOCK
+              @DX(19)   ="I11"
+            #BLOCK_END
+
+            #WHEN "RTU_E" #BLOCK
+              @DX(19)   ="R11"      
+            #BLOCK_END
+
+          #CASE_END
+
+          #CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+            #WHEN "DS","QB","QS","QI" #BLOCK             ;circuit breaker
+              @OX(19)=FPI_SSW:VCB_POS_IND                ;signal text for position indication
+              @RI(19)=3                                  ;dynamic text for position indication printout
+            #BLOCK_END
+           #CASE_END
+
+          @RX(19) = %ADDITIONAL_IDENT+%UNIT_IDENT+ -     ;function block or channel number, data acquisition unit
+                    "DP'XX''YY'EPOS"                     ;and group information  ;ob
+
+          #MODIFY P_OBJECTS:V = LIST(P_OBJ19 = LIST(-
+                IX = 210,-                               ;index = 210
+                PT = 9,-                                 ;process object type = AI
+                DX = %DX(19),-                           ;directive text
+                AI = 1,-                                 ;object value = 1
+                OI = %OBJ_IDENT,-                        ;substation & bay name
+                OX = %OX(19),-                           ;object text
+                IU = 1,-                                 ;in use = yes
+                SS = 2,-                                 ;switch state = auto
+                EE = 1,-                                 ;event enable = yes
+                HE = 1,-                                 ;history enable = yes
+                HA = 2,-                                 ;history activation = update
+                HF = 1,-                                 ;history at first update = yes
+                HL = BIT_MASK(15),-                      ;history log number = 15
+-;ob EH = ... (fehlt noch, da keine Zeit)
+                HI = 0,-                                 ;upper alarm limit = 0
+                HW = 0,-                                 ;upper warning limit = 0
+                LW = 0,-                                 ;lower warning limit = 0
+                LI = 0,-                                 ;lower alarm limit = 0
+                ST = "POS",-                             ;unit of value
+                SN = "1_1",-                             ;scale name
+                SZ = 1,-                                 ;zone supervision = SCADA
+                RC = 0,-                                 ;receipt = acknowledgement not required
+                AB = 0,-                                 ;alarm blocking = no
+                AC = 0,-                                 ;alarm class = disabled
+                AD = 0,-                                 ;alarm delay = 0
+                PD = 0,-                                 ;picture device = none
+                PI = "",-                                ;alarm picture
+                PF = "FORM5BPU1",-                      ;physical format for printout
+                RI = %RI(19),-                           ;dynamic texts for printout
+                PA = 2,-                                 ;printout activation = update
+                PU = 1,-                                 ;picture/ printout at first update = yes
+                LD = 0,-              ;ob BIT_MASK(1),-  ;listing device
+                RX = %RX(19)))                           ;data acquisition unit and group information
+
+        #BLOCK_END                                       ;analog input
+
+        ;event recording object for position indication of the single binary input (BI) type
+        #WHEN "BI" #BLOCK
+          #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+            #WHEN "RTU" #BLOCK
+              @DX(19)   ="I10S"
+            #BLOCK_END
+
+            #WHEN "RTU_E" #BLOCK
+              @DX(19)   ="R10S"         
+            #BLOCK_END
+
+          #CASE_END
+
+          #CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+            #WHEN "DS","QB","QS","QI" #BLOCK             ;circuit breaker
+              @OX(19)=FPI_SSW:VCB_POS_IND                ;signal text for position indication
+              @RI(19)=5                                  ;dynamic text for position indication printout
+            #BLOCK_END
+          #CASE_END
+
+          @RX(19) = %ADDITIONAL_IDENT+%UNIT_IDENT+ -     ;function block or channel number, data acquisition unit
+                    "DP'XX''YY'EPOS"                     ;and group information  ;ob
+
+          #MODIFY P_OBJECTS:V = LIST(P_OBJ19 = LIST(-
+                IX = 210,-                               ;index = 210
+                PT = 3,-                                 ;process object type = BI
+                DX = %DX(19),-                           ;directive text
+                BI = 0,-                                 ;object value
+                OI = %OBJ_IDENT,-                        ;substation & bay name
+                OX = %OX(19),-                           ;object text
+                IU = 1,-                                 ;in use = yes
+                SS = 2,-                                 ;switch state = auto
+                EE = 0,-                                 ;event enable = no
+                HE = 1,-                                 ;history enable = yes
+                HA = 2,-                                 ;history activation = update
+                HF = 1,-                                 ;history at first update = yes
+                HL = BIT_MASK(15),-                      ;history log number = 15
+                EH = %EH_PT3,-                           ;event handling object  ;ob
+                RC = 0,-                                 ;receipt = acknowledgement not required
+                AB = 0,-                                 ;alarm blocking = no
+                AC = 0,-                                 ;alarm class = disabled
+                AG = 0,-                                 ;alarming value = 0
+                AD = 0,-                                 ;alarm delay = 0
+                PD = 0,-                                 ;picture device = none
+                PI = "",-                                ;alarm picture
+                PF = "FORM5BPU1",-                      ;physical format for printout
+                RI = %RI(19),-                           ;dynamic texts for printout
+                PA = 2,-                                 ;printout activation = update
+                PU = 1,-                                 ;picture/ printout at first update = yes
+                LD = 0,-              ;ob BIT_MASK(1),-  ;listing device
+                RX = %RX(19)))                           ;data acquisition unit and group information
+
+        #BLOCK_END                                       ;binary input
+
+        ;event recording object for position indication of two binary inputs (2xBI) type
+        #WHEN "2BI" #BLOCK
+          #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+            #WHEN "RTU" #BLOCK
+              @DX(19..20)   ="I10S"
+            #BLOCK_END
+
+            #WHEN "RTU_E" #BLOCK         
+              @DX(19..20)   ="R10S"
+            #BLOCK_END
+
+          #CASE_END
+
+          #CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+            #WHEN "DS","QB","QS","QI" #BLOCK             ;circuit breaker
+              @OX(19)=FPI_SSW:VCB_OPEN_IND               ;signal text for open indication
+              @OX(20)=FPI_SSW:VCB_CLOSE_IND              ;signal text for close indication
+              @RI(19)=6                                  ;dynamic text for open position indication printout
+              @RI(20)=7                                  ;dynamic text for close position indication printout
+            #BLOCK_END
+          #CASE_END
+
+          @RX(19..20) = %ADDITIONAL_IDENT+%UNIT_IDENT+ - ;function block or channel number, data acquisition unit
+                        "DP'XX''YY'EPOS"                 ;and group information  ;ob
+
+          #MODIFY P_OBJECTS:V = LIST(P_OBJ19 = LIST(-
+                IX = 210,-                               ;index = 210
+                PT = 3,-                                 ;process object type = BI
+                DX = %DX(19),-                           ;directive text
+                BI = 0,-                                 ;object value = 0
+                OI = %OBJ_IDENT,-                        ;substation & bay name
+                OX = %OX(19),-                           ;object text
+                IU = 1,-                                 ;in use = yes
+                SS = 2,-                                 ;switch state = auto
+                EE = 0,-                                 ;event enable = no
+                HE = 1,-                                 ;history enable = yes
+                HA = 2,-                                 ;history activation = update
+                HF = 1,-                                 ;history at first update = yes
+                HL = BIT_MASK(15),-                      ;history log number = 15
+-;ob EH = ... (fehlt noch, da keine Zeit)
+                RC = 0,-                                 ;receipt = acknowledgement not required
+                AB = 0,-                                 ;alarm blocking = no
+                AC = 0,-                                 ;alarm class = disabled
+                AG = 0,-                                 ;alarming value = 0
+                AD = 0,-                                 ;alarm delay = 0
+                PD = 0,-                                 ;picture device = none
+                PI = "",-                                ;alarm picture
+                PF = "FORM5BPU1",-                      ;physical format for printout
+                RI = %RI(19),-                           ;dynamic texts for printout
+                PA = 2,-                                 ;printout activation = update
+                PU = 1,-                                 ;picture/ printout at first update = yes
+                LD = 0,-              ;ob BIT_MASK(1),-  ;listing device
+                RX = %RX(19)))                           ;data acquisition unit and group information
+
+          #MODIFY P_OBJECTS:V = LIST(P_OBJ20 = LIST(-
+                IX = 208,-                               ;index = 208
+                PT = 3,-                                 ;process object type = BI
+                DX = %DX(20),-                           ;directive text
+                BI = 1,-                                 ;object value = 1
+                OI = %OBJ_IDENT,-                        ;substation & bay name
+                OX = %OX(20),-                           ;object text
+                IU = 1,-                                 ;in use = yes
+                SS = 2,-                                 ;switch state = auto
+                EE = 0,-                                 ;event enable = no
+                HE = 1,-                                 ;history enable = yes
+                HA = 2,-                                 ;history activation = update
+                HF = 1,-                                 ;history at first update = yes
+                HL = BIT_MASK(15),-                      ;history log number = 15
+-;ob EH = ... (fehlt noch, da keine Zeit)
+                RC = 0,-                                 ;receipt = acknowledgement not required
+                AB = 0,-                                 ;alarm blocking = no
+                AC = 0,-                                 ;alarm class = disabled
+                AG = 0,-                                 ;alarming value = 0
+                AD = 0,-                                 ;alarm delay = 0
+                PD = 0,-                                 ;picture device = none
+                PI = "",-                                ;alarm picture
+                PF = "FORM5BPU1",-                      ;physical format for printout
+                RI = %RI(20),-                           ;dynamic texts for printout
+                PA = 2,-                                 ;printout activation = update
+                PU = 1,-                                 ;picture/ printout at first update = yes
+                LD = 0,-              ;ob BIT_MASK(1),-  ;listing device
+                RX = %RX(20)))                           ;data acquisition unit and group information
+        #BLOCK_END                                       ;two binary inputs
+      #CASE_END                                          ;indication type
+    #BLOCK_END                                           ;event recording
+
+    ;command termination
+    #IF ('ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE=="IEC101" OR 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE=="IEC103" OR 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE=="DNP_30") AND 'ID'_PICTURE_FUNCTION_CONF:VMOTORIZED #THEN #BLOCK
+
+      ;control type
+      #CASE 'ID'_PICTURE_FUNCTION_CONF:VCONTROL_TYPE
+
+        ;secured control with four binary outputs
+        #WHEN "SEC-4BO" #BLOCK
+          ;indexing
+          @START_INDEX = 15
+          @STOP_INDEX  = 18
+          #CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+            #WHEN "DS","QB","QS","QI" #BLOCK             ;circuit breaker
+              @OX(15)=FPI_SSW:VCB_OPEN_SEL               ;signal text for open select
+              @OX(16)=FPI_SSW:VCB_CLOSE_SEL              ;signal text for close select
+              @OX(17)=FPI_SSW:VCB_EXEC_CMD               ;signal text for execute
+              @OX(18)=FPI_SSW:VCB_CANCEL_CMD             ;signal text for cancel
+            #BLOCK_END
+          #CASE_END
+        #BLOCK_END
+
+        ;secured control with two binary or digital outputs
+        #WHEN "SEC-2BO","SEC-2DO" #BLOCK
+          ;indexing
+          @START_INDEX = 15
+          @STOP_INDEX  = 16
+          #CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+            #WHEN "DS","QB","QS","QI" #BLOCK             ;circuit breaker
+              @OX(15)=FPI_SSW:VCB_OPEN_EXEC              ;signal text for open execute
+              @OX(16)=FPI_SSW:VCB_CLOSE_EXEC             ;signal text for close execute
+            #BLOCK_END
+          #CASE_END
+        #BLOCK_END
+
+        ;secured control with a single binary or analog output/direct control with a single binary output  
+        #WHEN "SEC-BO","AO","DIR-BO" #BLOCK
+          ;indexing
+          @START_INDEX = 17
+          @STOP_INDEX  = 17
+          #CASE 'ID'_PICTURE_FUNCTION_CONF:VSWITCHING_DEVICE_TYPE
+            #WHEN "DS","QB","QS","QI" #BLOCK             ;circuit breaker
+              @OX(17)=FPI_SSW:VCB_OBJ_CMD                ;signal text for control object
+            #BLOCK_END
+          #CASE_END
+        #BLOCK_END
+      #CASE_END                                          ;control type
+
+      @RX(%START_INDEX..%STOP_INDEX) = %ADDITIONAL_IDENT+ -  ;function block or channel number, data acquisition unit
+          %UNIT_IDENT+"DP'XX''YY'TOBC"                   ;and group information  ;ob
+      
+      @TMP_DX = "C9E"
+
+      #LOOP_WITH I=%START_INDEX..%STOP_INDEX
+        #MODIFY P_OBJECTS:V = LIST(P_OBJ'I' = LIST(-
+              IX = %I+96,-                               ;index = (111, 112,) 113 (,114)
+              PT = 9,-                                   ;process object type = AI
+              DX = %TMP_DX,-                             ;directive text
+              OI = %OBJ_IDENT,-                          ;substation & bay name
+              OX = %OX('I'),-                            ;object text
+              IU = 1,-                                   ;in use = yes
+              SS = 2,-                                   ;switch state = auto
+              EE = 1,-                                   ;event enable = yes
+              HE = 1,-                                   ;history enable
+              HA = 2,-                                   ;history activation = update
+              HF = 1,-                                   ;history at first update = yes
+              HL = BIT_MASK(15),-                        ;history log number = 15
+              EH = "FD_FORM5AI1_10",-                ;event handling object  ;ob
+              HI = 0,-                                   ;upper alarm limit = 0
+              HW = 0,-                                   ;upper warning limit = 0
+              LW = 0,-                                   ;lower warning limit = 0
+              LI = 0,-                                   ;lower alarm limit = 0
+              ST = "cmd status",-                        ;unit of value
+              SN = "1_1",-                               ;scale name
+              SZ = 1,-                                   ;zone supervision = SCADA
+              RC = 0,-                                   ;receipt = acknowledgement not required
+              AB = 0,-                                   ;alarm blocking = no
+              AC = 0,-                                   ;alarm class = 0
+              AD = 0,-                                   ;alarm delay = 0
+              PD = 0,-                                   ;picture device = none
+              PI = "",-                                  ;alarm picture
+              PF = "FORM5BPU1",-                        ;physical format for printout
+              RI = 10,-                                  ;dynamic texts for printout
+              PA = 2,-                                   ;printout activation = update
+              PU = 1,-                                   ;picture/ printout at first update = yes
+              LD = 0,-                ;ob BIT_MASK(1),-  ;listing device
+              RX = %RX('I')))                            ;data acquisition unit and group information
+
+      #LOOP_END
+    #BLOCK_END                                           ;IEC 870-5-101/103 and motorized
+
+    ;if motorized switching device
+    #IF 'ID'_PICTURE_FUNCTION_CONF:VMOTORIZED #THEN #BLOCK
+
+      ;interlocking cause (calculated by topological interlocking)
+      #IF FALSE #THEN #BLOCK ;'ID'_PICTURE_FUNCTION_CONF:VCREATE_TOPO_INTL_CAUSE #THEN #BLOCK
+
+        #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+          #WHEN "SPA" #BLOCK
+            @DX(21)   ="N6"
+          #BLOCK_END
+
+          #WHEN "IEC101","IEC103" #BLOCK
+            @DX(21)   ="C9"
+          #BLOCK_END
+
+          #WHEN "ANSI" #BLOCK
+            @DX(21)   ="9"
+          #BLOCK_END
+
+          #WHEN "RTU" #BLOCK
+            @DX(21)   ="I6"
+          #BLOCK_END
+
+          #WHEN "RTU_E" #BLOCK
+            @DX(21)   ="R6"
+          #BLOCK_END
+
+        #CASE_END
+
+        @RX(21) = "                    DP'XX''YY'IINH"   ;group information  ;ob
+
+        #MODIFY P_OBJECTS:V = LIST(P_OBJ21 = LIST(-
+              IX = 252,-                                 ;index = 252
+              PT = 9,-                                   ;process object type = AI
+              DX = %DX(21),-                             ;directive text
+              AI = 0,-                                   ;object value = 0
+              OI = %OBJ_IDENT,-                          ;substation & bay name
+              OX = FPI_SSW:VINTL_CAUSE,-                 ;object text
+              IU = 1,-                                   ;in use = yes
+              SS = 1,-                                   ;switch state = auto
+              EE = 1,-                                   ;event enable = yes
+              HE = 0,-                                   ;history enable = no
+              HA = 2,-                                   ;history activation = update
+              HF = 1,-                                   ;history at first update = yes
+              HL = BIT_MASK(15),-                        ;history log number = 15
+              HI = 0,-                                   ;upper alarm limit = 0
+              HW = 0,-                                   ;upper warning limit = 0
+              LW = 0,-                                   ;lower warning limit = 0
+              LI = 0,-                                   ;lower alarm limit = 0
+              ST = "Cause",-                             ;unit of value
+              SN = "1_1",-                               ;scale name
+              SZ = 1,-                                   ;zone supervision = SCADA
+              RC = 0,-                                   ;receipt = acknowledgement not required
+              AB = 0,-                                   ;alarm blocking = no
+              AC = 0,-                                   ;alarm class = disabled
+              AD = 0,-                                   ;alarm delay = 0
+              PD = 0,-                                   ;picture device = none
+              PI = "",-                                  ;alarm picture
+              PF = "",-                                  ;physical format for printout
+              RI = 0,-                                   ;dynamic texts for printout
+              PA = 2,-                                   ;printout activation = update
+              PU = 1,-                                   ;picture/ printout at first update = yes
+              LD = 0,-                                   ;listing device = none
+              RX = %RX(21)))                             ;group information
+
+      #BLOCK_END                                         ;topological interlocking
+    #BLOCK_END                                           ;motorized
+  #BLOCK_END                                             ;circuit breaker, disconnector and earth switch
+#CASE_END                                                ;switching device type

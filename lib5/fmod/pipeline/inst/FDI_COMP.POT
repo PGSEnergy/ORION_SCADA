@@ -1,0 +1,40 @@
+;------------------------------------------------------------------------------------
+; Rev. 
+; 0.00     2012.3.30   NN    Initial
+;-----------------------------------------------------------------
+;read object texts
+#CREATE FPI_SSW:V = LIST(-
+   AI2DB_COMMENT = "Updates DB from AI",-
+   BI22DB_COMMENT = "Updates DB from two BIs - 1",-
+   BI2DB_COMMENT = "Updates DB from a single BI",-
+   CB_AUX_PLUG = "Compressor auxiliary plug",-
+   CB_CANCEL_CMD = "Compressor cancel command",-
+   CB_CLOSE_EXEC = "Compressor close execute command",-
+   CB_CLOSE_ILOCKED = "Compressor close interlocked",-
+   CB_CLOSE_IND = "Compressor close indication",-
+   CB_CLOSE_SEL = "Compressor close select command",-
+   CB_CMD_EVENT = "Compressor command event",-
+   CB_EXEC_CMD = "Compressor execute command",-
+   CB_EXT_CNTR_BLK = "Compressor device control block",-
+   CB_FAULTY_IND = "Compressor faulty indication",-
+   CB_ILOCK_CAUSE = "Cause of interlocking",-
+   CB_OBJ_CMD = "Compressor command",-
+   CB_OPEN_EXEC = "Compressor open execute command",-
+   CB_OPEN_ILOCKED = "Compressor open interlocked",-
+   CB_OPEN_IND = "Compressor open indication",-
+   CB_OPEN_SEL = "Compressor open select command",-
+   CB_POS_IND = "Compressor position indication",-
+   CB_SEL_ON_MON = "Compressor selected on monitor",-
+   CB_SYN_CMD = "Compressor synch. bypass command",-
+   CB_SYN_IND = "Compressor Synchrocheck",-
+   INTL_CAUSE = "Calculated interlocking cause",-
+   SETDB_COMMENT = "Updates DB from two BIs - 2",-
+   UPDATE_COMMENT = "Used for updating objects from the process")
+
+;ob
+@EH_PT3  = "FD_FORM5_3_6"
+@EH_PT5  = "FD_FORM5_5_0"
+@EH_PT12 = "FD_FORM5_12_0"
+
+;execute common DS%% code
+#DO READ_TEXT("F5_INST/FDI_DS.POT",1,10000)

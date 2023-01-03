@@ -1,0 +1,140 @@
+;Function: BPU_SIMULATE_ACTION_TRAFO:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_simulate_action_trafo.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute),  l_data, t_LN, command
+;Return data:
+;Description: Simulates the indication for the command if database is not connected to process
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data, t_LN, command
+#local l_value_convention, i_IX, r_step, nominal_voltage = 20, i_PT, i, value, t_procedure = ""
+
+r_step = 0.15 * nominal_voltage/(l_object_info.max_position - l_object_info.min_position)
+
+t_procedure =  l_object_info.type_info.command_procedures.get_indications_trafo
+;define value convention for process data
+l_value_convention = do('t_procedure':c, l_object_info)
+
+#case command
+   #when "LOWER_EXECUTE" #block
+      i_IX = l_data.all_objects.tap_position_ix
+      #if 't_LN':pss'i_IX' == 1 or ('t_LN':pss'i_IX' == 3 and 't_LN':pun'i_IX' == 0) #then #block
+         #set 't_LN':pov'i_IX' = 't_LN':pov'i_IX' - 1
+      #block_end
+      #if 't_LN':pos'i_IX' < 10 #then #block
+         value = 't_LN':pov'i_IX'
+         i_IX = l_data.all_objects.voltage_ix
+         #if 't_LN':pss'i_IX' == 1 or ('t_LN':pss'i_IX' == 3 and 't_LN':pun'i_IX' == 0) #then #block
+            #set 't_LN':pov'i_IX' = nominal_voltage - (abs(value -(l_object_info.max_position - l_object_info.min_position)/2)) *  r_step
+         #block_end
+      #block_end
+   #block_end
+   #when "RAISE_EXECUTE" #block      
+      i_IX = l_data.all_objects.tap_position_ix
+      #if 't_LN':pss'i_IX' == 1 or ('t_LN':pss'i_IX' == 3 and 't_LN':pun'i_IX' == 0) #then #block
+         #set 't_LN':pov'i_IX' = 't_LN':pov'i_IX' + 1
+      #block_end
+      #if 't_LN':pos'i_IX' < 10 #then #block
+         value = 't_LN':pov'i_IX'
+         i_IX = l_data.all_objects.voltage_ix
+         #if 't_LN':pss'i_IX' == 1 or ('t_LN':pss'i_IX' == 3 and 't_LN':pun'i_IX' == 0) #then #block
+            #set 't_LN':pov'i_IX' = nominal_voltage + (abs(value -(l_object_info.max_position - l_object_info.min_position)/2)) *  r_step
+         #block_end
+      #block_end
+   #block_end
+   #when "MANUAL_EXECUTE" #block
+      i_IX = l_data.all_objects.auto_manual_ix
+      #if 't_LN':pss'i_IX' == 1 or ('t_LN':pss'i_IX' == 3 and 't_LN':pun'i_IX' == 0) #then #block
+         i_PT = 't_LN':ppt'i_IX'
+         i = 0
+         #loop (i <= length(list_attr(l_value_convention.auto_manual_operation_mode_'i_PT')))
+            #if l_value_convention.auto_manual_operation_mode_'i_PT'.OV_'i' == "MANUAL" #then #block
+               #set 't_LN':POV'i_IX' = i
+               #loop_exit
+            #block_end
+            i = i + 1
+         #loop_end
+      #block_end
+   #block_end
+   #when "AUTO_EXECUTE" #block
+      i_IX = l_data.all_objects.auto_manual_ix
+      #if 't_LN':pss'i_IX' == 1 or ('t_LN':pss'i_IX' == 3 and 't_LN':pun'i_IX' == 0) #then #block
+         i_PT = 't_LN':ppt'i_IX'
+         i = 0
+         #loop (i <= length(list_attr(l_value_convention.auto_manual_operation_mode_'i_PT')))
+            #if l_value_convention.auto_manual_operation_mode_'i_PT'.OV_'i' == "AUTO" #then #block
+               #set 't_LN':POV'i_IX' = i
+               #loop_exit
+            #block_end
+            i = i + 1
+         #loop_end
+      #block_end
+    
+   #block_end
+   #when "SINGLE_EXECUTE" #block
+      i_IX = l_data.all_objects.single_parallel_ix
+      #if 't_LN':pss'i_IX' == 1 or ('t_LN':pss'i_IX' == 3 and 't_LN':pun'i_IX' == 0) #then #block
+         i_PT = 't_LN':ppt'i_IX'
+         i = 0
+         #loop (i <= length(list_attr(l_value_convention.co_operation_mode_'i_PT')))
+            #if l_value_convention.co_operation_mode_'i_PT'.OV_'i' == "SINGLE" #then #block
+               #set 't_LN':POV'i_IX' = i
+               #loop_exit
+            #block_end
+            i = i + 1
+         #loop_end
+      #block_end    
+   #block_end
+   #when "PARALLEL_EXECUTE" #block
+      i_IX = l_data.all_objects.single_parallel_ix
+      #if 't_LN':pss'i_IX' == 1 or ('t_LN':pss'i_IX' == 3 and 't_LN':pun'i_IX' == 0) #then #block
+         i_PT = 't_LN':ppt'i_IX'
+         i = 0
+         #loop (i <= length(list_attr(l_value_convention.co_operation_mode_'i_PT')))
+            #if l_value_convention.co_operation_mode_'i_PT'.OV_'i' == "PARALLEL" #then #block
+               #set 't_LN':POV'i_IX' = i
+               #loop_exit
+            #block_end
+            i = i + 1
+         #loop_end
+      #block_end        
+   #block_end
+   #when "MASTER_EXECUTE" #block
+      #if attribute_exists(l_data.all_objects, "MASTER_IX") #then #block
+         i_IX = l_data.all_objects.MASTER_IX
+         #if 't_LN':pss'i_IX' == 1 or ('t_LN':pss'i_IX' == 3 and 't_LN':pun'i_IX' == 0) #then #block
+            #set 't_LN':POV'i_IX' = 1
+         #block_end
+      #block_end
+      #if attribute_exists(l_data.all_objects, "FOLLOWER_IX") #then #block
+         i_IX = l_data.all_objects.FOLLOWER_IX
+         #if 't_LN':pss'i_IX' == 1 or ('t_LN':pss'i_IX' == 3 and 't_LN':pun'i_IX' == 0) #then #block
+            #set 't_LN':POV'i_IX' = 0
+         #block_end
+      #block_end
+   #block_end
+   #when "FOLLOWER_EXECUTE" #block
+       #if attribute_exists(l_data.all_objects, "MASTER_IX") #then #block
+         i_IX = l_data.all_objects.MASTER_IX
+         #if 't_LN':pss'i_IX' == 1 or ('t_LN':pss'i_IX' == 3 and 't_LN':pun'i_IX' == 0) #then #block
+            #set 't_LN':POV'i_IX' = 0
+         #block_end
+      #block_end
+      #if attribute_exists(l_data.all_objects, "FOLLOWER_IX") #then #block
+         i_IX = l_data.all_objects.FOLLOWER_IX
+         #if 't_LN':pss'i_IX' == 1 or ('t_LN':pss'i_IX' == 3 and 't_LN':pun'i_IX' == 0) #then #block
+            #set 't_LN':POV'i_IX' = 1
+         #block_end
+      #block_end   
+   #block_end
+   #when "REF_VOLTAGE_EXECUTE" #block
+      i_IX = l_data.all_objects.ref_voltage_execute_ix
+      value = 't_LN':pov'i_IX'
+      i_IX = l_data.all_objects.ref_voltage_ix
+      #if 't_LN':pss'i_IX' == 1 or ('t_LN':pss'i_IX' == 3 and 't_LN':pun'i_IX' == 0) #then #block
+         #set 't_LN':pov'i_IX' = value
+      #block_end
+   #block_end
+#case_end

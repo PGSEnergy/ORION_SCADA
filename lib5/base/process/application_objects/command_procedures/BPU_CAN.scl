@@ -1,0 +1,79 @@
+;Function: BPU_CAN:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_can.scl
+;Version: 1.0
+;Parameters:
+;Return data:
+;Description:
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+
+#argument l_object_info, l_data
+#local t_cancel_ln, i_cancel_ix = 0, i_cancel_value = 0, t_sta_type, t_control_type, i_execute = 0
+#local i_IX, b_execute_cancel = true
+#local l_result = list(status = 0, err_description = "")
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_CAN"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+         @REDIRECTED = true                                                                        
+         i_ArgCnt = argument_count                                                                 
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+         #loop_end                                                                                 
+         #return 't_Redirect_Command' ;;;;;                                                        
+      #block_end                                                                                   
+   #block_end                                                                                      
+   #else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+
+t_cancel_ln = l_object_info.p_object_ln
+#if attribute_exists(l_data.all_objects, "cancel_cmd_ix") #then #block
+   i_cancel_ix = l_data.all_objects.cancel_cmd_ix
+   t_sta_type = l_object_info.station_type
+   t_control_type = l_object_info.control_type
+
+   #case t_control_type
+      #when "SEC-5BO", "SEC-5AO", "SEC-4BO" i_cancel_value = 1
+      #when "SEC-BO" i_cancel_value = 0
+      #when "AO" #block
+         #case length(l_object_info.control_bits)
+            #when 4 i_cancel_value = 2**l_object_info.control_bits(4)
+            #when 5 i_cancel_value = 2**l_object_info.control_bits(5)
+            #otherwise b_execute_cancel = false
+         #case_end
+      #block_end
+      #otherwise b_execute_cancel = false
+   #case_end
+#block_end
+
+#if i_cancel_ix > 0 #then #block
+   ;send cancel command
+   #if b_execute_cancel #then -
+      i_execute = do(bpu_cancel:c, t_cancel_ln, i_cancel_ix, i_cancel_value, t_sta_type, t_control_type)
+
+   #if i_execute <> 0 #then #block ;error code of failure
+      l_result.status = i_execute
+      l_result.err_description = status_code_name(i_execute)
+   #block_end
+#block_end
+   
+;set command event to 0 if simulated
+#if attribute_exists(l_data.all_objects, "cmd_event_ix") #then #block
+   i_IX = l_data.all_objects.cmd_event_ix
+   #if 't_cancel_ln':pub'i_IX' == 0 and not ('t_cancel_ln':pss'i_IX'>1 and -
+   't_cancel_ln':pun'i_IX'<>0) #then #set 't_cancel_ln':pov'i_IX' = 0
+#block_end
+
+#return l_result

@@ -1,0 +1,43 @@
+;File:         Path_Def.txt
+;Description:  MS-STool Path definitions
+;              Version 9.2
+;---------------------------------------
+
+@t_Error_State = Error_State
+
+@l_Global_Paths = List(GPRC     = vector("/LAN/ACTIVE/GPRC"),-
+                       TEMP     = vector("/TEMP"),-
+                       START    = vector("/Prog/Exec"),-
+                       SYS_TOOL = ("/STool/Misc", "/STool/AplBuild", "/STool/SysConf", "/STool/Def", "/STool/Superv"),-
+                       SYS_CONF = vector("/SYS/ACTIVE/SYS_"),-
+                       SAGR_ROOT  = VECTOR("/sa_lib"),-
+                       SAGR_TOOL  = VECTOR("/sa_lib/services/ToolMon", "/sa_lib/services/ToolStarter"),-
+                       SAGR_BBONE = VECTOR("/sa_lib/BASE/BBONE/USE"),-
+                       SAGR_INST = VECTOR("/sa_lib/BASE/BBONE/INST"),-
+                       SAGR_LANG = VECTOR("/sa_lib/BASE/BBONE/LANG0"),-
+                       SAGR_EXEC  =  VECTOR("/prog/sa_lib"),-
+                       COM_     = vector("/COM/ACTIVE/COM_"))
+
+#path TEMP /TEMP
+@l_Host = Scil_Host
+
+#if l_Host:Vname == "MAIN" #then #block;  Sys_bascon.com
+   #Error 't_Error_State'
+   #Return %l_Global_Paths
+#block_end
+
+#else #block
+
+   #if length(Path("SYS_TOOL")) == 0 #then #block;  no tool paths created
+      @v_Path_Names = List_attr(%l_Global_Paths)
+      #loop_with i=1..length(%v_Path_Names)
+         @t_Path_Name = %v_Path_Names(%i)
+         @t_Directories = collect(l_Global_Paths:v't_Path_Name',",")
+         #path 't_Path_Name' no_create, 't_Directories'
+      #loop_end
+   #block_end
+
+   #Error 't_Error_State'
+#block_end
+
+

@@ -1,0 +1,21 @@
+<?xml version="1.0" standalone="yes"?>
+<xs:schema xmlns:mstns="http://www.iec.ch/61850/2003/SCL" xmlns="http://www.iec.ch/61850/2003/SCL" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata" targetNamespace="http://www.iec.ch/61850/2003/SCL" elementFormDefault="qualified" attributeFormDefault="qualified" id="DataSet">
+	<xs:element name="DataSet">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="FCDA" minOccurs="0" maxOccurs="unbounded">
+					<xs:complexType>
+						<xs:attribute name="ldInst" type="xs:string" form="unqualified"/>
+						<xs:attribute name="prefix" type="xs:string" form="unqualified"/>
+						<xs:attribute name="lnInst" type="xs:string" form="unqualified"/>
+						<xs:attribute name="lnClass" type="xs:string" form="unqualified"/>
+						<xs:attribute name="doName" type="xs:string" form="unqualified"/>
+						<xs:attribute name="daName" type="xs:string" form="unqualified"/>
+						<xs:attribute name="fc" type="xs:string" default="ST" form="unqualified"/>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+			<xs:attribute name="name" type="xs:string" form="unqualified"/>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

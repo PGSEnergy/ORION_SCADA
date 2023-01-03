@@ -1,0 +1,38 @@
+; ##SA LIB version 1.0.0##
+; Global paths used in SA_LIB 1.0
+
+;if executed by sys_bascon.com, return list of global paths
+;otherwise create global paths
+
+
+@HOST = SCIL_HOST
+
+#IF HOST:VNAME == "MAIN" #THEN #BLOCK
+
+    @GLOBAL_PATHS=LIST()
+
+    #CASE substr(SYS:BPR, 1, 7)
+        #WHEN "SYS_600"  #BLOCK
+
+             @GLOBAL_PATHS = LIST(-
+               B_USE = VECTOR("/sa_lib/BASE/BBONE/USE"),-
+               B_INST = VECTOR("/sa_lib/BASE/BBONE/INST"),-
+               B_LANG = VECTOR("/sa_lib/BASE/BBONE/LANG0"),-
+               F_USE = VECTOR("/sa_lib/BASE/REPORTS/USE"))
+        #BLOCK_END
+        
+        #WHEN "COM_500" #BLOCK
+
+            @GLOBAL_PATHS = LIST()
+        #BLOCK_END
+    #CASE_END
+    #RETURN %GLOBAL_PATHS
+#BLOCK_END
+
+
+;Path for default project (handled separately, directory may not exist)
+@APL_NAME = APL:BNA
+#PATH SAGR_PRJ /APL/'APL_NAME'/SA_LIB
+#PATH SAGR_APL_  /APL/'APL_NAME'
+
+

@@ -1,0 +1,13 @@
+﻿; This command procedure is used for the start-up of a COM500 application 
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+;--------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+#PATH COM_ /COM/ACTIVE/COM_
+#DO READ_BYTES("COM_/COM_COMINI_H.BIN")
+

@@ -1,0 +1,138 @@
+;
+; Copyright (c) 2020 ABB
+;
+; DuoDriver virtual miniport setup information file
+;
+
+;******************************************************************************
+; Version Section
+;------------------------------------------------------------------------------
+[Version]
+Signature="$Windows NT$"
+DriverVer=09/24/2020,5.0.31001.0
+Provider=%S_Provider%
+CatalogFile=duodrv_mp.cat
+Class = Net
+ClassGUID = {4d36e972-e325-11ce-bfc1-08002be10318}
+
+;******************************************************************************
+; Control Flag section
+;------------------------------------------------------------------------------
+[ControlFlags]
+ExcludeFromSelect = NM_DUODRIVER_MP_{047E7A79-7427-41a7-92C1-62A37A9EAFCB}
+
+
+;******************************************************************************
+; Manufacturer
+;------------------------------------------------------------------------------
+[Manufacturer]
+%S_Mfg%=_Models,NTx86,NTamd64
+
+
+;******************************************************************************
+; Models sections
+;------------------------------------------------------------------------------
+[_Models.NTx86]
+%S_MP_Desc%=_Install.win32, NM_DUODRIVER_MP_{047E7A79-7427-41a7-92C1-62A37A9EAFCB}
+
+[_Models.NTamd64]
+%S_MP_Desc%=_Install.win64, NM_DUODRIVER_MP_{047E7A79-7427-41a7-92C1-62A37A9EAFCB}
+
+
+;******************************************************************************
+; Install Sections x86
+;------------------------------------------------------------------------------
+[_Install.win32]
+Characteristics = 0xA1  ; NCF_HAS_UI | NCF_NOT_USER_REMOVABLE | NCF_VIRTUAL
+AddReg = _AddReg_ndi, _AddReg_ndi_params
+*IfType         = 6     ; IF_TYPE_ETHERNET_CSMACD
+*MediaType      = 0     ; NdisMedium802_3
+*PhysicalMediaType = 14     ; NdisPhysicalMedium802_3
+
+[_Install.win32.Services]
+AddService = DuoDriverMP, 0x00000002, _AddService_x86, _EventLog_x86
+
+[_AddService_x86]
+ServiceType    = 1       ; SERVICE_KERNEL_DRIVER
+StartType      = 3       ; SERVICE_DEMAND_START
+ErrorControl   = 1       ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\duodriver.sys
+
+[_EventLog_x86]
+AddReg=_EventLogAddReg_x86
+
+[_EventLogAddReg_x86]
+HKR,,EventMessageFile,%REG_EXPAND_SZ%,"%%SystemRoot%%\System32\netevent.dll;%%SystemRoot%%\System32\drivers\duodriver.sys"
+HKR,,TypesSupported,  %REG_DWORD%, 7
+
+;******************************************************************************
+; Install Sections x64
+;------------------------------------------------------------------------------
+[_Install.win64]
+Characteristics = 0xA1  ; NCF_HAS_UI | NCF_NOT_USER_REMOVABLE | NCF_VIRTUAL
+AddReg = _AddReg_ndi, _AddReg_ndi_params
+*IfType         = 6     ; IF_TYPE_ETHERNET_CSMACD
+*MediaType      = 0     ; NdisMedium802_3
+*PhysicalMediaType = 14     ; NdisPhysicalMedium802_3
+
+[_Install.win64.Services]
+AddService = DuoDriverMP, 0x00000002, _AddService_x64, _EventLog_x64
+
+[_AddService_x64]
+ServiceType    = 1       ; SERVICE_KERNEL_DRIVER
+StartType      = 3       ; SERVICE_DEMAND_START
+ErrorControl   = 1       ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %12%\duodriver_x64.sys
+
+[_EventLog_x64]
+AddReg=_EventLogAddReg_x64
+
+[_EventLogAddReg_x64]
+HKR,,EventMessageFile,%REG_EXPAND_SZ%,"%%SystemRoot%%\System32\netevent.dll;%%SystemRoot%%\System32\drivers\duodriver_x64.sys"
+HKR,,TypesSupported,  %REG_DWORD%, 7
+
+;******************************************************************************
+; Registry sections
+;------------------------------------------------------------------------------
+[_AddReg_ndi]
+HKR, Ndi,             Service,    %REG_SZ%, "DuoDriverMP"
+HKR, Ndi,             HelpText,   %REG_SZ%, "%S_MP_HELP_TEXT%"
+HKR, Ndi\Interfaces,  UpperRange, %REG_SZ%, "ndis5"
+HKR, Ndi\Interfaces,  LowerRange, %REG_SZ%, "ethernet"
+
+[_AddReg_ndi_params]
+; parameters shown in advanced property page
+
+
+
+;******************************************************************************
+; Text Strings
+;------------------------------------------------------------------------------
+[Strings]
+;
+; Non-Localizable Strings, DO NOT MODIFY!
+;
+REG_SZ         = 0x00000000
+REG_MULTI_SZ   = 0x00010000
+REG_EXPAND_SZ  = 0x00020000
+REG_BINARY     = 0x00000001
+REG_DWORD      = 0x00010001
+
+
+;
+; Localizable Strings, modify as required
+;
+; provider
+S_Provider="ABB"
+S_Mfg="ABB"
+
+; disk name
+S_DiskName="DuoDriver driver disk"
+
+; device descriptions
+S_MP_Desc="DuoDriver Virtual Adapter"
+
+S_MP_HELP_TEXT="DuoDriver Virtual Adapter"
+
+
+;;;;;;;;;;;;;;;;;;;;;; EOF ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

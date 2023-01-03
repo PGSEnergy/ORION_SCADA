@@ -1,0 +1,53 @@
+#create l_Apl_bsv15:v = list()
+@i_write_over = 0
+@b_File_Checked = false
+
+#if length(apl:bsv) < 15 #then #return
+#error ignore
+@l_Apl_bsv15 = apl:bsv(15)
+@s = status
+#if length(%l_Apl_bsv15) == 0 #then #return
+#error continue
+
+
+#loop_with i = 1 .. 5
+
+   @t_Field_ID = upper_case(%l_Apl_bsv15.Process_objects.Oi.Field'i'(1))
+   #if %t_Field_ID == "BAY" #then #loop_exit
+   #if %t_Field_ID <> "STA" #then #block
+    
+     @t_ID = %l_Apl_bsv15.Process_objects.Oi.title'i'(1)
+     @v_function = vector(-
+      ";'t_ID'",-
+      "/SA_LIB/Process/'t_ID'",-
+      "@SFNAME    = ""SAGR_INST/SAI_STA2I""",-
+      "@CONF_FILE = ""SAGR_INST/SAI_LR.DAT""",-
+      "@Required_PF_Name        = ""SAGR_LR""",-
+      "@Required_PF_SFName      = ""SAGR_INST/SAI_LRT""",-
+      "@Required_PSAGR_INSTallPosX = 1",-
+      "@Required_PSAGR_INSTallPosY = 47")
+      
+      #if not %b_File_Checked #then #block
+         #loop_with j = 50 .. 100
+            #if file_manager( "EXISTS",fm_scil_file("/sa_lib/base/bbone/inst/index5_b'j'.txt")) #then #block
+               @v_check = read_text("/sa_lib/base/bbone/inst/index5_b'j'.txt")
+               #if %v_Check(1) == ";***THIS FILE IS AUTOMATICALLY CREATED BY SA LIB. DO NOT EDIT ***" #then #block
+                  @index = %j
+                  @b_File_Checked = true
+                  #loop_exit
+               #block_end
+            #block_end
+            #else #block
+               @index = %j
+               @b_File_Checked = true
+               #loop_exit
+            #block_end
+         #loop_end
+      #block_end
+      #if %i_write_over == 0 #then @v_function = -
+         append(vector(";***THIS FILE IS AUTOMATICALLY CREATED BY SA LIB. DO NOT EDIT ***"), %v_function)
+      @write = write_text("/sa_lib/base/bbone/inst/index5_b'index'.txt", %v_function, %i_write_over)
+      #if %i_write_over == 0 #then @i_write_over = 1
+   #block_end
+
+#loop_end

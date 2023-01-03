@@ -1,0 +1,53 @@
+; Command Procedure: SYS_SSSINI
+; Version: SYS 600 9.3
+; Description: This is command procedure for initialization of SYS 600 System Self Supervision at system start-up
+; ----------------------------------------------------------------------------------------------------------------
+
+#error continue
+
+;check initialization status of SSS
+@b_Initialized = FALSE
+#if length(apl:bsv) > 40 #then #if data_type(apl:bsv41) =="LIST" #then @b_Initialized = TRUE
+
+;initialization
+#if not(%b_Initialized) #then #block
+
+   ;initialize APL:BSV(45..49)
+   #loop_with i = 0..4
+      #set APL:BSV(45+%i) = vector()
+   #loop_end
+   
+   ;define paths for SYS 600 System Self Supervision
+   @t_Apl_Name = APL:BNA
+   #path SSS_PATH +/APL/'t_Apl_Name'/SUPERV
+   #path SSS_LANG +/STOOL/SUPERV/LANG_TEXTS
+      
+   ;read in general application parameters for SYS 600 System Self Supervision
+   @i_Status = status
+   #error ignore
+      #do read_text("SSS_PATH/SSS_Setup.scl")
+   #error continue
+
+   #if status == 5007 #then #do read_text("SYS_TOOL/SSS_Setup.scl")
+   
+   ;load general application parameters to APL:BSV(45)
+   #set APL:BSV(45) = %sys_ssset
+   
+   ;initialize SCM services for SYS 600 System Self Supervision
+   @i_Init_Status = do(read_text("SYS_TOOL/SCT_Mgr.scl"), "acINIT", "SSS", "SYSTEMVARIABLE")
+   
+   ;enable/disable configuration of SSS
+   @b_SSS_Mech_In_Use = do(read_text("SYS_TOOL/SSS_Init.scl"))
+   
+   #if %b_SSS_Mech_In_Use #then #block
+      
+      ;initialize log files
+      @i_Log_Status = do(read_text("SYS_TOOL/SSS_LogInit.scl"))
+      
+      ;initialize applications
+      @i_Apl_Status = do(read_text("SYS_TOOL/SSS_AplInit.scl"))
+   
+   #block_end
+
+#block_end
+

@@ -1,0 +1,3491 @@
+﻿#case argument(1)
+
+   #when "BASE_SYSTEM" #block
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Basic Configuration Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Configuration_Attributes"),-
+            ATTRIBUTES = ("ND","SA","NN")),-
+         LIST(GNAME = "Hardware and Software Information",-
+            GNAME_TEXT = translate("@lbl_Hardware_and_Software_Information"),-
+            ATTRIBUTES = ("HW","OS","ON","OV","OM","PR","RP","RD","RE","RS")),-
+         LIST(GNAME = "Communication Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Attributes"),-
+            ATTRIBUTES = ("DN","DS","ER","TI")),-
+         LIST(GNAME = "Time Handling Attributes",-
+            GNAME_TEXT = translate("@lbl_Time_Handling_Attributes"),-
+            ATTRIBUTES = ("TF","TM","TR","TS","TZ")),-
+         LIST(GNAME = "Memory Handling Attributes",-
+            GNAME_TEXT = translate("@lbl_Memory_Handling_Attributes"),-
+            ATTRIBUTES = ("FS","ME","MP","MS","MF","MU","RC","RU")),-
+         LIST(GNAME = "Global Paths and Representation Libraries",-
+            GNAME_TEXT = translate("@lbl_Global_Path_and_Representation_Library_Attributes"),-
+            ATTRIBUTES = ("PH","RL")),-
+         LIST(GNAME = "Shadowing Attributes",-
+            GNAME_TEXT = translate("@lbl_Shadowing_Attributes"),-
+            ATTRIBUTES = vector("SH")),-
+         LIST(GNAME = "DDE Server Attributes",-
+            GNAME_TEXT = translate("@lbl_DDE_Server_Attributes"),-
+            ATTRIBUTES = ("DE","DD","DU")),-
+         LIST(GNAME = "OPC Server Attributes",-
+            GNAME_TEXT = translate("@lbl_OPC_Server_Attributes"),-
+            ATTRIBUTES = ("OP","PA")),-
+         LIST(GNAME = "Audio Alarm Device Attributes",-
+            GNAME_TEXT = translate("@lbl_Audio_Alarm_Device_Attributes"),-
+            ATTRIBUTES = ("AA","AD","AW")),-
+         LIST(GNAME = "External Clock Attributes",-
+            GNAME_TEXT = translate("@lbl_External_Clock_Attributes"),-
+            ATTRIBUTES = ("CA","CF","CL","CS","CD")),-
+         LIST(GNAME = "SPA Device Attributes",-
+            GNAME_TEXT = translate("@lbl_SPA_Device_Attributes"),-
+            ATTRIBUTES = ("SD","SP")),-
+         LIST(GNAME = "Operating System Event Handler Attributes",-
+            GNAME_TEXT = translate("@lbl_Operating_System_Event_Handler_Attributes"),-
+            ATTRIBUTES = ("OE","OT")),-
+         LIST(GNAME = "Miscellaneous Base System Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Base_System_Attributes"),-
+            ATTRIBUTES = ("CX","SV","UV"))))
+
+   #block_end
+
+   #when "BASE_SYSTEM_LINK_LAN" #block ; LAN Link
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Link Definition Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Link_Definition_Attributes"),-
+            ATTRIBUTES = ("LT","TR")),-
+         LIST(GNAME = "Miscellaneous Link Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Link_Attributes"),-
+            ATTRIBUTES = vector("CX"))))
+
+   #block_end
+
+   #when "BASE_SYSTEM_LINK_RAM" #block ; RAM Link
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Link Definition Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Link_Definition_Attributes"),-
+            ATTRIBUTES = vector("LT")),-
+         LIST(GNAME = "RAM Link Attributes",-
+            GNAME_TEXT = translate("@lbl_RAM_Link_Attributes"),-
+            ATTRIBUTES = ("SD","EN","NA","RE","TI")),-
+         LIST(GNAME = "Miscellaneous Link Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Link_Attributes"),-
+            ATTRIBUTES = vector("CX"))))
+
+   #block_end
+
+   #when "BASE_SYSTEM_LINK_INTEGRATED" #block ; INTEGRATED Link
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Link Definition Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Link_Definition_Attributes"),-
+            ATTRIBUTES = ("LT","SC")),-
+         LIST(GNAME = "Miscellaneous Link Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Link_Attributes"),-
+            ATTRIBUTES = vector("CX"))))
+
+   #block_end
+   
+   #when "BASE_SYSTEM_LINK_PROXY" #block ; Proxy Link
+   
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR() )
+;         GROUPS = VECTOR(-
+;         LIST(GNAME = "Basic Link Definition Attributes",-
+;            GNAME_TEXT = translate("@lbl_Basic_Link_Definition_Attributes"),-
+;            ATTRIBUTES = vector("LT")),-
+;         LIST(GNAME = "Miscellaneous Link Attributes",-
+;            GNAME_TEXT = translate("@lbl_Miscellaneous_Link_Attributes"),-
+;            ATTRIBUTES = vector("CX"))))
+
+   #block_end
+
+   #when "BASE_SYSTEM_NODE_B" #block
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Node Definition Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Node_Definition_Attributes"),-
+            ATTRIBUTES = ("LI","NN","NT","RN","SA")),-
+         LIST(GNAME = "Node Diagnostic Attributes",-
+            GNAME_TEXT = translate("@lbl_Node_Diagnostic_Attributes"),-
+            ATTRIBUTES = ("DF","DI","DT")),-
+         LIST(GNAME = "Node Communication Attributes",-
+            GNAME_TEXT = translate("@lbl_Node_Communication_Attributes"),-
+            ATTRIBUTES = ("LT","RT")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Node Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Node_Attributes"),-
+            ATTRIBUTES = vector("CX"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Node Definition Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Node_Definition_Attributes"),-
+            ATTRIBUTES = ("LI","NN","NT","RN","SA")),-
+         LIST(GNAME = "Node Diagnostic Attributes",-
+            GNAME_TEXT = translate("@lbl_Node_Diagnostic_Attributes"),-
+            ATTRIBUTES = ("DF","DI","DT")),-
+         LIST(GNAME = "Node Communication Attributes",-
+            GNAME_TEXT = translate("@lbl_Node_Communication_Attributes"),-
+            ATTRIBUTES = ("LT","RT")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Node Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Node_Attributes"),-
+            ATTRIBUTES = vector("CX"))))
+
+   #block_end
+   
+   #when "BASE_SYSTEM_NODE" #block
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Node Definition Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Node_Definition_Attributes"),-
+            ATTRIBUTES = ("LI","NN","NT","RN","SA")),-
+-;         LIST(GNAME = "Basic NET Attributes",-
+-;            GNAME_TEXT = translate("@lbl_Basic_NET_Attributes"),-
+-;            ATTRIBUTES = vector("S_SX")),-
+         LIST(GNAME = "Functional Specifications",-
+            GNAME_TEXT = translate("@lbl_Functional_Specifications"),-
+            ATTRIBUTES = vector("S_TL","S_LP")),-
+         LIST(GNAME = "System Message Attributes",-
+            GNAME_TEXT = translate("@lbl_System_Message_Attributes"),-
+            ATTRIBUTES = ("S_MI","S_MS","S_SE","UI","UA")),-
+         LIST(GNAME = "NET External Node Attributes",-
+            GNAME_TEXT = translate("@lbl_NET_External_Node_Attributes"),-
+            ATTRIBUTES = vector("NE")),-
+         LIST(GNAME = "NET Application Attributes",-
+            GNAME_TEXT = translate("@lbl_NET_Application_Attributes"),-
+            ATTRIBUTES = ("SY","SU","SW")),-
+         LIST(GNAME = "Authentication Attributes",-
+            GNAME_TEXT = translate("@lbl_Authentication_Attributes"),-
+            ATTRIBUTES = vector("S_KS")),-
+         LIST(GNAME = "Node Diagnostic Attributes",-
+            GNAME_TEXT = translate("@lbl_Node_Diagnostic_Attributes"),-
+            ATTRIBUTES = ("DF","DI","DT")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Node Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Node_Attributes"),-
+            ATTRIBUTES = vector("CX"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Node Definition Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Node_Definition_Attributes"),-
+            ATTRIBUTES = ("LI","NN","NT","RN","SA")),-
+         LIST(GNAME = "Node Diagnostic Attributes",-
+            GNAME_TEXT = translate("@lbl_Node_Diagnostic_Attributes"),-
+            ATTRIBUTES = ("DF","DI","DT")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Node Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Node_Attributes"),-
+            ATTRIBUTES = vector("CX"))))
+            
+      @v_Attrib_Views(3) = LIST(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+-;         LIST(GNAME = "Basic NET Attributes",-
+-;            GNAME_TEXT = translate("@lbl_Basic_NET_Attributes"),-
+-;            ATTRIBUTES = vector("S_SX")),-
+         LIST(GNAME = "Functional Specifications",-
+            GNAME_TEXT = translate("@lbl_Functional_Specifications"),-
+            ATTRIBUTES = vector("S_TL","S_LP")),-
+         LIST(GNAME = "System Message Attributes",-
+            GNAME_TEXT = translate("@lbl_System_Message_Attributes"),-
+            ATTRIBUTES = ("S_MI","S_MS","S_SE","UI","UA")),-
+         LIST(GNAME = "NET External Node Attributes",-
+            GNAME_TEXT = translate("@lbl_NET_External_Node_Attributes"),-
+            ATTRIBUTES = vector("NE")),-
+         LIST(GNAME = "NET Application Attributes",-
+            GNAME_TEXT = translate("@lbl_NET_Application_Attributes"),-
+            ATTRIBUTES = ("SY","SU","SW")),-
+         LIST(GNAME = "Authentication Attributes",-
+            GNAME_TEXT = translate("@lbl_Authentication_Attributes"),-
+            ATTRIBUTES = vector("S_KS")) ))
+
+   #block_end
+   
+   #when "BASE_SYSTEM_NODE_NET" #block
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Node Definition Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Node_Definition_Attributes"),-
+            ATTRIBUTES = ("LI","NN","NT","RN","SA")),-
+         LIST(GNAME = "Basic NET Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_NET_Attributes"),-
+            ATTRIBUTES = ("S_NN","S_SA","S_SX")),-
+         LIST(GNAME = "Functional Specifications",-
+            GNAME_TEXT = translate("@lbl_Functional_Specifications"),-
+            ATTRIBUTES = vector("S_TL","S_LP")),-
+         LIST(GNAME = "NET Information",-
+            GNAME_TEXT = translate("@lbl_NET_Information"),-
+            ATTRIBUTES = ("KP","S_NT","VE")),-
+         LIST(GNAME = "System Message Attributes",-
+            GNAME_TEXT = translate("@lbl_System_Message_Attributes"),-
+            ATTRIBUTES = ("S_MI","S_MS","S_SE","UI","UA")),-
+         LIST(GNAME = "NET External Node Attributes",-
+            GNAME_TEXT = translate("@lbl_NET_External_Node_Attributes"),-
+            ATTRIBUTES = vector("NE")),-
+         LIST(GNAME = "NET Application Attributes",-
+            GNAME_TEXT = translate("@lbl_NET_Application_Attributes"),-
+            ATTRIBUTES = ("SY","SU","SW","DS")),-
+         LIST(GNAME = "Authentication Attributes",-
+            GNAME_TEXT = translate("@lbl_Authentication_Attributes"),-
+            ATTRIBUTES = vector("S_KS")),-
+         LIST(GNAME = "Node Diagnostic Attributes",-
+            GNAME_TEXT = translate("@lbl_Node_Diagnostic_Attributes"),-
+            ATTRIBUTES = ("DF","DI","DT")),-
+         LIST(GNAME = "Node Communication Attributes",-
+            GNAME_TEXT = translate("@lbl_Node_Communication_Attributes"),-
+            ATTRIBUTES = ("LT","RT")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous NET Node Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Net_Node_Attributes"),-
+            ATTRIBUTES = vector("S_FM","S_LT","S_TM")),-
+         LIST(GNAME = "Miscellaneous Node Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Node_Attributes"),-
+            ATTRIBUTES = vector("CX"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Node Definition Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Node_Definition_Attributes"),-
+            ATTRIBUTES = ("LI","NN","NT","RN","SA")),-
+         LIST(GNAME = "Node Diagnostic Attributes",-
+            GNAME_TEXT = translate("@lbl_Node_Diagnostic_Attributes"),-
+            ATTRIBUTES = ("DF","DI","DT")),-
+         LIST(GNAME = "Node Communication Attributes",-
+            GNAME_TEXT = translate("@lbl_Node_Communication_Attributes"),-
+            ATTRIBUTES = ("LT","RT")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Node Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Node_Attributes"),-
+            ATTRIBUTES = vector("CX"))))
+            
+      @v_Attrib_Views(3) = LIST(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic NET Definition Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_NET_Attributes"),-
+            ATTRIBUTES = ("S_NN","S_SA","S_SX")),-
+         LIST(GNAME = "Functional Specifications",-
+            GNAME_TEXT = translate("@lbl_Functional_Specifications"),-
+            ATTRIBUTES = vector("S_TL")),-
+         LIST(GNAME = "NET Information",-
+            GNAME_TEXT = translate("@lbl_NET_Information"),-
+            ATTRIBUTES = ("KP","S_NT","VE")),-
+         LIST(GNAME = "System Message Attributes",-
+            GNAME_TEXT = translate("@lbl_System_Message_Attributes"),-
+            ATTRIBUTES = ("S_MI","S_MS","S_SE","UI","UA")),-
+         LIST(GNAME = "NET External Node Attributes",-
+            GNAME_TEXT = translate("@lbl_NET_External_Node_Attributes"),-
+            ATTRIBUTES = vector("NE")),-
+         LIST(GNAME = "NET Application Attributes",-
+            GNAME_TEXT = translate("@lbl_NET_Application_Attributes"),-
+            ATTRIBUTES = ("SY","SU","SW","DS")),-
+         LIST(GNAME = "Authentication Attributes",-
+            GNAME_TEXT = translate("@lbl_Authentication_Attributes"),-
+            ATTRIBUTES = vector("S_KS")),-
+         LIST(GNAME = "Miscellaneous NET Node Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Net_Node_Attributes"),-
+            ATTRIBUTES = vector("S_FM","S_LT","S_TM"))))
+
+   #block_end
+   
+   #when "BASE_SYSTEM_STATION_TYPE" #block ; STATION TYPE
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("NA","DB","LP")),-
+         LIST(GNAME = "Miscellaneous Station Type Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Type_Attributes"),-
+            ATTRIBUTES = ("CX","CT"))))
+
+   #block_end
+   
+   #when "BASE_SYSTEM_STATION" #block ; Base System Station
+
+      @v_Attrib_Views = vector()
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+   #block_end
+
+   #when "NET_STATION_IEC101S" #block ; IEC 101 Slave
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","SL","IL","CL","CA","ST","ND","TT","TN","TB","TR","B_AP","B_UN","OS","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("RW","MT","ML","DR","SR","RM","S_EA","AQ","XT")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("PC","TC","S_ST","CC","SU","SF")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("PA","PL")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("S_SE","MI","MS","UA","UI")),-
+         LIST(GNAME = "Authentication Attributes",-
+            GNAME_TEXT = translate("@lbl_Authentication_Attributes"),-
+            ATTRIBUTES = ("S_ZA","S_ZG","S_ZT","S_ZU")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(3) = LIST(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","SL","IL","CL","CA","OS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("RW","MT","ML","DR","SR","RM","S_EA","AQ","XT")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("PC","TC","S_ST","CC","SU","SF")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("PA","PL")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("S_SE","MI","MS","UA","UI")),-
+         LIST(GNAME = "Authentication Attributes",-
+            GNAME_TEXT = translate("@lbl_Authentication_Attributes"),-
+            ATTRIBUTES = ("S_ZA","S_ZG","S_ZT","S_ZU"))))
+
+   #block_end
+   
+   #when "NET_STATION_IEC101M" #block ; IEC Master
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","SL","IL","CL","CA","ST","ND","TT","TN","TB","TR","B_AP","B_UN","OS","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("ML","DR","SR","RM")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("CF","CT","RT","S_ST","SU","SO","S_CE")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("PA","PL")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("S_SE","MI","MS","UA","UI")),-
+         LIST(GNAME = "Authentication Attributes",-
+            GNAME_TEXT = translate("@lbl_Authentication_Attributes"),-
+            ATTRIBUTES = ("S_ZA","S_ZG","S_ZT","S_ZU")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(3) = LIST(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","SL","IL","CL","CA","OS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("ML","DR","SR","RM")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("CF","CT","RT","S_ST","SU","SO","S_CE")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("PA","PL")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("S_SE","MI","MS","UA","UI")),-
+         LIST(GNAME = "Authentication Attributes",-
+            GNAME_TEXT = translate("@lbl_Authentication_Attributes"),-
+            ATTRIBUTES = ("S_ZA","S_ZG","S_ZT","S_ZU"))))
+
+   #block_end
+   
+   #when "NET_STATION_IEC103S" #block ; IEC 103 Slave
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","SL","IL","CL","CA","ST","ND","TT","TN","TB","TR","B_AP","B_UN","OS","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("RW","MT","ML","DR","SR","RM","XT")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("PC","TC","RT","S_ST","SU")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("PA","PL")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("S_SE","MI","MS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(3) = LIST(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","SL","IL","CL","CA","OS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("RW","MT","ML","DR","SR","RM","XT")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("PC","TC","RT","S_ST","SU")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("PA","PL")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("S_SE","MI","MS"))))
+
+   #block_end
+   
+   #when "NET_STATION_IEC103M" #block ; IEC 103 Master
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","SL","IL","CL","CA","ST","ND","TT","TN","TB","TR","B_AP","B_UN","OS","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("RW","MT","ML","DR","SR","RM")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("PC","CT","RT","S_ST","SU","SO")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("PA","PL")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("S_SE","MI","MS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(3) = LIST(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","SL","IL","CL","CA","OS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("RW","MT","ML","DR","SR","RM")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("PC","CT","RT","S_ST","SU","SO")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("PA","PL")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("S_SE","MI","MS"))))
+
+   #block_end
+
+   #when "NET_STATION_IEC104M" #block ; IEC 104 Master
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","SL","IL","CL","CA","S_IA","ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("ML","RM")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("CF","CT","RT","S_ST","SU","US","UR","S_AT","S_ET","S_CE","S_TI","S_RP")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("S_PD")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("S_SE","MI","MS","UA","UI")),-
+         LIST(GNAME = "Authentication Attributes",-
+            GNAME_TEXT = translate("@lbl_Authentication_Attributes"),-
+            ATTRIBUTES = ("S_ZA","S_ZG","S_ZT","S_ZU")),-
+         LIST(GNAME = "Security_Attributes",-
+            GNAME_TEXT = translate("@lbl_Security_Attributes"),-
+            ATTRIBUTES = ("CI","CP","CN","CV","EE")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(3) = LIST(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","SL","IL","CL","CA","S_IA")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("ML","RM")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("CF","CT","RT","S_ST","SU","US","UR","S_AT","S_ET","S_CE","S_TI","S_RP")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("S_PD")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("S_SE","MI","MS","UA","UI")),-
+         LIST(GNAME = "Authentication Attributes",-
+            GNAME_TEXT = translate("@lbl_Authentication_Attributes"),-
+            ATTRIBUTES = ("S_ZA","S_ZG","S_ZT","S_ZU")),-
+         LIST(GNAME = "Security_Attributes",-
+            GNAME_TEXT = translate("@lbl_Security_Attributes"),-
+            ATTRIBUTES = ("CI","CP","CN","CV","EE"))))
+
+   #block_end
+
+   #when "NET_STATION_IEC104S" #block ; IEC 104 Slave
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","SL","IL","CL","CA","S_IA","AI","ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("RW","MT","ML","RM","S_EA","AQ","XT")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("PC","TC","S_ST","CC","S_CD","SU","US","UR","S_AT","SF","S_TI")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("S_PD")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("S_SE","MI","MS","UA","UI")),-
+         LIST(GNAME = "Authentication Attributes",-
+            GNAME_TEXT = translate("@lbl_Authentication_Attributes"),-
+            ATTRIBUTES = ("S_ZA","S_ZG","S_ZT","S_ZU")),-
+         LIST(GNAME = "Security_Attributes",-
+            GNAME_TEXT = translate("@lbl_Security_Attributes"),-
+            ATTRIBUTES = ("CI","CP","CN","CV","S_CX","EE")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(3) = LIST(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","SL","IL","CL","CA","S_IA","AI")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("RW","MT","ML","RM","S_EA","AQ","XT")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("PC","TC","S_ST","CC","S_CD","SU","US","UR","S_AT","SF","S_TI")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("S_PD")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("S_SE","MI","MS","UA","UI")),-
+            LIST(GNAME = "Authentication Attributes",-
+            GNAME_TEXT = translate("@lbl_Authentication_Attributes"),-
+            ATTRIBUTES = ("S_ZA","S_ZG","S_ZT","S_ZU")),-
+         LIST(GNAME = "Security_Attributes",-
+            GNAME_TEXT = translate("@lbl_Security_Attributes"),-
+            ATTRIBUTES = ("CI","CP","CN","CV","S_CX","EE"))))
+
+   #block_end
+
+   #when "NET_STATION_PLC" #block ; PLC
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("CE","RM","EA","RT","ML")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(3) = LIST(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("CE","RM","EA","RT","ML")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_STATION_PLCLAN" #block ; PLC in LAN
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","IA","ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("CT","ET","RM","EA","RT","ML","S_IS")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(3) = LIST(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","IA")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("CT","ET","RM","EA","RT","ML","S_IS")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_STATION_REX" #block ; REX
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","NN","SN","UN","UT","ST","ND","TT","TN","TB","TR","B_AP","B_UN","OS","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Session Handling Attributes",-
+            GNAME_TEXT = translate("@lbl_Session_Handling_Attributes"),-
+            ATTRIBUTES = ("SC","SI","SK","SR","SS","SH")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("RQ","TQ","RT","TC")),-
+         LIST(GNAME = "Event Handling Attributes",-
+            GNAME_TEXT = translate("@lbl_Event_Handling_Attributes"),-
+            ATTRIBUTES = ("EF","HI","S_HS","RM")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(3) = LIST(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","NN","SN","UN","UT","OS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Session Handling Attributes",-
+            GNAME_TEXT = translate("@lbl_Session_Handling_Attributes"),-
+            ATTRIBUTES = ("SC","SI","SK","SR","SS","SH")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("RQ","TQ","RT","TC")),-
+         LIST(GNAME = "Event Handling Attributes",-
+            GNAME_TEXT = translate("@lbl_Event_Handling_Attributes"),-
+            ATTRIBUTES = ("EF","HI","S_HS","RM")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_STATION_LMK" #block ; LMK
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","NN","SN","UT","ST","ND","TT","TN","TB","TR","B_AP","B_UN","OS","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("CT","DI","RT")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(3) = LIST(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","NN","SN","UT","OS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("CT","DI","RT")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_STATION_SPALON" #block ; SPA in LON line
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","UN","UT","RL","ST","ND","TT","TN","TB","TR","B_AP","B_UN","OS","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("UP","RT","EC")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("EP")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(3) = LIST(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","UN","UT","RL","OS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("UP","RT","EC")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("EP")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_STATION_SPA" #block ; SPA
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","UN","UT","ST","ND","TT","TN","TB","TR","B_AP","B_UN","OS","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("UP","RT","EC")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("EP")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(3) = LIST(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","UN","UT","OS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("UP","RT","EC")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("EP")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_STATION_SPAIEC61850" #block ; SPA for IEC 61850
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+   #block_end
+   
+   #when "NET_STATION_IECIEC_ICCP" #block ; IEC ICCP
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+   #block_end
+   
+   #when "NET_STATION_SPALAN" #block ; SPA
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","IA","UN","UT","ST","ND","TT","TN","TB","TR","B_AP","B_UN","OS","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("CT","ET","UP","RT","EC")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("EP")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(3) = LIST(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","IA","UN","UT","OS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("CT","ET","UP","RT","EC")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("EP")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_STATION_SPI" #block ; SPI
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("RT","DI","AT","RM")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(3) = LIST(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("RT","DI","AT","RM")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_STATION_DNPS" #block ; DNP Slave
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","MA","ST","ND","TT","TN","TB","TR","B_AP","B_UN","OS","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("IL","PC","AR","ML","TC","CA","DR","RM","SB","QC","SF")),-
+         LIST(GNAME = "Timing Attributes",-
+            GNAME_TEXT = translate("@lbl_Timing_Attributes"),-
+            ATTRIBUTES = ("CT","ET","S_TT","S_ST")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("S_SE","MI","MS","UA","UI")),-
+         LIST(GNAME = "Authentication Attributes",-
+            GNAME_TEXT = translate("@lbl_Authentication_Attributes"),-
+            ATTRIBUTES = ("S_ZA","S_ZG","S_ZT","S_ZU")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(3) = LIST(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","MA","OS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("IL","PC","AR","ML","TC","CA","DR","RM","SB","QC","SF")),-
+         LIST(GNAME = "Timing Attributes",-
+            GNAME_TEXT = translate("@lbl_Timing_Attributes"),-
+            ATTRIBUTES = ("CT","ET","S_TT","S_ST")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("S_SE","MI","MS","UA","UI")),-
+         LIST(GNAME = "Authentication Attributes",-
+            GNAME_TEXT = translate("@lbl_Authentication_Attributes"),-
+            ATTRIBUTES = ("S_ZA","S_ZG","S_ZT","S_ZU")) ))
+
+   #block_end
+
+   #when "NET_STATION_DNPM" #block ; DNP Master
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","MA","EO","ST","ND","TT","TN","TB","TR","B_AP","B_UN","OS","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("IL","PC","AR","ML","CA","PT","DR","RM")),-
+         LIST(GNAME = "Timing Attributes",-
+            GNAME_TEXT = translate("@lbl_Timing_Attributes"),-
+            ATTRIBUTES = ("AT","CT","MT","RT","S_TT","S_ST")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("S_SE","MI","MS","UA","UI")),-
+         LIST(GNAME = "Authentication Attributes",-
+            GNAME_TEXT = translate("@lbl_Authentication_Attributes"),-
+            ATTRIBUTES = ("S_ZA","S_ZG","S_ZT","S_ZU")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(3) = LIST(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","MA","EO","OS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("IL","PC","AR","ML","CA","PT","DR","RM")),-
+         LIST(GNAME = "Timing Attributes",-
+            GNAME_TEXT = translate("@lbl_Timing_Attributes"),-
+            ATTRIBUTES = ("AT","CT","MT","RT","S_TT","S_ST")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("S_SE","MI","MS","UA","UI")),-
+         LIST(GNAME = "Authentication Attributes",-
+            GNAME_TEXT = translate("@lbl_Authentication_Attributes"),-
+            ATTRIBUTES = ("S_ZA","S_ZG","S_ZT","S_ZU")) ))
+
+   #block_end
+   
+   #when "NET_STATION_DNPSLAN" #block ; DNP Slave
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","MA","IA","S_AI","ST","ND","TT","TN","TB","TR","B_AP","B_UN","OS","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("IL","PC","AR","ML","TC","CA","DR","RM","SB","QC","SF")),-
+         LIST(GNAME = "Timing Attributes",-
+            GNAME_TEXT = translate("@lbl_Timing_Attributes"),-
+            ATTRIBUTES = ("CT","RT","S_TT","S_ST","OT")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("S_SE","MI","MS","UA","UI")),-
+         LIST(GNAME = "Authentication Attributes",-
+            GNAME_TEXT = translate("@lbl_Authentication_Attributes"),-
+            ATTRIBUTES = ("S_ZA","S_ZG","S_ZT","S_ZU")),-
+         LIST(GNAME = "Security_Attributes",-
+            GNAME_TEXT = translate("@lbl_Security_Attributes"),-
+            ATTRIBUTES = ("CI","CP","CN","CV","S_CX","EE")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(3) = LIST(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","MA","IA","S_AI","OS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("IL","PC","AR","ML","TC","CA","DR","RM","SB","QC","SF")),-
+         LIST(GNAME = "Timing Attributes",-
+            GNAME_TEXT = translate("@lbl_Timing_Attributes"),-
+            ATTRIBUTES = ("CT","RT","S_TT","S_ST","OT")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("S_SE","MI","MS","UA","UI")),-
+         LIST(GNAME = "Authentication Attributes",-
+            GNAME_TEXT = translate("@lbl_Authentication_Attributes"),-
+            ATTRIBUTES = ("S_ZA","S_ZG","S_ZT","S_ZU")),-
+         LIST(GNAME = "Security_Attributes",-
+            GNAME_TEXT = translate("@lbl_Security_Attributes"),-
+            ATTRIBUTES = ("CI","CP","CN","CV","S_CX","EE")) ))
+
+   #block_end
+
+   #when "NET_STATION_DNPMLAN" #block ; DNP Master
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","MA","EO","IA","ST","ND","TT","TN","TB","TR","B_AP","B_UN","OS","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("IL","PC","AR","ML","CA","PT","DR","RM")),-
+         LIST(GNAME = "Timing Attributes",-
+            GNAME_TEXT = translate("@lbl_Timing_Attributes"),-
+            ATTRIBUTES = ("AT","CT","MT","RT","S_TT","S_ST","OT")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("S_SE","MI","MS","UA","UI")),-
+         LIST(GNAME = "Authentication Attributes",-
+            GNAME_TEXT = translate("@lbl_Authentication_Attributes"),-
+            ATTRIBUTES = ("S_ZA","S_ZG","S_ZT","S_ZU")),-
+         LIST(GNAME = "Security_Attributes",-
+            GNAME_TEXT = translate("@lbl_Security_Attributes"),-
+            ATTRIBUTES = ("CI","CP","CN","CV","EE")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(3) = LIST(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","MA","EO","IA","OS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("IL","PC","AR","ML","CA","PT","DR","RM")),-
+         LIST(GNAME = "Timing Attributes",-
+            GNAME_TEXT = translate("@lbl_Timing_Attributes"),-
+            ATTRIBUTES = ("AT","CT","MT","RT","S_TT","S_ST","OT")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("S_SE","MI","MS","UA","UI")),-
+         LIST(GNAME = "Authentication Attributes",-
+            GNAME_TEXT = translate("@lbl_Authentication_Attributes"),-
+            ATTRIBUTES = ("S_ZA","S_ZG","S_ZT","S_ZU")),-
+         LIST(GNAME = "Security_Attributes",-
+            GNAME_TEXT = translate("@lbl_Security_Attributes"),-
+            ATTRIBUTES = ("CI","CP","CN","CV","EE")) ))
+
+   #block_end
+
+   #when "NET_STATION_LCU" #block ; LCU
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("AP","OP","RL","RT")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(3) = LIST(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("AP","OP","RL","RT")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+  #when "NET_STATION_ADE" #block ; ADE
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(3) = LIST(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+   
+     #when "NET_STATION_ATR" #block ; ATR
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(3) = LIST(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = vector("IU")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_STATION_STAXF" #block ; STA Full Duplex
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","S_ST","OS","ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Station Suspension Attributes",-
+            GNAME_TEXT = translate("@lbl_Station_Suspension_Attributes"),-
+            ATTRIBUTES = ("FS","RT","SU")),-
+         LIST(GNAME = "Diagnostic Attributes",-
+            GNAME_TEXT = translate("@lbl_Diagnostic_Attributes"),-
+            ATTRIBUTES = ("DE","DI")),-
+         LIST(GNAME = "Message Split Attributes",-
+            GNAME_TEXT = translate("@lbl_Message_Split_Attributes"),-
+            ATTRIBUTES = vector("SP")),-
+            LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("CP","PA")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(3) = LIST(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","S_ST","OS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Station Suspension Attributes",-
+            GNAME_TEXT = translate("@lbl_Station_Suspension_Attributes"),-
+            ATTRIBUTES = ("FS","RT","SU")),-
+         LIST(GNAME = "Diagnostic Attributes",-
+            GNAME_TEXT = translate("@lbl_Diagnostic_Attributes"),-
+            ATTRIBUTES = ("DE","DI")),-
+         LIST(GNAME = "Message Split Attributes",-
+            GNAME_TEXT = translate("@lbl_Message_Split_Attributes"),-
+            ATTRIBUTES = vector("SP")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("CP","PA")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_STATION_STAHF" #block ; STA Half Duplex
+
+      @v_Attrib_Views(1) = list(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","S_ST","OS","ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Station Suspension Attributes",-
+            GNAME_TEXT = translate("@lbl_Station_Suspension_Attributes"),-
+            ATTRIBUTES = ("FS","RT","SU")),-
+         LIST(GNAME = "Diagnostic Attributes",-
+            GNAME_TEXT = translate("@lbl_Diagnostic_Attributes"),-
+            ATTRIBUTES = ("DE","DI")),-
+         LIST(GNAME = "Message Split Attributes",-
+            GNAME_TEXT = translate("@lbl_Message_Split_Attributes"),-
+            ATTRIBUTES = vector("SP")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("CP","PA")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = list(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(3) = list(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","S_ST","OS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Station Suspension Attributes",-
+            GNAME_TEXT = translate("@lbl_Station_Suspension_Attributes"),-
+            ATTRIBUTES = ("FS","RT","SU")),-
+         LIST(GNAME = "Diagnostic Attributes",-
+            GNAME_TEXT = translate("@lbl_Diagnostic_Attributes"),-
+            ATTRIBUTES = ("DE","DI")),-
+         LIST(GNAME = "Message Split Attributes",-
+            GNAME_TEXT = translate("@lbl_Message_Split_Attributes"),-
+            ATTRIBUTES = vector("SP")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("CP","PA")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_STATION_RTU" #block ; RTU
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","ST","ND","TT","TN","TB","TR","SO","HR","OS","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("RT","SC")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "Base System Attributes",-
+         NAME_TEXT = translate("@lbl_Base_System_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("ST","ND","TT","TN","TB","TR","B_AP","B_UN","CS")),-
+         LIST(GNAME = "Mirroring Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Attributes"),-
+            ATTRIBUTES = ("MR","HS","IS","LP","AE")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","B_PS","B_SS","PR","B_AS","RS")),-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","B_SM"))))
+
+      @v_Attrib_Views(3) = LIST(-
+         NAME   = "NET Attributes",-
+         NAME_TEXT = translate("@lbl_NET_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Attributes"),-
+            ATTRIBUTES = ("IU","LI","SA","SO","HR","OS")),-
+         LIST(GNAME = "Device Reservation",-
+            GNAME_TEXT = translate("@lbl_Device_Reservation"),-
+            ATTRIBUTES = ("AL","AS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("RT","SC")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_LINK_PO1" #block ; ANSI X3.28 XF
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","SB","RD","RE","TD")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","DE","RY","LK","ER","EN","NA","TI","CM")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("PP","PD")),-
+         LIST(GNAME = "Autodialling Attributes",-
+            GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+            ATTRIBUTES = vector("AC")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_LINK_PO1DU" #block ; ANSI X3.28 XF Dial-Up
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","SB","RD","RE","TD")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","DE","RY","LK","ER","EN","NA","TI")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("PP","PD")),-
+         LIST(GNAME = "Autodialling Attributes",-
+            GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+            ATTRIBUTES = ("AC","CL","CT","PU","MC","RC","RW")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_LINK_PO2" #block ; ANSI X3.28 HF
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","SB","RD","RE","TD")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","DE","RY","TW","RK","LK","EN","HT","TI","OM","CM")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("PP","PD","RP")),-
+         LIST(GNAME = "Autodialling Attributes",-
+            GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+            ATTRIBUTES = vector("AC")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_LINK_PO2DU" #block ; ANSI X3.28 HF Dial-Up
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","SB","RD","RE","TD")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","DE","RY","TW","RK","LK","EN","HT","TI")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("PP","PD","RP")),-
+         LIST(GNAME = "Autodialling Attributes",-
+            GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+            ATTRIBUTES = ("AC","CL","CT","PU","MC","RC","RW")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_LINK_PO3" #block ; RAM
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = vector("RE")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("EN","NA","TI")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_LINK_PO4" #block ; ASCII
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS","OS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","SB","RD","TD")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = vector("SD","TI","CM")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_LINK_PO7" #block ; RP570M
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","SB","RD","TD","RE")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","DE","RY","LK","TW","EN","HT","RK","RI","TI","CM")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("PD","PP","RP","AW")),-
+         LIST(GNAME = "Other Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Other_Basic_Attributes"),-
+            ATTRIBUTES = vector("PM")),-
+         LIST(GNAME = "Autodialling Attributes",-
+            GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+            ATTRIBUTES = vector("AC")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_LINK_PO7DU" #block ; RP570M Dial-Up
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","SB","RD","TD","RE")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","DE","RY","LK","TW","EN","HT","RK","RI","TI")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("PD","PP","RP","AW")),-
+         LIST(GNAME = "Other Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Other_Basic_Attributes"),-
+            ATTRIBUTES = vector("PM")),-
+         LIST(GNAME = "Autodialling Attributes",-
+            GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+            ATTRIBUTES = ("AC","CL","CT","PU","MC","RC")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_LINK_PO12" #block ; LCU500
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","RL")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = vector("BR")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","DE","RY","LK","IT","TI","TP","TT","CM")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("PM","PP")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+   #block_end
+   
+   #when "NET_LINK_PO13" #block ; ADLP180M
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","SB","RD","TD","RE")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","DE","RY","LK","EN","RK","TI","CM")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("PD","RP","PP","AW")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+   #block_end
+
+   #when "NET_LINK_PO14" #block ; SPA
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","SB","RD","TD")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","DE","RY","LK","HT","RL","PM","CM")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("PP","PD","PT")),-
+         LIST(GNAME = "Autodialling Attributes",-
+            GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+            ATTRIBUTES = vector("AC")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+   
+   #when "NET_LINK_PO14LAN" #block ; SPA in LAN
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","LD","DE","RY","HT","RL","PM")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("PP","PD","PT")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_LINK_PO14DU" #block ; SPA Dial-Up
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","SB","RD","TD")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","DE","RY","LK","HT","RL","PM")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("PP","PD","PT")),-
+         LIST(GNAME = "Autodialling Attributes",-
+            GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+            ATTRIBUTES = ("AC","CL","CT","PU","MC","RC")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_LINK_PO15" #block ; GENERAL ASCII
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","SB","RD","TD")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","DE","RY","TI","PM","SF","CM")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("PD")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_LINK_PO16" #block ; RP570S
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","RD","SB","TD")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","DE","RY","LK","RU","CM")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_LINK_PO25" #block ; MODBUS
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","SB","RD","TD","CB")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","DE","RY","EN","LK","HT","RI","TI","CM")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("PD","PP")),-
+         LIST(GNAME = "Other Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Other_Basic_Attributes"),-
+            ATTRIBUTES = vector("PM")),-
+         LIST(GNAME = "Autodialling Attributes",-
+            GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+            ATTRIBUTES = vector("AC")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+   
+   #when "NET_LINK_PO25DU" #block ; MODBUS
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","SB","RD","TD","CB")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","DE","RY","EN","LK","HT","RI","TI")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("PD","PP")),-
+         LIST(GNAME = "Other Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Other_Basic_Attributes"),-
+            ATTRIBUTES = vector("PM")),-
+         LIST(GNAME = "Autodialling Attributes",-
+               GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+               ATTRIBUTES = ("AC","CL","CT","PU","MC","RC")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_LINK_PO25LAN" #block ; MODBUS in LAN
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","LD","DE","RY","EN","HT","RI","TI","OM")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("PD","PP")),-
+         LIST(GNAME = "Other Basic Attributes",-
+            GNAME_TEXT = translate("@lbl_Other_Basic_Attributes"),-
+            ATTRIBUTES = vector("PM")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+   
+   #when "NET_LINK_PO26" #block ; IEC 1107
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","SB","RD","TD")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","RY","EN","HT","RI","TI","CM")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("PD")),-
+-;         LIST(GNAME = "Other Basic Attributes",-
+-;            GNAME_TEXT = translate("@lbl_Other_Basic_Attributes"),-
+-;            ATTRIBUTES = vector("PM")),-
+         LIST(GNAME = "Autodialling Attributes",-
+            GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+            ATTRIBUTES = vector("AC")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+   
+   #when "NET_LINK_PO26DU" #block ; IEC 1107 DU
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","SB","RD","TD")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","RY","EN","HT","RI","TI")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("PD")),-
+-;         LIST(GNAME = "Other Basic Attributes",-
+-;            GNAME_TEXT = translate("@lbl_Other_Basic_Attributes"),-
+-;            ATTRIBUTES = vector("PM")),-
+         LIST(GNAME = "Autodialling Attributes",-
+               GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+               ATTRIBUTES = ("AC","CL","CT","PU")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_LINK_PO27" #block ; LON
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","TI","TW","LK")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("PD")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_LINK_PO28" #block ; INTEGRATED LINK
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("EN","NA","TI"))))
+
+   #block_end
+
+   #when "NET_LINK_PO29" #block
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","RD","SB","TD","CB")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","DE","RY","TW","RK","EN","RI","LK","HT","TI","RU","CM")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("PD")),-
+         LIST(GNAME = "Autodialling Attributes",-
+            GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+            ATTRIBUTES = vector("AC")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS","UI"))))
+            
+    #block_end
+            
+   #when "NET_LINK_PO30" #block   ;IEC 101 BS
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","RD","SB","TD","CB")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","DE","RY","TW","RK","EN","RI","LK","HT","TI","OM","RU","CM")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("PD")),-
+         LIST(GNAME = "Autodialling Attributes",-
+            GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+            ATTRIBUTES = vector("AC")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS","UI"))))
+
+   #block_end
+   
+   #when "NET_LINK_PO31" #block   ;IEC 101 UM
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","RD","SB","TD","CB")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","DE","RY","TW","RK","EN","RI","LK","HT","TI","OM","CM")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("PD","PP","PL","RP","SL")),-
+         LIST(GNAME = "Autodialling Attributes",-
+            GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+            ATTRIBUTES = vector("AC")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS","UI"))))
+
+   #block_end
+   
+   #when "NET_LINK_PO32" #block   ;IEC 101 BM 
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","RD","SB","TD","CB")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","DE","RY","TW","RK","EN","RI","LK","HT","TI","OM","CM")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("PD")),-
+         LIST(GNAME = "Autodialling Attributes",-
+            GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+            ATTRIBUTES = vector("AC")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS","UI"))))
+
+   #block_end
+   
+   #when "NET_LINK_PO34" #block   ; IEC ???
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","RD","SB","TD","CB")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","DE","RY","TW","RK","EN","RI","LK","HT","TI","OM")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("PD")),-
+         LIST(GNAME = "Autodialling Attributes",-
+            GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+            ATTRIBUTES = vector("AC")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_LINK_PO33" #block   ;IEC 103 UM
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","RD","SB","TD","CB")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","DE","RY","TW","RK","EN","RI","LK","HT","TI","OM","CM")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("PD","PP","PL","RP","SL")),-
+         LIST(GNAME = "Autodialling Attributes",-
+            GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+            ATTRIBUTES = vector("AC")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_LINK_PO29DU" #block
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","RD","SB","TD","CB")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","DE","RY","TW","RK","EN","RI","LK","HT","TI","RU")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("PD")),-
+         LIST(GNAME = "Autodialling Attributes",-
+            GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+            ATTRIBUTES = ("AC","CL","CT","PU","MC","RC")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+   
+   #when "NET_LINK_PO30DU" #block
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","RD","SB","TD","CB")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","DE","RY","TW","RK","EN","RI","LK","HT","TI","OM","RU")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("PD")),-
+         LIST(GNAME = "Autodialling Attributes",-
+            GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+            ATTRIBUTES = ("AC","CL","CT","PU","MC","RC")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+   
+   #when "NET_LINK_PO32DU", "NET_LINK_PO34DU" #block
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","RD","SB","TD","CB")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","DE","RY","TW","RK","EN","RI","LK","HT","TI","OM")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("PD")),-
+         LIST(GNAME = "Autodialling Attributes",-
+            GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+            ATTRIBUTES = ("AC","CL","CT","PU","MC","RC")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_LINK_PO31DU", "NET_LINK_PO33DU" #block
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","RD","SB","TD","CB")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","DE","RY","TW","RK","EN","RI","LK","HT","TI")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = ("PD","PP","PL","RP","SL")),-
+         LIST(GNAME = "Autodialling Attributes",-
+            GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+            ATTRIBUTES = ("AC","CL","CT","PU","MC","RC")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS"))))
+
+   #block_end
+
+   #when "NET_LINK_PO35" #block  ;DNP 3.0S
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","RD","SB","TD")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","PD","ML","IT","XR","DE","RY","TW","RK","EN","LK","HT","TI","LA","OM","CM")),-
+            LIST(GNAME = "Autodialling Attributes",-
+               GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+               ATTRIBUTES = vector("AC")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS","UI"))))
+
+   #block_end
+
+   #when "NET_LINK_PO35LAN" #block  ;DNP 3.0S LAN
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","LD","PD","ML","EN","LK","HT","TI","LA","OM")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS","UI"))))
+
+   #block_end
+
+   #when "NET_LINK_PO35DU" #block  ;DNP 3.0S Dial-up
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","RD","SB","TD")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","PD","ML","IT","XR","DE","RY","TW","RK","EN","LK","HT","TI","LA","OM")),-
+         LIST(GNAME = "Autodialling Attributes",-
+            GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+            ATTRIBUTES = ("AC","CL","CT","PU","MC","RC")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS","UI"))))
+
+   #block_end
+
+
+   #when "NET_LINK_PO43" #block  ;DNP 3.0M
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","RD","SB","TD")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","PD","PP","ML","IT","XR","DE","RY","TW","RK","EN","LK","HT","TI","LA","OM","CM")),-
+         LIST(GNAME = "Autodialling Attributes",-
+            GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+            ATTRIBUTES = vector("AC")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS","UI"))))
+
+   #block_end
+
+   #when "NET_LINK_PO43LAN" #block  ;DNP 3.0M LAN
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","LD","PD","PP","ML","IT","XR","DE","RY","TW","RK","EN","LK","HT","TI","LA","OM")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS","UI"))))
+
+   #block_end
+
+   #when "NET_LINK_PO43DU" #block  ;DNP 3.0M Dial-up
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Data Transmission Attributes",-
+            GNAME_TEXT = translate("@lbl_Data_Transmission_Attributes"),-
+            ATTRIBUTES = ("BR","PY","RD","SB","TD")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("SD","PD","PP","ML","IT","XR","DE","RY","TW","RK","EN","LK","HT","TI","LA","OM")),-
+         LIST(GNAME = "Autodialling Attributes",-
+            GNAME_TEXT = translate("@lbl_Autodialling_Attributes"),-
+            ATTRIBUTES = ("AC","CL","CT","PU","MC","RC")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS","UI"))))
+
+   #block_end
+
+   #when "NET_LINK_PO44" #block  ;IEC 104M
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("TI","HT","EN","LD","OM")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("PD")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS","UI"))))
+
+   #block_end
+
+   #when "NET_LINK_PO45" #block  ;IEC 104S
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes",-
+         NAME_TEXT = translate("@lbl_All_Attributes"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Basic Line Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Line_Attributes"),-
+            ATTRIBUTES = ("IU","PO","PS")),-
+         LIST(GNAME = "Communication Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Control_Attributes"),-
+            ATTRIBUTES = ("TI","LD","OM")),-
+         LIST(GNAME = "Polling Attributes",-
+            GNAME_TEXT = translate("@lbl_Polling_Attributes"),-
+            ATTRIBUTES = vector("PD")),-
+         LIST(GNAME = "Protocol Analyzer",-
+            GNAME_TEXT = translate("@lbl_Protocol_Analyzer"),-
+            ATTRIBUTES = vector("AO","AU")),-
+         LIST(GNAME = "System Message Handling",-
+            GNAME_TEXT = translate("@lbl_System_Message_Handling"),-
+            ATTRIBUTES = ("MI","MS","UI"))))
+
+   #block_end
+
+#case_end
+
+#return %v_Attrib_Views

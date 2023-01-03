@@ -1,0 +1,65 @@
+; Function:    BMU_SP_CAL1:C
+; Version:     3.0 (Build 23.02.2012)
+; Parameters:  %Object_Names vector contains all objects to sample data in this period, Mx (not MP) and CB, CS
+; Return data: none
+; Description: Update sampled values all types
+;-------------------------------------------------------------------------------
+;Revision History
+;Date       Vers. Author Description
+;-------------------------------------------------------------------------------
+#local i, i_Status = status, cot, e_TC = clock,-
+ 	   v_ObjNamesCalc=vector(), v_ObjNamesClean=vector(), v_ObjNamesMeasPeriod=vector(),-
+       l_Now=list(), l_Previous=list(),-
+	   b_SummertimeSwitch = false,b_WintertimeSwitch = false
+#error ignore
+
+#if BMU_GLOBAL:CCS==1 #then #DO BMU_GLOBAL:CCP
+#else #DO BMU_GLOBAL:C
+
+;*** 01.06.2009 HoDa ID 13897  ST switch detection
+l_Now      = local_time
+l_Previous = local_time_add(l_Now, -60 - %SP_DELAY)                             ;*** check if previous sampling executed in WT
+#if l_Now.DS and not l_Previous.DS #then b_SummertimeSwitch = true              ;*** now we have ST, previous was in WT
+#if not l_Now.DS and l_Previous.DS #then b_WintertimeSwitch = true              ;*** now we have WT, previous was in ST
+
+#loop_with i = 1..length(%v_ObjectNames)
+   @t_ObjectName    = %v_ObjectNames(i)
+   @l_ReportObject = %l_ReportObjects.OBJ_'t_ObjectName'
+
+   ;*** this only for report object of measured type (MM,MN,MX,MS), not MP because that's for base period only
+   #if substr(%l_ReportObject.ID,1,1)=="M" and substr(%l_ReportObject.ID,1,2)<>"MP" #then #block
+      #if %l_ReportObject.SP_HL > 0 #then #block
+         @T1 = CLOCK - (%l_ReportObject.SP + %SP_Delay)                         ;*** e.g. clock-(180+0)
+         #if b_SummertimeSwitch #then @T1 = %T1 - 3600
+         #if b_WintertimeSwitch #then @T1 = %T1 + 3600
+         @T2
+
+         #if BMU_SP_IND:CCS==1 #then #DO BMU_SP_IND:CCP
+         #else #DO BMU_SP_IND:C
+         
+         #if BMU_SP_UPDATE:CCS==1 #then #DO BMU_SP_UPDATE:CCP
+         #else #DO BMU_SP_UPDATE:C
+
+         v_ObjNamesClean = insert_element(v_ObjNamesClean,1,%t_ObjectName)
+      #block_end
+      #else #exec 't_ObjectName':D                                              ;*** no sampling history SP_HL = 0
+   #block_end
+   #else_if substr(%l_ReportObject.ID,1,2)=="CB" or substr(%l_ReportObject.ID,1,2)=="CS" #then #block
+      v_ObjNamesCalc = insert_element(v_ObjNamesCalc,1,%t_ObjectName)
+      #if %l_ReportObject.SP_HL > 0 #then v_ObjNamesClean=insert_element(v_ObjNamesClean,1,%t_ObjectName)
+   #block_end
+#loop_end
+
+;**** update calculated objects and execute the callback method
+#if length(v_ObjNamesCalc) > 0 #then -
+      #exec BMU_SP_CAL2:C (@v_ObjectNames = v_ObjNamesCalc)
+#else #exec BMU_SP_CLBK:C                                                       ;### 30.03.2009 HoDa ID14434
+
+;*** reset old values (once in a hour) to clean old data
+e_TC = pack_time(year,month,day,hour,0,0)
+#if (CLOCK-e_TC < %Sampling_Periods(1)) and length(v_ObjNamesClean)> 0 #then -  ;*** only for sampling with history, 
+   #if not b_WintertimeSwitch #then #exec_after 10 BMU_SP_CLEAN:C (@v_ObjectNames = v_ObjNamesClean)
+
+i_Status = status
+#if i_Status <> 0 #then cot = console_output("BMU_SP_CAL1:C - SCIL Error='i_Status'","E","MREP") 
+

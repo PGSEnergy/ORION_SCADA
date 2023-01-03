@@ -1,0 +1,39 @@
+; resolves the control places for bay L/R switch based on data object name
+; this script is called from bay, switch device and tap changer dialogs
+; IN: dataObject as TEXT, LN as TEXT (optional), IX as INTEGER (optional)
+; OUT: convention
+; ctrl places can be one of the following: OFF, LOCAL, STATION, NCC, ALL 
+; --------------------------------------------------------------------------------------------------------
+
+#local dataObject = "", LN = "", IX = 0
+#local convention = vector
+
+#if argument_count > 0 #then dataObject = argument(1)
+#if argument_count > 1 #then LN = argument(2)
+#if argument_count > 2 #then IX = argument(3)
+
+#case dataObject
+   #when "LocKeyHMI" #block
+      ;Relion 615
+      convention = VECTOR(-
+         LIST(VALUE = 0, CONTROL_PLACES = VECTOR("OFF")),-
+         LIST(VALUE = 1, CONTROL_PLACES = VECTOR("LOCAL")),-
+         LIST(VALUE = 3, CONTROL_PLACES = VECTOR("STATION")),-
+         LIST(VALUE = 5, CONTROL_PLACES = VECTOR("LOCAL", "STATION")),-
+         LIST(VALUE = 6, CONTROL_PLACES = VECTOR("ALL")),-
+         LIST(VALUE = 7, CONTROL_PLACES = VECTOR("STATION", "NCC")))
+   #block_end
+   #when "CtlAuthInd" #block                
+      ;Relion 670
+      convention = VECTOR(-
+         LIST(VALUE = 0, CONTROL_PLACES = VECTOR("OFF")),-
+         LIST(VALUE = 1, CONTROL_PLACES = VECTOR("LOCAL")),-
+         LIST(VALUE = 2, CONTROL_PLACES = VECTOR("STATION", "NCC")),-
+         LIST(VALUE = 3, CONTROL_PLACES = VECTOR("OFF")),-
+         LIST(VALUE = 5, CONTROL_PLACES = VECTOR("ALL")),-
+         LIST(VALUE = 6, CONTROL_PLACES = VECTOR("STATION")),-
+         LIST(VALUE = 7, CONTROL_PLACES = VECTOR("NCC")))
+   #block_end
+#case_end
+
+#return convention

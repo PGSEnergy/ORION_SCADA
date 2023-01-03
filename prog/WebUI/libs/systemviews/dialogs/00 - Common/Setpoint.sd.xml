@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:variable type="external" name="control" default="''" />
+    <d:meta name="dv-custom-attribute|ABB SA Symbols" content="v1.0" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Setpoint" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="Measurement" />
+    <d:meta name="dv-custom-attribute|SAOpenVSCILOnClickVso" content="B5_USE/BPU_DLG_ENG.VSO@1MAIN@2@31SGTS:-1" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="status-color" default="0" />
+  </d:head>
+  <d:body n:LN="{LN(control)}" n:IX="{IX(control)}" x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <d:view name="00 - Common/Button - Raw.sd" s:transform="translate(0,0) scale(1,1)" d:object-name="Button - Raw">
+      <d:parameter name="subdrawing_color" value="'rgb(144, 144, 144)'" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="middle-text" value="'&gt;&gt; SP'" />
+      <d:parameter name="status-color" value="`status-color`" />
+      <d:parameter name="show-status-color" value="1" />
+      <d:parameter name="normal-text-visibility" value="2" />
+      <d:meta name="dv-variable-mapping|Middle Text" content="&gt;&gt; SP" />
+      <d:meta name="dv-variable-mapping|Status Color" content="Status Color" />
+      <d:meta name="dv-variable-mapping|Show Status Color" content="1.0" />
+      <d:meta name="dv-variable-mapping|Normal Text Visibility" content="2.0" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node1" />
+    </d:view>
+  </d:body>
+</d:document>

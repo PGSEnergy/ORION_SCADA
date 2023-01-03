@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Root>
+<!--format of this file is:
+<ObjectGroup name="[group name of object]">
+	<SubnetworkObjectType value = "type of subnetwork object in CET Communication Structure">
+	type of subnetwork in SCL file
+	</SubnetworkObjectType>
+...
+
+	<SCLSubnetworkTypeMatchNsoType value="Type of subnetwork object in SCL file">
+	type of OPC Server or Client object in CET Communication structure		
+	</SCLSubnetworkTypeMatchNsoType>
+...
+</ObjectGroup>
+...
+
+
+Tag 'SubnetworkObjectType' is used for filtering wrong types of OPC Servers/Clients and IEDs from SCL Import combobox. 
+For example if SCL Import is started from SPA object, only the IEDs that are under SPA subnetwork in SCL file are shown.
+
+Tag 'SCLSubnetworkTypeMatchNsoType' is used for checking which is the type of OPC Server or Client which should be created to CET 
+Communication structure based on subnetwork type in SCL file. For example if IED is under subnetwork which type is 'ABB-SPA', 
+the type of the OPC Server that should be created should be 'SPA OPC Server'
+
+Tag 'ObjectGroup' is only used for gategorizing the values on this file based on protocols
+-->
+<ObjectGroup name="DNP">
+	<SubnetworkObjectType value="DNPs Serial SubNetwork">DNPs SubNetwork</SubnetworkObjectType>
+	<SubnetworkObjectType value="DNPs LAN SubNetwork">DNPs SubNetwork</SubnetworkObjectType>
+	<SubnetworkObjectType value="DNP Serial Subnetwork">DNP Subnetwork</SubnetworkObjectType>
+	<SubnetworkObjectType value="DNP LAN Subnetwork">DNP Subnetwork</SubnetworkObjectType>
+	<SCLSubnetworkTypeMatchNsoType value="DNPs SubNetwork">DNPs LAN OPC Client</SCLSubnetworkTypeMatchNsoType>
+	<SCLSubnetworkTypeMatchNsoType value="DNPs SubNetwork">DNPs Serial OPC Client</SCLSubnetworkTypeMatchNsoType>
+	<SCLSubnetworkTypeMatchNsoType value="DNP Subnetwork">DNP LAN OPC Server</SCLSubnetworkTypeMatchNsoType>
+	<SCLSubnetworkTypeMatchNsoType value="DNP Subnetwork">DNP Serial OPC Server</SCLSubnetworkTypeMatchNsoType>
+</ObjectGroup>
+<ObjectGroup name="IEC101">
+	<SubnetworkObjectType value="IEC101 Balanced Subnetwork">IEC101 Balanced Channel</SubnetworkObjectType>
+	<SubnetworkObjectType value="IEC101 Unbalanced Subnetwork">IEC101 Channel</SubnetworkObjectType>
+	<SubnetworkObjectType value="IEC101s Balanced SubNetwork">IEC101 Balanced Channel</SubnetworkObjectType>
+	<SubnetworkObjectType value="IEC101s Unbalanced SubNetwork">IEC101 Channel</SubnetworkObjectType>
+	<SCLSubnetworkTypeMatchNsoType value="IEC101 Balanced Channel">IEC101s OPC Client</SCLSubnetworkTypeMatchNsoType>
+	<SCLSubnetworkTypeMatchNsoType value="IEC101 Channel">IEC101s OPC Client</SCLSubnetworkTypeMatchNsoType>
+	<SCLSubnetworkTypeMatchNsoType value="IEC101 Balanced Channel">IEC101 OPC Server</SCLSubnetworkTypeMatchNsoType>
+	<SCLSubnetworkTypeMatchNsoType value="IEC101 Channel">IEC101 OPC Server</SCLSubnetworkTypeMatchNsoType>
+</ObjectGroup>
+<ObjectGroup name="IEC103">
+	<SubnetworkObjectType value="IEC103 Subnetwork">IEC103 Subnetwork</SubnetworkObjectType>
+	<SCLSubnetworkTypeMatchNsoType value="IEC103 Subnetwork">IEC103 OPC Server</SCLSubnetworkTypeMatchNsoType>
+</ObjectGroup>
+<ObjectGroup name="IEC104">
+	<SubnetworkObjectType value="IEC104 Subnetwork">IEC104 SubNetwork</SubnetworkObjectType>
+	<SubnetworkObjectType value="IEC104s SubNetwork">IEC104s SubNetwork</SubnetworkObjectType>
+	<SCLSubnetworkTypeMatchNsoType value="IEC104s SubNetwork">IEC104s OPC Client</SCLSubnetworkTypeMatchNsoType>
+	<SCLSubnetworkTypeMatchNsoType value="IEC104 SubNetwork">IEC104 OPC Server</SCLSubnetworkTypeMatchNsoType>
+</ObjectGroup>
+<ObjectGroup name="IEC61850">
+	<SubnetworkObjectType value="IEC61850 Subnetwork">8-MMS</SubnetworkObjectType>
+	<SubnetworkObjectType value="IEC61850 Subnetwork">8-MMS/TCP</SubnetworkObjectType>
+	<SCLSubnetworkTypeMatchNsoType value="8-MMS">IEC61850 OPC Server</SCLSubnetworkTypeMatchNsoType>	
+	<SCLSubnetworkTypeMatchNsoType value="8-MMS/TCP">IEC61850 OPC Server</SCLSubnetworkTypeMatchNsoType>
+</ObjectGroup>
+<ObjectGroup name="MNSiS">
+	<SubnetworkObjectType value="MNSiS Subnetwork">ABB-MNSiS</SubnetworkObjectType>
+	<SubnetworkObjectType value="Virtual Subnetwork">ABB-Application</SubnetworkObjectType>
+	<SCLSubnetworkTypeMatchNsoType value="ABB-Application">Application OPC Server</SCLSubnetworkTypeMatchNsoType>
+	<SCLSubnetworkTypeMatchNsoType value="ABB-MNSiS">MNSiS Server</SCLSubnetworkTypeMatchNsoType>
+</ObjectGroup>
+<ObjectGroup name="LON">
+	<SubnetworkObjectType value="LON Subnetwork">ABB-LON</SubnetworkObjectType>
+	<SCLSubnetworkTypeMatchNsoType value="ABB-LON">LON OPC Server</SCLSubnetworkTypeMatchNsoType>
+</ObjectGroup>
+<ObjectGroup name="Modbus Serial">
+    <SubnetworkObjectType value="Modbus Serial Subnetwork">Modbus Serial Subnetwork</SubnetworkObjectType>
+    <SCLSubnetworkTypeMatchNsoType value="Modbus Serial Subnetwork">Modbus Serial OPC Server</SCLSubnetworkTypeMatchNsoType>
+    <SubnetworkObjectType value="ModbusSlave Serial SubNetwork">ModbusSlave Serial SubNetwork</SubnetworkObjectType>
+    <SCLSubnetworkTypeMatchNsoType value="ModbusSlave Serial SubNetwork">ModbusSlave Serial OPC Client</SCLSubnetworkTypeMatchNsoType>
+  </ObjectGroup>
+  <ObjectGroup name="Modbus TCP">
+    <SubnetworkObjectType value="Modbus LAN Subnetwork">Modbus LAN Subnetwork</SubnetworkObjectType>
+    <SCLSubnetworkTypeMatchNsoType value="Modbus LAN Subnetwork">Modbus LAN OPC Server</SCLSubnetworkTypeMatchNsoType>
+    <SubnetworkObjectType value="ModbusSlave LAN SubNetwork">ModbusSlave TCP SubNetwork</SubnetworkObjectType>
+    <SCLSubnetworkTypeMatchNsoType value="ModbusSlave TCP SubNetwork">ModbusSlave LAN OPC Client</SCLSubnetworkTypeMatchNsoType>
+  </ObjectGroup>
+<ObjectGroup name="SPA">
+	<SubnetworkObjectType value="SPA Subnetwork">ABB-SPA</SubnetworkObjectType>
+	<SCLSubnetworkTypeMatchNsoType value="ABB-SPA">SPA OPC Server</SCLSubnetworkTypeMatchNsoType>
+</ObjectGroup>
+<ObjectGroup name="SPA Router">
+	<SubnetworkObjectType value="SpaRouter LAN Subnetwork">SpaRouter LAN Subnetwork</SubnetworkObjectType>
+	<SubnetworkObjectType value="SpaRouter Subnetwork">SpaRouter Subnetwork</SubnetworkObjectType>
+	<SCLSubnetworkTypeMatchNsoType value="SpaRouter LAN Subnetwork">SpaRouter</SCLSubnetworkTypeMatchNsoType>
+	<SCLSubnetworkTypeMatchNsoType value="SpaRouter Subnetwork">SpaRouter</SCLSubnetworkTypeMatchNsoType>
+</ObjectGroup>
+<ObjectGroup name="Logic Processor">
+	<SubnetworkObjectType value="PLC OPC Subnetwork">ABB-Conn</SubnetworkObjectType>
+	<SCLSubnetworkTypeMatchNsoType value="ABB-Conn">PLC OPC Server</SCLSubnetworkTypeMatchNsoType>
+</ObjectGroup>
+<ObjectGroup name="SSS">
+	<SubnetworkObjectType value="SSS Subnetwork">ABB-SSS</SubnetworkObjectType>
+	<SCLSubnetworkTypeMatchNsoType value="ABB-SSS">SSS Server</SCLSubnetworkTypeMatchNsoType>
+</ObjectGroup>
+<ObjectGroup name="Time Synchronization">
+  <SubnetworkObjectType value="SNTP Virtual Subnetwork">ABB-Application</SubnetworkObjectType>
+  <SCLSubnetworkTypeMatchNsoType value="ABB-Application">SNTP OPC Server</SCLSubnetworkTypeMatchNsoType>
+</ObjectGroup>
+<ObjectGroup name="OPC">
+	<SubnetworkObjectType value="Generic OPC Subnetwork">ABB-Conn</SubnetworkObjectType>
+	<SCLSubnetworkTypeMatchNsoType value="ABB-Conn">Generic OPC Server</SCLSubnetworkTypeMatchNsoType>
+</ObjectGroup>
+<ObjectGroup name="SNMP">
+	<SubnetworkObjectType value="SNMP Subnetwork">ABB-SNMP</SubnetworkObjectType>
+	<SCLSubnetworkTypeMatchNsoType value="ABB-SNMP">SNMP OPC Server</SCLSubnetworkTypeMatchNsoType>
+</ObjectGroup>
+</Root>
+

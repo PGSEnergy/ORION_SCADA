@@ -1,0 +1,18 @@
+;#set sys:bdm=1
+@SESSION_COUNT=50
+#if sys:bdm==1 #then @trash=trace_begin("pict/TRACE_BGU_LOGINRESET.TXT")
+@login_count_ln="SAGR_L_CNT"
+@output=application_object_list(0,"IX","A","","","LN==""'login_count_ln'""", vector("LN","IX"))
+#loop_with i=1..length(%output.LN)
+   @reset_LN=%output.LN(%i)
+   @reset_IX=%output.IX(%i)
+   #set 'reset_LN':POV'reset_IX'=0
+#loop_end
+#loop_with i=100..100 + %SESSION_COUNT
+   #set apl:bsv(%i)=0
+#loop_end
+#loop_with i=101..150
+   #set SYS:BSV(%i)=""
+#loop_end
+
+#if sys:bdm==1 #then @trash=trace_end

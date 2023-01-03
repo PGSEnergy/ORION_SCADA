@@ -1,0 +1,142 @@
+
+LINE INDICATOR 
+
+
+1. Environmental requirements
+
+In order for the line indicator to have full functionality, it
+requires the following component to be installed:
+
+   - SA-LIB
+
+
+2. Configurable attributes
+
+STATION_NAME
+      
+The name of the substation. As a default the maximum length of
+the text is 9 characters. 
+
+This text will be used as a substation identifier of the 
+line indicator objects on event list, alarm list, printout,
+database query, etc. It is very important that this text is
+consistent for all objects within the same substation.
+
+BAY_NAME 
+      
+The name of the bay/feeder. As a default the maximum length of
+the text is 14 characters. 
+
+This text will be used as a bay/feeder identifier of the 
+line indicator objects on event list, alarm list, printout,
+database query, etc. It is very important that this text is
+consistent for all objects within the same bay/feeder.
+
+P_OBJECT_LN 
+      
+The logical name of the database process objects. The maximum
+length of the text is 10 characters. 
+
+Allowed characters are the letters A-Z, all digits and
+underscore (_). However, an object name can not begin with
+digit or underscore.
+
+The logical names of process objects has to be unique 
+throughout the entire system, that is, different objects can
+not have the same logical name. Therefore it is very important
+to have a proper naming convention for the process object
+database.
+
+The following example is presented as an example of the well
+proven naming convention. 
+
+   XXX_YYYYZZ,
+
+   XXX    = substation
+   YYYY   = bay/feeder
+   ZZ     = object
+
+Thus the logical name GRB_HA12LI can stand for line indicator
+of bay HA12 of Green Bay substation. 
+
+LINE_INDICATOR_COLORED_BY
+      
+A selector type of combo-box to select how the color of line
+indicator is determinated. 
+
+The line indicator can get its color either from MicroTOPOLOGY,
+Busbar Coloring or by manual setting.
+
+During the startup the RGB-colors of all MicroTOPOLOGY
+logical pens (0..7) will be passed to MicroSCADA. Under normal
+operation the line indicator gets pen number which represents
+the actual color of the feeder on the MicroTOPOLOGY map.
+
+Busbar Coloring passes color definations to the line indicator
+as a color scopes (either "M"- or "U"-scope) based on the 
+line potential.
+
+Manual setting will utilize the same database objects as
+MicroTOPOLOGY but the actual setting should be performed 
+manually by user or preprogrammed procedure.
+
+TOPO_INFEED_COLOR_NR
+      
+The number of color scope to be distributed towards single
+line diagram.
+
+If color number is given from range 33 ... 37 it represents 
+system colors (M-scope) whereas all other numbers are user
+colors (U-scope).
+
+TOPO_OBJECT_COLOR_HIGH_LN
+
+This variable defines the logical name of the process object
+which is used for passing the color of the line segment to the
+this picture function.
+
+AUTHORIZATION_GROUP
+      
+The authorization group name used for the object. The maximum
+length of the text is 63 characters. The given text has to be
+usable as an SCIL list attribute name (see SCIL manual).
+      
+NOTE! The name must not consist of two letters followed
+by a number.  
+
+The attribute can be defined, if the object is wanted to be 
+included in some authorization group. Each users authorization
+level to this group can afterwards be defined by system manager
+with User Management pictures. 
+
+
+3. Configurations made with Process Object Tool
+
+THE DATABASE OBJECTS WILL NOT BE CREATED UNTIL
+THE PROCESS OBJECT TOOL HAS BEEN USED TO CREATE
+THEM. 
+
+Process Object Tool is used for creating objects for the
+following purposes:
+
+MicroTOPOLOGY pen number
+
+   Receives MicroTOPOLOGY pen number. Every pen represents a
+   set of RGB-colors to be shown on line indicator.
+
+Virtual switch
+
+   Virtual switch for Topological Busbar Coloring. It is used
+   to differentiate the direction of the power flow. 
+
+External ground indicator
+
+   External ground indicator for Topological Busbar Coloring.
+   It is used to indicate if the ground potential should be
+   distributed towards the busbar from external network. 
+
+Infeed color
+
+   Infeed color number for Topological Busbar Coloring. Infeed
+   color is a color scope number to be shown on single line
+   diagram if power flows to busbar through this feeder.    

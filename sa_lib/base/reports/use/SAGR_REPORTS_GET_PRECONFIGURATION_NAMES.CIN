@@ -1,0 +1,19 @@
+;CM =Interface for Monitor Pro Reports, Read all pre-configuration names from apl/reports/preconf directory
+; Function:    SAGR_REPORTS_GET_PRECONFIGURATION_NAMES:C
+; Version:     3.0 (build 2.3.2012) 
+; Parameters:  none
+; Return data: vector of preconfiguration file names
+; Description: Read all pre-configuration names from apl/reports/preconf directory
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#local l_ = list(), i_Status = Status, cot
+
+;***read display configuration names from APL:BSV37
+l_ = APL:BSV37
+i_Status = status
+
+#if i_Status <> 0 #then @output = vector()
+#else @output = remove_duplicates(l_.ObjectNames)
+

@@ -1,0 +1,54 @@
+;Function: BPU_UNSELECT_ON_MONITOR:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_unselect_on_monitor.scl
+;Version: 1.0
+;Parameters: 
+;Return data: 
+;Description: Set selection on monitor
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_Data, session
+
+#local l_Objects, t_LN, i_IX, r_OV, i_UB
+#local l_result = list(STATUS = 0, ERR_DESCRIPTION = "")
+
+;****************************************************************************************************
+;redirect command if application specific command procedure is found                               ;*
+#local t_Redirect_Proc = "APLMOD5_BPU_UNSELECT_ON_MONITOR"                                        		;*
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    ;*
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            ;*
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 ;*
+		#if 't_Redirect_Proc':CIU == 1 #then #block                                                  ;*
+			@REDIRECTED = true                                                                        ;*
+			i_ArgCnt = argument_count                                                                 ;*
+			#if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"						      ;*
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" ;*
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"											      ;*
+			#loop_with i_arg_loop = 1 .. i_ArgCnt                                                     ;*
+				t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    ;*
+				#if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        ;*
+			#loop_end                                                                                 ;*
+			#return 't_Redirect_Command' ;;;;;                                                        ;*
+		#block_end                                                                                   ;*
+	#block_end                                                                                      ;*
+	#else #delete REDIRECTED:V                                                                      ;*
+#block_end                                                                                         ;*
+;****************************************************************************************************
+;MAIN START
+
+#if session > 0 #then #block
+	l_Objects = l_Data.all_objects
+	#if attribute_exists(l_Objects, "sel_on_mon_ix") #then #block
+		t_LN = l_object_info.p_object_ln
+		i_IX = l_Objects.sel_on_mon_ix
+		i_UB = 't_LN':pub'i_IX'
+		#if i_UB == 1 #then #set 't_LN':pub'i_IX' = 0
+		r_OV = 't_LN':pov'i_IX' - 1
+		#if r_OV < 0 #then r_OV = 0
+		#modify 't_LN':p'i_IX' = list(ov=r_OV, rt=clock, hi=session)
+		#if i_UB == 1 #then #set 't_LN':pub'i_IX' = 1
+	#block_end
+#block_end
+
+#return l_result

@@ -1,0 +1,32 @@
+﻿;OBJECT       : BGU_TRPRI.TXT
+;Copyright Hitachi Power Grids. All rights reserved.
+;
+;DESCRIPTION  : This program prints the event to the printer
+;------------------------------------------------------------------------------------
+
+@SPACE = " "
+@e_state=error_state
+
+@iOILength = 30     ;default value
+#error ignore
+@lAplBSV15 = APL:BSV15
+@oi_Conf = %laplbsv15.process_objects.oi
+@iOILength = oi_conf:vlength1+oi_conf:vlength2+oi_conf:vlength3+oi_conf:vlength4+oi_conf:vlength5
+#error 'e_state' 
+
+@i_stat1=status
+@i_stat2=0
+#error ignore
+@OI=%OI
+@i_stat1=status
+@OX=%TX
+@i_stat2=status
+#error 'e_state'
+#if %i_stat1<>0 #then @OI='LN':POI'IX'
+#if %i_stat2<>0 #then @OX='LN':PTX'IX'
+@OI = SUBSTR(%OI,1,%iOILength)
+@OX = SUBSTR(%OX,1,30)
+@BEU_COMMON=(-2,TIMES(%RT),%RM,%SPACE,%OI,%SPACE,%OX,%SPACE)
+@BEU_EVENTSPEC = (-1,%EVENT)
+@BEU_PRINT = APPEND((%BEU_COMMON),(%BEU_EVENTSPEC))
+@S=PRINT_TRANSPARENT(%BEU_PRINT,%BEU_PRINT)

@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">LookupTable</Parameter>
+		<Parameter name="Caption">objectTypeCaption</Parameter>
+		<Parameter name="Description">objectTypeDesc</Parameter>
+		<Parameter name="Group">Scales</Parameter>
+		<Parameter name="Type">SCALE</Parameter>
+		<Parameter name="IconFileName">scale lookuptable.ico</Parameter>
+		<Parameter name="Tools"/>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="Visible">True</Parameter>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="PCMObjectType">ScaleGroup</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+	<Parameters type="SCLExport">
+		<Export name="CDATA">BaseType, In1, Out1, In2, Out2, In3, Out3, In4, Out4, In5, Out5, In6, Out6, In7, Out7, In8, Out8, In9, Out9, In10, Out10</Export>
+	</Parameters>
+	<Properties type="PropertyDefinitions">
+		<Property name="OPCObjectType" category="[030] Basic">
+			<Value>Scale</Value>
+			<DescID>OPCObjectTypeDesc</DescID>
+			<CaptionID>OPCObjectType</CaptionID>
+			<Values type="string">
+	      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>OPCObjectType</AttributeName>
+		</Property>
+		<Property name="BaseType" category="Basic">
+			<Value>LookupTable</Value>
+			<DescID>BaseTypeDesc</DescID>
+			<CaptionID>BaseType</CaptionID>
+			<Values type="singleChoice">
+				<Enum textID="Step-wise linear scale" value="StepwiseLinear"/>
+				<Enum textID="Look-up table scale" value="LookupTable"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHR</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="Item" category="Basic">
+			<Value/>
+			<DescID>ItemDesc</DescID>
+			<CaptionID>Item</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="In1" category="Basic">
+			<Value>-</Value>
+			<DescID>In1Desc</DescID>
+			<CaptionID>In1</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="Out1" category="Basic">
+			<Value>-</Value>
+			<DescID>Out1Desc</DescID>
+			<CaptionID>Out1</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="In2" category="Basic">
+			<Value>-</Value>
+			<DescID>In2Desc</DescID>
+			<CaptionID>In2</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="Out2" category="Basic">
+			<Value>-</Value>
+			<DescID>Out2Desc</DescID>
+			<CaptionID>Out2</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="In3" category="Basic">
+			<Value>-</Value>
+			<DescID>In3Desc</DescID>
+			<CaptionID>In3</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="Out3" category="Basic">
+			<Value>-</Value>
+			<DescID>Out3Desc</DescID>
+			<CaptionID>Out3</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="In4" category="Basic">
+			<Value>-</Value>
+			<DescID>In4Desc</DescID>
+			<CaptionID>In4</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="Out4" category="Basic">
+			<Value>-</Value>
+			<DescID>Out4Desc</DescID>
+			<CaptionID>Out4</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="In5" category="Basic">
+			<Value>-</Value>
+			<DescID>In5Desc</DescID>
+			<CaptionID>In5</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="Out5" category="Basic">
+			<Value>-</Value>
+			<DescID>Out5Desc</DescID>
+			<CaptionID>Out5</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="In6" category="Basic">
+			<Value>-</Value>
+			<DescID>In6Desc</DescID>
+			<CaptionID>In6</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="Out6" category="Basic">
+			<Value>-</Value>
+			<DescID>Out6Desc</DescID>
+			<CaptionID>Out6</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="In7" category="Basic">
+			<Value>-</Value>
+			<DescID>In7Desc</DescID>
+			<CaptionID>In7</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="Out7" category="Basic">
+			<Value>-</Value>
+			<DescID>Out7Desc</DescID>
+			<CaptionID>Out7</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="In8" category="Basic">
+			<Value>-</Value>
+			<DescID>In8Desc</DescID>
+			<CaptionID>In8</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="Out8" category="Basic">
+			<Value>-</Value>
+			<DescID>Out8Desc</DescID>
+			<CaptionID>Out8</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="In9" category="Basic">
+			<Value>-</Value>
+			<DescID>In9Desc</DescID>
+			<CaptionID>In9</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="Out9" category="Basic">
+			<Value>-</Value>
+			<DescID>Out9Desc</DescID>
+			<CaptionID>Out9</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="In10" category="Basic">
+			<Value>-</Value>
+			<DescID>In10Desc</DescID>
+			<CaptionID>In10</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="Out10" category="Basic">
+			<Value>-</Value>
+			<DescID>Out10Desc</DescID>
+			<CaptionID>Out10</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+	</Properties>
+</ObjectType>

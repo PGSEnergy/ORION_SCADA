@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="SAVersionInfo" content="1" />
+    <d:variable type="external" name="control" default="''" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="IED Generic" />
+    <d:meta name="dv-custom-attribute|SANoRotate" content="" />
+    <d:meta name="dv-custom-attribute|SAVersionInfo" content="1" />
+    <d:meta name="dv-custom-attribute|SAOpenVSCILOnClickVso" content="SYS_TOOL/SSS_CtrlDlg.VSO@1MAIN@2LIST(LN=&quot;%LN%&quot;,IX=%IX%)@31SGTS:0" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="IED" />
+    <d:meta name="dv-custom-attribute|SATopology" content="" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="status" default="0" />
+    <d:variable type="external" name="status-color" default="0" />
+    <d:variable type="external" name="text" default="''" />
+    <d:variable type="external" name="hide-status" default="0" />
+    <d:variable type="external" name="hide-text" default="0" />
+    <d:mapping name="f1380" parameters="value">
+      <d:step value="false" when="value &lt;= 0.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f1381" parameters="value">
+      <d:step value="false" when="value &lt;= 0.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+  </d:head>
+  <d:body n:LN="{LN(control)}" n:IX="{IX(control)}" x1="-20" y1="-20" x2="20" y2="10">
+    <s:rect width="40" height="30" x="-20" y="-20" class="bounding-box" y:fill="{colors[16]}" y:fill-rule="evenodd" y:stroke="rgb(0, 0, 0)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Bounding Box" />
+    <s:rect width="32" height="14" x="-16" y="-16" s:pointer-events="visiblePainted" y:fill="{colors[32]}" y:fill-rule="evenodd" y:stroke="{colors[17]}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Screen" />
+    <d:view name="06 - SA_Supervision/Label C.sd" s:transform="translate(0,16) scale(1,1)" d:hidden="f1380(`hide-text`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" d:object-name="Text">
+      <d:parameter name="subdrawing_color" value="'rgb(0, 0, 0)'" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="text" value="`text`" />
+      <d:meta name="dv-variable-mapping|Text" content="Text" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node1" />
+    </d:view>
+    <d:view name="06 - SA_Supervision/Status -101.sd" s:transform="translate(-25,-25) scale(1,1)" d:hidden="f1381(`hide-status`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" d:object-name="Status">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="status" value="`status`" />
+      <d:parameter name="status-color" value="`status-color`" />
+      <d:meta name="dv-variable-mapping|Status" content="Status" />
+      <d:meta name="dv-variable-mapping|Status Color" content="Status Color" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node2" />
+    </d:view>
+  </d:body>
+</d:document>

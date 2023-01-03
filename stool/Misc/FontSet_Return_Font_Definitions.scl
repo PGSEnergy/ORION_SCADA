@@ -1,0 +1,62 @@
+; Function: Return_Font_Definitions(t_Target), l
+; Parameters: t_Target, "SYSTEM" returns system font definition list
+;                       Application name returns application font definitions
+;                       Workstation name return workstation font definitions.
+; Description: Returns a list of font definitions read from Gv_Fonts_Def which contains dumped font definitions
+;              read from .t_Fonts_Def_File.
+; -------------------------------------------------------
+
+@t_Startkey = upper_case(argument(1))
+@t_Endkey = upper_case(argument(2))
+@t_Sc = upper_case(argument(3))
+
+@l_Fd = list()
+
+@i_Start = 0
+@i_End = 0
+
+#if %t_Sc == "M" #then #block
+   @v_Start = select(upper_case(%Gv_MFonts_Def), "==%t_Startkey")
+
+   #if length(%v_Start) == 1 #then #block
+      @v_End = select(upper_case(%Gv_MFonts_Def), "==%t_Endkey")
+   
+      #if length(%v_End) == 1 #then #block
+         @i_Start = %v_Start(1) + 1
+         @i_End = %v_End(1) - 1
+      
+         #if %i_Start <= %i_End #then #block
+            @i_stat = status
+            #error ignore
+            @l_Fd = evaluate(%Gv_MFonts_Def(%i_Start .. %i_End))
+            #error stop
+         
+            #if status > 0 or data_type(%l_Fd) <> "LIST" #then @l_Fd = list()      
+         #block_end
+      #block_end
+   #block_end
+#block_end
+
+#else_if %t_Sc == "U" #then #block
+   @v_Start = select(upper_case(%Gv_UFonts_Def), "==%t_Startkey")
+
+   #if length(%v_Start) == 1 #then #block
+      @v_End = select(upper_case(%Gv_UFonts_Def), "==%t_Endkey")
+   
+      #if length(%v_End) == 1 #then #block
+         @i_Start = %v_Start(1) + 1
+         @i_End = %v_End(1) - 1
+      
+         #if %i_Start <= %i_End #then #block
+            @i_stat = status
+            #error ignore
+            @l_Fd = evaluate(%Gv_UFonts_Def(%i_Start .. %i_End))
+            #error stop
+         
+            #if status > 0 or data_type(%l_Fd) <> "LIST" #then @l_Fd = list()      
+         #block_end
+      #block_end
+   #block_end
+#block_end
+
+#return %l_Fd

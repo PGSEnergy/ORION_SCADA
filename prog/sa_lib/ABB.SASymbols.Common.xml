@@ -1,0 +1,1600 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ABB.SASymbols.Common</name>
+    </assembly>
+    <members>
+        <member name="T:ABB.SASymbols.Common.AlarmState">
+            <summary>
+            The different states of an alarm.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.AlarmState.Off">
+            <summary>
+            Alarm off.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.AlarmState.Unacknowledged">
+            <summary>
+            Alarm - not yet acknowledged.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.AlarmState.Acknowledged">
+            <summary>
+            Alarm has been acknowledged.
+            </summary>
+        </member>
+        <member name="T:ABB.SASymbols.Common.Direction">
+            <summary>
+            Indicates the direction of a substation automation symbol.
+            </summary>
+            <remarks>
+            Not all enum values apply to all symbols.
+            </remarks>
+        </member>
+        <member name="F:ABB.SASymbols.Common.Direction.vertical">
+            <summary>
+            Direction is vertical.
+            </summary>
+            <remarks>Identical to <see cref="F:ABB.SASymbols.Common.Direction.north"/>.</remarks>
+        </member>
+        <member name="F:ABB.SASymbols.Common.Direction.horizontal">
+            <summary>
+            Direction is horizontal.
+            </summary>
+            <remarks>Identical to <see cref="F:ABB.SASymbols.Common.Direction.east"/>.</remarks>
+        </member>
+        <member name="F:ABB.SASymbols.Common.Direction.north">
+            <summary>
+            Direction is north, i.e., if there is only one connection, it will be on the top.
+            </summary>
+            <remarks>Identical to <see cref="F:ABB.SASymbols.Common.Direction.vertical"/>.</remarks>
+        </member>
+        <member name="F:ABB.SASymbols.Common.Direction.west">
+            <summary>
+            Direction is west, i.e., if there is only one connection, it will be on the right.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.Direction.south">
+            <summary>
+            Direction is south, i.e., if there is only one connection, it will be on the bottom.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.Direction.east">
+            <summary>
+            Direction is east, i.e., if there is only one connection, it will be on the left.
+            </summary>
+            <remarks>Identical to <see cref="F:ABB.SASymbols.Common.Direction.horizontal"/>.</remarks>
+        </member>
+        <member name="T:ABB.SASymbols.Common.dyn_Enums">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:ABB.SASymbols.Common.dyn_Enums.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:ABB.SASymbols.Common.dyn_Enums.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:ABB.SASymbols.Common.dyn_Enums.Acknowledged">
+            <summary>
+              Looks up a localized string similar to acknowledged.
+            </summary>
+        </member>
+        <member name="P:ABB.SASymbols.Common.dyn_Enums.Bad">
+            <summary>
+              Looks up a localized string similar to Faulty State.
+            </summary>
+        </member>
+        <member name="P:ABB.SASymbols.Common.dyn_Enums.Closed">
+            <summary>
+              Looks up a localized string similar to Closed.
+            </summary>
+        </member>
+        <member name="P:ABB.SASymbols.Common.dyn_Enums.Earthed">
+            <summary>
+              Looks up a localized string similar to earthed.
+            </summary>
+        </member>
+        <member name="P:ABB.SASymbols.Common.dyn_Enums.east">
+            <summary>
+              Looks up a localized string similar to east.
+            </summary>
+        </member>
+        <member name="P:ABB.SASymbols.Common.dyn_Enums.horizontal">
+            <summary>
+              Looks up a localized string similar to east.
+            </summary>
+        </member>
+        <member name="P:ABB.SASymbols.Common.dyn_Enums.Intermediate">
+            <summary>
+              Looks up a localized string similar to Intermediate State.
+            </summary>
+        </member>
+        <member name="P:ABB.SASymbols.Common.dyn_Enums.local">
+            <summary>
+              Looks up a localized string similar to local.
+            </summary>
+        </member>
+        <member name="P:ABB.SASymbols.Common.dyn_Enums.north">
+            <summary>
+              Looks up a localized string similar to north.
+            </summary>
+        </member>
+        <member name="P:ABB.SASymbols.Common.dyn_Enums.Off">
+            <summary>
+              Looks up a localized string similar to off.
+            </summary>
+        </member>
+        <member name="P:ABB.SASymbols.Common.dyn_Enums.Open">
+            <summary>
+              Looks up a localized string similar to Open.
+            </summary>
+        </member>
+        <member name="P:ABB.SASymbols.Common.dyn_Enums.remote">
+            <summary>
+              Looks up a localized string similar to remote.
+            </summary>
+        </member>
+        <member name="P:ABB.SASymbols.Common.dyn_Enums.south">
+            <summary>
+              Looks up a localized string similar to south.
+            </summary>
+        </member>
+        <member name="P:ABB.SASymbols.Common.dyn_Enums.Unacknowledged">
+            <summary>
+              Looks up a localized string similar to unacknowledged.
+            </summary>
+        </member>
+        <member name="P:ABB.SASymbols.Common.dyn_Enums.vertical">
+            <summary>
+              Looks up a localized string similar to north.
+            </summary>
+        </member>
+        <member name="P:ABB.SASymbols.Common.dyn_Enums.west">
+            <summary>
+              Looks up a localized string similar to west.
+            </summary>
+        </member>
+        <member name="T:ABB.SASymbols.Common.EmbeddedSymbolPlacement">
+            <summary>
+            Enumeration for the placement of an embedded symbol.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.EmbeddedSymbolPlacement.up_left">
+            <summary>
+            Placement up left.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.EmbeddedSymbolPlacement.up_right">
+            <summary>
+            Placement up right.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.EmbeddedSymbolPlacement.down_left">
+            <summary>
+            Placement down left.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.EmbeddedSymbolPlacement.down_right">
+            <summary>
+            Placement down right.
+            </summary>
+        </member>
+        <member name="T:ABB.SASymbols.Common.IColor">
+            <summary>
+            A color definition.
+            </summary>
+        </member>
+        <member name="M:ABB.SASymbols.Common.IColor.ToString">
+            <summary>
+            Converts an <see cref="T:ABB.SASymbols.Common.IColor"/> to a string.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:ABB.IEC61850.MetaModel.CommonExtensions.LineStyleEnum">
+            <summary>
+            Display style of a line, or a line around a shape.
+            </summary>
+        </member>
+        <member name="F:ABB.IEC61850.MetaModel.CommonExtensions.LineStyleEnum.none">
+            <summary>
+            No line.
+            </summary>
+        </member>
+        <member name="F:ABB.IEC61850.MetaModel.CommonExtensions.LineStyleEnum.normal">
+            <summary>
+            Normal line.
+            </summary>
+        </member>
+        <member name="F:ABB.IEC61850.MetaModel.CommonExtensions.LineStyleEnum.dashed">
+            <summary>
+            Dashed line.
+            </summary>
+        </member>
+        <member name="F:ABB.IEC61850.MetaModel.CommonExtensions.LineStyleEnum.dotted">
+            <summary>
+            Dotted line.
+            </summary>
+        </member>
+        <member name="T:ABB.SASymbols.Common.RGB">
+            <summary>
+            Color in RGB format.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.RGB.NO_COLOR_STRING">
+            <summary>
+            Serialization of the special RGB color <see cref="F:ABB.SASymbols.Common.RGB.NoColor"/>.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.RGB.NoColor">
+            <summary>
+            Constant indicating that there is no color. It shall be serialized as
+            the "none" string.
+            </summary>
+        </member>
+        <member name="M:ABB.SASymbols.Common.RGB.Parse(System.String)">
+            <summary>
+            Build an ABB.IEC61850.CoreTypes.RBG from a string.
+            </summary>
+            <param name="value">String representation of an RGB object.</param>
+            <returns>An ABB.IEC61850.CoreTypes.RGB instance corresponding to the string.</returns>
+            <exception cref="T:System.ArgumentNullException">if the argument is null.</exception>
+            <exception cref="T:System.FormatException">if the argument string does not correspond to an RGB value "rgb(rrr,ggg,bbb)".</exception>
+        </member>
+        <member name="M:ABB.SASymbols.Common.RGB.TryParse(System.String,ABB.SASymbols.Common.RGB@)">
+            <summary>
+            Converts the specified string representation to its <see cref="T:ABB.SASymbols.Common.RGB"/> equivalent.
+            A return value indicates whether the conversion succeeded or failed.
+            </summary>
+            <param name="value">A string containing the value to convert.</param>
+            <param name="result">
+            When this method returns, if the conversion succeeded, contains the <see cref="T:ABB.SASymbols.Common.RGB"/>
+            equivalent of <paramref name="value"/>. If the conversion failed, contains null. The conversion
+            fails if value is null or is not equivalent to a string representation of a
+            <see cref="T:ABB.SASymbols.Common.RGB"/>. This parameter is passed uninitialized.
+            </param>
+            <returns>true if value was converted successfully; otherwise, false.</returns>
+        </member>
+        <member name="M:ABB.SASymbols.Common.RGB.#ctor(System.Byte,System.Byte,System.Byte)">
+            <summary>
+            Initializes a new instance of the <see cref="T:ABB.SASymbols.Common.RGB"/> class.
+            </summary>
+            <param name="r">Value for red.</param>
+            <param name="g">Value for green.</param>
+            <param name="b">Value for blue.</param>
+        </member>
+        <member name="M:ABB.SASymbols.Common.RGB.ToString">
+            <summary>
+            Converts an <see cref="T:ABB.SASymbols.Common.RGB"/> to a string.
+            </summary>
+            <returns>A string representation of this object.</returns>
+        </member>
+        <member name="M:ABB.SASymbols.Common.RGB.ToHtmlHexColorString">
+            <summary>
+            HTML color.
+            </summary>
+            <returns>The color understandable for HTML.</returns>
+        </member>
+        <member name="M:ABB.SASymbols.Common.RGB.Equals(ABB.SASymbols.Common.RGB)">
+            <summary>
+            Determines whether the <paramref name="other"/> is equal to the current <see cref="T:ABB.SASymbols.Common.RGB"/>.
+            </summary>
+            <param name="other">The <see cref="T:ABB.SASymbols.Common.RGB"/> to compare with the current <see cref="T:ABB.SASymbols.Common.RGB"/>.</param>
+            <returns>true if the specified <see cref="T:ABB.SASymbols.Common.RGB"/> is equal to the current <see cref="T:ABB.SASymbols.Common.RGB"/>; otherwise, false.</returns>
+        </member>
+        <member name="M:ABB.SASymbols.Common.RGB.Equals(System.Object)">
+            <summary>
+            Determines whether the specified <see cref="T:System.Object"/> is equal to the current <see cref="T:System.Object"/>.
+            </summary>
+            <returns>
+            true if the specified <see cref="T:System.Object"/> is equal to the current <see cref="T:System.Object"/>; otherwise, false.
+            </returns>
+            <param name="obj">The <see cref="T:System.Object"/> to compare with the current <see cref="T:System.Object"/>.</param>
+            <exception cref="T:System.NullReferenceException">The <paramref name="obj"/> parameter is null.</exception>
+            <filterpriority>2</filterpriority>
+        </member>
+        <member name="M:ABB.SASymbols.Common.RGB.GetHashCode">
+            <summary>
+            Serves as a hash function for a particular type, suitable for use in hashing algorithms and data structures like a hash table.
+            </summary>
+            <returns>A hash code for the current System.Object.</returns>
+        </member>
+        <member name="M:ABB.SASymbols.Common.RGB.Clone">
+            <summary>
+            Create a deep copy of the ABB.IEC61850.CoreTypes.RGB.
+            </summary>
+            <returns>A deep copy of the ABB.IEC61850.CoreTypes.RGB.</returns>
+        </member>
+        <member name="P:ABB.SASymbols.Common.RGB.R">
+            <summary>
+            Gets or sets the red part of the coloring.
+            </summary>
+        </member>
+        <member name="P:ABB.SASymbols.Common.RGB.G">
+            <summary>
+            Gets or sets the green part of the coloring.
+            </summary>
+        </member>
+        <member name="P:ABB.SASymbols.Common.RGB.B">
+            <summary>
+            Gets or sets the blue part of the coloring.
+            </summary>
+        </member>
+        <member name="T:ABB.SASymbols.Common.SASymbolCode">
+            <summary>
+            Enumeration of SA symbols for display.
+            </summary>
+            <remarks>
+            Rationale: if SCL proposes a code for the equipment, use that same code if possible.
+            </remarks>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.Unknown">
+            <summary>
+            Unknown symbol
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.CBR">
+            <summary>
+            Circuit Breaker (also SCL Equipment code).
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.DIS">
+            <summary>
+            Disconnector or earthing switch (also SCL Equipment code).
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.VTR">
+            <summary>
+            Voltage Transformer (also SCL Equipment code).
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.CTR">
+            <summary>
+            Current Transformer (also SCL Equipment code).
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.GEN">
+            <summary>
+            Generator (also SCL Equipment code).
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.CAP">
+            <summary>
+            Capacitor Bank (also SCL Equipment code).
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.REA">
+            <summary>
+            Reactor (also SCL Equipment code), which has only one connection point.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.MOT">
+            <summary>
+            Motor (also SCL Equipment code).
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.PSH">
+            <summary>
+            Power Shunt (also SCL Equipment code). It is a resistor.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.SAR">
+            <summary>
+            Surge Arrestor (also SCL Equipment code).
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.PTW1_PTR2">
+            <summary>
+            Primary Transformer Winding (for a 2-winding Power Transformer), without Tap Changer.
+            </summary>
+            <remarks>PTW is the SCL code for Transformer Winding, and PTR the one for Power Transformer</remarks>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.PTW2_PTR2">
+            <summary>
+            Secondary Transformer Winding (for a 2-winding Power Transformer), without Tap Changer.
+            </summary>
+            <remarks>PTW is the SCL code for Transformer Winding, and PTR the one for Power Transformer</remarks>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.PTW1_PTR3">
+            <summary>
+            Primary Transformer Winding (for a 3-winding Power Transformer), without Tap Changer.
+            </summary>
+            <remarks>PTW is the SCL code for Transformer Winding, and PTR the one for Power Transformer</remarks>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.PTW2_PTR3">
+            <summary>
+            Secondary Transformer Winding (for a 3-winding Power Transformer), without Tap Changer.
+            </summary>
+            <remarks>PTW is the SCL code for Transformer Winding, and PTR the one for Power Transformer</remarks>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.PTW3_PTR3">
+            <summary>
+            Tertiary Transformer Winding (for a 3-winding Power Transformer), without Tap Changer.
+            </summary>
+            <remarks>PTW is the SCL code for Transformer Winding, and PTR the one for Power Transformer</remarks>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.LTC1_PTR2">
+            <summary>
+            Tap Changer for the Primary Transformer Winding (for a 2-winding Power Transformer).
+            </summary>
+            <remarks>LTC is the SCL code for Load Tap Changer, and PTR the one for Power Transformer.</remarks>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.LTC2_PTR2">
+            <summary>
+            Tap Changer for the Secondary Transformer Winding (for a 2-winding Power Transformer).
+            </summary>
+            <remarks>LTC is the SCL code for Load Tap Changer, and PTR the one for Power Transformer.</remarks>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.LTC1_PTR3">
+            <summary>
+            Tap Changer for the Primary Transformer Winding (for a 3-winding Power Transformer).
+            </summary>
+            <remarks>LTC is the SCL code for Load Tap Changer, and PTR the one for Power Transformer.</remarks>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.LTC2_PTR3">
+            <summary>
+            Tap Changer for the Secondary Transformer Winding (for a 3-winding Power Transformer).
+            </summary>
+            <remarks>LTC is the SCL code for Load Tap Changer, and PTR the one for Power Transformer.</remarks>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.LTC3_PTR3">
+            <summary>
+            Tap Changer for the Tertiary Transformer Winding (both for a 2-winding and a 3-winding Power Transformer).
+            </summary>
+            <remarks>LTC is the SCL code for Load Tap Changer, and PTR the one for Power Transformer.</remarks>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.PTR2">
+            <summary>
+            2-Windings Power Transformer, without Tap Changer.
+            </summary>
+            <remarks>PTR is the SCL code for Power Transformer.</remarks>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.PTR3">
+            <summary>
+            3-Windings Power Transformer, without Tap Changer.
+            </summary>
+            <remarks>PTR is the SCL code for Power Transformer.</remarks>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.Star1_PTR2">
+            <summary>
+            Star point for the Primary Transformer Winding (for a 2-winding Power Transformer).
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.Star2_PTR2">
+            <summary>
+            Star point for the Secondary Transformer Winding (for a 2-winding Power Transformer).
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.Star1_PTR3">
+            <summary>
+            Star point for the Primary Transformer Winding (for a 3-winding Power Transformer).
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.Star2_PTR3">
+            <summary>
+            Star point for the Secondary Transformer Winding (for a 3-winding Power Transformer).
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.Star3_PTR3">
+            <summary>
+            Star point for the Tertiary Transformer Winding (both for a 2-winding and a 3-winding Power Transformer).
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.Delta1_PTR2">
+            <summary>
+            Delta for the Primary Transformer Winding (for a 2-winding Power Transformer).
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.Delta2_PTR2">
+            <summary>
+            Delta for the Secondary Transformer Winding (for a 2-winding Power Transformer).
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.Delta1_PTR3">
+            <summary>
+            Delta for the Primary Transformer Winding (for a 3-winding Power Transformer).
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.Delta2_PTR3">
+            <summary>
+            Delta for the Secondary Transformer Winding (for a 3-winding Power Transformer).
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.Delta3_PTR3">
+            <summary>
+            Delta for the Tertiary Transformer Winding (both for a 2-winding and a 3-winding Power Transformer).
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.InFeeder">
+            <summary>
+            Incoming feeder line.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.OutFeeder">
+            <summary>
+            Outgoing feeder line.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.LoadBreaker">
+            <summary>
+            Load Breaker.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.Truck">
+            <summary>
+            Truck.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.Contactor">
+            <summary>
+            Contactor.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.REA2">
+            <summary>
+            Reactor with two connection points.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.Fuse">
+            <summary>
+            Fuse.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.FiveStateSwitchR">
+            <summary>
+            5-state switch with earch connection to the right in north orientation.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.FiveStateSwitchL">
+            <summary>
+            5-state switch with earch connection to the left in north orientation.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.Earth">
+            <summary>
+            Earthing symbol.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.SSI">
+            <summary>
+            Station Switch Indication
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.BSI">
+            <summary>
+            Bay Switch Indication
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.IED">
+            <summary>
+            IED symbol.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.ALARM_Led">
+            <summary>
+            Led-Alarm.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.ALARM_A">
+            <summary>
+            A-Alarm
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolCode.ALARM_Star">
+            <summary>
+            Star-Alarm
+            </summary>
+        </member>
+        <member name="T:ABB.SASymbols.Common.SASymbolCodeUtilities">
+            <summary>
+            Utility methods applying to <see cref="T:ABB.SASymbols.Common.SASymbolCode"/>.
+            </summary>
+        </member>
+        <member name="M:ABB.SASymbols.Common.SASymbolCodeUtilities.#cctor">
+            <summary>
+            Static initialization.
+            </summary>
+        </member>
+        <member name="M:ABB.SASymbols.Common.SASymbolCodeUtilities.GetDisplayString(ABB.SASymbols.Common.Direction)">
+            <summary>
+            Get the display string for a SwitchPosition (NLS support).
+            </summary>
+            <param name="dir">Switch position.</param>
+            <returns>Returns the display string (NLS) for a switch position.</returns>
+        </member>
+        <member name="M:ABB.SASymbols.Common.SASymbolCodeUtilities.GetDisplayString(ABB.SASymbols.Common.SwitchPosition)">
+            <summary>
+            Get the display string for a SwitchPosition (NLS support).
+            </summary>
+            <param name="pos">Switch position.</param>
+            <returns>Returns the display string (NLS) for a switch position.</returns>
+        </member>
+        <member name="M:ABB.SASymbols.Common.SASymbolCodeUtilities.GetDisplayString(ABB.SASymbols.Common.SwitchIndicatorState)">
+            <summary>
+            Get the display string for a SwitchIndicatorState (NLS support).
+            </summary>
+            <param name="sis">Switch indicator state.</param>
+            <returns>Returns the display string (NLS) for a switch indicator state.</returns>
+        </member>
+        <member name="M:ABB.SASymbols.Common.SASymbolCodeUtilities.GetDisplayString(ABB.SASymbols.Common.AlarmState)">
+            <summary>
+            Get the display string for a AlarmState (NLS support).
+            </summary>
+            <param name="alarmState">Alarm state.</param>
+            <returns>Returns the display string (NLS) for an alarm state.</returns>
+        </member>
+        <member name="M:ABB.SASymbols.Common.SASymbolCodeUtilities.IsSwitchingDevice(ABB.SASymbols.Common.SASymbolCode)">
+            <summary>
+            Determine whether a given SA symbol code corresponds to a switching device.
+            </summary>
+            <param name="code">The SA symbol code.</param>
+            <returns>true iff <paramref name="code"/> corresponds to a switching device.</returns>
+        </member>
+        <member name="M:ABB.SASymbols.Common.SASymbolCodeUtilities.CanHaveEarthState(ABB.SASymbols.Common.SASymbolCode)">
+            <summary>
+            Determine whether a given SA symbol code (for a switching device) can have an earthed state.
+            </summary>
+            <param name="code">The SA symbol code.</param>
+            <returns>true iff <paramref name="code"/> can have an earthed state.</returns>
+        </member>
+        <member name="M:ABB.SASymbols.Common.SASymbolCodeUtilities.IsAlarmSymbol(ABB.SASymbols.Common.SASymbolCode)">
+            <summary>
+            Determine whether a given SA symbol code corresponds to an alarm symbol.
+            </summary>
+            <param name="code">The SA symbol code.</param>
+            <returns>true iff <paramref name="code"/> corresponds to an alarm symbol.</returns>
+        </member>
+        <member name="M:ABB.SASymbols.Common.SASymbolCodeUtilities.IsIEDSymbol(ABB.SASymbols.Common.SASymbolCode)">
+            <summary>
+            Determine whether a given SA symbol code corresponds to an IED symbol.
+            </summary>
+            <param name="code">The SA symbol code.</param>
+            <returns>true iff <paramref name="code"/> corresponds to an IED symbol.</returns>
+        </member>
+        <member name="M:ABB.SASymbols.Common.SASymbolCodeUtilities.IsSwitchIndicatorSymbol(ABB.SASymbols.Common.SASymbolCode)">
+            <summary>
+            Determine whether a given SA symbol code corresponds to a switch indicator symbol.
+            </summary>
+            <param name="code">The SA symbol code.</param>
+            <returns>true iff <paramref name="code"/> corresponds to a switch indicator symbol.</returns>
+        </member>
+        <member name="M:ABB.SASymbols.Common.SASymbolCodeUtilities.IsSpecialSymbol(ABB.SASymbols.Common.SASymbolCode)">
+            <summary>
+            Determine whether a given SA symbol code corresponds to a special symbol, i.e., an IED symbol, a switch indicator symbol, or
+            an alarm symbol.
+            </summary>
+            <param name="code">The SA symbol code.</param>
+            <returns>true iff <paramref name="code"/> corresponds to a switch indicator symbol.</returns>
+        </member>
+        <member name="M:ABB.SASymbols.Common.SASymbolCodeUtilities.IsTapChangerSymbol(ABB.SASymbols.Common.SASymbolCode)">
+            <summary>
+            Determine whether a given SA symbol code corresponds to a tap changer symbol.
+            </summary>
+            <param name="code">The SA symbol code.</param>
+            <returns>true iff <paramref name="code"/> corresponds to a tap changer symbol.</returns>
+        </member>
+        <member name="M:ABB.SASymbols.Common.SASymbolCodeUtilities.IsTransformerWindingSymbol(ABB.SASymbols.Common.SASymbolCode)">
+            <summary>
+            Determine whether a given SA symbol code corresponds to a transformer winding symbol.
+            </summary>
+            <param name="code">The SA symbol code.</param>
+            <returns>true iff <paramref name="code"/> corresponds to a transformer winding symbol.</returns>
+        </member>
+        <member name="M:ABB.SASymbols.Common.SASymbolCodeUtilities.IsPowerTransformerRelatedSymbol(ABB.SASymbols.Common.SASymbolCode)">
+            <summary>
+            Determine whether a given SA symbol code corresponds to a symbol related to a power transformer.
+            </summary>
+            <param name="code">The SA symbol code.</param>
+            <returns>true iff <paramref name="code"/> corresponds to a symbol related to a power transformer.</returns>
+        </member>
+        <member name="T:ABB.SASymbols.Common.SASymbolsAssembliesInfo">
+            <summary>
+            Placeholder for the version and other attributes of the ABB.SASymbols.* libraries.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolsAssembliesInfo.VERSION">
+            <summary>
+            Current version of the ABB.SASymbols.*.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolsAssembliesInfo.CONFIGURATION">
+            <summary>
+            Value for the AssemblyConfiguration attribute (in the respective AssemblyInfo.cs) of the ABB.SASymbols.*.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolsAssembliesInfo.COMPANY">
+            <summary>
+            Value for the AssemblyCompany attribute (in the respective AssemblyInfo.cs) of the ABB.SASymbols.*.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolsAssembliesInfo.PRODUCT">
+            <summary>
+            Value for the AssemblyProduct attribute (in the respective AssemblyInfo.cs) of the ABB.SASymbols.*.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolsAssembliesInfo.COPYRIGHT">
+            <summary>
+            Value for the AssemblyCopyright attribute (in the respective AssemblyInfo.cs) of the ABB.SASymbols.*.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolsAssembliesInfo.TRADEMARK">
+            <summary>
+            Value for the AssemblyTrademark attribute (in the respective AssemblyInfo.cs) of the ABB.SASymbols.*.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SASymbolsAssembliesInfo.CULTURE">
+            <summary>
+            Value for the AssemblyCulture attribute (in the respective AssemblyInfo.cs) of the ABB.SASymbols.*.
+            </summary>
+        </member>
+        <member name="T:ABB.SASymbols.Common.SVGPredefinedColor">
+            <summary>
+            Predefined SVG color.
+            </summary>
+        </member>
+        <member name="M:ABB.SASymbols.Common.SVGPredefinedColor.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the <see cref="T:ABB.SASymbols.Common.SVGPredefinedColor"/> class with a color from the predefined SVG colors as a string.
+            </summary>
+            <param name="col">The SVG predefined color as a string.</param>
+        </member>
+        <member name="M:ABB.SASymbols.Common.SVGPredefinedColor.#ctor(ABB.SASymbols.Common.SVGPredefinedColorsEnum)">
+            <summary>
+            Initializes a new instance of the <see cref="T:ABB.SASymbols.Common.SVGPredefinedColor"/> class with a color from the predefined SVG colors.
+            </summary>
+            <param name="col">The SVG predefined color.</param>
+        </member>
+        <member name="M:ABB.SASymbols.Common.SVGPredefinedColor.ToString">
+            <summary>
+            Converts an ABB.IEC61850.SASymbolsInSVG.SVGPredefinedColor to a System.String.
+            </summary>
+            <returns>The string representation of this instance.</returns>
+        </member>
+        <member name="M:ABB.SASymbols.Common.SVGPredefinedColor.Clone">
+            <summary>
+            Creates a new object that is a copy of the current instance.
+            </summary>
+            <returns>A new object that is a copy of this instance.</returns>
+            <filterpriority>2</filterpriority>
+        </member>
+        <member name="P:ABB.SASymbols.Common.SVGPredefinedColor.SVGColor">
+            <summary>
+            Gets or sets the color.
+            </summary>
+        </member>
+        <member name="P:ABB.SASymbols.Common.SVGPredefinedColor.SVGColorAsString">
+            <summary>
+            Gets or sets the color as a string.
+            </summary>
+        </member>
+        <member name="T:ABB.SASymbols.Common.SVGPredefinedColorsEnum">
+            <summary>
+            Enumeration of all predefined colors in SVG 1.1.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.none">
+            <summary>
+            No color (i.e., completely transparent).
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.aliceblue">
+            <summary>
+            rgb(240, 248, 255)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.antiquewhite">
+            <summary>
+            rgb(250, 235, 215)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.aqua">
+            <summary>
+            rgb( 0, 255, 255)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.aquamarine">
+            <summary>
+            rgb(127, 255, 212)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.azure">
+            <summary>
+            rgb(240, 255, 255)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.beige">
+            <summary>
+            rgb(245, 245, 220)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.bisque">
+            <summary>
+            rgb(255, 228, 196)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.black">
+            <summary>
+            rgb( 0, 0, 0)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.blanchedalmond">
+            <summary>
+            rgb(255, 235, 205)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.blue">
+            <summary>
+            rgb( 0, 0, 255)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.blueviolet">
+            <summary>
+            rgb(138, 43, 226)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.brown">
+            <summary>
+            rgb(165, 42, 42)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.burlywood">
+            <summary>
+            rgb(222, 184, 135)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.cadetblue">
+            <summary>
+            rgb( 95, 158, 160)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.chartreuse">
+            <summary>
+            rgb(127, 255, 0)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.chocolate">
+            <summary>
+            rgb(210, 105, 30)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.coral">
+            <summary>
+            rgb(255, 127, 80)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.cornflowerblue">
+            <summary>
+            rgb(100, 149, 237)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.cornsilk">
+            <summary>
+            rgb(255, 248, 220)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.crimson">
+            <summary>
+            rgb(220, 20, 60)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.cyan">
+            <summary>
+            rgb( 0, 255, 255)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.darkblue">
+            <summary>
+            rgb( 0, 0, 139)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.darkcyan">
+            <summary>
+            rgb( 0, 139, 139)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.darkgoldenrod">
+            <summary>
+            rgb(184, 134, 11)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.darkgray">
+            <summary>
+            rgb(169, 169, 169)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.darkgreen">
+            <summary>
+            rgb( 0, 100, 0)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.darkgrey">
+            <summary>
+            rgb(169, 169, 169)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.darkkhaki">
+            <summary>
+            rgb(189, 183, 107)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.darkmagenta">
+            <summary>
+            rgb(139, 0, 139)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.darkolivegreen">
+            <summary>
+            rgb( 85, 107, 47)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.darkorange">
+            <summary>
+            rgb(255, 140, 0)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.darkorchid">
+            <summary>
+            rgb(153, 50, 204)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.darkred">
+            <summary>
+            rgb(139, 0, 0)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.darksalmon">
+            <summary>
+            rgb(233, 150, 122)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.darkseagreen">
+            <summary>
+            rgb(143, 188, 143)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.darkslateblue">
+            <summary>
+            rgb( 72, 61, 139)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.darkslategray">
+            <summary>
+            rgb( 47, 79, 79)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.darkslategrey">
+            <summary>
+            rgb( 47, 79, 79)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.darkturquoise">
+            <summary>
+            rgb( 0, 206, 209)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.darkviolet">
+            <summary>
+            rgb(148, 0, 211)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.deeppink">
+            <summary>
+            rgb(255, 20, 147)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.deepskyblue">
+            <summary>
+            rgb( 0, 191, 255)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.dimgray">
+            <summary>
+            rgb(105, 105, 105)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.dimgrey">
+            <summary>
+            rgb(105, 105, 105)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.dodgerblue">
+            <summary>
+            rgb( 30, 144, 255)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.firebrick">
+            <summary>
+            rgb(178, 34, 34)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.floralwhite">
+            <summary>
+            rgb(255, 250, 240)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.forestgreen">
+            <summary>
+            rgb( 34, 139, 34)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.fuchsia">
+            <summary>
+            rgb(255, 0, 255)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.gainsboro">
+            <summary>
+            rgb(220, 220, 220)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.ghostwhite">
+            <summary>
+            rgb(248, 248, 255)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.gold">
+            <summary>
+            rgb(255, 215, 0)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.goldenrod">
+            <summary>
+            rgb(218, 165, 32)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.gray">
+            <summary>
+            rgb(128, 128, 128)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.grey">
+            <summary>
+            rgb(128, 128, 128)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.green">
+            <summary>
+            rgb( 0, 128, 0)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.greenyellow">
+            <summary>
+            rgb(173, 255, 47)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.honeydew">
+            <summary>
+            rgb(240, 255, 240)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.hotpink">
+            <summary>
+            rgb(255, 105, 180)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.indianred">
+            <summary>
+            rgb(205, 92, 92)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.indigo">
+            <summary>
+            rgb( 75, 0, 130)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.ivory">
+            <summary>
+            rgb(255, 255, 240)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.khaki">
+            <summary>
+            rgb(240, 230, 140)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.lavender">
+            <summary>
+            rgb(230, 230, 250)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.lavenderblush">
+            <summary>
+            rgb(255, 240, 245)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.lawngreen">
+            <summary>
+            rgb(124, 252, 0)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.lemonchiffon">
+            <summary>
+            rgb(255, 250, 205)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.lightblue">
+            <summary>
+            rgb(173, 216, 230)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.lightcoral">
+            <summary>
+            rgb(240, 128, 128)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.lightcyan">
+            <summary>
+            rgb(224, 255, 255)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.lightgoldenrodyellow">
+            <summary>
+            rgb(250, 250, 210)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.lightgray">
+            <summary>
+            rgb(211, 211, 211)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.lightgreen">
+            <summary>
+            rgb(144, 238, 144)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.lightgrey">
+            <summary>
+            rgb(211, 211, 211)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.lightpink">
+            <summary>
+            rgb(255, 182, 193)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.lightsalmon">
+            <summary>
+            rgb(255, 160, 122)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.lightseagreen">
+            <summary>
+            rgb( 32, 178, 170)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.lightskyblue">
+            <summary>
+            rgb(135, 206, 250)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.lightslategray">
+            <summary>
+            rgb(119, 136, 153)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.lightslategrey">
+            <summary>
+            rgb(119, 136, 153)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.lightsteelblue">
+            <summary>
+            rgb(176, 196, 222)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.lightyellow">
+            <summary>
+            rgb(255, 255, 224)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.lime">
+            <summary>
+            rgb( 0, 255, 0)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.limegreen">
+            <summary>
+            rgb( 50, 205, 50)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.linen">
+            <summary>
+            rgb(250, 240, 230)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.magenta">
+            <summary>
+            rgb(255, 0, 255)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.maroon">
+            <summary>
+            rgb(128, 0, 0)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.mediumaquamarine">
+            <summary>
+            rgb(102, 205, 170)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.mediumblue">
+            <summary>
+            rgb( 0, 0, 205)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.mediumorchid">
+            <summary>
+            rgb(186, 85, 211)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.mediumpurple">
+            <summary>
+            rgb(147, 112, 219)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.mediumseagreen">
+            <summary>
+            rgb( 60, 179, 113)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.mediumslateblue">
+            <summary>
+            rgb(123, 104, 238)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.mediumspringgreen">
+            <summary>
+            rgb( 0, 250, 154)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.mediumturquoise">
+            <summary>
+            rgb( 72, 209, 204)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.mediumvioletred">
+            <summary>
+            rgb(199, 21, 133)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.midnightblue">
+            <summary>
+            rgb( 25, 25, 112)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.mintcream">
+            <summary>
+            rgb(245, 255, 250)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.mistyrose">
+            <summary>
+            rgb(255, 228, 225)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.moccasin">
+            <summary>
+            rgb(255, 228, 181)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.navajowhite">
+            <summary>
+            rgb(255, 222, 173)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.navy">
+            <summary>
+            rgb( 0, 0, 128)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.oldlace">
+            <summary>
+            rgb(253, 245, 230)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.olive">
+            <summary>
+            rgb(128, 128, 0)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.olivedrab">
+            <summary>
+            rgb(107, 142, 35)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.orange">
+            <summary>
+            rgb(255, 165, 0)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.orangered">
+            <summary>
+            rgb(255, 69, 0)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.orchid">
+            <summary>
+            rgb(218, 112, 214)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.palegoldenrod">
+            <summary>
+            rgb(238, 232, 170)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.palegreen">
+            <summary>
+            rgb(152, 251, 152)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.paleturquoise">
+            <summary>
+            rgb(175, 238, 238)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.palevioletred">
+            <summary>
+            rgb(219, 112, 147)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.papayawhip">
+            <summary>
+            rgb(255, 239, 213)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.peachpuff">
+            <summary>
+            rgb(255, 218, 185)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.peru">
+            <summary>
+            rgb(205, 133, 63)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.pink">
+            <summary>
+            rgb(255, 192, 203)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.plum">
+            <summary>
+            rgb(221, 160, 221)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.powderblue">
+            <summary>
+            rgb(176, 224, 230)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.purple">
+            <summary>
+            rgb(128, 0, 128)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.red">
+            <summary>
+            rgb(255, 0, 0)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.rosybrown">
+            <summary>
+            rgb(188, 143, 143)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.royalblue">
+            <summary>
+            rgb( 65, 105, 225)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.saddlebrown">
+            <summary>
+            rgb(139, 69, 19)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.salmon">
+            <summary>
+            rgb(250, 128, 114)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.sandybrown">
+            <summary>
+            rgb(244, 164, 96)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.seagreen">
+            <summary>
+            rgb( 46, 139, 87)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.seashell">
+            <summary>
+            rgb(255, 245, 238)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.sienna">
+            <summary>
+            rgb(160, 82, 45)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.silver">
+            <summary>
+            rgb(192, 192, 192)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.skyblue">
+            <summary>
+            rgb(135, 206, 235)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.slateblue">
+            <summary>
+            rgb(106, 90, 205)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.slategray">
+            <summary>
+            rgb(112, 128, 144)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.slategrey">
+            <summary>
+            rgb(112, 128, 144)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.snow">
+            <summary>
+            rgb(255, 250, 250)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.springgreen">
+            <summary>
+            rgb( 0, 255, 127)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.steelblue">
+            <summary>
+            rgb( 70, 130, 180)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.tan">
+            <summary>
+            rgb(210, 180, 140)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.teal">
+            <summary>
+            rgb( 0, 128, 128)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.thistle">
+            <summary>
+            rgb(216, 191, 216)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.tomato">
+            <summary>
+            rgb(255, 99, 71)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.turquoise">
+            <summary>
+            rgb( 64, 224, 208)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.violet">
+            <summary>
+            rgb(238, 130, 238)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.wheat">
+            <summary>
+            rgb(245, 222, 179)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.white">
+            <summary>
+            rgb(255, 255, 255)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.whitesmoke">
+            <summary>
+            rgb(245, 245, 245)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.yellow">
+            <summary>
+            rgb(255, 255, 0)
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SVGPredefinedColorsEnum.yellowgreen">
+            <summary>
+            rgb(154, 205, 50)
+            </summary>
+        </member>
+        <member name="T:ABB.SASymbols.Common.SwitchIndicatorState">
+            <summary>
+            State of a switch indicator.
+            </summary>
+            <remarks>
+            Part 7-4 (p. 78), on data attribute Loc:
+            <para>
+            This changeover is always done locally with a physical key or toggle switch. The physical key or 
+            toggle switch may have a set of contacts from which the position can be read. This Data indicates
+            the switchover between local and remote operation; local = TRUE, remote = FALSE. At bay level
+            ‘local’ means operation from the bay unit and ‘remote’ means opereation from a station unit. At
+            process level, ‘local’ means operation direct on the process device, for example on a circuit breaker
+            and ‘remote’ means operation from a bay unit. If in a Logical Device the Loc of LLN0 is in
+            contradiction to the Loc of any contained LN, "local" is always dominant.
+            </para>
+            </remarks>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SwitchIndicatorState.remote">
+            <summary>
+            State is "remote"
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SwitchIndicatorState.local">
+            <summary>
+            State is "local"
+            </summary>
+        </member>
+        <member name="T:ABB.SASymbols.Common.SwitchPosition">
+            <summary>
+            Switch position, as defined in the IEC 61850 standard, with the additional state "earthed".
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SwitchPosition.Intermediate">
+            <summary>
+            Intermediate/undefined state
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SwitchPosition.Open">
+            <summary>
+            Off, open, or false.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SwitchPosition.Closed">
+            <summary>
+            On, closed, or true.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SwitchPosition.Bad">
+            <summary>
+            Error state.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.SwitchPosition.Earthed">
+            <summary>
+            Earthed state.
+            </summary>
+        </member>
+        <member name="T:ABB.SASymbols.Common.TextAnchor">
+            <summary>
+            Text anchor enumeration.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.TextAnchor.end">
+            <summary>
+            Coordinates for text element correspond to the end of the text.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.TextAnchor.middle">
+            <summary>
+            Coordinates for text element correspond to the middle of the text.
+            </summary>
+        </member>
+        <member name="F:ABB.SASymbols.Common.TextAnchor.start">
+            <summary>
+            Coordinates for text element correspond to the start of the text.
+            </summary>
+        </member>
+    </members>
+</doc>

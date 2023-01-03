@@ -1,0 +1,23 @@
+; SHADUSR   - USER DEFINED COMMAND PROCEDURE FOR GENERATING ALARMS AND
+;             EVENTS IN USER APPLICATION
+;
+; INPUT PARAMETER:
+;                   %APL        (INTEGER 1 .. MAX_APPLICATION_NUMBER,
+;                                APPLICATION NUMBER)
+;                   %EVENT      (INTEGER:
+;                                1 = TRANSMISSION STARTS
+;                                2 = DUMP DONE
+;                                3 = CONNECTION LOST TO RECEIVER
+;                                4 = TAKEOVER
+;                                5 = EXTERNAL APPLICATION STATE CHANGE,
+;                                    STATE STORED IN SHADEXTAS:D(%APL),
+;                                    OS == 0  => AVAILABLE, 
+;                                    OS == 10 => NOT AVAILABLE,
+;                                    OV == 0  => COLD,
+;                                    OV == 1  => WARM,
+;                                    OV == 2  => HOT)
+;
+;-END-ABB---------------------------------------------------------------------
+
+
+

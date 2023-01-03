@@ -1,0 +1,134 @@
+;Function: BPU_GET_PO_ATTRIBUTE_STATES:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_get_po_attribute_states.scl
+;Version: 1.0
+;Parameters: 
+;Return data: 
+;Description:  
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument v_Inputs, v_Outputs, t_LN
+#local i, v_Tmp
+#local l_P_Objects = list(ln = vector , ix = vector)
+#local v_Attributes_For_Inputs =  vector("IU", "SS", "UN", "OS", "BL", "SB", "SU", "UB", "AB", "HB", "PB", "XB", "TM")
+#local v_Attributes_For_Outputs =  vector("IU", "SS", "UN", "UB")
+
+#local l_Attributes = list()
+
+#local l_result = list(-
+   i_connection_ss = -1,-
+   i_connection_iu = -1,-
+   i_connection_un = -1,-
+   i_connection_os = 10,-
+   i_connection_bl = -1,-
+   i_connection_sb = -1,-
+   i_connection_su = -1,-
+   i_connection_tm = -1,-
+   i_connection_ub = -1,-
+   i_connection_ab = -1,-
+   i_connection_hb = -1,-
+   i_connection_pb = -1,-
+   i_connection_xb = -1,-
+   o_connection_ss = -1,-
+   o_connection_un = -1,-
+   o_connection_ub = -1)
+   
+;****************************************************************************************************
+;redirect command if application specific command procedure is found                               ;*
+#local t_Redirect_Proc = "APLMOD5_BPU_GET_PO_ATTRIBUTE_STATES"                                     ;*
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    ;*
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            ;*
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 ;*
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  ;*
+         @REDIRECTED = true                                                                        ;*
+         i_ArgCnt = argument_count                                                                 ;*
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                      ;*
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" ;*
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       ;*
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     ;*
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    ;*
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        ;*
+         #loop_end                                                                                 ;*
+         #return 't_Redirect_Command' ;;;;;                                                        ;*
+      #block_end                                                                                   ;*
+   #block_end                                                                                      ;*
+   #else #delete REDIRECTED:V                                                                      ;*
+#block_end                                                                                         ;*
+;****************************************************************************************************
+;MAIN START
+
+#if argument_count > 3 #then #block
+   #if data_type(argument(4)) == "LIST" #then l_result = merge_attributes(l_result, argument(4))
+#block_end
+
+;check input objects
+#if length(v_Inputs) > 0 #then #block
+
+   l_P_Objects.ln(1 .. length(v_Inputs)) = t_LN
+   l_P_Objects.ix = v_Inputs
+   
+   l_Attributes = application_object_attributes(0, "IX", l_P_Objects, v_Attributes_For_Inputs)
+   
+   v_Tmp = low(l_Attributes.iu)
+   v_Tmp = low(append(v_Tmp, low(l_Attributes.ss)))
+   
+   ;process objects have to be in use and ss <> off
+   #if v_Tmp(1) > 0 #then #block
+      #if length(select(l_Attributes.ss, "<>1")) == length(l_Attributes.ss) #then l_result.i_connection_ss = 1
+      #else_if length(select(l_Attributes.ss, "<2")) == length(l_Attributes.ss) #then l_result.i_connection_ss = 0
+      #else l_result.i_connection_ss = -1
+      
+      #if length(select(l_Attributes.un, "<>0")) == length(l_Attributes.un) #then l_result.i_connection_un = 1
+      #else_if length(select(l_Attributes.un, "==0")) == length(l_Attributes.un) #then l_result.i_connection_un = 0
+      #else l_result.i_connection_un = -1
+      
+      v_Tmp = high(l_Attributes.iu)
+      l_result.i_connection_iu = v_Tmp(1)
+      v_Tmp = high(l_Attributes.os)
+      l_result.i_connection_os = v_Tmp(1)
+      v_Tmp = high(l_Attributes.bl)
+      l_result.i_connection_bl = v_Tmp(1)
+      v_Tmp = high(l_Attributes.sb)
+      l_result.i_connection_sb = v_Tmp(1)
+      v_Tmp = high(l_Attributes.su)
+      l_result.i_connection_su = v_Tmp(1)
+      v_Tmp = high(l_Attributes.tm)
+      l_result.i_connection_tm = v_Tmp(1)
+      v_Tmp = high(l_Attributes.ub)
+      l_result.i_connection_ub = v_Tmp(1)
+      v_Tmp = high(l_Attributes.ab)
+      l_result.i_connection_ab = v_Tmp(1)
+      v_Tmp = high(l_Attributes.hb)
+      l_result.i_connection_hb = v_Tmp(1)
+      v_Tmp = high(l_Attributes.pb)
+      l_result.i_connection_pb = v_Tmp(1)
+      v_Tmp = high(l_Attributes.xb)
+      l_result.i_connection_xb = v_Tmp(1)
+   #block_end
+   
+#block_end
+
+;check output objects
+#if length(v_Outputs) > 0 #then #block
+
+   l_P_Objects.ln = vector
+   l_P_Objects.ln(1 .. length(v_Outputs)) = t_LN
+   l_P_Objects.ix = v_Outputs
+   
+   l_Attributes = application_object_attributes(0, "IX", l_P_Objects, v_Attributes_For_Outputs)
+   
+   #if length(select(l_Attributes.ss, "<>1")) == length(l_Attributes.ss) #then l_result.o_connection_ss = 1
+   #else_if length(select(l_Attributes.ss, "<2")) == length(l_Attributes.ss) #then l_result.o_connection_ss = 0
+   #else l_result.o_connection_ss = -1
+   
+   #if length(select(l_Attributes.un, "<>0")) == length(l_Attributes.un) #then l_result.o_connection_un = 1
+   #else_if length(select(l_Attributes.un, "==0")) == length(l_Attributes.un) #then l_result.o_connection_un = 0
+   #else l_result.o_connection_un = -1
+   
+   v_Tmp = high(l_Attributes.ub)
+   l_result.o_connection_ub = v_Tmp(1)
+   
+#block_end
+   
+#return l_result

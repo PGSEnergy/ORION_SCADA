@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Auto-Reclosing Tag" />
+    <d:meta name="dv-custom-attribute|SANoRotate" content="" />
+    <d:meta name="dv-custom-attribute|SARepresentation" content="Binary Input" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="value" default="0" />
+    <d:mapping name="f1156" parameters="value">
+      <d:step value="true" when="value &lt;= 0.500" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f1157" parameters="value">
+      <d:step value="[colors[44], colors[17]]" when="value &lt;= 0.500" />
+      <d:otherwise value="[[colors[44], colors[19]], [colors[17], colors[17]]]" />
+    </d:mapping>
+    <d:mapping name="f1158" parameters="value">
+      <d:step value="true" when="value &lt;= 0.500" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f1159" parameters="value">
+      <d:step value="true" when="value &lt;= 0.498" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f1160" parameters="value">
+      <d:step value="[colors[30], 'none']" when="value &lt;= 0.500" />
+      <d:otherwise value="[[colors[30], colors[23]], ['none', 'none']]" />
+    </d:mapping>
+  </d:head>
+  <d:body x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <s:polyline points="-10,-9.600 -9.600,-10 9.600,-10 10,-9.600 10,9.600 9.600,10 -9.600,10 -10,9.600 " d:hidden="f1156(`value`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="{colors[44]}" y:fill-rule="evenodd" y:stroke="{colors[17]}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Face">
+      <d:animate attributes="fill, stroke" values="if(`subdrawing_dynamics`, f1157(`value`), colors[44])" />
+    </s:polyline>
+    <s:polyline points="-10,9.600 -10,-9.600 -9.600,-10 9.600,-10 " d:hidden="f1158(`value`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="none" y:fill-rule="evenodd" y:stroke="{colors[16]}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Frame Top Left" />
+    <s:text font-size="8.668" fill="{colors[30]}" x="0" y="0" text-anchor="middle" dominant-baseline="central" d:textScaleAdjustment="true" d:hidden="f1159(`value`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="{colors[30]}" y:fill-rule="evenodd" d:object-name="AR Text">AR<d:animate attributes="fill, stroke" values="if(`subdrawing_dynamics`, f1160(`value`), colors[30])" /></s:text>
+  </d:body>
+</d:document>

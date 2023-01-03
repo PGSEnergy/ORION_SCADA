@@ -1,0 +1,53 @@
+;Bay L/R switch
+#argument l_Objects
+#local v_messages, i_count, b_disable_all
+#local i_sta_LR_Authorized, l_lr_message = list(value = 0, custom_value = 0, custom_text = "")
+
+v_messages = argument(2)
+i_count = argument(3)
+b_disable_all = argument(4)
+
+#if l_Objects.sta_lr_required #then #block
+   #if l_Objects.sta_lr_object #then #block
+      #if 'l_Objects.sta_lr_object_ln':pos'l_Objects.sta_lr_object_ix' == 10 #then #block
+         i_count = i_count + 1
+         v_messages(i_count) = translation("Station LR switch not sampled")
+         b_disable_all = true
+         l_lr_message = list(value = 0, custom_value = 1005, custom_text = v_messages(i_count))
+      #block_end
+      #else #block
+         ;if returns 1=authorized, 0=not authorized -1=error, -2=not authorized control center
+         i_sta_LR_Authorized = do(bpu_check_lr_authority:c, l_Objects.sta_lr_object_ln, l_Objects.sta_lr_object_ix)
+         #if i_sta_LR_Authorized == 0 #then #block
+            i_count = i_count + 1
+            v_messages(i_count) = translation("Station LR switch inhibits control")
+            b_disable_all = true
+            l_lr_message = list(value = 0, custom_value = 1006, custom_text = v_messages(i_count))
+         #block_end
+         #else_if i_sta_LR_Authorized == -1 #then #block
+            i_count = i_count + 1
+            v_messages(i_count) = translation("Error reading station LR switch")
+            b_disable_all = true
+            l_lr_message = list(value = 0, custom_value = 1007, custom_text = v_messages(i_count))
+         #block_end
+         #else_if i_sta_LR_Authorized == -2 #then #block
+            i_count = i_count + 1
+            v_messages(i_count) = translation("Not authorized control center")
+            b_disable_all = true
+            l_lr_message = list(value = 0, custom_value = 1008, custom_text = v_messages(i_count))
+         #block_end
+      #block_end
+   #block_end
+   #else #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Station LR switch missing")
+      b_disable_all = true
+      l_lr_message = list(value = 0, custom_value = 1009, custom_text = v_messages(i_count))
+   #block_end
+#block_end
+
+#return list(-
+   count = i_count,-
+   messages = v_messages,-
+   lr_message = l_lr_message,-
+   disable_all = b_disable_all)

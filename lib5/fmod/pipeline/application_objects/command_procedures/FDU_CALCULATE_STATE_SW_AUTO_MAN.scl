@@ -1,0 +1,110 @@
+;Function: FDU_CALCULATE_STATE_SW_AUTO_MAN:C
+;Source file: sc/lib5/fmod/pipeline/application_objects/command_procedures/fdu_calculate_state_sw_auto_man.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute),  search_result, session number of control dialog, name of workstation
+;Return data:
+;Description: Calculates state of main tab and messages related to the object
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data
+#local v_messages = vector(), i_count = 0, b_automatic_enabled = true, b_manual_enabled = true, b_disable_both_directions = false
+#local l_connection_state = list, l_connection_state_2 = list(), l_Objects, i, v_attr, t_attr
+#local t_LN = l_object_info.p_object_ln, i_session = 0
+#local l_value_convention = list(), t_value, i_Val
+#local l_result = list(AUTOMATIC_ENABLED = true, MANUAL_ENABLED = true)
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found
+#local t_Redirect_Proc = "APLMOD5_FDU_CALCULATE_STATE_SW_AUTO_MAN"
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block
+   #if data_type(%REDIRECTED)=="NONE" #then #block
+      #if 't_Redirect_Proc':CIU == 1 #then #block
+         @REDIRECTED = true
+         i_ArgCnt = argument_count
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP"
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"
+         #loop_with i_arg_loop = 1 .. i_ArgCnt
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"
+         #loop_end
+         #return 't_Redirect_Command' ;;;;;
+      #block_end
+   #block_end
+   #else #delete REDIRECTED:V
+#block_end
+;**************************************************************************************************
+;MAIN START
+
+#if argument_count > 2 #then i_session = argument(3)
+
+l_Objects = l_data.all_objects
+
+;object state os, ss, un, ub ...
+l_connection_state = do(bpu_define_switch_state:c, l_object_info, l_Objects)
+
+;object state os, ss, un, ub ... (object type specific)
+
+l_connection_state_2 = do(fdu_define_sw_auto_man_state:c, l_object_info, l_Objects)
+v_attr = list_attr(l_connection_state_2)
+#loop_with i = 1 .. length(v_attr)
+   t_attr = v_attr(i)
+   #if attribute_exists(l_connection_state, t_attr) #then #block
+      #if data_type(l_connection_state.'t_attr') == "INTEGER" and data_type(l_connection_state_2.'t_attr') == "INTEGER" #then #block
+         #if l_connection_state_2.'t_attr' > l_connection_state.'t_attr' #then l_connection_state.'t_attr' = l_connection_state_2.'t_attr'
+      #block_end
+   #block_end
+   #else #block
+      l_connection_state = merge_attributes(l_connection_state, list('t_attr' = l_connection_state_2.'t_attr'))
+   #block_end
+#loop_end
+
+;add object specific indexes
+l_result = do(bpu_switch_state_general:c, l_object_info, l_Objects, i_session, l_connection_state)
+
+;define value convention for process data
+l_value_convention = do(fdu_get_indications_switch_auto_man:c, l_object_info)
+
+;auto state
+#if attribute_exists(l_objects, "indication_auto_ix") #then #block
+   #if 't_LN':pos'l_Objects.indication_auto_ix' <> 10 #then #block
+      i_val = 't_LN':pov'l_Objects.indication_auto_ix'
+      #if attribute_exists(l_value_convention.auto_indication, "ov_'i_val'") #then t_value = l_value_convention.auto_indication.ov_'i_val'
+      #else t_value = "NOT_DEFINED"
+      #if t_value == "AUTO" #then #block
+         i_count = i_count + 1
+         v_messages(i_count) = translation("Automatic state")
+         b_automatic_enabled = false
+         l_result.OPEN_ENABLED = false
+         l_result.CLOSE_ENABLED = false
+      #block_end
+   #block_end
+#block_end
+
+;manual state state
+#if attribute_exists(l_objects, "indication_manual_ix") #then #block
+   #if 't_LN':pos'l_Objects.indication_manual_ix' <> 10 #then #block
+      i_val = 't_LN':pov'l_Objects.indication_manual_ix'
+      #if attribute_exists(l_value_convention.manual_indication, "ov_'i_val'") #then t_value = l_value_convention.manual_indication.ov_'i_val'
+      #else t_value = "NOT_DEFINED"
+      #if t_value == "MANUAL" #then #block
+         i_count = i_count + 1
+         v_messages(i_count) = translation("Manual state")
+         b_manual_enabled = false
+      #block_end
+   #block_end
+#block_end
+
+#if l_result.disable_both #then #block
+   b_automatic_enabled = false
+   b_manual_enabled = false
+#block_end
+
+l_result = merge_attributes(l_result, list(AUTOMATIC_ENABLED = b_automatic_enabled, MANUAL_ENABLED = b_manual_enabled))
+
+l_result.messages = insert_element(l_result.messages, 2, v_messages)
+
+#return l_result

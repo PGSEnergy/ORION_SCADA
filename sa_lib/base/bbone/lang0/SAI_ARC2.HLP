@@ -1,0 +1,381 @@
+COMMON AUTO RECLOSE
+
+1. Environmental requirements
+
+In order for the auto-reclosing tag to have full
+functionality, the following components need to
+be installed:
+
+SA-LIB
+
+2. Configurable attributes
+
+It is important to configure attributes in the order
+of appearance since setting one attribute may
+enable/disable and/or reset another attribute
+later.
+
+STATION_NAME
+
+A selector type of an editable combo box to
+select or enter the name of the substation. As a
+default, the maximum length of the text is 9
+characters. The selection list shows up to ten last
+entries.
+
+The configurable attribute is being read directly
+from the process object database if there is any
+process object linked to the selected
+auto-reclosing tag. Therefore, the configurable
+attribute within a standard function has meaning
+only when the process objects have not been created.
+
+This text will be used as a substation identifier of
+the auto- reclosing objects on event list, alarm
+list, printout, database query, etc. It is very
+important that this text is similar to all objects
+within the same substation.
+
+BAY_NAME
+
+A selector type of an editable combo box to
+select or enter the name of the bay (feeder). As a
+default, the maximum length of the text is 14
+characters. The selection list shows up to ten
+latest entries.
+
+The configurable attribute is being read directly
+from the process object database, if there is any
+process object linked to the selected
+auto-reclosing tag. Therefore, the configurable
+attribute within a standard function has meaning
+only when the process objects have not been created.
+
+This text will be used as a bay (feeder) identifier
+of the auto- reclosing objects on event list,
+alarm list, printout, database query, etc. It is
+very important that this text is similar to all
+objects within the same bay (feeder).
+
+DEVICE_NAME
+
+A selector type of an editable combo box to
+select or enter the name (identifier) of the
+auto-reclosing function. As a default, the
+maximum length of the text is 5 characters. The
+selection list shows up to ten latest entries.
+
+The configurable attribute is being read directly
+from the process object database, if there is any
+process object linked to the selected
+auto-reclosing tag. Therefore, the configurable
+attribute within a standard function has meaning
+only when the process objects have not been created.
+
+This text will be used as an identifier of the auto-
+reclosing on event list, alarm list, printout,
+database query, etc.
+
+P_OBJECT_LN
+
+The logical name of the database process objects.
+The maximum length of the text is 10 characters.
+Allowed characters are the letters A-Z, all
+digits and the underscore (_).
+
+The logical names of process objects have to be
+unique throughout the entire system, that is,
+different objects cannot have the same logical
+name. Therefore, it is very important to have a
+proper naming convention for the process object
+database.
+
+Certain naming convention is also required to speed
+up the opening time of the main dialogs. With the
+predefined naming convention it is possible to
+collect all station and bay related database
+objects without searching through the complete
+database. Therefore, it is advised to use the
+following naming convention:
+
+  - The first three characters identify the substation
+  - The following four characters identify the bay
+  - The last three characters can be freely used to
+    identify the source of the signal, i.e. device,
+    unit, etc.
+
+The following list is presented as an example of
+the proper naming convention within one bay. The
+station name is Green Bay, and the bay name is HA12
+Downtown:
+
+  - GRB, station
+  - GRBHA12BAY, bay
+  - GRBHA12Q0, circuit breaker Q0
+  - GRBHA12Q1, truck Q1
+  - GRBHA12Q9, earth switch Q9
+  - GRBHA12CT, measurements/current transformer
+  - GRBHA12VT, measurements/voltage
+    transformer
+  - GRBHA12ALA, alarm indicator
+  - GRBHA12AR, auto-reclosing tag
+  - GRBHA12TRP, tripping tag
+  - GRBHA12R1, feeder terminal or protection unit
+    1
+  - GRBHA12R2, feeder terminal or protection unit
+    1
+  - GRBHA12LS1, line segment 1 of busbar
+    coloring
+  - GRBHA12LS2, line segment 2 of busbar
+    coloring
+  - GRBHA12LS3, line segment 3 of busbar
+    coloring
+  - GRBHA12LI, line indicator of busbar
+    coloring
+
+STATION_TYPE
+
+A selector type of a combo box to select the
+station type of the objects. The configurable
+attribute is being enabled if the attribute
+P_OBJECT_LN has been configured.
+
+The database process objects will be created for
+the station type defined here. The list of supported
+protocols is as follows:
+
+  - SPA
+  - ANSI
+  - LON
+  - RP570
+  - RP570 with FTABs
+  - IEC 870-5-101
+  - IEC 870-5-103
+  - ICCP
+  - DNP 3.0
+  - MODBUS RTU
+  - IEC 61850-8
+  - PROCOL
+
+OUTPUT_STATUS
+
+An ON/OFF type of a toggle button to select
+whether there is need for output status process
+objects with the DNP 3.0 protocol. If
+STATION_TYPE is other than DNP 3.0, the
+configurable attribute is being disabled, and the
+value has no meaning.
+
+AR_WITH_MULTIPLE_CYCLES
+
+An ON/OFF type of a toggle button to select
+the object type for the indication auto-reclosing in
+progress. The configurable attribute is being
+enabled if the attribute P_OBJECT_LN has been
+configured.
+
+The database process objects will be created either
+as a binary input or as an analog input depending
+on the selection.
+
+SHOW_AR_IN_USE
+
+An ON/OFF type of a toggle button to select if
+the tag is shown when the auto-reclosing is in use. The
+configurable attribute is being enabled if the
+attribute P_OBJECT_LN has been configured.
+
+As a default no tag is shown. This is useful when
+the auto-reclosure is normally OFF and a
+warning should be produced if the auto- reclosing is
+in use.
+
+SHOW_AR_NOT_IN_USE
+
+An ON/OFF type of a toggle button to select if
+the tag is shown when the auto-reclosing is not in use.
+The configurable attribute is being enabled if the
+attribute P_OBJECT_LN has been configured.
+
+As a default no tag is shown. This is useful when
+the auto-reclosure is normally ON and the warning
+should be produced if the auto- reclosing is not in
+use.
+
+EVENT_RECORDING
+
+An ON/OFF type of a toggle button to select
+whether there is a need for event recording process
+objects with the RP 570 protocol. If
+STATION_TYPE is other than RTU 2xx or RTU
+2xx/FTABs or P_OBJECT_LN has not been
+configured, the configurable attribute is being
+disabled, and the value has no meaning.
+
+With RP 570 the time stamp from process device
+comes into the event recording process object. If no
+accurate time stamp is needed or available, or the
+device is emulating the RP 570 without the event
+recording possibility, do not set this attribute ON.
+
+LINK_AR_TAG_TO_LN
+
+The logical name of the database process objects
+of the auto- reclosing module. The maximum length
+of the text is 10 characters.
+
+Allowed characters are the letters A-Z, all
+digits and the underscore (_). However, an object
+name cannot begin with a digit or an underscore.
+
+The configurable attributes
+LINK_AR_TAG_TO_LN and
+LINK_AR_TAG_TO_MODULE are utilized to
+create a link between existing auto-reclosing
+objects from the other SA-LIB function (e.g.
+auto-reclosing module) and the auto-reclosing
+tag. It even supports linking of user-defined process
+objects as LINK_AR_TAG_TO_MODULE is an
+editable selector.
+
+LINK_AR_TAG_TO_MODULE
+
+An editable selector type of a combo box to
+select the type designation of the auto-reclosing
+module. The configurable attribute is being
+enabled if the attribute LINK_AR_TAG_TO_LN
+has been configured.
+
+As a default, all auto-reclosing modules from
+SPACOM family have been implemented for the
+users to choose from. The supported modules are:
+
+  - SPCT 2C5
+  - SPCT 2C17
+  - SPCT 2D38
+  - SPCT 2D46
+  - SPCT 5D54
+  - SPTO 6D3
+
+During the relay installation and configuration,
+the following indexes have to be created and
+SPACOM events have to be enabled as a minimum
+requirement for the auto-reclosing tag by using the
+SPACOM Relay Configuration Tool:
+
+SPCT 2C5
+
+   index 65  - auto-reclosing started/reset (E1/E2) SPCT 2C17
+   index 151 - auto-reclosing started/reset (E1/E2) SPCT 2D38
+   index 70  - HSAR started/reset (E1/E2)
+   index 74  - SSAR started/reset (E6/E7)
+   index 78  - delayed SSAR started/reset (E11/E12) SPCT 2D46
+   index 91  - HSAR forward started/reset (E1/E2)
+   index 95  - SSAR started/reset (E6/E7)
+   index 109 - auto-reclosing interrupted (E25) SPCT 5D54
+   index 32  - auto-reclosing interrupted by ARINH (E30)
+   index 33  - auto-reclosing interrupted manually (E31)
+   index 34  - auto-reclosing interrupted by open cmd (E32)
+   index 40  - shot 1 started/reset (channel 1 - E1/E2)
+   index 46  - shot 2 started/reset (channel 2 - E1/E2)
+   index 52  - shot 3 started/reset (channel 3 - E1/E2)
+   index 58  - shot 4 started/reset (channel 4 - E1/E2)
+   index 64  - shot 5 started/reset (channel 5 - E1/E2) SPTO 6D3
+   index 16  - auto-reclosing interrupted (E7)
+   index 17  - auto-reclosing interrupted by open cmd (E8)
+   index 18  - auto-reclosing interrupted by ARINH (E9)
+   index 20  - shot 1 started/reset (E11/E12)
+   index 25  - shot 2 started/reset (E16/E17)
+   index 30  - shot 3 started/reset (E21/E22)
+   index 35  - shot 4 started/reset (E26/E27)
+   index 40  - shot 5 started/reset (E31/E32)
+
+If there is no appropriate auto-reclosing module to
+pick, or if freely defined process objects are going
+to be used, it is possible to link those objects by
+using the following syntax:
+
+  
+  "IDENT","INDX1","REPR1","INDX2","REPR2",
+  ...
+
+   IDENT - module ID - (used only as a comment)
+   INDX1 - DB index of "AR in progress" -object 1
+   REPR1 - representation (symbol set) for object 1
+   INDX2 - DB index of "AR in progress" -object 2
+   REPR2 - representation (symbol set) for object 2
+
+As an example, the auto-reclosing module SPCT
+2D46:
+
+  "SPCT 2 D 4 6 "
+  ,"91","F_REPR/F_ARRUN4","95","F_REPR/ARRUN5"
+
+The type designation of the auto-reclosing module
+is not necessary; it is just additional information
+for users.
+
+3. Configurable attributes with Process Object
+Tool
+
+THE DATABASE OBJECTS WILL NOT BE
+CREATED UNTIL THE PROCESS OBJECT
+TOOL HAS BEEN USED TO CREATE THEM.
+
+Based on the configuration made with the Standard
+Configuration Tool, the Process Object Tool
+(POT) creates a set of process objects among those
+that are listed below.
+
+Auto-reclosing in use/out of use (SW) indication
+
+  - Optional
+  - Indicates if the auto-reclose is in use (software
+    switch of the auto-reclosing unit)
+  - Index 10, BI
+
+Auto-reclosing in use/out of use (HW) indication
+
+  - Optional
+  - Indicates if the auto-reclose is in use (hardware
+    switch of the auto-reclosing unit)
+  - Index 11, BI
+
+Auto-reclosing in progress/not in progress
+indication
+
+  - Optional
+  - Indicates if there is an auto-reclosing sequence
+    running
+  - Index 12, BI or AI depending on the
+    configurable attribute
+    AR_WITH_MULTIPLE_CYCLES
+
+Auto-reclosing interrupt command
+
+   - Optional
+   - Interrupts the auto-reclosing sequence
+   - Index 13, BO
+
+Auto-reclosing in use/out of use command
+
+   - Optional
+   - Enables/disables the auto-reclosure
+   - Index 14, BO
+
+Event recording for input signals with the RP 570
+protocol
+
+   - Optional
+   - Receives an accurate time stamp from the auto-
+     reclosing unit
+   - Indexes 110, 111, 112
+
+Command termination indication for output signals
+with the IEC 870-5-101 and IEC 870-5-103
+protocols
+
+   - Optional
+   - Indicates whether the command was successful or
+     not
+   - Indexes 113, 114

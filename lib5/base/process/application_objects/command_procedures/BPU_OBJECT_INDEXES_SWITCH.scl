@@ -1,0 +1,163 @@
+;Function: BPU_OBJECT_INDEXES_SWITCH:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_object_indexes_switch.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute)
+;Return data: l_Indexes
+;Description: list of object indexes depending on configuration
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info
+#local l_Indexes = list, l_OT_Indexes, i, t_Attr, t_ln
+
+;circuit breaker, disconnector and earth switch
+#local t_switch_standard = """QB"",""QI"",""QS"",""QD"",""QF"",""QL"",""QE"",""QM"""+- ;power process
+   ",""DS"",""DX"""                                                                      ;pipeline
+;truck
+#local t_switch_truck = """QT"""
+;three state switch
+#local t_switch_3s = """Q3"""
+
+;****************************************************************************************************
+;redirect command if application specific command procedure is found                               ;*
+#local t_Redirect_Proc = "APLMOD5_BPU_OBJECT_INDEXES_SWITCH"                                       ;*
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    ;*
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            ;*
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 ;*
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  ;*
+         @REDIRECTED = true                                                                        ;*
+         i_ArgCnt = argument_count                                                                 ;*
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        ;*
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" ;*
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       ;*
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     ;*
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    ;*
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        ;*
+         #loop_end                                                                                 ;*
+         #return 't_Redirect_Command' ;;;;;                                                        ;*
+      #block_end                                                                                   ;*
+   #block_end                                                                                      ;*
+   #else #delete REDIRECTED:V                                                                      ;*
+#block_end                                                                                         ;*
+;****************************************************************************************************
+;MAIN START
+
+l_indexes = list(INDICATION_DB_IX = list(ix=0, ln=""), OPEN_CMD_IX = list(ix=0, ln=""), CLOSE_CMD_IX = list(ix=0, ln=""), EXECUTE_CMD_IX = list(ix=0, ln=""),-
+   EXECUTE_OPEN_CMD_IX = list(ix=0, ln=""), CANCEL_CMD_IX = list(ix=0, ln=""), EXECUTE_CLOSE_CMD_IX = list(ix=0, ln=""), EXT_CNTR_BLK_IX = list(ix=0, ln=""),-
+   OPEN_ILOCK_IX = list(ix=0, ln=""), CLOSE_ILOCK_IX = list(ix=0, ln=""), ILOCK_CAUSE_IX = list(ix=0, ln=""), SEL_ON_MON_IX = list(ix=0, ln=""), CMD_EVENT_IX = list(ix=0, ln=""),-
+   AUX_PLUG_IX = list(ix=0, ln=""), SYN_IND_IX = list(ix=0, ln=""), OPEN_BLOCK_IX = 0, CLOSE_BLOCK_IX = list(ix=0, ln=""), ADD_CAUSE_IX = list(ix=0, ln=""),-
+   INDICATION_UP1_IX = list(ix=0, ln=""), INDICATION_UP2_IX = list(ix=0, ln=""), INDICATION2_UP1_IX = list(ix=0, ln=""), INDICATION2_UP2_IX = list(ix=0, ln=""),-
+   CNTR_CMD_IX = list(ix=0, ln=""), STATUS_IX = list(ix=0, ln=""), INTERLOCKING_BYPASS = list(ix=0, ln=""), INDICATION2_DB_IX = list(ix=0, ln=""), INDICATION_IMAGE_IX = list(ix=0, ln=""),-
+   SW_LOC_IX = list(ix=0, ln=""), SW_LOCSTA_IX = list(ix=0, ln=""))
+
+t_ln = l_object_info.p_object_ln
+
+#if attribute_exists(l_object_info, "OPERATOR_PLACE_HANDLING") #then #block
+   #case l_object_info.OPERATOR_PLACE_HANDLING
+      #when "LOC" #block
+         l_indexes = merge_attributes(l_indexes, list(SW_LOC_IX = list(ix=70, ln = t_ln)))
+      #block_end
+      #when "LOCSTA" #block
+         l_indexes = merge_attributes(l_indexes, list(SW_LOCSTA_IX = list(ix=71, ln = t_ln)))
+      #block_end
+      #when "LOC_AND_LOCSTA" #block
+         l_indexes = merge_attributes(l_indexes, list(SW_LOC_IX = list(ix=70, ln = t_ln)))
+         l_indexes = merge_attributes(l_indexes, list(SW_LOCSTA_IX = list(ix=71, ln = t_ln), SW_LOCSTA_CMD_IX = list(ix=72, ln = t_ln)))
+      #block_end
+   #case_end
+#block_end
+
+#case l_object_info.switching_device_type
+   
+   #when 't_switch_standard' #block
+      l_indexes = merge_attributes(l_indexes, list(INDICATION_DB_IX = list(ix=10, ln = t_ln), EXT_CNTR_BLK_IX = list(ix=15, ln = t_ln),-
+      OPEN_ILOCK_IX = list(ix=16, ln = t_ln), CLOSE_ILOCK_IX = list(ix=17, ln = t_ln), ILOCK_CAUSE_IX = list(ix=18, ln = t_ln), SEL_ON_MON_IX = list(ix=19, ln = t_ln),-
+      CMD_EVENT_IX = list(ix=20, ln = t_ln), SYN_IND_IX = list(ix=22, ln = t_ln), OPEN_BLOCK_IX = list(ix=41, ln = t_ln), CLOSE_BLOCK_IX = list(ix=42, ln = t_ln),-
+      INDICATION_IMAGE_IX = list(ix=310, ln = t_ln), ADD_CAUSE_IX = list(ix=55, ln = t_ln)))
+      #case l_object_info.indication_type
+         #when "AI", "BI" l_indexes = merge_attributes(l_indexes, list(INDICATION_UP1_IX = list(ix=110, ln = t_ln)))
+         #when "2BI" l_indexes = merge_attributes(l_indexes, list(INDICATION_UP1_IX = list(ix=110, ln = t_ln), INDICATION_UP2_IX = list(ix=108, ln = t_ln)))
+      #case_end
+      
+      #case l_object_info.control_type
+         #when "SEC-BO", "DIR-BO", "AO" l_indexes = merge_attributes(l_indexes, list(EXECUTE_CMD_IX = list(ix=13, ln = t_ln), CANCEL_CMD_IX = list(ix=13, ln = t_ln)))
+         #when "SEC-2BO", "SEC-2DO" l_indexes = merge_attributes(l_indexes, list(OPEN_CMD_IX = list(ix=11, ln = t_ln), CLOSE_CMD_IX = list(ix=12, ln = t_ln)))
+         #when "SEC-4BO" l_indexes = merge_attributes(l_indexes, list(OPEN_CMD_IX = list(ix=11, ln = t_ln), CLOSE_CMD_IX = list(ix=12, ln = t_ln), EXECUTE_CMD_IX = list(ix=13, ln = t_ln), CANCEL_CMD_IX = list(ix=14, ln = t_ln)))
+         #when "SEC-5BO", "SEC-5AO" l_indexes = merge_attributes(l_indexes, list(OPEN_CMD_IX = list(ix=11, ln = t_ln), CLOSE_CMD_IX = list(ix=12, ln = t_ln),-
+            EXECUTE_OPEN_CMD_IX = list(ix=13, ln = t_ln), EXECUTE_CLOSE_CMD_IX = list(ix=14, ln = t_ln), CANCEL_CMD_IX = list(ix=25, ln = t_ln)))
+      #case_end
+   #block_end
+   ;truck
+   #when 't_switch_truck' #block
+      l_indexes = merge_attributes(l_indexes, list(INDICATION_DB_IX = list(ix=30, ln = t_ln), EXT_CNTR_BLK_IX = list(ix=35, ln = t_ln),-
+      OPEN_ILOCK_IX = list(ix=36, ln = t_ln), CLOSE_ILOCK_IX = list(ix=37, ln = t_ln), ILOCK_CAUSE_IX = list(ix=38, ln = t_ln), SEL_ON_MON_IX = list(ix=39, ln = t_ln),-
+      CMD_EVENT_IX = list(ix=40, ln = t_ln), OPEN_BLOCK_IX = list(ix=61, ln = t_ln), CLOSE_BLOCK_IX = list(ix=62, ln = t_ln), ADD_CAUSE_IX = list(ix=55, ln = t_ln)))
+      #case l_object_info.indication_type
+         #when "AI", "BI" l_indexes = merge_attributes(l_indexes, list(INDICATION_UP1_IX = list(ix=130, ln = t_ln)))
+         #when "2BI" l_indexes = merge_attributes(l_indexes, list(INDICATION_UP1_IX = list(ix=130, ln = t_ln), INDICATION_UP2_IX = list(ix=128, ln = t_ln)))
+      #case_end
+      
+      #case l_object_info.control_type
+         #when "SEC-BO", "DIR-BO", "AO" l_indexes = merge_attributes(l_indexes, list(EXECUTE_CMD_IX = list(ix=33, ln = t_ln), CANCEL_CMD_IX = list(ix=33, ln = t_ln)))
+         #when "SEC-2BO", "SEC-2DO" l_indexes = merge_attributes(l_indexes, list(OPEN_CMD_IX = list(ix=31, ln = t_ln), CLOSE_CMD_IX = list(ix=32, ln = t_ln)))
+         #when "SEC-4BO" l_indexes = merge_attributes(l_indexes, list(OPEN_CMD_IX = list(ix=31, ln = t_ln), CLOSE_CMD_IX = list(ix=32, ln = t_ln), EXECUTE_CMD_IX = list(ix=33, ln = t_ln), CANCEL_CMD_IX = list(ix=34, ln = t_ln)))
+         #when "SEC-5BO", "SEC-5AO" l_indexes = merge_attributes(l_indexes, list(OPEN_CMD_IX = list(ix=31, ln = t_ln), CLOSE_CMD_IX = list(ix=32, ln = t_ln),-
+            EXECUTE_OPEN_CMD_IX = list(ix=33, ln = t_ln), EXECUTE_CLOSE_CMD_IX = list(ix=34, ln = t_ln), CANCEL_CMD_IX = list(ix=45, ln = t_ln)))
+      #case_end
+   #block_end
+   ;three state switch
+   #when 't_switch_3s' #block
+      l_indexes = merge_attributes(l_indexes, list(INDICATION_DB_IX = list(ix=10, ln = t_ln), INDICATION2_DB_IX = list(ix=11, ln = t_ln),-
+      EXT_CNTR_BLK_IX = list(ix=18, ln = t_ln), OPEN_ILOCK_IX = list(ix=16, ln = t_ln), CLOSE_ILOCK_IX = list(ix=17, ln = t_ln), ILOCK_CAUSE_IX = list(ix=23, ln = t_ln),-
+      SEL_ON_MON_IX = list(ix=25, ln = t_ln), CMD_EVENT_IX = list(ix=26, ln = t_ln), OPEN_BLOCK_IX = list(ix=41, ln = t_ln), CLOSE_BLOCK_IX = list(ix=42, ln = t_ln), ADD_CAUSE_IX = list(ix=55, ln = t_ln)))
+      
+      #if l_object_info.switch_section == 1 #then l_indexes = merge_attributes(l_indexes, list(OPEN_ILOCK_IX = list(ix=19, ln = t_ln), CLOSE_ILOCK_IX = list(ix=20, ln = t_ln)))
+      #else l_indexes = merge_attributes(l_indexes, list(OPEN_ILOCK_IX = list(ix=21, ln = t_ln), CLOSE_ILOCK_IX = list(ix=22, ln = t_ln)))
+      #case l_object_info.indication_type
+         #when "AI", "BI" l_indexes = merge_attributes(l_indexes, list(INDICATION_UP1_IX = list(ix=110, ln = t_ln), INDICATION2_UP1_IX = list(ix=111, ln = t_ln)))
+         #when "2BI" l_indexes = merge_attributes(l_indexes, list(INDICATION_UP1_IX = list(ix=110, ln = t_ln), INDICATION_UP2_IX = list(ix=108, ln = t_ln),-
+               INDICATION2_UP1_IX = list(ix=111, ln = t_ln), INDICATION2_UP2_IX = list(ix=109, ln = t_ln)))
+      #case_end
+      
+      #case l_object_info.control_type
+         #when "SEC-BO", "DIR-BO", "AO" #block
+            #if l_object_info.switch_section == 1 #then -
+               l_indexes = merge_attributes(l_indexes, list(EXECUTE_CMD_IX = list(ix=16, ln = t_ln), CANCEL_CMD_IX = list(ix=16, ln = t_ln)))
+            #else -
+               l_indexes = merge_attributes(l_indexes, list(EXECUTE_CMD_IX = list(ix=17, ln = t_ln), CANCEL_CMD_IX = list(ix=17, ln = t_ln)))
+         #block_end
+         #when "SEC-2BO", "SEC-2DO"#block
+            #if l_object_info.switch_section == 1 #then -
+               l_indexes = merge_attributes(l_indexes, list(OPEN_CMD_IX = list(ix=12, ln = t_ln), CLOSE_CMD_IX = list(ix=13, ln = t_ln)))
+            #else -
+               l_indexes = merge_attributes(l_indexes, list(OPEN_CMD_IX = list(ix=14, ln = t_ln), CLOSE_CMD_IX = list(ix=15, ln = t_ln)))
+         #block_end
+         #when "SEC-4BO" #block
+            #if l_object_info.switch_section == 1 #then -
+               l_indexes = merge_attributes(l_indexes, list(OPEN_CMD_IX = list(ix=12, ln = t_ln), CLOSE_CMD_IX = list(ix=13, ln = t_ln),-
+               EXECUTE_CMD_IX = list(ix=16, ln = t_ln), CANCEL_CMD_IX = list(ix=17, ln = t_ln)))
+            #else -
+               l_indexes = merge_attributes(l_indexes, list(OPEN_CMD_IX = list(ix=14, ln = t_ln), CLOSE_CMD_IX = list(ix=15, ln = t_ln),-
+               EXECUTE_CMD_IX = list(ix=16, ln = t_ln), CANCEL_CMD_IX = list(ix=17, ln = t_ln)))
+         #block_end
+         #when "SEC-5BO", "SEC-5AO" #block
+            #if l_object_info.switch_section == 1 #then -
+               l_indexes = merge_attributes(l_indexes, list(OPEN_CMD_IX = list(ix=12, ln = t_ln), CLOSE_CMD_IX = list(ix=13, ln = t_ln),-
+               EXECUTE_OPEN_CMD_IX = list(ix=14, ln = t_ln), EXECUTE_CLOSE_CMD_IX = list(ix=15, ln = t_ln), CANCEL_CMD_IX = list(ix=16, ln = t_ln)))
+            #else -
+            l_indexes = merge_attributes(l_indexes, list(OPEN_CMD_IX = list(ix=27, ln = t_ln), CLOSE_CMD_IX = list(ix=28, ln = t_ln),-
+               EXECUTE_OPEN_CMD_IX = list(ix=29, ln = t_ln), EXECUTE_CLOSE_CMD_IX = list(ix=30, ln = t_ln), CANCEL_CMD_IX = list(ix=31, ln = t_ln)))
+         #block_end
+      #case_end
+   #block_end
+#case_end
+
+;override indexes if they are defined in object type definition
+l_OT_Indexes = list_attr(l_object_info.Type_Info.Indexes)
+#loop_with i = 1 .. length(l_OT_Indexes)
+   t_Attr = l_OT_Indexes(i)
+   #if l_object_info.Type_Info.Indexes.'t_Attr' > 0 #then l_indexes = merge_attributes(l_indexes, list('t_Attr' = list(ix=l_object_info.Type_Info.Indexes.'t_Attr', ln = t_ln)))
+#loop_end
+   
+#return l_indexes

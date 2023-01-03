@@ -1,0 +1,106 @@
+;Create command procedure and event channel for alarm indicator.
+
+#if sys:bdm==1 #then @st=trace_begin("PICT/TRACE_BGU_INIT_AL.TXT")
+
+;Command procedure settings:
+@c_logical_name1="BGU_AL"
+@c_filename1="/SA_LIB/BASE/BBONE/USE/BGU_AL.TXT"
+@c_logical_name2="BGU_ALARMINDS"
+@c_filename2="/SA_LIB/BASE/BBONE/USE/BGU_ALARMINDS.TXT"
+
+
+#loop_with i=1..2
+
+   ;Create command procedure:
+   @c_logical_name=%c_logical_name'i'
+   @c_filename=%c_filename'i'
+   @C_SEARCH = FETCH(0,"C","'c_logical_name'")
+
+   #IF C_SEARCH:VIU <> -1 #THEN #delete 'c_logical_name':C 
+
+   #CREATE 'c_logical_name':C = LIST(-
+                   IU = 1,-
+                   MO = 1,-
+                   CM = "",-
+                   IN = read_text("'c_filename'"))
+#loop_end
+
+;Create process objects
+#if length(apl:bsv) >= 15 #then #block
+   #if data_type(apl:bsv(15))=="LIST" #then #block
+      @APL_BSV15=APL:BSV15
+   #block_end
+#block_end
+#if data_type(%apl_bsv15)=="NONE" #then #block
+   @APL_BSV15= LIST(-
+       Process_Objects=LIST(-
+          OI=LIST(-
+             Title1=VECTOR("Substation"),-
+             Title2=VECTOR("Bay"),-
+             Title3=VECTOR("Device"),-
+             Title4=VECTOR(""),-
+             Title5=VECTOR(""),-
+             Length1=10,-
+             Length2=15,-
+             Length3=5,-
+             Length4=0,-
+             Length5=0,-
+             Field1=VECTOR("STA"),-
+             Field2=VECTOR("BAY"),-
+             Field3=VECTOR("DEV"),-
+             Field4=VECTOR(""),-
+             Field5=VECTOR("")),-
+          OX=LIST(-
+             Title1=VECTOR("Object text"),-
+             Length1=30)))
+#block_end
+
+@PROCESS_OBJECTS = APL_BSV15:VPROCESS_OBJECTS
+@OI_INFORMATION  = PROCESS_OBJECTS:VOI
+
+@OI_STARTS       = (1,-
+   1+OI_INFORMATION:VLENGTH1,-
+   1+OI_INFORMATION:VLENGTH1+OI_INFORMATION:VLENGTH2,-
+   1+OI_INFORMATION:VLENGTH1+OI_INFORMATION:VLENGTH2+OI_INFORMATION:VLENGTH3,-
+   1+OI_INFORMATION:VLENGTH1+OI_INFORMATION:VLENGTH2+OI_INFORMATION:VLENGTH3+OI_INFORMATION:VLENGTH4)
+
+@OI_LENGTHS      = (-
+   OI_INFORMATION:VLENGTH1,-
+   OI_INFORMATION:VLENGTH2,-
+   OI_INFORMATION:VLENGTH3,-
+   OI_INFORMATION:VLENGTH4,-
+   OI_INFORMATION:VLENGTH5)
+
+
+@scaleTest=fetch(0,"X","1_1")
+#if %scaleTest.IU==-1 #then #block
+   #create 1_1:X=list(SA=1,SC=VECTOR(0,1,0,1))
+#block_end
+
+@p_create_from_index=1
+@p_create_to_index=20
+@p_oi_part1=sys:bcx
+@p_oi_part2="Alarm groups"
+@p_cx_part="Monitor Pro toolbar alarm ind. "
+;@a_logical_name="B_ALARMINDS"
+@p_logical_name="B_ALARMINDS"
+#loop_with i =  'p_create_from_index' .. 'p_create_to_index'
+   @p_search = FETCH(0,"p","'p_logical_name'",%i)
+
+   #if p_search:vIU == -1 #then #block
+
+      #create 'p_logical_name':p'i' = list(-
+         oi = substr("'p_oi_part1'",1,%OI_LENGTHS(1)) + substr("'p_oi_part2'",1,%OI_LENGTHS(2)),-
+         pt = 9,-
+         cx = "'p_cx_part''i'",-
+         iu = 1,-
+         ss = 1,-
+         ee = 1,-
+         hi = 1,- ;Alarm when OV > hi
+         rc = 0,- ;Require acknowledgement
+         ac = 0,- ;Alarm class 
+         sn = "1_1")
+   #block_end
+#loop_end                  
+
+#if sys:bdm==1 #then @st=trace_end

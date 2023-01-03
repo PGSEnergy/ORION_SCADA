@@ -1,0 +1,21 @@
+; This is only an example how process object write can be authorized.
+; Example is using hard coded user authorization group and level.
+; Error handling is ignored.
+; You may use procedure BPU_USER_AUTHORIZED:C for user authorization
+
+;#local v_Args = vector(), i_required_Level = 2, t_Auth_Group = "MV_CONTROL", t_LN = "", i_IX = 0, t_attribute = ""
+;v_Args = argument(1)
+;#if length(v_Args) == 4 #then #block
+;   t_LN = v_Args(1)
+;   i_IX = v_Args(2)
+;   t_attribute = v_Args(3)
+;   #if t_LN <> "" and i_IX > 0 and t_attribute <> "" #then #block
+;      #if USM_Authorization_Level_For_Object(t_auth_group, t_LN, i_IX) >= i_required_Level #then #block
+;         #set 't_LN':P't_attribute''i_IX' = v_Args(4)
+;         #return TRUE;   
+;      #block_end
+;   #block_end
+;#block_end
+
+; By default and without project specific modifications this method will always fail
+#return FALSE

@@ -1,0 +1,77 @@
+;Function: BPU_UPDATE_PROCESS_DATA:C
+;Source file: sc/lib5/base/process/application_objects/bpu_update_process_data.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute),  search_result,
+;Return data: list(status = integer, err_description = text)
+;Description:
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data, t_LN, i_IX
+
+#local l_ois, l_query, t_OI, i, v_update_objects = vector, l_element = list(ln = "", ix = 0)
+#local v_Attributes = vector("SS", "UN", "HE", "PB", "OS"), tmp_ln, tmp_ix, i_count = 0
+#local t_Filter_Input = "IU == 1 AND SS > 0 AND (PT == 3 OR PT == 6 OR PT == 9 OR PT == 12 OR PT == 13 OR PT == 14)"
+
+#local l_result = list(status = 0, err_description = "")
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_UPDATE_PROCESS_DATA"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+         @REDIRECTED = true                                                                        
+         i_ArgCnt = argument_count                                                                 
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+         #loop_end                                                                                 
+         #return 't_Redirect_Command' ;;;;;                                                        
+      #block_end                                                                                   
+   #block_end                                                                                      
+   #else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+
+l_ois = do(bpu_trim_oi_for_query:c, l_object_info)
+#if l_object_info.type_info.object_level == "STA" #then t_OI = l_ois.station_name_trimmed
+#else_if l_object_info.type_info.object_level == "BAY" #then t_OI = l_ois.bay_name_trimmed
+#else_if l_object_info.type_info.object_level == "DEV" #then t_OI = l_ois.device_name_trimmed
+#else_if substr('t_LN':prx10,23,8) == "AGRPILRS" #then #block
+   #if l_object_info.special_identifier_1 <> "" #then t_OI = l_ois.special_identifier_1_trimmed
+   #if l_object_info.special_identifier_2 <> "" #then t_OI = l_ois.special_identifier_2_trimmed
+   #if l_object_info.special_identifier_3 <> "" #then t_OI = l_ois.special_identifier_3_trimmed
+#block_end
+
+l_query = application_object_list(0, "IX",  "OI", "", "'t_OI'*", t_Filter_Input,  v_Attributes)
+
+#loop_with i = 1 .. l_query.COUNT
+   
+   ;if connected to process
+   #if (l_query.ss(i) == 2 or l_query.ss(i) == 3) and l_query.un(i) <> 0 #then #block
+      i_count = i_count + 1
+      v_update_objects = insert_element(v_update_objects, i_count, list(ln = l_query.ln(i), ix = l_query.ix(i)))
+   #block_end
+   ;simulated process
+   #else_if l_query.os(i) == 2 #then #block
+      tmp_ln = l_query.ln(i)
+      tmp_ix = l_query.ix(i)
+      #if l_query.he(i) <> 0 #then #set 'tmp_ln':phe'tmp_ix' = 0
+      #if l_query.pb(i) <> 1 #then #set 'tmp_ln':ppb'tmp_ix' = 1
+      #set 'tmp_ln':pov'tmp_ix' = 'tmp_ln':pov'tmp_ix'
+      #if l_query.pb(i) <> 1 #then #set 'tmp_ln':ppb'tmp_ix' = l_query.pb(i)
+      #if l_query.he(i) <> 0 #then #set 'tmp_ln':phe'tmp_ix' = l_query.he(i)
+   #block_end
+
+#loop_end
+
+#exec bpu_update:c (@update_objects = v_update_objects)
+
+#return l_result

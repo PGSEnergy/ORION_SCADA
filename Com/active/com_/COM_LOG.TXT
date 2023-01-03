@@ -1,0 +1,55 @@
+﻿; This command procedure is used for logging data handling
+; in a COM500 application
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @INFO, text description to be logged
+;---------------------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+@LOG_TEXT = VECTOR(0)
+@LOG_LINES = COM_GENVAR:PIZ(5)
+
+; 11 log files with 1000 log lines can be generated (com_log'i'.log + com_log.log)
+#IF %LOG_LINES == 1000 #THEN #BLOCK
+   @LOG_VECTOR = VECTOR(0)
+   #LOOP_WITH I=1..1000
+      @FREE_TYPE_INDEX = TRUNC((%I-1)/100)+1
+      @FREE_TYPE_OBJECT_INDEX = (%I) - 100*(%FREE_TYPE_INDEX-1)
+      @LOG_VECTOR(%I)=COM_LOG'FREE_TYPE_INDEX':PLZ'FREE_TYPE_OBJECT_INDEX'
+      #SET COM_LOG'FREE_TYPE_INDEX':PLZ'FREE_TYPE_OBJECT_INDEX'=""
+   #LOOP_END
+
+   @LOG_FILE_TAG = FM_SCIL_FILE("COM_PATH/COM_LOG.TMP")
+
+   @WRITE = WRITE_TEXT("COM_PATH/COM_LOG.TMP",%LOG_VECTOR)
+   #IF FILE_MANAGER("EXISTS",%LOG_FILE_TAG) #THEN #BLOCK
+      #LOOP_WITH LOG_INDEX=1..10
+         @LOG_FILE_TAG_NEXT  = FM_SCIL_FILE("COM_PATH/COM_LOG'LOG_INDEX'.LOG")
+         #IF NOT FILE_MANAGER("EXISTS",%LOG_FILE_TAG_NEXT) #THEN #LOOP_EXIT
+      #LOOP_END
+      ;if all files exists already, write newest data to file com_log10 and com_log
+      #IF %LOG_INDEX==10 #THEN #BLOCK
+         @LOG_FILE_TAG = FM_SCIL_FILE("COM_PATH/COM_LOG10.LOG")
+         @DELETE=FILE_MANAGER("DELETE",%LOG_FILE_TAG)
+      #BLOCK_END   
+      @LOG_FILE_TAG = FM_SCIL_FILE("COM_PATH/COM_LOG.TMP")
+      @RENAME=FILE_MANAGER("RENAME",%LOG_FILE_TAG,"COM_LOG'LOG_INDEX'.LOG")
+   #BLOCK_END
+   @LOG_LINES = 0
+#BLOCK_END
+
+; write log text to free type object com_log(1..10):plz(1..100)
+@S=STATUS
+@LOG_LINE=%LOG_LINES+1
+@LOG_TEXT(1)="'LOG_LINE','INFO'"
+@FREE_TYPE_INDEX = TRUNC(%LOG_LINES/100)+1
+@FREE_TYPE_OBJECT_INDEX = %LOG_LINE - 100*(%FREE_TYPE_INDEX-1)
+#SET COM_LOG'FREE_TYPE_INDEX':PLZ'FREE_TYPE_OBJECT_INDEX' = %LOG_TEXT(1)
+
+; increment line counter (1..1000)
+@S=STATUS
+#IF %S == 0 #THEN #SET COM_GENVAR:PIZ(5) = %LOG_LINES + 1

@@ -1,0 +1,31 @@
+;************************************ ATTRIB_G.TXT ********************************************
+;************************************ SR 14.5.1997 ********************************************
+
+;Defines the limit properties of Process Object Group attributes (excluding read-only).
+
+
+#CREATE ATTRIB_GGC:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_GLF:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 10)
+
+#CREATE ATTRIB_GGT:V = LIST(DATA_TYPE = "INTEGER",-
+         DEFAULT_VALUE = 0,-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 255)
+         
+#CREATE ATTRIB_GCD:V = LIST(DATA_TYPE = "LIST",-
+         DEFAULT_VALUE = list())
+
+#CREATE ATTRIB_GPV:V = LIST(DATA_TYPE = "VECTOR",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 10,-
+         EDATA_TYPE = "TEXT",-
+         EMIN_LENGTH = 0,-
+         EMAX_LENGTH = 255)
+

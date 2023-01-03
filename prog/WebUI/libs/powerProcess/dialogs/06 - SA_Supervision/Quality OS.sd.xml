@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="SAVersionInfo" content="1" />
+    <d:meta name="dv-custom-attribute|SATopologyModel" content="Strict" />
+    <d:meta name="dv-custom-attribute|SAVersionInfo" content="1" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="OS Quality" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="Quality" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="status" default="0" />
+    <d:mapping name="f1390" parameters="value">
+      <d:step value="true" when="value &lt;= 2.500" />
+      <d:step value="false" when="value &lt;= 3.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f1391" parameters="value">
+      <d:step value="true" when="value &lt;= 2.500" />
+      <d:step value="false" when="value &lt;= 3.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+  </d:head>
+  <d:body x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <s:image x="-5" y="-5" height="10" width="10" y:image-rendering="pixelated" xlink:href="/resources/06 - SA_Supervision/help_magenta_128.gif" d:object-name="Uncertain" />
+    <s:image x="-5" y="-5" height="10" width="10" y:image-rendering="pixelated" xlink:href="/resources/06 - SA_Supervision/ok_128.gif" d:object-name="OK" />
+    <d:view name="06 - SA_Supervision/Comm Line Horizontal.sd" s:transform="translate(0,-1.500) scale(0.200,0.450)" d:hidden="f1390(`status`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" d:object-name="Faulty Time T, horizontal">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:meta name="dv-variable-mapping|Status" content="0.0" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node1" />
+    </d:view>
+    <d:view name="06 - SA_Supervision/Comm Line Vertical.sd" s:transform="translate(0,0.600) scale(0.450,0.180)" d:hidden="f1391(`status`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" d:object-name="Faulty Time T, vertical">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:meta name="dv-variable-mapping|Status" content="0.0" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node2" />
+    </d:view>
+  </d:body>
+</d:document>

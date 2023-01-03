@@ -1,0 +1,81 @@
+;CM =Interface for Monitor Pro Reports, common function, calculate the used data range based on start time, end time and report type
+; Function:    SAGR_REPORTS_CALCDATARANGE:C
+; Version:     3.0 (build 2.3.2012)
+; Parameters:  T1,T2,Report_Type,BOD,Quick_Report
+; Return data: T1,T2,Data_Length,Max_Count, Time_Interval
+; Description: calculate the used data range based on start time, end time and report type
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#local i_LastSampleTime = 0, i_T2SecAbs = 0, i_NextMonthDay = 1
+
+#if data_type(%BMU_base)=="NONE" #then -
+   #CREATE BMU_BASE:V = LIST(DAYS = (31,28,31,30,31,30,31,31,30,31,30,31))
+                                                                                #if %b_enable_debugging #then @cot = console_output(times+ " " + "CDR1: T1 = 'T1', T2 = 'T2'")
+#case %REPORT_TYPE
+   #when "HOUR" #block
+      #IF %QUICK_REPORT #THEN @TIME_INTERVAL = %ArgumentList.TIME_INTERVAL
+      #ELSE #IF ATTRIBUTE_EXISTS(%l_DisplayConf,"TIME_INTERVAL") #THEN @TIME_INTERVAL=%l_DisplayConf.TIME_INTERVAL
+      #ELSE @TIME_INTERVAL = 3*60 ; 3 minutes
+      @MAX_COUNT = ROUND(3600/%TIME_INTERVAL)
+      @T1=PACK_TIME(YEAR(%T1),MONTH(%T1),DAY(%T1),HOUR(%T1), MINUTE(%T1) - (MINUTE(%T1) MOD 3),0)
+
+      #if (%T1 + 1*60*60 + %SP_Delay) > clock #then -
+         #if second(%T2) == 0 and second(clock)<> 0 #then @T2=pack_time(year(%t2),month(%t2),day(%t2),hour(%t2),minute(%t2),second(clock))
+      i_lastSampleTime = ((minute(clock)*60) div %TIME_INTERVAL)*%TIME_INTERVAL   ; in seconds
+      i_T2SecAbs       =   minute(%t2)*60+second(%t2)
+      #if (i_T2SecAbs > i_lastSampleTime) and (i_T2SecAbs < (i_lastSampleTime+%SP_Delay)) #then @T2 = %T2 - %TIME_INTERVAL  ;upper time request in exec.delay period
+
+      @DATA_LENGTH = (%T2-%T1) DIV %TIME_INTERVAL
+   #block_end
+   #when "DAY_10","DAY_15","DAY_30","DAY_60" #block  ;ID 16109 HoDa DAY_10 added
+      @TIME_INTERVAL = dec_scan(substr(%REPORT_TYPE,5,2))*60        ;10,15,30,60 minutes * 60 seconds
+      @MAX_COUNT = 24*(60 div dec_scan(substr(%REPORT_TYPE,5,2)))   ;4,2,1
+      @T1=%BOD*3600 + PACK_TIME(YEAR(%T1),MONTH(%T1),DAY(%T1),HOUR(%T1), MINUTE(%T1) - (MINUTE(%T1) MOD 15),0)
+      #if (doy(%t1)<>doy(clock)) OR (year(%t1)<>year(clock)) #then @T2=%T2+%BOD*3600
+      #if %T2 > clock #then @T2 = clock
+
+      #if (%T1 + 24*60*60 + %BP_Delay) > clock #then -
+         #if second(%T2) == 0 and second(clock)<> 0 #then @T2=pack_time(year(%t2),month(%t2),day(%t2),hour(%t2),minute(%t2),second(clock))
+      i_lastSampleTime = ((minute(clock)*60) div %TIME_INTERVAL)*%TIME_INTERVAL   ; in seconds
+      i_T2SecAbs       =   minute(%t2)*60+second(%t2)
+      #if (i_T2SecAbs > i_lastSampleTime) and (i_T2SecAbs < (i_lastSampleTime+%BP_Delay)) #then @T2 = %T2 - %TIME_INTERVAL  ;upper time request in exec.delay period
+
+      @DATA_LENGTH = (%T2-%T1) DIV %TIME_INTERVAL
+   #block_end
+   #when "WEEK" #block
+      @TIME_INTERVAL = 86400 ; 24 hours
+      @MAX_COUNT = 7
+      @T1=PACK_TIME(YEAR(%T1),MONTH(%T1),DAY(%T1),0,0,0)+%BOD*3600
+      @T2=%T2 + %BOD*3600
+      #if %T2 > clock #then @T2 = clock
+      @DATA_LENGTH = (%T2-%T1) DIV %TIME_INTERVAL
+   #block_end
+   #when "MONTH" #block
+      i_NextMonthDay=pack_time(year(%T1),month(%T1),1,0,0,0)+32*24*60*60 
+      @MAX_COUNT=day(pack_time(year(i_NextMonthDay),month(i_NextMonthDay),1,0,0,0)-1)
+      @TIME_INTERVAL=86400 ; 24 hours
+      @T1=PACK_TIME(YEAR(%T1),MONTH(%T1),DAY(%T1),0,0,0)+%BOD*3600
+      #if (month(%t1)<>month(clock)) OR (year(%t1)<>year(clock)) #then @T2=%T2+%BOD*3600
+      @DATA_LENGTH = (%T2-%T1) DIV %TIME_INTERVAL
+   #block_end
+   #when "YEAR" #block
+      @MAX_COUNT = 12
+      @TIME_INTERVAL = 0
+      #loop_with monthNumber=1..12
+         i_NextMonthDay=pack_time(year(%T1),%monthNumber,1,0,0,0)+32*24*60*60 
+         @BMU_BASE.DAYS(%monthNumber)=day(pack_time(year(i_NextMonthDay),month(i_NextMonthDay),1,0,0,0)-1)
+      #loop_end
+      @T1=PACK_TIME(YEAR(%T1),MONTH(%T1),1,0,0,0)
+      #if year == year(%T1) #then @DATA_LENGTH = month(%T2)
+      #else @DATA_LENGTH = 12
+   #block_end
+#case_end
+
+                                                                                 #if %b_enable_debugging #then #block
+                                                                                    @debug = "CDR: Time interval = 'TIME_INTERVAL',Max count = 'MAX_COUNT', Data length = 'DATA_LENGTH'"
+                                                                                    @cot = console_output(times+ " " + "'debug'")
+                                                                                    @cot = console_output(times+ " " + "CDR2: T1 = 'T1', T2 = 'T2'")
+                                                                                    @cot = console_output(" ")
+                                                                                 #block_end

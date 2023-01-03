@@ -1,0 +1,72 @@
+;Function: BPU_EXECUTE:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_execute.scl
+;Version: 1.0
+;Parameters: t_execute_ln, t_execute_ix, i_execute_value, t_Sta_type, i_cmd_param
+;Return data:
+;Description: Makes execute command
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument t_execute_ln, i_execute_ix, i_execute_value, t_sta_type, t_control_type, i_cmd_param
+#local i_res = 0, i_inf = 0
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_EXECUTE"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+         @REDIRECTED = true                                                                        
+         i_ArgCnt = argument_count                                                                 
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+         #loop_end                                                                                 
+         #return 't_Redirect_Command' ;;;;;                                                        
+      #block_end                                                                                   
+   #block_end                                                                                      
+   #else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+
+i_res = status
+#error ignore
+#case t_control_type
+   #when "SEC-5BO", "SEC-5AO", "SEC-4BO", "SEC-2BO" #block
+      #case t_sta_type
+         #when "IEC101", "ICCP" #set 't_execute_ln':p'i_execute_ix' = list(OV=1, CT=6, TY=i_cmd_param, OG=SYS:BSA)
+         #when "IEC103" #set 't_execute_ln':p'i_execute_ix' = list(OV=1, CT=20, OG=SYS:BSA)
+         #when "DNP_30" #set 't_execute_ln':p'i_execute_ix' = list(OV=i_execute_value, TY=5, QL=2)
+         #otherwise #set 't_execute_ln':pov'i_execute_ix' = i_execute_value
+      #case_end
+   #block_end
+   #when "SEC-BO" #block
+      #case t_sta_type
+         #when "IEC101", "ICCP" #set 't_execute_ln':pov'i_execute_ix' = list(OV=i_execute_value, CT=6, TY=i_cmd_param, OG=SYS:BSA)
+         #when "IEC103" #set 't_execute_ln':pov'i_execute_ix' = list(OV=i_execute_value, CT=20,  OG=SYS:BSA)
+         #when "DNP_30" #set 't_execute_ln':pov'i_execute_ix' = list(OV=i_execute_value, TY=i_cmd_param, QL=2)
+         #when "LON"  #set 't_execute_ln':pov'i_execute_ix' = list(OV=i_execute_value, CT=6, OG=SYS:BSA, TY=i_cmd_param, QL=1)
+         #otherwise #set 't_execute_ln':pov'i_execute_ix' = i_execute_value
+      #case_end
+   #block_end
+   #otherwise #block
+      #case t_sta_type
+         #when "IEC101", "ICCP" #set 't_execute_ln':pov'i_execute_ix' = list(OV=i_execute_value, CT=6, TY=i_cmd_param, OG=SYS:BSA)
+         #when "IEC103" #block
+            i_inf = ('t_execute_ln':poa'i_execute_ix' mod 65536) div 256
+            #set 't_execute_ln':p'i_execute_ix'=list(OV=i_execute_value, CT=20, TY=256*20+i_inf)
+         #block_end
+         #when "DNP_30" #set 't_execute_ln':pov'i_execute_ix' = list(OV=i_execute_value, TY=i_cmd_param, QL=2)
+         #otherwise #set 't_execute_ln':pov'i_execute_ix' = i_execute_value
+      #case_end
+   #block_end
+#case_end
+i_res = status
+
+#return i_res

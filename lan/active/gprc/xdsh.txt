@@ -1,0 +1,24 @@
+DRAW_SEPARATOR_HOR
+
+.PEND ON
+.PUSH
+#DO SYS_GPRC:VCALC_SHADOW
+@CC = (9,8)
+@PARENT_GC = GC("P",20)
+#IF DATA_TYPE(PARENT_GC:VFG)=="VECTOR" #THEN #BLOCK
+   @FG = PARENT_GC:VFG
+   #IF DATA_TYPE(%FG(1)) == "TEXT" #THEN #BLOCK
+      #IF %FG(1) <> "M" OR %FG(2) <> 1 #THEN @CC = (13,12)
+   #BLOCK_END
+   #ELSE #BLOCK
+      @TMPSC = COLOR(("M",1))
+      #IF %TMPSC(1) <> %FG(1) OR %TMPSC(2) <> %FG(2) -
+                              OR %TMPSC(3) <> %FG(3) #THEN @CC = (13,12)
+   #BLOCK_END
+#BLOCK_END
+.GC : FU = "COPY", FG = ("M",%CC(1)) ,LS="SOLID", LW=%ST
+.POLYLINE (%X,%X-%ST,%X+%W+%ST,%X+%W),(%Y,%Y+%ST,%Y+%ST,%Y),FILL
+.GC : FG = ("M",%CC(2))
+.POLYLINE (%X-%ST,%X,%X+%W,%X+%W+%ST),(%Y+%ST,%Y+%ST+%ST,%Y+%ST+%ST,%Y+%ST),FILL
+.POP
+.PEND OFF

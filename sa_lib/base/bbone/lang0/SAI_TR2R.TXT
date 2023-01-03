@@ -1,0 +1,34 @@
+#CREATE FPI_SPOC:V=LIST(-
+     VOLTAGE          = "Voltage",-
+     TAP_POS          = "Tap position",-
+     AUTO_IND         = "Tap ch. auto indication",-
+     MAN_IND          = "Tap ch. manual indication",-
+     AUTO_MAN         = "Tap ch. manual / auto ind.",-
+     MAN_CMD          = "Tap ch. manual / auto cmd.",-
+     AUTO_CMD         = "Tap ch. auto cmd.",-
+     RAISE            = "Tap ch. raise / lower cmd.",-
+     LOWER            = "Tap ch. raise / lower cmd.",-
+     EXT_BLOCK        = "Tap ch. ext. blocking",-
+     COMMENT          = "Updates DB from AI, SPACOM",-
+     PARALLEL_IND     = "single / parallel ind.",-
+     MASTER_SLAVE_IND = "Master / slave ind.",-
+     MASTER_IND       = "Master indication",-
+     SLAVE_IND        = "Follower indication",-
+     MASTER_CMD       = "Master command",-
+     SLAVE_CMD        = "Follower command",-
+     TC_STEP          = "Tap changer operation counter",-
+     SELECTED         = "Selected on another monitor",-
+     PRIMARY_VOLTAGE_LEVEL    = "Primary Voltage Level",-
+     SECONDARY_VOLTAGE_LEVEL  = "Secondary Voltage Level",-
+     TERTIARY_VOLTAGE_LEVEL   = "Tertiary Voltage Level",-
+     QUATERNARY_VOLTAGE_LEVEL = "Quaternary Voltage Level",-
+	  LR_SWITCH_IND       = "Local/Remote-switch",-
+	  OP_SWITCH_IND       = "Operator place-switch",-
+	  OP_SWITCH_CMD       = "Operator place-switch command",-
+     COMMENT2         = "Updates DB from IN, PROCOL")
+	
+;Object texts for creating database for topology objects
+#CREATE CPI_HVT2:V = LIST(-
+     TOPO_OBJECT_TEXT        = "Transformer predefined color",-
+     TOPO_SWITCH1_IX_TEXT    = "Transformer fict. pos. ind.",-
+     TOPO_SWITCH2_IX_TEXT    = "Transformer routing prim. info.")

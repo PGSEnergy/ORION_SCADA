@@ -1,0 +1,58 @@
+; File: Sys_msglog.scl(t_Error_Type, t_Error_Contents, [i_Status_Code])
+; Parameters: t_Error_Type, type of error displayed, e.g. INFO [SCT] or INFO [SSS]
+;             t_Error_Contents, error text to be displayed
+;             [i_Status_Code], the received status code from the MicroSCADA system
+; Description: Logs system configuration messages to the log and into notification window.
+; ----------------------------------------------------------------------------------------
+
+@t_Error_Type = argument(1)
+@t_Error_Contents = argument(2)
+@t_Check = data_type(argument(3))
+@v_Console_Text = vector()
+@v_Msglog_Text = vector()
+
+#if %t_Check == "INTEGER" #then @i_Status = argument(3)
+#else @i_Status = 0
+
+@l_File_Attr = file_manager("GET_ATTRIBUTES", fm_scil_file("sys_/sys_msglog.txt"))
+#if l_File_Attr:vSTATUS == 0 #then #if l_File_Attr:vSIZE_KB >= 200 #then #block
+
+   @l_File_Rename = file_manager("COPY", fm_scil_file("sys_/sys_msglog.txt"), fm_scil_file("sys_/SYS_MSGLOG.OLD"), "OVERWRITE")
+   @i_Write_Log_Status = write_text("sys_/sys_msglog.txt", vector())
+
+#block_end
+
+@v_Console_Text(1) = %t_Error_Type + " " + %t_Error_Contents
+@v_Msglog_Text(1) = times + " " + %t_Error_Type + " " + %t_Error_Contents
+
+@Tag = scil_host
+@Tag = %Tag.name
+
+#if substr(%t_Error_Type,1,4) == "INFO" #then #block
+   @Severity = "I"
+#block_end
+#else_if %t_Error_Type == "WARNING" #then #block
+   @Severity = "W"
+#block_end
+#else_if %t_Error_Type == "ERROR" #then #block
+   @Severity = "E"
+#block_end
+#else #block
+   @Severity = "E"
+#block_end
+
+#If %i_Status <> 0 #then #block
+
+   @t_Error_Text = do (read_text("sys_tool/GetErrStr.scl"), %i_Status)
+   @v_Console_Text(2) = "   Status:" + dec(%i_Status, 0) + " " + %t_Error_Text
+   @v_Msglog_Text(2)  = "   Status:" + dec(%i_Status, 0) + " " + %t_Error_Text
+
+#block_end
+
+#loop_with i = 1 .. length(%v_Console_Text)
+
+   @i_Console_Status = console_output(%v_Console_Text(%i),"'Severity'","'Tag'")
+
+#loop_end
+
+@i_Write_Log_Status = write_text("sys_/sys_msglog.txt", %v_Msglog_Text, 1)

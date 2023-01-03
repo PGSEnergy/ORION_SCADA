@@ -1,0 +1,352 @@
+; File: init_package.scl 
+; Desc: Sequencer interface for InitTool.vso
+; Version: 1.1         ; THIS STRING IS CREATED AUTOMATICALLY. PLEASE DO NOT EDIT IT MANUALLY
+;----------------------------------------------------------------------------------------------------------------
+#argument t_selector
+;----------------------------------------------------------------------------------------------------------------
+#local InstallPath    = UPPER_CASE(FM_REPRESENT(DRIVE_MANAGER("GET_DEFAULT"))+":\sc\lib5\emod\Sequencer\inst\")
+#local LangPath       = UPPER_CASE(FM_REPRESENT(DRIVE_MANAGER("GET_DEFAULT"))+":\sc\lib5\emod\sequencer\LANG_TEXTS\")
+#local NULL_VERSION   = "0.0"
+#local l_result       = list(-
+    version_procedure= "EPU_SEQ_GET_VERSION",-
+    base_path       = "/LIB5/EMOD/SEQUENCER",-
+    name          = "Sequencer",-
+    identifier    = "ESU",-
+    depends       = vector("BGU"),-
+    uninstall     = true,-
+    update        = false,-
+    prepared      = false,-
+    version       = list(-
+                   major = 1,-    ; THIS STRING IS CREATED AUTOMATICALLY. PLEASE DO NOT EDIT IT MANUALLY
+                   minor = 2),-    ; THIS STRING IS CREATED AUTOMATICALLY. PLEASE DO NOT EDIT IT MANUALLY
+    status_info   = "",-
+    status        = 0,-
+    Dialogs       = "",-
+    Configuration = "",-
+    Texts         = "/LIB5/EMOD/SEQUENCER/LANG_TEXTS/ES_TEXTS.SDB",-
+    Priority      = 0)
+#local t_AplName  = APL:BNA
+;----------------------------------------------------------------------------------------------------------------
+#local vAttrSort = vector, vTypeSort=vector, vLNSort=vector, vIXSort=vector, vType=vector, vLN=vector, vIX=vector
+#local vFiles, vAttr, vRec, vObj, v_errors=vector, vInst=vector, vDisk=vector
+#local lDB, lSection, lGet, cls, lRes, lRet, lRead, lInit, lObj, lDel
+#local iCur, mj, mn, CurSec, FileName, InstalledVersion, iCreate, jCur
+#local CurAttr, Type, LN, IX, inx, max_id_apl, cur_id_apl, ID_APL_USE, CurObj, CurLN, CurType, CurIX, CurFile
+#local l_info, st, es, res, t_action, l_license
+#local bUpdateFail, i, tmp, str, lCP
+;----------------------------------------------------------------------------------------------------------------
+    #if length(path("B5_BBONE")) == 0 #then #path B5_BBONE +NO_CREATE, /LIB5/BASE/BBONE/USE
+    #if length(path("APL_PAR"))  == 0 #then #block
+      #if not directory_manager("EXISTS", fm_scil_directory("/apl/'t_AplName'/par/apl")) #then -
+         res= directory_manager("CREATE", fm_scil_directory("/apl/'t_AplName'/par/apl"), "RECURSIVE")
+      #path APL_PAR  +NO_CREATE, /apl/'t_AplName'/PAR/APL
+    #block_end
+    ; 1. Checking the license restrictions
+    l_license = LICENSE_MANAGER("GET", "MAIN_LICENSE")
+    #if l_license.STATUS <> 0  #then -
+       #return LIST(status = l_license.STATUS, status_info = ascii(10)+translation("Cannot get license info. Error code=['l_license.STATUS']"))
+    #if not attribute_exists(l_license, "SEQUENCER")  #then -
+       #return merge_attributes(l_result, LIST(status = status_code("SCIL_UNKOWN_FUNCTION"), status_info = ascii(10)+translation("Not allowed by license.")))
+    #if l_license.SEQUENCER <> "1" #then -
+       #return merge_attributes(l_result, LIST(status = status_code("SCIL_UNKOWN_FUNCTION"), status_info = ascii(10)+translation("Not allowed by license.")))
+
+#case t_selector
+    #when "UNINSTALL" #block
+    ; Uninstall code
+    ; 1. Delete CPs, TCs, ECs, POs
+      vObj =    vector("A EPU_SEQ*",-
+                      "C EPU_SEQ*",-
+                      "T EPU_SEQ*",-
+                      "IX EPU_SEQ*",-                                                
+                      "P EPU_SEQ*",-      
+                      "H EPU_SEQ*")
+   
+   #loop_with iCur = 1..length(vObj)         
+      CurObj = vObj(iCur)
+      vRec    = separate(CurObj," ")
+      CurLN   = vRec(2) 
+
+       #if vRec(1)=="IX" #then CurType = "P"
+       #else CurType = vRec(1)
+           
+      lObj    = application_object_list(0, vRec(1), "", "", "", "LN==""'CurLN'"" ")
+      #loop_with jCur = 1..length(lObj.LN)
+         CurLN = lObj.LN(jCur) 
+      
+         #if vRec(1)=="IX" #then CurIX = lObj.IX(jCur) 
+         #else CurIX = ""
+                
+         st=status
+         #error ignore
+         #delete 'CurLN':'CurType''CurIX'
+         st=status
+         #if st<>0 #then #return list(status = status_code("SCIL_UNKOWN_FUNCTION"),-
+                                      Err_Description = ascii(10)+translation("Can not perform")+-
+                                      " [#delete 'CurLN':'CurType''CurIX']"+ascii(10)+translation("Error code = ")+" ['st'] ["+status_code_name(st)+"]"  )
+      #loop_end
+   #loop_end   
+
+   #if application_object_exists(0,"C","LIB5INIT_1") #then #block 
+      str=SELECT(LIB5INIT_1:cin, "== ""*#exec epu_seq_main_mng_clear_queue:c*""", "WILDCARDS")
+      #if length(str)<>0 #then #block
+         tmp=LIB5INIT_1:cin
+         tmp=delete_element(tmp,str)
+         #MODIFY LIB5INIT_1:c = LIST(IN = tmp)
+      #block_end
+   #block_end
+         
+   #if application_object_exists(0,"C","LIB5INIT_H") #then #block 
+      str=SELECT(LIB5INIT_H:cin, "== ""*#exec epu_seq_main_continue_executing:c*""", "WILDCARDS")
+      #if length(str)<>0 #then #block
+            tmp=LIB5INIT_H:cin
+            tmp=delete_element(tmp,str)
+            #MODIFY LIB5INIT_H:C = LIST(IN = tmp)
+      #block_end
+   #block_end
+   
+   #return list(status = 0, Err_Description = ascii(10)+translation("Uninstalled succesfully"))
+   #block_end
+   #when "GET_INFO" #block
+      ; 2. PREPARED. Is sequencer already installed in MicroSCADA? 
+      ;    [ ] Must be command procedure EPU_SEQ_get_version:c
+      ;    [ ] Must be language file LangPath+"ES_TEXTS.SDB" 
+      #if not application_object_exists(0,"C","EPU_SEQ_GET_VERSION") #then -
+         InstalledVersion = NULL_VERSION
+      #else #block
+    InstalledVersion = do(EPU_SEQ_get_version:c)
+         ;sequencer installed but text database not merged -> merge, this is the case in HSB systems where preparation has been done on one system only
+         #if not FILE_MANAGER("EXISTS",fm_file(LangPath +"ES_TEXTS.SDB")) #then -
+            res = do(read_text("B5_BBONE/BGU_MERGE_TEXT_DBS.scl"), l_result.base_path + "/LANG_TEXTS/ES_TEXTS.SDB", vector(l_result.base_path + "/LANG_TEXTS/ES_TEXTS$SDB"))
+
+         l_result.prepared = true                                               ; Sequencer is installed
+      #block_end
+      
+      vDisk             = vector(l_result.version.major, l_result.version.minor)
+      vInst             = separate(InstalledVersion,".")
+      vInst(1)          = dec_scan(vInst(1))
+      vInst(2)          = dec_scan(vInst(2))
+      l_result.version  = list(major = vInst(1), minor = vInst(2))
+      
+      ; 3. NEED UPDATE. Is sequencer may be update?    
+      ;    [ ] Must have install package
+      ;    [ ] Install package must be newer than installed version
+      ;    [ ] Sequencer must be already installed 
+      ;    Have you new version of Sequencer for update?
+      #if not directory_manager("exists", fm_directory(InstallPath)) #then #block
+         l_result.update   =false   ;   No Install path. No need update
+         #return l_result
+      #block_end
+   
+      ; check sdb package of application objects to install
+      vFiles=fm_represent(file_manager("list", fm_directory(InstallPath),"ESI_APPLICATION_OBJECTS.SDB"))
+      #if length(vFiles)==0 #then #block
+         l_result.update=false   ;   No package. No need update
+         #return l_result
+      #block_end
+      
+      #if vInst(1)>vDisk(1) or (vInst(1)==vDisk(1) and vInst(2)>=vDisk(2) ) #then #block
+         l_result.update=false   ;   No need update
+         #return l_result
+      #block_end
+
+      #if InstalledVersion==NULL_VERSION #then #block
+         l_result.update=false   ;   No need update must will prepared
+         #return l_result
+      #block_end
+   
+      ;User can update from InitTool
+      l_result.update=true  
+      #return  l_result
+    #block_end
+    #when "PREPARE_APPLICATION", "UPDATE_APPLICATION" #block      
+      
+      ;   0. Create 1_1 scale
+      #if not application_object_exists(0, "X", "1_1") #then #create 1_1:X = LIST(SA = 0)
+         
+      ;   1. Create application objects from intall package file
+      #if not directory_manager("exists", fm_directory(InstallPath)) #then #block
+         iCreate=directory_manager("create", fm_directory(InstallPath ), "RECURSIVE")
+         #if iCreate<>0 #then #return list(status = iCreate, err_description = ascii(10)+translation("ES_INX_003")+" Folder: "+InstallPath    +" Error code: 'iCreate'")
+      #block_end
+
+      vFiles=fm_represent(file_manager("list", fm_directory(InstallPath),"ESI_APPLICATION_OBJECTS.SDB"))
+      vFiles = pick(vFiles, sort(vFiles))
+      #if length(vFiles)==0 #then #return list(status = 1057, err_description = ascii(10)+translation("ES_BAK_011"))
+        
+      FileName=InstallPath+vFiles(length(vFiles))        
+      lDB = data_manager("OPEN", FM_FILE(FileName))
+      #if lDB.status<>0 #then #return list(status = lDB.status, err_description = ascii(10)+translation("ES_BAK_011")+" FileName='FileName' Error code='lDB.status'")
+
+      lSection = data_manager("LIST_SECTIONS", lDB.Handle)   
+      #if lSection.status <> 0 #then #block
+         cls=data_manager("CLOSE", lDB.Handle)
+         #return list(status = lSection.status, err_description = ascii(10)+translation("ES_BAK_011")+" FileName='FileName' Error code='lSection.status'")
+      #block_end
+
+      lRes = list
+      #loop_with iCur = 1..length(lSection.sections)
+         CurSec = lSection.sections(iCur)
+        
+         lGet = data_manager("GET", lDB.Handle, CurSec)
+         #if lGet.status<>0 #then #block
+            cls=data_manager("CLOSE", lDB.Handle)
+            #return list(status = lGet.status, err_description = ascii(10)+translation("ES_BAK_011")+" FileName='FileName' Section='CurSec' Error code='lGet.status'")                                                            
+         #block_end
+         
+         vRec = separate(CurSec, " ")
+         #if length(vRec)==1 #then #block
+            lRes  = merge_attributes(lRes, list('CurSec'=lGet.Value )) 
+            vType = append(vType,   vector("") )
+            vLN   = append(vLN,     vector("") )
+            vIX   = append(vIX,     vector("") )
+         #block_end               
+         #else #block
+            CurSec = replace(CurSec, " ", "_") 
+            lRes   = merge_attributes(lRes, list('CurSec'=lGet.Value )) 
+            vType  = append(vType,   vector(vRec(1)) )
+            vLN    = append(vLN,     vector(vRec(2)) )
+              
+            #if length(vRec)>2 #then vIX    = append(vIX,     vector(vRec(3)) )
+            #else                    vIX    = append(vIX,     vector("") )
+         #block_end         
+      #loop_end
+          
+      cls=data_manager("CLOSE", lDB.Handle)
+        
+      lRead=list(DATA=lRes, vType = vType, vIX = vIX, vLN=vLN)
+
+      vAttr=list_attr(lRead.Data)
+        
+      vAttrSort = append(vAttrSort,  pick(vAttr       , select(vAttr, "==""H*"" ",  "WILDCARDS") ) )
+      vTypeSort = append(vTypeSort,  pick(lRead.vType , select(vAttr, "==""H*"" ",  "WILDCARDS") ) )
+      vLNSort   = append(vLNSort,    pick(lRead.vLN   , select(vAttr, "==""H*"" ",  "WILDCARDS") ) )
+      vIXSort   = append(vIXSort,    pick(lRead.vIX   , select(vAttr, "==""H*"" ",  "WILDCARDS") ) )
+        
+      vAttrSort = append(vAttrSort,  pick(vAttr       , select(vAttr, "==""T*"" ",  "WILDCARDS") ) )
+      vTypeSort = append(vTypeSort,  pick(lRead.vType , select(vAttr, "==""T*"" ",  "WILDCARDS") ) )
+      vLNSort   = append(vLNSort,    pick(lRead.vLN   , select(vAttr, "==""T*"" ",  "WILDCARDS") ) )
+      vIXSort   = append(vIXSort,    pick(lRead.vIX   , select(vAttr, "==""T*"" ",  "WILDCARDS") ) )
+        
+      vAttrSort = append(vAttrSort,  pick(vAttr       , select(vAttr, "==""C*"" ",  "WILDCARDS") ) )
+      vTypeSort = append(vTypeSort,  pick(lRead.vType , select(vAttr, "==""C*"" ",  "WILDCARDS") ) )
+      vLNSort   = append(vLNSort,    pick(lRead.vLN   , select(vAttr, "==""C*"" ",  "WILDCARDS") ) )
+      vIXSort   = append(vIXSort,    pick(lRead.vIX   , select(vAttr, "==""C*"" ",  "WILDCARDS") ) )
+        
+      vAttrSort = append(vAttrSort,  pick(vAttr       , select(vAttr, "==""A*"" ",  "WILDCARDS") ) )
+      vTypeSort = append(vTypeSort,  pick(lRead.vType , select(vAttr, "==""A*"" ",  "WILDCARDS") ) )
+      vLNSort   = append(vLNSort,    pick(lRead.vLN   , select(vAttr, "==""A*"" ",  "WILDCARDS") ) )
+      vIXSort   = append(vIXSort,    pick(lRead.vIX   , select(vAttr, "==""A*"" ",  "WILDCARDS") ) )
+        
+      vAttrSort = append(vAttrSort,  pick(vAttr       , select(vAttr, "==""IX*"" ", "WILDCARDS") ) )
+      vTypeSort = append(vTypeSort,  pick(lRead.vType , select(vAttr, "==""IX*"" ", "WILDCARDS") ) )
+      vLNSort   = append(vLNSort,    pick(lRead.vLN   , select(vAttr, "==""IX*"" ", "WILDCARDS") ) )
+      vIXSort   = append(vIXSort,    pick(lRead.vIX   , select(vAttr, "==""IX*"" ", "WILDCARDS") ) )
+        
+      vAttrSort = append(vAttrSort,  pick(vAttr       , select(vAttr, "==""P*"" ", "WILDCARDS") ) )
+      vTypeSort = append(vTypeSort,  pick(lRead.vType , select(vAttr, "==""P*"" ", "WILDCARDS") ) )
+      vLNSort   = append(vLNSort,    pick(lRead.vLN   , select(vAttr, "==""P*"" ", "WILDCARDS") ) )
+      vIXSort   = append(vIXSort,    pick(lRead.vIX   , select(vAttr, "==""P*"" ", "WILDCARDS") ) )
+
+
+      #loop_with iCur = 1..length(vAttr)
+         CurAttr = vAttrSort(iCur)
+          
+         Type  = vTypeSort(iCur)
+         LN    = vLNSort(iCur)
+         IX    = vIXSort(iCur)
+          
+         #if Type=="IX" #then Type = "P"
+         
+          #if not( Type=="C" and locate(LN,"EPU_SEQ_BACKUP")==1) #then #block 
+
+              #if Type=="C" #then #block
+                      es = error_state
+                 #error ignore
+                    #delete 'LN':'Type''IX' 
+                 #error 'es'
+              #block_end
+
+              es = error_state
+              #error ignore
+              st=status
+                     #create 'LN':'Type''IX' =  lRead.Data.'CurAttr'      
+              st=status
+              #error 'es'
+          
+         #block_end
+      #loop_end
+            
+      ; 3. Find next ID_APL for current application   
+      #do epu_seq_initvars:c
+      lInit  = do(epu_seq_init:c)
+
+      #if not FILE_MANAGER("EXISTS",fm_file(FM_REPRESENT(DRIVE_MANAGER("GET_DEFAULT"))+":\sc\apl\'t_AplName'\SEQUENCER\SEQUENCES\INDEX.CSV")) #then ID_APL_USE = 0
+      #else #block                                        
+         lRet = do(EPU_SEQ_inx_get_rec_all:c)   
+         #if lRet.error<>0 #then #return list(status=lRet.error, err_description = ascii(10)+lRet.ErrorMsg) 
+
+         max_id_apl=0    
+         #loop_with iCur = 1..length(lRet.vRes)
+            cur_id_apl=lRet.vRes(iCur).id_apl      
+            #if cur_id_apl>max_id_apl #then max_id_apl=cur_id_apl      
+         #loop_end            
+
+         ID_APL_USE = ((max_id_apl) mod lInit.MAX_ID_APL)
+      #block_end      
+
+      #set 'SEQ_PO_LN':pFI'LAST_RESULT_IX' = ID_APL_USE
+
+      ;Update index table 
+      inx=do(EPU_SEQ_inx_upd_tbl:c)
+      #if inx.error<>0 #then #return list(status=inx.error, err_description = ascii(10)+inx.ErrorMsg)
+      
+      ; 4. Update LIB5INIT_1:c, LIB5INIT_H:c
+      lCP = fetch(0, "C", "LIB5INIT_1")
+      #if lCP.IU<>1 #then #block
+         #error ignore
+            #delete epu_seq_get_version:c
+         #error stop
+         #return list(status          = status_code("SCIL_UNKOWN_FUNCTION"),-
+                                     Err_Description = ascii(10)+translation("Command procedure LIB5INIT_1:C not found.") )
+      #block_end
+
+      #if length(SELECT(LIB5INIT_1:cin, "== ""*#exec epu_seq_main_mng_clear_queue:c*""", "WILDCARDS"))==0 #then #block
+            tmp=LIB5INIT_1:cin
+            tmp=append(tmp,"#exec epu_seq_main_mng_clear_queue:c        ; THIS STRING IS CREATED AUTOMATICALLY. PLEASE DO NOT EDIT IT MANUALLY")
+
+            #MODIFY LIB5INIT_1:c = LIST(IN = tmp)
+      #block_end
+      
+      lCP = fetch(0, "C", "LIB5INIT_H")
+      #if lCP.IU<>1 #then #block
+         #error ignore
+            #delete epu_seq_get_version:c
+         #error stop
+         #return list(status          = status_code("SCIL_UNKOWN_FUNCTION"),-
+                                     Err_Description = ascii(10)+translation("Command procedure LIB5INIT_H:C not found.") )
+      #block_end
+
+      #if length(SELECT(LIB5INIT_H:cin, "== ""*#exec epu_seq_main_continue_executing:c*""", "WILDCARDS"))==0 #then #block
+            tmp = LIB5INIT_H:cin
+            tmp = append(tmp,"#exec epu_seq_main_continue_executing:c        ; THIS STRING IS CREATED AUTOMATICALLY. PLEASE DO NOT EDIT IT MANUALLY")
+
+            #MODIFY LIB5INIT_H:c = LIST(IN = tmp)
+      #block_end
+
+      ; 5. Merge language text databases       
+      st=status
+      #error ignore
+      res = do(read_text("B5_BBONE/BGU_MERGE_TEXT_DBS.scl"), l_result.base_path + "/LANG_TEXTS/ES_TEXTS.SDB", vector(l_result.base_path + "/LANG_TEXTS/ES_TEXTS$SDB"))
+      st=status
+      #if st<>0 #then #return list(status = st, err_description = ascii(10)+status_code_name(st))
+      
+      ;All is OK
+      #return list(status = 0, err_description = ascii(10)+status_code_name(st))                    
+
+    #block_end
+    #otherwise #block
+      #return list(status = status_code("SCIL_UNKOWN_FUNCTION"), Err_Description = ascii(10)+"Not implemented")
+    #block_end
+#case_end
+
+

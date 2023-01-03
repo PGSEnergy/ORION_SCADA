@@ -1,0 +1,576 @@
+; Function:      BGU_CALEN:C
+; Text file:     BBONE/BGU_CALEN.TXT
+; Description:   Calendar interface procedure
+; Parameters:    argument(1) - action type (1,2,3) ;integer
+; Action type 1: no more arguments
+; Action type 2: argument(2) - start time       ;time
+;                argument(3) - end time         ;time
+;                argument(4) - time interval    ;integer
+;                argument(5) - period name/-s   ;vector (text)
+; Action type 3: argument(2) - time             ;time
+;                argument(3) - period name      ;text
+; Action type 4: no more arguments
+; Action type 5: argument(2) - start time       ;time
+;                argument(3) - stop time        ;time
+;                argument(4) - day type names   ;text vector
+; Return data:   type 1 - period names          ;vector (text)
+;                type 2 - period status         ;vector (integer)
+;                type 3 - time status           ;boolean
+;                type 4 - day type names        ;vector (text)
+;                type 5 - day type status       ;vector (integer)
+;----------------------------------------------------------------
+
+#local argCnt, tRedirectProc, tRedirectCommand, iArgLoop
+tRedirectProc="APLMOD_CALEN"
+#if APPLICATION_OBJECT_EXISTS(0,"C",tRedirectProc) AND -
+DATA_TYPE(%REDIRECTED)=="NONE" #then #block
+   #if 'tRedirectProc':CIU==1 #then #block
+      @REDIRECTED=TRUE
+      argCnt=ARGUMENT_COUNT
+      tRedirectCommand="DO('tRedirectProc':C"
+      #loop_with iArgLoop=1..argCnt
+         tRedirectCommand=tRedirectCommand+",argument('iArgLoop')"
+         #if iArgLoop==argCnt #then #block
+            tRedirectCommand=tRedirectCommand+")"
+         #block_end
+      #loop_end
+      #return 'tRedirectCommand'
+   #block_end
+#block_end
+
+@param_file="PICT/CAL_1.INI"
+@par_dir="PICT"
+@cal_gen_file="PICT/CALGEN.DAT"
+
+#CASE ARGUMENT(1)
+   #WHEN 1 #BLOCK
+      @tmp_list=do(bgu_calmp:c)
+      #return tmp_list:vnv
+   #BLOCK_END
+   #WHEN 2 #BLOCK
+      @start_time=argument(2)
+      @stop_time=argument(3)
+      @time_interval=argument(4) ;time interval in seconds
+      @period_names=argument(5) 
+      #if argument_count<6 #then @override_policy=0
+      #else @override_policy=argument(6)
+
+      @prev=""
+      @d_temp=""
+      @v_temp=vector()
+      ;#return 10
+      @day_checked=0
+
+      @start_year=year(%start_time)
+      @end_year=year(%stop_time)
+      @all_high=-1 ;all bits are high 
+      #create v_temp:v=do(bgu_calmp:c)
+      #if (%stop_time-%start_time) mod %time_interval<>0 #then #error raise
+      @unit_count=(%stop_time-%start_time) div %time_interval
+      #if %unit_count>10000 #then #error raise
+      #if length(%period_names)>32 #then #error raise 
+      @data_t=evaluate(read_text(%par_dir+"/daytypes.dat"))
+      ;Make plain output vector:
+      @out_rvect=vector()
+      #loop_with n_4=1..%unit_count
+         @out_rvect(%n_4)=0
+      #loop_end
+
+      @n_12=1
+      @status_val=0
+      @Finish=0
+
+      #if length(v_temp:vtm)<>0 #then #block
+         ;Loop to time just before start_time. Initialize status at same time.
+         #loop v_temp:vtm(%n_12)<=%start_time
+            @nm_pos=select(%period_names, "=="""+v_temp:vnm(%n_12)+"""")
+            #if length(%nm_pos)<>0 #then #block
+               #if v_temp:vns(%n_12)==1 #then @status_val=bit_set(%status_val,%nm_pos(1)-1)
+               #if v_temp:vns(%n_12)==0 #then @status_val=bit_clear(%status_val,%nm_pos(1)-1)
+            #block_end
+            @n_12=%n_12 + 1
+            #if %n_12>length(v_temp:vtm) #then #block
+               @Finish=1
+               #loop_exit
+            #block_end
+         #loop_end
+
+         ;Add long periods to output vector
+         @curr_time=%start_time
+         #loop_with n_11=1..%unit_count
+            #if %Finish==0 #then #block
+               #if %curr_time>=v_temp:vtm(%n_12) #then #block
+                  @nm_pos=select(%period_names, "=="""+v_temp:vnm(%n_12)+"""")
+                  #if length(%nm_pos)<>0 #then #block
+                     #if v_temp:vns(%n_12)==1 #then @status_val=bit_set(%status_val,%nm_pos(1)-1)
+                     #if v_temp:vns(%n_12)==0 #then @status_val=bit_clear(%status_val,%nm_pos(1)-1)
+                  #block_end
+                  @n_12 = %n_12 + 1
+                  #if %n_12>length(v_temp:vtm) #then @Finish=1
+               #block_end
+            #block_end
+            @out_rvect(%n_11)=%status_val
+            @curr_time=%start_time + %n_11 * %time_interval
+         #loop_end
+      #block_end
+
+      ;Add default day type periods:
+      @defnames=vector("","")
+      @tmp_x=read_parameter(%param_file, "General","default_policy")
+      #if tmp_x:vstatus<>0 #then #error raise 5007
+      @def_pol=evaluate(tmp_x:vvalue)
+      @tmp_x=read_parameter(%param_file, "General","default_type_1")
+      @defnames(1)=tmp_x:vvalue
+      @tmp_x=read_parameter(%param_file, "General","default_type_2")
+      @defnames(2)=tmp_x:vvalue
+
+      #if %def_pol==1 #then @defnames(2)=""
+
+#if %override_policy<>2 #then #block  ;--- NEW ---
+ ;Find out overriden days:
+ @def_overriding=""
+ @overriden_days=vector
+ #loop_with n_11=%start_year..%end_year
+   #error ignore
+   @data_y=evaluate(read_text(%par_dir+"/y"+dec(%n_11,4)+".dat"))
+   @st=status
+   #error stop
+   #if %st==0 #then #block
+      #loop_with n_2=1..length(%data_y)
+         @v_level_1=%data_y(%n_2)
+         #if %v_level_1(2)==5 #then #block
+            @curr_date=separate(%v_level_1(1),".")
+            @curr_day=evaluate(%curr_date(1))
+            @curr_month=evaluate(%curr_date(2))
+            @def_in_force=""
+            #if %def_pol==2 and dow(pack_time(%n_11,%curr_month,%curr_day,0,0,0))==7 -
+            #then #block
+               @def_in_force=%defnames(1)
+               @def_overriding=%defnames(2)
+            #block_end
+            #if %def_pol==2 and dow(pack_time(%n_11,%curr_month,%curr_day,0,0,0))<7 -
+            #then #block
+               @def_in_force=%defnames(2)
+               @def_overriding=%defnames(1)
+            #block_end
+            #if %v_level_1(3)==%def_overriding #then #block
+               @overriden_days=append(%overriden_days,vector(%v_level_1(1)+dec(%n_11,0)))
+            #block_end
+            #if %override_policy==1 #then #block
+              @ovr_ok=select(%overriden_days,"=="""+%v_level_1(1)+dec(%n_11,0)+"""")
+              #if length(%ovr_ok)==0 #then #block
+                @overriden_days=append(%overriden_days,vector(%v_level_1(1)+dec(%n_11,0)))
+              #block_end
+            #block_end
+         #block_end
+      #loop_end
+   #block_end
+#loop_end
+
+#loop_with loopval=1..2
+   #if %defnames(%loopval)<>"" #then #block
+      #loop_with n_7=1..length(%data_t)
+         @v_level_1=%data_t(%n_7)
+         #if %defnames(%loopval)==%v_level_1(1) #then #block
+         @v_level_2=%v_level_1(2)
+            #if %v_level_1(2)==4 #then #block
+               @loop_time=%start_time
+               #loop %loop_time<=%stop_time
+                  @srch_time_start=separate(%v_level_1(4),":")
+                  @srch_time_stop=separate(%v_level_1(5),":")
+                  @srch_h_start=evaluate(%srch_time_start(1))
+                  @srch_min_start=evaluate(%srch_time_start(2))
+                  @srch_h_stop=evaluate(%srch_time_stop(1))
+                  @srch_min_stop=evaluate(%srch_time_stop(2))
+                  @start_time_p=pack_time(year(%loop_time),month(%loop_time),-
+                     day(%loop_time),%srch_h_start,%srch_min_start,0)
+                  @start_time_p=max(%start_time_p,%start_time)
+                  @stop_time_p=pack_time(year(%loop_time),month(%loop_time),-
+                     day(%loop_time),%srch_h_stop,%srch_min_stop,0)
+                  @stop_time_p=min(%stop_time_p,%stop_time) 
+                  @srch_name=%v_level_1(3) 
+                  @v_nm_ind=select(%period_names,"==""" + %srch_name+"""")
+
+
+                  @x_flag=FALSE
+                  #if %def_pol==1 #then @x_flag=TRUE
+                  #if %def_pol==2 and %loopval==1 and dow(%loop_time)==7 #then @x_flag=TRUE
+                  #if %def_pol==2 and %loopval==2 and dow(%loop_time)<7 #then @x_flag=TRUE
+                  #if length(%v_nm_ind)==0 #then @x_flag=FALSE
+                  @ov_chk=select(%overriden_days, "=="""+dec(day(%loop_time),0)+ -
+                     "."+dec(month(%loop_time),0)+ "."+dec(year(%loop_time),0)+"""") 
+                  #if length(%ov_chk)<>0 #then @x_flag=FALSE
+                  #if %x_flag==TRUE #then #block
+                    #loop_with n_8=1..round((%stop_time_p - %start_time_p) / %time_interval)
+                       @tmp_ind = ((%start_time_p-%start_time) div (%time_interval)) + %n_8
+                       @out_rvect(%tmp_ind)= bit_set(%out_rvect(%tmp_ind),%v_nm_ind(1)-1)
+                    #loop_end
+                  #block_end
+                  @loop_time=%loop_time+3600*24
+               #loop_end
+            #block_end
+         #block_end
+      #loop_end
+   #block_end       
+ #loop_end
+#block_end  
+
+
+;Add In-day periods from day and day type attributes to output vector
+      #loop_with n_4=%start_year..%end_year ;MODIFIED
+        @data_y=vector()
+        #error ignore
+        @data_y=evaluate(read_text(%par_dir+"/y"+dec(%n_4,4)+".dat"))
+        @st=status
+        #error stop
+        @to_sort=vector()
+        #if %st==0 #then #block
+        #loop_with n_5=1..length(%data_y)
+          @vtmp=%data_y(%n_5)
+          @to_sort(%n_5)=%vtmp(1)
+        #loop_end
+        @sort_ind=sort(%to_sort)
+        @data_y=pick(%data_y, %sort_ind)
+
+        #loop_with n_2=1..length(%data_y)
+           @v_level_1=%data_y(%n_2)
+           @v_level_2=%v_level_1(2)
+           @day_and_month=separate(%v_level_1(1),".")
+           @srch_day=evaluate(%day_and_month(1))
+           @srch_month=evaluate(%day_and_month(2))
+           @loop_time=pack_time(%n_4,%srch_month,%srch_day,0,0,0)
+           @start_time_rounded=pack_time(year(%start_time),month(%start_time),day(%start_time),0,0,0)
+           @stop_time_rounded=pack_time(year(%stop_time),month(%stop_time),day(%stop_time),0,0,0)           
+           #if %loop_time>=%start_time_rounded and %loop_time<=%stop_time_rounded #then #block 
+            #case %v_level_1(2)
+              #when 1  #block ;Period
+              #block_end
+              #when 4 #block ;Find in-day periods from year-specific database:
+                 @srch_time_start=separate(%v_level_1(4),":")
+                 @srch_time_stop=separate(%v_level_1(5),":")
+                 @srch_h_start=evaluate(%srch_time_start(1))
+                 @srch_min_start=evaluate(%srch_time_start(2))
+                 @srch_h_stop=evaluate(%srch_time_stop(1))
+                 @srch_min_stop=evaluate(%srch_time_stop(2))
+                 @start_time_p=pack_time(%n_4,%srch_month,%srch_day,%srch_h_start,%srch_min_start,0)
+                 @start_time_p=max(%start_time_p,%start_time)
+                 @stop_time_p=pack_time(%n_4,%srch_month,%srch_day,%srch_h_stop,%srch_min_stop,0)
+                 @stop_time_p=min(%stop_time_p,%stop_time) 
+                 @srch_name=%v_level_1(3)
+                 @v_nm_ind=select(%period_names,"==""" + %srch_name+"""")
+                 #if length(%v_nm_ind)<>0 #then #block 
+                    #loop_with n_8=1..round((%stop_time_p - %start_time_p) / %time_interval)
+                       @tmp_ind = ((%start_time_p-%start_time) div (%time_interval)) + %n_8
+                       @out_rvect(%tmp_ind)= bit_set(%out_rvect(%tmp_ind),%v_nm_ind(1)-1)
+                    #loop_end
+                 #block_end
+              #block_end
+              #when 5 #block ;Type assignment, search type settings from day type database
+               @type_to_search=%v_level_1(3) 
+               #loop_with n_7=1..length(%data_t)
+                @v_level_1=%data_t(%n_7)
+                #if %v_level_1(1)==%type_to_search #then #block 
+                @v_level_2=%v_level_1(2)
+                #case %v_level_1(2)
+                 #when 1  #block ;Period
+                 #block_end
+                 #when 4 #block ;In-day period found in type setting database
+                    @srch_time_start=separate(%v_level_1(4),":")
+                    @srch_time_stop=separate(%v_level_1(5),":")
+                    @srch_h_start=evaluate(%srch_time_start(1))
+                    @srch_min_start=evaluate(%srch_time_start(2))
+                    @srch_h_stop=evaluate(%srch_time_stop(1))
+                    @srch_min_stop=evaluate(%srch_time_stop(2))
+                    @start_time_p=pack_time(%n_4,%srch_month,%srch_day,%srch_h_start,%srch_min_start,0)
+                    @start_time_p=max(%start_time_p,%start_time)
+                    @stop_time_p=pack_time(%n_4,%srch_month,%srch_day,%srch_h_stop,%srch_min_stop,0)
+                    @stop_time_p=min(%stop_time_p,%stop_time) 
+                    @srch_name=%v_level_1(3)
+                    @v_nm_ind=select(%period_names,"==""" + %srch_name+"""")
+                    #if length(%v_nm_ind)<>0 #then #block 
+                       #loop_with n_8=1..round((%stop_time_p - %start_time_p)/%time_interval)
+                          @tmp_ind = ((%start_time_p-%start_time) div (%time_interval)) + %n_8
+                          @out_rvect(%tmp_ind)= bit_set(%out_rvect(%tmp_ind),%v_nm_ind(1)-1)
+                       #loop_end
+                    #block_end
+                 #block_end
+                #case_end
+                #block_end 
+               #loop_end
+              #block_end
+            #case_end
+           #block_end 
+        #loop_end
+     #block_end
+  #loop_end
+ #return %out_rvect
+#BLOCK_END
+
+#WHEN 3 #BLOCK
+      #if argument_count<3 #then #error raise
+
+      @srch_time=argument(2)
+      @argument_number_2=argument(2)
+      @srch_period=argument(3)
+      #if argument_count<4 #then @override_policy=0
+      #else @override_policy=argument(4)
+      @out_val=FALSE
+      @data_t=evaluate(read_text(%par_dir+"/daytypes.dat"))
+
+
+      ;Find out which default is in force:
+      @defnames=vector("","")
+      @tmp_x=read_parameter(%param_file, "General","default_policy")
+      #if tmp_x:vstatus<>0 #then #error raise 5007
+      @def_pol=evaluate(tmp_x:vvalue)
+      @tmp_x=read_parameter(%param_file, "General","default_type_1")
+      @defnames(1)=tmp_x:vvalue
+      @tmp_x=read_parameter(%param_file, "General","default_type_2")
+      @defnames(2)=tmp_x:vvalue
+      
+      @def_in_force=""
+      @def_overriding=""
+      #if %def_pol==1 #then @def_in_force=%defnames(1)
+      #if %def_pol==2 and dow(%srch_time)==7 #then #block
+         @def_in_force=%defnames(1)
+         @def_overriding=%defnames(2)
+      #block_end
+      #if %def_pol==2 and dow(%srch_time)<7 #then #block
+         @def_in_force=%defnames(2)
+         @def_overriding=%defnames(1)
+      #block_end
+      
+      @default_overriden=FALSE
+
+      ;Check In-day period:
+      #error ignore
+      @data_y=evaluate(read_text(%par_dir+"/y"+dec(year(%srch_time),4)+".dat"))
+      @st=status
+      #error stop
+      #if %st==0 #then #block
+         #loop_with n_1=1..length(%data_y)
+            @item_y=%data_y(%n_1)
+       #if %item_y(1)==dec(day(%srch_time),1)+"."+dec(month(%srch_time),1)+"." and -
+            %item_y(2)==4 #then #block
+               #if %item_y(3)==%srch_period #then #block
+                  @srch_time_start=separate(%item_y(4),":")
+                  @srch_time_stop=separate(%item_y(5),":")
+                  @srch_h_start=evaluate(%srch_time_start(1))
+                  @srch_min_start=evaluate(%srch_time_start(2))
+                  @srch_h_stop=evaluate(%srch_time_stop(1))
+                  @srch_min_stop=evaluate(%srch_time_stop(2))
+                  @time1=pack_time(year(%srch_time),month(%srch_time),day(%srch_time), -
+                     %srch_h_start, %srch_min_start,0)
+                  @time2=pack_time(year(%srch_time),month(%srch_time),day(%srch_time), -
+                     %srch_h_stop, %srch_min_stop,0)
+                  #if %time1<=%srch_time and %srch_time<=%time2 #then #block
+                     @out_val=TRUE
+                     #return %out_val
+                  #block_end
+               #block_end
+            #block_end
+            #if %item_y(1)==dec(day(%srch_time),1)+"."+dec(month(%srch_time),1)+"." and -
+            %item_y(2)==5 #then #block
+               #loop_with n_2=1..length(%data_t)
+                  @item_t=%data_t(%n_2)
+                  #if %item_t(1)== %item_y(3) #then #block
+                     #if %item_t(2)==4 #then #block ;%srch_period
+                      #if %item_t(3)==%srch_period #then #block
+                        @srch_time_start=separate(%item_t(4),":")
+                        @srch_time_stop=separate(%item_t(5),":")
+                        @srch_h_start=evaluate(%srch_time_start(1))
+                        @srch_min_start=evaluate(%srch_time_start(2))
+                        @srch_h_stop=evaluate(%srch_time_stop(1))
+                        @srch_min_stop=evaluate(%srch_time_stop(2))
+                        @time1=pack_time(year(%srch_time),month(%srch_time),day(%srch_time), -
+                        %srch_h_start, %srch_min_start,0)
+                        @time2=pack_time(year(%srch_time),month(%srch_time),day(%srch_time), -
+                        %srch_h_stop, %srch_min_stop,0)
+                        #if %time1<=%srch_time and %srch_time<=%time2 #then #block
+                           @out_val=TRUE
+                           #return %out_val
+                        #block_end
+                      #block_end
+                     #block_end
+                     #if %item_y(3)==%def_overriding #then @default_overriden=TRUE
+                  #block_end
+               #loop_end
+               #if %override_policy==1 #then @default_overriden=TRUE
+            #block_end
+         #loop_end
+      #block_end
+      ;Check ordinary period:
+      #create v_temp:v=do(bgu_calmp:c)
+      @srch_time=%argument_number_2 ;This is because srch_time is (unfortunately) used in bgu_calmp:c
+      #loop_with n_1=1..length(v_temp:vtm)
+          ;Scan through sorted time vector. Update status every time 
+          ;the correct name was found. 
+          #if v_temp:vnm(%n_1)==%srch_period #then #block
+             #if v_temp:vtm(%n_1)>%srch_time #then #return %out_val ;BUG FIXED
+             #if v_temp:vns(%n_1)==1 #then @out_val=TRUE
+             #if v_temp:vns(%n_1)==0 #then @out_val=FALSE
+          #block_end
+      #loop_end
+      ;Check in-day periods in default type:
+      #if %override_policy<>2 #then #block 
+       #if %def_in_force<>"" and %default_overriden==FALSE #then #block
+         #loop_with n_2=1..length(%data_t)
+            @item_t=%data_t(%n_2)
+            #if %item_t(1)== %def_in_force #then #block
+               #if %item_t(2)==4 #then #block ;Found in-day period
+                #if %item_t(3)==%srch_period #then #block
+                  @srch_time_start=separate(%item_t(4),":")
+                  @srch_time_stop=separate(%item_t(5),":")
+                  @srch_h_start=evaluate(%srch_time_start(1))
+                  @srch_min_start=evaluate(%srch_time_start(2))
+                  @srch_h_stop=evaluate(%srch_time_stop(1))
+                  @srch_min_stop=evaluate(%srch_time_stop(2))
+                  @time1=pack_time(year(%srch_time),month(%srch_time),day(%srch_time), -
+                  %srch_h_start, %srch_min_start,0)
+                  @time2=pack_time(year(%srch_time),month(%srch_time),day(%srch_time), -
+                  %srch_h_stop, %srch_min_stop,0)
+                  #if %time1<=%srch_time and %srch_time<=%time2 #then #block
+                     @out_val=TRUE
+                     #return %out_val
+                  #block_end
+                #block_end
+               #block_end
+            #block_end
+         #loop_end
+       #block_end
+      #block_end
+      #return %out_val
+   #BLOCK_END
+   #WHEN 4 #BLOCK
+      ;Return day types defined in calendar
+      @l_tmp=evaluate(read_text(%cal_gen_file))
+      @att_val=l_tmp:vDAY_TYPE_NAMES
+      #return %att_val
+   #BLOCK_END
+   #WHEN 5 #BLOCK
+      ;Find out day types of SCIL times given in vector
+      @time_start     = argument(2)
+      @time_stop      = argument(3)
+      @day_type_vect  = argument(4)
+
+      #if argument_count<5 #then @override_policy=0
+      #else @override_policy=argument(5)
+
+      @prev_year      = 0
+      @step_time      = %time_start
+      @step           = 0
+      @time_vect      = vector()
+      @out_vect       = vector()
+      @overriden_days = vector()
+
+
+
+      ;Find out which default is in force:
+      @defnames=vector("","")
+      @tmp_x=read_parameter(%param_file, "General","default_policy")
+      #if tmp_x:vstatus<>0 #then #error raise 5007
+      @def_pol=evaluate(tmp_x:vvalue)
+      @tmp_x=read_parameter(%param_file, "General","default_type_1")
+      @defnames(1)=tmp_x:vvalue
+      @tmp_x=read_parameter(%param_file, "General","default_type_2")
+      @defnames(2)=tmp_x:vvalue
+      
+      @def_in_force=""
+      @def_overriding=""
+      
+      @default_overriden=FALSE
+
+
+      ;Create time vector:
+      #loop %step_time<=%time_stop
+         @step=%step+1
+         @out_vect(%step)=0
+         @time_vect(%step) = %step_time
+         @step_time=%step_time+3600*24
+      #loop_end
+
+      #loop_with k=1..length(%day_type_vect)
+         #loop_with i=1..length(%time_vect)
+            @loop_day   = day(%time_vect(%i))
+            @loop_month = month(%time_vect(%i))
+            @loop_year  = year(%time_vect(%i))
+            @loop_label = dec(%loop_day,0)+"."+dec(%loop_month,0)+"."
+
+
+            ;Do not read the file on every cycle:
+            #if %prev_year<>%loop_year #then #block
+               @data_y  = vector()
+               @dt_list = list(day=vector(),type=vector())
+               #error ignore
+               @data_y  = evaluate(read_text(%par_dir+"/y"+dec(%loop_year,4)+".dat"))
+               @st=status
+               #error stop
+               #if %st==0 #then #block
+                  #loop_with j=1..length(%data_y)
+                     @v_level_1=%data_y(%j)
+                     #if %v_level_1(2)==5 #then #block
+                        #set dt_list:vday  = append(dt_list:vday,  vector(%v_level_1(1)))
+                        #set dt_list:vtype = append(dt_list:vtype, vector(%v_level_1(3)))
+                     #block_end
+                  #loop_end
+                  #loop_with j=1..length(dt_list:vday)
+                     @d_and_m=separate(dt_list:vday(%j), ".")
+                     @d=evaluate(%d_and_m(1))
+                     @m=evaluate(%d_and_m(2))
+                     @tm=pack_time(%loop_year, %m, %d, 0, 0, 0)
+                     #if %def_pol==2 and dow(%tm)==7 #then #block
+                        @def_in_force=%defnames(1)
+                        @def_overriding=%defnames(2)
+                     #block_end
+                     #if %def_pol==2 and dow(%tm)<7 #then #block
+                        @def_in_force=%defnames(2)
+                        @def_overriding=%defnames(1)
+                     #block_end
+                     #if %override_policy==1 #then -
+                       @overriden_days=append(%overriden_days, vector(dt_list:vday(%j)))
+                     #if %override_policy==0 and dt_list:vtype(%j)==%def_overriding #then -
+                        @overriden_days=append(%overriden_days, vector(dt_list:vday(%j)))
+                     ;#if dt_list:vtype(%j)==%def_overriding #then -
+                     ;   @overriden_days=append(%overriden_days, vector(dt_list:vday(%j)))
+                  #loop_end
+               #block_end
+            #block_end         
+            @prev_year=%loop_year           
+
+            #if %def_pol==2 and dow(%time_vect(%i))==7 #then #block
+               @def_in_force=%defnames(1)
+               @def_overriding=%defnames(2)
+            #block_end
+            #if %def_pol==2 and dow(%time_vect(%i))<7 #then #block
+               @def_in_force=%defnames(2)
+               @def_overriding=%defnames(1)
+            #block_end
+
+            @ind1=select(dt_list:vday, "=="""+%loop_label+"""")
+            @match=pick(dt_list:vtype, %ind1)
+            @ind2=select(%match, "=="""+%day_type_vect(%k)+"""")
+            #if length(%ind2)<>0 #then #block
+               @out_vect(%i)=bit_set(%out_vect(%i),%k-1)
+            #block_end
+            @ind3=select(%overriden_days,"=="""+%loop_label+"""")
+
+            #if %override_policy<>2 and %def_in_force == %day_type_vect(%k) -
+            and length(%ind3) == 0 #then #block
+                @out_vect(%i)=bit_set(%out_vect(%i),%k-1)
+            #block_end
+
+            ;#if %def_in_force == %day_type_vect(%k) -
+            ;and length(%ind3) == 0 #then #block
+            ;    @out_vect(%i)=bit_set(%out_vect(%i),%k-1)
+            ;#block_end
+         #loop_end
+      #loop_end
+      #return %out_vect
+   #BLOCK_END
+   #WHEN 6 #BLOCK
+      ;Return day names
+   #BLOCK_END
+   #OTHERWISE #ERROR RAISE 
+#CASE_END
+
+;@stat=console_output(date+" "+tods+" BGU_CALEN:C executed successfully.")

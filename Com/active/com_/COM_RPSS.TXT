@@ -1,0 +1,74 @@
+﻿; This command procedure is used for interpreting RP570S system messages
+; in a COM application 
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @LN, @IX, from the RP system message process object
+;         APL:BSV(20), general parameters
+;         APL:BSV(21), NCC xref table
+; OUTPUT: @COM_EXCLUSIVE_STA_NUMBER, number of the STA object of the NCC sending GI command
+;         @COM_APLMD_PROTOCOL, protocol of the NCC sending GI command
+;-------------------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+@GEN_INFO = APL:BSV(20)
+@NCC_XREF_TABLE = APL:BSV(21)
+@ENABLE_LOGGING = COM_GENVAR:PBZ(3)
+
+;STA number of the NCC
+#IF SUBSTR(%LN,1,4) == "BNCC" #THEN #BLOCK
+   @NCC_NR = DEC_SCAN(SUBSTR(%LN,5,1))
+   @NCC = %NCC_XREF_TABLE(%NCC_NR)
+   @STA_NR = %NCC(1)
+#BLOCK_END
+#ELSE_IF 'LN':POA'IX' > 1000 #THEN @STA_NR = 'LN':POA'IX' - 1000  
+#ELSE #BLOCK
+   #LOOP_WITH I = 1..LENGTH(APL:BSV(21))
+      @NCC = %NCC_XREF_TABLE(%I)
+      #IF %NCC(2) == 1 #THEN #BLOCK
+         @STA_NR = %NCC(1)   
+         #LOOP_EXIT
+      #BLOCK_END
+   #LOOP_END
+#BLOCK_END 
+
+;command specific part
+#CASE %AI ; 1
+   ;fcom coldstart / fcom activate
+   #WHEN 13459 #BLOCK ; 2
+      #SET GEN_INFO:VRPSS_CMD_TYPE = "COLDSTART"
+      #SET APL:BSV(20) = %GEN_INFO
+      ;if local function table loading, reload in coldstart because of reseted net
+      #IF LENGTH(%NCC) > 6 #THEN #BLOCK
+         #IF %NCC(7) == 2 #THEN #BLOCK
+             @RP_STA_NUMBER = %NCC(1)
+             @RP_CONF_FILE = %NCC(8)
+             #DO COM_RPSFT:C
+         #BLOCK_END
+      #BLOCK_END
+      #IF %ENABLE_LOGGING #THEN #BLOCK ; 3
+         @CMD = GEN_INFO:VRPSS_CMD_TYPE
+         @INFO="'rt':'rm',RPSS,'STA_NR','LN':P'IX',,RP570 FCOM 'CMD' received,,,,,,,,,,,,,,,,"
+         #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+         #ELSE #DO COM_LOG:CIN
+      #BLOCK_END ; 3      
+      ;execute general interrogation with RP570S protocol and found STA number
+      #EXEC COM_GENINT:C (@COM_APLCMD_PROTOCOL = 1, @COM_EXCLUSIVE_STA_NUMBER = %STA_NR)
+   #BLOCK_END ; 2
+   #WHEN 13472 #BLOCK ;2
+      #SET GEN_INFO:VRPSS_CMD_TYPE = "ACTIVATE"
+      #SET APL:BSV(20) = %GEN_INFO
+      #IF %ENABLE_LOGGING #THEN #BLOCK ; 3
+         @CMD = GEN_INFO:VRPSS_CMD_TYPE
+         @INFO="'rt':'rm',RPSS,'STA_NR','LN':P'IX',,RP570 FCOM 'CMD' received,,,,,,,,,,,,,,,,"
+         #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+         #ELSE #DO COM_LOG:CIN
+      #BLOCK_END ; 3
+      ;execute general interrogation with RP570S protocol and found STA number
+      #EXEC COM_GENINT:C (@COM_APLCMD_PROTOCOL = 1, @COM_EXCLUSIVE_STA_NUMBER = %STA_NR)
+   #BLOCK_END ;2
+#CASE_END ; 1
+

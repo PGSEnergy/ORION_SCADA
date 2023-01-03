@@ -1,0 +1,42 @@
+; Function: BMU_DOCUMENT:C
+; Version:  3.0 (Build 23.02.2012)
+; Parameters: none
+; Return data: Reports/BMU_CPROC.TXT - a text file
+; Description: Reads in to a file all the existing procedures 
+;              for SA_LIB Measurement Reports 3
+;-------------------------------------------------------------------------------
+;*** Search all the command procedures for Measurement Reports
+#local i, i_Status = status, l_Attributes = list(), l_Attr = list(), v_Txt = vector(),-
+       l_Procedures = application_object_list(0, "C", "", "", "", "LN == ""BMU_*"" and LN <> ""BMU_DOCUMENT""")
+
+;*** define a text vector
+#if l_Procedures.COUNT > 0 #then #block
+
+   ;*** read in attributes
+   l_Attributes = application_object_attributes(0, "C", l_Procedures.LN, vector("IU", "TC", "EP", "PE", "PQ", "HN", "IN"))
+  
+   ;*** read in application information
+   v_Txt = vector()
+   v_Txt = append(v_Txt, "APPLICATION: " + APL:BNA)
+   v_Txt = append(v_Txt, times)
+   
+   ;*** read in procedures         
+   #loop_with i = 1 .. l_Procedures.COUNT
+      ;*** procedure attributes
+      l_Attr = list( LN = l_Procedures.LN(i), IU = l_Attributes.IU(i), TC = l_Attributes.TC(i), -
+                     EP = l_Attributes.EP(i), PE = l_Attributes.PE(i), PQ = l_Attributes.PQ(i), -
+                     HN = l_Attributes.HN(i), IN = l_Attributes.IN(i))
+                     
+      ;*** procedure info
+      v_Txt = append(v_Txt, "")
+      v_Txt = append(v_Txt, substr("--------------------------------------------", 1, 30))
+      v_Txt = append(v_Txt, substr("--------- " + l_Attr.LN + " ---------------", 1, 30))
+      v_Txt = append(v_Txt, substr("--------------------------------------------", 1, 30))
+      v_Txt = append(v_Txt, "IU:'l_Attr.IU', TC:'l_Attr.TC', EP:'l_Attr.EP', PE:'l_Attr.PE', PQ:'l_Attr.PQ', HN:'l_Attr.HN'")
+      v_Txt = append(v_Txt, "")
+      v_Txt = append(v_Txt, l_Attr.IN)
+   #loop_end
+
+   i_Status = write_text("REPORTS/BMU_CPROC.TXT", v_Txt, 0)
+
+#block_end

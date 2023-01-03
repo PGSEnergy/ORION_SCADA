@@ -1,0 +1,104 @@
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Mikko Ripatti/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">IEC61850 HST</Parameter>
+		<Parameter name="Caption">objectTypeCaption</Parameter>
+		<Parameter name="Description">objectTypeDesc</Parameter>
+		<Parameter name="Group">Data objects</Parameter>
+		<Parameter name="Type">DO</Parameter>
+		<Parameter name="IconFileName">HST.ico</Parameter>
+		<Parameter name="Tools">OnlineDiagnosticsDataObject</Parameter>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="Visible">False</Parameter>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="DataStructureObjectType">LN</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+	<Parameters type="SCLExport">
+		<Export name="sclXML">DOISCL</Export>
+	</Parameters>
+	<Properties type="PropertyDefinitions">
+		<Property name="DOISCL" category="[010] Basic">
+			<Value/>
+			<DescID>DOSCLDesc</DescID>
+			<CaptionID>DOISCL</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>DOISCL</AttributeName>
+		</Property>
+		<Property name="61850-Type" category="[010] Basic">
+			<Value>HST</Value>
+			<DescID>61850-TypeDesc</DescID>
+			<CaptionID>61850-Type</CaptionID>
+			<Values type="singleChoice">
+				<Enum textID="ACD" value="ACD"/>
+				<Enum textID="ACT" value="ACT"/>
+				<Enum textID="APC" value="APC"/>
+				<Enum textID="ASG" value="ASG"/>
+				<Enum textID="BAC" value="BAC"/>
+				<Enum textID="BCR" value="BCR"/>
+				<Enum textID="BSC" value="BSC"/>
+				<Enum textID="BTS" value="BTS"/>
+				<Enum textID="CMV" value="CMV"/>
+				<Enum textID="CSD" value="CSD"/>
+				<Enum textID="CSG" value="CSG"/>
+				<Enum textID="CST" value="CST"/>
+				<Enum textID="CTS" value="CTS"/>
+				<Enum textID="CUG" value="CUG"/>
+				<Enum textID="CURVE" value="CURVE"/>
+				<Enum textID="DEL" value="DEL"/>
+				<Enum textID="DPC" value="DPC"/>
+				<Enum textID="DPS" value="DPS"/>
+				<Enum textID="DPL" value="DPL"/>
+				<Enum textID="GTS" value="GTS"/>
+				<Enum textID="HDEL" value="HDEL"/>
+				<Enum textID="HMV" value="HMV"/>
+				<Enum textID="HST" value="HST"/>
+				<Enum textID="HWYE" value="HWYE"/>
+				<Enum textID="INC" value="INC"/>
+				<Enum textID="ING" value="ING"/>
+				<Enum textID="INS" value="INS"/>
+				<Enum textID="ISC" value="ISC"/>
+				<Enum textID="LPL" value="LPL"/>
+				<Enum textID="LTS" value="LTS"/>
+				<Enum textID="MTS" value="MTS"/>
+				<Enum textID="MV" value="MV"/>
+				<Enum textID="NTS" value="NTS"/>
+				<Enum textID="ORG" value="ORG"/>
+				<Enum textID="OTS" value="OTS"/>
+				<Enum textID="SAV" value="SAV"/>
+				<Enum textID="SEC" value="SEC"/>
+				<Enum textID="SEQ" value="SEQ"/>
+				<Enum textID="SPC" value="SPC"/>
+				<Enum textID="SPG" value="SPG"/>
+				<Enum textID="SPS" value="SPS"/>
+				<Enum textID="STS" value="STS"/>
+				<Enum textID="TSG" value="TSG"/>
+				<Enum textID="UTS" value="UTS"/>
+				<Enum textID="VSG" value="VSG"/>
+				<Enum textID="VSS" value="VSS"/>
+				<Enum textID="WYE" value="WYE"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RRR</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="DOType" category="[010] Basic">
+			<Value/>
+			<DescID>DOTypeDesc</DescID>
+			<CaptionID>DOType</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>DOType</AttributeName>
+		</Property>
+	</Properties>
+</ObjectType>

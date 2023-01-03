@@ -1,0 +1,1 @@
+The files in sa_lib\base\reports\lang0(x) directory are not used anymore since version 9.3 FP2.

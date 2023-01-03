@@ -1,0 +1,64 @@
+;lists for cmd parameter
+@CMD_PARAMETER_LIST = LIST(-
+     VALUES    = (4,-
+                  5,-
+                  6,-
+                  45,-
+                  46,-
+                  48,-
+                  49,-
+                  50),-
+     REPRESENT = ("Select-Operate",-
+                  "Direct",-
+                  "Direct-No ack.",-
+                  "Single command",-
+                  "Double command",-
+                  "Normalized value",-
+                  "Scaled value",-
+                  "Short floating point number"))
+
+@CMD_PARAMETER_LIST1= LIST(-
+     VALUES    = (4,-
+                  5,-
+                  6),-
+     REPRESENT = ("Select-Operate",-
+                  "Direct",-
+                  "Direct-No ack."))
+
+@CMD_PARAMETER_LIST2 = LIST(-
+     VALUES    = (45,-
+                  46),-
+     REPRESENT = ("Single command",-
+                  "Double command"))
+
+@CMD_PARAMETER_LIST3 = LIST(-
+     VALUES    = (48,-
+                  49,-
+                  50),-
+     REPRESENT = ("Normalized value",-
+                  "Scaled value",-
+                  "Short floating point number"))
+
+;set default lists for cmd parameter
+@CMD_PARAMETER_VALUES    = CMD_PARAMETER_LIST1:VVALUES
+@CMD_PARAMETER_REPRESENT = CMD_PARAMETER_LIST1:VREPRESENT
+
+;QB,QD,QE,QF,QI,QL,QM,QS,QT
+@CONTROL_TYPE_LIST1 = LIST(-
+     VALUES    = ("SEC-4BO",-
+                  "SEC-2BO",-
+                  "SEC-2DO",-
+                  "SEC-BO",-
+                  "DIR-BO",-
+                  "AO"),-
+     REPRESENT = ("Secured cmd with 4 BOs",-
+                  "Secured cmd with 2 BOs",-
+                  "Secured cmd with 2 DOs",-
+                  "Secured cmd with 1 BO",-
+                  "Direct cmd with 1 BO",-
+                  "Command with AO"))
+
+
+;set default lists for control type
+@CONTROL_TYPE_VALUES    = CONTROL_TYPE_LIST1:VVALUES
+@CONTROL_TYPE_REPRESENT = CONTROL_TYPE_LIST1:VREPRESENT

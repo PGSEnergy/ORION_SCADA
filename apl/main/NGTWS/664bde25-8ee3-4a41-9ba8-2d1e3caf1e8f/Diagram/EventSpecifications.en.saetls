@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<NGT>
+  <Header>
+    <ModelInfo value="Translation" />
+    <ModelVersion value="1.3.0.0" />
+    <PersistencyVersion value="1.0.0.0" />
+  </Header>
+  <DomModel>
+    <Complex name="Root" type="t0" id="0">
+      <Simple name="name" value="EventSpecifications" />
+      <Simple name="languageCode" value="en" />
+      <Simple name="modelInfo" value="EventAndActionSpecifications" />
+      <Simple name="modelVersion" value="1.3.0.0" />
+      <Collection name="translatedProperties" type="t1" id="0">
+        <Simple name="Capacity" value="8" />
+        <Items>
+          <Reference name="item" id="1" />
+          <Reference name="item" id="2" />
+          <Reference name="item" id="3" />
+          <Reference name="item" id="4" />
+          <Reference name="item" id="5" />
+          <Reference name="item" id="6" />
+        </Items>
+      </Collection>
+    </Complex>
+    <Complex name="item" type="t2" id="1">
+      <Simple name="OwnerEntityID" value="338eea90-fe1f-4366-88e9-f0595940860b" />
+      <Simple name="Name" value="Name" />
+      <Simple name="Value" value="Click" />
+    </Complex>
+    <Complex name="item" type="t2" id="2">
+      <Simple name="OwnerEntityID" value="88878cb5-1e48-4188-980b-c1eb7b4089c2" />
+      <Simple name="Name" value="Name" />
+      <Simple name="Value" value="Mouse enter" />
+    </Complex>
+    <Complex name="item" type="t2" id="3">
+      <Simple name="OwnerEntityID" value="1a94a0c9-af26-4915-a00a-99b9ddcf5319" />
+      <Simple name="Name" value="Name" />
+      <Simple name="Value" value="Mouse leave" />
+    </Complex>
+    <Complex name="item" type="t2" id="4">
+      <Simple name="OwnerEntityID" value="564ac861-066f-425d-b7bb-ed5d892599fc" />
+      <Simple name="Name" value="Name" />
+      <Simple name="Value" value="Mouse down" />
+    </Complex>
+    <Complex name="item" type="t2" id="5">
+      <Simple name="OwnerEntityID" value="faf1c54f-9bdc-49d6-8d92-97a79248d537" />
+      <Simple name="Name" value="Name" />
+      <Simple name="Value" value="Mouse up" />
+    </Complex>
+    <Complex name="item" type="t2" id="6">
+      <Simple name="OwnerEntityID" value="5445e550-007f-44d6-a3c9-4b23353f96e5" />
+      <Simple name="Name" value="Name" />
+      <Simple name="Value" value="Mouse right click" />
+    </Complex>
+    <Types>
+      <Type value="ABB.NGT.Domain.Concepts.Implementation.Localization.TranslationPack, ABB.NGT.Domain.Concepts.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t0" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.Concepts.API.ITranslatedProperty, ABB.NGT.Domain.Concepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t1" />
+      <Type value="ABB.NGT.Domain.Concepts.Implementation.Localization.TranslatedProperty, ABB.NGT.Domain.Concepts.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t2" />
+    </Types>
+  </DomModel>
+</NGT>

@@ -1,0 +1,12 @@
+;This file is created automatically at application startup",-
+;Do not modify by hand!",-
+
+#LOCAL L_ENV = SCIL_HOST, L, CENTER
+#LOCAL A = APL:BNA
+;--------------------------------------------------------------------
+;Read the language to use
+#IF L_ENV.NAME == "PICO" #THEN L = MON:BLA
+#ELSE L = APL:BLA
+;--------------------------------------------------------------------
+#ERROR CONTINUE
+

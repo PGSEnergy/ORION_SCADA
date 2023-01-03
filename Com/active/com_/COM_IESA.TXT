@@ -1,0 +1,222 @@
+﻿; This command procedure is used for handling IEC101S application commands
+; in a COM application 
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @LN, @UN, @OG, from the IEC application command process object
+; OUTPUT: @COM_EXCLUSIVE_STA_NUMBER, number of the STA object of the NCC sending the application command
+;         @COM_APLCMD_PROTOCOL, protocol of the NCC sending the application command
+;         @COM_READ_OBJECT_ADDRESS, information object address of the object to be read
+;         @COM_ORIGINATOR, originator adress of the NCC
+;------------------------------------------------------------------------------------
+
+#LOCAL NCC_NUMBER
+
+#ERROR CONTINUE
+
+;initialise
+@IEC_LINK_READY = FALSE
+@COM_IEC_GRP=0
+
+;STA number and originator of the NCC
+@NCC_STA_NR = 'LN':PUN'IX'  
+@ORIGINATOR = 'LN':POG'IX'
+@COMMAND_COT = 'LN':PCT'IX'
+
+@ENABLE_LOGGING = COM_GENVAR:PBZ(3)
+@ENABLE_DATA_SENDING_AFTER_STARTUP = COM_GENVAR:PBZ(4)
+
+#IF %ENABLE_LOGGING #THEN #BLOCK
+   @VALUE = ROUND(%AI)
+   @INFO="'rt':'rm',IESA,'NCC_STA_NR','LN':P'IX',,IEC application command 'VALUE' received,,,,,,,,,,,,,,,,"
+   #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+   #ELSE #DO COM_LOG:CIN
+#BLOCK_END
+
+NCC_NUMBER = DEC_SCAN(SUBSTR(%LN,5,1))  
+
+#IF NOT COM_GENVAR:PBZ(NCC_NUMBER+4) #THEN #BLOCK
+   ;command specific part
+   #CASE %AI
+      ;general interrogation
+      #WHEN 100 #BLOCK
+         ;read general interrogation group number
+         @GRP_NRO='LN':PRB'IX'
+         #IF %COMMAND_COT == 6 #THEN #BLOCK
+            ;delay execution until link is ready
+            #LOOP_WITH I = 1..50
+               #IF STA'NCC_STA_NR':SDC(1) == 0 #THEN #BLOCK
+                  @IEC_LINK_READY = TRUE
+                  #LOOP_EXIT 
+               #BLOCK_END
+               #ELSE #PAUSE 0.2
+            #LOOP_END
+            #IF %IEC_LINK_READY #THEN #BLOCK      
+               @QUEUE_INFORMATION = STA'NCC_STA_NR':SQI(300+'GRP_NRO') 
+               #IF %ENABLE_DATA_SENDING_AFTER_STARTUP AND %QUEUE_INFORMATION == 0 #THEN #BLOCK
+                  ;send activation confirmation
+                  #SET STA'NCC_STA_NR':SCF = (256*%ORIGINATOR+7,0,100)
+                  ;execute general interrogation command with IEC101S protocol
+                  #EXEC COM_GENINT:C (@COM_APLCMD_PROTOCOL = 2,@COM_EXCLUSIVE_STA_NUMBER = %NCC_STA_NR,@COM_ORIGINATOR = %ORIGINATOR,@COM_IEC_GRP=%GRP_NRO, @SUB_PROTOCOL = 0)     
+                  #IF %ENABLE_LOGGING #THEN #BLOCK ; 1
+                     @TIME = HR_CLOCK
+                     @RT = TIMES(TIME:VCL)
+                     @RM = ROUND(TIME:VUS/1000)  
+                     @INFO="'rt':'rm',IESA,'NCC_STA_NR',,,Activation confirmation,,,,0,,,,,,,,,,,,"
+                     #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                     #ELSE #DO COM_LOG:CIN 
+                  #BLOCK_END
+               #BLOCK_END
+               #ELSE #BLOCK
+                  ;send negative confirmation
+                  #SET STA'NCC_STA_NR':SCF = (256*%ORIGINATOR+64+7,0,100)
+                  #IF %ENABLE_LOGGING #THEN #BLOCK ; 1
+                     @TIME = HR_CLOCK
+                     @RT = TIMES(TIME:VCL)
+                     @RM = ROUND(TIME:VUS/1000)  
+                     @INFO="'rt':'rm',IESA,'NCC_STA_NR',,,Negative activation confirmation,,,,0,,,,,,,,,,,,"
+                     #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                     #ELSE #DO COM_LOG:CIN 
+                  #BLOCK_END
+               #BLOCK_END
+            #BLOCK_END   
+         #BLOCK_END
+         #ELSE_IF %COMMAND_COT == 8 #THEN #BLOCK
+            #IF %ENABLE_DATA_SENDING_AFTER_STARTUP #THEN #BLOCK
+               ;Reset queues 
+               #EXEC COM_IEGICL:C (@COM_EXCLUSIVE_STA_NUMBER = %NCC_STA_NR,@COM_ORIGINATOR = %ORIGINATOR,@COM_IEC_GRP=%GRP_NRO,@ASDU_TYPE = %AI)     
+            #BLOCK_END
+            #ELSE #BLOCK
+               ;send negative confirmation
+               #SET STA'NCC_STA_NR':SCF = (256*%ORIGINATOR+64+9,0,100) 
+               #IF %ENABLE_LOGGING #THEN #BLOCK ; 1
+                  @TIME = HR_CLOCK
+                  @RT = TIMES(TIME:VCL)
+                  @RM = ROUND(TIME:VUS/1000)  
+                  @INFO="'rt':'rm',IESA,'NCC_STA_NR',,,Negative deactivation confirmation,,,,0,,,,,,,,,,,,"
+                  #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                  #ELSE #DO COM_LOG:CIN 
+               #BLOCK_END
+            #BLOCK_END
+         #BLOCK_END
+      #BLOCK_END
+      ;counter interrogation
+      #WHEN 101 #BLOCK
+         ;read qualifier of counter interrogation
+         @COUNTER_QUALIFIER='LN':PRB'IX'
+         #IF %COMMAND_COT == 6 #THEN #BLOCK         
+            ;send activation confirmation
+            #SET STA'NCC_STA_NR':SCF = (256*%ORIGINATOR+7,0,101)
+            ;execute counter interrogation command
+            #EXEC COM_CNTINT:C (@COM_EXCLUSIVE_STA_NUMBER = %NCC_STA_NR,@COM_ORIGINATOR = %ORIGINATOR,@COM_COUNTER_QUALIFIER = %COUNTER_QUALIFIER)
+            #IF %ENABLE_LOGGING #THEN #BLOCK ; 1
+               @TIME = HR_CLOCK
+               @RT = TIMES(TIME:VCL)
+               @RM = ROUND(TIME:VUS/1000)  
+               @INFO="'rt':'rm',IESA,'NCC_STA_NR',,,Activation confirmation,,,,0,,,,,,,,,,,,"
+               #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+               #ELSE #DO COM_LOG:CIN 
+            #BLOCK_END     
+         #BLOCK_END
+         #ELSE_IF %COMMAND_COT == 8 #THEN #BLOCK
+            #IF %ENABLE_DATA_SENDING_AFTER_STARTUP #THEN #BLOCK
+               ;Reset queues 
+               #EXEC COM_IEGICL:C (@COM_EXCLUSIVE_STA_NUMBER = %NCC_STA_NR,@COM_ORIGINATOR = %ORIGINATOR,@COM_IEC_GRP=%COUNTER_QUALIFIER,@ASDU_TYPE = %AI)     
+            #BLOCK_END
+            #ELSE #BLOCK
+               ;send negative confirmation
+               #SET STA'NCC_STA_NR':SCF = (256*%ORIGINATOR+64+9,0,101) 
+               #IF %ENABLE_LOGGING #THEN #BLOCK ; 1
+                  @TIME = HR_CLOCK
+                  @RT = TIMES(TIME:VCL)
+                  @RM = ROUND(TIME:VUS/1000)  
+                  @INFO="'rt':'rm',IESA,'NCC_STA_NR',,,Negative deactivation confirmation,,,,0,,,,,,,,,,,,"
+                  #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                  #ELSE #DO COM_LOG:CIN 
+               #BLOCK_END
+            #BLOCK_END
+         #BLOCK_END
+      #BLOCK_END
+      ;reading of user data (not confirmed!)
+      #WHEN 102 #BLOCK
+         ;execute read of user data with IEC101S protocol
+         #EXEC COM_RDDATA:C (@COM_EXCLUSIVE_STA_NUMBER = %NCC_STA_NR,@COM_READ_OBJECT_ADDRESS = %RA)
+      #BLOCK_END
+      ;reset process command
+      #WHEN 105 #BLOCK
+         @QRP_NRO='LN':PRB'IX'
+         #IF %QRP_NRO == 1 OR %QRP_NRO == 2 #THEN #BLOCK
+           ;send activation confirmation
+           #SET STA'NCC_STA_NR':SCF = (256*%ORIGINATOR+7,0,105)
+           ;check line and protocol number
+           @LINE_NUMBER = STA'NCC_STA_NR':SLI
+           @NODE_NUMBER = STA'NCC_STA_NR':BND
+           @PROTOCOL_NUMBER = NET'NODE_NUMBER':SPO'LINE_NUMBER'   
+           #IF %QRP_NRO == 1 #THEN #BLOCK
+               #IF %PROTOCOL_NUMBER == 45 #THEN #BLOCK 
+                 ;set station not in use (iec104) 
+                  #PAUSE 1    
+                  #SET STA'NCC_STA_NR':SIU = 0
+               #BLOCK_END 
+               #SET STA'NCC_STA_NR':SRS = 3 
+           #BLOCK_END
+           #ELSE_IF %QRP_NRO == 2 #THEN #BLOCK
+               #SET STA'NCC_STA_NR':SRS = (3,3) 
+           #BLOCK_END
+           ;execute reset process command
+           #EXEC COM_RESPRC:C (@COM_APLCMD_PROTOCOL = 2,@COM_EXCLUSIVE_STA_NUMBER = %NCC_STA_NR,@COM_ORIGINATOR = %ORIGINATOR)
+           #IF %ENABLE_LOGGING #THEN #BLOCK ; 1
+               @TIME = HR_CLOCK
+               @RT = TIMES(TIME:VCL)
+               @RM = ROUND(TIME:VUS/1000)  
+               @INFO="'rt':'rm',IESA,'NCC_STA_NR',,,Activation confirmation,,,,0,,,,,,,,,,,,"
+               #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+               #ELSE #DO COM_LOG:CIN 
+            #BLOCK_END
+         #BLOCK_END
+         #ELSE #BLOCK
+            ;send negative confirmation
+            #SET STA'NCC_STA_NR':SCF = (256*%ORIGINATOR+64+7,0,105)
+            #IF %ENABLE_LOGGING #THEN #BLOCK ; 1
+               @TIME = HR_CLOCK
+               @RT = TIMES(TIME:VCL)
+               @RM = ROUND(TIME:VUS/1000)  
+               @INFO="'rt':'rm',IESA,'NCC_STA_NR',,,Negative activation confirmation,,,,0,,,,,,,,,,,,"
+               #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+               #ELSE #DO COM_LOG:CIN 
+            #BLOCK_END
+         #BLOCK_END        
+      #BLOCK_END
+      ;other commands (confirmed)
+      #OTHERWISE #BLOCK
+         ;send activation confirmation
+         #SET STA'NCC_STA_NR':SCF = (256*%ORIGINATOR+7,0,%AI)
+         #IF %ENABLE_LOGGING #THEN #BLOCK ; 1
+            @TIME = HR_CLOCK
+            @RT = TIMES(TIME:VCL)
+            @RM = ROUND(TIME:VUS/1000)  
+            @INFO="'rt':'rm',IESA,'NCC_STA_NR',,,Activation confirmation,,,,0,,,,,,,,,,,,"
+            #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+            #ELSE #DO COM_LOG:CIN 
+         #BLOCK_END
+      #BLOCK_END
+   #CASE_END
+#BLOCK_END   
+#ELSE #BLOCK
+   @TYPE_OF_ASDU = ROUND(%AI)
+   #IF %TYPE_OF_ASDU <> 102 #THEN #BLOCK
+      ;send negative confirmation
+      #SET STA'NCC_STA_NR':SCF = (256*%ORIGINATOR+64+7,0,%TYPE_OF_ASDU)
+      #IF %ENABLE_LOGGING #THEN #BLOCK ; 1
+         @TIME = HR_CLOCK
+         @RT = TIMES(TIME:VCL)
+         @RM = ROUND(TIME:VUS/1000)  
+         @INFO="'rt':'rm',IESA,'NCC_STA_NR',,,Negative activation confirmation (communication disabled),,,,0,,,,,,,,,,,,"
+         #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+         #ELSE #DO COM_LOG:CIN 
+      #BLOCK_END
+   #BLOCK_END
+#BLOCK_END
+

@@ -1,0 +1,136 @@
+;Bay L/R switch
+#argument l_Objects
+#local v_messages, i_count, b_disable_all, l_value_convention
+#local b_allowed, i_val, t_value, t_my_control_place = ""
+#local i, v_loc, l_cd, l_tmp_convention, l_lr_message = list(value = 0, custom_value = 0, custom_text = "")
+
+l_value_convention = argument(2)
+
+v_messages = argument(3)
+i_count = argument(4)
+b_disable_all = argument(5)
+
+#if l_Objects.bay_lr_required #then #block
+   #if l_Objects.bay_lr_object #then #block
+      #if 'l_Objects.bay_lr_object_ln':pos'l_Objects.bay_lr_object_ix' == 10 #then #block
+         i_count = i_count + 1
+         v_messages(i_count) = translation("Bay LR switch not sampled")
+         b_disable_all = true
+         l_lr_message = list(value = 0, custom_value = 1010, custom_text = v_messages(i_count))
+      #block_end
+      #else #block
+         i_val = 'l_Objects.bay_lr_object_ln':pov'l_Objects.bay_lr_object_ix'
+         t_value = "NOT_DEFINED"
+         l_cd = 'l_Objects.bay_lr_object_ln':pcd
+         #if attribute_exists(l_cd, "u_lr_value_convention") #then #block
+            #error ignore
+            l_tmp_convention = do(l_cd.u_lr_value_convention)
+            #error stop
+            #if data_type(l_tmp_convention) == "LIST" #then #block
+               #if data_type(l_tmp_convention.this_system_name) == "TEXT" #then t_my_control_place = l_tmp_convention.this_system_name
+               #if data_type(l_tmp_convention.signals) == "VECTOR" #then l_value_convention = merge_attributes(l_value_convention, list(ied_specific_bay_lr = l_tmp_convention.signals))
+            #block_end
+         #block_end
+         
+         #if length(t_my_control_place) == 0 #then #block
+            #if APL:BSV3 > 0 #then t_my_control_place = "STATION"
+            #else t_my_control_place = "NCC"
+         #block_end
+         
+         #if attribute_exists(l_value_convention, "ied_specific_bay_lr") #then #block
+            
+            #loop_with i = 1 .. length(l_value_convention.ied_specific_bay_lr)
+               b_allowed = false
+               #if attribute_exists(l_value_convention.ied_specific_bay_lr(i), "VALUE") and attribute_exists(l_value_convention.ied_specific_bay_lr(i), "CONTROL_PLACES") #then #block
+                  #if i_val == l_value_convention.ied_specific_bay_lr(i).VALUE #then #block                  
+                     v_loc = locate(l_value_convention.ied_specific_bay_lr(i).CONTROL_PLACES, "ALL")
+                     #if length(select(v_loc, "==1")) > 0  #then #block
+                        b_allowed = true
+                        #loop_exit
+                     #block_end
+                     #if not b_allowed #then #block
+                        v_loc = locate(l_value_convention.ied_specific_bay_lr(i).CONTROL_PLACES, t_my_control_place)
+                        #if length(select(v_loc, "==1")) > 0  #then #block
+                           b_allowed = true
+                           #loop_exit
+                        #block_end
+                     #block_end
+                  #block_end
+               #block_end
+            #loop_end
+            #if not b_allowed #then #block
+               i_count = i_count + 1
+               v_messages(i_count) = translation("Bay LR inhibits control")
+               b_disable_all = true
+               l_lr_message = list(value = 0, custom_value = 1011, custom_text = v_messages(i_count))
+            #block_end
+         #block_end         
+         #else #block
+            #if 'l_Objects.bay_lr_object_ln':ppt'l_Objects.bay_lr_object_ix' == 12 #then #block ;DB
+               #if attribute_exists(l_value_convention.bay_lr_db, "ov_'i_val'") #then t_value = l_value_convention.bay_lr_db.ov_'i_val'
+            #block_end
+            #else_if 'l_Objects.bay_lr_object_ln':ppt'l_Objects.bay_lr_object_ix' == 3 #then #block ;BI
+               #if attribute_exists(l_value_convention.bay_lr_bi, "ov_'i_val'") #then t_value = l_value_convention.bay_lr_bi.ov_'i_val'
+            #block_end
+            #else_if 'l_Objects.bay_lr_object_ln':ppt'l_Objects.bay_lr_object_ix' == 9 #then #block ;AI
+               #if attribute_exists(l_value_convention.bay_lr_ai, "ov_'i_val'") #then t_value = l_value_convention.bay_lr_ai.ov_'i_val'
+            #block_end
+
+            #case t_Value
+               #when "DISABLED", "OFF" #block
+                  i_count = i_count + 1
+                  v_messages(i_count) = translation("Bay LR disabled")
+                  b_disable_all = true
+                  l_lr_message = list(value = 0, custom_value = 1012, custom_text = v_messages(i_count))
+               #block_end
+               #when "LOCAL"  #block
+                  i_count = i_count + 1
+                  v_messages(i_count) = translation("Bay in local use only")
+                  b_disable_all = true
+                  l_lr_message = list(value = 0, custom_value = 1013, custom_text = v_messages(i_count))
+               #block_end
+               #when "REMOTE_SCS"  #block
+                  #if apl:bsv3 == 0 #then #block ;SCS/NCC switch, 0 = NCC, >0 =SCS
+                     i_count = i_count + 1
+                     v_messages(i_count) = translation("Bay control authority at SCS")
+                     b_disable_all = true
+                     l_lr_message = list(value = 0, custom_value = 1014, custom_text = v_messages(i_count))
+                  #block_end
+               #block_end
+               #when "REMOTE_NCC"  #block
+                  #if apl:bsv3 > 0 #then #block ;SCS/NCC switch
+                     i_count = i_count + 1
+                     v_messages(i_count) = translation("Bay control authority at NCC")
+                     b_disable_all = true
+                     l_lr_message = list(value = 0, custom_value = 1015, custom_text = v_messages(i_count))
+                  #block_end
+               #block_end
+               #when "RESERVED" #block
+                  ;not specified behaviour for reserved yet
+                  ;i_count = i_count + 1
+                  ;v_messages(i_count) = translation("Bay LR in Reserved)
+                  ;b_disable_all = true
+               #block_end
+               #when "NOT_DEFINED" #block
+                  i_count = i_count + 1
+                  v_messages(i_count) = translation("Bay L/R switch state not supported")
+                  b_disable_all = true
+                  l_lr_message = list(value = 0, custom_value = 1016, custom_text = v_messages(i_count))
+               #block_end
+            #case_end
+         #block_end
+      #block_end
+   #block_end
+   #else #block
+      i_count = i_count + 1
+      v_messages(i_count) = translation("Bay LR switch missing")
+      b_disable_all = true
+      l_lr_message = list(value = 0, custom_value = 1017, custom_text = v_messages(i_count))
+   #block_end
+#block_end
+
+#return list(-
+   count = i_count,-
+   messages = v_messages,-
+   lr_message = l_lr_message,-
+   disable_all = b_disable_all)

@@ -1,0 +1,60 @@
+;LAN_MNAMED.TXT   1995-07-05 / TL
+;REV.   8.4   1996-10-03 / TL
+
+;       PIC_NAMEDS
+;
+;       In:     PICT_NUMBER
+;               PICT_PFNUMBER
+;
+;       Out:    PICT_STATUS
+;               PICT_NAMED_PROGRAMS  Vector of list values. Attributes:
+;                                       NAME       Name  of the program
+;                                       PROGRAM    The SCIL program
+;
+;       Note:   Internal variables have the prefix PSX
+;
+
+@PICT_STATUS = STATUS
+
+@PICT_NAMED_PROGRAMS = VECTOR()
+
+#ERROR IGNORE
+@PICT_STATUS = GET_STATUS(%PICT_PFNUMBER)
+#IF %PICT_STATUS == 0 #THEN #BLOCK
+   #IF DATA_TYPE(%PICT_PFNUMBER) == "INTEGER" #THEN #BLOCK
+      #IF %PICT_PFNUMBER < 0 #THEN -
+         @PICT_STATUS = 201 ;SCIL_INTEGER_ARGUMENT_OUT_OF_RANGE
+   #BLOCK_END
+   #ELSE @PICT_STATUS = 202 ;SCIL_INTEGER_ARGUMENT_EXPECTED
+#BLOCK_END
+#IF %PICT_STATUS == 0 #THEN #BLOCK
+   #IF %PICT_PFNUMBER == 0 #THEN @PSXSOURCE_ = ""
+   #ELSE #BLOCK
+      @PSXPFUNCTIONS_ = PSXP'PICT_NUMBER'.GET_PICTURE_FUNCTIONS
+      @PICT_STATUS = STATUS
+      #IF %PICT_STATUS == 0 #THEN #BLOCK
+         #IF %PICT_PFNUMBER <= LENGTH(%PSXPFUNCTIONS_) #THEN #BLOCK
+            @PSXPFUNCTION_ = %PSXPFUNCTIONS_(%PICT_PFNUMBER)
+            @PSXSOURCE_ = PSXPFUNCTION_:VNAME
+         #BLOCK_END
+         #ELSE @PICT_STATUS = 201 ;SCIL_INTEGER_ARGUMENT_OUT_OF_RANGE
+      #BLOCK_END
+   #BLOCK_END
+   #IF %PICT_STATUS == 0 #THEN #BLOCK
+      @PSXNAMEDPROGRAMS_ = PSXP'PICT_NUMBER'.GET_NAMED_PROGRAMS(%PSXSOURCE_)
+      @PICT_STATUS = STATUS
+      #IF %PICT_STATUS == 0 #THEN #BLOCK
+         @PSXI_ = 0
+         #LOOP %PSXI_ < LENGTH(%PSXNAMEDPROGRAMS_)
+            @PSXI_ = %PSXI_ + 1
+            @PSXNAME_ = %PSXNAMEDPROGRAMS_(%PSXI_)
+            @PICT_NAMED_PROGRAMS(%PSXI_) = LIST(-
+               NAME = %PSXNAME_,-
+               PROGRAM = PSXP'PICT_NUMBER'.GET_NAMED_PROGRAM(%PSXSOURCE_,-
+                                                             %PSXNAME_))
+            @PICT_STATUS = STATUS
+            #IF %PICT_STATUS <> 0 #THEN #LOOP_EXIT
+         #LOOP_END
+      #BLOCK_END
+   #BLOCK_END
+#BLOCK_END

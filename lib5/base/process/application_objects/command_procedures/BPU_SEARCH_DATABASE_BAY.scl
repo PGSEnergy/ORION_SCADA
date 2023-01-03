@@ -1,0 +1,120 @@
+;Function: BPU_SEARCH_DATABASE_BAY:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_search_database_bay.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute), U_OTHER_OBJECTS, result
+;Return data:
+;Description: returns bay LN and bay indication indexes (position, interlocking ...)
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument t_OI, hard_coded_info, t_Obj_ID
+#local l_Result = argument(4)
+#local l_objects, i, bay_ln = "", t_PT_IX_Condition
+#local i_Count = length(l_Result.EVENT_OBJECTS)
+#local rx1, rx2, rx3, rx4, rx5, rx6, rx7, rx8, rx9, rx10
+#local ext_interlocking_hw_ix = 15, ext_interlocking_sw_ix = 16, int_interlocking_ix = 18, bay_multilevel_control_ix = 30
+
+;****************************************************************************************************
+;redirect command if application specific command procedure is found                               ;*
+#local t_Redirect_Proc = "APLMOD5_BPU_SEARCH_DATABASE_BAY"                                         ;*
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    ;*
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            ;*
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 ;*
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  ;*
+         @REDIRECTED = true                                                                        ;*
+         i_ArgCnt = argument_count                                                                 ;*
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        ;*
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" ;*
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       ;*
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     ;*
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    ;*
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        ;*
+         #loop_end                                                                                 ;*
+         #return 't_Redirect_Command' ;;;;;                                                        ;*
+      #block_end                                                                                   ;*
+   #block_end                                                                                      ;*
+   #else #delete REDIRECTED:V                                                                      ;*
+#block_end                                                                                         ;*
+;****************************************************************************************************
+;MAIN START
+
+#if attribute_exists(hard_coded_info, "bay_ln") #then bay_ln = hard_coded_info.bay_ln
+
+#if data_type(bay_ln) == "TEXT" #then #block
+   #if bay_ln=="NONE" #then l_Result.all_objects.bay_lr_required = false
+#block_end
+#else_if data_type(bay_ln) == "VECTOR" and length(bay_ln)==1 #then #block
+   #if data_type(bay_ln(1)) == "TEXT" #then #block
+      #if bay_ln(1) =="NONE" #then l_Result.all_objects.bay_lr_required = false
+      #else bay_ln = bay_ln(1)
+   #block_end
+#block_end
+
+#if l_Result.all_objects.bay_lr_required #then #block
+
+   t_PT_IX_Condition = "(IX == 10 or IX == 22 or IX == 30) AND (PT == 3 or PT == 6 or PT == 9 or PT == 12)" 
+
+   ;search objects by checking the complete process object database   
+   rx1 = "%%%%%%%%%%%%%%%%%%%%%%'t_Obj_ID'ILRS*"
+   rx2 = "%%%%%%%%%%%%%%%%%%%%%%'t_Obj_ID'IOPS*"
+   rx3 = "%%%%%%%%%%%%%%%%%%%%%%'t_Obj_ID'IINH*"
+   rx4 = "%%%%%%%%%%%%%%%%%%%%%%'t_Obj_ID'XBLK*"
+   rx5 = "%%%%%%%%%%%%%%%%%%%%%%'t_Obj_ID'IMLT*"
+
+   #if bay_ln == "" #then  #block
+      l_objects = application_object_list(0, "IX",  "OI", "", "'t_OI'*", "'t_PT_IX_Condition' AND (RX==""'RX1'"" OR RX==""'RX2'"" OR RX==""'RX3'"" OR RX==""'RX4'"" OR RX==""'RX5'"")", vector("IU", "SS", "RX"))
+   #block_end
+   #else #block
+      l_objects = application_object_list(0, "IX",  "I", "F", "'bay_ln'", "'t_PT_IX_Condition' AND (RX==""'RX1'"" OR RX==""'RX2'"" OR RX==""'RX3'"" OR RX==""'RX4'"" OR RX==""'RX5'"")", vector("IU", "SS", "RX"))
+   #block_end
+   
+   #loop_with i = 1 .. l_objects.count
+      #if substr(l_objects.rx(i),23,8)=="'t_Obj_ID'ILRS" #then #block
+         #if l_objects.iu(i) > 0 and l_objects.ss(i) > 0 #then #block
+            l_Result.ALL_OBJECTS = merge_attributes(l_Result.ALL_OBJECTS, list(bay_lr_object_ln = l_objects.ln(i), bay_lr_object_ix = l_objects.ix(i), bay_lr_object = true))
+            i_Count = i_Count + 1
+            l_Result.EVENT_OBJECTS(i_Count) = list(LN = l_objects.ln(i), IX = l_objects.ix(i))
+         #block_end
+         #else l_Result.all_objects.bay_lr_required = false
+      #block_end
+      ;bay software local/remote -switch
+      #else_if substr(l_objects.rx(i),23,8) == "'t_Obj_ID'IOPS" #then #block
+         l_Result.ALL_OBJECTS = merge_attributes(l_Result.ALL_OBJECTS, list(bay_op_object_ln = l_objects.ln(i), bay_op_object_ix = l_objects.ix(i)))
+         i_Count = i_Count + 1
+         l_Result.EVENT_OBJECTS(i_Count) = list(LN = l_objects.ln(i), IX = l_objects.ix(i))
+      #block_end   
+      ;blocking printout
+      #else_if substr(l_objects.rx(i),23,8)=="'t_Obj_ID'XBLK" #then #block
+         l_Result.ALL_OBJECTS = merge_attributes(l_Result.ALL_OBJECTS, list(blockings_ln = l_objects.ln(i), blockings_ix = l_objects.ix(i)))
+         i_Count = i_Count + 1
+         l_Result.EVENT_OBJECTS(i_Count) = list(LN = l_objects.ln(i), IX = l_objects.ix(i))
+      #block_end
+      ;external interlocking (hardware) in use
+      #else_if substr(l_objects.rx(i),23,8)=="'t_Obj_ID'IINH" and l_objects.ix(i)==ext_interlocking_hw_ix #then #block
+         l_Result.ALL_OBJECTS = merge_attributes(l_Result.ALL_OBJECTS, list(ext_hw_interlock_in_use_ln = l_objects.ln(i), ext_hw_interlock_in_use_ix = l_objects.ix(i)))
+         i_Count = i_Count + 1
+         l_Result.EVENT_OBJECTS(i_Count) = list(LN = l_objects.ln(i), IX = l_objects.ix(i))
+      #block_end
+      ;external interlocking (software) in use
+      #else_if substr(l_objects.rx(i),23,8)=="'t_Obj_ID'IINH" and l_objects.ix(i)==ext_interlocking_sw_ix #then #block
+         l_Result.ALL_OBJECTS = merge_attributes(l_Result.ALL_OBJECTS, list(ext_sw_interlock_in_use_ln = l_objects.ln(i), ext_sw_interlock_in_use_ix = l_objects.ix(i)))
+         i_Count = i_Count + 1
+         l_Result.EVENT_OBJECTS(i_Count) = list(LN = l_objects.ln(i), IX = l_objects.ix(i))
+      #block_end
+      ;internal interlocking in use
+      #else_if substr(l_objects.rx(i),23,8)=="'t_Obj_ID'IINH" and l_objects.ix(i)==int_interlocking_ix #then #block
+         l_Result.ALL_OBJECTS = merge_attributes(l_Result.ALL_OBJECTS, list(int_interlock_in_use_ln = l_objects.ln(i), int_interlock_in_use_ix = l_objects.ix(i)))
+         i_Count = i_Count + 1
+         l_Result.EVENT_OBJECTS(i_Count) = list(LN = l_objects.ln(i), IX = l_objects.ix(i))
+      #block_end
+      ;multilevel control
+      #else_if substr(l_objects.rx(i),23,8)=="'t_Obj_ID'IMLT" and l_objects.ix(i)==bay_multilevel_control_ix #then #block
+         l_Result.ALL_OBJECTS = merge_attributes(l_Result.ALL_OBJECTS, list(bay_multilevel_control_ln = l_objects.ln(i), bay_multilevel_control_ix = l_objects.ix(i)))
+         i_Count = i_Count + 1
+         l_Result.EVENT_OBJECTS(i_Count) = list(LN = l_objects.ln(i), IX = l_objects.ix(i))
+      #block_end
+   #loop_end      
+#block_end
+
+#return l_result

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="SAObjectType" content="Bay" />
+    <d:variable type="external" name="control" default="''" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Bay" />
+    <d:meta name="dv-custom-attribute|ToolLauncherProgId" content="ControlDlgs.Launcher" />
+    <d:meta name="dv-custom-attribute|SANoRotate" content="" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="Authorization Switch" />
+    <d:meta name="dv-custom-attribute|SARepresentation" content="Binary Input" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="state-signal" default="0" />
+    <d:variable type="external" name="status-color" default="0" />
+    <d:variable type="external" name="caption" default="''" />
+    <d:mapping name="f0" parameters="value">
+      <d:step value="'rgb(255, 0, 0)'" when="value &lt;= 35.500" />
+      <d:step value="colors[38]" when="value &lt;= 36.501" />
+      <d:step value="'rgb(255, 0, 0)'" when="value &lt;= 37.502" />
+      <d:step value="colors[38]" when="value &lt;= 39.502" />
+      <d:otherwise value="'rgb(255, 0, 0)'" />
+    </d:mapping>
+    <d:mapping name="f1" parameters="value">
+      <d:step value="true" when="value &lt;= 2.400" />
+      <d:step value="false" when="value &lt;= 3.600" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f2" parameters="value">
+      <d:step value="'rgb(255, 255, 255)'" when="value &lt;= 35.500" />
+      <d:step value="colors[38]" when="value &lt;= 36.501" />
+      <d:step value="'rgb(255, 255, 255)'" when="value &lt;= 37.502" />
+      <d:step value="colors[38]" when="value &lt;= 39.502" />
+      <d:otherwise value="'rgb(255, 255, 255)'" />
+    </d:mapping>
+    <d:mapping name="f3" parameters="value">
+      <d:step value="true" when="value &lt;= 0.500" />
+      <d:step value="false" when="value &lt;= 1.095" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f4" parameters="value">
+      <d:step value="'rgb(255, 64, 0)'" when="value &lt;= 35.500" />
+      <d:step value="colors[38]" when="value &lt;= 36.501" />
+      <d:step value="'rgb(255, 64, 0)'" when="value &lt;= 37.502" />
+      <d:step value="colors[38]" when="value &lt;= 39.502" />
+      <d:otherwise value="'rgb(255, 64, 0)'" />
+    </d:mapping>
+    <d:mapping name="f5" parameters="value">
+      <d:step value="true" when="value &lt;= 1.500" />
+      <d:step value="false" when="value &lt;= 2.420" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f6" parameters="value">
+      <d:step value="true" when="value &lt;= -0.600" />
+      <d:step value="false" when="value &lt;= 0.600" />
+      <d:otherwise value="true" />
+    </d:mapping>
+  </d:head>
+  <d:body n:LN="{LN(control)}" n:IX="{IX(control)}" x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <d:action type="control" when="`control_action_enabled`">
+      <d:parameter name="LN" value="LN(control)" />
+      <d:parameter name="IX" value="IX(control)" />
+      <d:parameter name="opc-id" value="control" />
+    </d:action>
+    <s:text font-weight="bold" font-family="Arial" font-size="10.981" x="-0.900" y="-0.340" text-anchor="middle" dominant-baseline="central" d:textScaleAdjustment="true" d:transform-anchor="center-center" d:hidden="f1(`state-signal`) and `subdrawing_dynamics` = 1" y:fill="{if(`subdrawing_dynamics`, f0(`status-color`), 'rgb(255, 0, 0)')}" y:fill-rule="evenodd" d:object-name="Local Text">ÀÂÀвß</s:text>
+    <s:text font-weight="bold" font-family="Arial" font-size="10.981" x="1.140" y="-0.320" text-anchor="middle" dominant-baseline="central" d:textScaleAdjustment="true" d:transform-anchor="center-center" d:hidden="f3(`state-signal`) and `subdrawing_dynamics` = 1" y:fill="{if(`subdrawing_dynamics`, f2(`status-color`), colors[57])}" y:fill-rule="evenodd" d:object-name="Local Text">ÍÎÐÌÀ</s:text>
+    <s:text font-weight="bold" font-family="Arial" font-size="10.981" x="1.660" y="-0.420" text-anchor="middle" dominant-baseline="central" d:textScaleAdjustment="true" d:transform-anchor="center-center" d:hidden="f5(`state-signal`) and `subdrawing_dynamics` = 1" y:fill="{if(`subdrawing_dynamics`, f4(`status-color`), 'rgb(255, 64, 0)')}" y:fill-rule="evenodd" d:object-name="Remote Text">ÏÐÅÄÓÏÐ. </s:text>
+    <s:polyline points="-7.740,6.060 -7.740,-6.780 -7.440,-7.180 7.340,-7.180 " y:fill="none" y:fill-rule="evenodd" y:stroke="{colors[16]}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" s:visibility="hidden" d:object-name="Frame Top Left" />
+    <s:text font-weight="bold" font-family="Arial" font-size="10.981" fill="rgb(255, 0, 255)" x="-0.640" y="-0.780" text-anchor="middle" dominant-baseline="central" d:textScaleAdjustment="true" d:hidden="f6(`state-signal`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="rgb(255, 0, 255)" y:fill-rule="evenodd" d:object-name="Remote Text"> ??? </s:text>
+  </d:body>
+</d:document>

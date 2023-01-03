@@ -1,0 +1,58 @@
+; File: GetINodeInfo.scl
+; Parameters: none
+; Description: - Reads the node number and integrated link number from 
+;                system configuration data file.
+;              - Returns list with attributes
+;                 i_Node_Number
+;                 i_Link_Number
+;                 i_Station_Address
+; -----------------------------------------------------------------
+
+@t_Error_State = Error_State
+
+;Error Handler if run from command procedure
+@l_Host = Scil_Host
+#If l_Host:VName <> "PICO" #Then #Block
+   #On ERROR #Block
+      @i_Status = status
+      @i_Status = Do(Read_Text("Sys_Tool/Msglog.scl"),-
+                     "ERROR",-
+                     "GetINodeInfo.scl: Problem reading configuration file",-
+                     %i_Status)
+      #Error 't_Error_State'
+   #Block_End
+   #Error Event
+#Block_End
+
+;Initialise variables
+@l_System_Configuration_Data   = SYS:BSV(2)
+@v_PCNET_Node_Number           = vector() ; Node Number of NOD:B
+@v_PCNET_Node_Station_Address  = vector() ; SA value for NOD:B
+@v_Integrated_Link_Number      = vector() ; Link Number of LIN:B
+@t_Configuration_File = "sys_/SysConf.ini"
+#if data_type(%l_System_Configuration_Data) == "LIST" #then #if length(select(list_attr(%l_System_Configuration_Data), "==""T_SYSTEM_CONFIGURATION_FILE""")) == 1 #then @t_Configuration_File = l_System_Configuration_Data:vt_System_Configuration_File
+
+@v_File_Contents               = vector()
+@v_GetAttr                     = read_text("sys_tool/GetAttr.scl")
+
+;Get PC_NET node & link number
+@v_Node_Numbers = do(read_text("sys_tool/GetObjNrs.scl"), "BASE_SYSTEM_NODE")
+#If %v_Node_Numbers(1) > 0 #Then #Block        ; %v_Node_Numbers(1)==0 if no nodes exist
+   #Loop_With i = 1..Length(%v_Node_Numbers)
+      @i_Node_Number = %v_Node_Numbers(%i)
+      @i_Node_Link_Number = do(%v_GetAttr, "BASE_SYSTEM_NODE", %i_Node_Number, "LI")
+      @t_Link_Type = do(%v_GetAttr, "BASE_SYSTEM_LINK", %i_Node_Link_Number, "LT")
+      #If %t_Link_Type == "INTEGRATED" #Then #Block
+         @v_Integrated_Link_Number = append(%v_Integrated_Link_Number, %i_Node_Link_Number)
+         @v_PCNET_Node_Number = append(%v_PCNET_Node_Number, %i_Node_Number)
+         @v_PCNET_Node_Station_Address = append(%v_PCNET_Node_Station_Address, do(%v_GetAttr, "BASE_SYSTEM_NODE", %i_Node_Number, "SA"))
+;         #Loop_Exit
+      #Block_End
+   #Loop_End
+#Block_End
+
+#Return list(v_Node_Number = %v_PCNET_Node_Number,-
+             v_Link_Number = %v_Integrated_Link_Number,-
+             v_Station_Address = %v_PCNET_Node_Station_Address)
+
+#Error 't_Error_State'

@@ -1,0 +1,96 @@
+; Command Procedure: SYS_APLE2
+; Version: SYS 600 9.3
+; Description: This is command procedure for application supervision (in case of external applications)
+; ------------------------------------------------------------------------------------------------------
+
+;read in object data
+#if %SOURCE == "APL_AS" #then #block
+   @l_Obj_Vars = list(SOURCE = %SOURCE, TYPE = "APPLICATION", NUMBER = %SOURCE_NR)
+   @l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectAttributes", l_Obj_Vars:vTYPE, l_Obj_Vars:vNUMBER)
+#block_end
+   #else @l_Obj_Data = list(STATUS = -1)
+
+;define events and update indication state 
+#if l_Obj_Data:vSTATUS == 0 #then #if l_Obj_Data:vAS_PRIMARY <> "#" #then #block ; 1
+
+   ;read in filtering info
+   @l_Filtering_Info = do(apl:bsv40, "SSS", "GetFilterAttributes", "SYS_EVENT", l_Obj_Vars:vSOURCE, %EVENT)
+
+   ;read in general info
+   @l_General_Info = APL:BSV45
+
+   ;write to log, event/alarm activation
+   #if l_Filtering_Info:vSTATUS == 0 #then #block ; 2
+
+      ;write to log, if requested
+      #if l_Filtering_Info:vLOG and l_General_Info:vENABLE_LOG #then -
+         @i_Log_Write = do(apl:bsv40, "SSS", "WriteLogItem", "STE", "EVENT_SYS")
+
+      ;activate event, if requested
+      #if l_Filtering_Info:vEVENT and l_General_Info:vENABLE_EVENT #then #block
+         @l_Event_Point = do(apl:bsv40, "SSS", "GetEvents", "EVENT", l_Obj_Vars:vTYPE, l_Obj_Vars:vNUMBER, list(SOURCE = l_Obj_Vars:vSOURCE, EVENT = %EVENT))
+         
+         #if l_Event_Point:vSTATUS == 0 #then #set 'l_Event_Point:vEVENT' = 1
+         #else #block
+            @l_Event_Point = do(apl:bsv40, "SSS", "CreateProcessObject", l_Obj_Vars:vTYPE, "EVENT", l_Obj_Vars:vNUMBER, list(SOURCE = l_Obj_Vars:vSOURCE, EVENT = %EVENT))
+            #set 'l_Event_Point:vEVENT' = 1
+         #block_end
+      #block_end
+      
+      ;activate alarm, if requested
+      #if l_Filtering_Info:vALARM and l_General_Info:vENABLE_ALARM #then #block
+         @l_Alarm_Point = do(apl:bsv40, "SSS", "GetEvents", "ALARM", l_Obj_Vars:vTYPE, l_Obj_Vars:vNUMBER, list(SOURCE = l_Obj_Vars:vSOURCE, EVENT = %EVENT))
+         
+         #if l_Alarm_Point:vSTATUS == 0 #then #set 'l_Alarm_Point:vALARM' = abs(1 - 'l_Alarm_Point:vALARM')
+         #else #block
+            @l_Alarm_Point = do(apl:bsv40, "SSS", "CreateProcessObject", l_Obj_Vars:vTYPE, "ALARM", l_Obj_Vars:vNUMBER, list(SOURCE = l_Obj_Vars:vSOURCE, EVENT = %EVENT))
+            #set 'l_Alarm_Point:vALARM' = 1
+         #block_end
+      #block_end
+   
+   #block_end ; 2
+      #else_if l_Filtering_Info:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_aple2:c]", l_Filtering_Info:vDESCRIPTIVE_TEXT)
+
+   ;update indication process object
+   #case l_Obj_Vars:vSOURCE
+
+      #when "APL_AS" #block
+         #if APL'l_Obj_Vars:vNUMBER':BTT == "NONE" #then #set 'l_Obj_Data:vAS_PRIMARY' = -1
+         #else #block
+            #if l_Filtering_Info:vSTATUS == 0 #then #block
+               #if l_Filtering_Info:vALARM #then #set 'l_Obj_Data:vAS_PRIMARY' = 10
+                  #else #set 'l_Obj_Data:vAS_PRIMARY' = 0
+            #block_end
+            #else_if l_Filtering_Info:vSTATUS < 0 #then #set 'l_Obj_Data:vAS_PRIMARY' = 0
+            #else #block
+               #error ignore
+                  @i_OV = 1
+                  @i_OV = 'l_Obj_Data:vAS_PRIMARY' 
+               #error stop
+               #set 'l_Obj_Data:vAS_PRIMARY' = list(OV = %i_OV, OS = 4)
+            #block_end
+         #block_end
+         ;update application state
+         @l_Event_Object = do(apl:bsv40, "SSS", "GetLogicalNameAndIndex", l_Obj_Data:vAS_PRIMARY)
+         @t_Event_Object = "'l_Event_Object:vLN':E'l_Event_Object:vIX'"
+         #exec 't_Event_Object'
+         
+         #if l_Obj_Data:vPresentation <> "#" #then #block
+            @l_Presentation_Object = do(apl:bsv40, "SSS", "GetLogicalNameAndIndex", l_Obj_Data:vPresentation)
+            @t_Presentation_Object = "'l_Presentation_Object:vLN':P'l_Presentation_Object:vIX'"           
+            #case %EVENT
+               #when "COLD" @i_Value = 1
+               #when "WARM" @i_Value = 2
+               #when "HOT" @i_Value = 3
+               #otherwise @i_Value = -13
+            #case_end
+            #if application_object_exists(0, "IX", LIST(LN="'l_Presentation_Object:vLN'", IX=l_Presentation_Object:vIX)) #then -
+               #set 't_Presentation_Object' = %i_Value
+         #block_end             
+      #block_end
+
+   #case_end
+
+#block_end ; 1
+   #else_if l_Obj_Data:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_aple2:c]", l_Obj_Data:vDESCRIPTIVE_TEXT)
+

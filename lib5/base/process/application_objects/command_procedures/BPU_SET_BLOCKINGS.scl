@@ -1,0 +1,192 @@
+;Function: BPU_SET_BLOCKINGS:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_set_blockings.scl
+;Version: 1.0
+;Input arguments: CD-attribute, search results, blocking(s) to be set, IX
+;Return data: list(status = 0, err_description = "")
+;Description: blocks/unblocks process objects
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_Object_Info, l_data, l_Block
+#local l_Result = list(status = 0, err_description = "")
+#local l_All_Signals = LIST(Input_Objects=list(), Output_Objects=list()), i, t_LN, i_IX, b_Update_Data = false, l_Objects
+#local b_Update_Set = false, b_Control_Set = false, b_Alarm_Set = false, b_Event_Set = false
+#local b_Printout_Set = false, b_Action_Set = false, v_update_objects = vector
+
+;****************************************************************************************************
+;redirect command if application specific command procedure is found                               ;*
+#local t_Redirect_Proc = "APLMOD5_BPU_SET_BLOCKINGS"                                               ;*
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    ;*
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            ;*
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 ;*
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  ;*
+         @REDIRECTED = true                                                                        ;*
+         i_ArgCnt = argument_count                                                                 ;*
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                      ;*
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" ;*
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       ;*
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     ;*
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    ;*
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        ;*
+         #loop_end                                                                                 ;*
+         #return 't_Redirect_Command' ;;;;;                                                        ;*
+      #block_end                                                                                   ;*
+   #block_end                                                                                      ;*
+   #else #delete REDIRECTED:V                                                                      ;*
+#block_end                                                                                         ;*
+;****************************************************************************************************
+;MAIN START
+l_Objects = l_data.all_objects
+;Search signals to be blocked
+#if argument_count > 3 #then #block
+   ;different arguments from pipeline/WebUI
+   #if data_type(argument(4)) == "INTEGER" #then -
+      l_All_Signals = do(bpu_search_blockings:c, l_Object_Info, argument(4))
+   #else l_All_Signals = do(bpu_search_blockings:c, l_Object_Info)
+#block_end
+#else l_All_Signals = do(bpu_search_blockings:c, l_Object_Info)
+
+#loop_with i = 1 .. l_All_Signals.Input_Objects.COUNT
+   
+   t_LN = l_All_Signals.Input_Objects.LN(i)
+   i_IX = l_All_Signals.Input_Objects.IX(i)
+
+   ;prevent event from blocking
+   #if l_All_Signals.Input_Objects.HE(i) <> 0 #then #set 't_LN':phe'i_IX' = 0
+   
+   ;update block
+   #if attribute_exists(l_Block, "update") #then #block
+      #if 't_LN':pub'i_IX' <> l_Block.update #then #block
+         #set 't_LN':pub'i_IX' = l_Block.update
+         b_Update_Set = true
+      #block_end
+   #block_end
+   ;alarm block
+   #if attribute_exists(l_Block, "alarm") #then #block
+      #if 't_LN':pab'i_IX' <> l_Block.alarm and l_All_Signals.Input_objects.AC(i) <> 0 #then #block
+         #set 't_LN':pab'i_IX' = l_Block.alarm
+         b_Alarm_Set = true
+      #block_end
+   #block_end
+   ;event block
+   #if attribute_exists(l_Block, "event") #then #block
+      #if 't_LN':phb'i_IX' <> l_Block.event and l_All_Signals.Input_objects.HE(i) <> 0 #then #block
+         #set 't_LN':phb'i_IX' = l_Block.event
+         b_event_Set = true
+      #block_end
+   #block_end
+   ;printout block
+   #if attribute_exists(l_Block, "printout") #then #block
+      #if 't_LN':ppb'i_IX' <> l_Block.printout and l_All_Signals.Input_objects.LD(i) <> 0 #then #block
+         #set 't_LN':ppb'i_IX' = l_Block.printout
+         b_Printout_Set = true
+      #block_end
+   #block_end
+   ;action block
+   #if attribute_exists(l_Block, "printout") #then #block
+      #if 't_LN':pxb'i_IX' <> l_Block.action and l_All_Signals.Input_objects.AE(i) <> 0 #then #block
+         #set 't_LN':pxb'i_IX' = l_Block.action
+         b_Action_Set = true
+      #block_end
+   #block_end
+   #if l_All_Signals.Input_Objects.HE(i) <> 0 #then #set 't_LN':phe'i_IX' = 1
+
+#loop_end
+
+#loop_with i = 1 .. l_All_Signals.Output_Objects.COUNT
+   
+   t_LN = l_All_Signals.Output_Objects.LN(i)
+   i_IX = l_All_Signals.Output_Objects.IX(i)
+   
+   ;prevent event from blocking
+   #if l_All_Signals.Output_Objects.HE(i) <> 0 #then #set 't_LN':phe'i_IX' = 0
+   
+   ;control block
+   #if attribute_exists(l_Block, "control") #then #block
+      #if 't_LN':pub'i_IX' <> l_Block.control #then #block
+         #set 't_LN':pub'i_IX' = l_Block.control
+         b_Control_Set = true
+      #block_end
+   #block_end
+   ;alarm block
+   #if attribute_exists(l_Block, "alarm") #then #block
+      #if 't_LN':pab'i_IX' <> l_Block.alarm and l_All_Signals.Output_Objects.AC(i) <> 0 #then #block
+         #set 't_LN':pab'i_IX' = l_Block.alarm
+         b_Alarm_Set = true
+      #block_end
+   #block_end
+   ;event block
+   #if attribute_exists(l_Block, "event") #then #block
+      #if 't_LN':phb'i_IX' <> l_Block.event and l_All_Signals.Output_Objects.HE(i) <> 0 #then #block
+         #set 't_LN':phb'i_IX' = l_Block.event
+         b_event_Set = true
+      #block_end
+   #block_end
+   ;printout block
+   #if attribute_exists(l_Block, "printout") #then #block
+      #if 't_LN':ppb'i_IX' <> l_Block.printout and l_All_Signals.Output_Objects.LD(i) <> 0 #then #block
+         #set 't_LN':ppb'i_IX' = l_Block.printout
+         b_Printout_Set = true
+      #block_end
+   #block_end
+   ;action block
+   #if attribute_exists(l_Block, "action") #then #block
+      #if 't_LN':pxb'i_IX' <> l_Block.action and l_All_Signals.Output_Objects.AE(i) <> 0 #then #block
+         #set 't_LN':pxb'i_IX' = l_Block.action
+         b_Action_Set = true
+      #block_end
+   #block_end
+   #if l_All_Signals.Output_Objects.HE(i) <> 0 #then #set 't_LN':phe'i_IX' = 1
+   
+#loop_end
+
+;if update unblocked, then update objects from process
+#if attribute_exists(l_Block, "update") #then #block
+   #if l_Block.update == 0 and b_Update_Set #then #block
+      
+      #loop_with i = 1 .. (l_All_Signals.Input_Objects.COUNT)
+      
+         t_LN = l_All_Signals.Input_Objects.LN(i)
+         i_IX = l_All_Signals.Input_Objects.IX(i)
+         ;if connected to process
+         #if l_All_Signals.Input_Objects.SS(i) > 1 and l_All_Signals.Input_Objects.UN(i) > 0  #then #block
+            v_update_objects = insert_element(v_update_objects, length(v_update_objects) + 1, list(ln = t_LN, ix = i_IX))
+         #block_end
+         ;simulated process
+         #else_if 't_LN':pos'i_IX' == 2 #then #block
+            #if l_All_Signals.Input_Objects.HE(i) <> 0 #then #set 't_LN':phe'i_IX' = 0
+            #if l_All_Signals.Input_Objects.PB(i) <> 1 #then #set 't_LN':ppb'i_IX' = 1
+            #set 't_LN':pov'i_IX' = 't_LN':pov'i_IX'
+            #if l_All_Signals.Input_Objects.PB(i) <> 1 #then #set 't_LN':ppb'i_IX' = 0
+            #if l_All_Signals.Input_Objects.HE(i) <> 0 #then #set 't_LN':phe'i_IX' = 1
+         #block_end
+         
+      #loop_end
+   
+      #exec bpu_update:c (@update_objects = v_update_objects)
+      
+   #block_end
+#block_end
+
+;generate event
+#if attribute_exists(l_Objects, "blockings_ln") #then #block
+   t_LN = l_Objects.blockings_ln
+   i_IX = l_Objects.blockings_ix
+   
+   #if length(l_All_Signals.Input_Objects.OI) > 0 #then #block
+      #set 't_LN':poi'i_IX' = l_All_Signals.Input_Objects.OI(1)
+      #if attribute_exists(l_Object_Info, "device_name") #then #set 't_LN':pox'i_IX' = translation("Object blockings")
+      #else #set 't_LN':pox'i_IX' = translation("Group blockings")
+   #block_end
+   
+   #if b_update_Set #then #set 't_LN':pov'i_IX' = l_Block.update
+   #if b_control_Set #then #set 't_LN':pov'i_IX'= l_Block.control + 2
+   #if b_alarm_Set #then #set 't_LN':pov'i_IX'= l_Block.alarm + 4
+   #if b_event_Set #then #set 't_LN':pov'i_IX'= l_Block.event + 6
+   #if b_printout_Set #then #set 't_LN':pov'i_IX'= l_Block.printout + 8
+   #if b_Action_Set #then #set 't_LN':pov'i_IX'= l_Block.action + 10
+   
+#block_end
+
+#return l_Result

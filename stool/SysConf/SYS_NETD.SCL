@@ -1,0 +1,15 @@
+; Command Procedure: SYS_NET'NET_NR'D
+; Description: Handles system messages from the PCNET
+;              DO NOT EDIT! - This procedure is updated automatically
+; -----------------------------------------------------------------
+
+@l_System_Configuration_Data = SYS:BSV(2)
+@i_Net_Number = 'LN':PRI'IX'
+
+#Case %AI
+   #When 10001 #Block;     NET STARTED - Start configuration
+
+      @i_Status = do (read_text("Sys_Tool/Create_C.scl"), "NET", %i_Net_Number)
+      
+   #Block_End
+#Case_End

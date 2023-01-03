@@ -1,0 +1,266 @@
+;read object texts
+
+;collect information for object identifier (OI-attribute)
+@OBJ_IDENT
+#LOOP_WITH I = 1 .. %NR_OF_FIELDS
+  @FIELD_IDENT = %OBJECT_IDENTIFIER_'I'_NAME
+  @OBJ_IDENT=%OBJ_IDENT+SUBSTR('ID'_PICTURE_FUNCTION_CONF:V'FIELD_IDENT',1,%OI_LENGTH'I')
+#LOOP_END
+
+;collect information for RX-attribute
+@ADDITIONAL_IDENT= SUBSTR("",1,10)
+@UNIT_IDENT = SUBSTR("",1,10)
+
+;create needed scales, command procedures and event channels
+
+;define 1:1 scale for AI object if it does not exist
+@X_SEARCH=FETCH(0,"X","1_1")
+#IF X_SEARCH:VIU == -1 #THEN #BLOCK
+  #CREATE 1_1:X = LIST(SA = 0)
+#BLOCK_END
+
+;initialize variables
+@DX
+@HE
+@PF
+@LD
+@P_OBJ01
+@P_OBJ02
+@P_OBJECTS = LIST()
+
+@v_NrOffDataObjects = length('ID'_PICTURE_FUNCTION_CONF:VDATA_OBJECT)
+
+;filter out Mod, Beh, Health,NamePlt. Rel, Enaopn, EnaCls,  .t, .q ...
+@v_FilteredDOs = vector
+#if file_manager("EXISTS",fm_scil_file("sagr_bbone/Scl_DO_Filter.txt")) #then -
+   @v_FilteredDOs = read_text("sagr_bbone/Scl_DO_Filter.txt")
+
+@LPHD = list(-
+   SIGNAL_DATA = list(-
+      PhyNam = list(IX = vector(),PT = vector(),OX = vector(""), EH = vector(""), RX = vector(""), RI = vector(0), AC = vector(),Data_Attribute = vector("")),-
+      PhyHealth = list(IX = vector(10),PT = vector(9), OX = vector("Physical device health"), EH = vector("SAGR_FORM5FPAI1_19"), RX = vector("BSWPDHIMSC"), RI = vector(19), AC = vector(1),Data_Attribute = vector("stVal")),-
+      OutOv = list(IX = vector(11),PT = vector(3), OX = vector("Output communications buffer overflow"), EH = vector("SAGR_FORM5FPBI1_0"), RX = vector("BSWPDHIMSC"), RI = vector(0), AC = vector(1),Data_Attribute = vector("stVal")),-
+      Proxy  = list(IX = vector(12),PT = vector(3),OX = vector("proxy"), EH = vector("SAGR_FORM5FPBI1_0"), RX = vector(""), AC = vector(1),Data_Attribute = vector("stVal")),-
+      InOv = list(IX = vector(13),PT = vector(3),OX = vector("Input communications buffer overflow"), EH = vector("SAGR_FORM5FPBI1_0"), RX = vector("BSWIBOIMSC"), RI = vector(0), AC = vector(1),Data_Attribute = vector("stVal")),-
+      NumPwrUp = list(IX = vector(14),PT = vector(9), OX = vector("Number of Power ups"), EH = vector("SAGR_FORM5FPAI3_1"), RX = vector("BSWNPUIMSC"), RI = vector(1), AC = vector(1),Data_Attribute = vector("stVal")),-
+      WrmStr = list(IX = vector(15),PT = vector(9), OX = vector("Number of Warm Starts"), EH = vector("SAGR_FORM5FPAI3_1"), RX = vector("BSWWDRIMSC"), RI = vector(1), AC = vector(1),Data_Attibute = vector("stVal")),-
+      WacTrg = list(IX = vector(16),PT = vector(9), OX = vector("Number of watchdog device resets detected"), EH = vector("SAGR_FORM5FPAI3_1"), RX = vector(""), RI = vector(1), AC = vector(1),Data_Attribute = vector("stVal")),-
+      PwrUp = list(IX = vector(17),PT = vector(3), OX = vector("Power Up detected"), EH = vector("SYS_BI"), RX = vector("BSWPUDIMSC"), RI = vector(0), AC = vector(1),Data_Attribute = vector("stVal")),-
+      PwrDn = list(IX = vector(18),PT = vector(3), OX = vector("Power Down detected"), EH = vector("SAGR_FORM5FPBI1_0"), RX = vector("BSWPDDIMSC"), RI = vector(0), AC = vector(1),Data_Attribute = vector("stVal")),-
+      PwrSupAlm = list(IX = vector(19),PT = vector(3), OX = vector("External power supply alarm"), EH = vector("SAGR_FORM5FPBI1_0"), RX = vector("BSWEPSIMSC"), RI = vector(0), AC = vector(1),Data_Attribute = vector("stVal")),-
+      RsStat = list(IX = vector(20),PT = vector(5), OX = vector("Reset device statistics"), EH = vector("SYS_BI"), RX = vector("BSWRDSCMSC"), RI = vector(0), AC = vector(1),Data_Attribute = vector("stVal")),-
+      SrcSt = list(IX = vector(21, 22, 23, 24),PT = vector(3,3,9,9) ,OX = vector("Duo Driver Device status", "Duo Driver Device status", "Port Status 1/2", "Port Status 1/2"),-
+         EH = vector("SAGR_FORM5FPBI1_0", "SAGR_FORM5FPBI1_0","SAGR_FORM5FPAI3_1", "SAGR_FORM5FPAI3_1") ,RX = vector("BSWDDDIMSC","BSWDDDIMSC","BSWDDEIMSC","BSWDDEIMSC"), RI = vector(0,0,1,1),-
+         AC = vector(1,1,0,0),Data_Attribute = vector("stValA", "stValB","errRateA","errRateB"))))
+
+@v_Filtered_indexes = vector
+
+#loop_with i = 1 .. %v_NrOffDataObjects
+   @v_Data = separate('ID'_PICTURE_FUNCTION_CONF:VDATA_OBJECT(%i), ";")
+   @t_CDC = %v_Data(1)
+   #if length(%v_Data) > 1 #then #block
+      @v_Data1 = separate(%v_Data(2), ".")
+      #if length(%v_Data1) > 1 #then #block
+         #if length(select(locate(%v_FilteredDOs, %v_Data1(1)), ">0")) > 0 #then #block
+            @Dos = pick(%v_FilteredDOs,select(locate(%v_FilteredDOs, %v_Data1(1)), ">0"))
+            #loop_with j = 1 .. length(%Dos)
+               #if %DOs(%i) == %v_Data1(1) #then @v_Filtered_indexes = append(%v_Filtered_indexes, %i)
+            #loop_end
+         #block_end
+         #else_if  %v_Data1(2) == "q" or %v_Data1(2) == "d" or %v_Data1(2) == "t" #then @v_Filtered_indexes = append(%v_Filtered_indexes, %i)
+      #block_end
+   #block_end
+#loop_end
+   
+#set 'ID'_PICTURE_FUNCTION_CONF:VDATA_OBJECT = delete_element('ID'_PICTURE_FUNCTION_CONF:VDATA_OBJECT, %v_Filtered_indexes)
+#set 'ID'_PICTURE_FUNCTION_CONF:VDATA_TEXT = delete_element('ID'_PICTURE_FUNCTION_CONF:VDATA_TEXT, %v_Filtered_indexes)
+
+@v_NrOffDataObjects = length('ID'_PICTURE_FUNCTION_CONF:VDATA_OBJECT)
+
+@iIndexUnknown = 100
+#loop_with i = 1 .. %v_NrOffDataObjects ;loop 1
+  
+   @b_Create = true
+      
+   @v_Data = separate('ID'_PICTURE_FUNCTION_CONF:VDATA_OBJECT(%i), ";")
+   #if length(%v_Data) > 1 #then #block
+      @t_CDC = %v_Data(1)
+      @t_Data_Object_Attribute(%i) = %v_Data(2)
+   
+      @v_Data1 = separate(%v_Data(2), ".")
+      #if length(%v_Data1) > 1 #then #block ;block 2
+         
+         @tDataObject = upper_case(%v_Data1(1)) 
+         #if ATTRIBUTE_EXISTS(%LPHD.SIGNAL_DATA, %tDataObject) #then #block
+
+            @iIndex = find_element(%LPHD.SIGNAL_DATA.'tDataObject'.DATA_ATTRIBUTE, %v_Data1(2))
+            #if %iIndex > 0 #then #block
+
+               @eh(%iIndex) = %LPHD.SIGNAL_DATA.'tDataObject'.EH(%iIndex)  ;"SAGR_FORM5FPBI1_0"
+               @ac(%iIndex) = %LPHD.SIGNAL_DATA.'tDataObject'.AC(%iIndex)
+               @rx(%iIndex) = %ADDITIONAL_IDENT + %UNIT_IDENT + %LPHD.SIGNAL_DATA.'tDataObject'.RX(%iIndex)
+               @pt(%iIndex) = %LPHD.SIGNAL_DATA.'tDataObject'.PT(%iIndex)
+               @ix(%iIndex) = %LPHD.SIGNAL_DATA.'tDataObject'.IX(%iIndex)
+               @ri(%iIndex) = %LPHD.SIGNAL_DATA.'tDataObject'.RI(%iIndex)
+           
+             #block_end
+             #else #return
+          #block_end
+          #else #block
+
+               @iIndex = %iIndexunknown
+               @iIndexunknown = %iIndexUnknown + 1
+
+               @rx(%iIndex) = %ADDITIONAL_IDENT + %UNIT_IDENT + "BSWIEDIMSC"
+               @ix(%iIndex) = %iIndex
+               @ri(%iIndex) = 0
+
+               #case %t_CDC
+                  #when "ACT", "ACD" #block
+                     @eh(%iIndex) = "" 
+                     @ac(%iIndex) = 1
+                     @pt(%iIndex) = 3
+                  #block_end
+                  #when "SPS", "SPC" #block
+                     @eh(%iIndex) = "" 
+                     @ac(%iIndex) = 1
+                     @pt(%iIndex) = 3
+                  #block_end
+                  #when "DPS", "DPC" #block
+                     @eh(%iIndex) = "" 
+                     @ac(%iIndex) = 1
+                     @pt(%iIndex) = 12
+                  #block_end
+                  #when "MV", "CMV", "INC", "INS", "ENS", "ENC" #block
+                     @eh(%iIndex) = "" 
+                     @ac(%iIndex) = 1
+                     @pt(%iIndex) = 9
+                  #block_end
+               #case_end
+                           
+            #block_end
+               
+            @pf(%iIndex) = "FORM5SAGR1"
+            @ld(%iIndex) = BIT_MASK(1)
+            @he(%iIndex) = 1
+            @hf(%iIndex) = 0
+
+            @s = status
+            @ox(%iIndex) = 'ID'_PICTURE_FUNCTION_CONF:VDATA_TEXT(%i)
+            @s = status
+            #if %s <> 0 #then @ox(%iIndex) = %LPHD.SIGNAL_DATA.'tDataObject'.OX(%iIndex)
+
+            @tStationType = "IEC61850"
+            #case %pt(%iIndex)
+      
+               #when 3 #block
+                  #if %tStationType == "IEC61850" #then @dx(%iIndex) = "E7S"
+                  #else @dx(%iIndex) = "3"
+               #block_end
+               #when 5 #block
+                  #if %tStationType == "IEC61850" #then @dx(%iIndex) = "E1"
+                  #else @dx(%iIndex) = "5"
+               #block_end
+               #when 6 #block
+                  #if %tStationType == "IEC61850" #then @dx(%iIndex) = "E9"
+                  #else @dx(%iIndex) = "6"
+               #block_end
+               #when 7 #block
+                  #if %tStationType == "IEC61850" #then @dx(%iIndex) = "E3"
+                  #else @dx(%iIndex) = "7"
+               #block_end
+               #when 9 #block
+                  #if %tStationType == "IEC61850" #then @dx(%iIndex) = "E6"
+                  #else @dx(%iIndex) = "9"
+               #block_end
+               #when 11 #block
+                  #if %tStationType == "IEC61850" #then @dx(%iIndex) = "E4"
+                  #else @dx(%iIndex) = "11"
+               #block_end
+               #when 12 #block
+                  #if %tStationType == "IEC61850" #then @dx(%iIndex) = "E7D"
+                  #else @dx(%iIndex) = "12"
+               #block_end
+               #when 13 #block
+                  #if %tStationType == "IEC61850" #then @dx(%iIndex) = "E8"
+                  #else @dx(%iIndex) = "13"
+               #block_end
+               #when 14 #block
+                  #if %tStationType == "IEC61850" #then @dx(%iIndex) = "E14"
+                  #else @dx(%iIndex) = "14"
+               #block_end
+               #otherwise @b_Create = false
+            #case_end
+            
+            @t_OPC_Prefix = 'ID'_PICTURE_FUNCTION_CONF:VOPC_ITEM_PREFIX
+            @v_LN_PROT_Instances(1) = 'ID'_PICTURE_FUNCTION_CONF:VOPC_LN_INSTANCES(1)
+            @tmp = %t_Data_Object_Attribute(%i)
+            @in(%iIndex) = %t_OPC_Prefix + "." + %v_LN_PROT_Instances(1) + ".'tmp'"
+            #if substr(%in(%iIndex),length(%in(%iIndex))-1,0) == ".f" #then @in(%iIndex) = substr(%in(%iIndex),1,length(%in(%iIndex))-2)
+
+            @v_DA_Check = separate(%in(%iIndex), ".")
+            @t_DA_Check = %v_DA_Check(length(%v_DA_Check))
+      
+            #if file_manager("EXISTS",fm_scil_file("sagr_bbone/SCL_Included_DA.txt")) #then #block
+               @v_included_DAs = vector
+               @v_included_DAs = read_text("sagr_bbone/SCL_Included_DA.txt")
+               @v_Compare = select(locate(%v_included_DAs, %t_DA_Check), ">0")
+               #if length(%v_Compare) > 0 #then #block
+                   @b_Create = false
+                  #loop_with ii = 1 ..  length(%v_Compare)
+                     #if equal(%v_included_DAs(%v_Compare(%ii)), %t_DA_Check) #then @b_Create = true
+                  #loop_end 
+                #block_end
+                #else @b_Create = false
+            #block_end
+            
+            #if %b_create #then #block
+
+               #create P_OBJ0'i':V = list
+               #MODIFY P_OBJ0'i':v = LIST(-
+                IX = %IX(%iIndex),-                            ;index 
+                PT = %PT(%iIndex),-                            ;process object type
+                DX = %DX(%iIndex),-                            ;directive text
+                OI = %OBJ_IDENT,-                              ;substation & bay name
+                OX = %OX(%iIndex),-                            ;object text
+                IU = 1,-                                       ;in use = yes
+                SS = 2,-                                       ;switch state = auto
+                EE = 1,-                                       ;event enable = yes
+                HE = %HE(%iIndex),-                            ;history enable
+                HA = 1,-                                       ;history activation = new value
+                HF = %HF(%iIndex),-                            ;history at first update = no
+                HL = BIT_MASK(15),-                            ;history log number = 15
+                RC = 1,-                                       ;receipt = acknowledgement required
+                AC = %AC(%iIndex),-                            ;alarm class = 1
+                AD = 0,-                                       ;alarm delay = 0
+                PD = 0,-                                       ;picture device = none
+                PI = "",-                                      ;alarm picture
+                PF = %PF(%iIndex),-                            ;physical format for printout
+                RI = %RI(%iIndex),-                            ;dynamic texts for printout
+                PA = 1,-                                       ;printout activation = new value
+                PU = 0,-                                       ;picture/ printout at first update = no
+                IN = %IN(%iIndex),-
+                LD = %LD(%iIndex),-                                 ;listing device
+                EH = %EH(%iIndex),-
+                RX = %RX(%iIndex)) ;data acquisition unit and group information
+      
+                #case %t_CDC
+                   #when "ACD", "SPS", "SPC" #block
+                      #modify P_OBJ0'I':v = LIST(AG = 1) ;alarming value = 1
+                   #block_end
+                   #when "RSS" #block
+                      #modify P_OBJ0'I':v = LIST(AG = 0) ;alarming value = 0
+                      #if substr(%t_DA_Check, 1, 7) == "errRate" #then #modify P_OBJ0'I':v = LIST(SN = "1_1") ;scale = 1
+                   #block_end
+                   #when "MV", "CMV", "INS", "INC", "ENS", "ENC" #block
+                       #modify P_OBJ0'I':v = LIST(SN = "1_1") ;scale = 1
+                       #if %tDataObject == "PHYHEALTH" #then #modify P_OBJ0'I':v = LIST(HW = 1.5, HI = 2.5) ;High warning, High alarm
+                       #else_if %tDataObject == "PHYHEALTH1" #then #modify P_OBJ0'I':v = LIST(HW = 1.5, HI = 2.5) ;High warning, High alarm
+                       #else_if %tDataObject == "PHYHEALTH2" #then #modify P_OBJ0'I':v = LIST(HI = 1.5) ;High warning, High alarm
+                   #block_end
+                #case_end
+                #MODIFY P_OBJECTS:V = LIST(P_OBJ0'i'=%P_OBJ0'i')
+            #block_end
+          #block_end
+   #block_end
+#loop_end

@@ -1,0 +1,114 @@
+﻿;OBJECT       : BGU_HDSCFG.TXT
+;Copyright Hitachi Power Grids. All rights reserved.
+;
+;DESCRIPTION  : This text file contains the configuration data for
+;               creating the needed objects and procedures
+;               for the Hard Disk Supervision Function 
+;--------------------------------------------------------------------------------
+;****************************
+;Data for time channels begin
+;****************************
+#CREATE BGU_HDS_T:V = LIST(-
+      IU = 1,-
+      CY = (0,24*60*60),-
+      SU = (0,0),-
+      CD = ("","B_HDS:PLI10 <> 0"),-
+      SY = (0,PACK_TIME(YEAR,MONTH,DAY,13,0,0)),-
+      CM = TIME_CHANNEL:VTXT1)
+
+;**************************
+;Data for time channels end
+;**************************
+
+;*********************************
+;Data for command procedures begin
+;*********************************
+#CREATE BGU_HDS_C1:V = LIST(-
+      IU = 1,-
+      TC = "BGU_HDS",-
+      CM = COMMAND_PROC:VTXT1,-
+IN = (";**************************************************************",-
+";***                                                        ***",-
+";***     This procedure reads the HD-Unit size              ***",-
+";***     and stores the value to a process object           ***",-
+";***                                                        ***",-
+";***                                                        ***",-
+";**************************************************************","",-
+"@DRIVE_ATTRIBUTES = DRIVE_MANAGER(""GET_ATTRIBUTES"",DRIVE_MANAGER(""GET_DEFAULT""))",-
+"#IF DRIVE_ATTRIBUTES:VSTATUS == 0 #THEN #SET B_HDS:P10 = DRIVE_ATTRIBUTES:VFREE/1024"))
+
+
+#CREATE BGU_HDS_C2:V = LIST(-
+      IU = 1,-
+      CM = COMMAND_PROC:VTXT2,-
+IN = (";**************************************************************",-
+";***                                                        ***",-
+";***     This procedure is executed when the HD size        ***",-
+";***     Alarm is activated. The procedure does NOT         ***",-
+";***     performe any action as default. The user can       ***",-
+";***     specify the actions belov.                         ***",-
+";***                                                        ***",-
+";**************************************************************","",-
+"#CASE %AZ",-
+"   #WHEN 3 #BLOCK  ;This block is executed at low warning",-
+"","","   #BLOCK_END",-
+"   #WHEN 1 #BLOCK  ;This block is executed at low alarm","","",-
+"   #BLOCK_END","#CASE_END"))
+;*******************************
+;Data for command procedures end
+;*******************************
+
+;********************
+;Data for scale begin
+;********************
+#CREATE X_OBJ:V = LIST(SA = 1, SC = (0,1,0,1))
+;******************
+;Data for scale end
+;******************
+
+;******************************
+;Data for process objects begin
+;******************************
+@OI_LENGTH1=10
+@OI_LENGTH2=15
+@OI_LENGTH3=5
+#ERROR IGNORE
+@APL_BSV15      = APL:BSV15
+@PROCESSOBJECTS = APL_BSV15:VPROCESS_OBJECTS
+@OI             = PROCESSOBJECTS:VOI
+@OI_LENGTH1     = OI:VLENGTH1
+@OI_LENGTH2     = OI:VLENGTH2
+@OI_LENGTH3     = OI:VLENGTH3
+#ERROR CONTINUE
+@iStatus = status
+
+@TMP_SYSNAME = SUBSTR(SYS:BCX,1,%OI_LENGTH1-1)
+@TMP_DEVICE  = P_OBJ:VTXT1
+#CREATE BGU_HDS_P:V = LIST(-
+      PT = 9,-
+      DX = "9",-   
+      OI = "'TMP_SYSNAME'",-
+      OX = "'TMP_DEVICE'",-
+      CX = P_OBJ:VTXT2,-
+      AI=600,SS=1,IU=1,LD=BIT_MASK(1),PA=3,PU=1,-
+      HE=1,HA=3,HF=1,HL=BIT_MASK(15),SN="BGU_HDS1_1",-
+      HI=1000000,HW=1000000,LW=1.1*%LOW_ALARM,-
+      LI=%LOW_ALARM,EE=1,ST="MB",AC=1,RC=1,-
+      EH="SAGR_FORM5FPAI2_0",PF="FORM5SAGR1",RI=0,-
+      AN="BGU_HDSACT",AE=1,AA=3,AF=1)
+
+;****************************
+;Data for process objects end
+;****************************
+
+;*********************************
+;Data for the action channel begin
+;*********************************
+#CREATE BGU_HDS_A1:V = LIST(-
+            CM = ACTION:VTXT1,-
+            ON = "BGU_HDSACT",-
+            OT = "C")
+
+;*******************************
+;Data for the action channel end 
+;*******************************

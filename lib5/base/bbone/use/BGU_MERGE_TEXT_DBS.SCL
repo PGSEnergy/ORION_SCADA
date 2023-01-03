@@ -1,0 +1,84 @@
+;
+; BGU_MERGE_TEXT_DBS.SCL
+;
+; Arguments:
+;	t_Destination 	Absolute path to destination sdb. Doesn't have to exist
+;   v_Sources 		Vector of absolute paths to source sdbs. Files have to exists.
+#argument t_Destination, v_Sources
+#local I, J, K, l_Section, v_Sections, l_Destination, t_Lang, v_Languages
+#local l_DB, s, i_Handle, h_Dst, h_Src, v_Errors = VECTOR(), v_Info = VECTOR()
+
+l_DB = DATA_MANAGER("OPEN", t_Destination)
+
+#IF l_DB.STATUS <> 0 #THEN #BLOCK
+	l_DB = DATA_MANAGER("CREATE", t_Destination)
+	s = l_DB.STATUS
+
+	#IF l_DB.STATUS <> 0 #THEN  #BLOCK
+		#RETURN LIST(STATUS = s) ; Return the 1st error
+	#BLOCK_END
+#BLOCK_END
+
+h_Dst = l_DB.Handle
+
+#LOOP_WITH I = 1 .. LENGTH(v_Sources)
+	l_DB = DATA_MANAGER("OPEN", v_Sources(I))
+	#IF l_DB.STATUS <> 0 #THEN #BLOCK
+		v_Errors = APPEND(v_Errors, v_Sources(I) + ": " + TRANSLATION("Error opening SDB:") + " " + STATUS_CODE_NAME(l_DB.STATUS))
+		h_Src = -1
+	#BLOCK_END
+	#ELSE h_Src = l_DB.HANDLE
+
+	#IF h_Src <> - 1 #THEN #BLOCK
+		v_Sections = DATA_MANAGER("LIST_SECTIONS", h_Src)
+
+		#IF v_Sections.STATUS == 0 #THEN #LOOP_WITH J = 1 .. LENGTH(v_Sections.SECTIONS)
+			l_Section = DATA_MANAGER("GET", h_Src, v_Sections.SECTIONS(J))
+			#IF l_Section.STATUS == 0 #THEN #BLOCK
+				l_Section = l_Section.VALUE
+				l_Destination = DATA_MANAGER("GET", h_Dst, v_Sections.SECTIONS(J))
+				#IF l_Destination.STATUS <> 0 #THEN #BLOCK
+					s = DATA_MANAGER("CREATE_SECTION", h_Dst, v_Sections.SECTIONS(J))
+					s = DATA_MANAGER("PUT", h_Dst, v_Sections.SECTIONS(J), l_Section)
+					#IF s.STATUS <> 0 #THEN #BLOCK
+						v_Errors = APPEND(v_Errors, TRANSLATION("Error merging") + " " + v_Sections.SECTIONS(J) + " " + STATUS_CODE_NAME(s.STATUS))
+					#BLOCK_END
+				#BLOCK_END
+				#ELSE #BLOCK
+					l_Destination = l_Destination.VALUE
+					#IF ATTRIBUTE_EXISTS(l_Destination, "EN") AND -
+						ATTRIBUTE_EXISTS(l_Section, "EN") #THEN #BLOCK
+							#IF l_Destination.EN <> l_Section.EN #THEN v_Info = APPEND(v_Info, TRANSLATION("Warning: Different english text for text id:") -
+							+ " " + v_Sections.SECTIONS(J) + " " + TRANSLATION("between") + " " -
+							+ v_Sources(I) + " " + TRANSLATION("and") + " " + t_Destination)
+					#BLOCK_END
+
+					v_Languages = LIST_ATTR(l_Section)
+					#LOOP_WITH K = 1 .. LENGTH(v_Languages)
+						t_Lang = v_Languages(K)
+						#IF ATTRIBUTE_EXISTS(l_Destination, t_Lang) #THEN #BLOCK
+							#IF l_Destination.'t_Lang' <> l_Section.'t_Lang'  AND t_Lang <> "EN" #THEN #BLOCK 
+								v_Info = APPEND(v_Info, -
+								TRANSLATION("Warning: Different translation for") + " """ + l_Section.'t_Lang' -
+								+ """ " + TRANSLATION("already exists. Won''t overwrite."))
+							#BLOCK_END
+							#ELSE l_Destination = MERGE_ATTRIBUTES(l_Destination, LIST('t_Lang' = l_Section.'t_Lang'))
+						#BLOCK_END
+						#ELSE l_Destination = MERGE_ATTRIBUTES(l_Destination, LIST('t_Lang' = l_Section.'t_Lang'))
+
+						s = DATA_MANAGER("PUT", h_Dst, v_Sections.SECTIONS(J), l_Destination)
+
+						#IF s.STATUS <> 0 #THEN v_Errors = APPEND(v_Errors, TRANSLATION("Couldn''t write translation for") + " """ -
+						+ v_Sections.SECTIONS(J) + """ " + TRANSLATION("for") + " 't_Lang'")
+					#LOOP_END
+				#BLOCK_END
+			#BLOCK_END
+		#LOOP_END
+
+		s = DATA_MANAGER("CLOSE", h_Src)
+	#BLOCK_END
+#LOOP_END
+
+s = DATA_MANAGER("CLOSE", h_Dst)
+
+#RETURN LIST(ERRORS = v_Errors, INFO = v_INFO, STATUS = 0)

@@ -1,0 +1,449 @@
+﻿#local SYS_Attributes
+#local APL_Attributes 
+#local MON_Attributes 
+#local LIN_Attributes
+#local NOD_Attributes
+#local STA_Attributes
+#local STY_Attributes
+#local PRI_Attributes
+
+
+#case argument(1)
+   
+   #when "BASE_SYSTEM_SYS" #block
+
+      SYS_Attributes = vector(-
+         "BN","BT","BM",-
+         "ND","NN","SA","WA",-
+         "HW","OS","ON","OV","OM","PR","RP","RD","RE","RS",-
+         "DN","DS","ER","TI",-
+         "TF","TM","TR","TS","TZ",-
+         "FS","ME","MP","MS","MF","MU","RC","RU",-
+         "PH","RL",-
+         "SH",-
+         "DE","DD","DU",-
+         "OP","OD","PA",-
+         "AA","AD","AW",-
+         "CA","CF","CL","CS","CD",-
+         "SD","SP",-
+         "OE","OT",-
+         "SV","UV","CX",-
+         "AL",-
+         "ID","HD",-
+         "CT")
+      SYS_Attributes = pick(SYS_Attributes,sort(SYS_Attributes))
+
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes by Groups",-
+         NAME_TEXT = translate("@lbl_All_Attributes_by_Groups"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Basic Configuration Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Configuration_Attributes"),-
+            ATTRIBUTES = ("ND","NN","SA","WA")),-
+         LIST(GNAME = "Hardware and Software Information Attributes",-
+            GNAME_TEXT = translate("@lbl_Hardware_and_Software_Information_Attributes"),-
+            ATTRIBUTES = ("HW","OS","ON","OV","OM","PR","RP","RD","RE","RS")),-
+         LIST(GNAME = "Communication Attributes",-
+            GNAME_TEXT = translate("@lbl_Communication_Attributes"),-
+            ATTRIBUTES = ("DN","DS","ER","TI")),-
+         LIST(GNAME = "Time Handling Attributes",-
+            GNAME_TEXT = translate("@lbl_Time_Handling_Attributes"),-
+            ATTRIBUTES = ("CT","TF","TM","TR","TS","TZ")),-
+         LIST(GNAME = "Memory Handling Attributes",-
+            GNAME_TEXT = translate("@lbl_Memory_Handling_Attributes"),-
+            ATTRIBUTES = ("FS","ME","MP","MS","MF","MU","RC","RU")),-
+         LIST(GNAME = "Global Paths and Representation Libraries",-
+            GNAME_TEXT = translate("@lbl_Global_Path_and_Representation_Library_Attributes"),-
+            ATTRIBUTES = ("PH","RL")),-
+         LIST(GNAME = "Security Attributes",-
+            GNAME_TEXT = translate("@lbl_Security_Attributes"),-
+            ATTRIBUTES = ("HD","ID")),-
+         LIST(GNAME = "Application Information",-
+            GNAME_TEXT = translate("@lbl_Application_Information"),-
+            ATTRIBUTES = ("AL","PA")),-
+         LIST(GNAME = "Shadowing Attributes",-
+            GNAME_TEXT = translate("@lbl_Shadowing_Attributes"),-
+            ATTRIBUTES = vector("SH")),-
+         LIST(GNAME = "DDE Server Attributes",-
+            GNAME_TEXT = translate("@lbl_DDE_Server_Attributes"),-
+            ATTRIBUTES = ("DE","DD","DU")),-
+         LIST(GNAME = "OPC Server Attributes",-
+            GNAME_TEXT = translate("@lbl_OPC_Server_Attributes"),-
+            ATTRIBUTES = ("OP","OD")),-
+         LIST(GNAME = "Audio Alarm Device Attributes",-
+            GNAME_TEXT = translate("@lbl_Audio_Alarm_Device_Attributes"),-
+            ATTRIBUTES = ("AA","AD","AW")),-
+         LIST(GNAME = "External Clock Attributes",-
+            GNAME_TEXT = translate("@lbl_External_Clock_Attributes"),-
+            ATTRIBUTES = ("CA","CF","CL","CS","CD")),-
+         LIST(GNAME = "SPA Device Attributes",-
+            GNAME_TEXT = translate("@lbl_SPA_Device_Attributes"),-
+            ATTRIBUTES = ("SD","SP")),-
+         LIST(GNAME = "Operating System Event Handler Attributes",-
+            GNAME_TEXT = translate("@lbl_Operating_System_Event_Handler_Attributes"),-
+            ATTRIBUTES = ("OE","OT")),-
+         LIST(GNAME = "Miscellaneous Base System Base Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Base_System_Base_Attributes"),-
+            ATTRIBUTES = ("CX","SV","UV"))))
+      
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "All Attributes in Alphabetical Order",-
+         NAME_TEXT = translate("@lbl_All_Attributes_in_Alphabetical_Order"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Base System Base Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Base_Attributes"),-
+            ATTRIBUTES = SYS_Attributes)))
+
+   #block_end
+   
+   #when "BASE_SYSTEM_APL" #block 
+
+      APL_Attributes = vector(-
+         "BN","BT","BM",-
+         "AN","AS","HP","NA","TT",-
+         "ME","QE",-
+         "PH","RL","TD",-
+         "ND","TN",-
+         "AP","MO","PR","ST",-
+         "SA","SC","SD","SF","SI","SL","SN","SP","SQ","SR","SS","SW","SY",-
+         "AA","AU","EM","EU","HB","PM","PU","PQ","QO","QD","QP","QL","QM","QU","RO",-
+         "AQ","EE",-
+         "IT","LA","MS",-
+         "AC","AT","HT","LT","UC",-
+         "PS","RS",-
+         "RC",-
+         "DI","DT","DS",-
+         "EP","HE","IE","IS",-
+         "HD","ID",-
+         "AD","SV","UV","CX","PP","PF","SM",-
+         "OE","OP",-
+         "HS","HA",-
+         "OI",-
+         "LS","EY",-
+         "UA",-
+         "CE","WS","PN")
+      APL_Attributes = pick(APL_Attributes,sort(APL_Attributes))
+      
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes by Groups",-
+         NAME_TEXT = translate("@lbl_All_Attributes_by_Groups"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Basic Application Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Application_Attributes"),-
+            ATTRIBUTES = ("TT","ND","AN","TN","AS","NA")),-
+         LIST(GNAME = "Supervision Configuration Attributes",-
+            GNAME_TEXT = translate("@lbl_Supervision_Configuration_Attributes"),-
+            ATTRIBUTES = ("ME","QE")),-            
+         LIST(GNAME = "Path, Representation Library and Text Database Attributes",-
+            GNAME_TEXT = translate("@lbl_Path_Repr_Libr_and_Text_Database_Attributes"),-
+            ATTRIBUTES = ("PH","RL","TD")),-
+         LIST(GNAME = "Mapping Attributes",-
+            GNAME_TEXT = translate("@lbl_Mapping_Attributes"),-
+            ATTRIBUTES = ("AP","MO","PR","ST")),-
+         LIST(GNAME = "Shadowing Attributes",-
+            GNAME_TEXT = translate("@lbl_Shadowing_Attributes"),-
+            ATTRIBUTES = ("SA","SC","SD","SF","SI","SL","SN","SP","SQ","SR","SS","SW","SY")),-
+         LIST(GNAME = "Resource Handling Attributes",-
+            GNAME_TEXT = translate("@lbl_Resource_Handling_Attributes"),-
+            ATTRIBUTES = ("AA","AU","EM","EU","HB","PM","PU","PQ","QO","QD","QP","QL","QM","QU","RO")),-
+         LIST(GNAME = "Functional Definition Attributes",-
+            GNAME_TEXT = translate("@lbl_Functional_Definition_Attributes"),-
+            ATTRIBUTES = ("AQ","EE","HP","LS","OE","OI","OP","PF","PN","PP","SM","UA")),-
+         LIST(GNAME = "User Interface Related Attributes",-
+            GNAME_TEXT = translate("@lbl_User_Interface_Related_Attributes"),-
+            ATTRIBUTES = ("IT","LA","MS")),-
+         LIST(GNAME = "User Management Related Attributes",-
+            GNAME_TEXT = translate("@lbl_User_Management_Related_Attributes"),-
+            ATTRIBUTES = ("CE","WS")),-
+         LIST(GNAME = "Operation Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Operation_Control_Attributes"),-
+            ATTRIBUTES = ("AC","AT","HT","LT","UC")),-
+         LIST(GNAME = "Loop Control Attributes",-
+            GNAME_TEXT = translate("@lbl_SCIL_Program_Control_Attributes"),-
+            ATTRIBUTES = ("PS","RS")),-
+         LIST(GNAME = "Revision Compatibility Attributes",-
+            GNAME_TEXT = translate("@lbl_Revision_Compatibility_Attributes"),-
+            ATTRIBUTES = vector("RC")),-
+         LIST(GNAME = "Application Diagnostics Attributes",-
+            GNAME_TEXT = translate("@lbl_Application_Diagnostics_Attributes"),-
+            ATTRIBUTES = ("DI","DT","DS")),-
+         LIST(GNAME = "Mirroring Configuration Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Configuration_Attributes"),-
+            ATTRIBUTES = ("EP","HE","IE","IS")),-
+         LIST(GNAME = "Mirroring Diagnostics Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Diagnostics_Attributes"),-
+            ATTRIBUTES = ("HD","ID")),-
+         LIST(GNAME = "Proxy Application Attributes",-
+            GNAME_TEXT = translate("@lbl_Proxy_Application_Attributes"),-
+            ATTRIBUTES = ("HS","HA")),-
+         LIST(GNAME = "Miscellaneous Application Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Application_Attributes"),-
+            ATTRIBUTES = vector("AD","CX","EY","SV","UV"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "All Attributes in Alphabetical Order",-
+         NAME_TEXT = translate("@lbl_All_Attributes_in_Alphabetical_Order"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Application Attributes",-
+            GNAME_TEXT = translate("@lbl_Application_Attributes"),-
+            ATTRIBUTES = APL_Attributes)))
+            
+   #block_end
+
+   #when "BASE_SYSTEM_MON" #block
+
+      MON_Attributes = vector(-
+         "BN","BT","BM",-
+         "DT","TT",-
+         "AN","AP","LI","SZ",-
+         "BP","ED","IL","LA","MS","PC","WC",-
+         "CX","SV","UV")
+      MON_Attributes = pick(MON_Attributes,sort(MON_Attributes))
+      
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes by Groups",-
+         NAME_TEXT = translate("@lbl_All_Attributes_by_Groups"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Basic Monitor Definition Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Monitor_Definition_Attributes"),-
+            ATTRIBUTES = ("TT","DT")),-
+         LIST(GNAME = "Informative Monitor Attributes",-
+            GNAME_TEXT = translate("@lbl_Informative_Monitor_Attributes"),-
+            ATTRIBUTES = ("AN","AP","LI","SZ")),-
+         LIST(GNAME = "Monitor Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Monitor_Control_Attributes"),-
+            ATTRIBUTES = ("BP","ED","IL","LA","MS","PC","WC")),-
+         LIST(GNAME = "Miscellaneous Monitor Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Monitor_Attributes"),-
+            ATTRIBUTES = ("CX","SV","UV"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "All Attributes in Alphabetical Order",-
+         NAME_TEXT = translate("@lbl_All_Attributes_in_Alphabetical_Order"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Monitor Attributes",-
+            GNAME_TEXT = translate("@lbl_Monitor_Attributes"),-
+            ATTRIBUTES = MON_Attributes)))
+
+   #block_end
+   
+   #when "BASE_SYSTEM_LIN" #block 
+
+      LIN_Attributes = vector(-
+         "BN","BT","BM",-
+         "LT","CX","DC",-
+         "TR",-
+         "SC","NA","TI")
+      LIN_Attributes = pick(LIN_Attributes,sort(LIN_Attributes))
+      
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes by Groups",-
+         NAME_TEXT = translate("@lbl_All_Attributes_by_Groups"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Common Link Definition Attributes",-
+            GNAME_TEXT = translate("@lbl_Common_Link_Definition_Attributes"),-
+            ATTRIBUTES = vector("LT","DC")),-
+         LIST(GNAME = "LAN Link Attributes",-
+            GNAME_TEXT = translate("@lbl_LAN_Link_Attributes"),-
+            ATTRIBUTES = vector("TR")),-
+         LIST(GNAME = "INTEGRATED Link Attributes",-
+            GNAME_TEXT = translate("@lbl_INTEGRATED_Link_Attributes"),-
+            ATTRIBUTES = vector("SC","NA","TI")),-
+         LIST(GNAME = "Miscellaneous Link Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Link_Attributes"),-
+            ATTRIBUTES = vector("CX"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "All Attributes in Alphabetical Order",-
+         NAME_TEXT = translate("@lbl_All_Attributes_in_Alphabetical_Order"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Link Attributes",-
+            GNAME_TEXT = translate("@lbl_Link_Attributes"),-
+            ATTRIBUTES = LIN_Attributes)))
+
+   #block_end
+
+   #when "BASE_SYSTEM_NOD" #block
+
+      NOD_Attributes = vector(-
+         "BN","BT","BM",-
+         "LI","NN","NT","RN","SA",-
+         "DF","DI","DT",-
+         "LT","RT",-
+         "OP","CX",-
+         "ID","PI","SC","WL")
+      NOD_Attributes = pick(NOD_Attributes,sort(NOD_Attributes))
+      
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes by Groups",-
+         NAME_TEXT = translate("@lbl_All_Attributes_by_Groups"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Basic Node Definition Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Node_Definition_Attributes"),-
+            ATTRIBUTES = ("LI","NN","NT","RN","SA")),-
+         LIST(GNAME = "Node Diagnostic Attributes",-
+            GNAME_TEXT = translate("@lbl_Node_Diagnostic_Attributes"),-
+            ATTRIBUTES = ("DF","DI","DT")),-
+         LIST(GNAME = "Node Communication Attributes",-
+            GNAME_TEXT = translate("@lbl_Node_Communication_Attributes"),-
+            ATTRIBUTES = ("LT","RT")),-
+         LIST(GNAME = "Security Attributes",-
+            GNAME_TEXT = translate("@lbl_Security_Attributes"),-
+            ATTRIBUTES = ("ID","PI","SC","WL")),-
+         LIST(GNAME = "Miscellaneous Node Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Node_Attributes"),-
+            ATTRIBUTES = vector("CX","OP"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "All Attributes in Alphabetical Order",-
+         NAME_TEXT = translate("@lbl_All_Attributes_in_Alphabetical_Order"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Node Attributes",-
+            GNAME_TEXT = translate("@lbl_Node_Attributes"),-
+            ATTRIBUTES = NOD_Attributes)))
+
+   #block_end
+
+
+   #when "BASE_SYSTEM_STA" #block 
+
+      STA_Attributes = vector(-
+         "BN","BT","BM",-
+         "TT","ST","ND","TN","AE","MR","HS","IS","LP","TB","TR",-
+         "CX","PP","PF","SM","AP","CS","UN",-
+         "AS","PR","PS","RR","RS","SS")
+      STA_Attributes = pick(STA_Attributes,sort(STA_Attributes))  
+       
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes by Groups",-
+         NAME_TEXT = translate("@lbl_All_Attributes_by_Groups"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Basic Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Station_Attributes"),-
+            ATTRIBUTES = ("TT","ST","ND","TN","AP","TB","TR","UN","CS")),-
+         LIST(GNAME = "Mirroring Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Mirroring_Station_Attributes"),-
+            ATTRIBUTES = ("AE","MR","HS","IS","LP")),-
+         LIST(GNAME = "Redundancy Attributes",-
+            GNAME_TEXT = translate("@lbl_Redundancy_Attributes"),-
+            ATTRIBUTES = ("RR","PS","SS","PR","AS","RS")),-
+         LIST(GNAME = "Miscellaneous Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Attributes"),-
+            ATTRIBUTES = vector("CX","PF","PP","SM"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "All Attributes in Alphabetical Order",-
+         NAME_TEXT = translate("@lbl_All_Attributes_in_Alphabetical_Order"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Station Attributes",-
+            GNAME_TEXT = translate("@lbl_Station_Attributes"),-
+            ATTRIBUTES = STA_Attributes)))
+
+   #block_end
+   
+
+   #when "BASE_SYSTEM_STY" #block
+
+      STY_Attributes = vector(-
+         "BN","BT","BM",-
+         "NA","DB","LP","CT",-
+         "CX")
+      STY_Attributes = pick(STY_Attributes,sort(STY_Attributes))
+         
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes by Groups",-
+         NAME_TEXT = translate("@lbl_All_Attributes_by_Groups"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Basic Station Type Attributes",-
+            GNAME_TEXT = translate("@lbl_Basic_Station_Type_Attributes"),-
+            ATTRIBUTES = ("NA","DB","LP","CT")),-
+         LIST(GNAME = "Miscellaneous Station Type Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Station_Type_Attributes"),-
+            ATTRIBUTES = vector("CX"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "All Attributes in Alphabetical Order",-
+         NAME_TEXT = translate("@lbl_All_Attributes_in_Alphabetical_Order"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Station Type Attributes",-
+            GNAME_TEXT = translate("@lbl_Station_Type_Attributes"),-
+            ATTRIBUTES = STY_Attributes)))
+   #block_end
+
+   #when "BASE_SYSTEM_PRI" #block
+
+      PRI_Attributes = vector(-
+         "BN","BT","BM",-
+         "TT","DC","DT",-
+         "ND","SD","TN",-
+         "CS","HF","LN","LP","PN",-
+         "QM","QU",-
+         "LD","LL","LF","OD",-
+         "CL","OJ","ST",-
+         "CX","SV","UV")
+      PRI_Attributes = pick(PRI_Attributes,sort(PRI_Attributes))
+      
+      @v_Attrib_Views(1) = LIST(-
+         NAME   = "All Attributes by Groups",-
+         NAME_TEXT = translate("@lbl_All_Attributes_by_Groups"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Base System Object Naming Attributes",-
+            GNAME_TEXT = translate("@lbl_Base_System_Object_Naming_Attributes"),-
+            ATTRIBUTES = ("BN","BT","BM")),-
+         LIST(GNAME = "Common Printer Attributes",-
+            GNAME_TEXT = translate("@lbl_Common_Printer_Attributes"),-
+            ATTRIBUTES = ("TT","DC","DT")),-
+         LIST(GNAME = "Printer Connection Attributes",-
+            GNAME_TEXT = translate("@lbl_Printer_Connection_Attributes"),-
+            ATTRIBUTES = ("ND","SD","TN")),-
+         LIST(GNAME = "Printout Attributes",-
+            GNAME_TEXT = translate("@lbl_Printout_Attributes"),-
+            ATTRIBUTES = ("CS","HF","LN","LP","PN")),-
+         LIST(GNAME = "Printer Queue Attributes",-
+            GNAME_TEXT = translate("@lbl_Printer_Queue_Attributes"),-
+            ATTRIBUTES = ("QM","QU")),-
+         LIST(GNAME = "Printer Log Attributes",-
+            GNAME_TEXT = translate("@lbl_Printer_Log_Attributes"),-
+            ATTRIBUTES = ("LD","LL","LF","OD")),-
+         LIST(GNAME = "Printer Control Attributes",-
+            GNAME_TEXT = translate("@lbl_Printer_Control_Attributes"),-
+            ATTRIBUTES = ("CL","OJ","ST")),-
+        LIST(GNAME = "Miscellaneous Printer Attributes",-
+            GNAME_TEXT = translate("@lbl_Miscellaneous_Printer_Attributes"),-
+            ATTRIBUTES = ("CX","SV","UV"))))
+
+      @v_Attrib_Views(2) = LIST(-
+         NAME   = "All Attributes in Alphabetical Order",-
+         NAME_TEXT = translate("@lbl_All_Attributes_in_Alphabetical_Order"),-
+         GROUPS = VECTOR(-
+         LIST(GNAME = "Printer Attributes",-
+            GNAME_TEXT = translate("@lbl_Printer_Attributes"),-
+            ATTRIBUTES = PRI_Attributes)))
+
+   #block_end
+
+#case_end
+
+#return %v_Attrib_Views
+

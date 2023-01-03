@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+  <Parameters type="InterfaceDefinition">
+    <Parameter name="ObjectType">SNMP LD</Parameter>
+    <Parameter name="Caption">SNMP LD</Parameter>
+    <Parameter name="Description">objectTypeDesc</Parameter>
+    <Parameter name="Group">Communication</Parameter>
+    <Parameter name="Type">LD</Parameter>
+    <Parameter name="IconFileName">ld.ico</Parameter>
+    <Parameter name="Tools"/>
+    <Parameter name="DataServers" />
+    <Parameter name="Verbs" />
+    <Parameter name="CanInherit">False</Parameter>
+    <Parameter name="Visible">True</Parameter>
+    <Parameter name="ParentControlConditions">
+      <Structure name="COMMUNICATION">
+        <Condition type="PCMObjectType">SNMP IED</Condition>
+      </Structure>
+    </Parameter>
+  </Parameters>
+      <Parameters type="SCLExport">
+      <Export name="CDATA">SRSwitchForLogicalDevice</Export>
+    </Parameters>
+    <Properties type="PropertyDefinitions">
+      <Property name="OPCObjectType" category="[010] Basic">
+        <Value>SNMP LD</Value>
+        <DescID>OPCObjectTypeDesc</DescID>
+        <CaptionID>OPCObjectType</CaptionID>
+        <Values type="string" />
+        <DataType>System.String</DataType>
+        <HelpKey />
+        <Access>HHR</Access>
+        <AttributeName>OPCObjectType</AttributeName>
+      </Property>
+      <Property name="SRSwitchForLogicalDevice" category="[010] Basic">
+        <Value />
+        <DescID>SRSwitchForLogicalDeviceDesc</DescID>
+        <CaptionID>SRSwitchForLogicalDevice</CaptionID>
+        <Values type="string" />
+        <DataType>System.String</DataType>
+        <HelpKey>418</HelpKey>
+        <Access>HWW</Access>
+        <AttributeName>SRSwitchForLogicalDevice</AttributeName>
+      </Property>  
+  </Properties>
+</ObjectType>

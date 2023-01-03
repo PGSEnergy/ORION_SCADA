@@ -1,0 +1,64 @@
+﻿; This command procedure is used for loading FTABS to a RP570 slave
+; protocol converter in a COM application 
+;
+; SYS600 10.2.0
+; Compilation status: Not Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @RP_STA_NUMBER, number of the STA object of the protocol converter
+;         @RP_CONF_FILE, name of the configuration conversion file
+;------------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+@GEN_INFO=APL:BSV(20)
+
+@ENABLE_LOGGING = COM_GENVAR:PBZ(3)
+
+@TIME = HR_CLOCK
+@RT = TIMES(TIME:VCL)
+@RM = ROUND(TIME:VUS/1000)
+
+;read file from the sys_ directory
+@MAX_LOOP_INDEX = GEN_INFO:VDATABASE_INITIALISATION_TIME
+
+#IF FILE_MANAGER("EXISTS", FM_FILE(PARSE_FILE_NAME(%RP_CONF_FILE))) #THEN #BLOCK
+   #IF LOCATE(%RP_CONF_FILE, "/") == 0 AND LOCATE(%RP_CONF_FILE, "\") == 0 -
+   #THEN @RP_CONF_FILE = "SYS_/" + %RP_CONF_FILE
+   @FP = READ_TEXT(%RP_CONF_FILE,1,10000)
+   
+   #IF LENGTH(%FP) > 0 #THEN #BLOCK ;1
+      ;try to ensure that pc-net configuration is already done
+      #LOOP_WITH I = 1..%MAX_LOOP_INDEX ;2
+         #ERROR IGNORE
+         #IF STA'RP_STA_NUMBER':SIU==1 #THEN #LOOP_EXIT ;3
+         #PAUSE 1 ;3
+         #ERROR CONTINUE
+      #LOOP_END ;2
+      #LOOP_WITH I = 1..LENGTH(%FP) ;2
+         @FT=SUBSTR(%FP(%I),11,2)
+         #CASE %FT ;3
+           ;filter out the following ftabs
+           #WHEN "E8","C8","C9","EA","CD" #BLOCK ;4
+   
+           #BLOCK_END ;4
+           ;download the other ftabs
+           #OTHERWISE #BLOCK ;4
+              @STR(%I) = SUBSTR(%FP(%I),11,LENGTH(%FP(%I))-10)
+              #SET STA'RP_STA_NUMBER':SFT=RTU_BIN(%STR(%I))
+           #BLOCK_END ;4
+         #CASE_END ;3
+      #LOOP_END ;2
+      #IF %ENABLE_LOGGING #THEN #BLOCK ; 1
+         @INFO="'rt':'rm',RPSFT,'RP_STA_NUMBER',,,RP570S FTABs loaded from file 'RP_CONF_FILE',,,,,,,,,,,,,,,,"
+         #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+         #ELSE #DO COM_LOG:CIN
+      #BLOCK_END ; 1   
+   #BLOCK_END ;1
+   
+   ;simulate FCOM2 (activate) command to take FTABS in use.
+   #SET STA'RP_STA_NUMBER':SST1=(8,1)
+#BLOCK_END
+#ELSE #BLOCK
+   @I_DO_STATUS = DO (READ_TEXT("SYS_TOOL/MSGLOG.SCL"), "Configuration Error: (COM_RPSFT:C)", "Could not find FTAB file: '''RP_CONF_FILE'", 5007)
+#BLOCK_END

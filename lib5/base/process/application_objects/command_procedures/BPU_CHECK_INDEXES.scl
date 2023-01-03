@@ -1,0 +1,78 @@
+;Function: BPU_CHECK_INDEXES:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_check_indexes.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute), Name of process object that defines object indexes
+;Return data:
+;Description: Add indexes to return list if they exist in process database
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, t_Index_Procedure
+#local l_result = argument(3), l_interlocking, v_duplicate
+#local l_Indexes, t_LN, t_Attr, v_Attr_Names, i, s, t_LnIx, t_LnIxVector = vector("checkDuplicates")
+#local i_Count = length(l_result.EVENT_OBJECTS)
+
+;****************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_CHECK_INDEXES"                                       
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+         @REDIRECTED = true                                                                        
+         i_ArgCnt = argument_count                                                                 
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                      
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+         #loop_end                                                                                 
+         #return 't_Redirect_Command' ;;;;;                                                        
+      #block_end                                                                                   
+   #block_end                                                                                      
+   #else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;****************************************************************************************************
+;MAIN START
+
+;return process object indexes depending on object configuration
+l_Indexes = do('t_Index_Procedure':c, l_object_info)
+v_Attr_Names = list_attr(l_Indexes)
+
+;check that indexes exist in process database
+#loop_with i = 1 .. length(v_Attr_Names)
+   t_Attr = v_Attr_Names(i)
+   #if l_Indexes.'t_Attr'.ix > 0 #then #block
+      #if application_object_exists(0, "IX", list(LN=l_object_info.p_object_ln, IX = l_Indexes.'t_Attr'.ix)) #then #block
+         #if "'t_Attr'" == "BLOCKINGS_IX" #then #block ;replace blocking LN for bay object
+				#if l_object_info.type_info.object_type == "BAY_CONTROL" #then -
+					l_result.ALL_OBJECTS = merge_attributes(l_result.ALL_OBJECTS, list(BLOCKINGS_LN = l_object_info.p_object_ln))
+			#block_end
+			l_result.ALL_OBJECTS = merge_attributes(l_result.ALL_OBJECTS, list('t_Attr' = l_Indexes.'t_Attr'.ix))
+         t_LnIx = l_Indexes.'t_Attr'.LN + dec(l_Indexes.'t_Attr'.IX, 0)
+         v_duplicate = high(locate(t_LnIxVector, t_LnIx))
+         #if v_duplicate(1) == 0 #then #block
+            i_Count = i_Count + 1
+            l_result.EVENT_OBJECTS(i_Count) = l_Indexes.'t_Attr'
+         #block_end
+         t_LnIxVector = append(t_LnIxVector, t_LnIx)
+      #block_end
+   #block_end
+#loop_end
+
+;check event objects from U_INTERLOCKING
+#if attribute_exists(l_object_info, "u_interlocking") #then #block
+	#error ignore
+	s = status
+	l_interlocking = do(l_object_info.u_interlocking)
+	s = status
+	#if s == 0 #then #block
+		#if data_type(l_interlocking) == "LIST" #then #block
+			#if attribute_exists(l_interlocking, "event_objects") #then l_result.EVENT_OBJECTS = append(l_result.EVENT_OBJECTS, l_interlocking.event_objects)
+		#block_end
+	#block_end
+#block_end
+
+#return l_result

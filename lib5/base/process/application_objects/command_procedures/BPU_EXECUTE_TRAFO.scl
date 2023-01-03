@@ -1,0 +1,114 @@
+;Function: BPU_EXECUTE_TRAFO:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_execute_trafo.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute),  search_result, command forced operation
+;Return data:
+;Description: Prepares execute command for operation
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data, command, t_command_selector
+#local t_execute_ln, t_sta_type, i_execute = 0, t_control_type, l_execution, i_IX, l_POs, t_Filter = ""
+#local i_execute_ix, i_execution_value, i_cmd_parameter, t_procedure = "", trash
+#local l_result = list(status = 0, err_description = "")
+
+t_execute_ln = l_object_info.p_object_ln
+t_sta_type = l_object_info.station_type
+
+t_control_type = ""
+i_execute_ix = l_data.all_objects.'t_command_selector'_IX
+
+#case t_command_selector
+   #when "LOWER_EXECUTE" #block
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "RAISE_LOWER_CONTROL_TYPE") #then -
+         t_control_type = l_object_info.type_info.fixed_sct_values.RAISE_LOWER_CONTROL_TYPE
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "LOWER_CONTROL_VALUE") #then -
+         i_execution_value = l_object_info.type_info.fixed_sct_values.LOWER_CONTROL_VALUE
+      t_Filter = "*AVRCPOS*"
+   #block_end
+   #when "RAISE_EXECUTE" #block
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "RAISE_LOWER_CONTROL_TYPE") #then -
+         t_control_type = l_object_info.type_info.fixed_sct_values.RAISE_LOWER_CONTROL_TYPE
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "RAISE_CONTROL_VALUE") #then -
+         i_execution_value = l_object_info.type_info.fixed_sct_values.RAISE_CONTROL_VALUE
+      t_Filter = "*AVRCPOS*"
+   #block_end
+   #when "MANUAL_EXECUTE" #block
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "AUTO_MANUAL_CONTROL_TYPE") #then -
+         t_control_type = l_object_info.type_info.fixed_sct_values.AUTO_MANUAL_CONTROL_TYPE
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "MANUAL_CONTROL_VALUE") #then -
+         i_execution_value = l_object_info.type_info.fixed_sct_values.MANUAL_CONTROL_VALUE
+      t_Filter = "*AVRCMAN*"
+   #block_end
+   #when "AUTO_EXECUTE" #block
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "AUTO_MANUAL_CONTROL_TYPE") #then -
+         t_control_type = l_object_info.type_info.fixed_sct_values.AUTO_MANUAL_CONTROL_TYPE
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "AUTO_CONTROL_VALUE") #then -
+         i_execution_value = l_object_info.type_info.fixed_sct_values.AUTO_CONTROL_VALUE
+      t_Filter = "*AVRCMAN*"
+   #block_end
+   #when "SINGLE_EXECUTE" #block
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "SINGLE_PARALLEL_CONTROL_TYPE") #then -
+         t_control_type = l_object_info.type_info.fixed_sct_values.SINGLE_PARALLEL_CONTROL_TYPE
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "SINGLE_CONTROL_VALUE") #then -
+         i_execution_value = l_object_info.type_info.fixed_sct_values.SINGLE_CONTROL_VALUE
+      t_Filter = "*AVRCSGL*"
+   #block_end
+   #when "PARALLEL_EXECUTE" #block
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "SINGLE_PARALLEL_CONTROL_TYPE") #then -
+         t_control_type = l_object_info.type_info.fixed_sct_values.SINGLE_PARALLEL_CONTROL_TYPE
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "PARALLEL_CONTROL_VALUE") #then -
+         i_execution_value = l_object_info.type_info.fixed_sct_values.PARALLEL_CONTROL_VALUE
+      t_Filter = "*AVRCSGL*"
+   #block_end
+   #when "FOLLOWER_EXECUTE" #block
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "MASTER_SLAVE_CONTROL_TYPE") #then -
+         t_control_type = l_object_info.type_info.fixed_sct_values.MASTER_SLAVE_CONTROL_TYPE
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "SLAVE_CONTROL_VALUE") #then -
+         i_execution_value = l_object_info.type_info.fixed_sct_values.SLAVE_CONTROL_VALUE
+      t_Filter = "*AVRISGL RX WRONG IN DB*"
+   #block_end
+   #when "MASTER_EXECUTE" #block
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "SINGLE_PARALLEL_CONTROL_TYPE") #then -
+         t_control_type = l_object_info.type_info.fixed_sct_values.SINGLE_PARALLEL_CONTROL_TYPE
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "MASTER_CONTROL_VALUE") #then -
+         i_execution_value = l_object_info.type_info.fixed_sct_values.MASTER_CONTROL_VALUE
+      t_Filter = "*AVRISGL RX WRONG IN DB*"
+   #block_end
+   #when "REF_VOLTAGE_EXECUTE" #block
+      t_Filter = "*AVRSRVO*"
+      i_execution_value = argument(3)
+   #block_end
+   #when "SET_COUNTER_EXECUTE" #block
+      t_Filter = "*AVRICNR*"
+   #block_end
+   #otherwise #block
+      trash = console_output(translation("Not supported command") + ": 't_command_selector'", "D", "LIB5")
+      #return list(status = -1, err_description = translation("Not supported command") + ": 't_command_selector'")
+   #block_end
+#case_end
+
+t_procedure =  l_object_info.type_info.command_procedures.get_control_type_trafo
+#if t_control_type == "" #then t_control_type = do('t_procedure':c, t_execute_ln, t_sta_type, t_filter)
+t_procedure =  l_object_info.type_info.command_procedures.get_control_value_trafo
+#if data_type(i_execution_value) == "NONE" #then i_execution_value = do('t_procedure':c, t_control_type, t_sta_type, t_command_selector)
+
+#if t_sta_type == "IEC101" or t_sta_type == "DNP_30" or t_sta_type == "ICCP" #then i_cmd_parameter = 't_execute_ln':pty'i_execute_ix'
+
+;send execute command
+t_procedure =  l_object_info.type_info.command_procedures.execute
+i_execute = do('t_procedure':c, t_execute_ln, i_execute_ix, i_execution_value, t_sta_type, t_control_type, i_cmd_parameter)
+
+#if i_execute <> 0 #then #block ;error code of failure
+   l_result.status = i_execute
+   l_result.err_description = status_code_name(i_execute)
+#block_end
+#else #block 
+   ;simulate process feedback
+   t_procedure =  l_object_info.type_info.command_procedures.simulate_action_trafo
+   i_execute = do('t_procedure':c, l_object_info, l_data, t_execute_ln, t_command_selector)
+#block_end
+
+
+#return l_result

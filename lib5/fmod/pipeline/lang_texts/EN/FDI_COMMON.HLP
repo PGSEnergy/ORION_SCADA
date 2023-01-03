@@ -1,0 +1,140 @@
+1. Environmental requirements
+
+In order for the objects to have full
+functionality, the following components need to
+be installed:
+
+	- Bay needs to have Station installed 
+	- Objects below bay need to have Station and Bay installed 
+
+It is also possible to configure the device to operate without
+station and bay. This is done in U_OTHER_OBJECTS program.
+
+2. Configurable attributes
+
+It is important to configure attributes in the order
+of appearance since setting one attribute may enable/disable
+and/or reset another attribute later.
+
+STATION_NAME
+
+Station identifier for the object. As a
+default, the maximum length of the text is 9
+characters. The selection list shows up to ten
+latest entries.
+
+The configurable attribute is being read directly
+from the process object database, if there is any
+process object linked to the selected 
+device. Therefore, the configurable attribute
+within a standard function has meaning only when the
+process objects have not been created.
+
+This text will be used as a substation identifier of
+the  device objects on event list, alarm
+list, printout, database query, etc. It is very
+important that this text is similar to all objects
+within the same substation.
+
+BAY_NAME
+
+Bay identifier for the object. As a
+default, the maximum length of the text is 14
+characters. The selection list shows up to ten
+latest entries.
+
+The configurable attribute is being read directly
+from the process object database, if there is any
+process object linked to the selected 
+device. Therefore, the configurable attribute
+within a standard function has meaning only when the
+process objects have not been created.
+
+This text will be used as a bay (group) identifier
+of the  device objects on event list,
+alarm list, printout, database query, etc. It is
+very important that this text is similar to all
+objects within the same bay (group).
+
+DEVICE_NAME
+
+Device identifier for the object. As a default,
+the maximum length of the text is 5 characters. 
+The selection list shows up to ten latest entries.
+
+The configurable attribute is being read directly
+from the process object database, if there is any
+process object linked to the selected 
+device. Therefore, the configurable attribute
+within a standard function has meaning only when the
+process objects have not been created.
+
+This text will be used as an identifier of the
+ device on event list, alarm list,
+printout, database query, etc.
+
+P_OBJECT_LN
+
+The logical name of the database process objects.
+The maximum length of the text is 63 characters.
+Allowed characters are the letters A-Z, all
+digits and the underscore (_).
+
+The logical names of process objects have to be
+unique throughout the entire system, that is,
+different objects cannot have the same logical
+name. Therefore, it is very important to have a
+proper naming convention for the process object
+database.
+
+STATION_TYPE
+
+The database process objects will be created for
+the protocol type defined here. The list of supported
+protocols is as follows:
+
+  - SPA/External OPC DA Client
+  - IEC 870-5-101/105
+  - MODBUS
+
+CMD_PARAMETER
+
+Command parameter for control method. This
+attribute has meaning only if IEC 870-5-101/104 protocol
+is selected, otherwise this attribute is being disabled.
+The supported control parameters are:
+
+  - Double command (TY = 46)
+  - Single command (TY = 45)
+
+AUTHORIZATION_GROUP
+
+The authorization group for the object. The
+maximum length of the text is 63 characters. The
+given text has to be usable as a SCIL list
+attribute name (see SCIL manual). The contents
+of the selection list is taken from the existing
+authorization groups.
+
+NOTE! The name may not be composed of two
+letters followed by a number.
+
+The attribute needs to be defined, if the object is
+wanted to be included in some authorization group.
+The authorization level of each user in this group
+can be defined afterwards by the system manager with
+the User Management tool.
+
+EVENT_RECORDING
+
+Selection for creating event recording process
+objects with the RP 570 protocol. If
+STATION_TYPE is other than RTU 2xx or RTU
+2xx/FTABs, the configurable attribute is being
+disabled, and the value has no meaning.
+
+With the RP 570 the time stamp from process device
+comes into the event recording process object. If no
+accurate time stamp is needed or available, or the
+device is emulating the RP 570 without an event
+recording possibility, do not set this attribute ON.

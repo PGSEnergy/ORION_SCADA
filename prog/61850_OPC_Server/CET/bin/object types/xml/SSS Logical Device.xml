@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+  <Parameters type="InterfaceDefinition">
+    <Parameter name="ObjectType">SSS LD</Parameter>
+    <Parameter name="Caption">SSS LD</Parameter>
+    <Parameter name="Description">objectTypeDesc</Parameter>
+    <Parameter name="Group">Communication</Parameter>
+    <Parameter name="Type">LD</Parameter>
+    <Parameter name="IconFileName">ld.ico</Parameter>
+    <Parameter name="Tools"></Parameter>
+    <Parameter name="DataServers" />
+    <Parameter name="Verbs" />
+    <Parameter name="CanInherit">False</Parameter>
+    <Parameter name="Visible">True</Parameter>
+    <Parameter name="ParentControlConditions">
+      <Structure name="COMMUNICATION">
+        <Condition type="PCMObjectType">SSS IED</Condition>
+      </Structure>
+    </Parameter>
+  </Parameters>
+    <Properties type="PropertyDefinitions">
+      <Property name="OPCObjectType" category="[010] Basic">
+        <Value>SSS LD</Value>
+        <DescID>OPCObjectTypeDesc</DescID>
+        <CaptionID>OPCObjectType</CaptionID>
+        <Values type="string" />
+        <DataType>System.String</DataType>
+        <HelpKey />
+        <Access>HHR</Access>
+        <AttributeName>OPCObjectType</AttributeName>
+      </Property>
+  </Properties>
+</ObjectType>

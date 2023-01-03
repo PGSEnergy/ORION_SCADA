@@ -1,0 +1,105 @@
+;initialize all needed sys:bsv and apl:bsv
+; NOTICE! naming convention is used with sys:bsv(11)
+
+#DO READ_TEXT("SAGR_BBONE/BGU_LIB4.TXT")
+
+;set MicroLIBRARY on
+#SET SYS:BSV1=1
+
+;if syd:bsv(11) does not exist or in not a list then initialize it
+@S=STATUS
+#ERROR IGNORE
+@TMP=SYS:BSV(11)
+#ERROR CONTINUE
+#CREATE TMP2:V
+#IF STATUS<>0 OR DATA_TYPE(%TMP) <> "LIST" #THEN #SET SYS:BSV(11) = %TMP2
+
+;read in system variable defaults defined by setting picture
+@SYS_SET=EVALUATE(READ_TEXT("/SA_LIB/BASE/BBONE/USE/BGU_SETB.TXT"))
+
+;set the system variable (SYS:BSV) defaults settable by settings picture
+#LOOP_WITH I=1..LENGTH(%SYS_SET)
+   #DO %SYS_SET('I')
+#LOOP_END
+
+;read in system variables defined by setting picture
+#ERROR IGNORE
+@SYS_SET=EVALUATE(READ_TEXT("SYS_/SYS_SET.TXT"))
+#ERROR CONTINUE
+
+;set the system variables (SYS:BSV) settable by settings picture
+#LOOP_WITH I=1..LENGTH(%SYS_SET)
+   #DO %SYS_SET('I')
+#LOOP_END
+
+;initialize needed apl:bsv 
+; NOTICE! naming convention is used with apl:bsv(11)
+
+;if apl:bsv(11) does not exist or in not a list then initialize it
+@S=STATUS
+#ERROR IGNORE
+@TMP=APL:BSV(11)
+#ERROR CONTINUE
+#CREATE TMP2:V
+#IF STATUS<>0 OR DATA_TYPE(%TMP) <> "LIST" #THEN #SET APL:BSV(11) = %TMP2
+
+;predefine attributes to add to apl:bsv11
+;@APL_BSV11=LIST(-
+;   B_VERSION       = "LIB500 4.0",-
+;   B_FIRST_PICTURE = "B_USE/BGU_FIRST")
+
+;add the predefined attributes to APL:BSV(11)
+;@TMP=APL:BSV(11)
+;#MODIFY TMP:V = %APL_BSV11
+;#SET APL:BSV(11) = %TMP
+
+;read in application variables defined by setting picture (defaults)
+@APL_SET=EVALUATE(READ_TEXT("/SA_LIB/BASE/BBONE/USE/BGU_SETA.TXT"))
+
+;set the application variables (APL:BSV)
+#LOOP_WITH I=1..LENGTH(%APL_SET)
+   #DO %APL_SET('I')
+#LOOP_END
+
+;read in application variables defined by setting picture
+#ERROR IGNORE
+@APL_SET=EVALUATE(READ_TEXT("APL_/APL_SET.TXT"))
+#ERROR CONTINUE
+
+@i_Status = status
+
+;set the application variables (APL:BSV)
+#LOOP_WITH I=1..LENGTH(%APL_SET)
+   #DO %APL_SET('I')
+#LOOP_END
+
+;set application language to apl:bla
+@t_File = "/lib4/base/bbone/use/bgu_lxref.txt"
+ 
+;set default in case of errors
+@v_Contents = vector("0,EN,English")
+@apl_bsv11 = apl:bsv11
+@defined_apl_lang = %apl_bsv11.b_application_language
+#error ignore
+   @v_Contents = read_text("'t_File'")
+#error stop
+@s = status
+
+@langIdentifiers=vector()
+#loop_with id = 1 .. length(%v_Contents)
+   @langIdentifiers(%id)=separate(%v_Contents(%id),",")
+#loop_end
+
+@v_langs = vector
+#loop_with langElem= 1 .. length(%langIdentifiers)
+   @langId= %langIdentifiers(%langElem)
+   #if length(%langId)==3 #then #block
+   @v_langs = append(%v_langs, %langId(2))
+      #if dec_scan(%langId(1))==%defined_apl_lang #then #block
+         @APL_L2=%langId(2)
+         #SET APL:BLA=%APL_L2
+      #block_end         
+   #block_end
+#loop_end
+;set the language vector apl:bls with the language config from the configuration file
+#set APL:BLS = remove_duplicates(append(APL:BLS, %v_langs))

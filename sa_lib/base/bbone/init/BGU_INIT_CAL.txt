@@ -1,0 +1,43 @@
+;--------------------------------------------------------------------------
+;
+; Delete LIB 500 Calendar command procedures.
+;--------------------------------------------------------------------------
+; The procedures are recreated at application startup.
+; 
+
+@appl_name_tmp=apl:bna
+@st=status
+@e_state=error_state
+#error ignore
+#delete BGU_CALEN:C
+#error 'e_state'
+@st=status
+#if %st==0 #then @st2=console_output(times+" 'appl_name_tmp' BGU_INIT_CAL.TXT: Old BGU_CALEN:C was removed during the update.")
+
+@st=status
+@e_state=error_state
+#error ignore
+#delete BGU_CALMP:C
+#error 'e_state'
+@st=status
+#if %st==0 #then @st2=console_output(times+" 'appl_name_tmp' BGU_INIT_CAL.TXT: Old BGU_CALMP:C was removed during the update.")
+
+#do read_text("sagr_bbone/bgu_calini.txt")
+
+;--------------------------------------------------------------------------
+;
+; Create command procedure for UTC time handling
+;--------------------------------------------------------------------------
+; 
+;
+
+@st=status
+@e_state=error_state
+#error ignore
+#delete BGU_EL_TS:C
+#error 'e_state'
+@st=status
+#create BGU_EL_TS:C=list(-
+   IU=1,-
+   IN=read_text("sagr_bbone/BGU_EL_TS.TXT"),-
+   CM="Procedure for getting UTC time from system time")

@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<NGT>
+  <Header>
+    <ModelInfo value="FunctionalStructure" />
+    <ModelVersion value="1.3.0.0" />
+    <PersistencyVersion value="1.0.0.0" />
+  </Header>
+  <DomModel>
+    <Complex name="Root" type="t0" id="0">
+      <Reference name="functionalStructureNodes" id="1" />
+      <Reference name="type" id="2" />
+      <Reference name="ieds" id="3" />
+      <Reference name="progressState" id="4" />
+      <Reference name="parent" id="5" />
+      <Reference name="role" id="6" />
+      <Reference name="connectivityNodes" id="7" />
+      <Simple name="TypicalID" value="00000000-0000-0000-0000-000000000000" />
+      <Reference name="parameters" id="8" />
+      <Reference name="names" id="9" />
+      <Simple name="EntityId" value="670c8c2f-222b-4e41-9f2c-b89f3e7e1849" />
+    </Complex>
+    <Complex name="functionalStructureNodes" type="t1" id="1">
+      <Collection name="internalList" type="t2" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="FunctionalStructureNodes" />
+    </Complex>
+    <Complex name="type" type="t3" id="2">
+      <Simple name="memberEntityID" value="089b664d-45db-4f97-b031-80722447cb54" />
+    </Complex>
+    <Complex name="ieds" type="t4" id="3">
+      <Collection name="internalList" type="t5" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="Ieds" />
+    </Complex>
+    <Complex name="progressState" type="t6" id="4">
+      <Simple name="value" value="NotStarted" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="EngineeringProgress" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="parent" type="t7" id="5">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="Parent" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="role" type="t8" id="6">
+      <Simple name="value" value="Typical" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="Role" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="connectivityNodes" type="t9" id="7">
+      <Collection name="internalList" type="t10" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="" />
+    </Complex>
+    <Complex name="parameters" type="t11" id="8">
+      <Dictionary name="internalDictionary" type="t12" id="0">
+        <Items />
+      </Dictionary>
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="Parameters" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="names" type="t13" id="9">
+      <Collection name="internalList" type="t14" id="0">
+        <Simple name="Capacity" value="1" />
+        <Items>
+          <Reference name="item" id="10" />
+        </Items>
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="Names" />
+    </Complex>
+    <Complex name="item" type="t15" id="10">
+      <Reference name="name" id="11" />
+      <Reference name="parent" id="0" />
+      <Reference name="Type" id="12" />
+    </Complex>
+    <Complex name="name" type="t16" id="11">
+      <Simple name="value" value="Root" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="10" />
+      <Simple name="PropertyName" value="Name" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="Type" type="t17" id="12">
+      <Simple name="NameType" value="ABB Internal Name" />
+      <Simple name="NameAuthority" value="NGT" />
+    </Complex>
+    <Types>
+      <Type value="ABB.NGT.Domain.Core.Implementation.Model.FunctionalStructureRootNode, ABB.NGT.Domain.Core.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t0" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldList`3[[ABB.NGT.Domain.Core.API.IFunctionalStructureNode, ABB.NGT.Domain.Core.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Core.Contracts.Events.CoreChildAddedEvent, ABB.NGT.Domain.Core.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Core.Contracts.Events.CoreChildRemovedEvent, ABB.NGT.Domain.Core.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t1" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.Core.API.IFunctionalStructureNode, ABB.NGT.Domain.Core.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t2" />
+      <Type value="ABB.NGT.Domain.Concepts.Implementation.SoftReferences.TypeDataSoftReference`1[[ABB.NGT.Domain.Core.API.IEquipmentContainerType, ABB.NGT.Domain.Core.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Domain.Concepts.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t3" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldList`3[[ABB.NGT.Domain.Core.API.IIed, ABB.NGT.Domain.Core.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Core.Contracts.Events.CoreChildAddedEvent, ABB.NGT.Domain.Core.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Core.Contracts.Events.CoreChildRemovedEvent, ABB.NGT.Domain.Core.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t4" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.Core.API.IIed, ABB.NGT.Domain.Core.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t5" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[ABB.NGT.Domain.Core.API.Enums.EngineeringProcessState, ABB.NGT.Domain.Core.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Core.Contracts.Events.CorePropertyChangedEvent, ABB.NGT.Domain.Core.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t6" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[ABB.NGT.Domain.Concepts.API.IParent, ABB.NGT.Domain.Concepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Core.Contracts.Events.CorePropertyChangedEvent, ABB.NGT.Domain.Core.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t7" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[ABB.NGT.Domain.Concepts.API.TypicalInstanceRole, ABB.NGT.Domain.Concepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Core.Contracts.Events.CorePropertyChangedEvent, ABB.NGT.Domain.Core.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t8" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldList`3[[ABB.NGT.Domain.Core.API.IConnectivityNode, ABB.NGT.Domain.Core.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Core.Contracts.Events.CoreChildAddedEvent, ABB.NGT.Domain.Core.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Core.Contracts.Events.CoreChildRemovedEvent, ABB.NGT.Domain.Core.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t9" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.Core.API.IConnectivityNode, ABB.NGT.Domain.Core.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t10" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldDictionary`5[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[ABB.NGT.Domain.Concepts.API.Parameters.IParameterComponent, ABB.NGT.Domain.Concepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Concepts.Contracts.Events.Parameters.ParameterPropertyChangedEvent, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Concepts.Contracts.Events.Parameters.ParameterChildAddedEvent, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Concepts.Contracts.Events.Parameters.ParameterChildRemovedEvent, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t11" />
+      <Type value="System.Collections.Generic.Dictionary`2[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[ABB.NGT.Domain.Concepts.API.Parameters.IParameterComponent, ABB.NGT.Domain.Concepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t12" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldList`3[[ABB.NGT.Domain.Concepts.API.IEntityName, ABB.NGT.Domain.Concepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Concepts.Contracts.Events.Name.NameAddedEvent, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Concepts.Contracts.Events.Name.NameRemovedEvent, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t13" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.Concepts.API.IEntityName, ABB.NGT.Domain.Concepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t14" />
+      <Type value="ABB.NGT.Domain.Concepts.Contracts.EntityName, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t15" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[ABB.NGT.Domain.Concepts.Contracts.Events.Name.NameChangedEvent, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t16" />
+      <Type value="ABB.NGT.ToolConcepts.API.Environment.WorkspaceSettings.EntityNameType, ABB.NGT.ToolConcepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t17" />
+    </Types>
+  </DomModel>
+</NGT>

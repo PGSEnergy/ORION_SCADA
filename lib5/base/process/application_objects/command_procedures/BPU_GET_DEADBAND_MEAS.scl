@@ -1,0 +1,48 @@
+;Function: BPU_GET_DEADBAND_MEAS:C
+;Source file:  sc/lib5/base/process/application_objects/command_procedures/bpu_get_deadband_meas.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute),  search_result[, max/min values]
+;Return data:
+;Description: sets the limits of the measurement
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data, i_IX
+#local t_LN, l_result = list(status = 0, err_description = "", in_use = false, value = 0, can_change = true)
+#local e_state, s
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_GET_DEADBAND_MEAS"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+         @REDIRECTED = true                                                                        
+         i_ArgCnt = argument_count                                                                 
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+         #loop_end                                                                                 
+         #return 't_Redirect_Command' ;;;;;                                                        
+      #block_end                                                                                   
+   #block_end                                                                                      
+   #else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+
+t_LN = l_object_info.p_object_ln
+
+#if 't_LN':pss'i_IX' > 0 and 't_LN':piu'i_IX' > 0 #then #block
+   #if 't_LN':pze'i_IX' == 1 #then l_result.in_use = true
+   l_result.value = 't_LN':pzd'i_IX'
+#block_end
+#else #block
+   l_result.can_change = false
+#block_end
+
+#return l_result

@@ -1,0 +1,274 @@
+<?xml version="1.0"?>
+<!-- edited with XMLSpy v2011 (http://www.altova.com) by XMLSpy 2011 Professional Ed., Installed for 10 users (with SMP from 2010-09-23 to 2011-09-24) (ABB Oy) -->
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Markku Hamarila/RSC (ABB OY Substation Automation) -->
+<ObjectTypes>
+	<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+		<Parameters type="InterfaceDefinition">
+			<Parameter name="ObjectType">SNMP OPC Server 5.0</Parameter>
+			<Parameter name="Caption">objectTypeCaption</Parameter>
+			<Parameter name="Description">objectTypeDesc</Parameter>
+			<Parameter name="Group">SNMP</Parameter>
+			<Parameter name="Type">OPCServer</Parameter>
+			<Parameter name="IconFileName">SNMP.ico</Parameter>
+			<Parameter name="Tools">SCLImport,OnlineDiagnosticsServer,DiagnosticAeClientServer,SCDExportVerbs</Parameter>
+			<Parameter name="DataServers"/>
+			<Parameter name="Verbs"/>
+			<Parameter name="CanInherit">False</Parameter>
+			<Parameter name="ParentControlConditions">
+				<Structure name="COMMUNICATION">
+					<Condition type="PCMObjectType">GW 5.0, Computer Node 5.0</Condition>
+				</Structure>
+			</Parameter>
+		</Parameters>
+		<Parameters type="SCLExport">
+			<Export name="CDATA">UseQualityAndTimeAttributes, EnableOPCv2Optimizations, UseDescriptionAttribute, TreeDelimiter, AcceptedTreeDelimiter</Export>
+		</Parameters>
+		<Properties type="PropertyDefinitions">
+			<Property name="TreeDelimiter" category="[010] Basic">
+				<Value>\</Value>
+				<DescID>TreeDelimiterDesc</DescID>
+				<CaptionID>TreeDelimiter</CaptionID>
+				<Values type="string"/>
+				<DataType>System.Char</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>TreeDelimiter</AttributeName>
+			</Property>
+			<Property name="AcceptedTreeDelimiter" category="[010] Basic">
+				<Value>\</Value>
+				<DescID>AcceptedTreeDelimiterDesc</DescID>
+				<CaptionID>AcceptedTreeDelimiter</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>AcceptedTreeDelimiter</AttributeName>
+			</Property>
+			<Property name="ShortName" category="[010] Basic">
+				<Value>SNMP</Value>
+				<DescID>ShortNameDesc</DescID>
+				<CaptionID>ShortName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="InstanceNumber" category="[010] Basic">
+				<Value>0</Value>
+				<DescID>InstanceNumberDesc</DescID>
+				<CaptionID>InstanceNumber</CaptionID>
+				<Values type="numerical"/>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="ProgIDAE" category="[010] Basic">
+				<Value/>
+				<DescID>ProgIDAEDesc</DescID>
+				<CaptionID>ProgIDAE</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HRW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="ProgID" category="[010] Basic">
+				<Value/>
+				<DescID>ProgIDDesc</DescID>
+				<CaptionID>ProgID</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HRW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="OPCObjectType" category="[010] Basic">
+				<Value>OPC Server</Value>
+				<DescID>OPCObjectTypeDesc</DescID>
+				<CaptionID>OPCObjectType</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>OPCObjectType</AttributeName>
+			</Property>
+			<Property name="ProtocolName" category="[010] Basic">
+				<Value>SNMP</Value>
+				<DescID>ProtocolNameDesc</DescID>
+				<CaptionID>ProtocolName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="UseQualityAndTimeAttributes" category="[010] Basic">
+				<Value>True</Value>
+				<DescID>UseQualityAndTimeAttributesDesc</DescID>
+				<CaptionID>UseQualityAndTimeAttributes</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>205</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>UseQualityAndTimeAttributes</AttributeName>
+			</Property>
+			<Property name="EnableOPCv2Optimizations" category="[010] Basic">
+				<Value>True</Value>
+				<DescID>EnableOPCv2OptimizationsDesc</DescID>
+				<CaptionID>EnableOPCv2Optimizations</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>206</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>EnableOPCv2Optimizations</AttributeName>
+			</Property>
+			<Property name="UseDescriptionAttribute" category="[010] Basic">
+				<Value>True</Value>
+				<DescID>UseDescriptionAttributeDesc</DescID>
+				<CaptionID>UseDescriptionAttribute</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>207</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>UseDescriptionAttribute</AttributeName>
+			</Property>
+		</Properties>
+	</ObjectType>
+
+	<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+		<Parameters type="InterfaceDefinition">
+			<Parameter name="ObjectType">SNMP OPC Server</Parameter>
+			<Parameter name="Caption">objectTypeCaption</Parameter>
+			<Parameter name="Description">objectTypeDesc</Parameter>
+			<Parameter name="Group">SNMP</Parameter>
+			<Parameter name="Type">OPCServer</Parameter>
+			<Parameter name="IconFileName">SNMP.ico</Parameter>
+			<Parameter name="Tools">SCLImport,OnlineDiagnosticsServer,DiagnosticAeClientServer,SCDExportVerbs</Parameter>
+			<Parameter name="DataServers"/>
+			<Parameter name="Verbs"/>
+			<Parameter name="CanInherit">False</Parameter>
+			<Parameter name="ParentControlConditions">
+				<Structure name="COMMUNICATION">
+					<Condition type="PCMObjectType">GW 3.5</Condition>
+				</Structure>
+			</Parameter>
+		</Parameters>
+		<Parameters type="SCLExport">
+			<Export name="CDATA">UseQualityAndTimeAttributes, EnableOPCv2Optimizations, UseDescriptionAttribute, TreeDelimiter, AcceptedTreeDelimiter</Export>
+		</Parameters>
+		<Properties type="PropertyDefinitions">
+			<Property name="TreeDelimiter" category="[010] Basic">
+				<Value>\</Value>
+				<DescID>TreeDelimiterDesc</DescID>
+				<CaptionID>TreeDelimiter</CaptionID>
+				<Values type="string"/>
+				<DataType>System.Char</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>TreeDelimiter</AttributeName>
+			</Property>
+			<Property name="AcceptedTreeDelimiter" category="[010] Basic">
+				<Value>\</Value>
+				<DescID>AcceptedTreeDelimiterDesc</DescID>
+				<CaptionID>AcceptedTreeDelimiter</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>AcceptedTreeDelimiter</AttributeName>
+			</Property>
+			<Property name="ShortName" category="[010] Basic">
+				<Value>SNMP</Value>
+				<DescID>ShortNameDesc</DescID>
+				<CaptionID>ShortName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="InstanceNumber" category="[010] Basic">
+				<Value>0</Value>
+				<DescID>InstanceNumberDesc</DescID>
+				<CaptionID>InstanceNumber</CaptionID>
+				<Values type="numerical"/>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="ProgIDAE" category="[010] Basic">
+				<Value/>
+				<DescID>ProgIDAEDesc</DescID>
+				<CaptionID>ProgIDAE</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HRW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="ProgID" category="[010] Basic">
+				<Value/>
+				<DescID>ProgIDDesc</DescID>
+				<CaptionID>ProgID</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HRW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="OPCObjectType" category="[010] Basic">
+				<Value>OPC Server</Value>
+				<DescID>OPCObjectTypeDesc</DescID>
+				<CaptionID>OPCObjectType</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>OPCObjectType</AttributeName>
+			</Property>
+			<Property name="ProtocolName" category="[010] Basic">
+				<Value>SNMP</Value>
+				<DescID>ProtocolNameDesc</DescID>
+				<CaptionID>ProtocolName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="UseQualityAndTimeAttributes" category="[010] Basic">
+				<Value>True</Value>
+				<DescID>UseQualityAndTimeAttributesDesc</DescID>
+				<CaptionID>UseQualityAndTimeAttributes</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>205</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>UseQualityAndTimeAttributes</AttributeName>
+			</Property>
+			<Property name="EnableOPCv2Optimizations" category="[010] Basic">
+				<Value>True</Value>
+				<DescID>EnableOPCv2OptimizationsDesc</DescID>
+				<CaptionID>EnableOPCv2Optimizations</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>206</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>EnableOPCv2Optimizations</AttributeName>
+			</Property>
+			<Property name="UseDescriptionAttribute" category="[010] Basic">
+				<Value>True</Value>
+				<DescID>UseDescriptionAttributeDesc</DescID>
+				<CaptionID>UseDescriptionAttribute</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>207</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>UseDescriptionAttribute</AttributeName>
+			</Property>
+		</Properties>
+	</ObjectType>
+</ObjectTypes>

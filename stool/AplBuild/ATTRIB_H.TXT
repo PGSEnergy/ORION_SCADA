@@ -1,0 +1,157 @@
+;************************************ ATTRIB_H.TXT ********************************************
+;************************************              ********************************************
+
+;Defines the limit properties of MicroScada Event Handling object attributes (excluding read-only).
+
+;Event Handling Object
+
+#local I_MIN_INTEGER = -2147483647,- ;min_integer + 1
+       I_MAX_INTEGER = max_integer
+
+
+#CREATE ATTRIB_HLN:V = LIST(DATA_TYPE = "TEXT",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = max_object_name_length)
+
+#CREATE ATTRIB_HCD:V = LIST(DATA_TYPE = "TEXT",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_HCI:V = LIST(DATA_TYPE = "INTEGER",-
+         MIN_VALUE = I_MIN_INTEGER,-
+         MAX_VALUE = I_MAX_INTEGER)
+
+#CREATE ATTRIB_HCN:V = LIST(DATA_TYPE = "TEXT",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_HCX:V = LIST(DATA_TYPE = "TEXT",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_HEM:V = LIST(DATA_TYPE = "VECTOR",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 256,-
+         EDATA_TYPE = "TEXT",-
+         EMIN_LENGTH = 0,-
+         EMAX_LENGTH = 255)
+
+#CREATE ATTRIB_HET:V = LIST(DATA_TYPE = "TEXT",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_HMT:V = LIST(DATA_TYPE = "VECTOR",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 65536,-
+         EDATA_TYPE = "TEXT",-
+         EMIN_LENGTH = 0,-
+         EMAX_LENGTH = max_object_name_length)
+
+#CREATE ATTRIB_HND:V = LIST(DATA_TYPE = "INTEGER",-
+         MIN_VALUE = 1,-
+         MAX_VALUE = max_node_number)
+         
+#CREATE ATTRIB_HOC:V = LIST(DATA_TYPE = "LIST")
+
+#CREATE ATTRIB_HOC_CD:V = LIST(DATA_TYPE = "TEXT",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_HOC_CI:V = LIST(DATA_TYPE = "INTEGER",-
+         MIN_VALUE = I_MIN_INTEGER,-
+         MAX_VALUE = I_MAX_INTEGER)
+
+#CREATE ATTRIB_HOC_CN:V = LIST(DATA_TYPE = "TEXT",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_HOC_DS:V = LIST(DATA_TYPE = "INTEGER",-
+            MIN_VALUE = 0,-
+            MAX_VALUE = 1000)
+
+#CREATE ATTRIB_HOC_SI_CD:V = LIST(DATA_TYPE = "TEXT",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_HOC_SI_SE:V = LIST(DATA_TYPE = "INTEGER",-
+            MIN_VALUE = 1,-
+            MAX_VALUE = 1000)
+
+#CREATE ATTRIB_HOC_SU_SD:V = LIST(DATA_TYPE = "TEXT",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+@ATTRIB_HOC_SU_SE = VECTOR(-
+         LIST(DATA_TYPE = "INTEGER",-
+            MIN_VALUE = 1,-
+            MAX_VALUE = 1000),-
+         LIST(DATA_TYPE = "VECTOR",-
+            MIN_LENGTH = 0,-
+            MAX_LENGTH = 255,-
+            EDATA_TYPE = "INTEGER",-
+            EMIN_VALUE = 1,-
+            EMAX_VALUE = 1000))
+
+#CREATE ATTRIB_HOC_SU_SN:V = LIST(DATA_TYPE = "TEXT",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_HOG:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "NONE",-
+         ALLOWED = vector("NONE","SIMPLE_OR_TRACKING","CONDITION","BOTH"),-
+         MIN_LENGTH = length("BOTH"),-
+         MAX_LENGTH = length("SIMPLE_OR_TRACKING"))
+
+#CREATE ATTRIB_HOS_CD:V = LIST(DATA_TYPE = "TEXT",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_HOS_CI:V = LIST(DATA_TYPE = "INTEGER",-
+         MIN_VALUE = I_MIN_INTEGER,-
+         MAX_VALUE = I_MAX_INTEGER)
+
+#CREATE ATTRIB_HOS_ET:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "SIMPLE",-
+         ALLOWED = vector("SIMPLE","TRACKING"),-
+         MIN_LENGTH = length("SIMPLE"),-
+         MAX_LENGTH = length("TRACKING"))
+
+@ATTRIB_HOS_SE = VECTOR(-
+         LIST(DATA_TYPE = "INTEGER",-
+            MIN_VALUE = 1,-
+            MAX_VALUE = 1000),-
+         LIST(DATA_TYPE = "VECTOR",-
+            MIN_LENGTH = 0,-
+            MAX_LENGTH = 255,-
+            EDATA_TYPE = "INTEGER",-
+            EMIN_VALUE = 0,-
+            EMAX_VALUE = 1000))
+
+#CREATE ATTRIB_HSN:V = LIST(DATA_TYPE = "VECTOR",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 256,-
+         EDATA_TYPE = "TEXT",-
+         EMIN_LENGTH = 0,-
+         EMAX_LENGTH = 255)
+
+#CREATE ATTRIB_HST:V = LIST(DATA_TYPE = "VECTOR",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 65536,-
+         EDATA_TYPE = "TEXT",-
+         EMIN_LENGTH = 0,-
+         EMAX_LENGTH = max_object_name_length)
+
+#CREATE ATTRIB_HVC:V = LIST(DATA_TYPE = "INTEGER",-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 65536)
+  
+#CREATE ATTRIB_HVF:V = LIST(DATA_TYPE = "TEXT",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_HVL:V = LIST(DATA_TYPE = "INTEGER",-
+         MIN_VALUE = I_MIN_INTEGER,-
+         MAX_VALUE = I_MAX_INTEGER)
+         
+
+

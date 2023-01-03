@@ -1,0 +1,22 @@
+;------------------------------------------------------------------------------------
+; Rev. 
+; 0.00     2012.04.20   TiLi    Initial
+;-----------------------------------------------------------------
+
+;execute common DS%% code
+#DO READ_TEXT("F5_INST/FDI_PUMP.POT",1,10000)
+
+;faulty, local/remote, auto/manual --------------------------------------------------------------------------
+@ACO_FAULTY_ENABLED           = FALSE
+@ACO_LOCAL_REMOTE_ENABLED     = FALSE
+@ACO_LOCAL_REMOTE_IND_TYPE    = ""
+@ACO_AUTO_MANUAL_ENABLED      = true
+@ACO_AUTO_MANUAL_IND_TYPE     = 'ID'_PICTURE_FUNCTION_CONF:VAUTO_MANUAL_IND_TYPE
+@ACO_AUTO_MANUAL_CMD_ENABLED  = 'ID'_PICTURE_FUNCTION_CONF:VAUTO_MANUAL_CMD_ENABLED
+@ACO_STATION_TYPE             = 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+@ACO_RX                       = %RX(10)
+@ACO_OX_PREFIX_1              = ""    ;fpi_ssw:vCU_TXT + " "
+@ACO_OX_PREFIX_2              = ""
+@OBJ_BASE_NO                  = 3000
+
+#DO READ_TEXT("F5_INST/FDI_ACO.POT", 1, 10000) ;execute code for additional common objects

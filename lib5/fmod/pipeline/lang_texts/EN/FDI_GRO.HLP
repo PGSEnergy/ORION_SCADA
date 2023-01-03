@@ -1,0 +1,83 @@
+BAY_LR_IN_USE
+
+An ON/OFF type of a toggle button to select if
+the bay local/remote-switch is in use, i.e. a
+physical switch exists.
+
+As a default the bay local/remote-switch is in
+use.
+
+It is typical that if RTU 200 or RTU 210 is used
+as a remote terminal unit, there is no bay
+local/remote-switches at bay level. The
+control authority of a single bay is determined by
+using station local/remote-switch only.
+
+The process object for bay local/remote-switch is
+created regardless of the selection. If the bay
+local/remote-switch is NOT in use, the process
+object should be left as it is created, i.e.
+switching state (SS) to manual and value (DB)
+as 2 (remote).
+
+BAY_LR_POLARITY
+
+The polarity of the bay local/remote-switch
+input signal.
+
+IND_DOUBLE_BINARY
+
+An ON/OFF type of a toggle button to select,
+if the type of the bay local/remote-switch
+indication is double binary. This selection is being
+disabled and it has no meaning if the bay
+local/remote-switch is not in use, i.e.
+BAY_LR_IN_USE is not set.
+
+Depending on the actual field device, the
+indication of the local/remote-switch is sent either
+as a single binary (0/1) or as a double binary
+(0/1/2/3) format.
+
+   Binary input:
+
+      0 - local
+      1 - remote
+
+   Double binary input:
+
+      0 - disabled (=control totally blocked)
+      1 - local
+      2 - remote
+      3 - none
+
+IND_ANALOG_INPUT
+
+An ON/OFF type of a toggle button to select,
+if the type of the bay local/remote-switch
+indication is analog input. This selection is being
+disabled and it has no meaning if the bay
+local/remote-switch is not in use, i.e.
+BAY_LR_IN_USE is not set.
+
+LR_REMOTELY_CONTROLLABLE
+
+An ON/OFF type of a toggle button to select if
+the bay local/remote-switch can be controlled
+remotely by SCS/MicroSCADA. This selection is
+being disabled and it has no meaning if the bay
+local/remote-switch in not in use, i.e.
+BAY_LR_IN_USE is not set.
+
+As a default, bay local/remote-switch is defined
+as manually controllable only.
+
+It is typical that if there is a remote control for
+bay local/remote- switch, shift to local can be
+done remotely, whereas shift from local to remote
+has to be performed locally. This can be achieved
+by setting the attribute SS (switching state) of the
+local command process object to OFF (0). By
+setting the SS-attribute to 0, the relevant
+radio-button on dialog will become insensitive for
+shifting.

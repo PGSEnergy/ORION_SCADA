@@ -1,0 +1,509 @@
+﻿; This command procedure is used for sending BO process object values from a NCC to a COM 
+; application (downstream direction)
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+;  INPUT: @LN, @IX, @DI, @CA, @OS attributes of the input object
+;         @NCC_PROTOCOL, protocol of the NCC sending the command (COM_AUTHCH:C)
+;         @NCC_SUBPROTOCOL, subprotocol of the NCC sending the command (for CPI NCCs only, COM_AUTHCH:C)
+;         @NCC_STA_NUMBER, STA object number of the NCC (COM_AUTHCH:C)
+;         @COMMAND_TYPE, type of the command (direct/secured-2/secured-4,secured-1), integer (COM_DSXREF:C)
+;         @OUTPUT_OBJECT_LNS, logical name(s) of the output object(s), text/vector (COM_DSXREF:C)
+;         @OUTPUT_OBJECT_IXS, index(es) of the output object(s), vector (COM_DSXREF:C)
+;         @SIGNAL_HANDLING_ATTRS, datatype-specific special conditions, integer (bit mask) (COM_DSXREF:C)
+;         @NCC_NUMBER, number of the NCC sending the command 
+; OUTPUT  APL:BSV(28), time stamps of the pending indications
+;         APL:BSV(29), ids (ln+ix+oa+sta_nr+og) of the pending indications
+;         @COMMAND_TYPE, type of the command (direct/secured-2/secured-4/secured-1), integer
+;         @NCC_PROTOCOL, protocol of the NCC sending the command
+;         @OUTPUT_OBJECT_LNS, logical name(s) of the output object(s), text vector
+;         @OUTPUT_OBJECT_IXS, index(es) of the output object(s), integer vector
+;         @CPI_CMD_TYPE, type of the cpi command, integer
+;         @VALUE, control direction (0 = open, 1 = close)
+;------------------------------------------------------------------------------------------------
+
+
+#ERROR CONTINUE
+
+;initialize variables
+@INDICATION_CONNECTED = FALSE
+@STATUS_INCREMENT = 0
+@CS_CODE = 0
+@ACT_TERM_LOG = 0
+@IEC_TERM_ENABLED = COM_GENVAR:PBZ(2)
+@ENABLE_LOGGING = COM_GENVAR:PBZ(3)
+@ACR = 0 
+
+@RESPONSE_MESSAGE_STATUS = 0
+@COMMAND_STATUS = 0
+@COMMAND_COMPLETE = 0
+
+@IEC_COMMAND_RECEIVED_WITHOUT_SELECT = COM_GENVAR:PBZ(18)
+@UN = 'LN':PUN'IX'
+; cdc-II addition parameter: index of CDC-II parameters in APL
+@CDC2_INDEX = 99
+
+#IF %OS <> 2 #THEN #BLOCK 
+   ;read cross-reference table pointer
+   @XREF_INDEX = 'LN':PTI'IX'
+   ;if xref found, decode NCC addresses and group alarm information
+   #IF %XREF_INDEX > 0  #THEN #BLOCK  ; 1
+      #IF COM_DSXREF:CCS == 1 #THEN #DO COM_DSXREF:CCP
+      #ELSE #DO COM_DSXREF:CIN
+      ;check command authority
+      #IF COM_AUTHCH:CCS == 1 #THEN #DO COM_AUTHCH:CCP
+      #ELSE #DO COM_AUTHCH:CIN
+      ;check command blocking
+      #IF COM_DSCMDBLK:CCS == 1 #THEN #DO COM_DSCMDBLK:CCP
+      #ELSE #DO COM_DSCMDBLK:CIN
+      #IF %CONTROLS_ALLOWED == 1 AND %COMMAND_TYPE > 0 AND NOT %COMMAND_BLOCKED #THEN #BLOCK ; 2
+         ;reset status                
+         @S = STATUS
+         ;perform the command sequence according to the command type and protocol
+         #CASE %NCC_PROTOCOL ; 3
+            #WHEN 1 #BLOCK ; ********************** RP-570 slave protocol ***********************************************************************; 4
+               ;originator address
+               @ORIGINATOR = %NCC_STA_NUMBER
+               ;invert value if required
+               #IF BIT(%SIGNAL_HANDLING_ATTRS,1) == 1 #THEN @VALUE = 1-%DI
+               #ELSE @VALUE = %DI
+               ;*************** project-specific modifications *****************
+               #IF BIT(%SIGNAL_HANDLING_ATTRS,0) == 1 #THEN #BLOCK
+                  ;write the project-specific code in this block
+               #BLOCK_END
+               ;execute command
+               #IF %RA == 0 OR %RA == 2 OR %RA == 4 #THEN #BLOCK
+                  #IF COM_BOCMD:CCS == 1 #THEN #DO COM_BOCMD:CCP
+                  #ELSE #DO COM_BOCMD:CIN
+               #BLOCK_END
+               #ELSE_IF %RA == 1 #THEN #BLOCK
+                  ;write project-specific code for select condition
+               #BLOCK_END
+               #IF %RA == 0 #THEN #BLOCK
+                   ;if succesful command and an indication has been connected set the tag
+                  #IF STATUS == 0 AND LENGTH(%OUTPUT_OBJECT_LNS) == %CONNECTED_LENGTH_LIMIT #THEN @INDICATION_CONNECTED = TRUE
+               #BLOCK_END
+               #ELSE_IF %RA == 2 OR %RA == 4 #THEN #BLOCK
+                  #IF %COMMAND_STATUS == 0 AND STATUS == 0 #THEN #BLOCK
+                     @RESPONSE_MESSAGE_STATUS = 0
+                     #IF LENGTH(%OUTPUT_OBJECT_LNS) == %CONNECTED_LENGTH_LIMIT #THEN @INDICATION_CONNECTED = TRUE
+                  #BLOCK_END
+                  #ELSE @RESPONSE_MESSAGE_STATUS = 1
+               #BLOCK_END
+               ;send response message (NXR, CBR, EXE)
+               #IF %RA == 1 OR %RA == 2 OR %RA == 3 OR %RA == 4 #THEN #BLOCK 
+                  #SET STA'NCC_STA_NUMBER':SCS = %RESPONSE_MESSAGE_STATUS  
+               #BLOCK_END
+               #IF %ENABLE_LOGGING #THEN #BLOCK ; 5
+                  @ADDR='OUT_LN':POA'OUT_IX'
+                  @STA_NR='OUT_LN':PUN'OUT_IX'
+                  @SH=%SIGNAL_HANDLING_ATTRS
+                  @SX_STATE='OUT_LN':PSX'OUT_IX'
+                  @S=STATUS
+                  @INFO="'rt':'rm',DSBO,'UN','OUT_LN':P'OUT_IX','STA_NR',,'DI',RP570,'SH','ADDR','VALUE',,,,,,,,'S',,,'SX_STATE'"
+                  #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                  #ELSE #DO COM_LOG:CIN 
+               #BLOCK_END ; 5
+            #BLOCK_END ; 4
+            #WHEN 2 #BLOCK ;********************** IEC protocol *****************************************************************; 4
+               #IF %NCC_SUBPROTOCOL == 2 #THEN #BLOCK ;ICCP
+                  ;originator address
+                  @ORIGINATOR = %NCC_STA_NUMBER 
+                  @RES = 0 
+                  #IF BIT(%SIGNAL_HANDLING_ATTRS,2) == 1 #THEN #BLOCK ; 5                
+                     @DB_VALUES = (0,0,1,0)
+                     @VALUE = %DB_VALUES(%OV+1)
+                     ;negative confirmation/termination if invalid value
+                     #IF %OV == 0 OR %OV == 3 #THEN @STATUS_INCREMENT = 64
+                  #BLOCK_END ; 5
+                  #ELSE #BLOCK
+                     @VALUE = %BI
+                  #BLOCK_END
+                  ;invert value if required
+                  #IF BIT(%SIGNAL_HANDLING_ATTRS,1) == 1 #THEN @VALUE = 1-%VALUE
+                  ;*************** project-specific modifications *****************
+                  #IF BIT(%SIGNAL_HANDLING_ATTRS,0) == 1 #THEN #BLOCK
+                     ;write the project-specific code in this block
+                  #BLOCK_END
+                  #IF %RA == 1 #THEN #BLOCK;select
+                     #SET STA'NCC_STA_NUMBER':SCF('LN':POA'IX') = (%RES,%RA)
+                  #BLOCK_END
+                  #ELSE #BLOCK ; operate
+                     @IEC_COMMAND_RECEIVED_WITHOUT_SELECT = TRUE
+                     #IF COM_BOCMD:CCS == 1 #THEN #DO COM_BOCMD:CCP
+                     #ELSE #DO COM_BOCMD:CIN 
+                     @COMMAND_STATUS = STATUS     
+                     #IF %COMMAND_STATUS == 0 AND %STATUS_INCREMENT == 0 #THEN @RES = 0
+                     #ELSE @RES = 2   
+                     #SET STA'NCC_STA_NUMBER':SCF('LN':POA'IX') = (%RES,%RA)
+                  #BLOCK_END
+                  #IF %ENABLE_LOGGING #THEN #BLOCK 
+                     @ADDR='OUT_LN':POA'OUT_IX'
+                     @STA_NR='OUT_LN':PUN'OUT_IX'
+                     @NCC_TYPE="ICCP"
+                     @SH=%SIGNAL_HANDLING_ATTRS
+                     @SX_STATE='OUT_LN':PSX'OUT_IX'
+                     @S=STATUS
+                     @INFO="'rt':'rm',DSBO,'UN','OUT_LN':P'OUT_IX','STA_NR',,'OV','NCC_TYPE','SH','ADDR','VALUE',,,,,,,,'S',,,'SX_STATE'"
+                     @CMDP_CP = COM_LOG:CCP
+                     #IF LENGTH(%CMDP_CP) == 0 #THEN #BLOCK
+                        #DO COM_LOG:CIN
+                     #BLOCK_END      
+                     #ELSE #DO COM_LOG:CCP
+                     @CF_TIME = HR_CLOCK
+                     @CF_RT = TIMES(CF_TIME:VCL)
+                     @CF_RM = ROUND(CF_TIME:VUS/1000)      
+                     @CF_LOG_ADDR = 'LN':POA'IX'
+                     #IF %RES == 0 #THEN @CF_LOG_TEXT = "Activation confirmation"
+                     #ELSE @CF_LOG_TEXT = "Negative activation confirmation" 
+                     @INFO="'CF_RT':'CF_RM',DSBO,'NCC_STA_NUMBER','LN':P'IX',,'CF_LOG_TEXT',,,,'CF_LOG_ADDR',,,,,,,,,,,,"
+                     #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                     #ELSE #DO COM_LOG:CIN
+                  #BLOCK_END          
+               #BLOCK_END
+               #ELSE_IF %NCC_SUBPROTOCOL == 3 #THEN #BLOCK ;IEC 61850 Server
+                  ;originator address
+                  @ORIGINATOR = %OG
+                  #IF %CT == 8 #THEN @RA = 1
+                  ;received as double command
+                  #IF BIT(%SIGNAL_HANDLING_ATTRS,2) == 1 #THEN #BLOCK ; 5                
+                     @DB_VALUES = (0,0,1,0)
+                     @VALUE = %DB_VALUES(%OV+1)
+                     ;negative confirmation/termination if invalid value
+                     #IF %OV == 0 OR %OV == 3 #THEN @STATUS_INCREMENT = 64
+                  #BLOCK_END ; 5
+                  #ELSE #BLOCK
+                     @VALUE = %BI  ;received as single command
+                     #IF %TY == 46 #THEN @STATUS_INCREMENT = 64
+                  #BLOCK_END   
+                  ;invert value if required
+                  #IF BIT(%SIGNAL_HANDLING_ATTRS,1) == 1 #THEN @VALUE = 1-%VALUE
+                  ;*************** project-specific modifications *****************
+                  #IF BIT(%SIGNAL_HANDLING_ATTRS,0) == 1 #THEN #BLOCK
+                     ;write the project-specific code in this block
+                  #BLOCK_END
+                  ;execute command only if valid value
+                  #IF %STATUS_INCREMENT == 0 #THEN #BLOCK
+                     #IF COM_BOCMD:CCS == 1 #THEN #DO COM_BOCMD:CCP
+                     #ELSE #DO COM_BOCMD:CIN
+                     @COMMAND_STATUS = STATUS
+                     #IF %COMMAND_STATUS == 0 #THEN #BLOCK
+                        #IF LENGTH(%OUTPUT_OBJECT_LNS) == %CONNECTED_LENGTH_LIMIT AND %RA == 0 #THEN @INDICATION_CONNECTED = TRUE
+                        @STATUS_INCREMENT = 0
+                        @ACR = 0 
+                     #BLOCK_END
+                     #ELSE #BLOCK
+                        @STATUS_INCREMENT = 64
+                        #IF %COMMAND_STATUS == 13222 #THEN #BLOCK
+                           @LAST_ERROR_OBJECT_55 = APPLICATION_OBJECT_EXISTS(0, "IX", LIST(LN=%OUTPUT_OBJECT_LNS(1), IX=55),"IU == 1") 
+                           #IF %LAST_ERROR_OBJECT_55 #THEN #BLOCK
+                              #PAUSE 0.1
+                              #IF 'OUT_LN':PRT55 > %RT OR ('OUT_LN':PRT55 == %RT AND 'OUT_LN':PRM55 > %RM) #THEN #BLOCK
+                                 @ACR = 'OUT_LN':POV55
+                              #BLOCK_END          
+                              #ELSE @ACR = 0
+                           #BLOCK_END
+                           #ELSE @ACR = 0
+                        #BLOCK_END
+                        #ELSE @ACR = 23  
+                     #BLOCK_END
+                     #IF %RA == 0 AND %INDICATION_CONNECTED == FALSE #THEN @COMMAND_COMPLETE = 1
+                     #IF %CT == 8 #THEN #BLOCK
+                        @COMMAND_COMPLETE = 1
+                        @RA = 0
+                     #BLOCK_END
+                     @ACR = TRUNC(%ACR) MOD 1000
+                     #IF BIT(%RB,8) == 1 #THEN @STATUS_INCREMENT = %STATUS_INCREMENT + 128 ;TestCommand  
+                     #SET STA'NCC_STA_NUMBER':SCF = (%CT+1+%STATUS_INCREMENT,('LN':POA'IX'),%ACR,%RA,%COMMAND_COMPLETE)
+                  #BLOCK_END
+                  #IF %ENABLE_LOGGING #THEN #BLOCK ; 5
+                     #IF SUBSTR('OUT_LN':PDX'OUT_IX',1,2) == "E1" #THEN @ADDR = 'OUT_LN':POA'OUT_IX' - 4096   
+                     #ELSE @ADDR='OUT_LN':POA'OUT_IX'
+                     @STA_NR='OUT_LN':PUN'OUT_IX'
+                     @NCC_TYPE="IEC61850"
+                     @SH=%SIGNAL_HANDLING_ATTRS
+                     #IF %COMMAND_TYPE == 6 #THEN #BLOCK
+                        #IF %OUT_IND == 1 OR %OUT_IND == 3 #THEN @SX_STATE= "Open " + 'OUT_LN':PSX'OUT_IX'
+                        #ELSE_IF %OUT_IND == 2 OR %OUT_IND == 4 #THEN @SX_STATE= "Close " + 'OUT_LN':PSX'OUT_IX'
+                        #ELSE @SX_STATE='OUT_LN':PSX'OUT_IX'
+                     #BLOCK_END  
+                     #ELSE @SX_STATE='OUT_LN':PSX'OUT_IX'
+                     @S=%COMMAND_STATUS
+                     @INFO="'rt':'rm',DSBO,'UN','OUT_LN':P'OUT_IX','STA_NR',,'OV','NCC_TYPE','SH','ADDR','VALUE',,,,,,,,'S',,,'SX_STATE'"               
+                     #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                     #ELSE #DO COM_LOG:CIN 
+                     ;activation confirmation or termination
+                     @CF_TIME = HR_CLOCK
+                     @CF_RT = TIMES(CF_TIME:VCL)
+                     @CF_RM = ROUND(CF_TIME:VUS/1000)      
+                     @CF_LOG_ADDR = 'LN':POA'IX'
+                     #IF %STATUS_INCREMENT == 0 #THEN @CF_LOG_TEXT = "Activation confirmation"
+                     #ELSE @CF_LOG_TEXT = "Negative activation confirmation" 
+                     @INFO="'CF_RT':'CF_RM',DSBO,'NCC_STA_NUMBER',,,'CF_LOG_TEXT',,,,'CF_LOG_ADDR',,,,,,,,,,,,"
+                     #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                     #ELSE #DO COM_LOG:CIN
+                  #BLOCK_END ; 5 
+               #BLOCK_END
+               #ELSE #BLOCK ;IEC 101/104
+                  ;originator address
+                  @ORIGINATOR = %OG
+                  ;received as double command
+                  #IF BIT(%SIGNAL_HANDLING_ATTRS,2) == 1 #THEN #BLOCK ; 5                
+                     @DB_VALUES = (0,0,1,0)
+                     @VALUE = %DB_VALUES(%OV+1)
+                     ;negative confirmation/termination if invalid value
+                     #IF %OV == 0 OR %OV == 3 #THEN @STATUS_INCREMENT = 64
+                  #BLOCK_END ; 5
+                  #ELSE #BLOCK
+                     @VALUE = %BI  ;received as single command
+                     #IF %TY == 46 #THEN @STATUS_INCREMENT = 64
+                  #BLOCK_END   
+                  ;invert value if required
+                  #IF BIT(%SIGNAL_HANDLING_ATTRS,1) == 1 #THEN @VALUE = 1-%VALUE
+                  ;*************** project-specific modifications *****************
+                  #IF BIT(%SIGNAL_HANDLING_ATTRS,0) == 1 #THEN #BLOCK
+                     ;write the project-specific code in this block
+                  #BLOCK_END
+                  ;execute command only if valid value
+                  #IF %STATUS_INCREMENT == 0 #THEN #BLOCK
+                     #IF %CT < 128 #THEN #BLOCK 
+                        #IF COM_BOCMD:CCS == 1 #THEN #DO COM_BOCMD:CCP
+                        #ELSE #DO COM_BOCMD:CIN
+                        ;if succesful command and an indication has been connected set the tag when executing the command
+                        #IF STATUS == 0 #THEN #BLOCK
+                           #IF LENGTH(%OUTPUT_OBJECT_LNS) == %CONNECTED_LENGTH_LIMIT AND %RA == 0 #THEN @INDICATION_CONNECTED = TRUE
+                        #BLOCK_END
+                        #ELSE @STATUS_INCREMENT = 64
+                     #BLOCK_END
+                     ;if manual confirmation:
+                     ;when executing send command termination, if no indication connected
+                     ;when selecting send command confirmation
+                     #IF STA'NCC_STA_NUMBER':SPC == 0 #THEN #BLOCK ; 6
+                        #IF %RA == 0 #THEN #BLOCK ; 7   
+                           ;send positive or negative command confirmation at execution
+                           #SET STA'NCC_STA_NUMBER':SCF = (256*%ORIGINATOR+%CT+1+%STATUS_INCREMENT,'LN':POA'IX')
+                           ;Send command termination if positive command confirmation 
+                           #IF %STATUS_INCREMENT == 0 #THEN #BLOCK
+                              #IF NOT %INDICATION_CONNECTED AND %IEC_TERM_ENABLED #THEN #BLOCK
+                                 #IF %CT < 128 #THEN @TERM_COT = 10
+                                 #ELSE @TERM_COT = 138 
+                                 #SET STA'NCC_STA_NUMBER':SCF = (256*%ORIGINATOR+%TERM_COT+%STATUS_INCREMENT,'LN':POA'IX')
+                                 @ACT_TERM_LOG = 1
+                              #BLOCK_END
+                           #BLOCK_END
+                        #BLOCK_END ; 7
+                        #ELSE #SET STA'NCC_STA_NUMBER':SCF = (256*%ORIGINATOR+%STATUS_INCREMENT+%CT+1,'LN':POA'IX')       
+                     #BLOCK_END ; 6
+                  #BLOCK_END ; 5
+                  #ELSE #BLOCK
+                     ;send negative command confirmation at execution, if manual confirmation
+                     #IF STA'NCC_STA_NUMBER':SPC == 0 #THEN #SET STA'NCC_STA_NUMBER':SCF = (256*%ORIGINATOR+%CT+1+%STATUS_INCREMENT,'LN':POA'IX')
+                  #BLOCK_END
+                  #IF %ENABLE_LOGGING #THEN #BLOCK ; 5
+                     @ADDR='OUT_LN':POA'OUT_IX'
+                     @STA_NR='OUT_LN':PUN'OUT_IX'
+                     @NCC_TYPE="IEC101/104"
+                     @SH=%SIGNAL_HANDLING_ATTRS
+                     @SX_STATE='OUT_LN':PSX'OUT_IX'
+                     @S=STATUS
+                     @INFO="'rt':'rm',DSBO,'UN','OUT_LN':P'OUT_IX','STA_NR',,'OV','NCC_TYPE','SH','ADDR','VALUE',,,,,,,,'S',,,'SX_STATE'"
+                     @CMDP_CP = COM_LOG:CCP
+                     #IF LENGTH(%CMDP_CP) == 0 #THEN #BLOCK
+                        #DO COM_LOG:CIN
+                     #BLOCK_END      
+                     #ELSE #DO COM_LOG:CCP
+                     #IF STA'NCC_STA_NUMBER':SPC == 0 #THEN #BLOCK ; 6
+                        @CF_TIME = HR_CLOCK
+                        @CF_RT = TIMES(CF_TIME:VCL)
+                        @CF_RM = ROUND(CF_TIME:VUS/1000)      
+                        @CF_LOG_ADDR = 'LN':POA'IX'
+                        #IF %STATUS_INCREMENT == 0 #THEN @CF_LOG_TEXT = "Activation confirmation"
+                        #ELSE @CF_LOG_TEXT = "Negative activation confirmation" 
+                        @INFO="'CF_RT':'CF_RM',DSBO,'NCC_STA_NUMBER','LN':P'IX',,'CF_LOG_TEXT',,,,'CF_LOG_ADDR',,,,,,,,,,,,"
+                        #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                        #ELSE #DO COM_LOG:CIN
+                        #IF %ACT_TERM_LOG == 1 #THEN #BLOCK 
+                           @INFO="'CF_RT':'CF_RM',DSBO,'NCC_STA_NUMBER','LN':P'IX',,Activation termination,,,,'CF_LOG_ADDR',,,,,,,,,,,,"
+                           #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                           #ELSE #DO COM_LOG:CIN
+                        #BLOCK_END
+                     #BLOCK_END
+                  #BLOCK_END ; 5           
+               #BLOCK_END
+            #BLOCK_END ; 4
+            #WHEN 3 #BLOCK ;********************** CPI interface ********************************************************************************; 4
+               ;originator address
+               @ORIGINATOR = %NCC_STA_NUMBER
+               #IF 1 == %NCC_SUBPROTOCOL #THEN #BLOCK
+                  ; special processing of CDC-II
+                  ; extract value from %DI
+                  @VALUE = %DI mod 8192
+                  @CDC_NCC = TRUNC(%DI / 8192)
+                  @CDC_PARAM = APL:BSV(%CDC2_INDEX)
+                  #IF 0 <> %CDC_NCC AND %CDC_NCC <= LENGTH(%CDC_PARAM) #THEN  @CDC_NCC_NAME = %CDC_PARAM(%CDC_NCC)
+                  #ELSE @CDC_NCC_NAME = "Unnamed CDC-II NCC"
+               #BLOCK_END
+               #ELSE @VALUE = %DI
+               ;invert value if required and direction included in the command
+               #IF BIT(%SIGNAL_HANDLING_ATTRS,1) == 1 #THEN #BLOCK
+                  #CASE %VALUE    
+                     #WHEN 0 @VALUE = 1    ;immediate cmd off
+                     #WHEN 1 @VALUE = 0    ;immediate cmd on 
+                     #WHEN 32 @VALUE = 33  ;execute cmd off  
+                     #WHEN 33 @VALUE = 32  ;execute cmd on
+                     #WHEN 64 @VALUE = 66  ;select cmd off   
+                     #WHEN 66 @VALUE = 64  ;select cmd on 
+                  #CASE_END
+               #BLOCK_END
+               ;*************** project-specific modifications *****************
+               #IF BIT(%SIGNAL_HANDLING_ATTRS,0) == 1 #THEN #BLOCK
+                  ;write the project-specific code in this block
+               #BLOCK_END
+               ;execute command
+               #IF COM_BOCMD:CCS == 1 #THEN #DO COM_BOCMD:CCP
+               #ELSE #DO COM_BOCMD:CIN
+               ;if succesful command and an indication has been connected set the tag
+               #IF STATUS == 0 AND LENGTH(%OUTPUT_OBJECT_LNS) == %CONNECTED_LENGTH_LIMIT #THEN @INDICATION_CONNECTED = TRUE
+               #IF %ENABLE_LOGGING #THEN #BLOCK ; 5
+                  @ADDR='OUT_LN':POA'OUT_IX'
+                  @STA_NR='OUT_LN':PUN'OUT_IX'
+                  @NCC_TYPE="MODBUS/CPI"
+                  @SH=%SIGNAL_HANDLING_ATTRS
+                  @SX_STATE='OUT_LN':PSX'OUT_IX'
+                  @S=STATUS
+                  @INFO="'rt':'rm',DSBO,'UN','OUT_LN':P'OUT_IX','STA_NR',,'DI','NCC_TYPE','SH','ADDR','VALUE',,,,,,,,'S',,,'SX_STATE'"
+                  #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                  #ELSE #DO COM_LOG:CIN 
+               #BLOCK_END
+               ; cdc-II: write to history manager database
+               #IF 1 == %NCC_SUBPROTOCOL #THEN #BLOCK
+                  @hist_r = HISTORY_DATABASE_MANAGER( "open" )
+                  #IF 0 == hist_r:vstatus #THEN #BLOCK
+                     @hist_sess = hist_r:vsession
+                     @hist_tgt = %OUTPUT_OBJECT_LNS(1) + ":" + DEC(%OUTPUT_OBJECT_IXS(1))
+                     @hist_r1 = HISTORY_DATABASE_MANAGER( "write", %hist_sess, LIST( LN = %OUTPUT_OBJECT_LNS(1), IX=%OUTPUT_OBJECT_IXS(1), PT=5, ZT=CLOCK, OI=%hist_tgt, OX=%CDC_NCC_NAME ) )
+                     @hist_r1 = HISTORY_DATABASE_MANAGER( "close", %hist_sess )
+                  #BLOCK_END
+                  #ELSE #BLOCK
+                     
+                  #BLOCK_END
+               #BLOCK_END
+            #BLOCK_END ; 4
+            #WHEN 4 #BLOCK ;********************** DNP 3.0 slave protocol ***********************************************************************; 4         
+               ;originator address
+               @ORIGINATOR = %NCC_STA_NUMBER                                      
+               @VALUE = %BI  ;received as single command
+               ;invert value if required
+               #IF BIT(%SIGNAL_HANDLING_ATTRS,1) == 1 #THEN @VALUE = 1-%VALUE
+               ;*************** project-specific modifications *****************
+               #IF BIT(%SIGNAL_HANDLING_ATTRS,0) == 1 #THEN #BLOCK
+                  ;write the project-specific code in this block
+               #BLOCK_END
+               ;execute command
+               #IF COM_BOCMD:CCS == 1 #THEN #DO COM_BOCMD:CCP
+               #ELSE #DO COM_BOCMD:CIN
+               ;send command confirmation, if required
+               ;if command fails, report hardware problems
+               #IF %RA < 6 #THEN #BLOCK ; 5
+                  #IF STATUS <> 0 #THEN @CS_CODE = 6
+                  #SET STA'NCC_STA_NUMBER':SCF = (%CS_CODE,'LN':POA'IX')
+               #BLOCK_END ; 5
+               #IF %ENABLE_LOGGING #THEN #BLOCK ; 5
+                  @ADDR='OUT_LN':POA'OUT_IX'
+                  @STA_NR='OUT_LN':PUN'OUT_IX'
+                  @SH=%SIGNAL_HANDLING_ATTRS
+                  @SX_STATE='OUT_LN':PSX'OUT_IX'
+                  @S=STATUS
+                  @INFO="'rt':'rm',DSBO,'UN','OUT_LN':P'OUT_IX','STA_NR',,'BI',DNP30,'SH','ADDR','VALUE',,,,,,,,'S',,,'SX_STATE'"
+                  #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                  #ELSE #DO COM_LOG:CIN 
+               #BLOCK_END ; 5            
+            #BLOCK_END ; 4
+         #CASE_END  ; 3
+         ;write ln+ix+oa+sta_nr+og and time stamp to apl:bsv
+         ;if IEC master use termination object, otherwise indication
+         #IF %INDICATION_CONNECTED #THEN #BLOCK ; 3
+            #IF LENGTH(APL:BSV(29)) < 9999 #THEN #BLOCK ; 4
+               @OUT_LN = %OUTPUT_OBJECT_LNS(%CONNECTED_LENGTH_LIMIT)
+               @OUT_IX = %OUTPUT_OBJECT_IXS(%CONNECTED_LENGTH_LIMIT)
+               #IF SUBSTR('OUT_LN':PDX'OUT_IX',1,1) == "C" #THEN #BLOCK
+                 @TMP = FETCH(0,"P",%OUT_LN,%OUT_IX+100)
+                 #IF TMP:VIU <> -1 #THEN #IF TMP:VOA > 0 #THEN @OUT_IX = %OUT_IX + 100
+               #BLOCK_END
+               #SET APL:BSV(28) = APPEND(APL:BSV(28),CLOCK)
+               #SET APL:BSV(29) = APPEND(APL:BSV(29),%OUT_LN+DEC(%OUT_IX,1)+"/"+DEC('LN':POA'IX',1)+"/"+DEC(%NCC_STA_NUMBER,1)+"/"+DEC(%ORIGINATOR,1)+"/"+%OUTPUT_OBJECT_LNS(1)+"/"+DEC(%RT)+"/"+DEC(%RM))
+            #BLOCK_END  ; 4                  
+         #BLOCK_END ; 3
+      #BLOCK_END ; 2
+      #ELSE #BLOCK ;command not authorized ; 2
+         #CASE %NCC_PROTOCOL  ; 3
+            #WHEN 1 #BLOCK ;RP-570 slave protocol ; 4
+               
+               @RESPONSE_MESSAGE_STATUS = 1   
+               #IF %RA == 1 OR %RA == 2 OR %RA == 3 #THEN #SET STA'NCC_STA_NUMBER':SCS = %RESPONSE_MESSAGE_STATUS        
+                  
+            #BLOCK_END ; 4         
+            #WHEN 2 #BLOCK ;IEC 870-5-101 slave protocol ; 4
+               ;send negative confirmation
+               #IF %NCC_SUBPROTOCOL == 2 #THEN #BLOCK
+                  #SET STA'NCC_STA_NUMBER':SCF('LN':POA'IX') = (2,%RA)
+                  #IF %ENABLE_LOGGING #THEN #BLOCK ; 1
+                     @CF_TIME = HR_CLOCK
+                     @CF_RT = TIMES(CF_TIME:VCL)
+                     @CF_RM = ROUND(CF_TIME:VUS/1000)      
+                     @CF_LOG_ADDR = 'LN':POA'IX'
+                     @INFO="'CF_RT':'CF_RM',DSBO,'NCC_STA_NUMBER','LN':P'IX',,Negative activation confirmation,,,,'CF_LOG_ADDR',,,,,,,,,,,,"
+                     #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                     #ELSE #DO COM_LOG:CIN 
+                  #BLOCK_END  
+               #BLOCK_END
+               #ELSE_IF %NCC_SUBPROTOCOL == 3 #THEN #BLOCK
+                  @ACR = 20
+                  #SET STA'NCC_STA_NUMBER':SCF = (%CT+1+64,('LN':POA'IX'),%ACR,%RA)
+                  @CF_TIME = HR_CLOCK
+                  @CF_RT = TIMES(CF_TIME:VCL)
+                  @CF_RM = ROUND(CF_TIME:VUS/1000)      
+                  @CF_LOG_ADDR = 'LN':POA'IX'
+                  @CF_LOG_TEXT = "Negative activation confirmation" 
+                  @INFO="'CF_RT':'CF_RM',DSBO,'NCC_STA_NUMBER',,,'CF_LOG_TEXT',,,,'CF_LOG_ADDR',,,,,,,,,,,,"
+                  #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                  #ELSE #DO COM_LOG:CIN
+               #BLOCK_END
+               #ELSE #BLOCK
+                   #IF STA'NCC_STA_NUMBER':SPC == 0 AND %IEC_TERM_ENABLED #THEN #BLOCK 
+                     #SET STA'NCC_STA_NUMBER':SCF = (256*%OG+64+7,'LN':POA'IX')  
+                     #IF %ENABLE_LOGGING #THEN #BLOCK ; 1
+                        @CF_TIME = HR_CLOCK
+                        @CF_RT = TIMES(CF_TIME:VCL)
+                        @CF_RM = ROUND(CF_TIME:VUS/1000)      
+                        @CF_LOG_ADDR = 'LN':POA'IX'
+                        @INFO="'CF_RT':'CF_RM',DSBO,'NCC_STA_NUMBER','LN':P'IX',,Negative activation confirmation,,,,'CF_LOG_ADDR',,,,,,,,,,,,"
+                        #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                        #ELSE #DO COM_LOG:CIN 
+                     #BLOCK_END
+                  #BLOCK_END
+               #BLOCK_END
+            #BLOCK_END ; 4 
+            #WHEN 3 #BLOCK ;CPI interface ; 4
+   
+            #BLOCK_END ; 4
+            #WHEN 4 #BLOCK ;DNP 3.0 slave protocol ; 4
+              ;send command confirmation, if required, report ouputs in local state
+              #IF %RA < 6 #THEN #SET STA'NCC_STA_NUMBER':SCF = (128,'LN':POA'IX')
+            #BLOCK_END ; 4         
+         #CASE_END ; 3
+         #IF %ENABLE_LOGGING #THEN #BLOCK ; 3
+            @INFO="'rt':'rm',DSBO,'UN','LN':P'IX',,command not authorized,,,,,,,,,,,,,,,,"
+            #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+            #ELSE #DO COM_LOG:CIN 
+         #BLOCK_END ; 3        
+      #BLOCK_END ; 2
+   #BLOCK_END  ; 1
+   #ELSE_IF %ENABLE_LOGGING #THEN #BLOCK ; 1
+      @INFO="'rt':'rm',DSBO,'UN','LN':P'IX',,cross-reference not found,,,,,,,,,,,,,,,,"
+      #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+      #ELSE #DO COM_LOG:CIN 
+   #BLOCK_END ; 1
+#BLOCK_END

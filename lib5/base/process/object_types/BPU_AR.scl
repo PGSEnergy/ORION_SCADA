@@ -1,0 +1,27 @@
+#return  LIST(-
+   VERSION = "1.0",-
+   OBJECT_TYPE = "AR",-
+   OBJECT_LEVEL = "DEV",-
+-;
+-; Attributes defining index convention.
+-;
+   INDEXES = LIST(),-
+-;
+-; Attributes defining measurement methods
+-;
+   COMMAND_PROCEDURES=LIST(-
+      ACKNOWLEDGE_ALARMS = "BPU_ACKNOWLEDGE_ALARMS",-
+      GET_ALARMS = "BPU_GET_ALARMS",-
+      CALCULATE_STATE = "BPU_CALCULATE_STATE_AR",-
+      SEARCH_OBJECTS = "BPU_SEARCH_OBJECTS_AR",-
+      GET_INDICATIONS_SWITCH = "BPU_GET_INDICATIONS_SWITCH",-
+      CHECK_OBJECT_INDEXES = "BPU_OBJECT_INDEXES_AR"),-
+-;
+-; Methods Executed by POT.
+-;   
+-;INIT_SIGNALS=VECTOR()),-
+-;CUSTOMIZE_OBJECTS=LIST()),-
+-;
+-; Attributes for overriding SCT selections
+-;
+   FIXED_SCT_VALUES = LIST())

@@ -1,0 +1,102 @@
+;LAN_MOPEN.TXT   1995-07-05 / TL
+;REV.   8.4   1996-10-03 / TL
+
+;       PIC_OPEN
+;
+;       In:     PICT_APL         Application number (current if missing)
+;               PICT_NAME        Picture name (as in !NEW_PIC)
+;               PICT_NUMBER      1 .. 10 (max 10 pictures open)
+;
+;       Out:    PICT_STATUS      Status code (0 = OK_STATUS)
+;               PICT_MODIFICATION_TIME Time
+;               PICT_COMMENT     Text
+;               PICT_WIDTH       Width
+;               PICT_HEIGHT      Height
+;               PICT_QUADRANTS   Vector of 4 picture names
+;               PICT_FUNCTIONS   Vector of list values. Attributes:
+;                                  NAME               Name of picture function
+;                                  TOOL               Tool picture name
+;                                  STANDARD_FUNCTION  Name of the standard f.
+;                                  X                  Place of
+;                                  Y                  the picture function
+;                                  WIDTH              Width
+;                                  HEIGHT             Height
+;                                  UNDER              Boolean
+;                                  EDIT_MASK          Integer
+;
+;       Note:   Internal variables have the prefix PSX
+;
+@PICT_STATUS = STATUS
+
+#ERROR IGNORE
+#IF GET_STATUS(%PICT_APL) <> 0 #THEN @PSXPICT_APL_ = 0
+#ELSE @PSXPICT_APL_ = %PICT_APL
+@PICT_STATUS = GET_STATUS(%PICT_NAME)
+#IF %PICT_STATUS == 0 #THEN #BLOCK
+   @PSXPICT_NAME_ = EDIT(%PICT_NAME,"RIGHT_TRIM") + ".PIC"
+   @PICT_STATUS = STATUS
+#BLOCK_END
+@PSXPICT_NUMBER_ = %PICT_NUMBER
+#IF DATA_TYPE(%PSXPICT_NUMBER_) == "INTEGER" #THEN #BLOCK
+   #IF %PSXPICT_NUMBER_ < 0 #THEN -
+      @PICT_STATUS = 201 ;SCIL_ARGUMENT_OUT_OF_RANGE
+#BLOCK_END
+#ELSE @PICT_STATUS = 202 ;SCIL_INTEGER_ARGUMENT_EXPECTED
+#IF %PICT_STATUS == 0 #THEN #BLOCK
+   .CREATE PSXP'PSXPICT_NUMBER_' = SCIL_PICTURE
+   @PICT_STATUS = STATUS
+   #IF %PICT_STATUS == 0 #THEN #BLOCK
+      PSXP'PSXPICT_NUMBER_'.LOAD(%PSXPICT_NAME_,"READ_ONLY")
+      @PICT_STATUS = STATUS
+   #BLOCK_END
+   #IF %PICT_STATUS == 0 #THEN #BLOCK
+      @PICT_MODIFICATION_TIME = CLOCK(0);
+      @PICT_COMMENT = ""
+      @PICT_WIDTH = 0
+      @PICT_HEIGHT = 0
+      @PICT_QUADRANTS = ("","","","")
+      @PICT_FUNCTIONS = VECTOR()
+      @PICT_STATUS = STATUS
+      #IF %PICT_STATUS == 0 #THEN #BLOCK
+         @PICT_MODIFICATION_TIME = PSXP'PSXPICT_NUMBER_'.MODIFICATION_TIME
+         @PICT_STATUS = STATUS
+      #BLOCK_END
+      #IF %PICT_STATUS == 0 #THEN #BLOCK
+         @PICT_COMMENT = PSXP'PSXPICT_NUMBER_'.COMMENT
+         @PICT_STATUS = STATUS
+      #BLOCK_END
+      #IF %PICT_STATUS == 0 #THEN #BLOCK
+         @PSXPICTURE_SIZE_ = PSXP'PSXPICT_NUMBER_'.GET_PICTURE_SIZE("")
+         @PICT_STATUS = STATUS
+         #IF %PICT_STATUS == 0 #THEN #BLOCK
+            @PICT_WIDTH = PSXPICTURE_SIZE_:VWIDTH
+            @PICT_HEIGHT = PSXPICTURE_SIZE_:VHEIGHT
+         #BLOCK_END
+      #BLOCK_END
+      #IF %PICT_STATUS == 0 #THEN #BLOCK
+         ;QUADRANTS
+         @PSXQUADRANTS_ = PSXP'PSXPICT_NUMBER_'.QUADRANTS
+         @PICT_STATUS = STATUS
+         #IF %PICT_STATUS == 0 #THEN #BLOCK
+            @PICT_QUADRANTS(2) = %PSXQUADRANTS_(1)
+            @PICT_QUADRANTS(3) = %PSXQUADRANTS_(2)
+            @PICT_QUADRANTS(4) = %PSXQUADRANTS_(3)
+         #BLOCK_END
+      #BLOCK_END
+      #IF %PICT_STATUS == 0 #THEN #BLOCK
+         ;PICTURE FUNCTIONS
+         @PSXPFUNCTIONS_ = PSXP'PSXPICT_NUMBER_'.GET_PICTURE_FUNCTIONS
+         @PICT_STATUS = STATUS
+         @PSXI_ = 0
+         #LOOP %PSXI_ < LENGTH(%PSXPFUNCTIONS_)
+            @PSXI_ = %PSXI_ + 1
+            @PSXPFUNCTION_ = %PSXPFUNCTIONS_(%PSXI_)
+            @PICT_FUNCTIONS(%PSXI_) = -
+               PSXP'PSXPICT_NUMBER_'.GET_PICTURE_FUNCTION_DEFINITION(-
+                  PSXPFUNCTION_:VNAME)
+            @PICT_STATUS = STATUS
+            #IF %PICT_STATUS <> 0 #THEN #LOOP_EXIT
+         #LOOP_END
+      #BLOCK_END
+   #BLOCK_END
+#BLOCK_END

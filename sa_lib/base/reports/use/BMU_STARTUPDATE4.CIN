@@ -1,0 +1,79 @@
+; Function:    BMU_StartUpdate4:C
+; Version:     3.0 (Build 23.02.2012)
+; Parameters:  DATAIN - input object names
+;              OPER - calculation
+;              t_ObjectName - calculated object name
+;              e_YEAR - year extension for Data Object name
+; Return data: none
+; Description: Calculate data of calculated data objects
+;              at system start-up (period values)
+;-------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;-------------------------------------------------------------------------------
+#local i, v_ = vector(), i_Status = status, v_IX = vector(), x_, cot,trash,-
+       i_Result = 0, l_Data = list(), t_DO_LN = ""
+#error ignore
+
+;*** fetch values
+#case data_type(%DATAIN)
+   #when "TEXT" #block
+      #if %DATAIN > "" #then #block
+         t_DO_LN = %DATAIN+"'e_Year'"                                           ;*** Data Object name
+         l_data   = data_fetch(0, t_DO_LN, %IND, 1, 1)                          ;*** fetch values from Data Object
+         @OBJ     = l_data.OV
+         i_Result = l_data.OV
+      #block_end
+   #block_end
+   #when "VECTOR" #block
+      #loop_with i = 1..length(%DATAIN)
+         t_DO_LN = %DATAIN(i)+"'e_Year'"                                        ;*** Data Object name
+         l_data   = data_fetch(0, t_DO_LN, %IND, 1, 1)                          ;*** fetch values from Data Object
+         @OBJ'i'  = l_Data.OV
+         #if i == 1 #then i_Result = l_Data.OV
+         #else            i_Result = i_Result + l_Data.OV
+      #loop_end
+   #block_end
+#case_end
+i_Status = status
+#if i_Status <> 0 #then-
+   cot = console_output("BMU_STARTUPDATE4:C - Data Object 't_DO_LN':D - Error 'i_Status' on data fetch","E","MREP")
+
+;*** do pre-defined operation, if any...
+#case data_type(%OPER)
+   #when "TEXT"   #if %OPER > "" #then i_Result = 'OPER'
+   #when "VECTOR"                      i_Result = do(%OPER)
+#case_end
+i_Status = status
+#if i_Status <> 0 #then-
+   cot = console_output("BMU_STARTUPDATE4:C - Report Object 't_ObjectName' - Error 'i_Status' on operation execution","E","MREP")
+
+;*** define period values...
+#case data_type(i_Result)
+   #when "TEXT","NONE" #block
+      #if i_Status == 0 #then i_Result = set_status(vector(0),10)
+      #else                   i_Result = set_status(vector(0),i_Status)
+   #block_end
+   #when "VECTOR" #block
+      #if i_Status == 0 #then i_Result = i_Result
+      #else                   i_Result = set_status(vector(0),i_Status)
+   #block_end
+   #otherwise #block
+      #if i_Status == 0 #then i_Result = vector(i_Result)
+      #else                   i_Result = set_status(vector(0),i_Status)
+   #block_end
+#case_end
+
+;*** Define proper status for calculated values 
+v_IX     = select(get_status(i_Result),">1 and <10")
+i_Result = spread(i_Result, v_IX, set_status(pick(i_Result, v_IX),1))
+          
+;*** Store calculated data to db
+l_Data  = list(OV = i_Result, OS = get_status(i_Result), RT=vector(clock))
+t_DO_LN = %t_ObjectName+"'e_Year'"
+x_ = data_store(0, t_DO_LN, l_Data, %IND)
+
+;*** Show notification, if errors...
+i_Status = status
+#if i_Status <> 0 #then cot = console_output("BMU_STARTUPDATE4:C - Report Object 't_ObjectName' - SCIL Error='i_Status'","E","MREP")
+

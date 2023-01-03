@@ -1,0 +1,52 @@
+#local -
+   v_Objects,-
+   i,-
+   j,-
+   t_ID,-
+   t_Description,-
+   t_Translation_id,-
+   t_Translation_result,-   
+   i_Index = 1,-
+   v_Result = vector(),-
+   v_Handled_Attributes = vector(),-
+   v_OI,-
+   v_Pts = VECTOR(0, "BI", "BO", "DI", "DO", "AI", "AO", "DB", "PC", "BS", "OE"),-
+   v_UI_Attributes = vector(-
+      "AB", "AC", "AL", "AQ", "AR", "AS", "BL", "CA", "CX", "ED",-
+      "ES", "EX", "FI", "FX", "HD", "HQ", "HT", "IX", "KQ", "LN",-
+      "OA", "OB", "OF", "OG", "ON", "OR", "OS", "PT", "PV", "RA",-
+      "RB", "RT", "RX", "RZ", "SB", "SS", "SU", "TM", "UB", "UN",-
+      "US", "XB", "YQ", "CO", "CV", "NV", "TS", "SE", "AZ", "ST",-
+      "WC", "WQ", "WR")
+
+#loop_with i = 1 .. Length(v_PTs)
+   v_Objects = OBJECT_ATTRIBUTE_INFO(0, "P", v_PTs(i))
+   #loop_with j = 1 .. Length(v_Objects)
+      #If (Find_Element(v_Objects(j).ACCESS, "EVENT") <> 0 OR Find_Element(v_Objects(j).ACCESS, "READ") <> 0) -
+         AND Find_Element(v_UI_Attributes, v_Objects(j).SHORT_NAME) <> 0 AND -
+         Find_Element(v_Handled_Attributes, v_Objects(j).SHORT_NAME) == 0 #then #block
+            t_ID = "SYS_ATTR_APL_P_" + v_Objects(j).SHORT_NAME
+            t_Description = translation(t_ID)
+            #if t_Description == t_ID OR t_Description == "" #then t_Description = v_Objects(j).LONG_NAME
+            v_Result(i_Index) = LIST(NAME = v_Objects(j).SHORT_NAME, DESC = t_Description, TYPE = v_Objects(j).VALUE_TYPE)
+            v_Handled_Attributes(i_Index) = v_Objects(j).SHORT_NAME
+            i_Index = i_Index + 1
+      #block_end
+   #loop_end
+#loop_end
+
+t_Description = translation("SYS_ATTR_APL_P_OV")
+#if t_Description == "SYS_ATTR_APL_P_OV" OR t_Description == "" #then t_Description = translation("Object Value")
+v_Result(i_Index) = LIST(NAME="OV", DESC = t_Description, TYPE="REAL")
+i_Index = i_Index + 1
+
+v_OI = APL:BOI
+#loop_with i = 1 .. v_OI.DEPTH
+   t_Translation_id = "SAGR_EAB_OI'i'" 
+   t_Translation_result = translation(t_Translation_id)
+   #if t_Translation_result == t_Translation_id OR t_Translation_result == "" OR t_Translation_result == "OI 'i'" #then t_Translation_result = v_OI.LEVELS(i).TITLE
+   v_Result(i_Index) = LIST(NAME = "OI_" + dec('i',0), DESC = t_Translation_result, TYPE = "TEXT")   
+   i_Index = i_Index + 1
+#loop_end
+
+#return v_Result

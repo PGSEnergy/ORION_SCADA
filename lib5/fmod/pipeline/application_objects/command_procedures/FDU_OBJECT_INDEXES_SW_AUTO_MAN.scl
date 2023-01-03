@@ -1,0 +1,68 @@
+;Function: FDU_OBJECT_INDEXES_SW_AUTO_MAN:C
+;Source file: sc/lib5/fmod/pipeline/application_objects/command_procedures/fdu_object_indexes_sw_auto_man.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute)
+;Return data: l_Indexes
+;Description: list of object indexes depending on configuration
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info
+#local l_Indexes = list, l_OT_Indexes, i, t_Attr, t_ln, l_basic_indexes = list
+
+;****************************************************************************************************
+;redirect command if application specific command procedure is found                               ;*
+#local t_Redirect_Proc = "APLMOD5_FDU_OBJECT_INDEXES_SW_AUTO_MAN"                                  ;*
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    ;*
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            ;*
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 ;*
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  ;*
+         @REDIRECTED = true                                                                        ;*
+         i_ArgCnt = argument_count                                                                 ;*
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        ;*
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" ;*
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       ;*
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     ;*
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    ;*
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        ;*
+         #loop_end                                                                                 ;*
+         #return 't_Redirect_Command' ;;;;;                                                        ;*
+      #block_end                                                                                   ;*
+   #block_end                                                                                      ;*
+   #else #delete REDIRECTED:V                                                                      ;*
+#block_end                                                                                         ;*
+;****************************************************************************************************
+;MAIN START
+
+;check the basic indexes of switch type of object
+l_basic_indexes = do(bpu_object_indexes_switch:c, l_object_info)
+
+t_ln = l_object_info.p_object_ln
+
+;define object specific indexes
+l_indexes = list(INDICATION_AUTO_IX = list(ix=74, ln=t_ln), AUTO_CMD_IX = list(ix=0, ln=t_ln), INDICATION_MANUAL_IX = list(ix=73, ln=t_ln),-
+   MANUAL_CMD_IX = list(ix=0, ln=t_ln), INDICATION_AUTO_MAN_UP_IX = list(ix=373, ln=t_ln), EXECUTE_AUTO_MAN_CMD = list(ix=0, ln=t_ln))
+
+#case l_object_info.auto_manual_ind_type
+   #when "DB" l_indexes = merge_attributes(l_indexes, list(INDICATION_AUTO_MAN_UP_IX = list(ix=373, ln=t_ln)))
+#case_end
+
+#if l_object_info.auto_manual_cmd_enabled #then #block
+   #case l_object_info.auto_manual_cmd_type
+      #when "SEC-2BO" #block
+         l_indexes = merge_attributes(l_indexes,list(AUTO_CMD_IX = list(ix=76, ln=t_ln), MANUAL_CMD_IX = list(ix=75, ln=t_ln)))
+      #block_end
+   #case_end
+#block_end
+
+l_indexes = merge_attributes(l_basic_indexes, l_indexes)
+
+;override indexes if they are defined in object type definition
+l_OT_Indexes = list_attr(l_object_info.Type_Info.Indexes)
+#loop_with i = 1 .. length(l_OT_Indexes)
+   t_Attr = l_OT_Indexes(i)
+   #if l_object_info.Type_Info.Indexes.'t_Attr' > 0 #then l_indexes = merge_attributes(l_indexes, list('t_Attr' = list(ix=l_object_info.Type_Info.Indexes.'t_Attr', ln = t_ln)))
+#loop_end
+   
+#return l_indexes

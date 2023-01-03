@@ -1,0 +1,22 @@
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Mikko Ripatti/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">LLN0</Parameter>
+		<Parameter name="Caption">Logical Node 0</Parameter>
+		<Parameter name="Description">LN</Parameter>
+		<Parameter name="Group">Communication</Parameter>
+		<Parameter name="Type">LN</Parameter>
+		<Parameter name="IconFileName">ln.ico</Parameter>
+		<Parameter name="Tools"/>
+		<Parameter name="DataServers"/>
+		<Parameter name="MaxInstanceCount">1</Parameter>
+		<Parameter name="Verbs"/>
+		    <Parameter name="Visible">False</Parameter>
+		<Parameter name="CanInherit">True</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="DataStructureObjectType">LD</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+</ObjectType>

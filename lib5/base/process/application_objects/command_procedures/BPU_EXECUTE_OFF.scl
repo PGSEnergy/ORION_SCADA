@@ -1,0 +1,68 @@
+;Function: BPU_EXECUTE_OFF:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_execute_off.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute),  search_result, forced operation
+;Return data:
+;Description: Prepares execute command for OFF (open)
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data, i_forced_value
+#local t_execute_ln, t_sta_type, i_execute = 0, t_control_type, l_execution, i_IX
+#local l_result = list(status = 0, err_description = "")
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_EXECUTE_OFF"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+         @REDIRECTED = true                                                                        
+         i_ArgCnt = argument_count                                                                 
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+         #loop_end                                                                                 
+         #return 't_Redirect_Command' ;;;;;                                                        
+      #block_end                                                                                   
+   #block_end                                                                                      
+   #else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+
+t_execute_ln = l_object_info.p_object_ln
+t_sta_type = l_object_info.station_type
+t_control_type = l_object_info.control_type
+
+;return index, value, command parameter and LA value
+l_execution =  do(bpu_prepare_execute:c, l_object_info, l_data, i_forced_value, "OFF")
+
+;set LA
+
+;send execute command
+i_execute = do(bpu_execute:c, t_execute_ln, l_execution.index, l_execution.value, t_sta_type, t_control_type, l_execution.cmd_parameter)
+
+#if i_execute <> 0 #then #block ;error code of failure
+   l_result.status = i_execute
+   l_result.err_description = status_code_name(i_execute)
+#block_end
+#else #block 
+   ;simulate process feedback if needed
+   i_execute = do(bpu_simulate_process_fb:c, l_object_info, l_data, t_execute_ln, l_execution.simulate_value)
+#block_end
+
+;set command event1
+#if attribute_exists(l_data.all_objects, "cmd_event_ix") #then #block
+   i_IX = l_data.all_objects.cmd_event_ix
+   #if 't_execute_ln':pub'i_IX' == 0 and not ('t_execute_ln':PSS'i_IX' > 1 and -
+   't_execute_ln':pun'i_IX'<>0) #then #set 't_execute_ln':pov'i_IX' = 0 ;
+#block_end
+
+#return l_result
+

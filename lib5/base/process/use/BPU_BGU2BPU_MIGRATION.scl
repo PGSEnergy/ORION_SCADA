@@ -1,0 +1,165 @@
+;; 
+;; BGU to BPU migration script
+;;
+;; date of version: 8.10.2015
+;;
+;; Make necessary changes to power process objects 
+;; so that they can be controlled with BPU_CONTROL
+
+;; attributes that will be added 
+#local v_attributes = vector(-
+   List(-
+      CD = list(-
+         OBJECT_TYPE_DESCRIPTION = "B5_USE/BPU_AR.scl",-
+         DEFAULT_TYPE_PF = "SAGR_AR"),-
+      RX = "FPFARCISCE*"),-
+   List(-
+      CD = list(-
+         OBJECT_TYPE_DESCRIPTION = "B5_USE/BPU_STA.scl",-
+         DEFAULT_TYPE_PF = "SAGR_STA"),-
+      RX = "FPASTAILRS*"),-
+   List(-
+      CD = list(-
+         OBJECT_TYPE_DESCRIPTION = "B5_USE/BPU_BAY.scl",-
+         DEFAULT_TYPE_PF = "SAGR_BAY"),-
+      RX = "FPABAYILRS*"),-
+   List(-
+      CD = list(-
+         OBJECT_TYPE_DESCRIPTION = "B5_USE/BPU_SWITCH.scl",-
+         DEFAULT_TYPE_PF = "SAGR_SW"),-
+      RX = "FPQ%%%IPOS*"),-
+   List(-
+      CD = list(-
+         OBJECT_TYPE_DESCRIPTION = "B5_USE/BPU_TRAFO.scl",-
+         DEFAULT_TYPE_PF = "SAGR_TAP"),-
+      RX = "FPTAVRIPOS*"),-
+   List(-
+      CD = list(-
+         OBJECT_TYPE_DESCRIPTION = "B5_USE/BPU_MEAS.scl",-
+         DEFAULT_TYPE_PF = "SAGR_MEA"),-
+      RX = "FPPMEAM*")-
+)
+                                             
+#local t_free_chars = pad("%", 20)           ; stuffing ...
+#local t_condition                           ; string for condition statement
+#local l_last_object = ""                    ; last object if amount of objects
+                                             ; is > 10 000
+#local l_objs = List()                       ; \
+#local l_cd = List()                         ;  |_ temporary variables for 
+#local t_obj = ""                        ;  |  workflow
+#local t_attr                                ; /
+#local v_attr_inds                           ; attribute list for attributes to
+                                             ; be added
+#local b_modify_CD = false                   ; variable to skip useless cd attribute set operations
+
+#local b_more_to_come
+#local i, j, k, n
+#local t_temp, i_output
+#local i_loops = 1
+#local l_temp_cd
+#local v_attrs
+#local v_complex_CDs
+#local b_complex_found
+#local t_complex_attr
+#local i_IX, i_tmp_IX
+#local l_object_indexes
+
+i_output = console_output(" --- BPU_BGU2BPU_MIGRATION script started --- ", "I", "LIB5")
+
+#loop_with i = 1 .. length(v_attributes)
+   
+   t_temp = v_attributes(i).RX
+   t_condition = "RX == ""'t_free_chars''t_temp'"""
+   l_last_object = ""
+   b_more_to_come = true
+
+   #loop b_more_to_come
+      
+      ;; get object list
+      l_objs = application_object_list(0, "IX", "A", "FORWARD", l_last_object,-
+      t_condition, vector("RX"))
+      ;; handle objects 10000 at a time
+   
+      ;; Name of the last object needed for next query, if more than 10 000 were found
+      #if l_objs.Count > 0 #then #block
+         l_last_object  = list(LN = l_objs.LN(length(l_objs.LN)),-
+                               IX = l_objs.IX(length(l_objs.IX)))
+      #block_end
+      
+      ;; loop all objects, if attribute exists, skip. Otherwise add the attribute
+      #loop_with j = 1..l_objs.Count
+      
+         t_obj = l_objs.LN(j)
+         i_IX = l_objs.IX(j)
+         l_cd = 't_obj':PCD
+
+         i_loops = 1
+         b_complex_found = false
+         v_attrs = list_attr(l_cd)
+         v_complex_CDs = pick(v_attrs, select(v_attrs, "==""L_CD*""", "WILDCARDS"))
+         #if length(v_complex_CDs) > 0 #then #block
+            i_loops = length(v_complex_CDs)
+            b_complex_found = true
+         #block_end         
+         b_modify_CD = false
+        
+         v_attr_inds = list_attr(v_attributes(i).CD)
+         
+         #loop_with k = 1 .. i_loops
+         
+            #if b_complex_found #then #block
+               t_complex_attr = v_complex_CDs(k)
+               l_temp_cd = l_cd.'t_complex_attr'
+            #block_end
+            #else l_temp_cd = l_cd
+            
+            ;; add attributes given in v_attributes
+            #loop_with n = 1..length(v_attr_inds)
+               t_attr = v_attr_inds(n)
+               #if not attribute_exists(l_temp_cd, t_attr) #then #block
+                  b_modify_CD = true
+                  #if b_complex_found #then #block
+                     l_temp_cd = merge_attributes(l_temp_cd, List('t_attr'=v_attributes(i).CD.'t_attr'))
+                     l_cd.'t_complex_attr' = merge_attributes(l_cd.'t_complex_attr', l_temp_cd)
+                  #block_end
+                  #else l_cd = merge_attributes(l_cd, List('t_attr'=v_attributes(i).CD.'t_attr'))
+               #block_end
+            #loop_end
+         #loop_end     
+        
+         #if b_modify_CD #then #block
+            #set 't_obj':PCD = l_cd
+         #block_end
+
+         ;fill RX for station L/R command objects
+         #if substr('t_obj':PRX'i_IX', 21, 10) == "FPASTAILRS" #then #block
+            #loop_with k = 11 .. 14
+               #if application_object_exists(0, "IX", list(LN = t_obj, IX = k)) #then #block
+                  #if 't_obj':PPT'k' == 5 #then #block
+                     #if 't_obj':PRX'k' == "" #then #modify 't_obj':P'k' = list(RX = pad(" ", 20) + "FPASTACLRS")
+                  #block_end
+               #block_end
+            #loop_end
+         #block_end
+         
+         ;fill RX for close and open blocked
+         #if substr('t_obj':PRX'i_IX', 21, 3) == "FPQ" #then #block            
+            l_object_indexes = application_object_attributes(0, "IX", list(LN = (t_obj, t_obj, t_obj, t_obj), IX = (41, 42, 61, 62)), ("IX", "RX", "IN"))
+            #loop_with k = 1 .. length(l_object_indexes.IX)
+               #if get_status(l_object_indexes.IX(k)) == 0 #then #block
+                  #if l_object_indexes.RX(k) == "" #then #block
+                     i_tmp_IX = l_object_indexes.IX(k)
+                     #set 't_obj':PRX'i_tmp_IX' = pad(" ", 20) + substr('t_obj':PRX'i_IX', 21, 6) + "IBLK"
+                  #block_end                  
+               #block_end
+            #loop_end           
+         #block_end
+      
+      #loop_end
+
+      b_more_to_come = l_objs.more
+         
+   #loop_end
+#loop_end
+
+i_output = console_output(" --- BPU_BGU2BPU_MIGRATION script executed --- ", "I", "LIB5")

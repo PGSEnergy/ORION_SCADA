@@ -1,0 +1,113 @@
+﻿; Command Procedure: SYS_APLE1
+; Version: SYS 600 9.3
+; Description: This is command procedure for application supervision (in case of external applications)
+; ------------------------------------------------------------------------------------------------------
+
+;read in application numbers
+@l_Apl_Numbers = do(APL:BSV40, "SSS", "GetObjectNumbers", "APPLICATION")
+
+#if l_Apl_Numbers:vSTATUS == 0 #then #block ; 1
+
+   ;read in general info
+   @l_General_Info = APL:BSV45
+   
+   ;define application status
+   #loop_with i_Apl = 1 .. length(l_Apl_Numbers:vDATA)
+   
+      ;read in application physical number (phys. nr is also used as logical apl. nr. in application mapping) 
+      @i_Apl_Nr = l_Apl_Numbers:vDATA(%i_Apl)    
+    
+      ;read in application attributes
+      @l_Apl_Attr = do(APL:BSV40, "SSS", "GetObjectAttributes", "APPLICATION", %i_Apl_Nr)
+      
+      ;define application state (in case of ext. application)
+      #if l_Apl_Attr:vSTATUS == 0 #then #if l_Apl_Attr:vAS_PRIMARY <> "#" and locate(l_Apl_Attr:vCX, "EXTERNAL") > 0 #then #block ; 2
+ 
+         ;read in application state history
+         #error ignore
+            @i_Status = status
+            @l_Apl_Bsv = APL:BSV46
+            @l_Apl_History = l_Apl_Bsv:vAPL'i_Apl_Nr'_EXT
+         #error stop
+         
+         ;reset application state, if reading unsuccesful...
+         #if status <> 0 #then #block
+            #if data_type(%l_Apl_Bsv) <> "LIST" #then @l_Apl_Bsv = list()
+            @l_Apl_History = list(NA = "?", TT = "?", AS = "?", SP = "?")
+         #block_end
+      
+         ;read in current state                 
+         ;check if application diagnostic is enabled
+         #if APL:BDI(%i_Apl_Nr) > 0 and APL:BDT(%i_Apl_Nr) > 0 #then #block
+            @l_Tmp_State = APL:BDS(%i_Apl_Nr)
+            #if l_Tmp_State:vSTATUS == 0 #then #block
+               @l_Apl_State = list(-
+               NA        = APL'i_Apl_Nr':BNA,- 
+               TT        = "EXTERNAL",-
+               AS        = l_Tmp_State:vAS,-
+               SP        = l_Tmp_State:vSP)
+               @i_Status = 0
+            #block_end
+            #else @i_Status = %l_Tmp_State.STATUS
+         #block_end
+         #else #block
+            @i_Status = status
+            @i_Timeout = timeout(l_General_Info:vTIMEOUT_LENGTH)
+            #error ignore
+               @l_Apl_State = list(-
+                  NA        = APL:'i_Apl_Nr'BNA,- 
+                  TT        = APL:'i_Apl_Nr'BTT,-
+                  AS        = APL:'i_Apl_Nr'BAS,-
+                  SP        = APL:'i_Apl_Nr'BSP)
+            #error stop
+            @i_Timeout = timeout(%i_Timeout)
+            @i_Status = status
+         #block_end
+
+         ;update application state, if changes...            
+         #if %i_Status == 0 #then #block  ;ext. apl running ok... 
+         
+            ;define event time
+            @l_Time = hr_clock
+            
+            ;update application status
+            #if l_Apl_State:vAS <> l_Apl_History:vAS #then #exec sys_aple2:c -
+               (@SOURCE = "APL_AS", @SOURCE_NR = %i_Apl_Nr, @EVENT = l_Apl_State:vAS, @RT = l_Time:vCL, @RM = l_Time:vUS DIV 1000)
+
+            ;update history status
+            #modify l_Apl_Bsv:v = list(APL'i_Apl_Nr'_EXT = %l_Apl_State)
+            #set APL:BSV46 = %l_Apl_Bsv                        
+         
+         #block_end
+         #else #block   ;no connection, MicroSCADA not running, apl not defined or apl state either "cold" or "warm"
+         
+            ;update application status
+            #if APL'i_Apl_Nr':BTT == "NONE" #then #set 'l_Apl_Attr:vAS_PRIMARY' = -1
+            #else #block
+               #error ignore
+                  @i_AS_OV = 1
+                  @i_AS_OV = 'l_Apl_Attr:vAS_PRIMARY'
+               #error stop
+               #set 'l_Apl_Attr:vAS_PRIMARY' = list(OV = %i_AS_OV, OS = 4)
+            #block_end
+            
+            ;update history status
+            #modify l_Apl_Bsv:v = list(APL'i_Apl_Nr'_EXT = list(NA = "?", TT = "?", AS = "?", SP = "?"))
+            #set APL:BSV46 = %l_Apl_Bsv
+            
+             #if l_Apl_Attr:vPresentation <> "#" #then #block
+               @l_Presentation_Object = do(apl:bsv40, "SSS", "GetLogicalNameAndIndex", l_Apl_Attr:vPresentation)
+               @t_Presentation_Object = "'l_Presentation_Object:vLN':P'l_Presentation_Object:vIX'"
+               #if application_object_exists(0, "IX", LIST(LN="'l_Presentation_Object:vLN'", IX=l_Presentation_Object:vIX)) #then -
+                  #set 't_Presentation_Object' = 13
+            #block_end
+                              
+         #block_end
+      
+      #block_end ; 2
+         #else_if l_Apl_Attr:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_aple1:c]", l_Apl_Attr:vDESCRIPTIVE_TEXT)
+         
+   #loop_end
+   
+#block_end ; 1
+   #else_if l_Apl_Numbers:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_aple1:c]", l_Apl_Numbers:vDESCRIPTIVE_TEXT)

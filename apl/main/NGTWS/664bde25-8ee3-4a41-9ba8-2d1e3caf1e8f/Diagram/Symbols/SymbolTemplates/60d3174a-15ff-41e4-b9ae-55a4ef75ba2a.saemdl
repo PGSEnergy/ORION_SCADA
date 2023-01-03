@@ -1,0 +1,2540 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<NGT>
+  <Header>
+    <ModelInfo value="Symbol" />
+    <ModelVersion value="1.3.2.0" />
+    <PersistencyVersion value="1.0.0.0" />
+  </Header>
+  <DomModel>
+    <Complex name="Root" type="t0" id="0">
+      <Reference name="equipmentTypeReference" id="1" />
+      <Reference name="connectionPoints" id="2" />
+      <Reference name="events" id="3" />
+      <Reference name="variableTemplates" id="4" />
+      <Reference name="category" id="5" />
+      <Reference name="width" id="6" />
+      <Reference name="height" id="7" />
+      <Reference name="maximumWidth" id="8" />
+      <Reference name="maximumHeight" id="9" />
+      <Reference name="minimumWidth" id="10" />
+      <Reference name="minimumHeight" id="11" />
+      <Reference name="defaultZoomLevel" id="12" />
+      <Reference name="areConnectionPointsVariable" id="13" />
+      <Reference name="areVariableConnectionPointsDynamic" id="14" />
+      <Reference name="keepAspectRatio" id="15" />
+      <Reference name="lookupTables" id="16" />
+      <Reference name="canFlip" id="17" />
+      <Reference name="tags" id="18" />
+      <Reference name="published" id="19" />
+      <Reference name="description" id="20" />
+      <Reference name="layers" id="21" />
+      <Reference name="type" id="22" />
+      <Simple name="ContentVersion" value="1.2.0.33" />
+      <Reference name="parameters" id="23" />
+      <Reference name="names" id="24" />
+      <Simple name="EntityId" value="60d3174a-15ff-41e4-b9ae-55a4ef75ba2a" />
+    </Complex>
+    <Complex name="equipmentTypeReference" type="t1" id="1">
+      <Reference name="value" id="25" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="EquipmentType" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="connectionPoints" type="t2" id="2">
+      <Collection name="internalList" type="t3" id="0">
+        <Simple name="Capacity" value="4" />
+        <Items>
+          <Reference name="item" id="26" />
+        </Items>
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="ConnectionPoints" />
+    </Complex>
+    <Complex name="events" type="t4" id="3">
+      <Collection name="internalList" type="t5" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="Events" />
+    </Complex>
+    <Complex name="variableTemplates" type="t6" id="4">
+      <Collection name="internalList" type="t7" id="0">
+        <Simple name="Capacity" value="32" />
+        <Items>
+          <Reference name="item" id="27" />
+          <Reference name="item" id="28" />
+          <Reference name="item" id="29" />
+          <Reference name="item" id="30" />
+          <Reference name="item" id="31" />
+          <Reference name="item" id="32" />
+          <Reference name="item" id="33" />
+          <Reference name="item" id="34" />
+          <Reference name="item" id="35" />
+          <Reference name="item" id="36" />
+          <Reference name="item" id="37" />
+          <Reference name="item" id="38" />
+          <Reference name="item" id="39" />
+          <Reference name="item" id="40" />
+          <Reference name="item" id="41" />
+          <Reference name="item" id="42" />
+          <Reference name="item" id="43" />
+          <Reference name="item" id="44" />
+        </Items>
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="VariableTemplates" />
+    </Complex>
+    <Complex name="category" type="t8" id="5">
+      <Simple name="value" value="Symbol" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="Category" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="width" type="t9" id="6">
+      <Simple name="value" value="64" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="Width" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="height" type="t9" id="7">
+      <Simple name="value" value="80" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="Height" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="maximumWidth" type="t9" id="8">
+      <Simple name="value" value="64" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="MaximumWidth" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="maximumHeight" type="t9" id="9">
+      <Simple name="value" value="80" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="MaximumHeight" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="minimumWidth" type="t9" id="10">
+      <Simple name="value" value="64" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="MinimumWidth" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="minimumHeight" type="t9" id="11">
+      <Simple name="value" value="80" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="MinimumHeight" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="defaultZoomLevel" type="t10" id="12">
+      <Simple name="value" value="0" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="DefaultZoomLevel" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="areConnectionPointsVariable" type="t11" id="13">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="AreConnectionPointsVariable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="areVariableConnectionPointsDynamic" type="t11" id="14">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="AreVariableConnectionPointsDynamic" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="keepAspectRatio" type="t11" id="15">
+      <Simple name="value" value="True" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="KeepAspectRatio" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="lookupTables" type="t12" id="16">
+      <Collection name="internalList" type="t13" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="LookupTables" />
+    </Complex>
+    <Complex name="canFlip" type="t11" id="17">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="CanFlip" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="tags" type="t14" id="18">
+      <Collection name="internalList" type="t15" id="0">
+        <Simple name="Capacity" value="4" />
+        <Items>
+          <Simple name="item" value="Equipment" />
+          <Simple name="item" value="IEC" />
+        </Items>
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="Tags" />
+    </Complex>
+    <Complex name="published" type="t16" id="19">
+      <Simple name="value" type="t17" value="2021-03-05T00:00:00.0000000" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="Published" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="description" type="t18" id="20">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="Description" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="layers" type="t19" id="21">
+      <Collection name="internalList" type="t20" id="0">
+        <Simple name="Capacity" value="4" />
+        <Items>
+          <Reference name="item" id="45" />
+          <Reference name="item" id="46" />
+          <Reference name="item" id="47" />
+        </Items>
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="Layers" />
+    </Complex>
+    <Complex name="type" type="t21" id="22">
+      <Simple name="value" value="Regular" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="Type" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="parameters" type="t22" id="23">
+      <Dictionary name="internalDictionary" type="t23" id="0">
+        <Items />
+      </Dictionary>
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="Parameters" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="names" type="t24" id="24">
+      <Collection name="internalList" type="t25" id="0">
+        <Simple name="Capacity" value="1" />
+        <Items>
+          <Reference name="item" id="48" />
+        </Items>
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="0" />
+      <Simple name="PropertyName" value="Names" />
+    </Complex>
+    <Complex name="value" type="t26" id="25">
+      <Simple name="memberEntityID" value="6fb50294-32f1-49d6-8492-592184a33276" />
+    </Complex>
+    <Complex name="item" type="t27" id="26">
+      <Simple name="isLocationChangeable" value="False" />
+      <Reference name="owner" id="0" />
+      <Reference name="id" id="49" />
+      <Reference name="description" id="50" />
+      <Reference name="relativeXPosition" id="51" />
+      <Reference name="relativeYPosition" id="52" />
+    </Complex>
+    <Complex name="item" type="t28" id="27">
+      <Simple name="entityId" value="666913af-8527-4968-ba21-4c03263b2811" />
+      <Reference name="connectivityInformation" id="53" />
+      <Reference name="name" id="54" />
+      <Reference name="defaultValue" id="55" />
+      <Reference name="mandatory" id="56" />
+      <Reference name="type" id="57" />
+      <Reference name="isPublic" id="58" />
+      <Reference name="isModifiableByUser" id="59" />
+      <Reference name="deletable" id="60" />
+      <Reference name="editable" id="61" />
+      <Reference name="actions" id="62" />
+    </Complex>
+    <Complex name="item" type="t28" id="28">
+      <Simple name="entityId" value="846faeca-2fe4-4aed-8321-3765b8239bd6" />
+      <Reference name="connectivityInformation" id="63" />
+      <Reference name="name" id="64" />
+      <Reference name="defaultValue" id="65" />
+      <Reference name="mandatory" id="66" />
+      <Reference name="type" id="67" />
+      <Reference name="isPublic" id="68" />
+      <Reference name="isModifiableByUser" id="69" />
+      <Reference name="deletable" id="70" />
+      <Reference name="editable" id="71" />
+      <Reference name="actions" id="72" />
+    </Complex>
+    <Complex name="item" type="t28" id="29">
+      <Simple name="entityId" value="b27c9094-1ae6-4efe-af6f-484d21600678" />
+      <Reference name="connectivityInformation" id="73" />
+      <Reference name="name" id="74" />
+      <Reference name="defaultValue" id="75" />
+      <Reference name="mandatory" id="76" />
+      <Reference name="type" id="77" />
+      <Reference name="isPublic" id="78" />
+      <Reference name="isModifiableByUser" id="79" />
+      <Reference name="deletable" id="80" />
+      <Reference name="editable" id="81" />
+      <Reference name="actions" id="82" />
+    </Complex>
+    <Complex name="item" type="t28" id="30">
+      <Simple name="entityId" value="a72757b6-55cd-4958-8d4d-27ce477c0cfb" />
+      <Reference name="connectivityInformation" id="83" />
+      <Reference name="name" id="84" />
+      <Reference name="defaultValue" id="85" />
+      <Reference name="mandatory" id="86" />
+      <Reference name="type" id="87" />
+      <Reference name="isPublic" id="88" />
+      <Reference name="isModifiableByUser" id="89" />
+      <Reference name="deletable" id="90" />
+      <Reference name="editable" id="91" />
+      <Reference name="actions" id="92" />
+    </Complex>
+    <Complex name="item" type="t28" id="31">
+      <Simple name="entityId" value="ace8d857-9ee2-4891-a9c5-7ba03c443192" />
+      <Reference name="connectivityInformation" id="93" />
+      <Reference name="name" id="94" />
+      <Reference name="defaultValue" id="95" />
+      <Reference name="mandatory" id="96" />
+      <Reference name="type" id="97" />
+      <Reference name="isPublic" id="98" />
+      <Reference name="isModifiableByUser" id="99" />
+      <Reference name="deletable" id="100" />
+      <Reference name="editable" id="101" />
+      <Reference name="actions" id="102" />
+    </Complex>
+    <Complex name="item" type="t28" id="32">
+      <Simple name="entityId" value="83ea7b69-7373-4089-8cbb-c5fd0c2ea26d" />
+      <Reference name="connectivityInformation" id="103" />
+      <Reference name="name" id="104" />
+      <Reference name="defaultValue" id="105" />
+      <Reference name="mandatory" id="106" />
+      <Reference name="type" id="107" />
+      <Reference name="isPublic" id="108" />
+      <Reference name="isModifiableByUser" id="109" />
+      <Reference name="deletable" id="110" />
+      <Reference name="editable" id="111" />
+      <Reference name="actions" id="112" />
+    </Complex>
+    <Complex name="item" type="t28" id="33">
+      <Simple name="entityId" value="f1b15161-548e-4a6a-945a-2ce6c1dbae8f" />
+      <Reference name="connectivityInformation" id="113" />
+      <Reference name="name" id="114" />
+      <Reference name="defaultValue" id="115" />
+      <Reference name="mandatory" id="116" />
+      <Reference name="type" id="117" />
+      <Reference name="isPublic" id="118" />
+      <Reference name="isModifiableByUser" id="119" />
+      <Reference name="deletable" id="120" />
+      <Reference name="editable" id="121" />
+      <Reference name="actions" id="122" />
+    </Complex>
+    <Complex name="item" type="t28" id="34">
+      <Simple name="entityId" value="3cd17041-99dd-4a10-a91f-b074dae225a6" />
+      <Reference name="connectivityInformation" id="123" />
+      <Reference name="name" id="124" />
+      <Reference name="defaultValue" id="125" />
+      <Reference name="mandatory" id="126" />
+      <Reference name="type" id="127" />
+      <Reference name="isPublic" id="128" />
+      <Reference name="isModifiableByUser" id="129" />
+      <Reference name="deletable" id="130" />
+      <Reference name="editable" id="131" />
+      <Reference name="actions" id="132" />
+    </Complex>
+    <Complex name="item" type="t28" id="35">
+      <Simple name="entityId" value="e5e72d3e-9c5d-4843-b0e2-79e5d8c419ea" />
+      <Reference name="connectivityInformation" id="133" />
+      <Reference name="name" id="134" />
+      <Reference name="defaultValue" id="135" />
+      <Reference name="mandatory" id="136" />
+      <Reference name="type" id="137" />
+      <Reference name="isPublic" id="138" />
+      <Reference name="isModifiableByUser" id="139" />
+      <Reference name="deletable" id="140" />
+      <Reference name="editable" id="141" />
+      <Reference name="actions" id="142" />
+    </Complex>
+    <Complex name="item" type="t28" id="36">
+      <Simple name="entityId" value="8216a1f3-561a-430c-bd26-3f4975abcc23" />
+      <Reference name="connectivityInformation" id="143" />
+      <Reference name="name" id="144" />
+      <Reference name="defaultValue" id="145" />
+      <Reference name="mandatory" id="146" />
+      <Reference name="type" id="147" />
+      <Reference name="isPublic" id="148" />
+      <Reference name="isModifiableByUser" id="149" />
+      <Reference name="deletable" id="150" />
+      <Reference name="editable" id="151" />
+      <Reference name="actions" id="152" />
+    </Complex>
+    <Complex name="item" type="t28" id="37">
+      <Simple name="entityId" value="82c3170c-71c9-4a65-9970-f6dab374bad6" />
+      <Reference name="connectivityInformation" id="153" />
+      <Reference name="name" id="154" />
+      <Reference name="defaultValue" id="155" />
+      <Reference name="mandatory" id="156" />
+      <Reference name="type" id="157" />
+      <Reference name="isPublic" id="158" />
+      <Reference name="isModifiableByUser" id="159" />
+      <Reference name="deletable" id="160" />
+      <Reference name="editable" id="161" />
+      <Reference name="actions" id="162" />
+    </Complex>
+    <Complex name="item" type="t28" id="38">
+      <Simple name="entityId" value="10014859-ee7f-4527-8e93-ce5b796a1cb1" />
+      <Reference name="connectivityInformation" id="163" />
+      <Reference name="name" id="164" />
+      <Reference name="defaultValue" id="165" />
+      <Reference name="mandatory" id="166" />
+      <Reference name="type" id="167" />
+      <Reference name="isPublic" id="168" />
+      <Reference name="isModifiableByUser" id="169" />
+      <Reference name="deletable" id="170" />
+      <Reference name="editable" id="171" />
+      <Reference name="actions" id="172" />
+    </Complex>
+    <Complex name="item" type="t28" id="39">
+      <Simple name="entityId" value="81be14b9-8625-4748-9699-fd7ce71c1368" />
+      <Reference name="connectivityInformation" id="173" />
+      <Reference name="name" id="174" />
+      <Reference name="defaultValue" id="175" />
+      <Reference name="mandatory" id="176" />
+      <Reference name="type" id="177" />
+      <Reference name="isPublic" id="178" />
+      <Reference name="isModifiableByUser" id="179" />
+      <Reference name="deletable" id="180" />
+      <Reference name="editable" id="181" />
+      <Reference name="actions" id="182" />
+    </Complex>
+    <Complex name="item" type="t28" id="40">
+      <Simple name="entityId" value="4909aedf-67a5-4eda-a364-7362ec6ab311" />
+      <Reference name="connectivityInformation" id="183" />
+      <Reference name="name" id="184" />
+      <Reference name="defaultValue" id="185" />
+      <Reference name="mandatory" id="186" />
+      <Reference name="type" id="187" />
+      <Reference name="isPublic" id="188" />
+      <Reference name="isModifiableByUser" id="189" />
+      <Reference name="deletable" id="190" />
+      <Reference name="editable" id="191" />
+      <Reference name="actions" id="192" />
+    </Complex>
+    <Complex name="item" type="t28" id="41">
+      <Simple name="entityId" value="04a272ca-08d7-4d0a-b9d5-959ec063866e" />
+      <Reference name="connectivityInformation" id="193" />
+      <Reference name="name" id="194" />
+      <Reference name="defaultValue" id="195" />
+      <Reference name="mandatory" id="196" />
+      <Reference name="type" id="197" />
+      <Reference name="isPublic" id="198" />
+      <Reference name="isModifiableByUser" id="199" />
+      <Reference name="deletable" id="200" />
+      <Reference name="editable" id="201" />
+      <Reference name="actions" id="202" />
+    </Complex>
+    <Complex name="item" type="t28" id="42">
+      <Simple name="entityId" value="bc90caa5-38ac-4f05-b821-96d4e1004bf5" />
+      <Reference name="connectivityInformation" id="203" />
+      <Reference name="name" id="204" />
+      <Reference name="defaultValue" id="205" />
+      <Reference name="mandatory" id="206" />
+      <Reference name="type" id="207" />
+      <Reference name="isPublic" id="208" />
+      <Reference name="isModifiableByUser" id="209" />
+      <Reference name="deletable" id="210" />
+      <Reference name="editable" id="211" />
+      <Reference name="actions" id="212" />
+    </Complex>
+    <Complex name="item" type="t28" id="43">
+      <Simple name="entityId" value="f43506c8-d5e0-4f6a-be5d-e3612f4ebb69" />
+      <Reference name="connectivityInformation" id="213" />
+      <Reference name="name" id="214" />
+      <Reference name="defaultValue" id="215" />
+      <Reference name="mandatory" id="216" />
+      <Reference name="type" id="217" />
+      <Reference name="isPublic" id="218" />
+      <Reference name="isModifiableByUser" id="219" />
+      <Reference name="deletable" id="220" />
+      <Reference name="editable" id="221" />
+      <Reference name="actions" id="222" />
+    </Complex>
+    <Complex name="item" type="t28" id="44">
+      <Simple name="entityId" value="6d3eb6fd-c2c8-432f-862a-14a4a668e61a" />
+      <Reference name="connectivityInformation" id="223" />
+      <Reference name="name" id="224" />
+      <Reference name="defaultValue" id="225" />
+      <Reference name="mandatory" id="226" />
+      <Reference name="type" id="227" />
+      <Reference name="isPublic" id="228" />
+      <Reference name="isModifiableByUser" id="229" />
+      <Reference name="deletable" id="230" />
+      <Reference name="editable" id="231" />
+      <Reference name="actions" id="232" />
+    </Complex>
+    <Complex name="item" type="t29" id="45">
+      <Reference name="graphicalElements" id="233" />
+      <Reference name="name" id="234" />
+      <Simple name="EntityId" value="ed4e0c93-4b45-4213-bce7-60d80e29f88a" />
+    </Complex>
+    <Complex name="item" type="t29" id="46">
+      <Reference name="graphicalElements" id="235" />
+      <Reference name="name" id="236" />
+      <Simple name="EntityId" value="7844cdf3-1766-4052-85ae-71a0c9773432" />
+    </Complex>
+    <Complex name="item" type="t29" id="47">
+      <Reference name="graphicalElements" id="237" />
+      <Reference name="name" id="238" />
+      <Simple name="EntityId" value="d22ce9d3-3316-4a52-9007-b36f146a7708" />
+    </Complex>
+    <Complex name="item" type="t30" id="48">
+      <Reference name="name" id="239" />
+      <Reference name="parent" id="0" />
+      <Reference name="Type" id="240" />
+    </Complex>
+    <Complex name="id" type="t31" id="49">
+      <Simple name="value" value="0" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="26" />
+      <Simple name="PropertyName" value="Id" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="description" type="t32" id="50">
+      <Simple name="value" value="" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="26" />
+      <Simple name="PropertyName" value="Description" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="relativeXPosition" type="t33" id="51">
+      <Simple name="value" value="50" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="26" />
+      <Simple name="PropertyName" value="XPosition" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="relativeYPosition" type="t33" id="52">
+      <Simple name="value" value="0" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="26" />
+      <Simple name="PropertyName" value="YPosition" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="connectivityInformation" type="t34" id="53">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="27" />
+      <Simple name="PropertyName" value="ConnectivityInformation" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="name" type="t18" id="54">
+      <Simple name="value" value="disableZooming" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="27" />
+      <Simple name="PropertyName" value="Name" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="defaultValue" type="t35" id="55">
+      <Reference name="value" id="241" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="27" />
+      <Simple name="PropertyName" value="DefaultValue" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="mandatory" type="t11" id="56">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="27" />
+      <Simple name="PropertyName" value="Mandatory" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="type" type="t36" id="57">
+      <Simple name="value" value="Bool" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="27" />
+      <Simple name="PropertyName" value="Type" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isPublic" type="t11" id="58">
+      <Simple name="value" value="True" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="27" />
+      <Simple name="PropertyName" value="IsPublic" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isModifiableByUser" type="t11" id="59">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="27" />
+      <Simple name="PropertyName" value="IsModifiableByUser" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="deletable" type="t11" id="60">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="27" />
+      <Simple name="PropertyName" value="Deletable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="editable" type="t11" id="61">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="27" />
+      <Simple name="PropertyName" value="Editable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="actions" type="t37" id="62">
+      <Collection name="internalList" type="t38" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="27" />
+      <Simple name="PropertyName" value="Actions" />
+    </Complex>
+    <Complex name="connectivityInformation" type="t34" id="63">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="28" />
+      <Simple name="PropertyName" value="ConnectivityInformation" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="name" type="t18" id="64">
+      <Simple name="value" value="rotation" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="28" />
+      <Simple name="PropertyName" value="Name" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="defaultValue" type="t35" id="65">
+      <Reference name="value" id="242" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="28" />
+      <Simple name="PropertyName" value="DefaultValue" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="mandatory" type="t11" id="66">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="28" />
+      <Simple name="PropertyName" value="Mandatory" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="type" type="t36" id="67">
+      <Simple name="value" value="Float32" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="28" />
+      <Simple name="PropertyName" value="Type" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isPublic" type="t11" id="68">
+      <Simple name="value" value="True" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="28" />
+      <Simple name="PropertyName" value="IsPublic" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isModifiableByUser" type="t11" id="69">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="28" />
+      <Simple name="PropertyName" value="IsModifiableByUser" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="deletable" type="t11" id="70">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="28" />
+      <Simple name="PropertyName" value="Deletable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="editable" type="t11" id="71">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="28" />
+      <Simple name="PropertyName" value="Editable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="actions" type="t37" id="72">
+      <Collection name="internalList" type="t38" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="28" />
+      <Simple name="PropertyName" value="Actions" />
+    </Complex>
+    <Complex name="connectivityInformation" type="t34" id="73">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="29" />
+      <Simple name="PropertyName" value="ConnectivityInformation" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="name" type="t18" id="74">
+      <Simple name="value" value="antiRotation" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="29" />
+      <Simple name="PropertyName" value="Name" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="defaultValue" type="t35" id="75">
+      <Reference name="value" id="243" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="29" />
+      <Simple name="PropertyName" value="DefaultValue" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="mandatory" type="t11" id="76">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="29" />
+      <Simple name="PropertyName" value="Mandatory" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="type" type="t36" id="77">
+      <Simple name="value" value="Float32" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="29" />
+      <Simple name="PropertyName" value="Type" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isPublic" type="t11" id="78">
+      <Simple name="value" value="True" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="29" />
+      <Simple name="PropertyName" value="IsPublic" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isModifiableByUser" type="t11" id="79">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="29" />
+      <Simple name="PropertyName" value="IsModifiableByUser" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="deletable" type="t11" id="80">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="29" />
+      <Simple name="PropertyName" value="Deletable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="editable" type="t11" id="81">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="29" />
+      <Simple name="PropertyName" value="Editable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="actions" type="t37" id="82">
+      <Collection name="internalList" type="t38" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="29" />
+      <Simple name="PropertyName" value="Actions" />
+    </Complex>
+    <Complex name="connectivityInformation" type="t34" id="83">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="30" />
+      <Simple name="PropertyName" value="ConnectivityInformation" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="name" type="t18" id="84">
+      <Simple name="value" value="scaleX" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="30" />
+      <Simple name="PropertyName" value="Name" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="defaultValue" type="t35" id="85">
+      <Reference name="value" id="244" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="30" />
+      <Simple name="PropertyName" value="DefaultValue" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="mandatory" type="t11" id="86">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="30" />
+      <Simple name="PropertyName" value="Mandatory" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="type" type="t36" id="87">
+      <Simple name="value" value="Float32" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="30" />
+      <Simple name="PropertyName" value="Type" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isPublic" type="t11" id="88">
+      <Simple name="value" value="True" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="30" />
+      <Simple name="PropertyName" value="IsPublic" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isModifiableByUser" type="t11" id="89">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="30" />
+      <Simple name="PropertyName" value="IsModifiableByUser" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="deletable" type="t11" id="90">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="30" />
+      <Simple name="PropertyName" value="Deletable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="editable" type="t11" id="91">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="30" />
+      <Simple name="PropertyName" value="Editable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="actions" type="t37" id="92">
+      <Collection name="internalList" type="t38" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="30" />
+      <Simple name="PropertyName" value="Actions" />
+    </Complex>
+    <Complex name="connectivityInformation" type="t34" id="93">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="31" />
+      <Simple name="PropertyName" value="ConnectivityInformation" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="name" type="t18" id="94">
+      <Simple name="value" value="scaleY" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="31" />
+      <Simple name="PropertyName" value="Name" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="defaultValue" type="t35" id="95">
+      <Reference name="value" id="245" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="31" />
+      <Simple name="PropertyName" value="DefaultValue" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="mandatory" type="t11" id="96">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="31" />
+      <Simple name="PropertyName" value="Mandatory" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="type" type="t36" id="97">
+      <Simple name="value" value="Float32" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="31" />
+      <Simple name="PropertyName" value="Type" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isPublic" type="t11" id="98">
+      <Simple name="value" value="True" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="31" />
+      <Simple name="PropertyName" value="IsPublic" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isModifiableByUser" type="t11" id="99">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="31" />
+      <Simple name="PropertyName" value="IsModifiableByUser" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="deletable" type="t11" id="100">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="31" />
+      <Simple name="PropertyName" value="Deletable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="editable" type="t11" id="101">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="31" />
+      <Simple name="PropertyName" value="Editable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="actions" type="t37" id="102">
+      <Collection name="internalList" type="t38" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="31" />
+      <Simple name="PropertyName" value="Actions" />
+    </Complex>
+    <Complex name="connectivityInformation" type="t34" id="103">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="32" />
+      <Simple name="PropertyName" value="ConnectivityInformation" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="name" type="t18" id="104">
+      <Simple name="value" value="disableDynamics" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="32" />
+      <Simple name="PropertyName" value="Name" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="defaultValue" type="t35" id="105">
+      <Reference name="value" id="246" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="32" />
+      <Simple name="PropertyName" value="DefaultValue" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="mandatory" type="t11" id="106">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="32" />
+      <Simple name="PropertyName" value="Mandatory" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="type" type="t36" id="107">
+      <Simple name="value" value="Bool" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="32" />
+      <Simple name="PropertyName" value="Type" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isPublic" type="t11" id="108">
+      <Simple name="value" value="True" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="32" />
+      <Simple name="PropertyName" value="IsPublic" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isModifiableByUser" type="t11" id="109">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="32" />
+      <Simple name="PropertyName" value="IsModifiableByUser" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="deletable" type="t11" id="110">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="32" />
+      <Simple name="PropertyName" value="Deletable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="editable" type="t11" id="111">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="32" />
+      <Simple name="PropertyName" value="Editable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="actions" type="t37" id="112">
+      <Collection name="internalList" type="t38" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="32" />
+      <Simple name="PropertyName" value="Actions" />
+    </Complex>
+    <Complex name="connectivityInformation" type="t34" id="113">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="33" />
+      <Simple name="PropertyName" value="ConnectivityInformation" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="name" type="t18" id="114">
+      <Simple name="value" value="disableBaseSymbol" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="33" />
+      <Simple name="PropertyName" value="Name" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="defaultValue" type="t35" id="115">
+      <Reference name="value" id="247" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="33" />
+      <Simple name="PropertyName" value="DefaultValue" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="mandatory" type="t11" id="116">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="33" />
+      <Simple name="PropertyName" value="Mandatory" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="type" type="t36" id="117">
+      <Simple name="value" value="Bool" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="33" />
+      <Simple name="PropertyName" value="Type" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isPublic" type="t11" id="118">
+      <Simple name="value" value="True" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="33" />
+      <Simple name="PropertyName" value="IsPublic" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isModifiableByUser" type="t11" id="119">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="33" />
+      <Simple name="PropertyName" value="IsModifiableByUser" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="deletable" type="t11" id="120">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="33" />
+      <Simple name="PropertyName" value="Deletable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="editable" type="t11" id="121">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="33" />
+      <Simple name="PropertyName" value="Editable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="actions" type="t37" id="122">
+      <Collection name="internalList" type="t38" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="33" />
+      <Simple name="PropertyName" value="Actions" />
+    </Complex>
+    <Complex name="connectivityInformation" type="t34" id="123">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="34" />
+      <Simple name="PropertyName" value="ConnectivityInformation" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="name" type="t18" id="124">
+      <Simple name="value" value="disableEmblems" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="34" />
+      <Simple name="PropertyName" value="Name" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="defaultValue" type="t35" id="125">
+      <Reference name="value" id="248" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="34" />
+      <Simple name="PropertyName" value="DefaultValue" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="mandatory" type="t11" id="126">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="34" />
+      <Simple name="PropertyName" value="Mandatory" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="type" type="t36" id="127">
+      <Simple name="value" value="Bool" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="34" />
+      <Simple name="PropertyName" value="Type" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isPublic" type="t11" id="128">
+      <Simple name="value" value="True" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="34" />
+      <Simple name="PropertyName" value="IsPublic" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isModifiableByUser" type="t11" id="129">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="34" />
+      <Simple name="PropertyName" value="IsModifiableByUser" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="deletable" type="t11" id="130">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="34" />
+      <Simple name="PropertyName" value="Deletable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="editable" type="t11" id="131">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="34" />
+      <Simple name="PropertyName" value="Editable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="actions" type="t37" id="132">
+      <Collection name="internalList" type="t38" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="34" />
+      <Simple name="PropertyName" value="Actions" />
+    </Complex>
+    <Complex name="connectivityInformation" type="t34" id="133">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="35" />
+      <Simple name="PropertyName" value="ConnectivityInformation" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="name" type="t18" id="134">
+      <Simple name="value" value="disableClick" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="35" />
+      <Simple name="PropertyName" value="Name" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="defaultValue" type="t35" id="135">
+      <Reference name="value" id="249" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="35" />
+      <Simple name="PropertyName" value="DefaultValue" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="mandatory" type="t11" id="136">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="35" />
+      <Simple name="PropertyName" value="Mandatory" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="type" type="t36" id="137">
+      <Simple name="value" value="Bool" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="35" />
+      <Simple name="PropertyName" value="Type" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isPublic" type="t11" id="138">
+      <Simple name="value" value="True" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="35" />
+      <Simple name="PropertyName" value="IsPublic" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isModifiableByUser" type="t11" id="139">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="35" />
+      <Simple name="PropertyName" value="IsModifiableByUser" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="deletable" type="t11" id="140">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="35" />
+      <Simple name="PropertyName" value="Deletable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="editable" type="t11" id="141">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="35" />
+      <Simple name="PropertyName" value="Editable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="actions" type="t37" id="142">
+      <Collection name="internalList" type="t38" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="35" />
+      <Simple name="PropertyName" value="Actions" />
+    </Complex>
+    <Complex name="connectivityInformation" type="t34" id="143">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="36" />
+      <Simple name="PropertyName" value="ConnectivityInformation" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="name" type="t18" id="144">
+      <Simple name="value" value="topologyColor0" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="36" />
+      <Simple name="PropertyName" value="Name" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="defaultValue" type="t35" id="145">
+      <Reference name="value" id="250" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="36" />
+      <Simple name="PropertyName" value="DefaultValue" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="mandatory" type="t11" id="146">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="36" />
+      <Simple name="PropertyName" value="Mandatory" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="type" type="t36" id="147">
+      <Simple name="value" value="Color" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="36" />
+      <Simple name="PropertyName" value="Type" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isPublic" type="t11" id="148">
+      <Simple name="value" value="True" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="36" />
+      <Simple name="PropertyName" value="IsPublic" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isModifiableByUser" type="t11" id="149">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="36" />
+      <Simple name="PropertyName" value="IsModifiableByUser" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="deletable" type="t11" id="150">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="36" />
+      <Simple name="PropertyName" value="Deletable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="editable" type="t11" id="151">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="36" />
+      <Simple name="PropertyName" value="Editable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="actions" type="t37" id="152">
+      <Collection name="internalList" type="t38" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="36" />
+      <Simple name="PropertyName" value="Actions" />
+    </Complex>
+    <Complex name="connectivityInformation" type="t34" id="153">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="37" />
+      <Simple name="PropertyName" value="ConnectivityInformation" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="name" type="t18" id="154">
+      <Simple name="value" value="labelColor" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="37" />
+      <Simple name="PropertyName" value="Name" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="defaultValue" type="t35" id="155">
+      <Reference name="value" id="251" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="37" />
+      <Simple name="PropertyName" value="DefaultValue" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="mandatory" type="t11" id="156">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="37" />
+      <Simple name="PropertyName" value="Mandatory" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="type" type="t36" id="157">
+      <Simple name="value" value="Color" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="37" />
+      <Simple name="PropertyName" value="Type" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isPublic" type="t11" id="158">
+      <Simple name="value" value="True" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="37" />
+      <Simple name="PropertyName" value="IsPublic" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isModifiableByUser" type="t11" id="159">
+      <Simple name="value" value="True" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="37" />
+      <Simple name="PropertyName" value="IsModifiableByUser" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="deletable" type="t11" id="160">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="37" />
+      <Simple name="PropertyName" value="Deletable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="editable" type="t11" id="161">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="37" />
+      <Simple name="PropertyName" value="Editable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="actions" type="t37" id="162">
+      <Collection name="internalList" type="t38" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="37" />
+      <Simple name="PropertyName" value="Actions" />
+    </Complex>
+    <Complex name="connectivityInformation" type="t34" id="163">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="38" />
+      <Simple name="PropertyName" value="ConnectivityInformation" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="name" type="t18" id="164">
+      <Simple name="value" value="objectReference" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="38" />
+      <Simple name="PropertyName" value="Name" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="defaultValue" type="t35" id="165">
+      <Reference name="value" id="252" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="38" />
+      <Simple name="PropertyName" value="DefaultValue" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="mandatory" type="t11" id="166">
+      <Simple name="value" value="True" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="38" />
+      <Simple name="PropertyName" value="Mandatory" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="type" type="t36" id="167">
+      <Simple name="value" value="Any" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="38" />
+      <Simple name="PropertyName" value="Type" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isPublic" type="t11" id="168">
+      <Simple name="value" value="True" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="38" />
+      <Simple name="PropertyName" value="IsPublic" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isModifiableByUser" type="t11" id="169">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="38" />
+      <Simple name="PropertyName" value="IsModifiableByUser" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="deletable" type="t11" id="170">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="38" />
+      <Simple name="PropertyName" value="Deletable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="editable" type="t11" id="171">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="38" />
+      <Simple name="PropertyName" value="Editable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="actions" type="t37" id="172">
+      <Collection name="internalList" type="t38" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="38" />
+      <Simple name="PropertyName" value="Actions" />
+    </Complex>
+    <Complex name="connectivityInformation" type="t34" id="173">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="39" />
+      <Simple name="PropertyName" value="ConnectivityInformation" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="name" type="t18" id="174">
+      <Simple name="value" value="searchedFor" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="39" />
+      <Simple name="PropertyName" value="Name" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="defaultValue" type="t35" id="175">
+      <Reference name="value" id="253" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="39" />
+      <Simple name="PropertyName" value="DefaultValue" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="mandatory" type="t11" id="176">
+      <Simple name="value" value="True" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="39" />
+      <Simple name="PropertyName" value="Mandatory" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="type" type="t36" id="177">
+      <Simple name="value" value="Bool" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="39" />
+      <Simple name="PropertyName" value="Type" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isPublic" type="t11" id="178">
+      <Simple name="value" value="True" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="39" />
+      <Simple name="PropertyName" value="IsPublic" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isModifiableByUser" type="t11" id="179">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="39" />
+      <Simple name="PropertyName" value="IsModifiableByUser" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="deletable" type="t11" id="180">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="39" />
+      <Simple name="PropertyName" value="Deletable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="editable" type="t11" id="181">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="39" />
+      <Simple name="PropertyName" value="Editable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="actions" type="t37" id="182">
+      <Collection name="internalList" type="t38" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="39" />
+      <Simple name="PropertyName" value="Actions" />
+    </Complex>
+    <Complex name="connectivityInformation" type="t34" id="183">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="40" />
+      <Simple name="PropertyName" value="ConnectivityInformation" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="name" type="t18" id="184">
+      <Simple name="value" value="_hover" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="40" />
+      <Simple name="PropertyName" value="Name" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="defaultValue" type="t35" id="185">
+      <Reference name="value" id="254" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="40" />
+      <Simple name="PropertyName" value="DefaultValue" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="mandatory" type="t11" id="186">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="40" />
+      <Simple name="PropertyName" value="Mandatory" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="type" type="t36" id="187">
+      <Simple name="value" value="Bool" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="40" />
+      <Simple name="PropertyName" value="Type" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isPublic" type="t11" id="188">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="40" />
+      <Simple name="PropertyName" value="IsPublic" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isModifiableByUser" type="t11" id="189">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="40" />
+      <Simple name="PropertyName" value="IsModifiableByUser" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="deletable" type="t11" id="190">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="40" />
+      <Simple name="PropertyName" value="Deletable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="editable" type="t11" id="191">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="40" />
+      <Simple name="PropertyName" value="Editable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="actions" type="t37" id="192">
+      <Collection name="internalList" type="t38" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="40" />
+      <Simple name="PropertyName" value="Actions" />
+    </Complex>
+    <Complex name="connectivityInformation" type="t34" id="193">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="41" />
+      <Simple name="PropertyName" value="ConnectivityInformation" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="name" type="t18" id="194">
+      <Simple name="value" value="_pressed" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="41" />
+      <Simple name="PropertyName" value="Name" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="defaultValue" type="t35" id="195">
+      <Reference name="value" id="255" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="41" />
+      <Simple name="PropertyName" value="DefaultValue" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="mandatory" type="t11" id="196">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="41" />
+      <Simple name="PropertyName" value="Mandatory" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="type" type="t36" id="197">
+      <Simple name="value" value="Bool" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="41" />
+      <Simple name="PropertyName" value="Type" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isPublic" type="t11" id="198">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="41" />
+      <Simple name="PropertyName" value="IsPublic" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isModifiableByUser" type="t11" id="199">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="41" />
+      <Simple name="PropertyName" value="IsModifiableByUser" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="deletable" type="t11" id="200">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="41" />
+      <Simple name="PropertyName" value="Deletable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="editable" type="t11" id="201">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="41" />
+      <Simple name="PropertyName" value="Editable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="actions" type="t37" id="202">
+      <Collection name="internalList" type="t38" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="41" />
+      <Simple name="PropertyName" value="Actions" />
+    </Complex>
+    <Complex name="connectivityInformation" type="t34" id="203">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="42" />
+      <Simple name="PropertyName" value="ConnectivityInformation" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="name" type="t18" id="204">
+      <Simple name="value" value="hasEvents" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="42" />
+      <Simple name="PropertyName" value="Name" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="defaultValue" type="t35" id="205">
+      <Reference name="value" id="256" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="42" />
+      <Simple name="PropertyName" value="DefaultValue" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="mandatory" type="t11" id="206">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="42" />
+      <Simple name="PropertyName" value="Mandatory" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="type" type="t36" id="207">
+      <Simple name="value" value="Bool" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="42" />
+      <Simple name="PropertyName" value="Type" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isPublic" type="t11" id="208">
+      <Simple name="value" value="True" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="42" />
+      <Simple name="PropertyName" value="IsPublic" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isModifiableByUser" type="t11" id="209">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="42" />
+      <Simple name="PropertyName" value="IsModifiableByUser" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="deletable" type="t11" id="210">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="42" />
+      <Simple name="PropertyName" value="Deletable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="editable" type="t11" id="211">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="42" />
+      <Simple name="PropertyName" value="Editable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="actions" type="t37" id="212">
+      <Collection name="internalList" type="t38" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="42" />
+      <Simple name="PropertyName" value="Actions" />
+    </Complex>
+    <Complex name="connectivityInformation" type="t34" id="213">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="43" />
+      <Simple name="PropertyName" value="ConnectivityInformation" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="name" type="t18" id="214">
+      <Simple name="value" value="symbolWidth" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="43" />
+      <Simple name="PropertyName" value="Name" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="defaultValue" type="t35" id="215">
+      <Reference name="value" id="257" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="43" />
+      <Simple name="PropertyName" value="DefaultValue" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="mandatory" type="t11" id="216">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="43" />
+      <Simple name="PropertyName" value="Mandatory" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="type" type="t36" id="217">
+      <Simple name="value" value="Float32" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="43" />
+      <Simple name="PropertyName" value="Type" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isPublic" type="t11" id="218">
+      <Simple name="value" value="True" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="43" />
+      <Simple name="PropertyName" value="IsPublic" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isModifiableByUser" type="t11" id="219">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="43" />
+      <Simple name="PropertyName" value="IsModifiableByUser" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="deletable" type="t11" id="220">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="43" />
+      <Simple name="PropertyName" value="Deletable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="editable" type="t11" id="221">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="43" />
+      <Simple name="PropertyName" value="Editable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="actions" type="t37" id="222">
+      <Collection name="internalList" type="t38" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="43" />
+      <Simple name="PropertyName" value="Actions" />
+    </Complex>
+    <Complex name="connectivityInformation" type="t34" id="223">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="44" />
+      <Simple name="PropertyName" value="ConnectivityInformation" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="name" type="t18" id="224">
+      <Simple name="value" value="symbolHeight" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="44" />
+      <Simple name="PropertyName" value="Name" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="defaultValue" type="t35" id="225">
+      <Reference name="value" id="258" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="44" />
+      <Simple name="PropertyName" value="DefaultValue" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="mandatory" type="t11" id="226">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="44" />
+      <Simple name="PropertyName" value="Mandatory" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="type" type="t36" id="227">
+      <Simple name="value" value="Float32" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="44" />
+      <Simple name="PropertyName" value="Type" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isPublic" type="t11" id="228">
+      <Simple name="value" value="True" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="44" />
+      <Simple name="PropertyName" value="IsPublic" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="isModifiableByUser" type="t11" id="229">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="44" />
+      <Simple name="PropertyName" value="IsModifiableByUser" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="deletable" type="t11" id="230">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="44" />
+      <Simple name="PropertyName" value="Deletable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="editable" type="t11" id="231">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="44" />
+      <Simple name="PropertyName" value="Editable" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="actions" type="t37" id="232">
+      <Collection name="internalList" type="t38" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="44" />
+      <Simple name="PropertyName" value="Actions" />
+    </Complex>
+    <Complex name="graphicalElements" type="t39" id="233">
+      <Collection name="internalList" type="t40" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="45" />
+      <Simple name="PropertyName" value="GraphicalElements" />
+    </Complex>
+    <Complex name="name" type="t18" id="234">
+      <Simple name="value" value="Background" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="45" />
+      <Simple name="PropertyName" value="Name" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="graphicalElements" type="t39" id="235">
+      <Collection name="internalList" type="t40" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="46" />
+      <Simple name="PropertyName" value="GraphicalElements" />
+    </Complex>
+    <Complex name="name" type="t18" id="236">
+      <Simple name="value" value="Baseplate" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="46" />
+      <Simple name="PropertyName" value="Name" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="graphicalElements" type="t39" id="237">
+      <Collection name="internalList" type="t40" id="0">
+        <Simple name="Capacity" value="4" />
+        <Items>
+          <Reference name="item" id="259" />
+        </Items>
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="47" />
+      <Simple name="PropertyName" value="GraphicalElements" />
+    </Complex>
+    <Complex name="name" type="t18" id="238">
+      <Simple name="value" value="Graphics" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="47" />
+      <Simple name="PropertyName" value="Name" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="name" type="t41" id="239">
+      <Simple name="value" value="Auto-Transformer Winding secondary" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="48" />
+      <Simple name="PropertyName" value="Name" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="Type" type="t42" id="240">
+      <Simple name="NameType" value="ABB Internal Name" />
+      <Simple name="NameAuthority" value="NGT" />
+    </Complex>
+    <Complex name="value" type="t43" id="241">
+      <Simple name="ConcreteValue" value="False" />
+      <Collection name="inputExpressions" type="t44" id="0">
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="d0479a0a-e380-4edc-a693-48626b1bc34d" />
+    </Complex>
+    <Complex name="value" type="t45" id="242">
+      <Simple name="ConcreteValue" value="0" />
+      <Collection name="inputExpressions" type="t44" id="0">
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="f9ae0034-7f5d-4161-96ed-ce1485313075" />
+    </Complex>
+    <Complex name="value" type="t45" id="243">
+      <Simple name="ConcreteValue" value="0" />
+      <Collection name="inputExpressions" type="t44" id="0">
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="6e8114d2-f363-4ae5-a957-687a6a99736f" />
+    </Complex>
+    <Complex name="value" type="t45" id="244">
+      <Simple name="ConcreteValue" value="1" />
+      <Collection name="inputExpressions" type="t44" id="0">
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="1f751789-50b4-473d-81c4-8dbeea0402da" />
+    </Complex>
+    <Complex name="value" type="t45" id="245">
+      <Simple name="ConcreteValue" value="1" />
+      <Collection name="inputExpressions" type="t44" id="0">
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="8f3d1e2c-f0f8-4130-9695-724bbc398b5c" />
+    </Complex>
+    <Complex name="value" type="t43" id="246">
+      <Simple name="ConcreteValue" value="False" />
+      <Collection name="inputExpressions" type="t44" id="0">
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="83d113b2-7a50-46a8-b85f-5c63ea5744be" />
+    </Complex>
+    <Complex name="value" type="t43" id="247">
+      <Simple name="ConcreteValue" value="False" />
+      <Collection name="inputExpressions" type="t44" id="0">
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="7f1ab6c4-f509-4e7e-b454-f74973f5384c" />
+    </Complex>
+    <Complex name="value" type="t43" id="248">
+      <Simple name="ConcreteValue" value="False" />
+      <Collection name="inputExpressions" type="t44" id="0">
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="4405bfe2-13fd-4790-9162-ac12adf9dc91" />
+    </Complex>
+    <Complex name="value" type="t43" id="249">
+      <Simple name="ConcreteValue" value="False" />
+      <Collection name="inputExpressions" type="t44" id="0">
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="fba06638-f48c-412e-9e61-145d049d7fe1" />
+    </Complex>
+    <Complex name="value" type="t46" id="250">
+      <Simple name="equipmentTerminalID" value="0" />
+      <Reference name="alpha" id="260" />
+      <Reference name="setting" id="261" />
+      <Collection name="inputExpressions" type="t44" id="0">
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="ade542e6-22d5-4aae-8607-72b5eaffd35e" />
+    </Complex>
+    <Complex name="value" type="t47" id="251">
+      <Reference name="alpha" id="262" />
+      <Reference name="setting" id="263" />
+      <Collection name="inputExpressions" type="t44" id="0">
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="41e636f4-8932-4555-b97f-34c85b38e5d5" />
+    </Complex>
+    <Complex name="value" type="t48" id="252">
+      <Reference name="expressionGraphicalComponentField" id="264" />
+      <Collection name="inputExpressions" type="t44" id="0">
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="8ee93b76-434f-4425-bc12-6a0fc4ae0f91" />
+    </Complex>
+    <Complex name="value" type="t43" id="253">
+      <Simple name="ConcreteValue" value="False" />
+      <Collection name="inputExpressions" type="t44" id="0">
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="ead66794-b45b-4abc-b9fd-b9c171706442" />
+    </Complex>
+    <Complex name="value" type="t43" id="254">
+      <Simple name="ConcreteValue" value="False" />
+      <Collection name="inputExpressions" type="t44" id="0">
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="c30641c1-fa73-45bb-9eb3-296daf6fb9f1" />
+    </Complex>
+    <Complex name="value" type="t43" id="255">
+      <Simple name="ConcreteValue" value="False" />
+      <Collection name="inputExpressions" type="t44" id="0">
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="2c166ef8-d754-44b0-a831-0c7a6e9bb764" />
+    </Complex>
+    <Complex name="value" type="t49" id="256">
+      <Reference name="expressionGraphicalComponentField" id="265" />
+      <Collection name="inputExpressions" type="t44" id="0">
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="ee6fd4ab-a9b7-4baa-a126-859077447bff" />
+    </Complex>
+    <Complex name="value" type="t45" id="257">
+      <Simple name="ConcreteValue" value="64" />
+      <Collection name="inputExpressions" type="t44" id="0">
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="a6ead669-801e-4d9b-95f5-75b39f3e1628" />
+    </Complex>
+    <Complex name="value" type="t45" id="258">
+      <Simple name="ConcreteValue" value="64" />
+      <Collection name="inputExpressions" type="t44" id="0">
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="cec77fc8-b926-43c2-a43a-2dbac4464788" />
+    </Complex>
+    <Complex name="item" type="t50" id="259">
+      <Reference name="points" id="266" />
+      <Reference name="isClosed" id="267" />
+      <Reference name="role" id="268" />
+      <Reference name="fill" id="269" />
+      <Reference name="strokeThickness" id="270" />
+      <Reference name="stroke" id="271" />
+      <Simple name="IsResizableWidth" value="True" />
+      <Simple name="IsResizableHeight" value="True" />
+      <Reference name="visible" id="272" />
+      <Reference name="elementName" id="273" />
+      <Reference name="events" id="274" />
+      <Reference name="left" id="275" />
+      <Reference name="top" id="276" />
+      <Reference name="right" id="277" />
+      <Reference name="bottom" id="278" />
+      <Reference name="animations" id="279" />
+      <Simple name="VectorEffect" value="None" />
+      <Collection name="Transformations" type="t51" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="RotationRestriction" value="AlwaysRotate" />
+      <Simple name="EntityId" value="03aff573-d840-4cd7-afff-51f3cf7419be" />
+    </Complex>
+    <Complex name="alpha" type="t33" id="260">
+      <Simple name="value" value="1" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="250" />
+      <Simple name="PropertyName" value="Alpha" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="setting" type="t52" id="261">
+      <Simple name="rootEntityID" value="338eea90-fe1f-4366-88e9-f0595940860b" />
+      <Simple name="memberEntityID" value="f2fb11b9-9dc6-4538-835d-5fa1e2eef6bc" />
+    </Complex>
+    <Complex name="alpha" type="t33" id="262">
+      <Simple name="value" value="1" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="251" />
+      <Simple name="PropertyName" value="Alpha" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="setting" type="t52" id="263">
+      <Simple name="rootEntityID" value="338eea90-fe1f-4366-88e9-f0595940860b" />
+      <Simple name="memberEntityID" value="58be996f-b0e3-4116-8724-e4d0ae2c91dd" />
+    </Complex>
+    <Complex name="expressionGraphicalComponentField" type="t53" id="264">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="252" />
+      <Simple name="PropertyName" value="GraphicalComponent" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="expressionGraphicalComponentField" type="t53" id="265">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="256" />
+      <Simple name="PropertyName" value="GraphicalComponent" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="points" type="t54" id="266">
+      <Collection name="internalList" type="t55" id="0">
+        <Simple name="Capacity" value="8" />
+        <Items>
+          <Reference name="item" id="280" />
+          <Reference name="item" id="281" />
+          <Reference name="item" id="282" />
+          <Reference name="item" id="283" />
+          <Reference name="item" id="284" />
+          <Reference name="item" id="285" />
+          <Reference name="item" id="286" />
+        </Items>
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="259" />
+      <Simple name="PropertyName" value="Points" />
+    </Complex>
+    <Complex name="isClosed" type="t56" id="267">
+      <Simple name="value" value="False" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="259" />
+      <Simple name="PropertyName" value="IsClosed" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="role" type="t57" id="268" />
+    <Complex name="fill" type="t58" id="269">
+      <Reference name="expression" id="287" />
+      <Reference name="value" id="288" />
+    </Complex>
+    <Complex name="strokeThickness" type="t59" id="270">
+      <Reference name="expression" id="289" />
+      <Reference name="value" id="290" />
+    </Complex>
+    <Complex name="stroke" type="t58" id="271">
+      <Reference name="expression" id="291" />
+      <Reference name="value" id="292" />
+    </Complex>
+    <Complex name="visible" type="t60" id="272">
+      <Reference name="expression" id="293" />
+      <Reference name="value" id="294" />
+    </Complex>
+    <Complex name="elementName" type="t32" id="273">
+      <Simple name="value" value="bezierCurve" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="259" />
+      <Simple name="PropertyName" value="ElementName" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="events" type="t61" id="274">
+      <Collection name="internalList" type="t5" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="259" />
+      <Simple name="PropertyName" value="Events" />
+    </Complex>
+    <Complex name="left" type="t59" id="275">
+      <Reference name="expression" id="295" />
+      <Reference name="value" id="296" />
+    </Complex>
+    <Complex name="top" type="t59" id="276">
+      <Reference name="expression" id="297" />
+      <Reference name="value" id="298" />
+    </Complex>
+    <Complex name="right" type="t59" id="277">
+      <Reference name="expression" id="299" />
+      <Reference name="value" id="300" />
+    </Complex>
+    <Complex name="bottom" type="t59" id="278">
+      <Reference name="expression" id="301" />
+      <Reference name="value" id="302" />
+    </Complex>
+    <Complex name="animations" type="t62" id="279">
+      <Collection name="internalList" type="t63" id="0">
+        <Simple name="Capacity" value="0" />
+        <Items />
+      </Collection>
+      <Simple name="PublishEventOnChange" value="True" />
+      <Reference name="Owner" id="259" />
+      <Simple name="PropertyName" value="Animations" />
+    </Complex>
+    <Complex name="item" type="t64" id="280">
+      <Reference name="x" id="303" />
+      <Reference name="y" id="304" />
+      <Simple name="IsPathElement" value="True" />
+      <Simple name="EntityId" value="0627d0fd-3366-4185-9c40-a25155a07aa5" />
+    </Complex>
+    <Complex name="item" type="t64" id="281">
+      <Reference name="x" id="305" />
+      <Reference name="y" id="306" />
+      <Simple name="IsPathElement" value="False" />
+      <Simple name="EntityId" value="577a4b17-8641-4eab-9cdd-6bfc8cd5cf1f" />
+    </Complex>
+    <Complex name="item" type="t64" id="282">
+      <Reference name="x" id="307" />
+      <Reference name="y" id="308" />
+      <Simple name="IsPathElement" value="False" />
+      <Simple name="EntityId" value="359c1745-8069-4895-a823-17df87fbb155" />
+    </Complex>
+    <Complex name="item" type="t64" id="283">
+      <Reference name="x" id="309" />
+      <Reference name="y" id="310" />
+      <Simple name="IsPathElement" value="True" />
+      <Simple name="EntityId" value="06e5b362-c213-4d33-bad8-be8cd5ee9941" />
+    </Complex>
+    <Complex name="item" type="t64" id="284">
+      <Reference name="x" id="311" />
+      <Reference name="y" id="312" />
+      <Simple name="IsPathElement" value="False" />
+      <Simple name="EntityId" value="dcb00dbf-1e4b-40d2-8a2c-c8942f75fcb8" />
+    </Complex>
+    <Complex name="item" type="t64" id="285">
+      <Reference name="x" id="313" />
+      <Reference name="y" id="314" />
+      <Simple name="IsPathElement" value="False" />
+      <Simple name="EntityId" value="efe31905-525d-4787-986f-430d9985d9c8" />
+    </Complex>
+    <Complex name="item" type="t64" id="286">
+      <Reference name="x" id="315" />
+      <Reference name="y" id="316" />
+      <Simple name="IsPathElement" value="True" />
+      <Simple name="EntityId" value="5d2ade68-7ce9-4b8e-a0f3-0777b89cd167" />
+    </Complex>
+    <Complex name="expression" type="t65" id="287">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="259" />
+      <Simple name="PropertyName" value="Fill" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="value" type="t66" id="288">
+      <Simple name="value" value="ARGB(0, 255, 255, 255)" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="259" />
+      <Simple name="PropertyName" value="Fill" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="expression" type="t65" id="289">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="259" />
+      <Simple name="PropertyName" value="StrokeThickness" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="value" type="t33" id="290">
+      <Simple name="value" value="3" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="259" />
+      <Simple name="PropertyName" value="StrokeThickness" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="expression" type="t65" id="291">
+      <Reference name="value" id="317" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="259" />
+      <Simple name="PropertyName" value="Stroke" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="value" type="t66" id="292">
+      <Simple name="value" value="ARGB(255, 0, 0, 0)" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="259" />
+      <Simple name="PropertyName" value="Stroke" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="expression" type="t65" id="293">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="259" />
+      <Simple name="PropertyName" value="Visible" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="value" type="t56" id="294">
+      <Simple name="value" value="True" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="259" />
+      <Simple name="PropertyName" value="Visible" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="expression" type="t65" id="295">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="259" />
+      <Simple name="PropertyName" value="Left" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="value" type="t33" id="296">
+      <Simple name="value" value="0" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="259" />
+      <Simple name="PropertyName" value="Left" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="expression" type="t65" id="297">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="259" />
+      <Simple name="PropertyName" value="Top" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="value" type="t33" id="298">
+      <Simple name="value" value="0" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="259" />
+      <Simple name="PropertyName" value="Top" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="expression" type="t65" id="299">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="259" />
+      <Simple name="PropertyName" value="Right" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="value" type="t33" id="300">
+      <Simple name="value" value="0" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="259" />
+      <Simple name="PropertyName" value="Right" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="expression" type="t65" id="301">
+      <Null name="value" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="259" />
+      <Simple name="PropertyName" value="Bottom" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="value" type="t33" id="302">
+      <Simple name="value" value="0" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="259" />
+      <Simple name="PropertyName" value="Bottom" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="x" type="t33" id="303">
+      <Simple name="value" value="32" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="280" />
+      <Simple name="PropertyName" value="X" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="y" type="t33" id="304">
+      <Simple name="value" value="0" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="280" />
+      <Simple name="PropertyName" value="Y" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="x" type="t33" id="305">
+      <Simple name="value" value="32" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="281" />
+      <Simple name="PropertyName" value="X" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="y" type="t33" id="306">
+      <Simple name="value" value="0" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="281" />
+      <Simple name="PropertyName" value="Y" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="x" type="t33" id="307">
+      <Simple name="value" value="32" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="282" />
+      <Simple name="PropertyName" value="X" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="y" type="t33" id="308">
+      <Simple name="value" value="0" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="282" />
+      <Simple name="PropertyName" value="Y" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="x" type="t33" id="309">
+      <Simple name="value" value="32" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="283" />
+      <Simple name="PropertyName" value="X" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="y" type="t33" id="310">
+      <Simple name="value" value="3" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="283" />
+      <Simple name="PropertyName" value="Y" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="x" type="t33" id="311">
+      <Simple name="value" value="56" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="284" />
+      <Simple name="PropertyName" value="X" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="y" type="t33" id="312">
+      <Simple name="value" value="24" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="284" />
+      <Simple name="PropertyName" value="Y" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="x" type="t33" id="313">
+      <Simple name="value" value="63" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="285" />
+      <Simple name="PropertyName" value="X" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="y" type="t33" id="314">
+      <Simple name="value" value="48" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="285" />
+      <Simple name="PropertyName" value="Y" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="x" type="t33" id="315">
+      <Simple name="value" value="63" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="286" />
+      <Simple name="PropertyName" value="X" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="y" type="t33" id="316">
+      <Simple name="value" value="80" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="286" />
+      <Simple name="PropertyName" value="Y" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="value" type="t67" id="317">
+      <Collection name="inputExpressions" type="t44" id="0">
+        <Items>
+          <Reference name="item" id="318" />
+          <Reference name="item" id="319" />
+          <Reference name="item" id="320" />
+        </Items>
+      </Collection>
+      <Simple name="EntityId" value="79396526-283e-4e66-9702-91ee6d8c43bb" />
+    </Complex>
+    <Complex name="item" type="t68" id="318">
+      <Reference name="VariableTemplate" id="32" />
+      <Collection name="inputExpressions" type="t44" id="0">
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="28ae103e-201f-40e1-b028-41dd6d8c0544" />
+    </Complex>
+    <Complex name="item" type="t69" id="319">
+      <Reference name="alpha" id="321" />
+      <Reference name="setting" id="322" />
+      <Collection name="inputExpressions" type="t44" id="0">
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="9304d594-6974-4acd-8d3d-711c4aa13c2c" />
+    </Complex>
+    <Complex name="item" type="t68" id="320">
+      <Reference name="VariableTemplate" id="36" />
+      <Collection name="inputExpressions" type="t44" id="0">
+        <Items />
+      </Collection>
+      <Simple name="EntityId" value="804659f5-3dee-4e89-82ef-bd87e20069d3" />
+    </Complex>
+    <Complex name="alpha" type="t33" id="321">
+      <Simple name="value" value="1" />
+      <Simple name="hasLocalOverride" value="False" />
+      <Reference name="Owner" id="319" />
+      <Simple name="PropertyName" value="Alpha" />
+      <Simple name="PublishEventOnChange" value="True" />
+    </Complex>
+    <Complex name="setting" type="t52" id="322">
+      <Simple name="rootEntityID" value="338eea90-fe1f-4366-88e9-f0595940860b" />
+      <Simple name="memberEntityID" value="cd729d99-e005-415c-904d-802f7f34d132" />
+    </Complex>
+    <Types>
+      <Type value="ABB.NGT.Domain.Diagram.Implementation.Model.SymbolTemplates.EquipmentSymbolTemplate, ABB.NGT.Domain.Diagram.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t0" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[ABB.NGT.Domain.Concepts.API.ISoftReference`1[[ABB.NGT.Domain.Core.API.IEquipmentType, ABB.NGT.Domain.Core.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Domain.Concepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramItems.Nodes.NodePropertyChangedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t1" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldList`3[[ABB.NGT.Domain.Diagram.API.Model.IConnectionPoint, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramChildAddedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramChildRemovedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t2" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.Diagram.API.Model.IConnectionPoint, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t3" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldList`3[[ABB.NGT.Domain.Diagram.API.Model.Events.IEvent, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramChildAddedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramChildRemovedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t4" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.Diagram.API.Model.Events.IEvent, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t5" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldList`3[[ABB.NGT.Domain.Diagram.API.Model.Variables.IVariableTemplate, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramChildAddedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramChildRemovedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t6" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.Diagram.API.Model.Variables.IVariableTemplate, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t7" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[ABB.NGT.Domain.Diagram.API.Model.GraphicalComponentCategory, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramPropertyChangedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t8" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramPropertyChangedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t9" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramPropertyChangedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t10" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramPropertyChangedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t11" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldList`3[[ABB.NGT.Domain.Diagram.API.Model.LookupTables.ILookupTable, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramChildAddedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramChildRemovedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t12" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.Diagram.API.Model.LookupTables.ILookupTable, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t13" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldList`3[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramChildAddedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramChildRemovedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t14" />
+      <Type value="System.Collections.Generic.List`1[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t15" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[System.Nullable`1[[System.DateTime, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramPropertyChangedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t16" />
+      <Type value="System.DateTime, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t17" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramPropertyChangedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t18" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldList`3[[ABB.NGT.Domain.Diagram.API.Model.SymbolTemplates.ITemplateLayer, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramChildAddedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramChildRemovedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t19" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.Diagram.API.Model.SymbolTemplates.ITemplateLayer, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t20" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[ABB.NGT.Domain.Diagram.API.Model.SymbolTemplates.SymbolType, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramPropertyChangedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t21" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldDictionary`5[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[ABB.NGT.Domain.Concepts.API.Parameters.IParameterComponent, ABB.NGT.Domain.Concepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Concepts.Contracts.Events.Parameters.ParameterPropertyChangedEvent, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Concepts.Contracts.Events.Parameters.ParameterChildAddedEvent, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Concepts.Contracts.Events.Parameters.ParameterChildRemovedEvent, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t22" />
+      <Type value="System.Collections.Generic.Dictionary`2[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[ABB.NGT.Domain.Concepts.API.Parameters.IParameterComponent, ABB.NGT.Domain.Concepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t23" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldList`3[[ABB.NGT.Domain.Concepts.API.IEntityName, ABB.NGT.Domain.Concepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Concepts.Contracts.Events.Name.NameAddedEvent, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Concepts.Contracts.Events.Name.NameRemovedEvent, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t24" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.Concepts.API.IEntityName, ABB.NGT.Domain.Concepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t25" />
+      <Type value="ABB.NGT.Domain.Concepts.Implementation.SoftReferences.TypeDataSoftReference`1[[ABB.NGT.Domain.Core.API.IEquipmentType, ABB.NGT.Domain.Core.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Domain.Concepts.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t26" />
+      <Type value="ABB.NGT.Domain.Diagram.Implementation.Model.ConnectionPoint, ABB.NGT.Domain.Diagram.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t27" />
+      <Type value="ABB.NGT.Domain.Diagram.Implementation.Model.VariableTemplate, ABB.NGT.Domain.Diagram.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t28" />
+      <Type value="ABB.NGT.Domain.Diagram.Implementation.Model.SymbolTemplates.TemplateLayer, ABB.NGT.Domain.Diagram.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t29" />
+      <Type value="ABB.NGT.Domain.Concepts.Contracts.EntityName, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t30" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramItems.Nodes.NodePropertyChangedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t31" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramItems.Nodes.NodePropertyChangedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t32" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramItems.Nodes.NodePropertyChangedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t33" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[ABB.NGT.Domain.Diagram.API.Model.Variables.IConnectivityInformation, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramPropertyChangedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t34" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[ABB.NGT.Domain.Diagram.API.Model.Expressions.IExpression, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramPropertyChangedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t35" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[ABB.NGT.Domain.Diagram.API.Model.Variables.VariableValueType, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramPropertyChangedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t36" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldList`3[[ABB.NGT.Domain.Diagram.API.Model.Actions.IAction, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramChildAddedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramChildRemovedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t37" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.Diagram.API.Model.Actions.IAction, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t38" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.ShiftableFieldList`4[[ABB.NGT.Domain.Diagram.API.Model.GraphicalElements.IGraphicalElement, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramChildAddedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramChildRemovedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramChildShiftedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t39" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.Diagram.API.Model.GraphicalElements.IGraphicalElement, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t40" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[System.String, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[ABB.NGT.Domain.Concepts.Contracts.Events.Name.NameChangedEvent, ABB.NGT.Domain.Concepts.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t41" />
+      <Type value="ABB.NGT.ToolConcepts.API.Environment.WorkspaceSettings.EntityNameType, ABB.NGT.ToolConcepts.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t42" />
+      <Type value="ABB.NGT.Domain.Diagram.Implementation.Model.Expressions.ConstantExpression`1[[System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], ABB.NGT.Domain.Diagram.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t43" />
+      <Type value="ABB.NGT.Domain.Diagram.API.Model.Expressions.IExpression[], ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t44" />
+      <Type value="ABB.NGT.Domain.Diagram.Implementation.Model.Expressions.ConstantExpression`1[[System.Int32, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089]], ABB.NGT.Domain.Diagram.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t45" />
+      <Type value="ABB.NGT.Domain.Diagram.Implementation.Model.Expressions.TopologyColorExpression, ABB.NGT.Domain.Diagram.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t46" />
+      <Type value="ABB.NGT.Domain.Diagram.Implementation.Model.Expressions.LabelColorExpression, ABB.NGT.Domain.Diagram.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t47" />
+      <Type value="ABB.NGT.Domain.Diagram.Implementation.Model.Expressions.ObjectReferenceExpression, ABB.NGT.Domain.Diagram.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t48" />
+      <Type value="ABB.NGT.Domain.Diagram.Implementation.Model.Expressions.HasEventsExpression, ABB.NGT.Domain.Diagram.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t49" />
+      <Type value="ABB.NGT.Domain.Diagram.Implementation.Model.Primitives.BezierCurve, ABB.NGT.Domain.Diagram.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t50" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.Diagram.API.Model.GraphicalElements.ITransformation, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t51" />
+      <Type value="ABB.NGT.Domain.Concepts.Implementation.SoftReferences.AggregateMemberSoftReference`2[[ABB.NGT.Domain.Diagram.API.Model.IPictureSettingsCatalog, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.API.Model.IPictureSetting`1[[System.Windows.Media.Color, PresentationCore, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]], ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Domain.Concepts.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t52" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[ABB.NGT.Domain.Diagram.API.Model.IGraphicalComponent, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramPropertyChangedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t53" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldList`3[[ABB.NGT.Domain.Diagram.API.Model.Primitives.IControlPoint, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramItems.Nodes.NodeChildAddedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramItems.Nodes.NodeChildRemovedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t54" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.Diagram.API.Model.Primitives.IControlPoint, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t55" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramItems.Nodes.NodePropertyChangedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t56" />
+      <Type value="ABB.NGT.Domain.Diagram.Implementation.Model.CustomGraphicalElementRole+CustomGraphicalElementStandaloneRole, ABB.NGT.Domain.Diagram.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t57" />
+      <Type value="ABB.NGT.Domain.Diagram.Implementation.Model.Property`2[[System.Windows.Media.Color, PresentationCore, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramItems.Nodes.NodePropertyChangedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Domain.Diagram.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t58" />
+      <Type value="ABB.NGT.Domain.Diagram.Implementation.Model.Property`2[[System.Double, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramItems.Nodes.NodePropertyChangedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Domain.Diagram.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t59" />
+      <Type value="ABB.NGT.Domain.Diagram.Implementation.Model.Property`2[[System.Boolean, mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramItems.Nodes.NodePropertyChangedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Domain.Diagram.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t60" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldList`3[[ABB.NGT.Domain.Diagram.API.Model.Events.IEvent, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.EventActionChildAddedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.EventActionChildRemovedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t61" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.FieldList`3[[ABB.NGT.Domain.Diagram.API.Model.GraphicalElements.IAnimation, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.EventActionChildAddedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.EventActionChildRemovedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t62" />
+      <Type value="System.Collections.Generic.List`1[[ABB.NGT.Domain.Diagram.API.Model.GraphicalElements.IAnimation, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" key="t63" />
+      <Type value="ABB.NGT.Domain.Diagram.Implementation.Model.Primitives.ControlPoint, ABB.NGT.Domain.Diagram.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t64" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[ABB.NGT.Domain.Diagram.API.Model.Expressions.IExpression, ABB.NGT.Domain.Diagram.API, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramItems.Nodes.NodePropertyChangedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t65" />
+      <Type value="ABB.NGT.Infrastructure.UndoRedo.Implementation.DataStructures.Field`2[[System.Windows.Media.Color, PresentationCore, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35],[ABB.NGT.Domain.Diagram.Contracts.Events.DiagramItems.Nodes.NodePropertyChangedEvent, ABB.NGT.Domain.Diagram.Contracts, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null]], ABB.NGT.Infrastructure.UndoRedo.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t66" />
+      <Type value="ABB.NGT.Domain.Diagram.Implementation.Model.Expressions.IfExpression`1[[System.Windows.Media.Color, PresentationCore, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35]], ABB.NGT.Domain.Diagram.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t67" />
+      <Type value="ABB.NGT.Domain.Diagram.Implementation.Model.Expressions.VariableExpression, ABB.NGT.Domain.Diagram.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t68" />
+      <Type value="ABB.NGT.Domain.Diagram.Implementation.Model.Expressions.PictureSettingColorExpression, ABB.NGT.Domain.Diagram.Implementation, Version=0.0.0.0, Culture=neutral, PublicKeyToken=null" key="t69" />
+    </Types>
+  </DomModel>
+</NGT>

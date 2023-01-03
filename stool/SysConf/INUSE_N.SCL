@@ -1,0 +1,205 @@
+; File: InUse.scl(v_Passed_Nets, v_Passed_Net_Lines)
+; Parameters: [v_Passed_Nets], numbers of the NET objects to be included
+;             [v_Passed_Net_Lines], numbers of the corresponding NET object lines to be included
+; Description: Constructs SCIL -level clauses for take NET configuration into use.
+; ----------------------------------------------------------------------------------------------
+
+#local   b_Continue=FALSE,-
+         v_Fields,-
+         ii
+
+@b_Create_All_Nets = TRUE
+@i_Lines_Before_InUse = length(%v_Create_Block)
+
+#if argument_count == 1 #then #block
+   @v_Passed_Nets = argument(1)
+   @b_Create_All_Nets = FALSE
+#block_end
+
+@b_Create_All_Lines = TRUE
+
+#if argument_count == 2 #then #block
+   @v_Passed_Net_Lines = argument(2)
+   @b_Create_All_Lines = FALSE
+#block_end
+
+@l_System_Configuration_Data = SYS:BSV(2)
+@t_Lon_File = l_System_Configuration_Data:vt_System_Configuration_File
+
+#if %b_Create_All_Nets #then @v_Nets = do (%Gv_SCT_Mgr__, "GetObjNrs", "BASE_SYSTEM_NODE")
+#else @v_Nets = %v_Passed_Nets
+
+@v_Node_Link_Attribute_Indices = do (%Gv_SCT_Mgr__, "GetObjAttrs", "NET_LINK")
+@v_Station_N_Attribute_Indices = do (%Gv_SCT_Mgr__, "GetObjAttrs", "NET_STATION")
+
+#loop_with i = 1 .. length(%v_Nets)
+
+   @i_Net_Number = %v_Nets(%i)
+   @b_Net_Found = false
+   @v_Node_Objects = do (%Gv_SCT_Mgr__, "GetObjNrs", "BASE_SYSTEM_NODE")
+
+   #if length(select(%v_Node_Objects, "==%i_Net_Number")) > 0 #then @b_Net_Found = TRUE
+
+   #if %b_Net_Found #then #block
+
+      @v_Net_Lines = do (%Gv_SCT_Mgr__, "GetObjNrs", "NET_LINK", %i_Net_Number)
+
+      #if not %b_Create_All_Lines #then #block
+         @v_Create_Net_Lines = %v_Passed_Net_Lines(%i)
+      #block_end
+      #else @v_Create_Net_Lines = %v_Net_Lines
+
+      #loop_with i_1 = 1 .. length(%v_Create_Net_Lines)
+
+         #if %v_Create_Net_Lines(1) <> 0 #then #block
+
+            @i_Current_Line = %v_Create_Net_Lines(%i_1)
+            @l_Read = read_parameter(%t_Lon_File, "NODE_'i_Net_Number'_LINKS", "Node_Link_'i_Current_Line'")
+   ;         #if l_Read:vstatus == 0 #then @v_Line_Objects = separate(l_Read:vvalue, ",")
+            #if %l_Read.STATUS == 0 #then #block
+            
+               @v_Line_Objects = separate(%l_Read.value, ",")
+
+               #if substr(%l_Read.VALUE, length(%l_Read.VALUE) - 1, 1) == "," #then @v_Line_Objects = %v_Line_Objects(1 .. length(%v_Line_Objects) - 1)
+    
+               #else_if substr(%l_Read.VALUE, length(%l_Read.VALUE) - 1, 1) == "+" #then b_Continue = TRUE
+      
+               #loop_with i_v = 2 .. 10000
+      
+                  @l_Read = read_parameter(%t_Lon_File, "NODE_'i_Net_Number'_LINKS", "Node_Link_'i_Current_Line'" + "_'i_v'")
+      
+                  #if %l_Read.STATUS == 0 #then #block
+      
+                     v_Fields = separate(%l_Read.VALUE, ",")
+      
+                     #loop_with ii = 1 .. length(v_Fields)
+                        #if b_Continue #then #block
+                           @v_Line_Objects(length(%v_Line_Objects)) = -
+                           substr(%v_Line_Objects(length(%v_Line_Objects)),1,length(%v_Line_Objects(length(%v_Line_Objects))) - 3 ) + substr(v_Fields(ii),2,length(v_Fields(ii))-1)
+                           b_Continue = FALSE
+                        #block_end
+                        #else #block
+                           @v_Line_Objects(length(%v_Line_Objects) + 1) = v_Fields(ii)
+                        #block_end
+                     #loop_end
+      
+                     #if substr(%l_Read.VALUE, length(%l_Read.VALUE), 1) == "-" #then #block
+      
+                        #if substr(%l_Read.VALUE, length(%l_Read.VALUE) - 1, 1) == "," #then @v_Line_Objects = %v_Line_Objects(1 .. length(%v_Line_Objects) - 1)
+                        
+                        #else_if substr(%l_Read.VALUE, length(%l_Read.VALUE) - 1, 1) == "+" #then b_Continue = TRUE
+      
+                     #block_end
+      
+                  #block_end
+                  #else #loop_exit
+      
+               #loop_end
+            
+            #block_end
+   
+            @v_In_Use = pick(%v_Line_Objects, select(%v_Node_Link_Attribute_Indices,"==""IU"""))
+            @t_Line_In_Use = %v_In_Use(1)
+            @v_Protocol = pick(%v_Line_Objects, select(%v_Node_Link_Attribute_Indices,"==""PO"""))
+            @t_Protocol = %v_Protocol(1)
+   
+            #if length(select(%v_Net_Lines, "==%i_Current_Line")) > 0 #then #block
+   
+               @v_Stations = do (%Gv_SCT_Mgr__, "GetObjNrs", "BASE_SYSTEM_STATION")
+   
+               #loop_with i_2 = 1 .. length(%v_Stations)
+   
+                  #if %v_Stations(1) <> 0 #then #block
+   
+                     @i_Station_Number = %v_Stations(%i_2)
+                     @i_Attribute_Value = do (%Gv_SCT_Mgr__, "GetAttr", "BASE_SYSTEM_STATION", %i_Station_Number, "ND")
+      
+                     #if %i_Attribute_Value == %i_Net_Number #then #block
+      
+                        @i_Station_IU = do (%Gv_SCT_Mgr__, "GetAttr", "NET_STATION", %i_Station_Number, "IU")
+                        @i_Station_LI = do (%Gv_SCT_Mgr__, "GetAttr", "NET_STATION", %i_Station_Number, "LI")
+      
+                        #if %i_Station_IU == 1 and %i_Station_LI == %i_Current_Line #then #block
+                        
+                           @v_Create_Block(length(%v_Create_Block) + 1) = "#set sta'i_Station_Number':siu='i_Station_IU'"
+                        
+                        #block_end
+      
+                     #block_end
+   
+                  #block_end
+               
+               #loop_end
+   
+               @v_Specific_LON = ("XA", "NC")
+   
+               #loop_with i_Spec_Lon = 1 .. length(%v_Specific_LON)
+   
+                  @t_LON_Attribute = %v_Specific_LON(%i_Spec_Lon)
+                  @t_Attribute_Value = do (%Gv_SCT_Mgr__, "GetAttr", "NET_LINK", %i_Current_Line, %t_LON_Attribute, %i_NET_Number, TRUE)
+   
+                  #if data_type(%t_Attribute_Value) == "VECTOR" #then #block
+   
+                     #if %t_LON_Attribute == "XA" #then @i_Offset = 6
+                     #else_if %t_LON_Attribute == "NC" #then @i_Offset = 5
+   
+                     #loop_with i_LON_Index = 1 .. length(%t_Attribute_Value)
+   
+                        @v_LON_Line = %t_Attribute_Value(%i_LON_Index)
+                        @i_Line_Index = %v_LON_Line(1)
+                        @v_Real_Line = %v_LON_Line(2 .. %i_Offset)
+                        
+                        @v_Create_Block(length(%v_Create_Block) + 1) = "#set net'i_NET_Number':s't_LON_Attribute''i_Line_Index'=" + "(" + collect(dec(%v_Real_Line, 0), ",") + ")"
+   
+                     #loop_end
+   
+                  #block_end
+   
+               #loop_end
+   
+               @t_File_Name = parse_file_name("sys_conf", "Net'i_NET_Number'_Link_'i_Current_Line'.scl")
+   
+               @i_Status = status
+               #error ignore
+                  @v_Read = read_text(%t_File_Name)
+               #error stop
+               @i_Status = status
+   
+               #if %i_Status == 0 #then #block
+   
+                  @v_Create_Block(length(%v_Create_Block) + 1) = "@i_Status = do (read_text(""'t_File_Name'""), 'i_NET_Number', 'i_Current_Line')"
+   
+               #block_end
+               #if %i_Current_Line <> 13 #then #block
+   
+                  @v_Create_Block(length(%v_Create_Block) + 1) = "#set net'i_NET_Number':siu'i_Current_Line'='t_Line_In_Use'"
+   
+               #block_end
+   
+            #block_end
+
+         #block_end
+
+      #loop_end
+
+      @t_File_Name = parse_file_name("sys_conf", "Net'i_NET_Number'.scl")
+   
+      @i_Status = status
+      #error ignore
+         @v_Read = read_text(%t_File_Name)
+      #error stop
+      @i_Status = status
+   
+      #if %i_Status == 0 #then #block
+      
+         @v_Create_Block(length(%v_Create_Block) + 1) = "@i_Status = do (read_text(""'t_File_Name'""), 'i_NET_Number')"
+   
+      #block_end
+
+   #block_end
+
+#loop_end
+
+#if length(%v_Create_Block) > %i_Lines_Before_InUse #then #block
+   @v_Create_Block(%i_Lines_Before_InUse + 1 ..) = pick(%v_Create_Block(%i_Lines_Before_InUse + 1 ..), sort(%v_Create_Block(%i_Lines_Before_InUse + 1 ..)))
+#block_end

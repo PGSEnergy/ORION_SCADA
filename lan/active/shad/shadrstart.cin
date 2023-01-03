@@ -1,0 +1,123 @@
+; SHADOW - REMOTE SHADOWING START REQUEST
+;
+; INPUT PARAMETERS:
+;            %APL    - APPLICATION
+;            %RT     - WHEN LAST HOT ( 0 = NEVER HOT )
+
+#IF (APL'APL':BAS <> "COLD") #THEN @LOCAPL = -1
+#ELSE #BLOCK
+   #CASE APL'APL':BSS
+      #WHEN "NONE"    @LOCAPL = TRUNC(SHADLOCAPL:D(%APL))
+      #WHEN "RECEIVE" @LOCAPL = 999
+      #OTHERWISE      @LOCAPL = -1
+   #CASE_END
+#BLOCK_END
+#CASE %LOCAPL
+   #WHEN 0   
+   #WHEN 1 #BLOCK   ; APPLICATION READY FOR SHADOWING
+      #SET SHADLOCAPL:D(%APL) = 2
+      #DO SHADRESAPL:C
+      #IF SHADHOT:DOS(%APL) == 0 #THEN #BLOCK
+         @MY_RT = SHADHOT:DRT(%APL)
+      #BLOCK_END
+      #ELSE #BLOCK
+         @MY_RT = 0
+      #BLOCK_END
+      #IF (%MY_RT == 0) AND (%RT == 0) #THEN #BLOCK
+          NEITHER APPLICATION HAS BEEN HOT ??? (APL='APL')
+      #BLOCK_END         ; IF (%MY_RT == 0) AND (%RT == 0)
+      #ELSE_IF %MY_RT > %RT #THEN #BLOCK
+         #ERROR CONTINUE
+         #EXEC SHADLSTART:'EWAPL'C (@APL=%ETAPL,@ESS="HOT_SEND")
+         @STATUS = STATUS
+         #SET APL'APL':BSS = "HOT_SEND"
+         #SET APL'APL':BAS = "HOT"
+         #ERROR STOP
+         @STATUS = STATUS
+         #IF %STATUS == 0 #THEN #BLOCK
+            #EXEC SHADHOT:C
+            #EXEC SHADMAPNET:C (@APL = %APL)
+            #EXEC SHADMAPMON:C (@APL = %APL)
+            #EXEC SHADLOG:C (@APL=%APL,-
+                             @RT=SYS_TIME,-
+                             @TEXT="APPLICATION AND SHADOWING STARTED")
+         #BLOCK_END         ; IF STATUS == 0
+         #ELSE #BLOCK
+            #SET APL'APL':BSS = "NONE"
+            #EXEC SHADLOG:C (@APL=%APL,-
+                             @RT=SYS_TIME,-
+                             @TEXT="APPLICATION AND SHADOWING START FAILED ('STATUS')")
+         #BLOCK_END
+      #BLOCK_END         ; IF %MY_RT > %RT
+      #ELSE_IF %MY_RT == %RT #THEN #BLOCK
+         @MY_SA = SYS:BSA
+         #ERROR CONTINUE
+         @SA = SYS:'EWAPL'BSA
+         #ERROR IGNORE
+         #IF %MY_SA > %SA #THEN #BLOCK
+            #ERROR CONTINUE
+            #EXEC SHADLSTART:'EWAPL'C (@APL=%ETAPL,@ESS="HOT_SEND")
+            @STATUS = STATUS
+            #SET APL'APL':BSS = "HOT_SEND"
+            #SET APL'APL':BAS = "HOT"
+            #ERROR STOP
+            #IF STATUS == 0 #THEN #BLOCK
+               #EXEC SHADHOT:C
+               #EXEC SHADMAPNET:C (@APL = %APL)
+               #EXEC SHADMAPMON:C (@APL = %APL)
+               #EXEC SHADLOG:C (@APL=%APL,-
+                                @RT=SYS_TIME,-
+                                @TEXT="APPLICATION AND SHADOWING STARTED")
+            #BLOCK_END         ; IF STATUS == 0
+            #ELSE #BLOCK
+               #SET APL'APL':BSS = "NONE"
+               #EXEC SHADLOG:C (@APL=%APL,-
+                                @RT=SYS_TIME,-
+                                @TEXT="APPLICATION AND SHADOWING START FAILED ('STATUS')")
+            #BLOCK_END
+         #BLOCK_END         ; IF %MY_SA > %S
+         #ELSE #BLOCK
+            #ERROR CONTINUE
+            #DO SHADRCVINI:C
+            #SET APL'APL':BSS = "RECEIVE"
+            #EXEC SHADLSTART:'EWAPL'C (@APL=%ETAPL,@ESS="RECEIVE")
+            #EXEC SHADLOG:C (@APL=%APL,-
+                             @RT=SYS_TIME,-
+                             @TEXT="RECEIVER STARTED")
+            #ERROR STOP
+         #BLOCK_END
+         #BLOCK_END
+      #ELSE #BLOCK
+         #ERROR CONTINUE
+         #DO SHADRCVINI:C
+         #SET APL'APL':BSS = "RECEIVE"
+         #EXEC SHADLSTART:'EWAPL'C (@APL=%ETAPL,@ESS="RECEIVE")
+         #EXEC SHADLOG:C (@APL=%APL,-
+                          @RT=SYS_TIME,-
+                          @TEXT="RECEIVER STARTED")
+         #ERROR STOP
+      #BLOCK_END
+      #SET SHADLOCAPL:D(%APL) = 1
+      #BLOCK_END
+   #WHEN 2 #BLOCK    ; APPLICATION TEMPORARILY BUSY
+      #IF DATA_TYPE(%COUNT) == "NONE" #THEN @COUNT = 0
+      @COUNT = %COUNT + 1
+      #IF %COUNT < 60 #THEN #EXEC_AFTER 1 SHADRSTART:C (@APL=%APL,@RT=%RT,@COUNT=%COUNT)
+      #BLOCK_END
+   #WHEN 10 #BLOCK   ; APPLICATION WAITING FOR SHADOWING START
+      #EXEC SHADRSTART:C (@APL=%APL,@RT=%RT)
+      #SET SHADLOCAPL:D(%APL) = 1
+      #BLOCK_END
+   #WHEN 999 #BLOCK   ; APPLICATION ALREADY IN RECEIVING STATE
+      #SET SHADLOCAPL:D(%APL) = 2
+      #DO SHADRESAPL:C
+      #ERROR CONTINUE
+      #EXEC SHADLSTART:'EWAPL'C (@APL=%ETAPL,@ESS="RECEIVE")
+      #ERROR STOP
+      #SET SHADLOCAPL:D(%APL) = 1
+      #BLOCK_END
+#CASE_END
+
+
+
+

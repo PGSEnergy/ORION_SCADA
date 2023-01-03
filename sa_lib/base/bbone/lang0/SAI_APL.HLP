@@ -1,0 +1,104 @@
+SYSTEM SELF SUPERVISION
+APPLICATION FUNCTION
+
+1. Generally, in order to operate, the System Self
+Supervision requires that environmental
+requirements related to the system configuration are
+specified as described in the System Self Supervision
+manuals.
+
+2. Configurable attributes
+
+It is important to configure attributes in the order
+of appearance since setting one attribute may
+enable/disable and/or reset another attribute
+later.
+
+AUTHORIZATION_GROUP
+
+A selector type of an editable combo-box to
+select the authorization group for the object. The
+maximum length of the text is 63 characters. The
+given text has to be usable as a SCIL list
+attribute name (see SCIL Programming manual).
+The contents of the selection list is taken from the
+existing authorization groups.
+
+NOTE! The name may not be composed of two
+letters followed by a number.
+
+The attribute needs to be defined, if the object is
+wanted to be included in some authorization group.
+The authorization level of each user in this group
+can be defined afterwards by the system manager with
+the User Management pictures.
+
+APL_NUMBER
+   The physical number of the supervised
+   application. Valid numbers: 1..250.
+
+   NOTE! By default the current application
+   number is displayed.
+
+If the application is situated in another
+MicroSCADA base system computer
+(APL<apl.number>:BTT = "EXTERNAL"), the
+state of the application is read from the "remote"
+base system.
+
+HOT_STAND_BY
+   Indicates whether the system is a single or a hot
+   stand-by (warm- stand by) system. If the
+   HOT_STAND_BY is enabled, the following
+   attributes are enabled:
+
+      - NODE_NUMBER
+      - EXT_WD_APL_NR
+
+NODE_NUMBER
+   The node number of the MicroSCADA base system
+   containing the supervised application. If the
+   node number is other than the current node
+   (SYS:BSD), the state of the application is read
+   via the Watch Dog application of the "remote"
+   base system. Valid numbers: 1..250. The
+   configurable attribute is significant only in
+   hot stand-by (warm stand-by) systems.
+
+   NOTE! By default the current node is
+   displayed.
+
+EXT_WD_APL_NR
+   The logical number of the Watch Dog
+   application in the "remote" (i.e. other than the
+   current) base system, "adjacent watch dog".
+   Valid numbers: 1..250. The configurable
+   attribute is significant only in hot stand-by
+   (warm stand-by) systems.
+
+
+3. Information Dialogs
+
+As the application object is being configured, the
+Information dialogs may be displayed in case the
+system configuration does not exist or the system
+configuration includes attribute value
+definitions that do not allow all the diagnostic
+available for the System Self Supervision.
+
+4. Process Objects
+
+The database objects related to the application
+object is created automatically either in
+background as OK or Apply button is being clicked
+or by the use of System Configuration Tool. More
+information can be found in the System Self
+Supervision manuals.
+
+5. Delete Tool
+
+With delete Tool it is possible the delete the
+process objects related to application supervision
+function. In addition references to the application
+is removed from SSS configuration (SSSCONF.INI). 
+

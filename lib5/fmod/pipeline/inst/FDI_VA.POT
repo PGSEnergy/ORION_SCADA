@@ -1,0 +1,42 @@
+;------------------------------------------------------------------------------------
+; Rev. 
+; 0.00     2012.3.30   NN    Initial
+;-----------------------------------------------------------------
+;create object texts. These are keys that are to be found from text database (FD_LANG_TEXTS.SDB)
+
+;read object texts
+#CREATE FPI_SSW:V = LIST(-
+   AI2DB_COMMENT = "Updates DB from AI",-
+   BI22DB_COMMENT = "Updates DB from two BIs - 1",-
+   BI2DB_COMMENT = "Updates DB from a single BI",-
+   CB_AUX_PLUG = "Valve auxiliary plug",-
+   CB_CANCEL_CMD = "Valve cancel command",-
+   CB_CLOSE_EXEC = "Valve close execute command",-
+   CB_CLOSE_ILOCKED = "Valve open interlocked",-
+   CB_CLOSE_IND = "Valve close indication",-
+   CB_CLOSE_SEL = "Valve close select command",-
+   CB_CMD_EVENT = "Valve command event",-
+   CB_EXEC_CMD = "Valve execute command",-
+   CB_EXT_CNTR_BLK = "Valve device control block",-
+   CB_FAULTY_IND = "Valve faulty indication",-
+   CB_ILOCK_CAUSE = "Cause of interlocking",-
+   CB_OBJ_CMD = "Valve command",-
+   CB_OPEN_EXEC = "Valve open execute command",-
+   CB_OPEN_ILOCKED = "Valve close interlocked",-
+   CB_OPEN_IND = "Valve open indication",-
+   CB_OPEN_SEL = "Valve open select command",-
+   CB_POS_IND = "Valve position indication",-
+   CB_SEL_ON_MON = "Valve selected on monitor",-
+   CB_SYN_CMD = "Valve synch. bypass command",-
+   CB_SYN_IND = "Valve Synchrocheck",-
+   INTL_CAUSE = "Calculated interlocking cause",-
+   SETDB_COMMENT = "Updates DB from two BIs - 2",-
+   UPDATE_COMMENT = "Used for updating objects from the process")
+
+;ob
+@EH_PT3  = "FD_FORM5_3_7"
+@EH_PT5  = "FD_FORM5_5_1"
+@EH_PT12 = "FD_FORM5_12_10"
+
+;execute common DS%% code
+#DO READ_TEXT("F5_INST/FDI_DS.POT",1,10000)

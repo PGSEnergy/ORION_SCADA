@@ -1,0 +1,33 @@
+; Adds a message to the message log.
+; Arguments:
+;    1 - text or text vector, the message;
+;        text strings must not exceed 200 characters.
+;        The last string must also count status,
+;        if status argument is supplied.
+;    2 - text, the message type:
+;        "CRITICAL", "CAUTION", "INFORMATION"
+;   [3] - integer, status to attach to the message,
+;         or text, text representation of status
+; Return value:
+;    integer status of write operation.
+; Globals:
+;    see DMT_MAIN
+
+@v_Log_Text = argument(1)
+@t_Log_Type = argument(2)
+@x_Status = argument(3)
+
+@x_Status = EDIT("'x_Status'", "TRIM")
+#if %x_Status <> "" #then -
+   @x_Status = " @P_STATUS|'x_Status'"
+
+#if DATA_TYPE(%v_Log_Text) == "TEXT" #then -
+   @v_Log_Text = VECTOR(%v_Log_Text)
+@v_Log_Text(LENGTH(%v_Log_Text)) = %v_Log_Text(LENGTH(%v_Log_Text)) + %x_Status
+@t_Log_Prefix = DEC(YEAR, 4) + SUBSTR(TIMES, 3, 0) + -
+   " @S_" + SUBSTR(UPPER_CASE(%t_Log_Type), 1, 11)
+@v_Log_Text(1) = %t_Log_Prefix + " " + %v_Log_Text(1)
+#if LENGTH(%v_Log_Text) > 1 #then -
+   @v_Log_Text(2..LENGTH(%v_Log_Text)) = -
+      SUBSTR("", 1, LENGTH(%t_Log_Prefix) + 1) + %v_Log_Text(2..)
+#return WRITE_TEXT(%gt_Log_File, %v_Log_Text, 1)

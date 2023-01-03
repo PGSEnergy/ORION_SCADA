@@ -1,0 +1,51 @@
+
+STATION_LR_IN_USE
+
+An ON/OFF type of a toggle button to select if
+the station local/remote-switch is in use, i.e. a
+physical switch exists.
+
+As a default the station local/remote-switch is in
+use.
+
+If this selection is set to OFF, the control
+authority is given to everyone whose personal
+authorization level is high enough for the control
+actions. This is gained by setting the state (value)
+of the station local/remote-switch permanently
+out of use.
+
+The process object for station local/remote-switch
+is created regardless of the selection. If the
+station local/remote-switch is NOT in use, the
+process object should be left as it is created, i.e.
+switching state (SS) to manual and value (DB)
+as 3 (out of use).
+
+IND_DOUBLE_BINARY
+
+An ON/OFF type of a toggle button to select,
+if the type of the station local/remote-switch
+indication is double binary. This selection is being
+disabled and it has no meaning if the station
+local/remote-switch is not in use, i.e.
+STATION_LR_IN_USE is not set.
+
+LR_REMOTELY_CONTROLLABLE
+
+An ON/OFF type of a toggle button to select if
+the station local/remote-switch can be
+controlled remotely by SCS/MicroSCADA.
+
+As a default the station local/remote-switch is
+defined as manually controllable only.
+
+It is typical that if there is a remote control for
+station local/remote- switch, shift between station
+and remote can be done remotely, whereas shift to or
+from local has to be performed locally. This
+can be achieved by setting the attribute SS
+(switching state) of the local command process
+object to OFF (0). By setting the SS-attribute
+to 0 will make relevant radio-button on dialog
+insensitive for selections.

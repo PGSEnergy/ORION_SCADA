@@ -1,0 +1,2164 @@
+﻿APPLICATION: MAIN
+20-01-19 10:45:17
+
+------------------------------
+--------- SYS_APLER ----------
+------------------------------
+IU:1, TC:, EP:255, PE:1, PQ:4, HN:0
+
+; Command Procedure: SYS_APLER
+; Version: SYS 600 9.3 
+; Description: This is command procedure for receiving APL_EVENT events
+;              Note! if %SOURCE is "UN", this procedure is executed, if ENABLE_STATION_EVENTS -switch 
+;                    is enabled in SSS_Setup.scl
+; --------------------------------------------------------------------------------
+
+;read in general info
+@l_General_Info = APL:BSV45
+
+#case %SOURCE
+
+   #when "UN" #block
+   
+      #if l_General_Info:vENABLE_STATION_EVENTS #then #block
+      
+         ;read in object data
+         @l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectAttributes", "STATION", %SOURCE_NR)
+      
+         #if l_Obj_Data:vSTATUS == 0 #then #if l_Obj_Data:vINDICATION_PRIMARY <> "#" #then #block ; 1
+      
+            ;read in filtering info
+            @l_Filtering_Info = do(apl:bsv40, "SSS", "GetFilterAttributes", "APL_EVENT", %SOURCE, %EVENT)
+      
+            ;write to log, event/alarm activation
+            #if l_Filtering_Info:vSTATUS == 0 #then #block ; 2
+      
+               ;write to log, if requested
+               #if l_Filtering_Info:vLOG and l_General_Info:vENABLE_LOG #then -
+                  @i_Log_Write = do(apl:bsv40, "SSS", "WriteLogItem", "STE", "EVENT_STA")
+      
+               ;activate event, if requested
+               #if l_Filtering_Info:vEVENT and l_General_Info:vENABLE_EVENT #then #block
+                  @l_Event_Point = do(apl:bsv40, "SSS", "GetEvents", "EVENT", "STATION", %SOURCE_NR, list(SOURCE = %SOURCE, EVENT = %EVENT))
+      
+                  #if l_Event_Point:vSTATUS == 0 #then #set 'l_Event_Point:vEVENT' = 1
+                  #else #block
+                     @l_Event_Point = do(apl:bsv40, "SSS", "CreateProcessObject", "STATION", "EVENT", %SOURCE_NR, list(SOURCE = %SOURCE, EVENT = %EVENT))
+                     #set 'l_Event_Point:vEVENT' = 1
+                  #block_end      
+               #block_end
+      
+               ;activate alarm, if requested
+               #if l_Filtering_Info:vALARM and l_General_Info:vENABLE_ALARM #then #block
+                  @l_Alarm_Point = do(apl:bsv40, "SSS", "GetEvents", "ALARM", "STATION", %SOURCE_NR, list(SOURCE = %SOURCE, EVENT = %EVENT))
+      
+                  #if l_Alarm_Point:vSTATUS == 0 #then #set 'l_Alarm_Point:vALARM' = abs(1 - 'l_Alarm_Point:vALARM')
+                  #else #block
+                     @l_Alarm_Point = do(apl:bsv40, "SSS", "CreateProcessObject", "STATION", "ALARM", %SOURCE_NR, list(SOURCE = %SOURCE, EVENT = %EVENT))
+                     #set 'l_Alarm_Point:vALARM' = 1
+                  #block_end      
+               #block_end   
+      
+            #block_end ; 2
+               #else_if l_Filtering_Info:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_apler:c]", l_Filtering_Info:vDESCRIPTIVE_TEXT)
+      
+            ;update indication point
+            @i_Timeout = timeout(l_General_Info:vTIMEOUT_LENGTH)
+            #error ignore
+               @i_Status = status
+               @i_IU = STA'SOURCE_NR':SIU
+            #error stop
+            @i_Timeout = timeout(%i_Timeout)
+      
+            #if status == 0 #then #block
+               #if %i_IU == 0 #then #set 'l_Obj_Data:vINDICATION_PRIMARY' = -1
+               #else #block
+                  #if l_Filtering_Info:vSTATUS == 0 #then #block
+                     #if l_Filtering_Info:vALARM #then #set 'l_Obj_Data:vINDICATION_PRIMARY' = 10
+                        #else #set 'l_Obj_Data:vINDICATION_PRIMARY' = 0
+                  #block_end
+                  #else_if l_Filtering_Info:vSTATUS < 0 #then #set 'l_Obj_Data:vINDICATION_PRIMARY' = 0
+                  #else #block
+                     #error ignore
+                        @i_OV = 1
+                        @i_OV = 'l_Obj_Data:vINDICATION_PRIMARY'
+                     #error stop
+                     #set 'l_Obj_Data:vINDICATION_PRIMARY' = list(OV = %i_OV, OS = 4)
+                  #block_end
+               #block_end
+            #block_end
+            #else #block
+               #error ignore
+                  @i_OV = 1
+                  @i_OV = 'l_Obj_Data:vINDICATION_PRIMARY'
+               #error stop
+               #set 'l_Obj_Data:vINDICATION_PRIMARY' = list(OV = %i_OV, OS = 4)
+            #block_end
+      
+         #block_end ; 1
+            #else_if l_Obj_Data:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_apler:c]", l_Obj_Data:vDESCRIPTIVE_TEXT)
+      
+      #block_end
+   #block_end ;UN
+   #when "APL" #block
+
+      @b_HSB_Partner = False
+      @NODE = SYS:BND
+      
+      @l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectAttributes", "APPLICATION", %SOURCE_NR)
+      #if l_Obj_Data:VSTATUS <> 0 #then #block 
+         @l_Tmp_Data = do(apl:bsv40, "SSS", "GetObjectAttributes", "APPLICATION", APL'SOURCE_NR':BTN)
+         #if l_Tmp_Data:VSTATUS == 0 #then #block 
+            #if locate(l_Tmp_Data:vCX, "HSB") > 0 #then #block
+               @NODE = APL'SOURCE_NR':BND
+               @l_Obj_Data = %l_Tmp_Data
+               @b_HSB_Partner = True
+            #block_end
+         #block_end
+      #block_end
+      
+      #if l_Obj_Data:vSTATUS == 0 and %NODE <> SYS:BND #then #block
+         
+         @l_Presentation_Object = do(apl:bsv40, "SSS", "GetLogicalNameAndIndex", l_Obj_Data:vPresentation)
+   
+         #if %b_HSB_Partner #then #set l_Presentation_Object:vIX = %NODE * 100 + APL'SOURCE_NR':BTN + 1000
+        
+         #if l_Obj_Data:vPresentation <> "#" #then #block     
+            
+            @t_Presentation_Object = "'l_Presentation_Object:vLN':P'l_Presentation_Object:vIX'"    
+             
+            @i_Value = - 1
+            #case %EVENT
+               #when "AS_CHANGED" #block
+                  #case %AS
+                     #when "COLD" @i_Value = 1
+                     #when "WARM" @i_Value = 2
+                     #when "HOT" @i_Value = 3
+                     #otherwise @i_Value = -1
+                  #case_end
+               #block_end
+               #when "SP_CHANGED" #block
+                  #case %SP
+                     #when "NONE" @i_Value = -1
+                     #when "TO_WARM_SD" @i_Value = 5
+                     #when "WARM_SD" @i_Value = 6
+                     #when "TO_HOT_SD" @i_Value = 7               
+                     #when "HOT_SD" @i_Value = 8
+                     #when "TO_WARM_RC" @i_Value = 9
+                     #when "WARM_RC" @i_Value = 10
+                     #when "TO_HOT_RC" @i_Value = 11
+                     #when "HOT_RC" @i_Value = 12
+                     #otherwise @i_Value = -1
+                  #case_end
+               #block_end
+               #when "FOUND" #block
+                  @l_Obj_Data = APL:BDS(%SOURCE_NR)
+                  #if l_Obj_Data:vSTATUS == 0 #then #block
+                     #if %b_HSB_Partner #then #block
+                        #case l_Obj_Data:vSP
+                           #when "NONE" @i_Value = -1
+                           #when "TO_WARM_SD" @i_Value = 5
+                           #when "WARM_SD" @i_Value = 6
+                           #when "TO_HOT_SD" @i_Value = 7               
+                           #when "HOT_SD" @i_Value = 8
+                           #when "TO_WARM_RC" @i_Value = 9
+                           #when "WARM_RC" @i_Value = 10
+                           #when "TO_HOT_RC" @i_Value = 11
+                           #when "HOT_RC" @i_Value = 12
+                           #otherwise @i_Value = -1
+                        #case_end
+                     #block_end
+                     #else #block
+                        #case l_Obj_Data:vAS
+                           #when "NONE" @i_Value = 0
+                           #when "COLD" @i_Value = 1
+                           #when "WARM" @i_Value = 2
+                           #when "HOT"  @i_Value = 3
+                        #case_end
+                     #block_end
+                  #block_end
+               #block_end
+               #when "LOST" #block
+                  @i_Value = 13
+               #block_end
+               #otherwise @i_Value = -1
+            #case_end
+            #if application_object_exists(0, "IX", LIST(LN="'l_Presentation_Object:vLN'", IX=l_Presentation_Object:vIX)) #then -
+                 #if %i_Value <> -1 #then #set 't_Presentation_Object' = %i_Value
+         #block_end
+      #block_end
+   #block_end ;APL
+   #when "HOST" #block
+   
+   #block_end
+   #When "IMAGE" #block
+   
+   #block_end
+#case_end
+
+------------------------------
+--------- SYS_INIT_1 ---------
+------------------------------
+IU:1, TC:, EP:255, PE:0, PQ:0, HN:0
+
+; File: SYS_INIT_1.SCL
+; Description: Starts PCNET after application start
+;              DO NOT EDIT! - This procedure is updated automatically
+;              Note! Source code for command procedure SYS_INIT_1:C
+; -------------------------------------------------------------------
+
+@l_System_Configuration = SYS:BSV2
+
+#if data_type(%l_System_Configuration) == "LIST" #then #block
+
+   #if substr(upper_case(SYS:BPR), 1, 3) == "SMS" or substr(upper_case(SYS:BPR), 1, 3) == "CAP" #then #block
+
+      #set l_System_Configuration:vl_System_Start_Time = hr_clock
+      #set SYS:BSV2 = %l_System_Configuration
+
+   #block_end
+
+#block_end
+
+; System Self Supervision 2.x initialization
+#if application_object_count(0, "C", "", "", "", "LN == ""SYS_SSSREV""") > 0 #then #block
+   #if application_object_count(0, "C", "", "", "", "LN == ""SYS_SSSRT""") > 0 #then #exec sys_sssrt:c
+#block_end
+
+; System Configuration for PC-NET start-up
+#if substr(upper_case(SYS:BPR), 1, 3) <> "SMS" and substr(upper_case(SYS:BPR), 1, 3) <> "CAP" #then #block
+
+   #On ERROR #Block
+      @i_Status = status
+      @i_Status = Do(Read_Text("Sys_Tool/msglog.scl"),-
+                     "ERROR",-
+                     "Could not execute PC_NET start file, StartPCNET.scl (SYS_INIT_1:C)",-
+                     %i_Status)
+      #Error 't_Error_State'
+   #Block_End
+   #Error Event
+
+;ID3140 Begin
+;   @b_Status = Do(Read_Text("Sys_Tool/StartPCNET.scl"))
+;
+   @l_System_Configuration_Data = SYS:BSV(2)
+   @b_allow = TRUE
+   #if data_type(%l_System_Configuration_Data) == "LIST" #then #block 
+      #if length(select(list_attr(%l_System_Configuration_Data), -
+         "==""B_CONF_MECH_IN_USE""")) > 0 #then #block
+         #if l_System_Configuration_Data:vb_Conf_Mech_In_Use #then #block
+            @t_Configuration_File = l_System_Configuration_Data:vt_System_Configuration_File
+            @i_appl_pcnet_owner = read_parameter(%t_Configuration_File, "*", -
+                                           "Application_Owner")
+            #if i_appl_pcnet_owner:Vstatus == 0 #then #block
+               @appl_own = i_appl_pcnet_owner:Vvalue
+               #error ignore
+                  @appl_own = DEC_SCAN(%appl_own)
+               #error stop
+               #if status == 0 #then #block
+                  #if  %appl_own <> APL:BAN AND APL'appl_own':BAS == "HOT" #then @b_allow = FALSE
+               #block_end
+            #block_end
+         #block_end
+         #else @b_allow = FALSE
+      #block_end
+   #block_end
+   #if %b_allow #then #block
+               
+      @i_Delay_Time = 0 ; Default delay time is 0 s
+      @l_Ini_Read = read_parameter(%t_Configuration_File, "*", "PCNET_Initial_Delay")
+      #if l_Ini_Read:vSTATUS == 0 #then @i_Delay_Time = dec_scan(l_Ini_Read:vVALUE)
+      #pause %i_Delay_Time                  
+
+      @b_Status = Do(Read_Text("Sys_Tool/StartPCNET.scl"))
+   #block_end
+;ID3140 End
+
+#block_end
+
+------------------------------
+--------- SYS_NET3D ----------
+------------------------------
+IU:1, TC:, EP:255, PE:0, PQ:0, HN:0
+
+; Command Procedure: SYS_NET'NET_NR'D
+; Description: Handles system messages from the PCNET
+;              DO NOT EDIT! - This procedure is updated automatically
+; -----------------------------------------------------------------
+
+@l_System_Configuration_Data = SYS:BSV(2)
+@i_Net_Number = 'LN':PRI'IX'
+
+#Case %AI
+   #When 10001 #Block;     NET STARTED - Start configuration
+
+      @i_Status = do (read_text("Sys_Tool/Create_C.scl"), "NET", %i_Net_Number)
+      
+   #Block_End
+#Case_End
+
+------------------------------
+--------- SYS_NETLMR ---------
+------------------------------
+IU:1, TC:, EP:255, PE:1, PQ:4, HN:0
+
+; Command Procedure: SYS_NETLMR
+; Version: SYS 600 9.3
+; Description: This is command procedure for receiving system messages for NET lines
+; -----------------------------------------------------------------------------------
+
+;read in general info
+@l_General_Info = APL:BSV45
+
+@ENABLE_ANALOG_MODEL = TRUE
+#if attribute_exists(%l_General_Info, "ENABLE_ANALOG_MODEL") #then @ENABLE_ANALOG_MODEL = l_General_Info:vENABLE_ANALOG_MODEL
+
+#if %ENABLE_ANALOG_MODEL #then #block
+
+#if 'LN':PPT(%IX) == 3 and 'LN':POA(%IX) >= 16777216 #then #block
+   ;use binary object for events and alarms
+#block_end
+#else #block ;read in object data
+   @l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectDefinitions", "ROUTINGS_NODE_LINK", %LN, %IX)
+   
+   #if l_Obj_Data:vSTATUS == 0 #then #if l_Obj_Data:vINDICATION <> "#" #then #block ; 1
+   
+      ;read in filtering info
+      @l_Filtering_Info = do(apl:bsv40, "SSS", "GetFilterAttributes", "SYS_MSG_LINE_'l_Obj_Data:vPO'", trunc(%OV))
+      
+      ;write to log, event/alarm activation
+      #if l_Filtering_Info:vSTATUS == 0 #then #block ; 2
+   
+         ;write to log, if requested
+         #if l_Filtering_Info:vLOG and l_General_Info:vENABLE_LOG #then -
+            @i_Log_Write = do(apl:bsv40, "SSS", "WriteLogItem", "STE", "MSG_LINE")
+   
+         ;activate event, if requested
+         #if l_Filtering_Info:vEVENT and l_General_Info:vENABLE_EVENT #then #block
+            @l_Event_Point = do(apl:bsv40, "SSS", "GetEvents", "EVENT", "NODE_LINK", l_Obj_Data:vND, list(EVENT = trunc(%OV)), l_Obj_Data:vNUMBER)
+            
+            #if l_Event_Point:vSTATUS == 0 #then #set 'l_Event_Point:vEVENT' = 1
+            #else #block
+               @l_Event_Point = do(apl:bsv40, "SSS", "CreateProcessObject", "NODE_LINK", "EVENT",l_Obj_Data:vND, list(EVENT = trunc(%OV)), l_Obj_Data:vNUMBER)
+               #set 'l_Event_Point:vEVENT' = 1
+            #block_end      
+         #block_end
+         
+         ;activate alarm, if requested
+         #if l_Filtering_Info:vALARM and l_General_Info:vENABLE_ALARM #then #block
+            @l_Alarm_Point = do(apl:bsv40, "SSS", "GetEvents", "ALARM", "NODE_LINK", l_Obj_Data:vND, list(EVENT = trunc(%OV)), l_Obj_Data:vNUMBER)
+            
+            #if l_Alarm_Point:vSTATUS == 0 #then #set 'l_Alarm_Point:vALARM' = abs(1 - 'l_Alarm_Point:vALARM')
+            #else #block
+               @l_Alarm_Point = do(apl:bsv40, "SSS", "CreateProcessObject", "NODE_LINK", "ALARM", l_Obj_Data:vND, list(EVENT = trunc(%OV)), l_Obj_Data:vNUMBER)
+               #set 'l_Alarm_Point:vALARM' = 1
+            #block_end      
+         #block_end   
+      
+      #block_end ; 2
+         #else_if l_Filtering_Info:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netlmr:c]", l_Filtering_Info:vDESCRIPTIVE_TEXT)
+   
+      ;update indication point
+      @i_Timeout = timeout(l_General_Info:vTIMEOUT_LENGTH)
+      #error ignore
+         @i_Status = status
+         @i_IU = NET'l_Obj_Data:vND':SIU'l_Obj_Data:vNUMBER'
+      #error stop
+      @i_Timeout = timeout(%i_Timeout)   
+      
+      #if status == 0 #then #block
+         #if %i_IU == 0 #then #set 'l_Obj_Data:vINDICATION' = -1
+         #else #block
+            #if l_Filtering_Info:vSTATUS == 0 #then #block
+               #if l_Filtering_Info:vALARM #then #set 'l_Obj_Data:vINDICATION' = 10
+                  #else #set 'l_Obj_Data:vINDICATION' = 0
+            #block_end
+            #else_if l_Filtering_Info:vSTATUS < 0 #then #set 'l_Obj_Data:vINDICATION' = 0
+            #else #block
+               #error ignore
+                  @i_OV = 1
+                  @i_OV = 'l_Obj_Data:vINDICATION'
+               #error stop
+               #set 'l_Obj_Data:vINDICATION' = list(OV = %i_OV, OS = 4)
+            #block_end
+         #block_end
+      #block_end
+      #else #block
+         #error ignore
+            @i_OV = 1
+            @i_OV = 'l_Obj_Data:vINDICATION'
+         #error stop
+         #set 'l_Obj_Data:vINDICATION' = list(OV = %i_OV, OS = 4)
+      #block_end
+   
+   #block_end ; 1
+      #else_if l_Obj_Data:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netlmr:c]", l_Obj_Data:vDESCRIPTIVE_TEXT)
+#block_end
+#block_end
+
+------------------------------
+--------- SYS_NETMR ----------
+------------------------------
+IU:1, TC:, EP:255, PE:1, PQ:4, HN:0
+
+; Command Procedure: SYS_NETMR
+; Version: SYS 600 9.3
+; Description: This is command procedure for receiving system messages for NETs
+; ------------------------------------------------------------------------------
+
+;read in general info
+@l_General_Info = APL:BSV45
+
+@ENABLE_ANALOG_MODEL = TRUE
+#if attribute_exists(%l_General_Info, "ENABLE_ANALOG_MODEL") #then @ENABLE_ANALOG_MODEL = l_General_Info:vENABLE_ANALOG_MODEL
+
+#if %ENABLE_ANALOG_MODEL #then #block
+
+;read in object data
+@l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectDefinitions", "ROUTINGS_NODE", %LN, %IX)
+
+#if l_Obj_Data:vSTATUS == 0 #then #if l_Obj_Data:vINDICATION <> "#" #then #block ; 1
+
+   ;read in filtering info
+   @l_Filtering_Info = do(apl:bsv40, "SSS", "GetFilterAttributes", "SYS_MSG_NET_'l_Obj_Data:vTYPE'", trunc(%OV))
+
+   ;write to log, event/alarm activation
+   #if l_Filtering_Info:vSTATUS == 0 #then #block ; 2
+
+      ;write to log, if requested
+      #if l_Filtering_Info:vLOG and l_General_Info:vENABLE_LOG #then -
+         @i_Log_Write = do(apl:bsv40, "SSS", "WriteLogItem", "STE", "MSG_NET")
+
+      ;activate event, if requested
+      #if l_Filtering_Info:vEVENT and l_General_Info:vENABLE_EVENT #then #block
+         @l_Event_Point = do(apl:bsv40, "SSS", "GetEvents", "EVENT", "NODE", l_Obj_Data:vNUMBER, list(EVENT = trunc(%OV)))
+         
+         #if l_Event_Point:vSTATUS == 0 #then #set 'l_Event_Point:vEVENT' = 1
+         #else #block
+            @l_Event_Point = do(apl:bsv40,"SSS","CreateProcessObject", "NODE", "EVENT", l_Obj_Data:vNUMBER, list(EVENT = trunc(%OV)))
+            #set 'l_Event_Point:vEVENT' = 1
+         #block_end      
+      #block_end
+      
+      ;activate alarm, if requested
+      #if l_Filtering_Info:vALARM and l_General_Info:vENABLE_ALARM #then #block
+         @l_Alarm_Point = do(apl:bsv40, "SSS", "GetEvents", "ALARM", "NODE", l_Obj_Data:vNUMBER, list(EVENT = trunc(%OV)))
+         
+         #if l_Alarm_Point:vSTATUS == 0 #then #set 'l_Alarm_Point:vALARM' = abs(1 - 'l_Alarm_Point:vALARM')
+         #else #block
+            @l_Alarm_Point = do(apl:bsv40, "SSS", "CreateProcessObject", "NODE", "ALARM", l_Obj_Data:vNUMBER, list(EVENT = trunc(%OV)))
+            #set 'l_Alarm_Point:vALARM' = 1
+         #block_end
+      #block_end
+   
+   #block_end ; 2
+      #else_if l_Filtering_Info:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netmr:c]", l_Filtering_Info:vDESCRIPTIVE_TEXT)
+   
+   ;update indication point
+   #if l_Filtering_Info:vSTATUS == 0 #then #block
+      #if l_Filtering_Info:vALARM #then #set 'l_Obj_Data:vINDICATION' = 10
+         #else #set 'l_Obj_Data:vINDICATION' = 0
+   #block_end
+   #else_if l_Filtering_Info:vSTATUS < 0 and l_Obj_Data:vTYPE == "MFL" #then #block
+      #if %OV > 0 and %OV < 100 #then #set 'l_Obj_Data:vINDICATION' = 10   ;for redundant frontend pairs
+         #else #set 'l_Obj_Data:vINDICATION' = 0
+   #block_end
+   #else_if l_Filtering_Info:vSTATUS < 0 and l_Obj_Data:vTYPE <> "MFL" #then #set 'l_Obj_Data:vINDICATION' = 0
+   #else #block
+      #error ignore
+         @i_OV = 1
+         @i_OV = 'l_Obj_Data:vINDICATION'
+      #error stop
+      #set 'l_Obj_Data:vINDICATION' = list(OV = %i_OV, OS = 4)
+   #block_end
+
+   ;update NET info (in case of NET start-up)
+   #if %OV == 10001 #then #block
+      #error ignore
+         @l_Apl_Bsv = APL:BSV46
+      #error stop
+      
+      #if data_type(%l_Apl_Bsv) <> "LIST" #then @l_Apl_Bsv = list()
+      #if l_Obj_Data:vTYPE <> "61850NET" #then #block
+         #set l_Apl_Bsv:v'l_Obj_Data:vTYPE''l_Obj_Data:vNUMBER'_RM = 0
+         #set APL:BSV46 = %l_Apl_Bsv
+      #block_end
+   #block_end
+   
+#block_end ; 1
+   #else_if l_Obj_Data:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netmr:c]", l_Obj_Data:vDESCRIPTIVE_TEXT)
+#block_end
+
+------------------------------
+--------- SYS_NETSR ----------
+------------------------------
+IU:1, TC:SYS_NETSR, EP:255, PE:1, PQ:4, HN:0
+
+; Command Procedure: SYS_NETSR
+; Version: SYS 600 9.3
+; Description: This is command procedure for NET supervision
+; -----------------------------------------------------------
+
+;read in node numbers
+@l_Node_Numbers = do(APL:BSV40, "SSS", "GetObjectNumbers", "NODE")
+
+#if l_Node_Numbers:vSTATUS == 0 #then #if length(l_Node_Numbers:vDATA) > 0 #then #block ; 1
+
+   ;read in general info
+   @l_General_Info = APL:BSV45
+   
+   ;define communication unit status
+   #loop_with i_Nodes = 1 .. length(l_Node_Numbers:vDATA)
+   
+      ;read in node and link number
+      @i_Node_Number = l_Node_Numbers:vDATA(%i_Nodes)
+      @i_Link_Number = NOD'i_Node_Number':BLI
+      
+      ;read in node attributes
+      @l_Node_Attr = do(APL:BSV40, "SSS", "GetObjectAttributes", "NODE", %i_Node_Number)
+      
+      #if l_Node_Attr:vSTATUS == 0 and %i_Link_Number <> 0 #then #block ; 2
+         
+         ;read in link type
+         @i_Link_Type = LIN'i_Link_Number':BLT
+
+         ;communication unit status      
+         #case upper_case(l_Node_Attr:vTYPE)
+
+            #when "BASE SYSTEM" #block ;#1
+
+               @i_Timeout = timeout(l_General_Info:vTIMEOUT_LENGTH)
+               #error ignore
+                  @i_Status = status
+                  @i_IU = NOD'i_Node_Number':BSA
+               #error stop
+               @i_Timeout = timeout(%i_Timeout)
+
+               #if status == 0 #then @i_Sys_State = 0 ;In use, ok
+                  #else @i_Sys_State = 10 ;In use, error
+
+               #if l_Node_Attr:vINDICATION_PRIMARY <> "#" #then #block
+
+                  ;update SYS state
+                  #set 'l_Node_Attr:vINDICATION_PRIMARY' = %i_Sys_State
+
+               #block_end
+
+            #block_end ;#1
+
+            #when "61850NET" #block ;#1
+
+               @i_SE = 0
+
+               ;status of comm. unit
+               #if %i_Link_Type == "LAN" #then #block ;#2_1
+
+                  @i_Timeout = timeout(l_General_Info:vTIMEOUT_LENGTH)
+                  @i_Status = status
+                  #error ignore
+                     @i_SE = NOD'i_Node_Number':SSE
+                  #error stop
+                  @i_Status = status
+                  @i_Timeout = timeout(%i_Timeout)
+                  
+                  #if %i_Status == 0 #then @i_Net_State = 1 ;OK
+                     #else @i_Net_State = 0 ;Error
+
+               #block_end ;#2_1
+               #else @i_Net_State = 0 ;In use, error
+
+               #if attribute_exists(%l_General_Info, "ENABLE_BINARY_MODEL") #then #block
+
+               #if l_General_Info:vENABLE_BINARY_MODEL #then #block
+
+                  ;read in indication state
+                  #error ignore
+                     @i_OV_Net = 1
+                     @i_OV_Net = 'l_Node_Attr:vROUTING_SECONDARY'
+                  #error stop
+                  @i_Status = status
+
+                  ;update indication state, if changes...
+                  #if %i_OV_Net <> %i_Net_State #then #block ; 2_2
+
+                     #if %i_Net_State == 0 #then #block
+
+                        ;NET itself
+                        #if l_Node_Attr:vROUTING_SECONDARY <> "#" #then #set 'l_Node_Attr:vROUTING_SECONDARY' = 0
+
+                        ;Stations
+                        @l_Station_Numbers = do(apl:bsv40, "SSS", "GetStationNumbers", "NODE", %i_Node_Number)
+                        #if l_Station_Numbers:vSTATUS == 0 #then #block
+
+                           #loop_with i_Station = 1 .. length(l_Station_Numbers:vDATA)
+                              @i_Station_Number = l_Station_Numbers:vDATA(%i_Station)
+                              @l_Station_Attr = do(apl:bsv40, "SSS", "GetObjectAttribute", "STATION", %i_Station_Number, "ROUTING_SECONDARY")
+                              #if l_Station_Attr:vSTATUS == 0 #then #set 'l_Station_Attr:vROUTING_SECONDARY' = 0
+                              #else_if l_Station_Attr:VSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Station_Attr:vDESCRIPTIVE_TEXT)
+                           #loop_end
+
+                        #block_end
+                        #else_if l_Station_Numbers:vSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Station_Numbers:vDESCRIPTIVE_TEXT)
+
+                     #block_end                  
+                     #else #block
+                        #set net'i_Node_Number':sos = 1
+
+                        ;Stations
+                        @l_Station_Numbers = do(apl:bsv40, "SSS", "GetStationNumbers", "NODE", %i_Node_Number)
+                        #if l_Station_Numbers:vSTATUS == 0 #then #block
+
+                           #loop_with i_Station = 1 .. length(l_Station_Numbers:vDATA)
+                              @i_Station_Number = l_Station_Numbers:vDATA(%i_Station)
+                              @l_Station_Attr = do(apl:bsv40, "SSS", "GetObjectAttribute", "STATION", %i_Station_Number, "ROUTING_SECONDARY")
+                              #if l_Station_Attr:vSTATUS == 0 #then -
+                                 #if (STA'i_Station_Number':SOS==0 and STA'i_Station_Number':SIU==1) #then #set 'l_Station_Attr:vROUTING_SECONDARY' = 1
+                           #loop_end
+
+                        #block_end
+                        #else_if l_Station_Numbers:vSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Station_Numbers:vDESCRIPTIVE_TEXT)
+
+                     #block_end
+                  #block_end
+               #block_end
+               #block_end
+
+               @ENABLE_ANALOG_MODEL = TRUE
+               #if attribute_exists(%l_General_Info, "ENABLE_ANALOG_MODEL") #then @ENABLE_ANALOG_MODEL = l_General_Info:vENABLE_ANALOG_MODEL
+
+               #if %ENABLE_ANALOG_MODEL #then #block
+
+                  @i_SE = 0
+
+                  ;status of comm. unit
+                  #if %i_Link_Type == "LAN" #then #block ;#2_1
+
+                     @i_Timeout = timeout(l_General_Info:vTIMEOUT_LENGTH)
+                     @i_Status = status
+                     #error ignore
+                        @i_SE = NOD'i_Node_Number':SSE
+                     #error stop
+                     @i_Status = status
+                     @i_Timeout = timeout(%i_Timeout)
+                  
+                     #if %i_Status == 0 #then @i_Net_State = 0 ;In use, ok
+                        #else @i_Net_State = 10 ;In use, error
+
+                  #block_end ;#2_1
+                  #else @i_Net_State = -1 ;Not in use
+
+                  ;read in indication state
+                  #error ignore
+                     @i_OV_Net = -10
+                     @i_OV_Net = 'l_Node_Attr:vINDICATION_PRIMARY'
+                  #error stop
+                  @i_Status = status
+
+                  ;update indication state, if changes...
+                  #if %i_OV_Net <> %i_Net_State #then #block ; 2_2
+
+                     ;NET itself
+                     #if l_Node_Attr:vINDICATION_PRIMARY <> "#" #then #set 'l_Node_Attr:vINDICATION_PRIMARY' = %i_Net_State
+
+                     ;Stations
+                     @l_Station_Numbers = do(apl:bsv40, "SSS", "GetStationNumbers", "NODE", %i_Node_Number, l_Node_Attr:vCX)
+                     #if l_Station_Numbers:vSTATUS == 0 #then #block
+
+                        #loop_with i_Station = 1 .. length(l_Station_Numbers:vDATA)
+                           @i_Station_Number = l_Station_Numbers:vDATA(%i_Station)
+                           @l_Station_Attr = do(apl:bsv40, "SSS", "GetObjectAttribute", "STATION", %i_Station_Number, "INDICATION_PRIMARY")
+                           #if l_Station_Attr:vSTATUS == 0 #then #set 'l_Station_Attr:vINDICATION_PRIMARY' = %i_Net_State
+                              #else_if l_Station_Attr:VSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Station_Attr:vDESCRIPTIVE_TEXT)
+                        #loop_end
+
+                     #block_end
+                       #else_if l_Station_Numbers:vSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Station_Numbers:vDESCRIPTIVE_TEXT)
+
+                  #block_end ; 2_2
+   
+               #block_end
+
+            #block_end
+
+            #when "PCNET" #block ;#1
+
+               ;status of comm. unit
+               #if %i_Link_Type == "INTEGRATED" or %i_Link_Type == "LAN" #then #block ; 2_1         SYS-3002 HoDa 1.4.2015
+               
+                  @i_Timeout = timeout(l_General_Info:vTIMEOUT_LENGTH)
+                  #error ignore
+                     @i_Status = status
+                     @i_IU = NOD'i_Node_Number':SSA
+                  #error stop
+                  @i_Status = status
+                  @i_Timeout = timeout(%i_Timeout)
+                  
+                  #if status == 0 #then @i_Net_State = 0 ;In use, ok
+                     #else @i_Net_State = 10 ;In use, error
+               
+               #block_end ;2_1
+               #else @i_Net_State = -1 ;Not in use  
+
+               #if attribute_exists(%l_General_Info, "ENABLE_BINARY_MODEL") #then #block
+
+               #if l_General_Info:vENABLE_BINARY_MODEL #then #block
+
+                  #if %i_Net_State == 10 or %i_Net_State == -1 #then #block
+
+                     ;NET itself
+                     #if l_Node_Attr:vROUTING_SECONDARY <> "#" #then #set 'l_Node_Attr:vROUTING_SECONDARY' = 0
+
+                     ;NET lines
+                     @l_Node_Link_Attr = do(apl:bsv40, "SSS", "GetObjectNumbers", "NODE_LINK", %i_Node_Number)
+                     #if l_Node_Link_Attr:vSTATUS == 0 #then #block
+
+                        #loop_with i_Line = 1 .. length(l_Node_Link_Attr:vDATA)
+                           @i_Line_Number = l_Node_Link_Attr:vDATA(%i_Line)
+                           @l_Line_Attr = do(apl:bsv40, "SSS", "GetObjectAttribute", "NODE_LINK", %i_Line_Number, "ROUTING_SECONDARY", %i_Node_Number)
+                           #if l_Line_Attr:vSTATUS == 0 #then #set 'l_Line_Attr:vROUTING_SECONDARY' = 0
+                           #else_if l_Line_Attr:VSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Line_Attr:vDESCRIPTIVE_TEXT)
+                        #loop_end        
+
+                     #block_end
+                     #else_if l_Node_Link_Attr:vSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Node_Link_Attr:vDESCRIPTIVE_TEXT)
+
+                     ;NET stations
+                     @l_Station_Numbers = do(apl:bsv40, "SSS", "GetStationNumbers", "NODE", %i_Node_Number, l_Node_Attr:vCX)
+                     #if l_Station_Numbers:vSTATUS == 0 #then #block
+
+                        #loop_with i_Station = 1 .. length(l_Station_Numbers:vDATA)
+                           @i_Station_Number = l_Station_Numbers:vDATA(%i_Station)
+                           @l_Station_Attr = do(apl:bsv40, "SSS", "GetObjectAttribute", "STATION", %i_Station_Number, "ROUTING_SECONDARY")
+                           #if l_Station_Attr:vSTATUS == 0 #then #set 'l_Station_Attr:vROUTING_SECONDARY' = 0
+                           #else_if l_Station_Attr:VSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Station_Attr:vDESCRIPTIVE_TEXT)
+                        #loop_end
+
+                     #block_end
+                     #else_if l_Station_Numbers:vSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Station_Numbers:vDESCRIPTIVE_TEXT)
+
+                  #block_end
+
+               #block_end
+
+               #block_end
+
+               @ENABLE_ANALOG_MODEL = TRUE
+               #if attribute_exists(%l_General_Info, "ENABLE_ANALOG_MODEL") #then @ENABLE_ANALOG_MODEL = l_General_Info:vENABLE_ANALOG_MODEL
+
+               #if %ENABLE_ANALOG_MODEL #then #block
+
+                  #case %i_Net_State
+                     
+                     #when -1, 10 #block ; #1_1
+                        
+                        ;read in indication state
+                        #error ignore
+                           @i_OV_Net = -10
+                           @i_OV_Net = 'l_Node_Attr:vINDICATION_PRIMARY'
+                        #error stop
+                        @i_Status = status
+                        
+                        ;update indication state, if changes...
+                        #if %i_OV_Net <> %i_Net_State #then #block ; 2_2
+                        
+                           ;NET itself
+                           #if l_Node_Attr:vINDICATION_PRIMARY <> "#" #then #block
+                              
+                              ;update NET state
+                              #set 'l_Node_Attr:vINDICATION_PRIMARY' = %i_Net_State
+                           
+                              ;update NET info
+                              #error ignore
+                                 @l_Apl_Bsv = APL:BSV46
+                              #error stop
+                              @i_Status = status
+   
+                              #if data_type(%l_Apl_Bsv) <> "LIST" #then @l_Apl_Bsv = list()
+                              #set l_Apl_Bsv:v'l_Node_Attr:vTYPE''i_Node_Number'_RM = -1
+                              #set APL:BSV46 = %l_Apl_Bsv
+                           
+                           #block_end
+                           
+                           ;NET lines
+                           @l_Node_Link_Attr = do(apl:bsv40, "SSS", "GetObjectNumbers", "NODE_LINK", %i_Node_Number)
+                           #if l_Node_Link_Attr:vSTATUS == 0 #then #block
+      
+                              #loop_with i_Line = 1 .. length(l_Node_Link_Attr:vDATA)
+                                 @i_Line_Number = l_Node_Link_Attr:vDATA(%i_Line)
+                                 @l_Line_Attr = do(apl:bsv40, "SSS", "GetObjectAttribute", "NODE_LINK", %i_Line_Number, "INDICATION_PRIMARY", %i_Node_Number)
+                                 #if l_Line_Attr:vSTATUS == 0 #then #set 'l_Line_Attr:vINDICATION_PRIMARY' = %i_Net_State
+                                    #else_if l_Line_Attr:VSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Line_Attr:vDESCRIPTIVE_TEXT)
+                              #loop_end        
+   
+                           #block_end
+                              #else_if l_Node_Link_Attr:vSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Node_Link_Attr:vDESCRIPTIVE_TEXT)
+                     
+                           ;Stations
+                           @l_Station_Numbers = do(apl:bsv40, "SSS", "GetStationNumbers", "NODE", %i_Node_Number, l_Node_Attr:vCX)
+                           #if l_Station_Numbers:vSTATUS == 0 #then #block
+   
+                              #loop_with i_Station = 1 .. length(l_Station_Numbers:vDATA)
+                                 @i_Station_Number = l_Station_Numbers:vDATA(%i_Station)
+                                 @l_Station_Attr = do(apl:bsv40, "SSS", "GetObjectAttribute", "STATION", %i_Station_Number, "INDICATION_PRIMARY")
+                                 #if l_Station_Attr:vSTATUS == 0 #then #set 'l_Station_Attr:vINDICATION_PRIMARY' = %i_Net_State
+                                    #else_if l_Station_Attr:VSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Station_Attr:vDESCRIPTIVE_TEXT)
+                              #loop_end
+   
+                           #block_end
+                             #else_if l_Station_Numbers:vSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Station_Numbers:vDESCRIPTIVE_TEXT)
+   
+                        #block_end ; 2_2
+                     
+                     #block_end ; #1_1
+                     
+                     #when 0 #block ; #1_2
+                          
+                        ;NET itself
+                        #if l_Node_Attr:vINDICATION_PRIMARY <> "#" #then #set 'l_Node_Attr:vINDICATION_PRIMARY' = %i_Net_State
+                                            
+                        ;NET lines
+                        @l_Node_Link_Attr = do(apl:bsv40, "SSS", "GetObjectNumbers", "NODE_LINK", %i_Node_Number)
+                        #if l_Node_Link_Attr:vSTATUS == 0 #then #block ; 2_3
+                        
+                           #loop_with i_Line = 1 .. length(l_Node_Link_Attr:vDATA)
+                           
+                              @i_Line_Number = l_Node_Link_Attr:vDATA(%i_Line)
+                              @l_Line_Attr = do(apl:bsv40, "SSS", "GetObjectAttribute", "NODE_LINK", %i_Line_Number, "INDICATION_PRIMARY", %i_Node_Number)
+                              #if l_Line_Attr:vSTATUS == 0 #then #block ; 2_3_1
+     
+                                 ;read in line definitions                       
+                                 @i_Timeout = timeout(l_General_Info:vTIMEOUT_LENGTH)
+                                 #error ignore
+                                    @i_Status = status
+                                    @i_IU = NET'i_Node_Number':SIU'i_Line_Number'
+                                 #error stop
+                                 @i_Timeout = timeout(%i_Timeout)
+                                 
+                                 ;status of line
+                                 #if status == 0 #then #block
+                                    #if %i_IU == 0 #then @i_Line_State = -1 ;Not in use
+                                       #else @i_Line_State = 0 ;In use, ok
+                                 #block_end
+                                    #else @i_Line_State = 1 ;Undefined
+                                 
+                                 ;read in indication state
+                                 #error ignore
+                                    @i_OV_Line = -10
+                                    @i_OV_Line = 'l_Line_Attr:vINDICATION_PRIMARY'
+                                 #error stop
+                                 
+                                 ;update indication state, if changes...
+                                 #if %i_OV_Line <> %i_Line_State or get_status(%i_OV_Line) <> 0 #then #block
+                                    #case %i_Line_State
+                                       #when -1 #set 'l_Line_Attr:vINDICATION_PRIMARY' = %i_Line_State
+                                       #when 0 #if %i_OV_Line <> 10 or get_status(%i_OV_Line) <> 0 #then #set 'l_Line_Attr:vINDICATION_PRIMARY' = %i_Line_State
+                                       #when 1 #set 'l_Line_Attr:vINDICATION_PRIMARY' = list(OV = %i_OV_Line, OS = 4)
+                                    #case_end    
+                                 #block_end
+                                 
+                              #block_end ; 2_3_1
+                                 #else_if l_Line_Attr:VSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Line_Attr:vDESCRIPTIVE_TEXT)
+                                 
+                           #loop_end
+               
+                        #block_end ; 2_3
+                           #else_if l_Node_Link_Attr:vSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Node_Link_Attr:vDESCRIPTIVE_TEXT)
+   
+                     #block_end ; #1_2
+                  #case_end
+               #block_end
+
+            #block_end ; 1
+            
+            #when "DCPNET", "MFL" #block ; #2
+ 
+               ;a redundant frontend
+               #if l_Node_Attr:vTYPE == "MFL" and locate(l_Node_Attr:vCX, "REDUNDANT") > 0 #then #block
+
+                  ;status of comm. unit
+                  #if %i_Link_Type <> "NONE" #then #block ; 2_1
+
+                     @i_Timeout = timeout(l_General_Info:vTIMEOUT_LENGTH)
+                     #error ignore
+                        @i_Status = status
+                        @i_RM = NET'i_Node_Number':SRM
+                        @i_SH = NET'i_Node_Number':SSH
+                     #error stop
+                     @i_Timeout = timeout(%i_Timeout)
+
+                     #if status == 0 #then @i_Net_State = 0 ;In use, ok
+                        #else @i_Net_State = 10 ;In use, error
+
+                  #block_end ; 2_1
+                     #else @i_Net_State = -1 ;Not in use 
+
+                  ;read in redundant MFL history
+                  #error ignore
+                     @i_Status = status
+                     @l_Apl_Bsv = APL:BSV46
+                     @l_MFL_History = l_Apl_Bsv:vMFL'i_Node_Number'_REDUNDANCY
+                  #error stop
+                  
+                  #if status <> 0 #then @l_MFL_History = list(RM = 3, SH = 3)
+                  
+                  ;update MFL history
+                  #if data_type(%l_Apl_Bsv) <> "LIST" #then @l_Apl_Bsv = list()
+                  
+                  #if %i_Net_State == 0 #then #modify l_Apl_Bsv:v = list(MFL'i_Node_Number'_REDUNDANCY = list(RM = %i_RM, SH = %i_SH))
+                     #else #modify l_Apl_Bsv:v = list(MFL'i_Node_Number'_REDUNDANCY = list(RM = 3, SH = 3))
+                  
+                  #set APL:BSV46 = %l_Apl_Bsv
+                  
+                  ;define object update tag
+                  #if l_MFL_History:vRM == 1 #then @b_Object_Update = TRUE
+                     #else @b_Object_Update = FALSE
+
+               #block_end
+
+               ;a single frontend or DCP-NET
+               #else #block
+
+                  ;status of comm. unit
+                  #if %i_Link_Type <> "NONE" #then #block ; 2_1
+
+                     @i_Timeout = timeout(l_General_Info:vTIMEOUT_LENGTH)
+                     #error ignore
+                        @i_Status = status
+                        @i_RM = NET'i_Node_Number':SRM
+                     #error stop
+                     @i_Timeout = timeout(%i_Timeout)
+
+                     #if status == 0 #then @i_Net_State = 0 ;In use, ok
+                        #else @i_Net_State = 10 ;In use, error
+
+                  #block_end ; 2_1
+                     #else @i_Net_State = -1 ;Not in use 
+
+                  ;define object update tag
+                  @b_Object_Update = TRUE
+                  
+               #block_end
+                                 
+               ;update indication states              
+               #case %i_Net_State
+                  
+                  #when -1, 10 #block ; #2_1
+                     
+                     ;read in indication state
+                     #error ignore
+                        @i_OV_Net = -10
+                        @i_OV_Net = 'l_Node_Attr:vINDICATION_PRIMARY'
+                     #error stop
+                     
+                     ;update indication state, if changes...
+                     #if %i_OV_Net <> %i_Net_State #then #block ; 2_2
+                     
+                        ;NET itself
+                        #if l_Node_Attr:vINDICATION_PRIMARY <> "#" #then #block
+                           
+                           ;update NET state
+                           #set 'l_Node_Attr:vINDICATION_PRIMARY' = %i_Net_State
+                        
+                           ;update NET info
+                           #error ignore
+                              @l_Apl_Bsv = APL:BSV46
+                           #error stop
+
+                           #if data_type(%l_Apl_Bsv) <> "LIST" #then @l_Apl_Bsv = list()
+                           #set l_Apl_Bsv:v'l_Node_Attr:vTYPE''i_Node_Number'_RM = -1
+                           #set APL:BSV46 = %l_Apl_Bsv
+                        
+                        #block_end
+                        
+                        ;NET lines
+                        @l_Node_Link_Attr = do(apl:bsv40, "SSS", "GetObjectNumbers", "NODE_LINK", %i_Node_Number)
+                        #if l_Node_Link_Attr:vSTATUS == 0 #then #block
+   
+                           #loop_with i_Line = 1 .. length(l_Node_Link_Attr:vDATA)
+                              @i_Line_Number = l_Node_Link_Attr:vDATA(%i_Line)
+                              @l_Line_Attr = do(apl:bsv40, "SSS", "GetObjectAttribute", "NODE_LINK", %i_Line_Number, "INDICATION_PRIMARY", %i_Node_Number)
+                              #if l_Line_Attr:vSTATUS == 0 #then #set 'l_Line_Attr:vINDICATION_PRIMARY' = %i_Net_State
+                                 #else_if l_Line_Attr:VSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Line_Attr:vDESCRIPTIVE_TEXT)
+                           #loop_end        
+
+                        #block_end
+                           #else_if l_Node_Link_Attr:vSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Node_Link_Attr:vDESCRIPTIVE_TEXT)
+                  
+                        ;Stations and printers (if object update enabled, see redundancy information)
+                        #if %b_Object_Update #then #block
+                        
+                           ;Stations
+                           @l_Station_Numbers = do(apl:bsv40, "SSS", "GetStationNumbers", "NODE", %i_Node_Number, l_Node_Attr:vCX)
+                           #if l_Station_Numbers:vSTATUS == 0 #then #block
+   
+                              #loop_with i_Station = 1 .. length(l_Station_Numbers:vDATA)
+                                 @i_Station_Number = l_Station_Numbers:vDATA(%i_Station)
+                                 @l_Station_Attr = do(apl:bsv40, "SSS", "GetObjectAttribute", "STATION", %i_Station_Number, "INDICATION_PRIMARY")
+                                 #if l_Station_Attr:vSTATUS == 0 #then #set 'l_Station_Attr:vINDICATION_PRIMARY' = %i_Net_State
+                                    #else_if l_Station_Attr:VSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Station_Attr:vDESCRIPTIVE_TEXT)
+                              #loop_end
+   
+                           #block_end
+                             #else_if l_Station_Numbers:vSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Station_Numbers:vDESCRIPTIVE_TEXT)
+   
+                           ;Printers
+                           @l_Printer_Numbers = do(apl:bsv40, "SSS", "GetPrinterNumbers", "NODE", %i_Node_Number, l_Node_Attr:vCX)
+                           #if l_Printer_Numbers:vSTATUS == 0 #then #block
+   
+                              #loop_with i_Printer = 1 .. length(l_Printer_Numbers:vDATA)
+                                 @i_Printer_Number = l_Printer_Numbers:vDATA(%i_Printer)
+                                 @l_Printer_Attr = do(apl:bsv40, "SSS", "GetObjectAttribute", "PRINTER", %i_Printer_Number, "INDICATION_PRIMARY")
+                                 #if l_Printer_Attr:vSTATUS == 0 #then #set 'l_Printer_Attr:vINDICATION_PRIMARY' = %i_Net_State
+                                    #else_if l_Station_Attr:VSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Station_Attr:vDESCRIPTIVE_TEXT)
+                              #loop_end
+   
+                           #block_end
+                             #else_if l_Printer_Numbers:vSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Station_Numbers:vDESCRIPTIVE_TEXT)
+
+                        #block_end
+                        
+                     #block_end ; 2_2
+                  
+                  #block_end ; #2_1
+                  
+                  #when 0 #block ; #2_2
+
+                     ;NET itself
+                     #if l_Node_Attr:vTYPE == "MFL" and locate(l_Node_Attr:vCX, "REDUNDANT") > 0 #then #block
+                        ;indication for NET state
+                        #if l_Node_Attr:vINDICATION_PRIMARY <> "#" #then #set 'l_Node_Attr:vINDICATION_PRIMARY' = %i_Net_State
+
+                        ;indication for redundant NET state
+                        #if l_Node_Attr:vINDICATION_SECONDARY <> "#" #then #block
+                           #if get_status('l_Node_Attr:vINDICATION_SECONDARY') == 10 #then #set 'l_Node_Attr:vINDICATION_SECONDARY' = %i_Net_State
+                           #else_if l_MFL_History:vRM <> %i_RM or l_MFL_History:vSH <> %i_SH #then #block
+                              ;update redundancy state
+                              @l_Event_Object = do(apl:bsv40, "SSS", "GetLogicalNameAndIndex", l_Node_Attr:vINDICATION_SECONDARY)
+                              @t_Event_Object = "'l_Event_Object:vLN':E'l_Event_Object:vIX'"
+                              #exec 't_Event_Object'
+                           #block_end
+                        #block_end
+                     #block_end
+                        #else_if l_Node_Attr:vINDICATION_PRIMARY <> "#" #then #set 'l_Node_Attr:vINDICATION_PRIMARY' = %i_Net_State
+
+                     ;NET lines
+                     @l_Node_Link_Attr = do(apl:bsv40, "SSS", "GetObjectNumbers", "NODE_LINK", %i_Node_Number)
+                     #if l_Node_Link_Attr:vSTATUS == 0 #then #block ;2_3
+                     
+                        #loop_with i_Line = 1 .. length(l_Node_Link_Attr:vDATA)
+                        
+                           @i_Line_Number = l_Node_Link_Attr:vDATA(%i_Line)
+                           @l_Line_Attr = do(apl:bsv40, "SSS", "GetObjectAttribute", "NODE_LINK", %i_Line_Number, "INDICATION_PRIMARY", %i_Node_Number)
+                           #if l_Line_Attr:vSTATUS == 0 #then #block ; 2_3_1
+                           
+                              ;initialize variables
+                              @v_PO = vector(1,2,4)   ;ACP, ANSI x3.28 and ASCII protocol for printer
+                              @i_PO = 0
+                              
+                              ;read in line definitions
+                              @i_Timeout = timeout(l_General_Info:vTIMEOUT_LENGTH)
+                              #error ignore
+                                 @i_Status = status
+                                 @i_IU = NET'i_Node_Number':SIU'i_Line_Number'
+                                 @i_PO = NET'i_Node_Number':SPO'i_Line_Number'
+                              #error stop
+                              @i_Timeout = timeout(%i_Timeout)
+                              
+                              ;status of line
+                              #if status == 0 #then #block
+                                 #if %i_IU == 0 #then @i_Line_State = -1 ;Not in use
+                                    #else @i_Line_State = 0 ;In use, ok
+                              #block_end
+                                 #else @i_Line_State = 1 ;Undefined
+                              
+                              ;read in indication state
+                              #error ignore
+                                 @i_OV_Line = -10
+                                 @i_OV_Line = 'l_Line_Attr:vINDICATION_PRIMARY'
+                              #error stop
+                              
+                              ;update indication state, if changes...
+                              #if (%i_OV_Line <> %i_Line_State or get_status(%i_OV_Line) <> 0) or length(select(%v_PO, "== %i_PO")) == 1 #then #block
+                                 #case %i_Line_State
+                                    #when -1 #set 'l_Line_Attr:vINDICATION_PRIMARY' = %i_Line_State
+                                    #when 0 #block
+                                       #if length(select(%v_PO, "== %i_PO")) == 1 #then #block
+                                          @i_SG = 100 * %i_Line_Number + 8
+
+                                          @i_Timeout = timeout(l_General_Info:vTIMEOUT_LENGTH)
+                                          #error ignore
+                                             @i_SG_State = NET'i_Node_Number':SSG'i_SG'
+                                          #error stop
+                                          @i_Timeout = timeout(%i_Timeout)
+
+                                          #if %i_SG_State == 1 #then #set 'l_Line_Attr:vINDICATION_PRIMARY' = 0
+                                             #else #set 'l_Line_Attr:vINDICATION_PRIMARY' = 10
+                                       #block_end
+                                          #else_if %i_OV_Line <> 10 or get_status(%i_OV_Line) <> 0 #then #set 'l_Line_Attr:vINDICATION_PRIMARY' = %i_Line_State
+                                    #block_end                                   
+                                    #when 1 #set 'l_Line_Attr:vINDICATION_PRIMARY' = list(OV = %i_OV_Line, OS = 4)
+                                 #case_end    
+                              #block_end
+                              
+                           #block_end ; 2_3_1
+                              #else_if l_Line_Attr:VSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Line_Attr:vDESCRIPTIVE_TEXT)
+                              
+                        #loop_end        
+            
+                     #block_end ; 2_3
+                        #else_if l_Node_Link_Attr:vSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Node_Link_Attr:vDESCRIPTIVE_TEXT)
+               
+                     ;Printers (in case of NET start-up)
+                     #error ignore
+                        @i_Status = status
+                        @l_Apl_Bsv = APL:BSV46
+                        @i_Net_Mode = l_Apl_Bsv:v'l_Node_Attr:vTYPE''i_Node_Number'_RM
+                     #error stop
+                     
+                     #if status == 0 #then #if %i_Net_Mode == 0 #then #block ; 2_4
+                        @l_Printer_Numbers = do(apl:bsv40, "SSS", "GetPrinterNumbers", "NODE", %i_Node_Number, l_Node_Attr:vCX)
+                        #if l_Printer_Numbers:vSTATUS == 0 #then #block
+
+                           @b_Update_Net_Info = TRUE
+                           #loop_with i_Printer = 1 .. length(l_Printer_Numbers:vDATA)
+                              @i_Printer_Number = l_Printer_Numbers:vDATA(%i_Printer)
+
+                              @i_Timeout = timeout(l_General_Info:vTIMEOUT_LENGTH)
+                              #error ignore
+                                 @i_Status = status
+                                 #set PRI'i_Printer_Number':SOS = 1
+                              #error stop
+                              @i_Timeout = timeout(%i_Timeout)
+                              
+                              #if status <> 0 #then #block
+                                 @b_Update_Net_Info = FALSE
+                                 #loop_exit
+                              #block_end
+                           #loop_end
+
+                           #if %b_Update_Net_Info #then #block
+                              #set l_Apl_Bsv:v'l_Node_Attr:vTYPE''i_Node_Number'_RM = 1
+                              #set APL:BSV46 = %l_Apl_Bsv
+                           #block_end
+                              
+                        #block_end
+                          #else_if l_Printer_Numbers:vSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Station_Numbers:vDESCRIPTIVE_TEXT)
+
+                     #block_end ; 2_4
+                     
+                  #block_end ; #2_2
+
+               #case_end              
+
+            #block_end ; #2
+            
+         #case_end
+
+      #block_end ; 2
+         #else_if l_Node_Attr:vSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Node_Attr:vDESCRIPTIVE_TEXT)
+   
+   #loop_end
+   
+#block_end ; 1
+   #else_if l_Node_Numbers:vSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_netsr:c]", l_Node_Numbers:vDESCRIPTIVE_TEXT)
+
+------------------------------
+--------- SYS_OSER -----------
+------------------------------
+IU:1, TC:, EP:255, PE:1, PQ:4, HN:0
+
+; Command Procedure: SYS_OSER
+; Version: SYS 600 9.3
+; Description: This is command procedure for receiving OS_EVENT events
+; ---------------------------------------------------------------------
+; For SYS600C HW Monitoring
+; all variables are empty or 0 except for:
+; %RT == Event time, as normal
+; %TYPE == "INFORMATION"
+; %LOG == "APPLICATION"
+; %USER == "HARDWARE MONITOR"
+; %SOURCE == "SYS600C HARDWARE MONITOR"
+; %COMPUTER == (computer hostname from OS; *not* SYS600-configured node name)
+; %CATEGORY == (hardware measurement category, 1..5)
+; %MESSAGE == VECTOR("measurement name;iValue;unit name") where measurement name
+;   is name of the measurement or status signal, iValue is an integer value
+;   and unit name is the unit of the integer value, eg.
+; "Sys Temp;58;C" for Sys Temp measurement of 58 degrees Celsius
+; "+1.5VDimm;1242;mV" for voltage measurement of 1.242V for the memory modules
+; "Power1 Status;1;IS_OK" for IS_OK is True for Power1 Status
+; "Power2 Status;0;IS_OK" for IS_OK is False for Power2 Status (i.e. something
+;   is wrong with Power2)
+; "LAN Link status;11111101;BITSTRING" means LAN ports 1-6 and 8 are not
+;   connected, port 7 has connection
+; The hardware reader categories are:
+; %CATEGORY == 1 : Temperature readers
+; %CATEGORY == 2 : Voltage readers
+; %CATEGORY == 3 : PSU Status signals
+; %CATEGORY == 4 : LAN Link status signals
+; %CATEGORY == 5 : Case Open status signal
+#local t_LN = "SYS600C_HW_" + DEC(SYS:BND, 0), l_Fetch, i_IX = 0, x_value, t_OX, l_common = LIST()
+#local x_Temp, t_OI = "", I, l_Level, t_Unit, t_Name, i_lanIX, t_ReadValue, i_Dev_Len = 3, v_High_Temp = vector(60, 75)
+
+#if %SOURCE == "SYS600C HARDWARE MONITOR" AND data_type(%MESSAGE) == "VECTOR" #then #block ; separate processing
+	x_Temp = separate(%MESSAGE(1),";")
+	#if length(x_Temp) < 3 #then #return
+
+	t_Name = upper_case(x_Temp(1))
+	t_ReadValue = x_Temp(2)
+	t_Unit = x_Temp(3)
+
+	x_Temp = APL:BOI
+	#loop_with I = 1 .. x_Temp.DEPTH
+		l_Level = x_Temp.Levels(I)
+		#if l_Level.name == "STA" #then t_OI = SUBSTR(SYS:BCX, 1, l_Level.WIDTH) 
+		#else_if l_Level.NAME == "BAY" #then t_OI = t_OI + SUBSTR("HW", 1, l_Level.WIDTH)
+		#else_if l_level.Name == "DEV" #then #block
+			i_Dev_Len = l_Level.WIDTH
+			#loop_exit
+		#block_end
+		#else t_OI = t_OI + PAD("", " ", l_Level.WIDTH)
+	#loop_end
+
+	l_common = LIST(SS = 1,-
+	IU = 1,-
+	PF = "FORM5SAGR1",-
+	OS = 10)
+
+	#case %CATEGORY
+		#when 1 #block ; Temperature reading
+			x_value = DEC_SCAN(t_ReadValue)
+			i_IX = 0
+			#if t_Name == "CPU TEMP" #then #block 
+				i_IX = 1
+				t_OX = "SYS600C_CPU_TEMPERATURE"
+				t_OI = t_OI + SUBSTR("CPU", 1, i_Dev_Len)
+				v_High_Temp = VECTOR(70, 80)
+			#block_end
+			#else_if t_Name == "SYS TEMP" #then #block
+				i_IX = 2
+				t_OX = "SYS600C_SYSTEM_TEMPERATURE"
+				t_OI = t_OI + SUBSTR("System", 1, i_Dev_Len)
+				v_High_Temp = VECTOR(60, 75)
+			#block_end
+
+			#if i_IX > 0 #then #block
+				l_Fetch = FETCH(0, "P", t_LN, i_IX)
+				#if l_Fetch.IU == -1 #then #block
+					#CREATE 't_LN':P'i_IX' = merge_attributes(l_common, LIST(PT = 9,-
+					DX = "9",-
+					OX = t_OX,-
+					SN = "1_1",-
+					AC = 1,-
+					RC = 1,-
+					HI = v_High_Temp(2),-
+					HW = v_High_Temp(1),-
+					LW = 20.0,-
+					LI = 5.0,-
+					DP = 0,-
+					RX = PAD("", " ", 20) + "FPPMEAMTMP",-
+					ST = t_Unit,-
+					OI = t_OI))
+
+					l_Fetch = FETCH(0, "P", t_LN, i_IX)
+				#block_end
+			#block_end
+		#block_end
+		#when 2 #block ; Voltage reading
+			i_ix = 0
+			x_value = DEC_SCAN(t_ReadValue)
+			#case t_Name
+				#when "+CPU_CORE" i_ix = 40
+				#when "+5VS" i_ix = 41
+				#when "+12VS" i_IX = 42
+				#when "+1.5VDIMM" i_IX = 43
+				#when "VSB5V" i_IX = 44
+				#when "VCC3V" i_IX = 45
+				#when "VSB3V" i_IX = 46
+				#when "VBAT"  i_IX = 47
+				#otherwise i_IX = 0
+			#case_end
+			l_Fetch = FETCH(0, "P", t_LN, i_IX)
+
+			#if l_Fetch.IU == -1 AND i_IX > 0 #then #block
+				#CREATE 't_LN':P'i_IX' = merge_attributes(l_common,-
+				LIST(PT = 9,-
+				OI = t_OI + SUBSTR(t_Name, 1, i_Dev_Len),-
+				DX = "9",-
+				SN = "1_1",-
+				ST = t_Unit,-
+				DP = 0,-
+				RX = PAD("", " ", 20) + "FPPMEAMVOL",-
+				OX = "SYS600C_'t_Name'_VOLTAGE"))
+
+				l_Fetch = FETCH(0, "P", t_LN, i_IX)
+			#block_end
+		#block_end
+		#when 3 #block ; PSU Status signal
+			x_value = DEC_SCAN(t_ReadValue)
+			#case t_Name
+				#when "BATTERY STATUS" i_ix = 30
+				#when "POWER1 STATUS" i_ix = 31
+				#when "POWER2 STATUS" i_IX = 32
+				#otherwise i_IX = 0
+			#case_end
+
+			l_Fetch = FETCH(0, "P", t_LN, i_IX)
+			#if l_Fetch.IU == -1 AND i_IX <> 0 #then #block
+				#CREATE 't_LN':P'i_IX' = merge_attributes(l_common,-
+				LIST(PT = 3,-
+				DX = "3",-
+				AC = 1,-
+				AG = 0,-
+				RC = 1,-
+				NV = 1,-
+				RX = PAD("", " ", 20) + "FPHALAIALA",-
+				OI = t_OI + SUBSTR(t_Name, 1, MIN(LOCATE(t_Name, " "), i_Dev_Len)),-
+				OX = "SYS600C_" + SUBSTR(t_Name, 1, LOCATE(t_Name, " ")-1) + "_STATUS"))
+
+				l_Fetch = FETCH(0, "P", t_LN, i_IX)
+			#block_end
+		#block_end
+		#when 4 #block ; LAN Link status signals
+			x_Temp = bit_scan(t_ReadValue)
+			#loop_with I = 1 .. length(t_ReadValue)
+				i_lanIX = I + 9
+				x_value = 2
+				#if bit(x_Temp, I) == 0 #then x_value = 1
+				#else_if bit(x_Temp, I) == 1 #then x_value = 0
+
+				l_Fetch = FETCH(0, "P", t_LN, i_lanIX)
+				#if l_Fetch.IU == -1 AND i_lanIX <> 0 #then #block
+					#CREATE 't_LN':P'i_lanIX' = merge_attributes(l_common,-
+					LIST(PT = 3,-
+					AC = 1,-
+					AG = 0,-
+					RC = 1,-
+					NV = 1,-
+					DX = "3",-
+					RX = PAD("", " ", 20) + "FPHALAIALA",-
+					OI = t_OI + SUBSTR("NIC'I'",1, i_Dev_Len),-
+					OX = "SYS600C_LANLINK'I'_STATUS"))
+					l_Fetch = FETCH(0, "P", t_LN, i_lanIX)
+				#block_end
+
+				#if l_Fetch.IU == 1 #then #if l_Fetch.SS <> 0 #then #SET 't_LN':P'i_lanIX' = x_value
+			#loop_end
+		#block_end
+		#when 5 #block ; Case open warning status
+			; Currently unsupported
+	#block_end
+	#case_end ; Category
+
+; Set values for everything else, but the LANs (those have been set already)
+	#if data_type(l_Fetch) == "LIST" and data_type(x_value) <> "NONE" and data_type(i_IX) == "INTEGER" #then-
+	#if l_Fetch.IU == 1 and i_IX > 0 #then #if l_Fetch.SS <> 0 #then #SET 't_LN':P'i_IX' = x_value
+#block_end
+#else #block 
+	;read in filtering info
+	@l_Filtering_Info = do(apl:bsv40, "SSS", "GetFilterAttributes", "OS_EVENT", %LOG, %TYPE)
+
+	;read in general info
+	@l_General_Info = APL:BSV45
+
+	#if l_Filtering_Info:vSTATUS == 0 #then #block ; 1
+
+		;write to log, if requested
+		#if l_Filtering_Info:vLOG and l_General_Info:vENABLE_LOG #then -
+		@i_Log_Write = do(apl:bsv40, "SSS", "WriteLogItem", "OSE")
+
+		;activate event, if requested
+		#if l_Filtering_Info:vEVENT and l_General_Info:vENABLE_EVENT #then #block
+			@l_Event_Point = do(apl:bsv40, "SSS", "GetEvents", "EVENT", "OPERATING_SYSTEM", 0, list(SOURCE = %LOG, EVENT = %TYPE))
+
+			#if l_Event_Point:vSTATUS == 0 #then #set 'l_Event_Point:vEVENT' = 1
+			#else #block
+				@l_Event_Point = do(apl:bsv40, "SSS", "CreateProcessObject", "OPERATING_SYSTEM", "EVENT", 0, list(SOURCE = %LOG, EVENT = %TYPE))
+				#set 'l_Event_Point:vEVENT' = 1
+			#block_end      
+		#block_end
+
+		;activate alarm, if requested
+		#if l_Filtering_Info:vALARM and l_General_Info:vENABLE_ALARM #then #block
+			@l_Alarm_Point = do(apl:bsv40, "SSS", "GetEvents", "ALARM", "OPERATING_SYSTEM", 0, list(SOURCE = %LOG, EVENT = %TYPE))
+
+			#if l_Alarm_Point:vSTATUS == 0 #then #set 'l_Alarm_Point:vALARM' = abs(1 - 'l_Alarm_Point:vALARM')
+			#else #block
+				@l_Alarm_Point = do(apl:bsv40, "SSS", "CreateProcessObject", "OPERATING_SYSTEM", "ALARM", 0, list(SOURCE = %LOG, EVENT = %TYPE))
+				#set 'l_Alarm_Point:vALARM' = 1
+			#block_end      
+		#block_end
+
+		;update indication process object (binary input)
+		#if l_Filtering_Info:vALARM #then #block
+
+			#case %LOG
+				#when "SYSTEM", "SECURITY" @t_Log_Type = substr(%LOG, 1, 3)
+				#when "APPLICATION" @t_Log_Type = "APL"
+			#case_end
+
+			@l_Indication = do(apl:bsv40, "SSS", "GetObjectAttribute", "OPERATING_SYSTEM", %t_Log_Type)
+
+			#if l_Indication:vSTATUS == 0 #then #if l_Indication:v't_Log_Type' <> "#" #then #block
+				@t_Indication_Point = l_Indication:v't_Log_Type'
+				#set 't_Indication_Point' = 1
+			#block_end
+			#else_if l_Indication:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_oser:c]", l_Indication:vDESCRIPTIVE_TEXT)
+
+		#block_end
+
+	#block_end ; 1
+	#else_if l_Filtering_Info:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_oser:c]", l_Filtering_Info:vDESCRIPTIVE_TEXT)
+#block_end
+
+
+------------------------------
+--------- SYS_PRIMR ----------
+------------------------------
+IU:1, TC:, EP:255, PE:1, PQ:4, HN:0
+
+; Command Procedure: SYS_PRIMR
+; Version: SYS 600 9.3
+; Description: This is command procedure for receiving system messages for printers (NET)
+; ---------------------------------------------------------------------------------------
+
+;read in object data
+@l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectDefinitions", "ROUTINGS_PRINTER", %LN, %IX)
+
+#if l_Obj_Data:vSTATUS == 0 #then #if l_Obj_Data:vINDICATION <> "#" #then #block ; 1
+
+   ;read in filtering info
+   @l_Filtering_Info = do(apl:bsv40, "SSS", "GetFilterAttributes", "SYS_MSG_PRINTERS", trunc(%OV))
+   
+   ;read in general info
+   @l_General_Info = APL:BSV45
+
+   ;write to log, event/alarm activation
+   #if l_Filtering_Info:vSTATUS == 0 #then #block ; 2
+
+      ;write to log, if requested
+      #if l_Filtering_Info:vLOG and l_General_Info:vENABLE_LOG #then -
+         @i_Log_Write = do(apl:bsv40, "SSS", "WriteLogItem", "STE", "MSG_PRI")
+
+      ;activate event, if requested
+      #if l_Filtering_Info:vEVENT and l_General_Info:vENABLE_EVENT #then #block
+         @l_Event_Point = do(apl:bsv40, "SSS", "GetEvents", "EVENT", "PRINTER", l_Obj_Data:vNUMBER, list(EVENT = trunc(%OV)))
+         
+         #if l_Event_Point:vSTATUS == 0 #then #set 'l_Event_Point:vEVENT' = 1
+         #else #block
+            @l_Event_Point = do(apl:bsv40, "SSS", "CreateProcessObject", "PRINTER", "EVENT", l_Obj_Data:vNUMBER, list(EVENT = trunc(%OV)))
+            #set 'l_Event_Point:vEVENT' = 1
+         #block_end      
+      #block_end
+      
+      ;activate alarm, if requested
+      #if l_Filtering_Info:vALARM and l_General_Info:vENABLE_ALARM #then #block
+         @l_Alarm_Point = do(apl:bsv40, "SSS", "GetEvents", "ALARM", "PRINTER", l_Obj_Data:vNUMBER, list(EVENT = trunc(%OV)))
+         
+         #if l_Alarm_Point:vSTATUS == 0 #then #set 'l_Alarm_Point:vALARM' = abs(1 - 'l_Alarm_Point:vALARM')
+         #else #block
+            @l_Alarm_Point = do(apl:bsv40, "SSS", "CreateProcessObject", "PRINTER", "ALARM", l_Obj_Data:vNUMBER, list(EVENT = trunc(%OV)))
+            #set 'l_Alarm_Point:vALARM' = 1
+         #block_end
+      #block_end
+   
+   #block_end ; 2
+      #else_if l_Filtering_Info:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_primr:c]", l_Filtering_Info:vDESCRIPTIVE_TEXT)
+
+   ;update indication point
+   @i_Timeout = timeout(l_General_Info:vTIMEOUT_LENGTH)
+   #error ignore
+      @i_Status = status
+      @i_IU = PRI'l_Obj_Data:vNUMBER':SIU
+   #error stop
+   @i_Timeout = timeout(%i_Timeout)   
+   
+   #if status == 0 #then #block
+      #if %i_IU == 0 #then #set 'l_Obj_Data:vINDICATION' = -1
+      #else #block
+         #if l_Filtering_Info:vSTATUS == 0 #then #block
+            #if l_Filtering_Info:vALARM #then #set 'l_Obj_Data:vINDICATION' = 10
+               #else #set 'l_Obj_Data:vINDICATION' = 0
+         #block_end
+         #else_if l_Filtering_Info:vSTATUS < 0 #then #set 'l_Obj_Data:vINDICATION' = 0
+         #else #block
+            #error ignore
+               @i_OV = 1
+               @i_OV = 'l_Obj_Data:vINDICATION'
+            #error stop
+            #set 'l_Obj_Data:vINDICATION' = list(OV = %i_OV, OS = 4)
+         #block_end
+      #block_end
+   #block_end
+   #else #block
+      #error ignore
+         @i_OV = 1
+         @i_OV = 'l_Obj_Data:vINDICATION'
+      #error stop
+      #set 'l_Obj_Data:vINDICATION' = list(OV = %i_OV, OS = 4)
+   #block_end
+   
+#block_end ; 1
+   #else_if l_Obj_Data:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_primr:c]", l_Obj_Data:vDESCRIPTIVE_TEXT)
+
+
+------------------------------
+--------- SYS_SLCMR ----------
+------------------------------
+IU:1, TC:, EP:255, PE:1, PQ:4, HN:0
+
+; Command Procedure: SYS_SLCMR
+; Version: SYS 600 9.3
+; Description: This is command procedure for receiving clock status information from LON Clock Master
+; ----------------------------------------------------------------------------------------------------
+
+;read in object data
+@l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectDefinitions", "ROUTINGS_SLCM", %LN, %IX)
+
+#if l_Obj_Data:vSTATUS == 0 and %OV <> 0 #then #if l_Obj_Data:vINDICATION <> "#" #then #block ; 1
+
+   ;read in filtering info
+   @l_Filtering_Info = do(apl:bsv40, "SSS", "GetFilterAttributes", "SYS_MSG_SLCM", trunc(%OV))
+
+   ;read in general info
+   @l_General_Info = APL:BSV45
+   
+   ;write to log, event/alarm activation
+   #if l_Filtering_Info:vSTATUS == 0 #then #block ; 2
+
+      ;write to log, if requested
+      #if l_Filtering_Info:vLOG and l_General_Info:vENABLE_LOG #then -
+         @i_Log_Write = do(apl:bsv40, "SSS", "WriteLogItem", "STE", "MSG_SLCM")
+ 
+      ;activate event, if requested
+      #if l_Filtering_Info:vEVENT and l_General_Info:vENABLE_EVENT #then #block
+         @l_Event_Point = do(apl:bsv40, "SSS", "GetEvents", "EVENT", "SLCM", l_Obj_Data:vNUMBER, list(EVENT = l_Filtering_Info:vSTATE))
+         
+         #if l_Event_Point:vSTATUS == 0 #then #set 'l_Event_Point:vEVENT' = 1
+         #else #block
+            @l_Event_Point = do(apl:bsv40, "SSS", "CreateProcessObject", "SLCM", "EVENT", l_Obj_Data:vNUMBER, list(EVENT = l_Filtering_Info:vSTATE))
+            #set 'l_Event_Point:vEVENT' = 1
+         #block_end      
+      #block_end
+      
+      ;activate alarm, if requested
+      #if l_Filtering_Info:vALARM and l_General_Info:vENABLE_ALARM #then #block
+         @l_Alarm_Point = do(apl:bsv40, "SSS", "GetEvents", "ALARM", "SLCM", l_Obj_Data:vNUMBER, list(EVENT = l_Filtering_Info:vSTATE))
+         
+         #if l_Alarm_Point:vSTATUS == 0 #then #set 'l_Alarm_Point:vALARM' = abs(1 - 'l_Alarm_Point:vALARM')
+         #else #block
+            @l_Alarm_Point = do(apl:bsv40, "SSS", "CreateProcessObject", "SLCM", "ALARM", l_Obj_Data:vNUMBER, list(EVENT = l_Filtering_Info:vSTATE))
+            #set 'l_Alarm_Point:vALARM' = 1
+         #block_end
+      #block_end
+   
+   #block_end ; 2
+      #else_if l_Filtering_Info:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_slcmr:c]", l_Filtering_Info:vDESCRIPTIVE_TEXT)
+   
+   ;update indication point
+   @i_Timeout = timeout(l_General_Info:vTIMEOUT_LENGTH)
+   #error ignore
+      @i_Status = status
+      @i_IU = STA'l_Obj_Data:vNUMBER':SIU
+   #error stop
+   @i_Timeout = timeout(%i_Timeout)   
+   
+   #if status == 0 #then #block
+      #if %i_IU == 0 #then #set 'l_Obj_Data:vINDICATION' = -1
+      #else #block
+         #if l_Filtering_Info:vSTATUS == 0 #then #block
+            #if l_Filtering_Info:vALARM #then #set 'l_Obj_Data:vINDICATION' = 10
+               #else #set 'l_Obj_Data:vINDICATION' = 0
+         #block_end
+         #else_if l_Filtering_Info:vSTATUS < 0 #then #set 'l_Obj_Data:vINDICATION' = 0
+         #else #block
+            #error ignore
+               @i_OV = 1
+               @i_OV = 'l_Obj_Data:vINDICATION'
+            #error stop
+            #set 'l_Obj_Data:vINDICATION' = list(OV = %i_OV, OS = 4)
+         #block_end
+      #block_end      
+   #block_end
+   #else #block
+      #error ignore
+         @i_OV = 1
+         @i_OV = 'l_Obj_Data:vINDICATION'
+      #error stop
+      #set 'l_Obj_Data:vINDICATION' = list(OV = %i_OV, OS = 4)
+   #block_end
+
+#block_end ; 1
+   #else_if l_Obj_Data:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_slcmr:c]", l_Obj_Data:vDESCRIPTIVE_TEXT)
+
+------------------------------
+--------- SYS_SSSINI ---------
+------------------------------
+IU:1, TC:, EP:1, PE:1, PQ:4, HN:0
+
+; Command Procedure: SYS_SSSINI
+; Version: SYS 600 9.3
+; Description: This is command procedure for initialization of SYS 600 System Self Supervision at system start-up
+; ----------------------------------------------------------------------------------------------------------------
+
+#error continue
+
+;check initialization status of SSS
+@b_Initialized = FALSE
+#if length(apl:bsv) > 40 #then #if data_type(apl:bsv41) =="LIST" #then @b_Initialized = TRUE
+
+;initialization
+#if not(%b_Initialized) #then #block
+
+   ;initialize APL:BSV(45..49)
+   #loop_with i = 0..4
+      #set APL:BSV(45+%i) = vector()
+   #loop_end
+   
+   ;define paths for SYS 600 System Self Supervision
+   @t_Apl_Name = APL:BNA
+   #path SSS_PATH +/APL/'t_Apl_Name'/SUPERV
+   #path SSS_LANG +/STOOL/SUPERV/LANG_TEXTS
+      
+   ;read in general application parameters for SYS 600 System Self Supervision
+   @i_Status = status
+   #error ignore
+      #do read_text("SSS_PATH/SSS_Setup.scl")
+   #error continue
+
+   #if status == 5007 #then #do read_text("SYS_TOOL/SSS_Setup.scl")
+   
+   ;load general application parameters to APL:BSV(45)
+   #set APL:BSV(45) = %sys_ssset
+   
+   ;initialize SCM services for SYS 600 System Self Supervision
+   @i_Init_Status = do(read_text("SYS_TOOL/SCT_Mgr.scl"), "acINIT", "SSS", "SYSTEMVARIABLE")
+   
+   ;enable/disable configuration of SSS
+   @b_SSS_Mech_In_Use = do(read_text("SYS_TOOL/SSS_Init.scl"))
+   
+   #if %b_SSS_Mech_In_Use #then #block
+      
+      ;initialize log files
+      @i_Log_Status = do(read_text("SYS_TOOL/SSS_LogInit.scl"))
+      
+      ;initialize applications
+      @i_Apl_Status = do(read_text("SYS_TOOL/SSS_AplInit.scl"))
+   
+   #block_end
+
+#block_end
+
+
+------------------------------
+--------- SYS_SSSREV ---------
+------------------------------
+IU:1, TC:, EP:255, PE:0, PQ:0, HN:0
+
+; Command Procedure: SYS_SSSREV
+; Description: Procedure for revision info for SYS 600 System Self Supervision
+;------------------------------------------------------------------------------
+
+#CREATE SYS_SSSREV:V = LIST(-
+   INFO              = "SYS 600 9.4;System Self supervision 3.9")
+
+------------------------------
+--------- SYS_SSSRT ----------
+------------------------------
+IU:1, TC:, EP:0, PE:1, PQ:4, HN:0
+
+; Command Procedure: SYS_SSSRT
+; Version: SYS 600 9.3
+; Description: This is command procedure for updating functionality of System Self Supervision at system startup
+; ---------------------------------------------------------------------------------------------------------------
+
+;check initialization status of SSS
+@b_Initialized = FALSE
+#if length(apl:bsv) > 40 #then #if data_type(apl:bsv41) == "LIST" #then @b_Initialized = TRUE
+
+;update functionality of SSS, if not yet initialized
+#if not(%b_Initialized) #then #do read_text("SYS_TOOL/SSS_Update.scl")
+
+------------------------------
+--------- SYS_STAMR ----------
+------------------------------
+IU:1, TC:, EP:255, PE:1, PQ:4, HN:0
+
+; Command Procedure: SYS_STAMR
+; Version: SYS 600 9.3
+; Description: This is command procedure for receiving system messages for stations
+;              Note! This procedure is executed, if ENABLE_STATION_MESSAGES -switch 
+;                    is enabled in SSS_Setup.scl
+; ----------------------------------------------------------------------------------
+
+;read in general info
+@l_General_Info = APL:BSV45
+
+@ENABLE_ANALOG_MODEL = TRUE
+#if attribute_exists(%l_General_Info, "ENABLE_ANALOG_MODEL") #then @ENABLE_ANALOG_MODEL = l_General_Info:vENABLE_ANALOG_MODEL
+
+#if l_General_Info:vENABLE_STATION_MESSAGES and %ENABLE_ANALOG_MODEL #then #block
+
+   #if 'LN':PPT(%IX) == 3 and 'LN':POA(%IX) >= 16777216 #then #block
+      ;use binary object for events and alarms
+   #block_end
+   #else #block ;read in object data
+      @l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectDefinitions", "ROUTINGS_STATION", %LN, %IX)
+      
+      #if l_Obj_Data:vSTATUS == 0 #then #if l_Obj_Data:vINDICATION <> "#" #then #block ; 1
+      
+         ;read in filtering info
+         @l_Filtering_Info = do(apl:bsv40,"SSS","GetFilterAttributes","SYS_MSG_STA_'l_Obj_Data:vST'",trunc(%OV))
+         
+         ;write to log, event/alarm activation
+         #if l_Filtering_Info:vSTATUS == 0 #then #block ; 2
+      
+            ;write to log, if requested
+            #if l_Filtering_Info:vLOG and l_General_Info:vENABLE_LOG #then -
+               @i_Log_Write = do(apl:bsv40, "SSS", "WriteLogItem", "STE", "MSG_STA")
+       
+            ;activate event, if requested
+            #if l_Filtering_Info:vEVENT and l_General_Info:vENABLE_EVENT #then #block
+               @l_Event_Point = do(apl:bsv40, "SSS", "GetEvents", "EVENT", "STATION", l_Obj_Data:vNUMBER, list(EVENT = trunc(%OV)))
+               
+               #if l_Event_Point:vSTATUS == 0 #then #set 'l_Event_Point:vEVENT' = 1
+               #else #block
+                  @l_Event_Point = do(apl:bsv40, "SSS", "CreateProcessObject", "STATION", "EVENT", l_Obj_Data:vNUMBER, list(EVENT = trunc(%OV)))
+                  #set 'l_Event_Point:vEVENT' = 1
+               #block_end
+            #block_end
+            
+            ;activate alarm, if requested
+            #if l_Filtering_Info:vALARM and l_General_Info:vENABLE_ALARM #then #block
+               @l_Alarm_Point = do(apl:bsv40, "SSS", "GetEvents", "ALARM", "STATION", l_Obj_Data:vNUMBER, list(EVENT = trunc(%OV)))
+               
+               #if l_Alarm_Point:vSTATUS == 0 #then #set 'l_Alarm_Point:vALARM' = abs(1 - 'l_Alarm_Point:vALARM')
+               #else #block
+                  @l_Alarm_Point = do(apl:bsv40, "SSS", "CreateProcessObject", "STATION", "ALARM", l_Obj_Data:vNUMBER, list(EVENT = trunc(%OV)))
+                  #set 'l_Alarm_Point:vALARM' = 1
+               #block_end
+            #block_end
+         
+         #block_end ; 2
+            #else_if l_Filtering_Info:vSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_stamr:c]", l_Filtering_Info:vDESCRIPTIVE_TEXT)
+         
+         ;update indication point
+         @i_Timeout = timeout(l_General_Info:vTIMEOUT_LENGTH)
+         #error ignore
+            @i_Status = status
+            @i_IU = STA'l_Obj_Data:vNUMBER':SIU
+         #error stop
+         @i_Timeout = timeout(%i_Timeout)  
+         
+         #if status == 0 #then #block
+            #if %i_IU == 0 #then #set 'l_Obj_Data:vINDICATION' = -1
+            #else #block
+               #if l_Filtering_Info:vSTATUS == 0 #then #block
+                  #if l_Filtering_Info:vALARM #then #set 'l_Obj_Data:vINDICATION' = 10
+                     #else #set 'l_Obj_Data:vINDICATION' = 0                                         ;SYS-3002 HoDa 1.4.2015
+               #block_end
+               #else_if l_Filtering_Info:vSTATUS < 0 #then #set 'l_Obj_Data:vINDICATION' = 0
+               #else #block
+                  #error ignore
+                     @i_OV = 1
+                     @i_OV = 'l_Obj_Data:vINDICATION'
+                  #error stop
+                  #set 'l_Obj_Data:vINDICATION' = list(OV = %i_OV, OS = 4)
+               #block_end     
+            #block_end
+         #block_end
+         #else #block
+            #error ignore
+               @i_OV = 1
+               @i_OV = 'l_Obj_Data:vINDICATION'
+            #error stop
+            #set 'l_Obj_Data:vINDICATION' = list(OV = %i_OV, OS = 4)
+         #block_end
+         
+      #block_end ; 1
+         #else_if l_Obj_Data:vSTATUS > 0 #then @i_Msglog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_stamr:c]", l_Obj_Data:vDESCRIPTIVE_TEXT)
+   #block_end
+      
+#block_end
+
+------------------------------
+--------- SYS_SYSER ----------
+------------------------------
+IU:1, TC:, EP:255, PE:1, PQ:4, HN:0
+
+; Command Procedure: SYS_SYSER
+; Version: SYS 600 9.3
+; Description: This is command procedure for receiving SYS_EVENT events
+; ----------------------------------------------------------------------
+
+;read in object data
+#case %SOURCE
+
+   #when "NOD" #block
+      @l_Obj_Vars = list(SOURCE = %SOURCE, TYPE = "NODE", NUMBER = %SOURCE_NR, INDICATION = "INDICATION_PRIMARY")
+      @l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectAttributes", l_Obj_Vars:vTYPE, l_Obj_Vars:vNUMBER)
+   #block_end
+
+   #when "PRI" #block
+      @l_Obj_Vars = list(SOURCE = %SOURCE, TYPE = "PRINTER", NUMBER = %SOURCE_NR, INDICATION = "INDICATION_PRIMARY")
+      @l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectAttributes", l_Obj_Vars:vTYPE, l_Obj_Vars:vNUMBER)
+      ;event reconstruction
+      @EVENT = "OUTPUT_LOST"      
+   #block_end
+
+   #when "APL_AS" #block
+      @l_Obj_Vars = list(SOURCE = %SOURCE, TYPE = "APPLICATION", NUMBER = %SOURCE_NR, INDICATION = "AS_PRIMARY")
+
+      @i_Status = status
+      #error ignore
+         @l_Apl_Bsv46 = apl:bsv46
+         @l_Apl_History = list(NA = "?", TT = "?", AS = "?", SP = "?")
+         @l_Apl_History = l_Apl_Bsv46:vAPL'l_Obj_Vars:vNUMBER'_LOCAL
+      #error stop   
+      @i_Status = status
+      
+      @l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectAttributes", l_Obj_Vars:vTYPE, l_Obj_Vars:vNUMBER)
+   #block_end
+
+   #when "APL_SP" #block
+      @l_Obj_Vars = list(SOURCE = %SOURCE, TYPE = "APPLICATION", NUMBER = %SOURCE_NR, INDICATION = "SP_PRIMARY")
+      @l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectAttributes", l_Obj_Vars:vTYPE, l_Obj_Vars:vNUMBER)
+   #block_end
+      
+   #when "GLOBAL_POOL" #block
+      @l_Obj_Vars = list(SOURCE = %SOURCE, TYPE = "NODE", NUMBER = SYS:BND, INDICATION = "INDICATION_PRIMARY")
+      @l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectAttributes", l_Obj_Vars:vTYPE, l_Obj_Vars:vNUMBER)
+      ;event reconstruction
+      #if %EVENT == "CACHE BORROW" #then @EVENT = "CACHE_BORROW"      
+   #block_end
+
+   #when "APL_EM", "APL_QM1", "APL_QM2", "APL_QM3", "APL_QM4", "APL_PM1", "APL_PM2" #block
+      @l_Obj_Vars = list(SOURCE = %SOURCE, TYPE = "APPLICATION", NUMBER = %SOURCE_NR, INDICATION = "QUEUE_PRIMARY")
+      @l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectAttributes", l_Obj_Vars:vTYPE, l_Obj_Vars:vNUMBER)
+   #block_end
+
+   #otherwise #block
+      #if locate(%SOURCE, "PICO_POOL") > 0 #then #block
+         @l_Obj_Vars = list(SOURCE = "PICO_POOL", TYPE = "APPLICATION", NUMBER = %SOURCE_NR, INDICATION = "POOL_PRIMARY")
+         @l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectAttributes", l_Obj_Vars:vTYPE, l_Obj_Vars:vNUMBER)      
+      #block_end
+      #else_if locate(%SOURCE, "REPR_POOL") > 0 #then #block
+         @l_Obj_Vars = list(SOURCE = "REPR_POOL", TYPE = "APPLICATION", NUMBER = %SOURCE_NR, INDICATION = "POOL_PRIMARY")
+         @l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectAttributes", l_Obj_Vars:vTYPE, l_Obj_Vars:vNUMBER)      
+      #block_end
+      #else_if locate(%SOURCE, "PRIN_POOL") > 0 #then #block
+         @l_Obj_Vars = list(SOURCE = "PRIN_POOL", TYPE = "APPLICATION", NUMBER = %SOURCE_NR, INDICATION = "POOL_PRIMARY")
+         @l_Obj_Data = do(apl:bsv40, "SSS", "GetObjectAttributes", l_Obj_Vars:vTYPE, l_Obj_Vars:vNUMBER)      
+      #block_end
+      #else @l_Obj_Data = list(STATUS = -1)
+   #block_end
+
+#case_end
+
+;define events and update indication state
+#if l_Obj_Data:vSTATUS == 0 #then #if l_Obj_Data:v'l_Obj_Vars:vINDICATION' <> "#" #then #block ; 1
+
+   ;read in filtering info
+   @l_Filtering_Info = do(apl:bsv40, "SSS", "GetFilterAttributes", "SYS_EVENT", l_Obj_Vars:vSOURCE, %EVENT)
+
+   ;read in general info
+   @l_General_Info = APL:BSV45
+
+   ;write to log, event/alarm activation
+   #if l_Filtering_Info:vSTATUS == 0 #then #block ; 2
+
+      ;write to log, if requested
+      #if l_Filtering_Info:vLOG and l_General_Info:vENABLE_LOG #then -
+         @i_Log_Write = do(apl:bsv40, "SSS", "WriteLogItem", "STE", "EVENT_SYS")
+
+      ;activate event, if requested
+      #if l_Filtering_Info:vEVENT and l_General_Info:vENABLE_EVENT #then #block
+         @l_Event_Point = do(apl:bsv40, "SSS", "GetEvents", "EVENT", l_Obj_Vars:vTYPE, l_Obj_Vars:vNUMBER, list(SOURCE = l_Obj_Vars:vSOURCE, EVENT = %EVENT))
+         
+         #if l_Event_Point:vSTATUS == 0 #then #set 'l_Event_Point:vEVENT' = 1
+         #else #block
+            @l_Event_Point = do(apl:bsv40, "SSS", "CreateProcessObject", l_Obj_Vars:vTYPE, "EVENT", l_Obj_Vars:vNUMBER, list(SOURCE = l_Obj_Vars:vSOURCE, EVENT = %EVENT))
+            #set 'l_Event_Point:vEVENT' = 1
+         #block_end      
+      #block_end
+      
+      ;activate alarm, if requested
+      #if l_Filtering_Info:vALARM and l_General_Info:vENABLE_ALARM #then #block
+         @l_Alarm_Point = do(apl:bsv40, "SSS", "GetEvents", "ALARM", l_Obj_Vars:vTYPE, l_Obj_Vars:vNUMBER, list(SOURCE = l_Obj_Vars:vSOURCE, EVENT = %EVENT))
+         
+         #if l_Alarm_Point:vSTATUS == 0 #then #set 'l_Alarm_Point:vALARM' = abs(1 - 'l_Alarm_Point:vALARM')
+         #else #block
+            @l_Alarm_Point = do(apl:bsv40, "SSS", "CreateProcessObject", l_Obj_Vars:vTYPE, "ALARM", l_Obj_Vars:vNUMBER, list(SOURCE = l_Obj_Vars:vSOURCE, EVENT = %EVENT))
+            #set 'l_Alarm_Point:vALARM' = 1
+         #block_end      
+      #block_end   
+   
+   #block_end ; 2
+      #else_if l_Filtering_Info:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_syser:c]", l_Filtering_Info:vDESCRIPTIVE_TEXT)
+
+   ;update indication process object
+   #case l_Obj_Vars:vSOURCE
+      
+      #when "NOD" #block
+         #if l_Obj_Data:vTYPE <> "" #then #block
+            #if upper_case(l_Obj_Data:vTYPE) == "PCNET" #then #block
+               ;indication process object of NET
+               #if l_Filtering_Info:vSTATUS == 0 #then #block
+                  #if l_Filtering_Info:vALARM #then #block
+                     #if %EVENT == "LOST" #then #block
+                        ;the state of NET, lines etc...
+                        #do sys_netsr:c
+                        ;indication
+                        ;#set 'l_Obj_Data:vINDICATION_PRIMARY' = %i_Net_State
+                     #block_end             
+                        #else ; #set 'l_Obj_Data:vINDICATION_PRIMARY' = 10
+                  #block_end
+                  #else #block
+                     #if %EVENT == "FOUND" #then #block
+                        ;the state of NET, lines etc...
+                        #do sys_netsr:c
+                        ;indication
+                        #set 'l_Obj_Data:vINDICATION_PRIMARY' = %i_Net_State
+                     #block_end               
+                     #else #set 'l_Obj_Data:vINDICATION_PRIMARY' = 0
+                   #block_end
+               #block_end
+               #else #block
+                  #error ignore
+                     @i_OV = 1
+                     @i_OV = 'l_Obj_Data:vINDICATION_PRIMARY' 
+                  #error stop
+                  #set 'l_Obj_Data:vINDICATION_PRIMARY' = list(OV = %i_OV, OS = 4)
+               #block_end
+            #block_end
+            #else_if upper_case(l_Obj_Data:vTYPE) == "61850NET" #then #block
+               ;indication process object of NET
+               #if l_Filtering_Info:vSTATUS == 0 #then #block
+                  #if l_Filtering_Info:vALARM #then #block
+                     #if %EVENT == "LOST" #then #block
+                        ;the state of NET and stations...
+                        #do sys_netsr:c
+                        ;indication
+                        #set 'l_Obj_Data:vINDICATION_PRIMARY' = %i_Net_State
+                     #block_end
+                     #else ; #set 'l_Obj_Data:vINDICATION_PRIMARY' = 10
+                  #block_end
+                  #else #block
+                     #if %EVENT == "FOUND" #then #block
+                        ;the state of NET, lines etc...
+                        #do sys_netsr:c
+                        ;indication
+                        #set 'l_Obj_Data:vINDICATION_PRIMARY' = %i_Net_State
+                        ;update system message
+                        #if NET'SOURCE_NR':SSE == 1 #then #set NET'SOURCE_NR':SOS = 1
+                     #block_end
+                     #else #set 'l_Obj_Data:vINDICATION_PRIMARY' = 0
+                  #block_end
+               #block_end
+               #else #block
+                  #error ignore
+                     @i_OV = 1
+                     @i_OV = 'l_Obj_Data:vINDICATION_PRIMARY' 
+                  #error stop
+                  #set 'l_Obj_Data:vINDICATION_PRIMARY' = list(OV = %i_OV, OS = 4)
+               #block_end
+            #block_end 
+         #block_end
+      #block_end
+      
+      #when "PRI" #block
+         ;indication process object of printer
+         #if l_Filtering_Info:vSTATUS == 0 #then #block
+            #if l_Filtering_Info:vALARM #then #set 'l_Obj_Data:vINDICATION_PRIMARY' = 10
+               #else #set 'l_Obj_Data:vINDICATION_PRIMARY' = 0
+         #block_end
+         #else_if l_Filtering_Info:vSTATUS < 0 #then #set 'l_Obj_Data:vINDICATION_PRIMARY' = 0
+         #else #block
+            #error ignore
+               @i_OV = 1
+               @i_OV = 'l_Obj_Data:vINDICATION_PRIMARY'
+            #error stop
+            #set 'l_Obj_Data:vINDICATION_PRIMARY' = list(OV = %i_OV, OS = 4)
+         #block_end        
+      #block_end      
+      
+      #when "APL_AS" #block
+         ;indication process object of application for application state
+         #if APL'l_Obj_Vars:vNUMBER':BTT == "NONE" #then #set 'l_Obj_Data:vAS_PRIMARY' = -1
+         #else #block
+            #if l_Filtering_Info:vSTATUS == 0 #then #block
+               #if l_Filtering_Info:vALARM #then #set 'l_Obj_Data:vAS_PRIMARY' = 10
+                  #else #set 'l_Obj_Data:vAS_PRIMARY' = 0
+            #block_end
+            #else_if l_Filtering_Info:vSTATUS < 0 #then #set 'l_Obj_Data:vAS_PRIMARY' = 0
+            #else #block
+               #error ignore
+                  @i_OV = 1
+                  @i_OV = 'l_Obj_Data:vAS_PRIMARY' 
+               #error stop
+               #set 'l_Obj_Data:vAS_PRIMARY' = list(OV = %i_OV, OS = 4)
+            #block_end
+         #block_end
+         ;update history status
+         #if data_type(%l_Apl_Bsv46) <> "LIST" #then @l_Apl_Bsv46 = list()
+         #modify l_Apl_Bsv46:v = list(APL'l_Obj_Vars:vNUMBER'_LOCAL = list(-
+            NA = APL'l_Obj_Vars:vNUMBER':BNA,-
+            TT = APL'l_Obj_Vars:vNUMBER':BTT,-
+            AS = %EVENT,-
+            SP = "?"))
+         #set APL:BSV46 = %l_Apl_Bsv46
+         ;update application state
+         @l_Event_Object = do(apl:bsv40, "SSS", "GetLogicalNameAndIndex", l_Obj_Data:vAS_PRIMARY)
+         @t_Event_Object = "'l_Event_Object:vLN':E'l_Event_Object:vIX'"
+         #exec 't_Event_Object'
+         
+         #if l_Obj_Data:vPresentation <> "#" #then #block  
+            @l_Presentation_Object = do(apl:bsv40, "SSS", "GetLogicalNameAndIndex", l_Obj_Data:vPresentation)
+            #if locate(l_Obj_Data:vCX, "HSB") > 0 #then #set l_Presentation_Object:vIX = SYS:BND * 100 + 1000 + %SOURCE_NR
+            @t_Presentation_Object = "'l_Presentation_Object:vLN':P'l_Presentation_Object:vIX'"                      
+            #case %EVENT
+               #when "COLD" @i_Value = 1
+               #when "WARM" @i_Value = 2
+               #when "HOT" #block
+                  #if locate(l_Obj_Data:vCX, "HSB") > 0 #then @i_Value = 4
+                  #else  @i_Value = 3
+               #block_end
+               #otherwise @i_Value = 13
+            #case_end
+            #if application_object_exists(0, "IX", LIST(LN="'l_Presentation_Object:vLN'", IX=l_Presentation_Object:vIX)) #then -
+               #set 't_Presentation_Object' = %i_Value
+         #block_end
+      #block_end
+
+      #when "APL_SP" #block
+         ;indication process object of application for application shadowing state
+         #if l_Filtering_Info:vSTATUS == 0 #then #block
+            #if l_Filtering_Info:vALARM #then #set 'l_Obj_Data:vSP_PRIMARY' = 10
+               #else #set 'l_Obj_Data:vSP_PRIMARY' = 0
+         #block_end
+         #else_if l_Filtering_Info:vSTATUS < 0 #then #set 'l_Obj_Data:vSP_PRIMARY' = 0
+         #else #block
+            #error ignore
+               @i_OV = 1
+               @i_OV = 'l_Obj_Data:vSP_PRIMARY'
+            #error stop
+            #set 'l_Obj_Data:vSP_PRIMARY' = list(OV = %i_OV, OS = 4)
+         #block_end
+         ;update application state
+         @l_Event_Object = do(apl:bsv40, "SSS", "GetLogicalNameAndIndex", l_Obj_Data:vSP_PRIMARY)
+         @t_Event_Object = "'l_Event_Object:vLN':E'l_Event_Object:vIX'"
+         #exec 't_Event_Object'
+
+         #if l_Obj_Data:vPresentation <> "#" #then #block 
+            @l_Presentation_Object = do(apl:bsv40, "SSS", "GetLogicalNameAndIndex", l_Obj_Data:vPresentation)
+            #set l_Presentation_Object:vIX = SYS:BND * 100 + %SOURCE_NR + 1000
+            @t_Presentation_Object = "'l_Presentation_Object:vLN':P'l_Presentation_Object:vIX'"
+            #case %EVENT
+               #when "NONE" @i_Value = 4
+               #when "TO_WARM_SEND" @i_Value = 5
+               #when "WARM_SEND" @i_Value = 6
+               #when "TO_HOT_SEND" @i_Value = 7
+               #when "HOT_SEND" @i_Value = 8
+               #when "TO_WARM_RECEIVE" @i_Value = 9
+               #when "WARM_RECEIVE" @i_Value = 10
+               #when "TO_HOT_RECEIVE" @i_Value = 11
+               #when "HOT_RECEIVE" @i_Value = 12
+               #otherwise @i_Value = 13
+            #case_end
+            #if application_object_exists(0, "IX", LIST(LN="'l_Presentation_Object:vLN'", IX=l_Presentation_Object:vIX)) #then -
+               #set 't_Presentation_Object' = %i_Value
+         #block_end
+      #block_end
+      
+      #when "GLOBAL_POOL" #block ;binary input
+         ;indication process object of Base System
+         #if l_Filtering_Info:vSTATUS == 0 #then #block
+            #if l_Filtering_Info:vALARM #then #set 'l_Obj_Data:vINDICATION_PRIMARY' = 1
+               #else #set 'l_Obj_Data:vINDICATION_PRIMARY' = 0
+         #block_end
+         #else_if l_Filtering_Info:vSTATUS < 0 #then #set 'l_Obj_Data:vINDICATION_PRIMARY' = 0
+         #else #block
+            #error ignore
+               @i_OV = 0
+               @i_OV = 'l_Obj_Data:vINDICATION_PRIMARY'
+            #error stop
+            #set 'l_Obj_Data:vINDICATION_PRIMARY' = list(OV = %i_OV, OS = 4)
+         #block_end
+         ;re-enable global memory pool events
+         #set SYS:BME = 1
+      #block_end
+      
+      #when "PICO_POOL", "REPR_POOL", "PRIN_POOL" #block ;binary input
+         ;indication process object of application for local memory pools
+         #if l_Filtering_Info:vSTATUS == 0 #then #block
+            #if l_Filtering_Info:vALARM #then #set 'l_Obj_Data:vPOOL_PRIMARY' = 1
+               #else #set 'l_Obj_Data:vPOOL_PRIMARY' = 0
+         #block_end
+         #else_if l_Filtering_Info:vSTATUS < 0 #then #set 'l_Obj_Data:vPOOL_PRIMARY' = 0
+         #else #block
+            #error ignore
+               @i_OV = 0
+               @i_OV = 'l_Obj_Data:vPOOL_PRIMARY'
+            #error stop
+            #set 'l_Obj_Data:vPOOL_PRIMARY' = list(OV = %i_OV, OS = 4)
+         #block_end
+         ;re-enable local memory pool events
+         #set APL'l_Obj_Vars:vNUMBER':BME = 1
+      #block_end      
+      
+      #when "APL_EM", "APL_QM1", "APL_QM2", "APL_QM3", "APL_QM4", "APL_PM1", "APL_PM2" #block ;binary input
+         ;indication process object of application for application queues 
+         #if l_Filtering_Info:vSTATUS == 0 #then #block
+            #if l_Filtering_Info:vALARM #then #set 'l_Obj_Data:vQUEUE_PRIMARY' = 1
+               #else #set 'l_Obj_Data:vQUEUE_PRIMARY' = 0
+         #block_end
+         #else_if l_Filtering_Info:vSTATUS < 0 #then #set 'l_Obj_Data:vQUEUE_PRIMARY' = 0
+         #else #block
+            #error ignore
+               @i_OV = 0
+               @i_OV = 'l_Obj_Data:vINDICATION_PRIMARY' 
+            #error stop
+            #set 'l_Obj_Data:vINDICATION_PRIMARY' = list(OV = %i_OV, OS = 4)
+         #block_end
+         ;re-enable queue overflow events
+         #set APL'l_Obj_Vars:vNUMBER':BQE = 1
+      #block_end
+   
+   #case_end
+
+#block_end ; 1
+   #else_if l_Obj_Data:vSTATUS > 0 #then @i_MsgLog = do(read_text("SYS_TOOL/msglog.scl"), "INFO [SSS, sys_syser:c]", l_Obj_Data:vDESCRIPTIVE_TEXT)
+
+------------------------------
+--------- SYS_UPOER ----------
+------------------------------
+IU:0, TC:, EP:255, PE:1, PQ:4, HN:0
+
+; Command Procedure: SYS_UPOER
+; Version: SYS 600 9.3
+; Description: This is command procedure for receiving UNDEF_PROC events
+; -----------------------------------------------------------------------
+
+;read in general info
+@l_General_Info = APL:BSV45
+
+#if l_General_Info:vENABLE_LOG #then #block ; 1
+
+   #if %UN == 0 #then #block
+   
+      @l_Filtering_Info = do(apl:bsv40, "SSS", "GetObjectAttribute", "UNDEF_PROC", "Common_System_Messages_Enabled")
+   
+      #if l_Filtering_Info:vSTATUS == 0 #then #if l_Filtering_Info:vDATA #then -
+         @i_Log_Write = do(apl:bsv40, "SSS", "WriteLogItem", "UPE")
+
+   #block_end
+   #else #block
+   
+      @l_Filtering_Info = do(apl:bsv40, "SSS", "GetObjectNumbers", "UNDEF_PROC")
+
+      #if l_Filtering_Info:vSTATUS == 0 #then #if l_Filtering_Info:vDATA(1) == 0 or length(select(l_Filtering_Info:vDATA, "=='UN'")) > 0 #then -
+            @i_Log_Write = do(apl:bsv40, "SSS", "WriteLogItem", "UPE")
+
+   #block_end
+          
+#block_end ; 1
+

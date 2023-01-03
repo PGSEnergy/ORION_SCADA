@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="SAVersionInfo" content="1" />
+    <d:variable type="external" name="control" default="''" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="SYS 600 Server" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="SYS 600" />
+    <d:meta name="dv-custom-attribute|SATopology" content="" />
+    <d:meta name="dv-custom-attribute|SAVersionInfo" content="1" />
+    <d:meta name="dv-custom-attribute|SAOpenVSCILOnClickVso" content="SYS_TOOL/SSS_CtrlDlg.VSO@1MAIN@2LIST(LN=&quot;%LN%&quot;,IX=%IX%)@31SGTS:0" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="status" default="0" />
+    <d:variable type="external" name="status-color" default="0" />
+    <d:variable type="external" name="text1" default="''" />
+    <d:variable type="external" name="text2" default="''" />
+    <d:variable type="external" name="text3" default="''" />
+    <d:variable type="external" name="hide-status" default="0" />
+    <d:variable type="external" name="hide-texts" default="0" />
+    <d:mapping name="f1405" parameters="value">
+      <d:step value="false" when="value &lt;= 0.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f1406" parameters="value">
+      <d:step value="false" when="value &lt;= 0.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f1407" parameters="value">
+      <d:step value="false" when="value &lt;= 0.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f1408" parameters="value">
+      <d:step value="false" when="value &lt;= 0.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+  </d:head>
+  <d:body n:LN="{LN(control)}" n:IX="{IX(control)}" x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <s:image x="-20" y="-20.920" height="40" width="40" y:image-rendering="pixelated" xlink:href="/resources/06 - SA_Supervision/server_128.gif" d:object-name="Server" />
+    <d:view name="06 - SA_Supervision/Label L.sd" s:transform="translate(20,-15) scale(1,1)" d:hidden="f1405(`hide-texts`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" d:object-name="Text1">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="text" value="`text1`" />
+      <d:meta name="dv-variable-mapping|Text" content="Text1" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node1" />
+    </d:view>
+    <d:view name="06 - SA_Supervision/Status -101.sd" s:transform="translate(-15,-15) scale(1,1)" d:hidden="f1406(`hide-status`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" d:object-name="Status">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="status" value="`status`" />
+      <d:parameter name="status-color" value="`status-color`" />
+      <d:meta name="dv-variable-mapping|Status" content="Status" />
+      <d:meta name="dv-variable-mapping|Status Color" content="Status Color" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node2" />
+    </d:view>
+    <d:view name="06 - SA_Supervision/Label L.sd" s:transform="translate(19.820,-0.900) scale(1,1)" d:hidden="f1407(`hide-texts`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" d:object-name="Text2">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="text" value="`text2`" />
+      <d:meta name="dv-variable-mapping|Text" content="Text2" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node3" />
+    </d:view>
+    <d:view name="06 - SA_Supervision/Label L.sd" s:transform="translate(19.820,11.860) scale(1,1)" d:hidden="f1408(`hide-texts`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" d:object-name="Text3">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="text" value="`text3`" />
+      <d:meta name="dv-variable-mapping|Text" content="Text3" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node4" />
+    </d:view>
+  </d:body>
+</d:document>

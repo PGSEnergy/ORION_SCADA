@@ -1,0 +1,55 @@
+﻿; This command procedure is used for forwarding command terminations
+; from a COM application to a NCC (upstream direction)
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @LN, @IX, @OV from termination process object
+;         APL:BSV(28), time stamps of the pending indications/terminations
+;         APL:BSV(29), ids (ln+ix+sta_nr+og) of the pending indications/terminations
+; OUTPUT  APL:BSV(28), time stamps of the pending indications/terminations
+;         APL:BSV(29), ids (ln+ix+sta_nr+og) of the pending indications/terminations
+;---------------------------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+@IEC_TERM_ENABLED = COM_GENVAR:PBZ(2)
+@ENABLE_LOGGING = COM_GENVAR:PBZ(3)
+
+;if connected to a command remove id and time from apl:bsv
+@ID = %LN + DEC(%IX,1)
+@TMP = SELECT(APL:BSV(29),"==""'ID'/*""","WILDCARDS")
+#IF LENGTH(%TMP) > 0 #THEN #BLOCK
+   @IND_IDS = APL:BSV(29)
+   @ID_VEC = SEPARATE(%IND_IDS(%TMP(1)),"/")
+   @STA_NR = DEC_SCAN(%ID_VEC(3))        
+   @COMMAND_ADDRESS = DEC_SCAN(%ID_VEC(2))
+   @ORIGINATOR = DEC_SCAN(%ID_VEC(4))
+   #SET APL:BSV(28) = DELETE_ELEMENT(APL:BSV(28),%TMP(1))
+   #SET APL:BSV(29) = DELETE_ELEMENT(APL:BSV(29),%TMP(1))
+   ;if IEC NCC and manual confirmation, terminate the command 
+   @NCC_XREF_TABLE = APL:BSV(21)
+   #IF DATA_TYPE(%NCC_XREF_TABLE) == "VECTOR" AND LENGTH(%NCC_XREF_TABLE) > 0 #THEN #BLOCK
+      #LOOP_WITH NCC_NUMBER = 1..LENGTH(%NCC_XREF_TABLE)
+         @NCC = %NCC_XREF_TABLE(%NCC_NUMBER)
+         #IF %NCC(1) == %STA_NR #THEN #BLOCK
+            @NCC_PROTOCOL = %NCC(2)
+            #LOOP_EXIT
+         #BLOCK_END
+      #LOOP_END
+   #BLOCK_END
+   #IF %NCC_PROTOCOL == 2 AND %IEC_TERM_ENABLED AND STA'STA_NR':SPC == 0 #THEN #BLOCK
+      ;value 0 is for positive confirmation or termination
+      #IF %OV == 0 #THEN #SET STA'STA_NR':SCF = (256*%ORIGINATOR+10,%COMMAND_ADDRESS)
+      ;value 3 is for termination timeout, 4 for negative termination
+      #ELSE_IF %OV == 3 OR %OV == 4 #THEN #SET STA'STA_NR':SCF = (256*%ORIGINATOR+64+10,%COMMAND_ADDRESS)
+      ;if none of present values send activation termination because taken out from pending indication list      
+      #ELSE #SET STA'STA_NR':SCF = (256*%ORIGINATOR+10,%COMMAND_ADDRESS)
+      #IF %ENABLE_LOGGING #THEN #BLOCK
+         @INFO="'rt':'rm',IECTRM,0,'LN':P'IX','STA_NR', activation termination to cmd addr 'COMMAND_ADDRESS' with resp value 'OV' is sent to NCC,,,,,,,,,,,,,,,,"
+         #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+         #ELSE #DO COM_LOG:CIN
+      #BLOCK_END
+   #BLOCK_END
+#BLOCK_END

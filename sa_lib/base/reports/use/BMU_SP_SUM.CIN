@@ -1,0 +1,119 @@
+; Function:    BMU_SP_SUM:C
+; Version:     3.0 (Build 1.03.2012)
+; Parameters:  DATAIN - input object names (from BMU_SP_CAL2)
+;              OPER - calculation
+;              t_ObjectName - calculated object name
+;              IS1,IS2,N1,NS - from BMU_SP_IND
+; Return data: none
+; Description: Calculate data of calculated data objects
+;-------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;-------------------------------------------------------------------------------
+#local i, v_ = vector(), i_Status = status, v_IX = vector(), x_, cot, trash,-
+       i_Result = 0, l_Data = list()
+#error ignore
+
+#case data_type(%DATAIN)
+   #when "TEXT" #block
+      #if %DATAIN > "" #then #block
+         @DATA_ID = %DATAIN                                                     ;*** Data Object name
+         #if BMU_SP_READ:CCS==1 #then #DO BMU_SP_READ:CCP
+         #else #DO BMU_SP_READ:C
+         i_Status = status
+         @OBJ = DATA:VOV
+         i_Result = DATA:VOV
+         i_Status = status
+      #block_end
+   #block_end
+   #when "VECTOR" #block
+      #loop_with i = 1..length(%DATAIN)
+         @DATA_ID = %DATAIN(i)           ;datalog name
+         #if BMU_SP_READ:CCS==1 #then #DO BMU_SP_READ:CCP
+         #else #DO BMU_SP_READ:C
+         i_Status = status
+         @OBJ'i' = DATA:VOV
+         #if i == 1 #then i_Result = DATA:VOV
+         #else            i_Result = i_Result + DATA:VOV        
+         i_Status = status
+      #LOOP_END
+   #block_end
+#case_end
+i_Status = status
+#if i_Status <> 0 #then-
+   cot = console_output("BMU_SP_SUM:C - Report Object 't_ObjectName':D - Error 'i_Status' on data fetch for Input Object(s)","E","MREP")
+
+;*** do pre-defined operation, if any...
+#case data_type(%OPER)
+   #when "TEXT" #block
+      #if %OPER > "" #then #block
+         i_Status = status
+         i_Result = 'OPER'
+         i_Status = status
+      #block_end
+   #block_end
+   #when "VECTOR" #block
+      i_Status = status
+      i_Result = do(%OPER)
+      i_Status = status
+   #block_end
+#case_end
+i_Status = status
+#if i_Status <> 0 #then-
+   cot = console_output("BMU_SP_SUM:C - Report Object 't_ObjectName' - Error 'i_Status' on operation execution","E","MREP")
+
+;*** define sampled values for ...
+#case data_type(i_Result)
+   #when "TEXT","NONE" #block
+      #if i_Status == 0 #then i_Result = set_status(vector(0),10)
+      #else                   i_Result = set_status(vector(0),i_Status)
+   #block_end
+   #when "VECTOR" #block
+      #if i_Status == 0 #then i_Result = i_Result
+      #else                   i_Result = set_status(vector(0),i_Status)
+   #block_end
+   #otherwise #block
+      #if i_Status == 0 #then i_Result = vector(i_Result)
+      #else                   i_Result = set_status(vector(0),i_Status)
+   #block_end
+#case_end
+
+;*** Define proper status for calculated values, set to invalid
+v_IX     = select(get_status(i_Result),">1 and <10")
+i_Result = spread(i_Result, v_IX, set_status(pick(i_Result,v_IX),1))
+
+;store calculated data to db
+#case %l_ReportObject.SP_HL
+   #when 0 #block                                                    ;*** no sampling history SP_HL=0
+      #if data_type(%IS1) == "INTEGER" #then #block
+         l_Data = data_fetch(0,%t_ObjectName,(1+%NS),1,0)
+         x_ = data_store(0,%t_ObjectName,l_Data,1)
+         
+         l_Data = list(OV = i_Result, OS = get_status(i_Result), RT = vector())
+         l_Data.RT(1..%NS) = clock
+         x_ = data_store(0,%t_ObjectName,l_Data,%IS1)
+      #block_end
+   #block_end
+   #otherwise #block                                                 ;*** SP_HL > 0
+      #if %IS2 >= %IS1 #then #block                                  ;*** data in one part
+         l_Data = list(OV = i_Result, OS = get_status(i_Result), RT = vector())
+         l_Data.RT(1..%NS) = clock
+         x_ = data_store(0,%t_ObjectName,l_Data,%IS1)
+      #block_end
+      #else #block                                                   ;*** data in two parts
+         l_Data = list(OV=i_Result(1..%N1),OS = get_status(i_Result(1..%N1)), RT=vector())
+         l_Data.RT(1..%N1) = clock
+         x_ = data_store(0,%t_ObjectName,l_Data,%IS1)
+         
+         l_Data = list(OV=i_Result((%N1+1)..),OS = get_status(i_Result((%N1+1)..)), RT=vector())
+         l_Data.RT(1..%N2) = clock
+         x_ = data_store(0,%t_ObjectName,l_Data,1)
+      #block_end
+   #block_end
+#case_end
+
+;*** show notification, if errors...
+i_Status = status
+#if i_Status <> 0 #then-
+   cot = console_output("BMU_SP_SUM:C - Report Object 't_ObjectName' - SCIL Error='i_Status'","E","MREP")
+

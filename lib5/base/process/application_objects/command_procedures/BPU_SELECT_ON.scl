@@ -1,0 +1,95 @@
+;Function: BPU_SELECT_ON:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_select_on.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute),  search_result, forced operation
+;Return data:
+;Description: Prepares select command for ON (closed)
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+
+#argument l_object_info, l_data, i_forced_value
+#local t_select_ln, i_select_ix, i_select_value, t_sta_type, t_control_type, i_cmd_param = 0, i_execute = 0
+#local i_IX, b_execute_select = true
+#local l_result = list(status = 0, err_description = "")
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_SELECT_ON"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+         @REDIRECTED = true                                                                        
+         i_ArgCnt = argument_count                                                                 
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+         #loop_end                                                                                 
+         #return 't_Redirect_Command' ;;;;;                                                        
+      #block_end                                                                                   
+   #block_end                                                                                      
+   #else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+
+t_select_ln = l_object_info.p_object_ln
+t_sta_type = l_object_info.station_type
+t_control_type = l_object_info.control_type
+
+#case t_control_type
+   #when "SEC-5AO" #block
+      #if attribute_exists(l_data.all_objects, "close_cmd_ix") #then i_select_ix = l_data.all_objects.close_cmd_ix
+      #if i_forced_value > 1 #then i_select_value = i_forced_value
+      #else i_select_value = 1
+   #block_end
+   #when "AO" #block
+      #if attribute_exists(l_data.all_objects, "execute_cmd_ix") #then i_select_ix = l_data.all_objects.execute_cmd_ix
+      #case length(l_object_info.control_bits)
+         #when 4, 5 i_select_value = 2**l_object_info.control_bits(2)
+         #otherwise b_execute_select = false
+      #case_end
+   #block_end
+   #when "SEC-4BO", "SEC-5BO" #block
+      #if attribute_exists(l_data.all_objects, "close_cmd_ix") #then i_select_ix = l_data.all_objects.close_cmd_ix
+      i_select_value = 1
+   #block_end
+   #when "SEC-BO" #block
+      #if attribute_exists(l_data.all_objects, "execute_cmd_ix") #then i_select_ix = l_data.all_objects.execute_cmd_ix
+      i_select_value = 1
+   #block_end
+   #when "DIR-BO", "SEC-2BO", "SEC-2DO" b_execute_select = false
+   #otherwise b_execute_select = false
+#case_end
+
+;define command parameter for iec 101 and dnp 3.0 protocols
+#if l_object_info.station_type == "IEC101" or l_object_info.station_type == "DNP_30" or l_object_info.station_type == "ICCP" #then #block
+   #if attribute_exists(l_object_info, "cmd_parameter") #then #block
+      i_cmd_param = l_object_info.cmd_parameter
+      #if i_cmd_param <> 't_select_ln':pty'i_select_ix' #then #set 't_select_ln':pty'i_select_ix' = i_cmd_param
+   #block_end
+   #else i_cmd_param = 't_select_ln':pty'i_select_ix'
+#block_end
+
+;send select command
+#if b_execute_select #then -
+   i_execute = do(bpu_select:c, t_select_ln, i_select_ix, i_select_value, t_sta_type, t_control_type, i_cmd_param)
+
+#if i_execute <> 0 #then #block ;error code of failure
+   l_result.status = i_execute
+   l_result.err_description = status_code_name(i_execute)
+#block_end
+#else #block ;set command event if simulated process and select was successful
+   #if attribute_exists(l_data.all_objects, "cmd_event_ix") #then #block
+      i_IX = l_data.all_objects.cmd_event_ix
+      #if 't_select_ln':pub'i_IX' == 0 and not ('t_select_ln':PSS'i_IX' > 1 and -
+            't_select_ln':pun'i_IX'<>0) #then #set 't_select_ln':pov'i_IX' = 1 ;
+   #block_end
+#block_end
+
+#return l_result

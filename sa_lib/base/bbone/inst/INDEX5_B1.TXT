@@ -1,0 +1,148 @@
+;SA_LIB Process
+
+;Station
+/SA_LIB/Process/Station
+   @SFNAME    = "SAGR_INST/SAI_STA2I"
+   @CONF_FILE = "SAGR_INST/SAI_STA2.DAT"
+   @Required_PF_Name        = "SAGR_STA"
+   @Required_PF_SFName      = "SAGR_INST/SAI_STA2T"
+   @Required_PSAGR_INSTallPosX = 1
+   @Required_PSAGR_INSTallPosY = 47
+
+;Bay
+/SA_LIB/Process/Bay
+   @SFNAME    = "SAGR_INST/SAI_BAY2I"
+   @CONF_FILE = "SAGR_INST/SAI_BAY2.DAT"
+   @Required_PF_Name        = "SAGR_BAY"
+   @Required_PF_SFName      = "SAGR_INST/SAI_BAY2T"
+   @Required_PSAGR_INSTallPosX = 4
+   @Required_PSAGR_INSTallPosY = 47
+
+
+;Switching device
+/SA_LIB/Process/Switching Device
+   @SFNAME                  = "SAGR_INST/SAI_SSWI_S"
+   @CONF_FILE               = "SAGR_INST/SAI_SSW.DAT"
+   @Required_PF_Name        = "SAGR_SW"
+   @Required_PF_SFName      = "SAGR_INST/SAI_SSWT"
+   @Required_PSAGR_INSTallPosX = 7
+   @Required_PSAGR_INSTallPosY = 47
+
+
+;Transformer
+/SA_LIB/Process/Tap Changer
+   @SFNAME                  = "SAGR_INST/SAI_TRI_2V"
+   @CONF_FILE               = "SAGR_INST/SAI_TRI_2.DAT"
+   @Required_PF_Name        = "SAGR_TAP"
+   @Required_PF_SFName      = "SAGR_INST/SAI_TRT_2"
+   @Required_PSAGR_INSTallPosX = 13
+   @Required_PSAGR_INSTallPosY = 47
+
+;Measurement
+/SA_LIB/Process/Measurement
+   @SFNAME                  = "SAGR_INST/SAI_ME1I_S"
+   @CONF_FILE               = "SAGR_INST/SAI_ME1.DAT"
+   @Required_PF_Name        = "SAGR_MEA"
+   @Required_PF_SFName      = "SAGR_INST/SAI_ME1T"
+   @Required_PSAGR_INSTallPosX = 16
+   @Required_PSAGR_INSTallPosY = 47
+
+;Alarm Indicator
+/SA_LIB/Process/Alarm Indicator
+   @SFNAME                  = "SAGR_INST/SAI_AII_S"
+   @CONF_FILE               = "SAGR_INST/SAI_AI.DAT"
+   @Required_PF_Name        = "SAGR_AI"
+   @Required_PF_SFName      = "SAGR_INST/SAI_AIT"
+   @Required_PSAGR_INSTallPosX = 25
+   @Required_PSAGR_INSTallPosY = 47
+
+;Auto-reclosing Tag
+/SA_LIB/Process/Auto Reclose
+   @SFNAME                  = "SAGR_INST/SAI_ARC2I"
+   @CONF_FILE               = "SAGR_INST/SAI_ARC2.DAT"
+   @Required_PF_Name        = "SAGR_ARC2"
+   @Required_PF_SFName      = "SAGR_INST/SAI_ARC2T"
+   @Required_PSAGR_INSTallPosX = 28
+   @Required_PSAGR_INSTallPosY = 47
+
+;Trip Tag
+/SA_LIB/Process/Trip Signal
+   @SFNAME                  = "SAGR_INST/SAI_TRIP2I"
+   @CONF_FILE               = "SAGR_INST/SAI_TRIP2.DAT"
+   @Required_PF_Name        = "SAGR_TRIP2"
+   @Required_PF_SFName      = "SAGR_INST/SAI_TRIP2T"
+   @Required_PSAGR_INSTallPosX = 31
+   @Required_PSAGR_INSTallPosY = 47
+
+;Generator
+/SA_LIB/Process/Generator
+   @SFNAME                  = "SAGR_INST/SAI_GENS"
+   @CONF_FILE               = "SAGR_INST/SAI_GEN.DAT"
+   @Required_PF_Name        = "SAGR_GEN"
+   @Required_PF_SFName      = "SAGR_INST/SAI_GENT"
+   @Required_PSAGR_INSTallPosX = 31
+   @Required_PSAGR_INSTallPosY = 47
+
+;Line Indicator
+/SA_LIB/Process/Line Indicator
+   @SFNAME                  = "SAGR_INST/SAI_LINDS"
+   @CONF_FILE               = "SAGR_INST/SAI_LIND.DAT"
+   @Required_PF_Name        = "SAGR_LIND"
+   @Required_PF_SFName      = "SAGR_INST/SAI_LINDT"
+   @Required_PSAGR_INSTallPosX = 31
+   @Required_PSAGR_INSTallPosY = 47
+
+;SA_LIB Measurement Reports :22.2.2012 HoDa removed for 9.3 FP2
+
+;DuoDriver Server
+/SA_LIB/Supervision/DuoDriver Server status
+   @SFNAME                  = "SAGR_INST/SAI_DDS_S"
+   @CONF_FILE               = "SAGR_INST/SAI_DUOS.DAT"
+   @Required_PF_Name        = "SAGR_DUO"
+   @Required_PF_SFName      = "SAGR_INST/SAI_DDS"
+   @Required_PSAGR_INSTallPosX = 7
+   @Required_PSAGR_INSTallPosY = 47
+
+;DuoDriver Device
+/SA_LIB/Supervision/DuoDriver Device status/LPHD (IEC 61850 Ed1.)
+   @SFNAME                  = "SAGR_INST/SAI_DDS_S"
+   @CONF_FILE               = "SAGR_INST/SAI_LPHD.DAT"
+   @Required_PF_Name        = "SAGR_DUO"
+   @Required_PF_SFName      = "SAGR_INST/SAI_DDD"
+   @Required_PSAGR_INSTallPosX = 7
+   @Required_PSAGR_INSTallPosY = 47
+
+/SA_LIB/Supervision/DuoDriver Device status/LCCH (IEC 61850 Ed2.)
+   @SFNAME                  = "SAGR_INST/SAI_DDS_S2"
+   @CONF_FILE               = "SAGR_INST/SAI_LCCH.DAT"
+   @Required_PF_Name        = "SAGR_DUO2"
+   @Required_PF_SFName      = "SAGR_INST/SAI_DDD2"
+   @Required_PSAGR_INSTallPosX = 7
+   @Required_PSAGR_INSTallPosY = 47
+
+
+;SSS application
+/SA_LIB/Supervision/Application status
+   @SFNAME                  = "SAGR_INST/SAI_APL"
+   @CONF_FILE               = "SAGR_INST/SAI_APL.DAT"
+   @Required_PF_Name        = "SAGR_APL"
+   @Required_PF_SFName      = "SAGR_INST/SAI_APL"
+   @Required_PSAGR_INSTallPosX = 7
+   @Required_PSAGR_INSTallPosY = 47
+
+/SA_LIB/Supervision/Device status via SNMP
+   @SFNAME                  = "SAGR_INST/SAI_SNMP"
+   @CONF_FILE               = "SAGR_INST/SAI_SNMP.DAT"
+   @Required_PF_Name        = "SAGR_SNMP"
+   @Required_PF_SFName      = "SAGR_INST/SAI_SNMP"
+   @Required_PSAGR_INSTallPosX = 7
+   @Required_PSAGR_INSTallPosY = 47
+
+;Custom Alarm
+/Custom/Alarm
+   @SFNAME                  = "SAGR_INST/SAI_AI C1"
+   @CONF_FILE               = "SAGR_INST/SAI_AI C1.DAT"
+   @Required_PF_Name        = "SAGR_AI"
+   @Required_PF_SFName      = "SAGR_INST/SAI_AIT"
+   @Required_PSAGR_INSTallPosX = 25
+   @Required_PSAGR_INSTallPosY = 47

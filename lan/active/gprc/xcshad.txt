@@ -1,0 +1,7 @@
+CALC_SHADOW
+
+@ST = SYS_GPRC:VSHADOW_THICKNESS
+@X1=(%X,%X+%W,%X+%W-%ST,%X+%ST,%X+%ST,%X)
+@Y1=(%Y,%Y,%Y+%ST,%Y+%ST,%Y+%H-%ST,%Y+%H)
+@X2=(%X,%X+%W,%X+%W,%X+%W-%ST,%X+%W-%ST,%X+%ST)
+@Y2=(%Y+%H,%Y+%H,%Y,%Y+%ST,%Y+%H-%ST,%Y+%H-%ST)

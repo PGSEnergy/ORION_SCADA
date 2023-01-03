@@ -1,0 +1,17 @@
+; Function:    SAGR_TAGOUT_AM_UD:C
+; Version:     1.0 (build 07.12.2008)
+; Parameters:  Logical Name (@LN), Index (@IX)
+;              changed attribute (@CA): Type of action method
+;                                          LOCALLOCK:     lock (block)local control
+;                                          REMOTELOCK:    lock (block) remote control
+;                                          LOCALINHIBIT:  inhibit (block) local update
+;                                          REMOTEINHIBIT: inhibit (block) remote update
+;              new Value (@NEW_VALUE) : 0 = reset 1 = set 
+; Return data: none
+; Description: 
+;              
+;              
+;----------------------------------------------------
+#local cot,bEnableDebugging=sys:bdm==1
+#if bEnableDebugging #then cot=console_output(times+" Tagout_AM_UD: LN='LN',IX='IX',CA='CA',new Value='New_Value'")
+

@@ -1,0 +1,43 @@
+;CM =General Data Interface for Report Applications, Reads the records of sampled values for given data object
+; Function: BGU_READSF:C
+; Version: 1.2																						  version number in LIB510, used to prevent automatic update
+; Parameters: DATA_ID - logical name of the data object
+;             T1 - start time
+;             T2 - end time (not obl.)
+; Return data: DATA:VOV - object data
+;                    OS - status codes of data
+;                    RT - registration times of data
+; Description: Reads the records of sampled values for given data object
+;              (General Data Interface for Report Applications)
+;------------------------------------------------------------------------
+#local cot
+#ERROR CONTINUE
+
+#if BMU_GLOBAL:CCS==1 #then #DO BMU_GLOBAL:CCP
+#else #DO BMU_GLOBAL:C
+
+#IF %SF_HIST_LEN > 0 AND %T1 > CLOCK - %SF_HIST_LEN*86400 #THEN #BLOCK
+   #create l_ReportObject:v=list(SP = %SF_Interval, SP_HL = %SF_Hist_Len,-
+                                 BP = %PF_Interval, BP_HL = %PF_Hist_Len)
+
+   ;index calculation
+   #if BMU_SP_IND:CCS==1 #then #DO BMU_SP_IND:CCP
+   #else #DO BMU_SP_IND:C
+   
+   ;read data from db
+   #IF %IS2 >= %IS1 #THEN #BLOCK ;data in one part
+      @DATA = DATA_FETCH(0,%DATA_ID,%IS1,1,%NS)
+   #BLOCK_END
+   #ELSE #BLOCK ;data in two parts
+      @DF1  = DATA_FETCH(0,%DATA_ID,%IS1,1,%NS1)
+      @DF2  = DATA_FETCH(0,%DATA_ID,1,1,%IS2)
+      @DATA = LIST(-
+         OV = APPEND(DF1:VOV,DF2:VOV),RT=APPEND(DF1:VRT,DF2:VRT), -
+         OS = APPEND(DF1:VOS,DF2:VOS),IX=APPEND(DF1:VIX,DF2:VIX), -
+         LE = DF1:VLE+DF2:VLE)
+   #BLOCK_END
+#BLOCK_END
+#ELSE #BLOCK
+   @DATA
+   cot = console_output("BGU_READSF:C - Time given is out of range for 'DATA_ID'.","W","MREP")      
+#BLOCK_END

@@ -1,0 +1,250 @@
+; Command procedure: SAGR_OBJNAV_MAIN:C
+; Parameters: t_Method_Name
+; Description: 
+; Return data: 
+;              
+; ----------------------------------------------------------------------------
+
+#argument t_Method_Name
+#local v_parents, v_selected, v_duplicateIndices, v_names, v_namesToAdd, v_emptyStringsToAdd, v_emptyNumsToAdd
+#local l_Query
+#local l_OI_Settings
+#local i_Command_Status
+#local i_sta, i_bay, i_dev
+#local t_Condition, t_Pad, t_OI_Parent_Filter, t_Prev_LN
+#local i_Index, i_OI_Length_Target, i_OI_Length_Parents, i_Target_OI_Index, i_FilterIndex
+#local v_ST_status, v_ST_fixed
+
+#local argCnt, tRedirectProc, tRedirectCommand, iArgLoop
+tRedirectProc="APLMOD_OBJNAV_MAIN"
+#if APPLICATION_OBJECT_EXISTS(0,"C",tRedirectProc) AND -
+DATA_TYPE(%REDIRECTED)=="NONE" #then #block
+   #if 'tRedirectProc':CIU==1 #then #block
+      @REDIRECTED=TRUE
+      argCnt=ARGUMENT_COUNT
+      tRedirectCommand="DO('tRedirectProc':C"
+      #loop_with iArgLoop=1..argCnt
+         tRedirectCommand=tRedirectCommand+",argument('iArgLoop')"
+         #if iArgLoop==argCnt #then #block
+            tRedirectCommand=tRedirectCommand+")"
+         #block_end
+      #loop_end
+      #return 'tRedirectCommand'
+   #block_end
+#block_end
+
+#if argument_count >= 2 #then v_parents = argument(2)
+#else v_parents = vector()
+#if argument_count >= 3 #then i_FilterIndex = argument(3)
+#else i_FilterIndex = 0
+
+#if SYS:BDM == 1 #then #block
+   @t_Trace_Method = t_Method_Name
+   #on error #block
+      @i_Error_Status = status
+      @i_Console_Status = console_output(times + " OBJNAV_MAIN:C error when executing 't_Trace_Method': 'i_Error_Status' - " + status_code_name(%i_Error_Status))
+      #return -1
+   #block_end
+   i_Command_Status = console_output(times + " OBJNAV_MAIN:C running method 't_Trace_Method'...")
+#block_end
+
+l_OI_Settings = apl:bsv(15)
+
+#case upper_case(t_Method_Name)
+
+   #when "QUERY_OI_DEPTH_LEVEL" #block
+
+      #loop_with i_Index = 1..5
+         #if l_OI_Settings.PROCESS_OBJECTS.OI.LENGTH'i_Index' == 0 #then #return i_Index - 1;
+      #loop_end
+      #return 5;
+   
+   #block_end
+
+   #when "QUERY_LEVELS_FOR_OI" #block
+   
+      i_sta = 0
+      i_bay = 0
+      i_dev = 0
+      #loop_with i_Index = 1..5
+         #case l_OI_Settings.PROCESS_OBJECTS.OI.FIELD'i_Index'(1)
+            #when "STA" i_sta = i_Index
+            #when "BAY" i_bay = i_Index
+            #when "DEV" i_dev = i_Index
+         #case_end
+      #loop_end
+      #return (i_sta,i_bay,i_dev)
+      
+   #block_end
+
+   ; Returns the names from the specified parents from the OI attribute. 
+   ; Actual process objects for for returned names is are not required to exist (E.g. the S/R switch for a bay may be missing)
+   #when "GET_NAMES" #block
+
+      i_Target_OI_Index = length(v_parents) + 1
+      i_OI_Length_Target = l_OI_Settings.PROCESS_OBJECTS.OI.LENGTH'i_Target_OI_Index'
+      i_OI_Length_Parents = 0
+
+      #if length(v_parents) == 0 #then #block
+         t_Condition = "OI<>"""""
+      #block_end
+      #else #block
+         t_OI_Parent_Filter = ""
+         #loop_with i_Index = 1 .. length(v_parents)
+            i_OI_Length_Parents = i_OI_Length_Parents + l_OI_Settings.PROCESS_OBJECTS.OI.LENGTH'i_Index'
+            t_OI_Parent_Filter = t_OI_Parent_Filter + v_parents(i_Index)
+            t_Pad = pad(" ", l_OI_Settings.PROCESS_OBJECTS.OI.LENGTH'i_Index')
+            t_OI_Parent_Filter = t_OI_Parent_Filter + substr(t_Pad, length(v_parents(i_Index)) + 1, 0)
+         #loop_end
+         t_Condition = "OI==""'t_OI_Parent_Filter'*"""
+      #block_end
+          
+      l_Query = application_object_list(0, "IX", "A", "F", "", t_Condition, vector("OI"), MAX_VECTOR_LENGTH)
+      l_Query.OI = edit(remove_duplicates(substr(l_Query.OI, i_OI_Length_Parents + 1, i_OI_Length_Target)), "RIGHT_TRIM")
+      #return delete_element(l_Query.OI, select(edit(l_Query.OI, "COLLAPSE"), "=="""""))
+      
+   #block_end
+   
+   ; Returns the names (and LNs and RXs) from the specified parents from the OI attribute. 
+   ; Only returns names that are backup by actual process objects.
+   #when "GET_OBJECT_INFOS" #block
+  
+      i_Target_OI_Index = length(v_parents) + 1
+      i_OI_Length_Target = l_OI_Settings.PROCESS_OBJECTS.OI.LENGTH'i_Target_OI_Index'
+      i_OI_Length_Parents = 0
+    
+      #if length(v_parents) == 0 #then #block
+         t_Condition = "OI<>"""""
+      #block_end
+      #else #block
+         t_OI_Parent_Filter = ""
+         #loop_with i_Index = 1 .. length(v_parents)
+            i_OI_Length_Parents = i_OI_Length_Parents + l_OI_Settings.PROCESS_OBJECTS.OI.LENGTH'i_Index'
+            t_OI_Parent_Filter = t_OI_Parent_Filter + v_parents(i_Index)
+            t_Pad = pad(" ", l_OI_Settings.PROCESS_OBJECTS.OI.LENGTH'i_Index')
+            t_OI_Parent_Filter = t_OI_Parent_Filter + substr(t_Pad, length(v_parents(i_Index)) + 1, 0)
+         #loop_end
+         t_Condition = "OI==""'t_OI_Parent_Filter'*"""
+      #block_end
+      
+      l_Query = application_object_list(0, "IX", "A", "F", "", t_Condition, vector("OI","RX"), MAX_VECTOR_LENGTH)
+     
+      ; Filter away all child and parent objects
+      t_Condition = "'i_OI_Length_Parents' < length() AND length() <= 'i_OI_Length_Target'+'i_OI_Length_Parents'"
+      v_selected = select(l_Query.OI, t_Condition, "WILDCARDS")
+      l_Query.OI = pick(l_Query.OI, v_selected)
+      l_Query.LN = pick(l_Query.LN, v_selected)
+      l_Query.RX = pick(l_Query.RX, v_selected)
+
+      ; Fix the OI attribute      
+      l_Query.OI = edit(substr(l_Query.OI, i_OI_Length_Parents + 1, i_OI_Length_Target), "RIGHT_TRIM")
+                 
+      ; Now we need to remove all duplicates (comes when there is several IX:s for the same LN (and OI)
+      ; Just loop over LN (it is sorted in alphabetical order); if the same LN occurs once or more remove
+      ; the ones after the first with the same value
+      
+      #if length(l_Query.LN) > 1 #then #block
+         v_duplicateIndices = vector()
+         t_Prev_LN = l_Query.LN(1)
+         #loop_with i_Index = 2 .. length(l_Query.LN)
+            #if l_Query.LN(i_Index) == t_Prev_LN #then v_duplicateIndices = append(v_duplicateIndices, i_Index)
+            #else t_Prev_LN = l_Query.LN(i_Index)
+         #loop_end
+         
+         #if length(v_duplicateIndices) > 0 #then #block
+            l_Query.OI = delete_element(l_Query.OI, v_duplicateIndices)
+            l_Query.LN = delete_element(l_Query.LN, v_duplicateIndices)
+            l_Query.RX = delete_element(l_Query.RX, v_duplicateIndices)
+         #block_end
+      #block_end
+            
+      #return LIST(NAME=l_Query.OI,LN=l_Query.LN,RX=l_Query.RX)      
+            
+   #block_end
+
+   ; Returns the names (as well as LNs, IXs, RXs and OXs) from the specified parents from 
+   ; the OI attribute. 
+   ; If the process object for a certain "name" (e.g. bay without own objects) does not exist
+   ; then empty strings are returned for LN and RX for that name.
+   #when "GET_PROCESS_OBJECTS_BY_OI" #block
+   
+      i_Target_OI_Index = length(v_parents) + 1
+      i_OI_Length_Target = l_OI_Settings.PROCESS_OBJECTS.OI.LENGTH'i_Target_OI_Index'
+      i_OI_Length_Parents = 0
+    
+      #if length(v_parents) == 0 #then #block
+         t_Condition = "OI<>"""""
+      #block_end
+      #else #block
+         t_OI_Parent_Filter = ""
+         #loop_with i_Index = 1 .. length(v_parents)
+            i_OI_Length_Parents = i_OI_Length_Parents + l_OI_Settings.PROCESS_OBJECTS.OI.LENGTH'i_Index'
+            t_OI_Parent_Filter = t_OI_Parent_Filter + v_parents(i_Index)
+            t_Pad = pad(" ", l_OI_Settings.PROCESS_OBJECTS.OI.LENGTH'i_Index')
+            t_OI_Parent_Filter = t_OI_Parent_Filter + substr(t_Pad, length(v_parents(i_Index)) + 1, 0)
+         #loop_end
+         t_Condition = "OI==""'t_OI_Parent_Filter'*"""
+      #block_end
+      
+      #if i_FilterIndex <> 0 #then t_Condition = "IX=='i_FilterIndex' AND " + t_Condition
+      l_Query = application_object_list(0, "IX", "A", "F", "", t_Condition, vector("OI","RX","TX","PT","ST"), MAX_VECTOR_LENGTH) ;ID 12117: OX -> TX
+      
+      ; Extract all names (including these not backed by process objects!)
+      v_names = edit(remove_duplicates(substr(l_Query.OI, i_OI_Length_Parents + 1, i_OI_Length_Target)), "RIGHT_TRIM")
+      v_names = delete_element(v_names, select(edit(v_names, "COLLAPSE"), "=="""""))
+      
+      ; Filter away all child and parent objects
+      t_Condition = "'i_OI_Length_Parents' < length() AND length() <= 'i_OI_Length_Target'+'i_OI_Length_Parents'"
+      v_selected = select(l_Query.OI, t_Condition, "WILDCARDS")
+      l_Query.OI = pick(l_Query.OI, v_selected)
+      l_Query.LN = pick(l_Query.LN, v_selected)
+      l_Query.IX = pick(l_Query.IX, v_selected)
+      l_Query.RX = pick(l_Query.RX, v_selected)
+      l_Query.TX = pick(l_Query.TX, v_selected) ;ID 12117: OX -> TX
+      l_Query.PT = pick(l_Query.PT, v_selected)
+      l_Query.ST = pick(l_Query.ST, v_selected)
+
+      ; Fix the OI attribute      
+      l_Query.OI = edit(substr(l_Query.OI, i_OI_Length_Parents + 1, i_OI_Length_Target), "RIGHT_TRIM")
+      
+      ; Fix the ST attribute. ST is only valid for AI, AO and PC. Add empty strings
+      ; instead of the bad status values caused by missing ST.
+      v_ST_status = get_status(l_Query.ST)
+      v_ST_fixed = l_Query.ST
+      l_Query.ST = spread(v_ST_fixed, select(v_ST_status, ">0"), "")
+      
+      ; Add the names not backup up by process objects (let the attribute elements be empty strings for these)
+      #if length(v_names) > 0 #then #block
+         v_namesToAdd = vector()
+         v_emptyStringsToAdd = vector()
+         v_emptyNumsToAdd = vector()
+         #loop_with i_Index = 1 .. length(v_names)
+            #if find_element(l_Query.OI, v_names(i_Index)) == 0 #then #block
+			   v_namesToAdd = append(v_namesToAdd, v_names(i_Index))
+			   v_emptyStringsToAdd = append(v_emptyStringsToAdd, "")
+			   v_emptyNumsToAdd = append(v_emptyNumsToAdd, 0)
+            #block_end
+         #loop_end
+         
+         #if length(v_namesToAdd) > 0 #then #block
+            l_Query.OI = append(l_Query.OI, v_namesToAdd)
+            l_Query.LN = append(l_Query.LN, v_emptyStringsToAdd)
+            l_Query.IX = append(l_Query.IX, v_emptyNumsToAdd)
+            l_Query.RX = append(l_Query.RX, v_emptyStringsToAdd)
+            l_Query.TX = append(l_Query.TX, v_emptyStringsToAdd) ;ID 12117: OX -> TX
+            l_Query.PT = append(l_Query.PT, v_emptyNumsToAdd)
+            l_Query.ST = append(l_Query.ST, v_emptyStringsToAdd)
+         #block_end
+      #block_end
+                  
+      ; ID 12117: Use Translated Object Text (TX) instead of Object Text (OX).
+      ; The method still returns OX attribute which inludes the info from TX attribute.
+      ; This way no changes are needed in the Display Builder/Object Browser or objectNavigatorComm.
+
+      #return LIST(NAME=l_Query.OI, LN=l_Query.LN, IX=l_Query.IX, RX=l_Query.RX, OX=l_Query.TX, PT=l_Query.PT, ST=l_Query.ST)
+   
+   #block_end
+   
+#case_end
+
+#return -1

@@ -1,0 +1,62 @@
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Mikko Ripatti/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">IED</Parameter>
+		<Parameter name="Caption">Generic IED</Parameter>
+		<Parameter name="Description">IED</Parameter>
+		<Parameter name="Group">Communication</Parameter>
+		<Parameter name="Type">IED</Parameter>
+		<Parameter name="IconFileName">genIED.ico</Parameter>
+		<Parameter name="Tools"></Parameter>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="Visible">False</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="DataStructureObjectType">SUBNETWORK</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+	<Properties type="PropertyDefinitions">
+		<Property name="SCLIedType" category="">
+			<Value>Generic IED</Value>
+			<DescID>SCLIedTypeDesc</DescID>
+			<CaptionID>SCLIedType</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RRR</Access>
+			<AttributeName>SCLIedType</AttributeName>
+		</Property>
+		<Property name="SCLManufacturer" category="">
+			<Value/>
+			<DescID>SCLManufacturerDesc</DescID>
+			<CaptionID>SCLManufacturer</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RRR</Access>
+			<AttributeName>SCLManufacturer</AttributeName>
+		</Property>
+		<Property name="SCLPCMObjectTypeName" category="">
+			<Value/>
+			<DescID>SCLPCMObjectTypeName</DescID>
+			<CaptionID>SCLPCMObjectTypeName</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>SCLPCMObjectTypeName</AttributeName>
+		</Property>
+		<Property name="SCLConfigVersion" category="">
+			<Value/>
+			<DescID>SCLConfigVersionDesc</DescID>
+			<CaptionID>SCLConfigVersion</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RRR</Access>
+			<AttributeName>configVersion</AttributeName>
+		</Property>
+	</Properties>
+</ObjectType>

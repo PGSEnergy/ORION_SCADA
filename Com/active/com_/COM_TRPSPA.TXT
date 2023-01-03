@@ -1,0 +1,46 @@
+﻿; This command procedure is used for receiving and sending transparent spa messages
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+;  INPUT: @UN, @FI, @LN, @IX, @OG, @OA, @TY @BS attributes of the input object        
+;
+;---------------------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+@NCC_STA_NR = 'LN':PUN'IX'
+@STA_NRO = 'LN':PFX'IX'
+@RECEIVED_TRANSPARENT_DATA = 'LN':PBS'IX'
+@ENABLE_DATA_SENDING_AFTER_STARTUP = COM_GENVAR:PBZ(4)
+@ORIG = 'LN':POG'IX'
+@CMD_ADDR = 'LN':POA'IX'
+@CMD_TYPE = 'LN':PTY'IX'
+@ENABLE_TRANSPARENT_SPA = FALSE 
+@NCC_CNUMBER = 1
+
+#IF %ENABLE_DATA_SENDING_AFTER_STARTUP #THEN #BLOCK ; 1
+   @NCC_XREF_TABLE = APL:BSV(21)
+   #IF LENGTH(%NCC_XREF_TABLE) > 0 #THEN #BLOCK ;2
+      #LOOP_WITH NCC_NUMBER = 1..LENGTH(%NCC_XREF_TABLE)
+         @NCC_VECTOR = %NCC_XREF_TABLE(%NCC_NUMBER)
+         #IF LENGTH(%NCC_VECTOR) >=14 #THEN #BLOCK
+            #IF %NCC_VECTOR(1) == %NCC_STA_NR #THEN #BLOCK
+               @ENABLE_TRANSPARENT_SPA = %NCC_VECTOR(14)
+               @NCC_CNUMBER = %NCC_NUMBER
+            #BLOCK_END
+         #BLOCK_END   
+      #LOOP_END
+   #BLOCK_END
+   #IF %ENABLE_TRANSPARENT_SPA AND NOT COM_GENVAR:PBZ(%NCC_CNUMBER+4) #THEN #BLOCK
+      @SPA_MSG = TYPE_CAST(%RECEIVED_TRANSPARENT_DATA,"TEXT")
+      #SET STA'STA_NRO':SSM = %SPA_MSG
+      @SPA_ANSW = STA'STA_NRO':SSM
+      @S = STATUS
+      #IF %S == 0 OR %S == 13226 #THEN #BLOCK   
+         #SET STA'NCC_STA_NR':SCF = (256*%ORIG+7,%CMD_ADDR,%CMD_TYPE,%SPA_ANSW)
+      #BLOCK_END      
+   #BLOCK_END            
+#BLOCK_END ; 1
+

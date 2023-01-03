@@ -1,0 +1,25 @@
+;************************ Apl_Def.txt **************************************
+; This file is for application specific definition.  
+; This file is not updated when prepare the application.
+; In this file it is possible to define the firs visible object to be shown
+; when a VS monitor is started. It can be a Visual Scil dialog or a picture.
+;***************************************************************************
+
+
+;------------------------- Examples of defining first visible object -------------------------------------
+
+;------------------ Open Start dialog as first visible object ----------------
+;@Start_Object_Type	= "Dialog"   		;Defines if the fist object is a picture or VS dialog
+;@Start_Picture_Name	= "APL_/APL_START"	;Needed if  Start_Object_Type == "Picture"
+;@Start_Dialog_File	= "APL_/Apl_Start.vso"	;Needed if  Start_Object_Type == "Dialog"
+;@Start_Dialog_Tag	= "Main"		;Needed if  Start_Object_Type == "Dialog"
+;@Start_Dialog_Type	= "VS_Main_Dialog"	;Needed if  Start_Object_Type == "Dialog"
+;@Start_Dialog_Attributes= vector()
+
+;------------------ Open ToolManager as first visible object ----------------
+;@Start_Object_Type	= "Dialog"   		;Defines if the fist object is a picture or VS dialog
+;@Start_Picture_Name	= "APL_/APL_START"	;Needed if  Start_Object_Type == "Picture"
+;@Start_Dialog_File	= "Sys_Tool/ToolMgr.vso";Needed if  Start_Object_Type == "Dialog"
+;@Start_Dialog_Tag	= "Main"		;Needed if  Start_Object_Type == "Dialog"
+;@Start_Dialog_Type	= "VS_Main_Dialog"	;Needed if  Start_Object_Type == "Dialog"
+;@Start_Dialog_Attributes= vector("Default_Path=""Sys_Tool""","Notify_Parent_On_Exit=false","Delete_Parent_On_Exit=true")

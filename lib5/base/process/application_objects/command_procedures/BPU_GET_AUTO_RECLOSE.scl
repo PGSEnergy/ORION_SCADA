@@ -1,0 +1,81 @@
+;Function: BPU_GET_AUTO_RECLOSE:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_get_auto_reclose.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute), l_data
+;Return data: : LIST(STATUS=integer, err_description=text)
+;Description:
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data
+#local l_result = list(ar_in_progress = false, ar_in_use_sw = false, ar_in_use_hw = false,-
+   ar_in_use_sw_present = false, ar_in_use_hw_present = false, status = 0, err_description="")
+#local t_LN, i_IX = 0, s, l_value_convention = list(), t_value = "", i_val, t_procedure = ""
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_GET_AR"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+         @REDIRECTED = true                                                                        
+         i_ArgCnt = argument_count                                                                 
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+         #loop_end                                                                                 
+         #return 't_Redirect_Command' ;;;;;                                                        
+      #block_end                                                                                   
+   #block_end                                                                                      
+   #else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+
+;define value convention for process data
+t_procedure =  l_object_info.type_info.command_procedures.get_indications_switch
+l_value_convention = do('t_procedure':c, l_object_info, l_data.all_objects)
+
+#if attribute_exists(l_data.all_objects, "ar_running_ln1") #then #block
+   t_LN = l_data.all_objects.ar_running_ln1
+   i_IX = l_data.all_objects.ar_running_ix1
+   #if 't_LN':pos'i_IX' < 10 #then #block
+      i_val = trunc('t_LN':pov'i_IX')
+      #if attribute_exists(l_value_convention.ar_running, "ov_'i_val'") #then -
+         t_value = l_value_convention.ar_running.ov_'i_val'
+      #if t_value == "RUNNING" #then l_result.ar_in_progress = true
+      t_value = ""
+   #block_end
+#block_end
+
+#if attribute_exists(l_data.all_objects, "ar_in_use_sw_ln") #then #block
+   t_LN = l_data.all_objects.ar_in_use_sw_ln
+   i_IX = l_data.all_objects.ar_in_use_sw_ix
+   #if 't_LN':pos'i_IX' < 10 #then #block
+      i_val = trunc('t_LN':pov'i_IX')
+      #if attribute_exists(l_value_convention.ar_in_use_sw, "ov_'i_val'") #then -
+         t_value = l_value_convention.ar_in_use_sw.ov_'i_val'
+      #if t_value == "IN_USE" #then l_result.ar_in_use_sw = true      
+      t_value = ""
+   #block_end
+   l_result.ar_in_use_sw_present = true
+#block_end
+
+#if attribute_exists(l_data.all_objects, "ar_in_use_hw_ln") #then #block
+   t_LN = l_data.all_objects.ar_in_use_hw_ln
+   i_IX = l_data.all_objects.ar_in_use_hw_ix
+   #if 't_LN':pos'i_IX' < 10 #then #block
+      i_val = trunc('t_LN':pov'i_IX')
+      #if attribute_exists(l_value_convention.ar_in_use_hw, "ov_'i_val'") #then -
+         t_value = l_value_convention.ar_in_use_hw.ov_'i_val'
+      #if t_value == "IN_USE" #then l_result.ar_in_use_hw = true
+   #block_end
+   l_result.ar_in_use_hw_present = true
+#block_end
+ 
+#return l_result

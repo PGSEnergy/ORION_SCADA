@@ -1,0 +1,102 @@
+; File: GetObjNrs(t_Obj_Type, [x_Information])
+; Parameters: t_Obj_Type, type of object having attribute value, e.g. "BASE_SYSTEM_LINK"
+;             [x_Information], the number of the NET object or signal engineering file/device nr
+; Return data type: v_Object_Numbers, objects numbers for specified type.
+; Description: Reads object numbers from the configuration file and returns in specified
+;              format.
+; ----------------------------------------------------------------------------------------------
+
+@t_Obj_Type = argument(1)
+
+#if argument_count == 2 #then @x_Information = argument(2)
+
+@l_System_Configuration_Data = SYS:BSV2
+@t_System_Conf_File = "sys_/SysConf.ini"
+#if data_type(%l_System_Configuration_Data) == "LIST" #then #if length(select(list_attr(%l_System_Configuration_Data), "==""T_SYSTEM_CONFIGURATION_FILE""")) == 1 #then @t_System_Conf_File = l_System_Configuration_Data:vt_System_Configuration_File
+
+@v_Obj_Numbers = vector(0)
+
+#case %t_Obj_Type
+
+   #when "BASE_SYSTEM_LINK" @v_Ini_Pars = ("LINKS", "Link_Numbers")
+   #when "BASE_SYSTEM_NODE" @v_Ini_Pars = ("NODES", "Node_Numbers")
+   #when "BASE_SYSTEM_STATION" @v_Ini_Pars = ("STATIONS", "Station_Numbers")
+   #when "NET_STATION" @v_Ini_Pars = ("STATIONS", "Station_Numbers")
+   #when "BASE_SYSTEM_STATION_TYPE" @v_Ini_Pars = ("STATION_TYPES", "Station_Type_Numbers")
+   #when "NET_LINK" @v_Ini_Pars = ("NODE_'x_Information'_LINKS", "Node_Link_Numbers")
+   #when "NET_DEVICES_REX" @v_Ini_Pars = ("REX_Device_Points", "Device_Numbers")
+   #when "NET_DEVICES_LMK" @v_Ini_Pars = ("LMK_Device_Points", "Device_Numbers")
+   #when "NET_DEVICES_SPA" @v_Ini_Pars = ("SPA_Device_Points", "Device_Numbers")
+   #when "NET_DEVICES_PLC" @v_Ini_Pars = ("PLC_Device_Points", "Device_Numbers")
+   #when "NET_POINTS_REX" @v_Ini_Pars = ("REX_Device_Points", "Device_Points")
+   #when "NET_POINTS_LMK" @v_Ini_Pars = ("LMK_Device_Points", "Device_Points")
+   #when "NET_POINTS_SPA" @v_Ini_Pars = ("SPA_Device_Points", "Device_Points")
+   #when "NET_POINTS_PLC" @v_Ini_Pars = ("PLC_Device_Points", "Device_Points")
+   #when "NET_EVENTS_SPA" @v_Ini_Pars = ("SPA_Device_Points", "Device_Events")
+
+#case_end
+
+#if length(select(("NET_DEVICES_REX", "NET_DEVICES_PLC", "NET_DEVICES_LMK", "NET_DEVICES_SPA"), "==%t_Obj_Type")) > 0 #then @t_System_Conf_File = %x_Information
+#else_if length(select(("NET_POINTS_REX", "NET_POINTS_PLC", "NET_POINTS_LMK", "NET_POINTS_SPA", "NET_EVENTS_SPA"), "==%t_Obj_Type")) > 0 #then #block
+
+   @t_System_Conf_File = %x_Information(1)
+   @v_Ini_Pars(2) = %v_Ini_Pars(2) + "_" + dec(%x_Information(2), 0)
+
+#block_end
+@l_Ini_Read = read_parameter(%t_System_Conf_File, %v_Ini_Pars(1), %v_Ini_Pars(2))
+
+#if l_Ini_Read:vSTATUS == 0 #then #block
+
+   #if l_Ini_Read:vVALUE <> "" #then #block
+
+      #if length(l_Ini_Read:vVALUE) == 1 #then @v_Obj_Numbers = dec_scan(separate(l_Ini_Read:vVALUE, ","))
+      #else #block
+
+         #if substr(l_Ini_Read:vVALUE, length(l_Ini_Read:vVALUE) - 1, 2) == ",-" #then @v_Obj_Numbers = dec_scan(separate(substr(l_Ini_Read:vVALUE, 1, length(l_Ini_Read:vVALUE) - 2), ","))
+         #else_if substr(l_Ini_Read:vVALUE, length(l_Ini_Read:vVALUE) - 1, 2) == "+-" #then @v_Obj_Numbers = dec_scan(separate(substr(l_Ini_Read:vVALUE, 1, length(l_Ini_Read:vVALUE) - 2), ","))
+         #else @v_Obj_Numbers = dec_scan(separate(l_Ini_Read:vVALUE, ","))
+
+      #block_end
+   
+   #block_end
+
+#block_end
+
+#loop_with i_Numbers = 2 .. 10000
+
+   @l_Ini_Read = read_parameter(%t_System_Conf_File, %v_Ini_Pars(1), %v_Ini_Pars(2) + "_'i_Numbers'")
+
+   #if l_Ini_Read:vSTATUS == 0 #then #block
+
+      #if l_Ini_Read:vVALUE <> "" #then @v_Current_Values = separate(l_Ini_Read:vVALUE, ",")
+      #else #block
+   
+         @v_Current_Values = vector()
+         #set l_Ini_Read:vVALUE = "  "
+
+      #block_end
+
+      #if length(l_Ini_Read:vVALUE) == 1 #then @v_Obj_Numbers = append(%v_Obj_Numbers, dec_scan(%v_Current_Values))
+      #else #block
+
+         #if substr(l_Ini_Read:vVALUE, length(l_Ini_Read:vVALUE) - 1, 1) == "," #then #block
+
+            @v_Current_Values = %v_Current_Values(1 .. length(%v_Current_Values) - 1)
+            @v_Obj_Numbers = append(%v_Obj_Numbers, dec_scan(%v_Current_Values))
+ 
+         #block_end
+         #else #block
+
+            @v_Obj_Numbers = append(%v_Obj_Numbers, dec_scan(%v_Current_Values))
+            #loop_exit
+
+         #block_end
+
+      #block_end
+
+   #block_end
+   #else #loop_exit
+
+#loop_end
+
+#return %v_Obj_Numbers

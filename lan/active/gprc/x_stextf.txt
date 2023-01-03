@@ -1,0 +1,63 @@
+;GRAPHICS, MOTIF BASED TEXT INPUT FIELD
+ 
+;IN NAME X, Y, WIDTH, VALUE, MAX_LENGTH
+#IF MON:BDT == "X" #THEN #BLOCK
+ 
+@FL(1) = ("M",11)
+ 
+.CREATE 'NAME'DS = MOTIF_ROW_COLUMN
+.MODIFY 'NAME'DS = LIST(-
+   BACKGROUND         = "BLACK",-
+   MARGIN_HEIGHT      = 0,-
+   MARGIN_WIDTH       = 0,-
+   MAX_LENGTH         = %MAX_LENGTH,-
+   SCIL_X             = %X,-
+   SCIL_Y             = %Y)
+
+ 
+.CREATE 'NAME'DS/'NAME' = DEC_MOTIF_CS_TEXT
+.MODIFY 'NAME' = LIST(-
+   SCIL_CHARSET       = "GB2312.1980-1",-
+   MARGIN_HEIGHT      = 0,-
+   MARGIN_WIDTH       = 1,-
+   MAX_LENGTH         = %MAX_LENGTH,-
+   BORDER_WIDTH       = 0,-
+   SHADOW_THICKNESS   = 0,-
+   SCIL_X             = %X,-
+   SCIL_Y             = %Y,-
+   SCIL_VALUE         = %VALUE,-
+   VALUE              = 'VALUE',-
+   BACKGROUND         = "WHITE",-
+   FOREGROUND         = "BLACK")
+ 
+.SET 'NAME'.VALUE_CHANGED_CALLBACK = ("#SET 'VALUE' = 'NAME'.VALUE","")
+.SET 'NAME'.FONT_LIST              = %FL
+.SET 'NAME'.SCIL_WIDTH             = %WIDTH-70
+ 
+'NAME'.MANAGE
+'NAME'DS.MANAGE
+ 
+@FL(1) = ("M",4)
+.CREATE_MANAGED 'NAME'_K = MOTIF_TOGGLE_BUTTON(-
+   FONT_LIST          = %FL,-
+   BACKGROUND         = "WHITE",-
+   LABEL_STRING       = "S",-
+   SCIL_X             = %X+%WIDTH-70,-
+   SCIL_Y             = %Y,-
+   SCIL_HEIGHT        = 'NAME'.SCIL_HEIGHT,-
+   SCIL_WIDTH         = 70,-
+   VALUE_CHANGED_CALLBACK=(-
+             "@VALUE = 'NAME'.SCIL_VALUE",-
+             "#IF 'NAME'_K.GET_STATE #THEN #BLOCK",-
+             "   'NAME'DS.UNMANAGE",-
+             "   !SHOW ATTR_'NAME' ''VALUE''",-
+             "#BLOCK_END",-
+             "#ELSE #BLOCK",-
+             "   !ENTER",-
+             "   'NAME'DS.MANAGE",-
+             "   .SET 'NAME'.VALUE = ''VALUE''",-
+             "#BLOCK_END"))
+ 
+ 
+#BLOCK_END
+#ELSE #SET MON:BSV(8) = 0

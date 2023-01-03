@@ -1,0 +1,9 @@
+;OBJECT       : BGU_INITC.TXT
+;DESCRIPTION  : Executed when application gets hot or at take-over at Monitor start-up and at Login
+;-------------------------------------------------------------------------
+@TEST=FETCH(0,"A","APL_INIT_1")
+
+#IF TEST:VIU == 1 #THEN #BLOCK
+   #if length(apl:bsv) < 11 #then #do read_text("/SA_LIB/BASE/BBONE/USE/bgu_sysapl.txt")
+   #else_if data_type(get_status(apl:bsv(11)))<>"LIST" #then #do read_text("/SA_LIB/BASE/BBONE/USE/bgu_sysapl.txt")
+#BLOCK_END

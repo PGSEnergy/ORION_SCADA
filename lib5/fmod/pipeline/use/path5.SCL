@@ -1,0 +1,9 @@
+#local l_Paths, t_Basepath = ARGUMENT(1)
+
+l_Paths = LIST(-
+	F5_INST = VECTOR("'t_Basepath'/INST"),-
+	F5_USE = VECTOR("'t_Basepath'/USE", "'t_Basepath'/OBJECT_TYPES"),-
+	F5_LANG = VECTOR("'t_Basepath'/LANG_TEXTS"))
+
+#RETURN l_Paths
+

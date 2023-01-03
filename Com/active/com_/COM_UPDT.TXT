@@ -1,0 +1,1138 @@
+﻿; This is the application update file for a COM500 application
+;
+; SYS600 10.2.0
+;
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+;-------------------------------------------------------------------------------------------------------
+
+;send message to the notfication window
+@APL_NAME = APL:BNA
+#PATH COM_PATH /APL/'APL_NAME'/COM500
+
+@TMP = CONSOLE_OUTPUT("Updating Application 'APL_NAME' to COM500i...")
+
+;reset status
+@S = STATUS
+
+;check revision infomation
+@C_SEARCH = FETCH(0,"C","COM_REVDTA")
+#IF C_SEARCH:VIU <> -1 #THEN #DO COM_REVDTA:C
+#ELSE #BLOCK
+   @C_SEARCH = FETCH(0,"C","COM_COMINI")
+   #IF C_SEARCH:VIU <> -1 #THEN @COM_500_REVISION = "2.0"
+   #ELSE #BLOCK
+      @C_SEARCH = FETCH(0,"C","BNU_COMINI")
+      #IF C_SEARCH:VIU <> -1 #THEN @COM_500_REVISION = "1.0*"
+      #ELSE @COM_500_REVISION = "NONE"
+   #BLOCK_END
+#BLOCK_END
+
+#IF %COM_500_REVISION == "1.0*" #THEN #BLOCK
+   ;modify process database (BNU_*:A --> COM_*:A, FI --> TI)
+   #INIT_QUERY "A" IU == 1 AND (FI <> 0 OR RX == "%%%%%%%%%%%%%%%%%%%%BN*")
+   #LOOP
+      @XREF_OBJECTS = PROD_QUERY(APL:BQL)
+      #IF LENGTH(XREF_OBJECTS:VLN) > 0 #THEN #BLOCK
+         #LOOP_WITH I = 1..LENGTH(XREF_OBJECTS:VLN)
+            @LN = XREF_OBJECTS:VLN(%I)
+            @IX = XREF_OBJECTS:VIX(%I)
+            @AN = 'LN':PAN'IX'
+            @OLD_XREF_INDEX = 'LN':PFI'IX'
+            #SET 'LN':PFI'IX' = 0
+            #IF %OLD_XREF_INDEX > 0 #THEN #SET 'LN':PTI'IX' = %OLD_XREF_INDEX
+            #IF LENGTH(%AN) > 0 #THEN #BLOCK
+               #IF SUBSTR('LN':PAN'IX',1,4) == "BNU_" #THEN #BLOCK
+                  @AN_END = SUBSTR('LN':PAN'IX',5,0)
+                  #SET 'LN':PAN'IX' = "COM_" + %AN_END
+               #BLOCK_END
+               @EV_FETCH = FETCH(0,"A",%AN)
+               #IF EV_FETCH:VIU <> -1 #THEN #BLOCK
+                  @SN = 'AN':ASN
+                  @ST = 'AN':AST               
+                  @SN_MATCH = SELECT(LOCATE(%SN,"BNU_"),"<>0")
+                  #IF LENGTH(%SN_MATCH) > 0 #THEN #BLOCK
+                     #LOOP_WITH J = 1..LENGTH(%SN_MATCH)
+                        @IND = %SN_MATCH(%J)
+                        @SEC_OBJ = %SN(%IND)
+                        @SN(%IND) = "COM_" + SUBSTR(%SEC_OBJ,5,0)
+                     #LOOP_END
+                     #MODIFY 'AN':A = LIST(SN = %SN, ST = %ST) 
+                  #BLOCK_END
+               #BLOCK_END
+            #BLOCK_END
+         #LOOP_END
+      #BLOCK_END
+      #IF END_QUERY #THEN #LOOP_EXIT
+   #LOOP_END  
+   ;rename existing rev 1.0 cross-reference text files
+   @APL_NAME = APL:BNA
+   #IF DIRECTORY_MANAGER("EXISTS",FM_SCIL_DIRECTORY("/APL/'APL_NAME'/COM500")) #THEN #BLOCK
+      @XREF_FILES = FM_REPRESENT(FILE_MANAGER("LIST",FM_SCIL_DIRECTORY("/APL/'APL_NAME'/COM500"),"BNU_XR*.TXT"))
+      #IF LENGTH(%XREF_FILES) > 0 #THEN #BLOCK
+         #LOOP_WITH I = 1..LENGTH(%XREF_FILES)
+            @FILE = %XREF_FILES(%I)
+            @NEW_NAME = "COM_" + SUBSTR(%FILE,5,0)
+            @TMP = FILE_MANAGER("RENAME",FM_SCIL_FILE("/APL/'APL_NAME'/COM500/'FILE'"),%NEW_NAME)
+         #LOOP_END
+      #BLOCK_END
+   #BLOCK_END
+#BLOCK_END
+
+;create event chanel APL_INIT_1, if it does not exist already
+;if it exists, then add APL_INIT_1 execution to event channel
+@A_SEARCH = FETCH(0,"A","APL_INIT_1")
+#IF A_SEARCH:VIU == -1 #THEN -
+   #CREATE APL_INIT_1:A = LIST(-
+         ON = "APL_INIT_1",-
+         OT = "C")
+#ELSE_IF APL_INIT_1:AON <> "APL_INIT_1" #THEN #BLOCK
+   #IF APL_INIT_1:AON == "" #THEN -
+   #MODIFY APL_INIT_1:A = LIST(-
+         OT = "C",-
+         ON = "APL_INIT_1")
+   #ELSE #BLOCK
+      #IF LENGTH(SELECT(APL_INIT_1:ASN,"==""APL_INIT_1""")) == 0 #THEN #BLOCK
+         @OBJ_NAMES = APPEND(APL_INIT_1:ASN,"APL_INIT_1")
+         @OBJ_TYPES = APPEND(APL_INIT_1:AST,"C")
+         #MODIFY APL_INIT_1:A = LIST(-
+                              SN = %OBJ_NAMES,-
+                              ST = %OBJ_TYPES)
+      #BLOCK_END
+   #BLOCK_END
+#BLOCK_END
+
+;SCIL code to added to the command procedure APL_INIT_1
+@APL_INIT_CODE_VECTOR = (";COM 500 application initialization",-
+                         "#DO COM_COMINI:C")
+
+;find command procedure APL_INIT_1 and add the code above, if not already added
+;replace old command procedure name
+@C_SEARCH = FETCH(0,"C","APL_INIT_1")
+#IF C_SEARCH:VIU <> -1 #THEN #BLOCK
+    @OLD_CODE = APL_INIT_1:CIN
+    @OLD_LOC = SELECT(LOCATE(%OLD_CODE,"#EXEC BNU_COMINI:C"),"<>0")
+    #IF LENGTH(%OLD_LOC) == 0 #THEN @OLD_LOC = SELECT(LOCATE(%OLD_CODE,"#EXEC COM_COMINI:C"),"<>0")
+    #IF LENGTH(%OLD_LOC) > 0 #THEN #BLOCK
+       @BEG = APPEND(%OLD_CODE(1..%OLD_LOC(1)-1),%APL_INIT_CODE_VECTOR(2))
+       @TMP = APPEND(%BEG,%OLD_CODE(%OLD_LOC(1)+1..))
+       #MODIFY APL_INIT_1:C = LIST(IN = %TMP)
+    #BLOCK_END   
+    #ELSE_IF LENGTH(SELECT(LOCATE(%OLD_CODE,%APL_INIT_CODE_VECTOR(2)),"<>0")) == 0 #THEN -
+    #MODIFY APL_INIT_1:C = LIST(-
+                      IN = APPEND(%APL_INIT_CODE_VECTOR,%OLD_CODE))
+#BLOCK_END
+#ELSE #CREATE APL_INIT_1:C = LIST(-
+                      IU = 1,-
+                      IN = %APL_INIT_CODE_VECTOR)
+                      
+;SCIL code to added to the command procedure APL_INIT_H
+@APL_INIT_H_CODE_VECTOR = (";COM 500 application initialization",-
+                         "#DO COM_COMINI_H:C")                      
+                      
+;find command procedure APL_INIT_H and add the code above, if not already added
+;replace old command procedure name
+@C_SEARCH = FETCH(0,"C","APL_INIT_H")
+#IF C_SEARCH:VIU <> -1 #THEN #BLOCK
+    @OLD_CODE = APL_INIT_H:CIN
+    @OLD_LOC = SELECT(LOCATE(%OLD_CODE,"#DO COM_COMINI:C"),"<>0")
+    #IF LENGTH(%OLD_LOC) > 0 #THEN #BLOCK
+      #IF %OLD_LOC(1) == 1 #THEN #BLOCK
+         @TMP = APPEND(%APL_INIT_H_CODE_VECTOR,%OLD_CODE(%OLD_LOC(1)+1..))
+      #BLOCK_END
+      #ELSE #BLOCK
+         @BEG = APPEND(%OLD_CODE(1..%OLD_LOC(1)-1),%APL_INIT_H_CODE_VECTOR(2))
+         @TMP = APPEND(%BEG,%OLD_CODE(%OLD_LOC(1)+1..))
+      #BLOCK_END
+       #MODIFY APL_INIT_H:C = LIST(IN = %TMP)
+    #BLOCK_END   
+    #ELSE_IF LENGTH(SELECT(LOCATE(%OLD_CODE,%APL_INIT_H_CODE_VECTOR(2)),"<>0")) == 0 #THEN -
+    #MODIFY APL_INIT_H:C = LIST(-
+                      IN = APPEND(%APL_INIT_H_CODE_VECTOR,%OLD_CODE))
+#BLOCK_END
+#ELSE #CREATE APL_INIT_H:C = LIST(-
+                      IU = 1,-
+                      IN = %APL_INIT_H_CODE_VECTOR)
+
+;if revison 1.0,2.0* or new system, modify/create free type process objects
+#IF %COM_500_REVISION == "1.0*" OR SUBSTR(%COM_500_REVISION,1,3) == "2.0" OR %COM_500_REVISION == "NONE" #THEN #BLOCK
+   ;remove existing COM 500 free type objects
+   #LOOP_WITH I = 1..4
+     #LOOP_WITH J = 1..7
+        @FT_POBJ_CHECK = FETCH(0,"P","BNCC'I'_XRS'J'")
+        #IF FT_POBJ_CHECK:VIU <> -1 #THEN #DELETE BNCC'I'_XRS'J':P     
+      #LOOP_END
+   #LOOP_END
+   @FT_CHECK = FETCH(0,"F","COM_XRSTRE")
+   #IF FT_CHECK:VIU <> -1 #THEN #DELETE COM_XRSTRE:F  
+   ;create free type object for storing cross-reference information if it doesn't already exist
+   @FT_CHECK = FETCH(0,"F","COM_XRSTRE")
+   #IF FT_CHECK:VIU == -1 #THEN #BLOCK
+      ;find vacant object type number
+      #LOOP_WITH TYPE = 100..255
+         #IF APPLICATION_OBJECT_COUNT(0,"F","A","F","","PT == 'TYPE'") == 0 #THEN #BLOCK
+            @VACANT_FREE_OBJECT_TYPE = %TYPE
+            #LOOP_EXIT
+         #BLOCK_END
+      #LOOP_END
+      ;create free type object
+      @MAX_LENGTH = 2000
+      #CREATE TMP_OBJ:V = LIST(-
+                     PT = %VACANT_FREE_OBJECT_TYPE,-
+                     OV = "FA",-
+                     CX = "Free type object for COM 500 xref data storage",-
+                     NA = 9,-
+                     AN = ("DA","ZA","ZB","ZC","ZD","ZE","GN","BN","SH"),-
+                     AI = (0,%MAX_LENGTH,%MAX_LENGTH,%MAX_LENGTH,%MAX_LENGTH,%MAX_LENGTH,%MAX_LENGTH,%MAX_LENGTH,%MAX_LENGTH),-
+                     AD = (1,1,1,1,1,1,1,1,1),-
+                     AT = ("INTEGER","INTEGER","INTEGER","TEXT","INTEGER","INTEGER","INTEGER","INTEGER","INTEGER"),-
+                     AL = (4,4,1,-10,1,4,-2,-2,-2),-
+                     AX = ("Dummy OV attribute",-        ; DA attribute
+                           "Object Address",-            ; ZA attribute
+                           "Bit Address",-               ; ZB attribute
+                           "Scale Names",-               ; ZC attribute
+                           "Signal Class",-              ; ZD attribute
+                           "Additional Data",-           ; ZE attribute 
+                           "Alarm group number",-        ; GN attribute
+                           "Alarm group bit number",-    ; BN attribute
+                           "Signal handling attributes")); SH attribute
+      #CREATE COM_XRSTRE:F = %TMP_OBJ                      
+   #BLOCK_END
+   #ELSE @VACANT_FREE_OBJECT_TYPE = COM_XRSTRE:FPT
+   ;create free type process objects for each NCC if they don't already exist
+   #LOOP_WITH I = 1..4
+     #LOOP_WITH J = 1..7
+        @FT_POBJ_CHECK = FETCH(0,"P","BNCC'I'_XRS'J'")
+        #IF FT_POBJ_CHECK:VIU == -1 #THEN #BLOCK
+           #CREATE TMP_OBJ:V = LIST(-
+                          PT = %VACANT_FREE_OBJECT_TYPE,-
+                          IU = 1,-
+                          SS = 3,-
+                          OI = "NCC 'I'",-
+                          OX = "Cross-reference data storage")
+           #CREATE BNCC'I'_XRS'J':P = %TMP_OBJ
+           ;initialize object addess attributes
+           #SET BNCC'I'_XRS'J':PZA(1..%MAX_LENGTH) = -1
+           #SET BNCC'I'_XRS'J':PZB(1..%MAX_LENGTH) = -1
+         #BLOCK_END
+      #LOOP_END
+   #LOOP_END
+   @SIGNAL_COUNT = 0
+   @XREF_FILES = ("COM_XRIND1.TXT","COM_XRIND2.TXT","COM_XRIND3.TXT","COM_XRIND4.TXT")
+
+   #IF %COM_500_REVISION <> "NONE" #THEN #BLOCK
+      @READ_TEXT_STATUS = STATUS
+      #ERROR IGNORE
+      @NCC_XREF_TABLE = EVALUATE(READ_TEXT("COM_PATH/COM_XRNCC1.TXT",1,10000))
+      #ERROR CONTINUE
+      @READ_TEXT_STATUS = STATUS
+      #IF %READ_TEXT_STATUS == 0 #THEN #BLOCK   
+         #LOOP_WITH FILE = 1..LENGTH(%XREF_FILES)
+            @FILE_NAME = %XREF_FILES(%FILE)   
+            #ERROR IGNORE
+            @S = STATUS
+            @TEST = READ_TEXT("COM_PATH/'FILE_NAME'",1,1)
+            @S = STATUS
+            #ERROR CONTINUE
+            #IF %S == 0 #THEN #BLOCK
+               @XREF_TABLE = EVALUATE(READ_TEXT("COM_PATH/'FILE_NAME'",1,10000))
+               #IF LENGTH(%XREF_TABLE) > 0 #THEN #BLOCK
+                  #LOOP_WITH J = 1..LENGTH(%XREF_TABLE)
+                     @SIGNAL_VECTOR = %XREF_TABLE(%J)
+                     @SIGNAL_COUNT = %SIGNAL_COUNT + 1
+                     #IF LENGTH(%SIGNAL_VECTOR) > 0 #THEN #BLOCK
+                        #LOOP_WITH K = 1..LENGTH(%SIGNAL_VECTOR)
+                           @NCC_DATA = %SIGNAL_VECTOR(%K)
+                           #IF LENGTH(%NCC_DATA) > 0 #THEN #BLOCK
+                              @NCC = %NCC_XREF_TABLE(%K)
+                              @OBJECT_NUMBER = (%SIGNAL_COUNT DIV 2000) + 1
+                              @ATTRIBUTE_INDEX = %SIGNAL_COUNT MOD 2000
+                              #IF %ATTRIBUTE_INDEX == 0 #THEN #BLOCK
+                                 @OBJECT_NUMBER = %OBJECT_NUMBER - 1
+                                 @ATTRIBUTE_INDEX = 2000
+                              #BLOCK_END
+                              #CASE %NCC(2)
+                                 #WHEN 1,3 #BLOCK
+                                    #IF LENGTH(%NCC_DATA(1)) > 0 #THEN #SET BNCC'K'_XRS'OBJECT_NUMBER':PZA(%ATTRIBUTE_INDEX) = DEC_SCAN(SUBSTR(%NCC_DATA(1),1,3))
+                                    #ELSE #SET BNCC'K'_XRS'OBJECT_NUMBER':PZA(%ATTRIBUTE_INDEX) = -1
+                                    #IF LENGTH(%NCC_DATA(1)) == 6 #THEN #SET BNCC'K'_XRS'OBJECT_NUMBER':PZB(%ATTRIBUTE_INDEX) = DEC_SCAN(SUBSTR(%NCC_DATA(1),4,3))
+                                    #ELSE #SET BNCC'K'_XRS'OBJECT_NUMBER':PZB(%ATTRIBUTE_INDEX) = -1
+                                 #BLOCK_END
+                                 #WHEN 2,4 #BLOCK
+                                     #IF LENGTH(%NCC_DATA(1)) > 0 #THEN #SET BNCC'K'_XRS'OBJECT_NUMBER':PZA(%ATTRIBUTE_INDEX) = DEC_SCAN(%NCC_DATA(1))
+                                     #ELSE #SET BNCC'K'_XRS'OBJECT_NUMBER':PZA(%ATTRIBUTE_INDEX) = -1
+                                 #BLOCK_END                       
+                              #CASE_END                  
+                              #SET BNCC'K'_XRS'OBJECT_NUMBER':PGN(%ATTRIBUTE_INDEX) = %NCC_DATA(2)
+                              #SET BNCC'K'_XRS'OBJECT_NUMBER':PBN(%ATTRIBUTE_INDEX) = %NCC_DATA(3)
+                              #SET BNCC'K'_XRS'OBJECT_NUMBER':PSH(%ATTRIBUTE_INDEX) = %NCC_DATA(4)
+                           #BLOCK_END   
+                        #LOOP_END
+                     #BLOCK_END
+                  #LOOP_END
+               #BLOCK_END
+            #BLOCK_END
+         #LOOP_END
+      #BLOCK_END     
+   #BLOCK_END
+#BLOCK_END   
+
+#IF (SUBSTR(%COM_500_REVISION,1,3) == "3.0" OR SUBSTR(%COM_500_REVISION,1,3) == "4.0") AND COM_XRSTRE:FAL(7) == -1 #THEN #BLOCK
+   #LOOP_WITH TYPE = 100..255
+      #IF APPLICATION_OBJECT_COUNT(0,"F","A","F","","PT == 'TYPE'") == 0 #THEN #BLOCK
+         @VACANT_FREE_OBJECT_TYPE = %TYPE
+         #LOOP_EXIT
+      #BLOCK_END
+   #LOOP_END
+   @MAX_LENGTH = 2000
+   #CREATE TMP_OBJ:V = LIST(-
+                  PT = %VACANT_FREE_OBJECT_TYPE,-
+                  OV = "FA",-
+                  CX = "Free type object for COM 500 xref data storage",-
+                  NA = 9,-
+                  AN = ("DA","ZA","ZB","ZC","ZD","ZE","GN","BN","SH"),-
+                  AI = (0,%MAX_LENGTH,%MAX_LENGTH,%MAX_LENGTH,%MAX_LENGTH,%MAX_LENGTH,%MAX_LENGTH,%MAX_LENGTH,%MAX_LENGTH),-
+                  AD = (1,1,1,1,1,1,1,1,1),-
+                  AT = ("INTEGER","INTEGER","INTEGER","TEXT","INTEGER","INTEGER","INTEGER","INTEGER","INTEGER"),-
+                  AL = (4,4,1,-10,1,4,-2,-2,-2),-
+                  AX = ("Dummy OV attribute",-        ; DA attribute
+                        "Object Address",-            ; ZA attribute
+                        "Bit Address",-               ; ZB attribute
+                        "Scale Names",-               ; ZC attribute
+                        "Signal Class",-              ; ZD attribute
+                        "Additional Data",-           ; ZE attribute 
+                        "Alarm group number",-        ; GN attribute
+                        "Alarm group bit number",-    ; BN attribute
+                        "Signal handling attributes")); SH attribute
+   #CREATE TMP_COM_XRSTRE:F = %TMP_OBJ
+   #LOOP_WITH I = 1..4
+      #LOOP_WITH J = 1..7
+         @V = FETCH(0,"P","BNCC'I'_XRS'J'",0)
+         #SET V:VPT = %VACANT_FREE_OBJECT_TYPE
+         #CREATE TMP_BNCC'I'_XRS'J':P = %V
+         #DELETE BNCC'I'_XRS'J':P           
+      #LOOP_END
+   #LOOP_END
+   #DELETE COM_XRSTRE:F 
+   #LOOP_WITH TYPE = 100..255
+      #IF APPLICATION_OBJECT_COUNT(0,"F","A","F","","PT == 'TYPE'") == 0 #THEN #BLOCK
+         @VACANT_FREE_OBJECT_TYPE = %TYPE
+         #LOOP_EXIT
+      #BLOCK_END
+   #LOOP_END
+   @MAX_LENGTH = 2000
+   #CREATE TMP_OBJ:V = LIST(-
+                  PT = %VACANT_FREE_OBJECT_TYPE,-
+                  OV = "FA",-
+                  CX = "Free type object for COM 500 xref data storage",-
+                  NA = 9,-
+                  AN = ("DA","ZA","ZB","ZC","ZD","ZE","GN","BN","SH"),-
+                  AI = (0,%MAX_LENGTH,%MAX_LENGTH,%MAX_LENGTH,%MAX_LENGTH,%MAX_LENGTH,%MAX_LENGTH,%MAX_LENGTH,%MAX_LENGTH),-
+                  AD = (1,1,1,1,1,1,1,1,1),-
+                  AT = ("INTEGER","INTEGER","INTEGER","TEXT","INTEGER","INTEGER","INTEGER","INTEGER","INTEGER"),-
+                  AL = (4,4,1,-10,1,4,-2,-2,-2),-
+                  AX = ("Dummy OV attribute",-        ; DA attribute
+                        "Object Address",-            ; ZA attribute
+                        "Bit Address",-               ; ZB attribute
+                        "Scale Names",-               ; ZC attribute
+                        "Signal Class",-              ; ZD attribute
+                        "Additional Data",-           ; ZE attribute 
+                        "Alarm group number",-        ; GN attribute
+                        "Alarm group bit number",-    ; BN attribute
+                        "Signal handling attributes")); SH attribute
+   #CREATE COM_XRSTRE:F = %TMP_OBJ
+   #LOOP_WITH I = 1..4
+      #LOOP_WITH J = 1..7
+         @V = FETCH(0,"P","TMP_BNCC'I'_XRS'J'",0)
+         #SET V:VPT = %VACANT_FREE_OBJECT_TYPE
+         #CREATE BNCC'I'_XRS'J':P = %V      
+         #DELETE TMP_BNCC'I'_XRS'J':P     
+      #LOOP_END
+   #LOOP_END
+   #DELETE TMP_COM_XRSTRE:F  
+#BLOCK_END   
+
+@VACANT_FREE_OBJECT_TYPE = COM_XRSTRE:FPT
+@MAX_LENGTH = 2000
+#LOOP_WITH I = 1..4
+   #LOOP_WITH J = 8..25
+      @FT_POBJ_CHECK = FETCH(0,"P","BNCC'I'_XRS'J'")
+      #IF FT_POBJ_CHECK:VIU == -1 #THEN #BLOCK
+         @FT_POBJ_CHECK = FETCH(0,"P","BNCC'I'_XRS'J'")
+         #IF FT_POBJ_CHECK:VIU == -1 #THEN #BLOCK
+            #CREATE TMP_OBJ:V = LIST(-
+                          PT = %VACANT_FREE_OBJECT_TYPE,-
+                          IU = 1,-
+                          SS = 3,-
+                          OI = "NCC 'I'",-
+                          OX = "Cross-reference data storage")
+            #CREATE BNCC'I'_XRS'J':P = %TMP_OBJ
+            ;initialize object addess attributes
+            #SET BNCC'I'_XRS'J':PZA(1..%MAX_LENGTH) = -1
+            #SET BNCC'I'_XRS'J':PZB(1..%MAX_LENGTH) = -1
+         #BLOCK_END
+      #BLOCK_END
+   #LOOP_END
+#LOOP_END
+
+;create free type process objects 5..8 for each NCC if they don't already exist
+@VACANT_FREE_OBJECT_TYPE = COM_XRSTRE:FPT
+@MAX_LENGTH = 2000
+#LOOP_WITH I = 5..8
+   #LOOP_WITH J = 1..25
+      @FT_POBJ_CHECK = FETCH(0,"P","BNCC'I'_XRS'J'")
+      #IF FT_POBJ_CHECK:VIU == -1 #THEN #BLOCK
+         @FT_POBJ_CHECK = FETCH(0,"P","BNCC'I'_XRS'J'")
+         #IF FT_POBJ_CHECK:VIU == -1 #THEN #BLOCK
+            #CREATE TMP_OBJ:V = LIST(-
+                          PT = %VACANT_FREE_OBJECT_TYPE,-
+                          IU = 1,-
+                          SS = 3,-
+                          OI = "NCC 'I'",-
+                          OX = "Cross-reference data storage")
+            #CREATE BNCC'I'_XRS'J':P = %TMP_OBJ
+            ;initialize object addess attributes
+            #SET BNCC'I'_XRS'J':PZA(1..%MAX_LENGTH) = -1
+            #SET BNCC'I'_XRS'J':PZB(1..%MAX_LENGTH) = -1
+         #BLOCK_END
+      #BLOCK_END
+   #LOOP_END
+#LOOP_END
+
+;if revison 1.0,2.0*, 3.0 or new system, modify/create free type process object for general variables
+#IF %COM_500_REVISION == "1.0*" OR SUBSTR(%COM_500_REVISION,1,3) == "2.0" OR SUBSTR(%COM_500_REVISION,1,3) == "3.0" OR %COM_500_REVISION == "NONE" #THEN #BLOCK
+   ;create free type object for storing cross-reference information if it doesn't already exist
+   @FT_CHECK = FETCH(0,"F","COM_GENVAR")
+   #IF FT_CHECK:VIU == -1 #THEN #BLOCK
+      ;find vacant object type number
+      #LOOP_WITH TYPE = 100..255
+         #IF APPLICATION_OBJECT_COUNT(0,"F","A","F","","PT == 'TYPE'") == 0 #THEN #BLOCK
+            @VACANT_FREE_OBJECT_TYPE = %TYPE
+            #LOOP_EXIT
+         #BLOCK_END
+      #LOOP_END
+      ;create free type object
+      @MAX_LENGTH = 1
+      #CREATE TEMP_OBJ:V = LIST(-
+                     PT = %VACANT_FREE_OBJECT_TYPE,-  ;no OV handling
+                     CX = "Free type object for COM 500 general variables",-
+                     NA = 3,-
+                     AN = ("BZ","IZ","TZ"),-  
+                     AI = (20,10,10),-
+                     AD = (1,1,1),-
+                     AT = ("BOOLEAN","INTEGER","TEXT"),-
+                     AL = (1,4,-10),-
+                     AX = ("Boolean Variables",-
+                           "Integer Variables",-
+                           "Text Variables"))
+      #CREATE COM_GENVAR:F = %TEMP_OBJ         
+   #BLOCK_END
+   #ELSE @VACANT_FREE_OBJECT_TYPE = COM_GENVAR:FPT
+
+   ;create free type process object for general variables if it doesnt already exist
+   @FT_POBJ_CHECK = FETCH(0,"P","COM_GENVAR")
+   #IF FT_POBJ_CHECK:VIU == -1 #THEN #BLOCK
+      #CREATE TMP_OBJ:V = LIST(-
+                     PT = %VACANT_FREE_OBJECT_TYPE,-
+                     IU = 1,-
+                     SS = 3,-
+                     OI = "COM500",-
+                     OX = "General variable storage")
+      #CREATE COM_GENVAR:P = %TMP_OBJ
+      
+      ;initialize generic variable attributes
+      #SET COM_GENVAR:PBZ(1..20) = 0
+      #SET COM_GENVAR:PIZ(1..10) = 0
+      #SET COM_GENVAR:PTZ(1..10) = ""      
+      
+      ;set default values to be used by application when starting first time
+      #SET COM_GENVAR:PBZ(2) = 1  ;enable by default sending of IEC terminations
+      #SET COM_GENVAR:PBZ(3) = 0  ;disable data log recording
+      #SET COM_GENVAR:PBZ(4) = 0  ;disable in startup data sending to NET, changed automatically from COM_DBSTA to 1
+      ;BZ(5..12) are used for user defined data blocking
+      #SET COM_GENVAR:PBZ(13) = 0 ;not sampled status activates alarm group  
+      #SET COM_GENVAR:PBZ(14) = 0 ;double indication inversion 
+      #SET COM_GENVAR:PBZ(15) = 0 ;disable alarm group writing to alarm list
+      #SET COM_GENVAR:PBZ(16) = 0 ;disable indication blocking. Tagout class editor sets this to 1.
+      #SET COM_GENVAR:PBZ(17) = 0 ;disable debug mode
+      #SET COM_GENVAR:PBZ(18) = 0 ;disable IEC command receiving without select 
+      #SET COM_GENVAR:PBZ(19) = 0 ;enable trip signals sending during General Interrogation 
+      #SET COM_GENVAR:PBZ(20) = 0 ;enable trip signals sending when station suspended 
+       
+      #SET COM_GENVAR:PIZ(1) = 1024 ;REX561 open select value
+      #SET COM_GENVAR:PIZ(2) = 2048 ;REX561 close select value
+      #SET COM_GENVAR:PIZ(3) = 4096 ;REX561 execute value      
+      #SET COM_GENVAR:PIZ(4) = 512  ;REX561 cancel value         
+
+   #BLOCK_END
+
+#BLOCK_END
+
+
+;if revison 1.0,2.0*, 3.0 or new system, modify/create free type process object for general variables
+#IF %COM_500_REVISION == "1.0*" OR SUBSTR(%COM_500_REVISION,1,3) == "2.0" OR SUBSTR(%COM_500_REVISION,1,3) == "3.0" OR SUBSTR(%COM_500_REVISION,1,3) == "4.0" OR %COM_500_REVISION == "NONE" #THEN #BLOCK
+   #LOOP_WITH I=1..10
+      ;create free type object for storing cross-reference information if it doesn't already exist
+      @FT_CHECK = FETCH(0,"F","COM_LOG'I'")
+      #IF FT_CHECK:VIU == -1 #THEN #BLOCK
+         ;find vacant object type number
+         #LOOP_WITH TYPE = 100..255
+            #IF APPLICATION_OBJECT_COUNT(0,"F","A","F","","PT == 'TYPE'") == 0 #THEN #BLOCK
+               @VACANT_FREE_OBJECT_TYPE = %TYPE
+               #LOOP_EXIT
+            #BLOCK_END
+         #LOOP_END
+         ;create free type object
+         @MAX_LENGTH = 1
+         #CREATE TEMP_OBJ:V = LIST(-
+                        PT = %VACANT_FREE_OBJECT_TYPE,-  ;no OV handling
+                        CX = "Free type object for COM 500 logging",-
+                        NA = 3,-
+                        AN = VECTOR("LZ"),-  
+                        AI = VECTOR(100),-
+                        AD = VECTOR(1),-
+                        AT = VECTOR("TEXT"),-
+                        AL = VECTOR(255),-
+                        AX = VECTOR(""))
+         #CREATE COM_LOG'I':F = %TEMP_OBJ         
+      #BLOCK_END
+      #ELSE @VACANT_FREE_OBJECT_TYPE = COM_LOG'I':FPT
+   
+      ;create free type process object for general variables if it doesnt already exist
+      @FT_POBJ_CHECK = FETCH(0,"P","COM_LOG'I'")
+      #IF FT_POBJ_CHECK:VIU == -1 #THEN #BLOCK
+         #CREATE TMP_OBJ:V = LIST(-
+                        PT = %VACANT_FREE_OBJECT_TYPE,-
+                        IU = 1,-
+                        SS = 3,-
+                        OI = "COM500",-
+                        OX = "temporary log storage")
+         #CREATE COM_LOG'I':P = %TMP_OBJ
+      #BLOCK_END
+   #LOOP_END
+#BLOCK_END
+
+
+;add synchronization handling process object to RP-570 NCCs
+;or attach event channel to existing process object
+#IF %COM_500_REVISION <> "NONE" #THEN #BLOCK
+   @READ_TEXT_STATUS = STATUS
+   #ERROR IGNORE   
+   @NCC_XREF_TABLE = EVALUATE(READ_TEXT("COM_PATH/COM_XRNCC1.TXT",1,10000))
+   #ERROR CONTINUE
+   @READ_TEXT_STATUS = STATUS
+   #IF %READ_TEXT_STATUS == 0 #THEN #BLOCK 
+      #IF LENGTH(%NCC_XREF_TABLE) > 0 #THEN #BLOCK
+         #LOOP_WITH I = 1..LENGTH(%NCC_XREF_TABLE)
+            @NCC = %NCC_XREF_TABLE(%I)
+            #IF LENGTH(%NCC) > 0 #THEN #BLOCK
+               #IF %NCC(2) == 1 #THEN #BLOCK
+                  @STA_NR = %NCC(1)   
+                  @P_SEARCH = PHYS_FETCH (0,%STA_NR,5000)
+                  #IF P_SEARCH:VIU  == -1 #THEN #BLOCK
+                     #CREATE BNCC'I'_RPSY:P10 = LIST(- 
+                        OI = %NCC(3),-                            ;object identifier
+                        OX = "RP570S time synchronization",-      ;object text
+                        UN = %STA_NR,-                            ;unit number
+                        OA = 5000,-                               ;object address
+                        PT = 9,-                                  ;analog input object
+                        DX = "9",-                                ;ANSI analog input object
+                        IU = 1,-                                  ;in use
+                        SS = 2,-                                  ;auto switch state
+                        SN = "1_1",-                              ;scale
+                        SZ = 1,-                                  ;zone supervision by scada
+                        AE = 1,-                                  ;event channel activation enabled
+                        AA = 2,-                                  ;event channel activated at update
+                        AF = 1,-                                  ;event channel activated at first update
+                        AN = "COM_RPSY",-                         ;event channel name
+                        RX = "                    BNASYSISMS")    ;group information                                      
+                  #BLOCK_END
+                  #ELSE #BLOCK
+                     @LN = P_SEARCH:VLN
+                     @IX = P_SEARCH:VIX
+                     @AN = 'LN':PAN'IX'
+                     #IF LENGTH(%AN) > 0 #THEN #BLOCK
+                        #IF %AN <> "COM_RPSY" #THEN #BLOCK
+                           @EV_FETCH = FETCH(0,"A",%AN)
+                           #IF EV_FETCH:VIU <> -1 #THEN #BLOCK
+                              @SN = 'AN':ASN
+                              @ST = 'AN':AST               
+                              @SN_MATCH = SELECT(LOCATE(%SN,"COM_RPSY"),"<>0")
+                              #IF LENGTH(%SN_MATCH) == 0 #THEN #BLOCK
+                                 @SN = APPEND(%SN,"COM_RPSY")
+                                 @ST = APPEND(%ST,"C")              
+                                 #MODIFY 'AN':A = LIST(SN = %SN, ST = %ST) 
+                              #BLOCK_END
+                           #BLOCK_END
+                           #ELSE #SET 'LN':PAN'IX' = "COM_RPSY"
+                        #BLOCK_END               
+                     #BLOCK_END
+                     #ELSE #SET 'LN':PAN'IX' = "COM_RPSY"         
+                     #MODIFY 'LN':P'IX' = LIST(-
+                        AE = 1,-                                  ;event channel activation enabled
+                        AA = 2,-                                  ;event channel activated at update
+                        AF = 1)                                   ;event channel activated at first update                              
+                  #BLOCK_END 
+               #BLOCK_END
+            #BLOCK_END
+         #LOOP_END
+      #BLOCK_END
+   #BLOCK_END      
+#BLOCK_END
+
+;create BNCCx_GRP_AS process objects for alarm groups
+#IF %COM_500_REVISION == "1.0*" OR SUBSTR(%COM_500_REVISION,1,1) == "2" OR SUBSTR(%COM_500_REVISION,1,1) == "3" OR SUBSTR(%COM_500_REVISION,1,1) == "4" OR SUBSTR(%COM_500_REVISION,1,3) == "9.2" OR %COM_500_REVISION == "9.3" #THEN #BLOCK
+   @ALARM_GROUP_QUERY = "LN == ""BNCC%_GRP"""
+   @GRPAL_OBJECTS = APPLICATION_OBJECT_LIST(0,"IX","A","F","",%ALARM_GROUP_QUERY,("LN","IX","OI"),10000)
+   #IF LENGTH(GRPAL_OBJECTS:VLN) > 0 #THEN #BLOCK
+      #LOOP_WITH I = 1..LENGTH(GRPAL_OBJECTS:VLN)
+         @LN = GRPAL_OBJECTS:VLN(%I)
+         @IX = GRPAL_OBJECTS:VIX(%I)
+         @OI = GRPAL_OBJECTS:VOI(%I)
+         @AS_OBJECT_EXIST = APPLICATION_OBJECT_EXISTS(0,"IX", LIST(LN="'LN'_AS", IX='IX'))
+         #IF NOT %AS_OBJECT_EXIST #THEN #BLOCK
+            @NCC_OF_ALARM = SUBSTR("'LN'",5,1)
+            #CREATE V:V = LIST(-
+                        LN = "'LN'_AS",-
+                        IX = %IX,-
+                        PT = 3,-
+                        UN = 0,-
+                        OA = 0,-
+                        IU = 1,-
+                        SS = 1,-
+                        DX = "X7S",-
+                        SN = "1_1",-
+                        AG = 1,-
+                        NV = 2,- 
+                        AC = 1,-
+                        RC = 1,-
+                        OX = "Alarm Group 'OI' of NCC'NCC_OF_ALARM'")
+            #CREATE 'LN'_AS:P'IX' = %V
+         #BLOCK_END
+      #LOOP_END
+   #BLOCK_END
+#BLOCK_END
+
+
+@RETURN_STATUS_COMMANDS = APPLICATION_OBJECT_LIST(0,"IX","A","F","","(PT==5 OR PT==11) AND FI<>0",("FI","GI","TI"),10000)
+#IF LENGTH(RETURN_STATUS_COMMANDS:VLN) > 0 #THEN #BLOCK 
+   #LOOP_WITH RETURN_STATUS_SIGNAL = 1..LENGTH(RETURN_STATUS_COMMANDS:VLN) 
+      @LN = RETURN_STATUS_COMMANDS:VLN(%RETURN_STATUS_SIGNAL)
+      @IX = RETURN_STATUS_COMMANDS:VIX(%RETURN_STATUS_SIGNAL)
+      @FI = RETURN_STATUS_COMMANDS:VFI(%RETURN_STATUS_SIGNAL)
+      @TI = RETURN_STATUS_COMMANDS:VTI(%RETURN_STATUS_SIGNAL)
+      #IF %FI == %TI #THEN #BLOCK
+         #SET 'LN':PFI'IX' = 0
+         #SET 'LN':PGI'IX' = BIT_SET('LN':PGI'IX', 1)
+      #BLOCK_END    
+   #LOOP_END
+#BLOCK_END
+
+
+;rename revision command procedures to be updated according to the previous revision
+
+#IF %COM_500_REVISION == "2.0 A Release" #THEN @COM_500_REVISION = "2.0 A"
+#ELSE_IF %COM_500_REVISION == "9.2 SP1" #THEN @COM_500_REVISION = "9.2 SP1"
+#ELSE_IF SUBSTR(%COM_500_REVISION,1,3) == "10." #THEN @COM_500_REVISION = SUBSTR(%COM_500_REVISION,1,6) 
+#ELSE @COM_500_REVISION = SUBSTR(%COM_500_REVISION,1,3)
+
+#CASE %COM_500_REVISION
+   #WHEN "9.3","9.4","10.0.0","10.1.0","10.1.1","10.2.0"-
+     @MODIFIED_COM_PROCEDURES = ( "COM_101SCR",-
+                                  "COM_104SCR",-
+                                  "COM_AUTHCH",-
+                                  "COM_BOCMD",-
+                                  "COM_CNTINT",-
+                                  "COM_COMINI",-
+                                  "COM_COMINI_H",-
+                                  "COM_CPIDI",-
+                                  "COM_CPISS",-
+                                  "COM_DBSTA",-
+                                  "COM_DCNET",-
+                                  "COM_DNPSCR",-                                  
+                                  "COM_DNPSS",-
+                                  "COM_DSAO",-
+                                  "COM_DSBO",-
+                                  "COM_DSCMDBLK",-
+                                  "COM_DSDO",-
+                                  "COM_DSUN",-
+                                  "COM_DSXREF",-
+                                  "COM_GENINT",-
+                                  "COM_GRPAL",-
+                                  "COM_GRPSND",-
+                                  "COM_IECTRM",-
+                                  "COM_IEGICL",-
+                                  "COM_IEFT",-
+                                  "COM_IESA",-
+                                  "COM_IESEI",-
+                                  "COM_IESS",-
+                                  "COM_INIT",-
+                                  "COM_LOG",-                                  
+                                  "COM_NETINI",-
+                                  "COM_NETINI_H",-
+                                  "COM_PNDIND",-
+                                  "COM_RDDATA",-
+                                  "COM_RDGEN",-
+                                  "COM_RDXREF",-
+                                  "COM_RESPRC",-
+                                  "COM_RESSEL",-
+                                  "COM_REVDTA",-
+                                  "COM_RPSCR",-  
+                                  "COM_RPSDI",-
+                                  "COM_RPSFT",-
+                                  "COM_RPSS",-
+                                  "COM_RPSY",-
+                                  "COM_SUSHOST",-     
+                                  "COM_SUSNOD",-                                                                    
+                                  "COM_SUSSTA",-
+                                  "COM_TRPSPA",-
+                                  "COM_USAI",-
+                                  "COM_USAO",-
+                                  "COM_USBI",-
+                                  "COM_USBO",-
+                                  "COM_USBS",-
+                                  "COM_USDB",-
+                                  "COM_USDI",-
+                                  "COM_USFT",-
+                                  "COM_USOE",-
+                                  "COM_USOXR",-
+                                  "COM_USPC",-
+                                  "COM_USXREF")
+
+   #WHEN "9.2 SP1"-
+     @MODIFIED_COM_PROCEDURES = ( "COM_101SCR",-
+                                  "COM_104SCR",-
+                                  "COM_AUTHCH",-
+                                  "COM_BOCMD",-
+                                  "COM_CNTINT",-
+                                  "COM_COMINI",-
+                                  "COM_COMINI_H",-
+                                  "COM_CPIDI",-
+                                  "COM_CPISS",-
+                                  "COM_DBSTA",-
+                                  "COM_DCNET",-
+                                  "COM_DNPSCR",-                                  
+                                  "COM_DNPSS",-
+                                  "COM_DSAO",-
+                                  "COM_DSBO",-
+                                  "COM_DSDO",-
+                                  "COM_DSUN",-
+                                  "COM_DSXREF",-
+                                  "COM_GENINT",-
+                                  "COM_GRPAL",-
+                                  "COM_GRPSND",-
+                                  "COM_IECTRM",-
+                                  "COM_IEGICL",-
+                                  "COM_IEFT",-
+                                  "COM_IESA",-
+                                  "COM_IESEI",-
+                                  "COM_IESS",-
+                                  "COM_INIT",-
+                                  "COM_LOG",-                                  
+                                  "COM_NETINI",-
+                                  "COM_NETINI_H",-
+                                  "COM_PNDIND",-
+                                  "COM_RDDATA",-
+                                  "COM_RDGEN",-
+                                  "COM_RDXREF",-
+                                  "COM_RESPRC",-
+                                  "COM_RESSEL",-
+                                  "COM_REVDTA",-
+                                  "COM_RPSCR",-  
+                                  "COM_RPSDI",-
+                                  "COM_RPSFT",-
+                                  "COM_RPSS",-
+                                  "COM_RPSY",-
+                                  "COM_SUSSTA",-
+                                  "COM_TRPSPA",-
+                                  "COM_USAI",-
+                                  "COM_USAO",-
+                                  "COM_USBI",-
+                                  "COM_USBO",-
+                                  "COM_USBS",-
+                                  "COM_USDB",-
+                                  "COM_USDI",-
+                                  "COM_USFT",-
+                                  "COM_USOE",-
+                                  "COM_USOXR",-
+                                  "COM_USPC",-
+                                  "COM_USXREF")
+   #WHEN "9.2"-
+     @MODIFIED_COM_PROCEDURES = ( "COM_101SCR",-
+                                  "COM_104SCR",-
+                                  "COM_AUTHCH",-
+                                  "COM_BOCMD",-
+                                  "COM_CNTINT",-
+                                  "COM_COMINI",-
+                                  "COM_CPIDI",-
+                                  "COM_CPISS",-
+                                  "COM_DBSTA",-
+                                  "COM_DCNET",-
+                                  "COM_DNPSCR",-                                  
+                                  "COM_DNPSS",-
+                                  "COM_DSAO",-
+                                  "COM_DSBO",-
+                                  "COM_DSDO",-
+                                  "COM_DSXREF",-
+                                  "COM_GENINT",-
+                                  "COM_GRPAL",-
+                                  "COM_GRPSND",-
+                                  "COM_IECTRM",-
+                                  "COM_IEGICL",-
+                                  "COM_IEFT",-
+                                  "COM_IESA",-
+                                  "COM_IESEI",-
+                                  "COM_IESS",-
+                                  "COM_INIT",-
+                                  "COM_LOG",-                                  
+                                  "COM_NETINI",-
+                                  "COM_PNDIND",-
+                                  "COM_RDDATA",-
+                                  "COM_RDGEN",-
+                                  "COM_RDXREF",-
+                                  "COM_RESPRC",-
+                                  "COM_RESSEL",-
+                                  "COM_REVDTA",-
+                                  "COM_RPSCR",-  
+                                  "COM_RPSDI",-
+                                  "COM_RPSFT",-
+                                  "COM_RPSS",-
+                                  "COM_RPSY",-
+                                  "COM_SUSSTA",-
+                                  "COM_TRPSPA",-
+                                  "COM_USAI",-
+                                  "COM_USAO",-
+                                  "COM_USBI",-
+                                  "COM_USBO",-
+                                  "COM_USBS",-
+                                  "COM_USDB",-
+                                  "COM_USDI",-
+                                  "COM_USFT",-
+                                  "COM_USOE",-
+                                  "COM_USOXR",-
+                                  "COM_USPC",-
+                                  "COM_USXREF")
+
+   #WHEN "4.2"-
+     @MODIFIED_COM_PROCEDURES = ( "COM_101SCR",-
+                                  "COM_104SCR",-
+                                  "COM_AUTHCH",-
+                                  "COM_BOCMD",-
+                                  "COM_CNTINT",-
+                                  "COM_COMINI",-
+                                  "COM_CPIDI",-
+                                  "COM_CPISS",-
+                                  "COM_DBSTA",-
+                                  "COM_DCNET",-
+                                  "COM_DNPSCR",-                                  
+                                  "COM_DNPSS",-
+                                  "COM_DSAO",-
+                                  "COM_DSBO",-
+                                  "COM_DSDO",-
+                                  "COM_DSXREF",-
+                                  "COM_GENINT",-
+                                  "COM_GRPAL",-
+                                  "COM_GRPSND",-
+                                  "COM_IECTRM",-
+                                  "COM_IEFT",-
+                                  "COM_IESA",-
+                                  "COM_IESEI",-
+                                  "COM_IESS",-
+                                  "COM_INIT",-
+                                  "COM_LOG",-                                  
+                                  "COM_NETINI",-
+                                  "COM_PNDIND",-
+                                  "COM_RDDATA",-
+                                  "COM_RDGEN",-
+                                  "COM_RDXREF",-
+                                  "COM_RESPRC",-
+                                  "COM_RESSEL",-
+                                  "COM_REVDTA",-
+                                  "COM_RPSCR",-  
+                                  "COM_RPSDI",-
+                                  "COM_RPSFT",-
+                                  "COM_RPSS",-
+                                  "COM_RPSY",-
+                                  "COM_SUSSTA",-
+                                  "COM_USAI",-
+                                  "COM_USAO",-
+                                  "COM_USBI",-
+                                  "COM_USBO",-
+                                  "COM_USBS",-
+                                  "COM_USDB",-
+                                  "COM_USDI",-
+                                  "COM_USFT",-
+                                  "COM_USOXR",-
+                                  "COM_USPC",-
+                                  "COM_USXREF")
+
+   #WHEN "4.0","4.1"-
+     @MODIFIED_COM_PROCEDURES = ( "COM_101SCR",-
+                                  "COM_104SCR",-
+                                  "COM_AUTHCH",-
+                                  "COM_BOCMD",-
+                                  "COM_CNTINT",-
+                                  "COM_COMINI",-
+                                  "COM_CPIDI",-
+                                  "COM_CPISS",-
+                                  "COM_DBSTA",-
+                                  "COM_DCNET",-
+                                  "COM_DNPSCR",-                                  
+                                  "COM_DNPSS",-
+                                  "COM_DSAO",-
+                                  "COM_DSBO",-
+                                  "COM_DSDO",-
+                                  "COM_DSXREF",-
+                                  "COM_GENINT",-
+                                  "COM_GRPAL",-
+                                  "COM_GRPSND",-
+                                  "COM_IECTRM",-
+                                  "COM_IESA",-
+                                  "COM_IESEI",-
+                                  "COM_IESS",-
+                                  "COM_INIT",-
+                                  "COM_LOG",-                                  
+                                  "COM_NETINI",-
+                                  "COM_PNDIND",-
+                                  "COM_RDDATA",-
+                                  "COM_RDGEN",-
+                                  "COM_RDXREF",-
+                                  "COM_RESPRC",-
+                                  "COM_RESSEL",-
+                                  "COM_REVDTA",-
+                                  "COM_RPSCR",-  
+                                  "COM_RPSDI",-
+                                  "COM_RPSFT",-
+                                  "COM_RPSS",-
+                                  "COM_RPSY",-
+                                  "COM_SUSSTA",-
+                                  "COM_USAI",-
+                                  "COM_USAO",-
+                                  "COM_USBI",-
+                                  "COM_USBO",-
+                                  "COM_USBS",-
+                                  "COM_USDB",-
+                                  "COM_USDI",-
+                                  "COM_USOXR",-
+                                  "COM_USPC",-
+                                  "COM_USXREF")
+                                
+   #WHEN "3.0"-
+     @MODIFIED_COM_PROCEDURES = ( "COM_AUTHCH",-
+                                  "COM_BOCMD",-
+                                  "COM_DBSTA",-
+                                  "COM_CNTINT",-
+                                  "COM_COMINI",-
+                                  "COM_CPISS",-
+                                  "COM_DBSTA",-
+                                  "COM_DNPSS",-
+                                  "COM_DSAO",-
+                                  "COM_DSBO",-
+                                  "COM_DSDO",-
+                                  "COM_DSXREF",-
+                                  "COM_GENINT",-
+                                  "COM_GRPAL",-
+                                  "COM_GRPSND",-
+                                  "COM_IECTRM",-
+                                  "COM_IESA",-
+                                  "COM_IESEI",-
+                                  "COM_IESS",-
+                                  "COM_NETINI",-
+                                  "COM_PNDIND",-
+                                  "COM_RDDATA",-
+                                  "COM_RDGEN",-
+                                  "COM_RESPRC",-
+                                  "COM_RESSEL",-
+                                  "COM_REVDTA",-  
+                                  "COM_RPSFT",-
+                                  "COM_RPSDI",-
+                                  "COM_RPSS",-
+                                  "COM_RPSY",-
+                                  "COM_SUSSTA",-
+                                  "COM_USAI",-
+                                  "COM_USAO",-
+                                  "COM_USBI",-
+                                  "COM_USBO",-
+                                  "COM_USDB",-
+                                  "COM_USDI",-
+                                  "COM_USBS",-
+                                  "COM_USPC",-
+                                  "COM_USOXR",-
+                                  "COM_USXREF",-
+                                  "COM_RDXREF")
+                                  
+   #WHEN "2.0 A"- 
+     @MODIFIED_COM_PROCEDURES = ( "COM_AUTHCH",-
+                                  "COM_BOCMD",-
+                                  "COM_CNTINT",-
+                                  "COM_COMINI",-
+                                  "COM_CPISS",-
+                                  "COM_DSAO",-
+                                  "COM_DSBO",-
+                                  "COM_DSDO",-
+                                  "COM_DSXREF",-
+                                  "COM_GENINT",-
+                                  "COM_GRPAL",-
+                                  "COM_GRPSND",-
+                                  "COM_IECTRM",-
+                                  "COM_IESA",-
+                                  "COM_IESEI",-
+                                  "COM_IESS",-
+                                  "COM_NETINI",-
+                                  "COM_PNDIND",-
+                                  "COM_RDDATA",-
+                                  "COM_RDGEN",-
+                                  "COM_RESPRC",-
+                                  "COM_RESSEL",-
+                                  "COM_REVDTA",-
+                                  "COM_RPSDI",-
+                                  "COM_RPSFT",-
+                                  "COM_RPSS",-
+                                  "COM_SUSSTA",-
+                                  "COM_USAI",-
+                                  "COM_USAO",-
+                                  "COM_USBI",-
+                                  "COM_USBO",-
+                                  "COM_USDB",-
+                                  "COM_USDI",-
+                                  "COM_USBS",-
+                                  "COM_USPC",-
+                                  "COM_USOXR",-
+                                  "COM_USXREF",-
+                                  "COM_RDXREF")                                  
+   
+
+   #WHEN "2.0"- 
+     @MODIFIED_COM_PROCEDURES = ( "COM_AUTHCH",-
+                                  "COM_BOCMD",-
+                                  "COM_CNTINT",-
+                                  "COM_COMINI",-
+                                  "COM_CPISS",-
+                                  "COM_DSAO",-
+                                  "COM_DSBO",-
+                                  "COM_DSDO",-
+                                  "COM_DSXREF",-
+                                  "COM_GENINT",-
+                                  "COM_GRPAL",-
+                                  "COM_IECTRM",-
+                                  "COM_IESA",-
+                                  "COM_IESEI",-
+                                  "COM_IESS",-
+                                  "COM_NETINI",-
+                                  "COM_PNDIND",-
+                                  "COM_RDDATA",-
+                                  "COM_RDGEN",-
+                                  "COM_RESPRC",-
+                                  "COM_RESSEL",-
+                                  "COM_RPSDI",-
+                                  "COM_RPSFT",-
+                                  "COM_RPSS",-
+                                  "COM_RPSY",-
+                                  "COM_SUSSTA",-
+                                  "COM_USAI",-
+                                  "COM_USBI",-
+                                  "COM_USDB",-
+                                  "COM_USDI",-
+                                  "COM_USBS",-
+                                  "COM_USPC",-
+                                  "COM_USOXR",-
+                                  "COM_USXREF",-
+                                  "COM_RDXREF")
+                                  
+                                  
+   #OTHERWISE @MODIFIED_COM_PROCEDURES = VECTOR()
+#CASE_END
+                                 
+#IF LENGTH(%MODIFIED_COM_PROCEDURES) > 0 #THEN #BLOCK
+   #LOOP_WITH I = 1..LENGTH(%MODIFIED_COM_PROCEDURES)
+      @COM_PROC = %MODIFIED_COM_PROCEDURES(%I)
+      @COM_SEARCH = FETCH(0,"C","'COM_PROC'")
+      #IF COM_SEARCH:VIU <> -1 #THEN #BLOCK
+         @TMP_NAME = "TMP" + SUBSTR(%COM_PROC,4,0)
+         @TMP_SEARCH = FETCH(0,"C","'TMP_NAME'")
+         #IF TMP_SEARCH:VIU == -1 #THEN -
+            #CREATE 'TMP_NAME':C = LIST(-   
+                IU = COM_SEARCH:VIU,-
+                MO = COM_SEARCH:VMO,-
+                PE = COM_SEARCH:VPE,-
+                PQ = COM_SEARCH:VPQ,-
+                CM = COM_SEARCH:VCM,-
+                IN = COM_SEARCH:VIN)
+         #ELSE -
+            #MODIFY 'TMP_NAME':C = LIST(-   
+                IU = COM_SEARCH:VIU,-
+                MO = COM_SEARCH:VMO,-
+                PE = COM_SEARCH:VPE,-
+                PQ = COM_SEARCH:VPQ,-
+                CM = COM_SEARCH:VCM,-
+                IN = COM_SEARCH:VIN)
+         #ERROR IGNORE
+         @S = STATUS       
+         #DELETE 'COM_PROC':C
+         #ERROR CONTINUE
+         #IF STATUS <> 0 #THEN #BLOCK
+            #PAUSE 2
+            #DELETE 'COM_PROC':C
+         #BLOCK_END   
+      #BLOCK_END
+   #LOOP_END
+#BLOCK_END
+
+;texts for the application objects
+#DO READ_TEXT("COM_/COM_OBJTXT.TXT")
+
+;create application objects
+#DO READ_TEXT("COM_/COM_APLOBJ.TXT",1,2000)
+
+;send message to the notfication window
+@APL_NAME = APL:BNA
+@UPDATE_STATUS = STATUS
+#IF %UPDATE_STATUS == 0 #THEN @MSG = "successfully"
+#ELSE @MSG = "unsuccessfully"
+@TMP = CONSOLE_OUTPUT("Application 'APL_NAME' 'msg' updated to COM500i")
+
+;initialize the application if not already initialised
+#IF LENGTH(APL:BSV) <= 19 #THEN #EXEC COM_COMINI:C
+   #ELSE_IF DATA_TYPE(APL:BSV20) <> "LIST" #THEN #EXEC COM_COMINI:C
+
+; Update COM 500 tool in application's ToolView.ini file
+
+@i_Status = status
+#error ignore
+   @INI_FOLDERS = DIRECTORY_MANAGER("LIST", FM_SCIL_DIRECTORY("/APL/'APL_NAME'/PAR"))
+#error stop
+@i_Status = status
+
+#if %i_Status == 0 #then #block 
+
+   #loop_with i_Ini_File = 1 .. length(%INI_FOLDERS)
+
+      @t_Ini_Folder = fm_represent(%INI_FOLDERS(%i_Ini_File))
+      @i_Status = status
+      #error ignore
+         @v_Toolview = read_text("/APL/'APL_NAME'/PAR/'t_Ini_Folder'/ToolView.ini", 1, 10000)
+      #error stop
+      @i_Status = status
+
+      #if %i_Status == 0 #then #block 
+
+         @v_Location_1 = select(upper_case(%v_ToolView), "==""TOOL_VSO_FILE_=SYS_TOOL/COMTOOL.VSO""")
+         @v_Location_2 = select(upper_case(%v_ToolView), "==""TOOL_VSO_FILE_=\SC\STOOL\SYSCONF\COMTOOL.VSO""")
+         @t_Drive = substr(fm_represent(fm_scil_directory("/")), 1, 1)
+         @v_Location_3 = select(upper_case(%v_ToolView), "==""TOOL_VSO_FILE_='t_Drive':\SC\STOOL\SYSCONF\COMTOOL.VSO""")
+
+         #if length(%v_Location_1) > 0 or length(%v_Location_2) > 0 or length(%v_Location_3) > 0 #then #block
+
+            #if length(%v_Location_1) > 0 #then @v_ToolView(%v_Location_1(1)) = "Tool_VSO_File_=COM_/COMTOOL.VSO"
+            #if length(%v_Location_2) > 0 #then @v_ToolView(%v_Location_2(1)) = "Tool_VSO_File_=COM_/COMTOOL.VSO"
+            #if length(%v_Location_3) > 0 #then @v_ToolView(%v_Location_3(1)) = "Tool_VSO_File_=COM_/COMTOOL.VSO"
+
+         #block_end
+
+         @i_Write_Status = write_text("/APL/'APL_NAME'/PAR/'t_Ini_Folder'/ToolView.ini", %v_ToolView)
+
+      #block_end
+
+   #loop_end
+
+#block_end

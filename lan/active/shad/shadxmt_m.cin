@@ -1,0 +1,51 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;                                         C  S  S  T  S  S  C  ;
+;                                         O  T  T  I  T  T  O  ;
+;                                         N  A  O  M  A  A  N  ;
+;                                         T  R  P  E  T  T  N  ;
+;                                         R  T     R  E  U  E  ;
+;                                         O           _  S  C  ;
+;                                         L           C  _  T  ;
+;                                                     H  C  I  ;
+;                                                     A  H  O  ;
+;                                                     N  A  N  ;
+;                                                     G  N  _  ;
+;                                                     E  G  L  ;
+;                                                        E  O  ;
+;                                                           S  ;
+;                                                           T  ;       
+;APL_COLD_SHD_NONE_PHS_NONE               IG 03 IG IG 01 IG 02 ;
+;APL_COLD_SHD_WSND_PHS_NONE               IG 03 IG IG 01 IG 02 ;
+;APL_COLD_SHD_WSND_PHS_TO_WARM_SEND       IG 03 IG IG 01 IG 02 ;
+;APL_COLD_SHD_HSND_PHS_NONE               IG 03 IG IG 01 IG 02 ;
+;APL_COLD_SHD_HSND_PHS_TO_WARM_SEND       IG 03 IG IG 01 IG 02 ;
+;APL_COLD_SHD_HSND_PHS_WARM_SEND          IG 03 IG IG 01 IG 02 ;
+;APL_WARM_SHD_HSND_PHS_NONE               IG 03 IG IG 01 IG 02 ;
+;APL_WARM_SHD_WSND_PHS_TO_WARM_SEND       IG 03 IG IG 01 IG 02 ;
+;APL_WARM_SHD_WSND_PHS_WARM_SEND          IG 03 IG IG 01 IG 02 ;
+;APL_WARM_SHD_HSND_PHS_TO_WARM_SEND       IG 03 IG IG 01 IG 02 ;
+;APL_WARM_SHD_HSND_PHS_TO_HOT_SEND        IG 03 IG IG 01 IG 02 ;
+;APL_WARM_SHD_HSND_PHS_WARM_SEND          IG 03 IG IG 01 IG 02 ;
+;APL_WARM_SHD_HSND_PHS_HOT_SEND           IG 03 IG IG 01 IG 02 ;
+;APL_HOT__SHD_NONE_PHS_NONE               IG 03 IG IG 01 IG 02 ;
+;APL_HOT__SHD_NONE_PHS_TO_WARM_SEND       IG 03 IG IG 01 IG 02 ;
+;APL_HOT__SHD_WSND_PHS_TO_WARM_SEND       IG 03 IG IG 01 IG 02 ;
+;APL_HOT__SHD_WSND_PHS_TO_HOT_SEND        IG 03 IG IG 01 IG 02 ;
+;APL_HOT__SHD_WSND_PHS_WARM_SEND          IG 03 IG IG 01 IG 02 ;
+;APL_HOT__SHD_HSND_PHS_NONE               IG 03 IG IG 01 IG 02 ;
+;APL_HOT__SHD_HSND_PHS_TO_WARM_SEND       IG 03 IG IG 01 IG 02 ;
+;APL_HOT__SHD_HSND_PHS_WARM_SEND          IG 03 IG IG 01 IG 02 ;
+;APL_HOT__SHD_HSND_PHS_TO_HOT_SEND        IG 03 IG IG 01 IG 02 ;
+;APL_HOT__SHD_HSND_PHS_HOT_SEND           IG 03 IG IG 01 IG 02 ;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+@MATRIX="SHADXMT_M"
+@STATE_BEGIN=17
+@EVENT_BEGIN=43
+@MAX_STATE=23
+@MAX_EVENT=7
+@MAX_TRANSITION=3
+
+@TRANSITION(1) = "SHADSTATCH"
+@TRANSITION(2) = "SHADTCLOST"
+@TRANSITION(3) = "SHADTSTART"

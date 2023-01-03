@@ -1,0 +1,76 @@
+; Function:    BMU_SP_Update:C
+; Version:     3.0 (Build 1.03.2012)
+; Parameters:  t_ObjectName - object name
+;              IS1 - index of start time (BMU_SP_IND)
+;              IS2 - index of end time   (BMU_SP_IND)
+; Return data: none
+; Description: Update sampled values
+;-------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;-------------------------------------------------------------------------------
+#local i, x_, i_Status = status, cot, trash,-
+       t_Instruction = "", i_InstructionValue = 0, i_ObjectValue = 0, i_SampleValue = 0
+#error ignore
+
+#if application_object_exists(0,"D",%t_ObjectName) #then #block
+   t_Instruction = 't_ObjectName':DIN
+   #if t_Instruction > "" #then #block
+      #error ignore
+      i_Status = status
+      x_ = 't_Instruction'
+      i_Status = status
+      #if i_Status  < 10 #then #block
+         #if 't_ObjectName':DLR < 't_ObjectName':DHR #then #set 't_ObjectName':DLR = 't_ObjectName':DHR
+                                                                                          #if sys:bdm==1 #then trash = "IS1='IS1', IS2='IS2'"
+         #loop_with i = %IS1..%IS2
+            i_InstructionValue = 't_Instruction'
+            i_ObjectValue      = "-99999999"
+            #case 't_ObjectName':DLF
+               #when 4 #block                                                   ;*** Logging Function = Difference
+                  #if 't_ObjectName':DOS < 10 #then #block
+                     i_SampleValue = 't_Instruction'-'t_ObjectName':D           ;*** PObject value - last sample value
+                     i_ObjectValue = 't_ObjectName':D                           ;*** last sampled value
+                  #block_end
+                  #else i_SampleValue = set_status('t_Instruction',1)           ;*** last sampling doesn't exist Difference ->invalid
+                  #if i_SampleValue < 0 #then -
+                     #if 't_Instruction' == 't_ObjectName':DOV #then i_SampleValue = 0   ;*** as precision of real values lost
+                  #set 't_ObjectName':DOV = 't_Instruction'
+               #block_end
+               #when 5 #block                                                   ;*** Logging Function = Pulse Difference
+                  #if 't_ObjectName':DOS < 10 #then i_SampleValue = 't_Instruction'-'t_ObjectName':D
+                  #else                             i_SampleValue = set_status('t_Instruction',1)
+                  #if i_SampleValue < 0 #then #block
+                     #if 't_Instruction' == 't_ObjectName':DOV #then -
+                        i_SampleValue = 0                                       ;*** as precision of real values lost
+                     #else i_SampleValue = 't_ObjectName':DPS - 't_ObjectName':D + 't_Instruction'  ;*** as pulse counter has reached max. value and restarted from zero
+                  #block_end
+                  #set 't_ObjectName':DOV = 't_Instruction'
+               #block_end
+               #otherwise i_SampleValue = 't_Instruction'
+            #case_end
+            #set 't_ObjectName':DOV(i..i) = i_SampleValue
+            #set 't_ObjectName':DRT       = clock
+            #set 't_ObjectName':DRT(i..i) = clock
+         #loop_end
+      #block_end
+      #else #block                                                              ;*** error in Instruction
+         #set 't_ObjectName':DOS = 1
+         #set 't_ObjectName':DOS(%IS1..%IS2) = get_status('t_Instruction')
+         #set 't_ObjectName':DRT = clock
+		 #if i_Status > 10 #then -
+            cot = console_output("BMU_SP_Update:C - Report Object 't_ObjectName' - Error='i_Status' in instruction","E","MREP")
+      #block_end
+   #block_end
+   #else #block                                                                 ;*** empty Instruction
+      #set 't_ObjectName':DOS = 1
+      #set 't_ObjectName':DOS(%IS1..%IS2) = 10
+      #set 't_ObjectName':DRT = clock
+      cot = console_output("BMU_SP_Update:C - Report Object 't_ObjectName' - empty instruction","E","MREP")
+   #block_end
+#block_end
+#else cot = console_output("BMU_SP_Update:C - Report Object 't_ObjectName' missing","E","MREP")
+
+i_Status = status
+#if i_Status <> 0 #then cot = console_output("BMU_SP_Update:C - Report Object 't_ObjectName' - SCIL Error='i_Status'","E","MREP")
+

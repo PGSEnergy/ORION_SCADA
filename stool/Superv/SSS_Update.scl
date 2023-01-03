@@ -1,0 +1,32 @@
+; File: SSS_Update.scl()
+; Version: SYS 600 9.3
+; Parameters: none
+; Description: This is the text file for updating application objects (e.g. command procedures, time channels, data objects and event
+;              channels) for System Self Supervision after update of software package. Also initialization of System Self 
+;              Supervision functionality at system start-up is triggered.
+; ------------------------------------------------------------------------------------------------------------------------------------
+
+;update application objects (done once per application)
+#if file_manager("EXISTS", fm_scil_file("/STool/Superv/SSS_Updt.scl")) #then #block
+
+   ;define update tag
+   @e_Clock = clock
+   @t_Apl_Name = APL:BNA
+   @v_Update_Tag = (";## Executed by application 't_Apl_Name'",-
+                    ";## at 'e_Clock', This is not executed again while these lines are here")
+   
+   ;read in context of update file
+   @v_Update_File = read_text("/STool/Superv/SSS_Updt.scl", 1, 10000)
+   
+   ;update application objects 
+   #if length(%v_Update_File) > 0 #then #if length(select(locate(%v_Update_File, %v_Update_Tag(1)), "<>0")) == 0 #then #block
+      #do %v_Update_File
+      @v_Update_File = append(%v_Update_Tag, %v_Update_File)
+      @i_Status = write_text("/STool/Superv/SSS_Updt.scl", %v_Update_File)
+   #block_end
+   
+#block_end
+
+;initialization of System Self Supervision functionality at system start-up
+#do sys_sssini:c
+

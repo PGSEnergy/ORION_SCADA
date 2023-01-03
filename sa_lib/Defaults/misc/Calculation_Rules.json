@@ -1,0 +1,85 @@
+{
+    "switch_position": {
+        "Attributes": [ "TS" ],
+        "Rule": "TS == 2 ? 1 : TS == 1 ? 2 : TS",
+        "DataPointType": "DoubleBinaryValue"
+    },
+    "command_blocked_due_to_pending_command": {
+        "Attributes": [ "OV" ],
+        "Rule": "OV > 0"
+    },
+    "command_blocked_due_to_selection_on_other_monitor": {
+        "Attributes": [ "OV" ],
+        "Rule": "OV > 0"
+    },
+    "group_alarm_state": {
+        "Attributes": [ "GS" ],
+        "Rule": "ACTIVE_UNACKED > 0 ? 1 : FLEETING > 0 ? 3 : (ACTIVE_ACKED > 0 || ACTIVE_NOACK > 0) ? 2 : 0",
+        "DataPointType": "SignedInt32Value"
+    },
+    "close_interlocked": {
+        "Attributes": [ "OV", "DX" ],
+        "Rule": "OV == 1 ? DX == \"E7S\" ? false : true : DX == \"E7S\" ? true : false"
+    },
+    "open_interlocked": {
+        "Attributes": [ "OV", "DX" ],
+        "Rule": "OV == 1 ? DX == \"E7S\" ? false : true : DX == \"E7S\" ? true : false" 
+    },
+    "auto_manual_operation_mode": {
+        "Attributes": [ "OV", "PT", "RI" ],
+        "Rule": "PT == 12 ? (RI == 9 && OV == 2) || (RI == 10 && OV == 1) ? 1 : 0 : OV",
+        "DataPointType": "BoolValue"
+    },
+    "co_operation_mode": {
+        "Attributes": [ "OV", "PT" ],
+        "Rule": "PT == 12 && OV == 1 ? 0 : PT == 12 && OV == 2 ? 1 : PT == 3 && OV == 1 ? 2 : OV"
+    },
+    "station_local_remote": {
+        "Attributes": [ "OV", "PT" ],
+        "Rule": "PT == 3 && OV == 0 ? 2 : OV"
+    },
+    "ied_local_remote_abb": {
+        "Attributes": [ "OV", "PT", "DX" ],
+        "Rule": "PT == 3 ? (OV == 1 ? (DX == \"E7S\" ? 1 : 2) : (DX == \"E7S\" ? 2 : 1)) : OV"
+    },
+    "autoreclosing_state": {
+        "Attributes": [ "OV", "PT", "DX" ],
+        "Rule": "PT == 3 ? (OV == 1 ? 2 : 0) : DX == \"E6\" ? OV : OV > 0 ? 2 : 0"
+    },
+    "update_blocked": {
+        "Attributes": [ "UB" ],
+        "Rule": "UB > 0"
+    },    
+    "alarm_blocked": {
+        "Attributes": [ "AB" ],
+        "Rule": "AB > 0"
+    },
+    "event_blocked": {
+        "Attributes": [ "HB" ],
+        "Rule": "HB > 0"
+    },
+    "group_update_blocked": {
+        "Attributes": [ "GB" ],
+        "Rule": "UB.Length > 0"
+    },
+    "group_control_blocked": {
+        "Attributes": [ "GB" ],
+        "Rule": "CB.Length > 0"
+    },
+    "group_alarm_blocked": {
+        "Attributes": [ "GB" ],
+        "Rule": "AB.Length > 0"
+    },
+    "group_event_blocked": {
+        "Attributes": [ "GB" ],
+        "Rule": "HB.Length > 0"
+    },
+    "active": {
+        "Attributes": [ "AL" ],
+        "Rule": "AL > 0"
+    },
+    "acknowledged": {
+        "Attributes": [ "AR" ],
+        "Rule": "AR == 1"
+    }
+}

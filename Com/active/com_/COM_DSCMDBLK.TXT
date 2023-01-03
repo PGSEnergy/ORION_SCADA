@@ -1,0 +1,19 @@
+﻿; This command procedure is used for command block checking in a COM application (downstream direction)
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+; If Tagout function is used, the needed code will be added with first usage of Tagout Class editor
+;
+; INPUT:  @OUTPUT_OBJECT_LNS, logical name(s) of the output object(s), text/vector
+;         @OUTPUT_OBJECT_IXS, indexe(s) of the output object(s), vector
+;         
+; OUTPUT  @COMMAND_BLOCKED
+;
+;------------------------------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+@COMMAND_BLOCKED = FALSE
+
+

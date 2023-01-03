@@ -1,0 +1,16 @@
+﻿; This command procedure is used for reseting object selection flags in a COM application
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @COM_SELECTION_TIME, time of the select command, real (time + ms)
+;         @COM_SELECTION_LN, logical name of the object receiving the command, text
+;         @COM_SELECTION_IX, index of the object receiving the command,integer
+;---------------------------------------------------------------------------------------
+
+;reset the selection flag in a command-receiving process object after a predefined timeout
+;in case the object has not been updated
+#IF 'COM_SELECTION_LN':PRI'COM_SELECTION_IX' <> 0 AND 'COM_SELECTION_LN':PRT'COM_SELECTION_IX' + -
+('COM_SELECTION_LN':PRM'COM_SELECTION_IX'/1000) == %COM_SELECTION_TIME #THEN -
+#SET 'COM_SELECTION_LN':PRI'COM_SELECTION_IX' = 0

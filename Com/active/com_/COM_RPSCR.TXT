@@ -1,0 +1,60 @@
+﻿; This command procedure is used for configuring line and station into NET 
+; for RP 570 slave                           
+;
+; SYS600 10.2.0
+; Compilation status: Not Compiled
+; INPUT:  @NET, number of the NET, integer
+;         @LINE, number of the line that connects the station to NET, integer
+;         @STATIONS, number(s) of the station that is connected to line, integer vector   
+;         @APPLIC, application number that receives the system messages, integer
+;------------------------------------------------------------------------------
+
+; Create a line with RP 570 slave if it does not exist
+#IF NET'NET':SPO'LINE'==0 #THEN #BLOCK
+  #SET NET'NET':SPO'LINE' = 16            ;RP 570 slave
+  #SET NET'NET':SMS'LINE' = %APPLIC       ;message application
+  #SET NET'NET':SMI'LINE' = %LINE+(6000+(%NET*100))  ;message identifier
+  #SET NET'NET':SBR'LINE' = 9600          ;baud rate
+  #SET NET'NET':SPY'LINE' = 2             ;parity  
+  #SET NET'NET':SRD'LINE' = 8             ;receive bit count
+  #SET NET'NET':STD'LINE' = 8             ;transmit bit count
+  #SET NET'NET':SSB'LINE' = 1             ;stop bit count
+  #SET NET'NET':SLK'LINE' = 0             ;link type       
+  #SET NET'NET':SPS'LINE' = 15            ;buffer pool size
+#BLOCK_END
+
+; Stop the net line before configuration
+#ERROR IGNORE
+#SET NET'NET':SIU'LINE' = 0
+#ERROR STOP
+
+; Requires a basesystem object for station
+#LOOP_WITH I = 1..LENGTH(%STATIONS)
+  @STA=%STATIONS(%I)
+  #IF (STA'STA':BST=="SPI") AND -
+      (STA'STA':BND==%NET) AND -
+      (STA'STA':BTT=="EXTERNAL") #THEN #BLOCK
+    #ERROR IGNORE
+    #SET STA'STA':SIU = 0
+    @STA_NR = STA'STA':BTN
+    #SET NET'NET':SDV22 = (%STA_NR,"D")
+    #ERROR STOP
+  #BLOCK_END
+#LOOP_END
+
+#LOOP_WITH I = 1..LENGTH(%STATIONS)
+  @STA=%STATIONS(%I)
+  @STA_NR = STA'STA':BTN
+  #SET NET'NET':SDV(22) = (%STA_NR,%LINE)      ;create station to line
+  #SET STA'STA':SIU           = 0              ;set station out of use
+  #SET STA'STA':SAL           = 1              ;allocated
+  #SET STA'STA':SMI           = 1000+%STA      ;message identification
+  #SET STA'STA':SMS           = %APPLIC        ;message application
+  #SET STA'STA':SDI           = 0              ;database not initialized
+  #SET STA'STA':SRT           = 20             ;reply timeout
+  #SET STA'STA':SSA           = %STA_NR        ;station address
+  #SET STA'STA':SIU           = 1              ;set station in use
+#LOOP_END
+
+; Set line in use
+#SET NET'NET':SIU'LINE' = 1

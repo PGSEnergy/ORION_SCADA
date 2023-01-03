@@ -1,0 +1,98 @@
+;Function: BPU_TRIM_OI_FOR_QUERY:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_trim_oi_for_query.scl
+;Version: 1.0
+;Parameters: l_object_info (content of CD-attribute)
+;Return data: list(station_name_trimmed = "", bay_name_trimmed = "", device_name_trimmed = "",-
+;	special_identifier_1_trimmed= "", special_identifier_2_trimmed = "", special_identifier_3_trimmed = "",-
+;	level_sta = 0, level_bay = 0, level_device = 0, level_special_1 = 0, level_special_2 = 0, level_special_3 = 0,-
+;	level_lengths = vector(0,0,0,0,0))
+;Description: Trims object identification for process database queries
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info
+
+#local l_Obj_Ident = apl:boi, t_OI_String = "", i, i_special_fields = 0 ;apl:bsv15
+#local l_ois = list(station_name_trimmed = "", bay_name_trimmed = "", device_name_trimmed = "",-
+	special_identifier_1_trimmed= "", special_identifier_2_trimmed = "", special_identifier_3_trimmed = "",-
+	level_sta = 0, level_bay = 0, level_device = 0, level_special_1 = 0, level_special_2 = 0, level_special_3 = 0,-
+	level_lengths = vector(0,0,0,0,0))
+
+;****************************************************************************************************
+;redirect command if application specific command procedure is found                               ;*
+#local t_Redirect_Proc = "APLMOD5_BPU_TRIM_OI_FOR_QUERY"                                           ;*
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    ;*
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            ;*
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 ;*
+		#if 't_Redirect_Proc':CIU == 1 #then #block                                                  ;*
+			@REDIRECTED = true                                                                        ;*
+			i_ArgCnt = argument_count                                                                 ;*
+			#if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"						      ;*
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" ;*
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"											      ;*
+			#loop_with i_arg_loop = 1 .. i_ArgCnt                                                     ;*
+				t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    ;*
+				#if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        ;*
+			#loop_end                                                                                 ;*
+			#return 't_Redirect_Command' ;;;;;                                                        ;*
+		#block_end                                                                                   ;*
+	#block_end                                                                                      ;*
+	#else #delete REDIRECTED:V                                                                      ;*
+#block_end                                                                                         ;*
+;****************************************************************************************************
+;MAIN START
+
+#loop_with i = 1 .. l_Obj_Ident.DEPTH
+		l_ois.level_lengths(i) = l_Obj_Ident.levels(i).width
+      #if l_Obj_Ident.levels(i).name == "STA" #then #block
+         #if attribute_exists(l_object_info, "station_name") #then #block
+            l_ois.station_name_trimmed = t_OI_String + substr(l_object_info.station_name, 1, l_Obj_Ident.levels(i).width)
+				l_ois.level_sta = i 
+				t_OI_String = l_ois.station_name_trimmed
+			#block_end
+         #else t_OI_String = t_OI_String + pad(" ",  l_Obj_Ident.levels(i).width)
+      #block_end
+      #else_if l_Obj_Ident.levels(i).name == "BAY" #then #block
+         #if attribute_exists(l_object_info, "bay_name") #then #block
+				l_ois.bay_name_trimmed = t_OI_String + substr(l_object_info.bay_name, 1, l_Obj_Ident.levels(i).width)
+				l_ois.level_bay = i 
+				t_OI_String = l_ois.bay_name_trimmed
+         #block_end
+         #else t_OI_String = t_OI_String + pad(" ", l_Obj_Ident.levels(i).width)
+      #block_end
+      #else_if l_Obj_Ident.levels(i).name == "DEV" #then #block
+         #if attribute_exists(l_object_info, "device_name") #then #block
+				l_ois.level_device = i 
+            l_ois.device_name_trimmed = t_OI_String + substr(l_object_info.device_name, 1, l_Obj_Ident.levels(i).width)
+            t_OI_String = l_ois.device_name_trimmed
+         #block_end
+         #else t_OI_String = t_OI_String + pad(" ", l_Obj_Ident.levels(i).width)
+      #block_end
+      #else #block
+         i_special_fields = i_special_fields + 1
+         #if attribute_exists(l_object_info, "special_identifier_'i_special_fields'") #then #block
+            #if i_special_fields == 1 #then #block
+               l_ois.special_identifier_1_trimmed = t_OI_String + substr(l_object_info.special_identifier_1, 1,l_Obj_Ident.levels(i).width)				
+					l_ois.level_special_1 = i 
+               t_OI_String = l_ois.special_identifier_1_trimmed
+					;l_ois.End_of_Special_identifier_1 = length(t_OI_String) + 1
+            #block_end
+            #else_if i_special_fields == 2 #then #block
+					l_ois.special_identifier_2_trimmed = t_OI_String + substr(l_object_info.special_identifier_2, 1, l_Obj_Ident.levels(i).width)
+					l_ois.level_special_2 = i 
+					t_OI_String = l_ois.special_identifier_2_trimmed
+					;l_ois.End_of_Special_identifier_2 = length(t_OI_String) + 1
+            #block_end
+            #else #block
+               l_ois.special_identifier_3_trimmed = t_OI_String + substr(l_object_info.special_identifier_3, 1, l_Obj_Ident.levels(i).width)
+					l_ois.level_special_3 = i 
+               t_OI_String = l_ois.special_identifier_3_trimmed
+					;l_ois.End_of_Special_identifier_3 = length(t_OI_String) + 1
+            #block_end
+         #block_end
+         #else t_OI_String = t_OI_String + pad(" ", l_Obj_Ident.levels(i).width)
+      #block_end
+#loop_end
+
+#return l_ois

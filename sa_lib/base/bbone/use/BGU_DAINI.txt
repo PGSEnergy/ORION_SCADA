@@ -1,0 +1,725 @@
+; General variables
+#local Function, SourceFile = "SAGR_BBONE/BGU_DAINI.txt"
+#local t_INI_File, RetVal, I, J, b_Dbg = FALSE
+; Get_LNIX_For_Remapping variables
+#local i_Offset, v_Unmapped
+; Get_Items variables
+#local l_Param, v_Groups, i_NumOfItems, t_Group, t_Tmp, t_tmpItem
+; Add_To_Ini variables
+#local t_New_Item, v_Items, b_Merge
+; Map_To_Groups variables
+#local t_LN, i_IX, i_Unit, i_OA, i_OB, t_IN, t_Address, t_Swap, l_AddrInfoOA, l_AddrInfoOB, l_Items
+#local t_Type, v_Status, l_Tmp, v_IN, v_tSPA, v_TranSPA, v_Tmp, t_Range, v_Dev_Conn_Status, t_Conn_Status_Item, v_Attributes
+; Save Items variables
+#local v_Group, b_Valid, i_Saved, b_Append, i_Existing_Count, i_ItemNum, b_Transparent_SPA
+#local v_Old_Groups, v_Old_Units, v_Units, i_OwnNode, t_IEDInfoFile
+; Get_IEDSPA_Info variabloe
+#local t_IEDOPC_Info, v_IED, t_IED, t_Item
+; Split OPC Groups
+#local i_Cur_Len, v_Group_Keys, t_Groups
+; Get_Opc_Groups 
+#local i_Index
+; Add_CPI_Unit
+#local t_Unit
+
+#IF SYS:BDM == 1 #THEN b_Dbg = TRUE
+#IF b_Dbg #THEN #ON ERROR #BLOCK
+      @DBG = CONSOLE_OUTPUT(TIMES + ".                  VM: " + STATUS_CODE_NAME(STATUS))
+      #ERROR RAISE
+#BLOCK_END
+
+#IF ARGUMENT_COUNT < 1 #THEN #BLOCK
+   #IF SYS:BDM == 1 #THEN @DBG = CONSOLE_OUTPUT("'SourceFile' called without function")
+   #ERROR RAISE STATUS_CODE("SCIL_ARGUMENT_LIST_TOO_SHORT")
+#BLOCK_END
+#ELSE Function = ARGUMENT(1)
+
+#CASE Function
+   ;
+   ; Collects LN:IX pairs from list of vectors for remapping
+   ; 
+   #WHEN "Get_LNIX_For_Remapping" #BLOCK
+       l_Items = ARGUMENT(2)
+       RetVal = l_Items 
+       v_Unmapped = RetVal.UNMAPPED
+
+       v_Attributes = LIST_ATTR(l_Items)
+       #LOOP_WITH I = 1 .. LENGTH(v_Attributes)
+           t_Group = v_Attributes(I)
+           v_Items = l_Items.'t_Group'
+           i_Offset = 0
+           #LOOP_WITH J = 1 .. LENGTH(v_Items)
+               #IF LOCATE(v_Items(J - i_Offset), "\") == 0 #THEN #BLOCK
+                  v_Unmapped(LENGTH(v_Unmapped) + 1) = v_Items(J - i_Offset)
+                  v_Items = DELETE_ELEMENT(v_Items, J - i_Offset)
+                  i_Offset = i_Offset + 1
+               #BLOCK_END
+           #LOOP_END
+           RetVal.'t_Group' = v_Items
+       #LOOP_END
+
+       RetVal.UNMAPPED = v_Unmapped
+       #RETURN RetVal
+   #BLOCK_END
+   ;
+   ; Maps given item vector to groups according to their UN-attributes and generates ITEM##, line according to object OA+OB
+   ; Arguments:   l_Items - List of GRP_'i_Unit' -groups which are already mapped and UNMAPPED vector which contains 'new' items.
+   ;            b_Transparent_SPA - Whether to check the need for Transparent SPA and add it if found
+   ;            t_IEDInfoFile   - If transparent SPA is needed the full path to IedOpcServerInfo.txt, if b_Transparent_SPA
+   ;                           is false this argument is ignored
+   ; Returns: Vector of Vectors. 1st level vector is grouped to UN attribute 
+   ;      (eg. vect(LN:PUN'IX') = VECTOR of ITEMS). And not every index is used. Check the return 
+   ;      value with GET_STATUS(Vector(x)) (or DATA_TYPE(GET_STATUS(Vector(x))) which is "VECTOR" when
+   ;      given index is used). 2nd level vector is a text vector of ITEM## -values which can be written
+   ;      to ini file
+   ;
+   #WHEN "Map_Items_To_Groups" #BLOCK
+      l_Items = ARGUMENT(2)
+      l_tmp = DO(READ_TEXT(SourceFile, 1, 10000), "Get_LNIX_For_Remapping", l_Items)
+      v_Items = REMOVE_DUPLICATES(APPEND(l_Tmp.UNMAPPED, l_Items.UNMAPPED))
+      l_Items = l_Tmp
+      b_Transparent_SPA = ARGUMENT(3) 
+      #IF b_Transparent_SPA #THEN t_IEDInfoFile = ARGUMENT(4)
+      #ELSE t_IEDInfoFile = ""
+
+      v_Groups = VECTOR()
+      v_TranSPA = VECTOR()
+      v_Dev_Conn_Status = VECTOR()
+
+	  #IF b_Transparent_Spa #THEN v_tSPA = DO(READ_TEXT(SourceFile, 1, 10000), "Get_IEDSPA_Info", t_IEDInfoFile)
+	  #ELSE v_tSPA = VECTOR()
+
+      #LOOP_WITH I = 1 .. LENGTH(v_Items)
+         i_IX = 0
+         t_LN = ""
+         v_Tmp = SEPARATE(v_Items(I), ":")
+         #IF LENGTH(v_Tmp) >= 2 #THEN #BLOCK
+            #IF SUBSTR(v_Tmp(2), 1, 1) == "P" #THEN v_Tmp(2) = SUBSTR(v_Tmp(2), 2, 0)
+            i_IX = DEC_SCAN(v_Tmp(2))
+            t_LN = v_Tmp(1)
+         #BLOCK_END
+
+         l_Tmp = FETCH(0, "P", t_LN, i_IX)
+         #IF l_Tmp.IU == -1 #THEN #BLOCK
+            #IF b_DBG #THEN @DBG = CONSOLE_OUTPUT("Mapping of 't_LN':P'i_IX' failed: PO does not exist...")
+         #BLOCK_END
+         #ELSE #BLOCK   
+            i_Unit = 't_LN':PUN'i_IX'
+            i_OA = 't_LN':POA'i_IX'
+            i_OB = 't_LN':POB'i_IX'
+            t_IN = REPLACE('t_LN':PIN'i_IX', ".", "\")
+            v_IN = SEPARATE(t_IN, "\")
+
+            #IF LENGTH(t_IN) > 0 AND 't_LN':POA'i_IX' <> 0 AND LENGTH(v_IN) > 1 AND i_Unit <> 0 #THEN #BLOCK
+               l_AddrInfoOA = RTU_ADDR(RTU_KEY('t_LN':POA'i_IX'))
+               #IF l_AddrInfoOA.TP == 7 #THEN l_AddrInfoOB = RTU_ADDR(RTU_KEY('t_LN':POB'i_IX'))
+               t_Address = ""
+               t_Swap = ""
+               t_Range = ""
+
+               #CASE 't_LN':PPT'i_IX'
+               #WHEN 3 #BLOCK
+                  t_Type = "SB"
+                  t_Address = dec(l_AddrInfoOA.BA,0) + ":" + DEC(l_AddrInfoOB.BA,0)
+               #BLOCK_END
+               #WHEN 5 #BLOCK
+                  t_Type = "BO"
+                  t_Address = DEC(l_AddrInfoOA.BA, 0)
+               #BLOCK_END
+               #WHEN 6 #BLOCK
+                  t_Type = "DI"
+                  t_Address = DEC(l_AddrInfoOA.BA, 0)
+               #BLOCK_END
+               #WHEN 7 #BLOCK
+                  t_Type = "DO"
+                  t_Address = DEC(l_AddrInfoOA.BA, 0)
+               #BLOCK_END
+               #WHEN 9 #BLOCK
+                  t_Type = "AI"
+                  t_Address = DEC(l_AddrInfoOA.BA, 0)
+
+                  ; Check if range is needed
+                  #IF 't_LN':PSZ'i_IX' == 0 #THEN #BLOCK
+                     v_Tmp = SELECT(LOCATE(v_IN, "cVal"), ">0")
+                     #IF LENGTH(v_Tmp) > 0 #THEN t_Range = ", R, " + """" + COLLECT(v_IN(1.. (v_Tmp(1) - 1)), "\") + "\range" + """" + ", I"
+                     #ELSE t_Range = ", R, " + """" + COLLECT(v_IN(1.. (LENGTH(v_IN) - 1)), "\") + "\range" + """" + ", I"
+                  #BLOCK_END
+               #BLOCK_END
+               #WHEN 11 #BLOCK
+                  t_Type = "AO"
+                  t_Address = DEC(l_AddrInfoOA.BA, 0)
+               #BLOCK_END
+               #WHEN 12 #BLOCK
+                  t_Type = "DB"
+                  t_Address = DEC(l_AddrInfoOA.BA, 0) + ":" + DEC(l_AddrInfoOB.BA, 0)
+                  t_Swap = ", 0"
+               #BLOCK_END
+               #WHEN 13 #BLOCK
+                  t_Type = "PC"
+                  t_Address = dec(l_AddrInfoOA.BA, 0)
+               #BLOCK_END
+               #WHEN 14 t_Type = "BS"
+               #WHEN 15 t_Type = "FT"
+               #WHEN 16 t_Type = "OE"
+               #OTHERWISE t_Type = ""
+               #CASE_END
+
+               ; Check if we need Transparent SPA attribute
+               t_IED = v_IN(2)
+			   #LOOP_WITH I = 1 .. LENGTH(v_tSPA)
+			      #IF v_tSPA(I).IED == t_IED #THEN #BLOCK
+					#IF FIND_ELEMENT(v_tSPA(I).LD, v_IN(3)) <> 0 #THEN #BLOCK
+						v_TranSPA(i_Unit) = "'t_LN':'i_IX'"
+						#LOOP_EXIT
+					#BLOCK_END
+				  #BLOCK_END
+			   #LOOP_END
+
+               ; If this is Device Connection Status Mapped to PO
+               #IF  v_IN(1) == "Attributes" AND v_IN(2) == "DuoDriver" #THEN -
+                  t_Conn_Status_Item = """" + """" + "Attributes\Device connection status"  + """" + ", " + "I" + ", " + "SB" + ", " + "0:0" + """"
+               #ELSE -
+                  t_Conn_Status_Item = """" + """" + v_IN(1) + "\" + v_IN(2) + "\Attributes\Device connection status"  + """" + ", " + "I" + ", " + "SB" + ", " + "0:0" + """"
+
+               #IF LENGTH(v_IN) > 3 #THEN #BLOCK
+                     #IF v_IN(4) == "Device connection status" #THEN #BLOCK
+                     v_Dev_Conn_Status(i_Unit) = ""
+                  #BLOCK_END
+                  #ELSE v_Dev_Conn_Status(i_Unit) = t_Conn_Status_Item
+               #BLOCK_END
+               #ELSE_IF LENGTH(v_Dev_Conn_Status) < i_Unit #THEN v_Dev_Conn_Status(i_Unit) = t_Conn_Status_Item
+               #ELSE_IF GET_STATUS(v_Dev_Conn_Status(i_Unit)) <> 0 #THEN v_Dev_Conn_Status(i_Unit) = t_Conn_Status_Item
+   
+               t_tmpItem = """" + """" + t_IN + """" + ", " + "I" + ", " + t_Type + ", " + t_Address + t_Swap + ", " + """" + t_LN + ":" + DEC(i_IX, 0) + """" + t_Range + """"
+               v_Status = GET_STATUS(v_Groups)
+               #IF LENGTH(v_Status) >= i_Unit #THEN #BLOCK
+                  #IF DATA_TYPE(GET_STATUS(v_Groups(i_Unit))) == "VECTOR" #THEN v_Groups(i_Unit) = APPEND(v_Groups(i_Unit), t_tmpItem)
+                  #ELSE v_Groups(i_Unit) = VECTOR(t_tmpItem)
+               #BLOCK_END
+               #ELSE v_Groups(i_Unit) = VECTOR(t_tmpItem)
+
+            #BLOCK_END
+            #ELSE #IF b_DBG #THEN @DBG = CONSOLE_OUTPUT("OA was missing or no IN. Mapping failed!")
+         #BLOCK_END
+      #LOOP_END
+
+      ; Add previously mapped items to result vector
+      v_Attributes = LIST_ATTR(l_Items)      
+      #LOOP_WITH I = 1 .. LENGTH(v_Attributes)
+         t_Group = v_Attributes(I)
+
+         #IF LOCATE(t_Group, "GRP_") == 1 #THEN #BLOCK
+             i_Unit = DEC_SCAN(SUBSTR(t_Group, 5))               
+             #IF LENGTH(GET_STATUS(v_Groups)) >= i_Unit #THEN #BLOCK
+                #IF DATA_TYPE(GET_STATUS(v_Groups(i_Unit))) <> "VECTOR" #THEN v_Groups(i_Unit) = l_Items.'t_Group'
+                #ELSE v_Groups(i_Unit) = APPEND(v_Groups(i_Unit), l_Items.'t_Group')
+             #BLOCK_END
+             #ELSE #BLOCK
+                v_Groups(i_Unit) = l_Items.'t_Group'
+             #BLOCK_END
+               ; Do the old items already have the spa or dev conn. status items
+             v_Tmp = SUM(LOCATE(v_Groups(i_Unit), "Device connection status")) 
+             #IF v_Tmp(1) > 0 #THEN v_Dev_Conn_Status(i_Unit) = ""
+             v_Tmp = SUM(LOCATE(v_Groups(i_Unit), "Transparent SPA")) 
+             #IF v_Tmp(1) > 0 #THEN v_TranSPA(i_Unit) = ""
+         #BLOCK_END
+      #LOOP_END
+
+      ; 2nd Pass. Write Transparent SPA items if needed
+      #LOOP_WITH I = 1 .. LENGTH(v_TranSPA)
+         #IF GET_STATUS(v_TranSPA(I)) == 0 #THEN #BLOCK
+            t_LN = SEPARATE(v_TranSPA(I), ":")
+            #IF LENGTH(t_LN) == 2 #THEN #BLOCK
+               i_IX = t_LN(2)
+               t_LN = t_LN(1)
+               v_IN = SEPARATE('t_LN':PIN'i_IX', ".")
+               v_Groups(I) = APPEND(v_Groups(I), """" + """" + v_IN(1) + "\" + v_IN(2) + "\"-
+                           + v_IN(3) + "\Attributes\Transparent SPA" + """, I, VT_BSTR, STA:SSM, 0""")
+            #BLOCK_END
+         #BLOCK_END
+      #LOOP_END
+
+      ; 3rd Pass, add Device Connection Status Items if needed
+      #LOOP_WITH I = 1 .. LENGTH(v_Dev_Conn_Status)
+         #IF GET_STATUS(v_Dev_Conn_Status(I)) == 0 #THEN #BLOCK
+            #IF v_Dev_Conn_Status(I) <> "" #THEN v_Groups(I) = APPEND(v_Groups(I), v_Dev_Conn_Status(I))
+         #BLOCK_END   
+      #LOOP_END
+      #RETURN v_Groups   
+
+   #BLOCK_END
+   ;
+   ; Appends value to CPI Units -key. Checks that every value is unique
+   ; Arguments:    t_Ini_File - File to save to
+   ;            t_Unit - Text to append to the line.
+   ; Returns: 0
+   ;
+   #WHEN "Add_CPI_Unit" #BLOCK
+      t_Ini_File = ARGUMENT(2)
+      t_Unit = ARGUMENT(3)
+
+      l_Param = READ_PARAMETER(t_Ini_File, "CPI", "Units", "")
+      #IF LENGTH(l_Param.VALUE) == 0 #THEN l_Param = WRITE_PARAMETER(t_Ini_File, "CPI", "Units", t_Unit)
+      #ELSE #BLOCK
+         v_Groups = EDIT(SEPARATE(l_Param.VALUE, ","), "COLLAPSE")
+         v_Groups = REMOVE_DUPLICATES(APPEND(v_Groups, t_Unit))
+
+         l_Param = WRITE_PARAMETER(t_Ini_File, "CPI", "Units", COLLECT(v_Groups, ","))
+      #BLOCK_END
+
+      #RETURN 0
+   #BLOCK_END
+   ;
+   ; Returns a vector of strings with the names of OPC Groups found in the file
+   ; Arguments: t_Ini_File - Ini file to read from
+   ; Returns: VECTOR of OPC group names found from the [OPC] Groups*-keys   
+   ;
+   #WHEN "Get_OPC_Groups" #BLOCK
+      t_Ini_File = ARGUMENT(2)
+      v_Groups = "" 
+      l_Param = READ_PARAMETER(t_Ini_File, "OPC", "Groups", "")
+      #IF l_Param.STATUS <> 0 #THEN #RETURN VECTOR()   ; File most likely doesn't exist. Return empty groups
+      v_Groups = EDIT(l_Param.VALUE, "TRIM")
+
+      I = 1
+      #LOOP
+         l_Param = READ_PARAMETER(t_Ini_File, "OPC", "Groups'I'", "")
+         #IF l_Param.VALUE == "" #THEN #LOOP_EXIT
+         v_Groups = v_Groups + EDIT(l_Param.VALUE, "TRIM")
+         I = I + 1
+      #LOOP_END
+	  v_Groups = SEPARATE(v_Groups,",")
+
+      i_Index = FIND_ELEMENT(v_Groups, "")
+      #IF i_Index <> 0 #THEN v_Groups = DELETE_ELEMENT(v_Groups, i_Index)
+
+      #RETURN REMOVE_DUPLICATES(EDIT(v_Groups, "TRIM"))
+   #BLOCK_END
+   ;
+   ; Clears All OPC Groups* keys from the given ini file
+   ; Arguments: t_Ini_File - Ini file to operate on
+   ; Return: 0
+   ;
+   #WHEN "Clear_OPC_Groups" #BLOCK
+      t_Ini_File = Argument(2)
+      l_Param = WRITE_PARAMETER(t_Ini_File, "OPC", "Groups", "")
+      #IF l_Param.STATUS <> 0 #THEN #RETURN l_Param.STATUS
+
+      I = 1
+      #LOOP
+         l_Param = READ_PARAMETER(t_Ini_File, "OPC", "Groups'I'", "xxNOTFOUNDxx")
+         #IF l_Param.VALUE <> "xxNOTFOUNDxx" #THEN l_Param = DELETE_PARAMETER(t_Ini_File, "OPC", "Groups'I'")
+         #ELSE #LOOP_EXIT
+
+         I = I + 1
+      #LOOP_END
+
+      #RETURN 0
+   #BLOCK_END
+   ;
+   ; Splits OPC Groups*-keys to max of 1023 length and removes duplicates
+   ; Arguments: t_Ini_File - Ini file to operate on
+   ; Returns: nothing
+   ;
+   #WHEN "Split_Opc_Groups" #BLOCK
+      t_Ini_File = ARGUMENT(2)
+      v_Groups = DO(READ_TEXT(SourceFile, 1, 10000), "Get_OPC_Groups", t_Ini_File)
+      i_Cur_Len = 2
+
+      I = 1
+      #LOOP
+         l_Param = READ_PARAMETER(t_Ini_File, "OPC", "Groups'I'", "")
+         #IF l_Param.VALUE == "" #THEN #LOOP_EXIT
+         I = I + 1
+      #LOOP_END
+
+      l_Param = DELETE_PARAMETER(t_Ini_File, "OPC", "Groups")
+
+      #IF I > 1 #THEN #LOOP_WITH J = 1 .. I
+         l_Param = DELETE_PARAMETER(t_Ini_File, "OPC", "Groups'J'")
+      #LOOP_END
+
+	  t_Groups = COLLECT(v_Groups, ",")
+	  l_Param = WRITE_PARAMETER(t_Ini_File, "OPC", "Groups", EDIT(SUBSTR(t_Groups,1,1023), "TRIM"))
+	  t_Groups = SUBSTR(t_Groups, 1024)
+	  I = 1
+	  #LOOP
+		#IF LENGTH(t_Groups) > 0 #THEN #BLOCK
+			l_Param = WRITE_PARAMETER(t_Ini_File, "OPC", "Groups'I'", EDIT(SUBSTR(t_Groups, 1, 1023), "TRIM"))
+			t_Groups = SUBSTR(t_Groups, 1024)
+			I = I + 1
+		#BLOCK_END
+		#ELSE #LOOP_EXIT
+	  #LOOP_END
+	
+      #RETURN
+   #BLOCK_END
+   ;
+   ; Saves given vector of LN:IX params to file
+   ; Arguments:    t_Ini_File          - Filename to save to
+   ;            v_Items          - Vector of "LN:IX" items to save
+   ;            [b_Append]          - If file should be appended only. In append mode it is possible that 
+   ;                             same index is in the file more than once [FALSE]
+   ;            [b_Transparent_SPA] - If the transparent spa item should be added (if needed) [TRUE]
+   ;            [t_IEDInfoFile]    - Path to IedOpcServerInfo.txt which will be used with 
+   ;                             Transparent SPA resolving [sys_/IedOpcServerInfo.txt]
+   ; Returns the number of saved items or -STATUS on error
+   ;
+   #WHEN "Save_Items" #BLOCK
+      t_Ini_File = ARGUMENT(2)
+      v_Items = ARGUMENT(3)
+      v_Old_Groups = VECTOR()
+      v_Old_Units = VECTOR()
+      i_Saved = 0
+      #IF LENGTH(EDIT(t_INI_File, "TRIM")) == 0 #THEN #RETURN -1*STATUS_CODE("SCIL_EMPTY_FILE_NAME")
+
+      #IF ARGUMENT_COUNT > 3 #THEN b_Append = ARGUMENT(4)
+      #ELSE b_Append = FALSE
+      
+      #IF ARGUMENT_COUNT > 4 #THEN b_Transparent_SPA = ARGUMENT(5)
+      #ELSE b_Transparent_SPA = TRUE
+
+      #IF ARGUMENT_COUNT > 5 #THEN t_IEDInfoFile = ARGUMENT(6)
+      #ELSE t_IEDInfoFile = "sys_/IedOpcServerInfo.txt"
+      
+      v_Groups = DO(READ_TEXT(SourceFile, 1, 10000), "Map_Items_To_Groups", v_Items, b_Transparent_SPA, t_IEDInfoFile)
+      #IF LENGTH(v_Groups) == 0 #THEN #RETURN 0
+
+      ; Check if CPI OwnNodeNumber is filled and set default parameters for CPI
+      l_Param = READ_PARAMETER(t_Ini_File, "CPI", "OwnNodeNumber", "")
+      #IF l_Param.STATUS == 0 #THEN #IF l_Param.VALUE <> "" #THEN #BLOCK
+         i_OwnNode = -1
+         #ERROR IGNORE
+         i_OwnNode = DEC_SCAN(l_Param.VALUE)
+         #ERROR STOP
+         #IF i_OwnNode > 0 #THEN #BLOCK
+            l_Param = READ_PARAMETER(t_Ini_File, "CPI", "OwnStationNumber", DEC(NOD'i_OwnNode':BSA, 0))
+            #IF l_PARAM.VALUE == "" #THEN l_Param.VALUE = DEC(NOD'i_OwnNode':BSA, 0)
+            l_Param = WRITE_PARAMETER(t_Ini_File, "CPI", "OwnStationNumber", l_Param.VALUE)
+         #BLOCK_END
+      #BLOCK_END
+
+      l_Param = READ_PARAMETER(t_Ini_File, "CPI", "BaseNodeNumber", DEC(SYS:BND, 0))
+      #IF l_Param.STATUS <> 0 #THEN l_Param = LIST(VALUE = DEC(SYS:BND, 0))
+      #IF l_PARAM.VALUE == "" OR l_Param.VALUE == "0" #THEN l_Param.VALUE = DEC(SYS:BND,0)
+      l_Param = WRITE_PARAMETER(t_Ini_File, "CPI", "BaseNodeNumber", l_Param.VALUE)
+      #IF l_Param.STATUS == 0 #THEN #BLOCK
+         l_Param = READ_PARAMETER(t_Ini_File, "CPI", "BaseStationNumber", DEC(SYS:BSA, 0))
+         #IF l_PARAM.VALUE == "" OR l_Param.VALUE == "0" #THEN l_Param.VALUE = DEC(SYS:BSA,0)
+         l_Param = WRITE_PARAMETER(t_Ini_File, "CPI", "BaseStationNumber", l_Param.VALUE)
+         l_Param = READ_PARAMETER(t_Ini_File, "CPI", "BaseApplicationNumber", DEC(APL:BAN, 0))
+         #IF l_PARAM.VALUE == "" OR l_Param.VALUE == "0" #THEN l_Param.VALUE = DEC(APL:BAN,0)
+         l_Param = WRITE_PARAMETER(t_Ini_File, "CPI", "BaseApplicationNumber", l_Param.VALUE)
+      #BLOCK_END
+   
+   
+      ; Clear old CPI/Units -key
+      #IF NOT b_Append #THEN #BLOCK
+         v_Old_Groups = DO(READ_TEXT(SourceFile, 1, 10000), "Get_OPC_Groups", t_Ini_File)    ; Save old OPC Groups and CPI Units for later
+         l_Param = READ_PARAMETER(t_Ini_File, "CPI", "Units", "")             ; They will be needed when deleting unused STA*
+         v_Old_Units = SEPARATE(l_Param.VALUE, ",")                        ; sections
+         l_Param = WRITE_PARAMETER(t_Ini_File, "CPI", "Units", "")
+         l_Param = DO(READ_TEXT(SourceFile, 1, 10000), "Clear_OPC_Groups", t_Ini_File)
+         #IF l_Param <> 0 #THEN #RETURN l_Param *(-1)
+      #BLOCK_END
+
+      #LOOP_WITH I = 1 .. LENGTH(v_Groups)
+         #IF DATA_TYPE(GET_STATUS(v_Groups(I))) == "VECTOR" #THEN #BLOCK 
+            t_Group = "STA_('I')_IEC61850"
+            #IF b_DBG #THEN @DBG = CONSOLE_OUTPUT("STA: 't_Group'")
+
+            l_Param = COLLECT(DO(READ_TEXT(SourceFile, 1, 10000), "Get_OPC_Groups", t_Ini_File), ",") ; Adding a new group should probably be done more intelligently (eg. collect all the new groups to a vector and write them out with old groups at the same time)
+			l_Tmp = DO(READ_TEXT(SourceFile, 1, 10000), "Clear_OPC_Groups", t_Ini_File) 		
+            
+            #IF LENGTH(l_Param) > 0 #THEN l_Param = WRITE_PARAMETER(t_Ini_File, "OPC", "Groups", l_Param + ",'t_Group'")
+            #ELSE l_Param = WRITE_PARAMETER(t_Ini_File, "OPC", "Groups", t_Group)
+
+            l_Param = DO(READ_TEXT(SourceFile, 1, 10000), "Split_Opc_Groups", t_Ini_File)   ; Fix OPC Groups key to multiple lines and remove duplicates
+            #IF l_Param <> 0 #THEN #RETURN -1*l_Param
+            l_Param = DO(READ_TEXT(SourceFile, 1, 10000), "Add_CPI_Unit", t_Ini_File, "STA_('I'):1")
+
+            ; Start Group_('I')_IEC61850 -group
+            l_Param = READ_PARAMETER(t_Ini_File, t_Group, "RequestedUpdateRate", "0")
+            l_Param = WRITE_PARAMETER(t_Ini_File, t_Group, "RequestedUpdateRate", l_Param.VALUE)
+            l_Param = READ_PARAMETER(t_Ini_File, t_Group, "TimeBias", "0")
+            l_Param = WRITE_PARAMETER(t_Ini_File, t_Group, "TimeBias", l_Param.VALUE)
+            l_Param = READ_PARAMETER(t_Ini_File, t_Group, "PercentDeadband", "0,000000")
+            l_Param = WRITE_PARAMETER(t_Ini_File, t_Group, "PercentDeadband", l_Param.VALUE)
+            l_Param = WRITE_PARAMETER(t_Ini_File, t_Group, "STA", """STA_('I')"", 'I'")
+
+            #IF b_Append #THEN #BLOCK
+               l_Param = READ_PARAMETER(t_Ini_File, t_Group, "NumberOfItems", "0")
+               i_Existing_Count = DEC_SCAN(l_Param.VALUE)
+               i_NumOfItems = i_Existing_Count + LENGTH(v_Groups(I))
+            #BLOCK_END
+            #ELSE #BLOCK
+               i_NumOfItems = LENGTH(v_Groups(I))   
+               i_Existing_Count = 0
+            #BLOCK_END
+
+            l_Param = WRITE_PARAMETER(t_Ini_File, t_Group, "NumberOfItems", DEC(i_NumOfItems,0))
+            v_Group = v_Groups(I)
+
+            #LOOP_WITH J = 1 .. LENGTH(v_Group)
+               i_ItemNum = J + i_Existing_Count
+               l_Param = WRITE_PARAMETER(t_Ini_File, t_Group, "ITEM'i_ItemNum'", v_Group(J))
+               #IF l_Param.STATUS == 0 #THEN i_Saved = i_Saved + 1
+            #LOOP_END
+            
+            ; Clean Extra Item## lines from IEC group
+            J = LENGTH(v_Group) + 1 + i_Existing_Count
+            #LOOP
+               l_Param = READ_PARAMETER(t_Ini_File, t_Group, "ITEM'J'", "xxNOTFOUNDxx")
+               #IF l_Param.VALUE <> "xxNOTFOUNDxx" #THEN l_Param = DELETE_PARAMETER(t_Ini_File, t_Group, "ITEM'J'")
+               #ELSE #LOOP_EXIT
+
+               J = J + 1
+            #LOOP_END
+
+            ; Write STA_('I') -group
+            l_Param = READ_PARAMETER(t_Ini_File, "STA_('I')", "ReadWriteTimeout", "4000")
+            l_Param = WRITE_PARAMETER(t_Ini_File, "STA_('I')", "ReadWriteTimeout", l_Param.VALUE)
+         #BLOCK_END
+      #LOOP_END
+      
+      v_Groups = DO(READ_TEXT(SourceFile, 1, 10000), "Get_OPC_Groups", t_Ini_FIle)
+      #IF LENGTH(v_Old_Groups) > 0 #THEN #LOOP_WITH I = 1 .. LENGTH(v_Groups)
+         l_Param = FIND_ELEMENT(v_Old_Groups, v_Groups(I))
+         #IF l_Param <> 0 #THEN v_Old_Groups = DELETE_ELEMENT(v_Old_Groups, l_Param)
+      #LOOP_END
+
+      #IF LENGTH(v_Old_Groups) > 0 #THEN #LOOP_WITH I = 1 .. LENGTH(v_Old_Groups)
+         #IF b_DBG #THEN @DBG = CONSOLE_OUTPUT("Deleting section 't_Group'")
+         t_Group = v_Old_Groups(I)
+         l_Param = DELETE_PARAMETER(t_Ini_File, t_Group)
+      #LOOP_END
+
+      l_Param = READ_PARAMETER(t_Ini_File, "CPI", "Units", "")
+      v_Units = SEPARATE(l_Param.VALUE, ",")
+      #IF LENGTH(v_Old_Units) > 0 #THEN #LOOP_WITH I = 1 .. LENGTH(v_Units)
+         l_Param = FIND_ELEMENT(v_Old_Units, v_Units(I))
+         #IF l_Param <> 0 #THEN v_Old_Units = DELETE_ELEMENT(v_Old_Units, l_Param)
+      #LOOP_END   
+
+      #IF LENGTH(v_Old_Units) > 0 #THEN #LOOP_WITH I = 1 .. LENGTH(v_Old_Units)
+         t_Unit = SEPARATE(v_Old_Units(I), ":")
+         t_Unit = t_Unit(1)
+         #IF t_Unit <> "" #THEN l_Param = DELETE_PARAMETER(t_Ini_File, t_Unit)
+      #LOOP_END
+
+      #RETURN i_Saved            
+   #BLOCK_END
+   ;
+   ; Reads transparent SPA information from the file. Returns a list with IEDNames as keys 
+   ;    with vector containing Transparent SPA LDs as a value
+   ; Arguments: t_IEDOPC_Info - Path to a file to read the info from 
+   ; Returns: LIST('IEDNAME' = VECTOR('Transparent SPA LDs under this IED')
+   ;
+   #WHEN "Get_IEDSPA_Info" #BLOCK
+      t_IEDOPC_Info = ARGUMENT(2)
+         
+      #ERROR IGNORE   
+      @S = STATUS
+      l_Param = READ_TEXT(t_IEDOPC_Info)
+      @S = STATUS
+      #ERROR STOP
+      #IF %S <> 0 #THEN #BLOCK
+         #IF b_DBG #THEN @XX = CONSOLE_OUTPUT("Error while reading IedOpcServerInfo.txt: " + STATUS_CODE_NAME(%S))
+         #RETURN LIST()
+      #BLOCK_END
+      
+	  RetVal = VECTOR()
+      #LOOP_WITH I = 1 .. LENGTH(l_Param)
+         v_IED = SEPARATE(l_Param(I), "#")
+         #IF LENGTH(v_IED) >= 3 #THEN #BLOCK
+            t_IED = v_IED(1)
+			RetVal(I) = LIST(IED = t_IED , LD = separate(v_IED(2), ","))
+         #BLOCK_END         
+      #LOOP_END
+
+      #RETURN RetVal
+   #BLOCK_END
+   ;
+   ; Adds given item to the ini file. Calling this method multiple times might get a bit slow. So it is
+   ; probably better to call @a = Get_Items, @a = APPEND(%a, [items to be added]), Save_Items(%a) separately.
+   ; This way the mapping, duplicate checking etc. needs to be done only once
+   ; Arguments:    t_Ini_File - File to add to
+   ;            t_New_Item - "LN:IX" of the new item to be added
+   ;            [b_Merge]  - Whether to read existing items from the file or not
+   ; Returns: The # of item lines in the ini file or -STATUS on error
+   ;
+   #WHEN "Add_To_Ini" #BLOCK
+      t_Ini_File = ARGUMENT(2)
+      t_New_Item = ARGUMENT(3)
+      #IF ARGUMENT_COUNT > 3 #THEN b_Merge = Argument(4)
+      #ELSE b_Merge = TRUE
+
+      #IF b_Merge #THEN v_Items = DO(READ_TEXT(SourceFile, 1, 10000), "Get_Items_From_Ini", t_Ini_File)
+     
+     v_Attributes = LIST_ATTR(v_Items)
+     #LOOP_WITH I = 1 .. LENGTH(v_Attributes) 
+        t_Group = v_Attributes(I)
+         #IF FIND_ELEMENT(v_Items.'t_Group', t_New_Item) <> 0 #THEN #RETURN -1
+     #LOOP_END
+
+      v_Items.UNMAPPED = APPEND(v_Items.UNMAPPED, t_New_Item)
+            
+      #RETURN DO(READ_TEXT(SourceFile, 1, 10000), "Save_Items", t_Ini_File, v_Items)
+   #BLOCK_END
+   ;
+   ; Reads existing items from the file.
+   ; Arguments: t_Ini_File - file to read from
+   ; Returns: Vector of "LN:IX" values read from the ini. Only sections listed in OPC groups* -keys are checked
+   ;
+   #WHEN "Get_Items_From_Ini" #BLOCK
+      RetVal = LIST(UNMAPPED=VECTOR(), DROPPED=VECTOR())
+      t_Ini_File = ARGUMENT(2)
+
+      v_Groups = DO(READ_TEXT(SourceFile, 1, 10000), "Get_OPC_Groups", t_Ini_File)
+
+      #LOOP_WITH I = 1 .. LENGTH(v_Groups)
+        t_Group = v_Groups(I)
+         i_NumOfItems = READ_PARAMETER(t_Ini_File, t_Group, "NumberOfItems")
+       v_Group = VECTOR()
+
+        #IF i_NumOfItems.STATUS == 0 #THEN #BLOCK
+            i_NumOfItems = DEC_SCAN(i_NumOfItems.VALUE)
+
+            #LOOP_WITH J = 1 .. i_NumOfItems
+               l_Param = READ_PARAMETER(t_Ini_File, t_Group, "ITEM'J'")
+               #IF l_Param.STATUS == 0 #THEN #BLOCK
+                  v_Tmp = SEPARATE(l_Param.VALUE, ",")
+              t_LN = ""
+              i_IX = -1
+                  ; Find the LN:IX pair from the Item
+                  #IF LENGTH(v_Tmp) >= 5 #THEN #BLOCK
+                     #IF LENGTH(SEPARATE(v_Tmp(5), ":")) == 2 #THEN #BLOCK ; Normally the LN:IX is 5th field
+                        t_Tmp = REPLACE(EDIT(v_Tmp(5), "COLLAPSE"), """","")
+                  t_LN = SEPARATE(t_Tmp, ":")
+                  i_IX = t_LN(2)
+                  t_LN = t_LN(1)
+                     #BLOCK_END
+                     #ELSE #IF LENGTH(v_Tmp) >= 6 #THEN #BLOCK ; DB Items have swap field before the LN:IX
+                   #IF LENGTH(SEPARATE(v_Tmp(6), ":")) == 2 #THEN #BLOCK 
+                      t_Tmp = REPLACE(EDIT(v_Tmp(6), "COLLAPSE"), """","")
+                      t_LN = SEPARATE(t_Tmp, ":")
+                      i_IX = t_LN(2)
+                      t_LN = t_LN(1)
+                   #BLOCK_END
+                   #ELSE t_Tmp = l_Param.VALUE 
+                     #BLOCK_END
+                     #ELSE t_Tmp = l_Param.VALUE ; Transparent SPA items have only 5 fields, put TranSPA Item to list as it is
+
+                #IF DATA_TYPE(i_IX) == "TEXT" #THEN #BLOCK
+                  #IF LOCATE(i_IX, "P") == 1 #THEN i_IX = SUBSTR(i_IX, 2)
+                  #ERROR IGNORE
+                     v_Status = STATUS
+                     i_IX = DEC_SCAN(i_IX)
+                  #ERROR STOP
+                  #IF STATUS <> 0 #THEN i_IX = -1
+
+                 #BLOCK_END
+
+                #IF t_LN <> "" AND i_IX <> -1 #THEN #BLOCK
+                   l_Tmp = FETCH(0, "P", t_LN, i_IX)
+                   #IF l_TMP.IU == -1 #THEN #BLOCK
+                      RetVal.DROPPED = APPEND(RetVal.DROPPED, "'t_LN':'i_IX'")
+                      t_Tmp = ""
+                   #BLOCK_END
+                   #ELSE_IF 't_LN':PIN'i_IX' == "" #THEN t_Tmp = l_Param.VALUE
+                #BLOCK_END
+
+                     #IF t_Tmp <> "" #THEN v_Group = APPEND(v_Group, t_Tmp)
+                  #BLOCK_END ; LENGTH(v_Tmp) >= 5
+              #ELSE v_Group = APPEND(v_Group, l_Param.VALUE)
+               #BLOCK_END ; l_Param.STATUS == 0
+            #LOOP_END ; J = 1 .. i_NumOfItems
+         #BLOCK_END ; i_NumOfItems.STATUS == 0
+         #ELSE i_NumOfItems = 0
+
+       i_Unit = SUBSTR(t_Group, 6, LOCATE(t_Group, ")") - 6 )
+       t_Group = "GRP_'i_Unit'"
+       RetVal = MERGE_ATTRIBUTES(Retval, LIST('t_Group' = REMOVE_DUPLICATES(v_Group)))
+
+         #IF b_DBG #THEN @DBG = CONSOLE_OUTPUT("Read 't_Group': 'i_NumOfItems' items ...")
+      #LOOP_END
+      
+      #RETURN RetVal
+   #BLOCK_END
+   ;
+   ; Argument 2 - Type of process object
+   ; Argument 3 - vector of block addresses and bit number
+   ; Argument 4 - DX attribute
+   ; Argument 5 - Station number
+   ;
+   #WHEN "Find_Address" #BLOCK
+      @object_type = argument(2)
+      @l_addr_list_'object_type' = argument(3)
+      @dx_attr = argument(4)
+      @_un_num = argument(5)
+      @start_addr = %l_addr_list_'object_type'(1)
+      @start_bit = %l_addr_list_'object_type'(2)
+;      #IF data_type(%v_rtu_oa_'object_type') <> "VECTOR" #THEN #BLOCK
+      #IF NOT ATTRIBUTE_EXISTS(APL:BSV11, "v_rtu_oa_'object_type'") #THEN #BLOCK
+         @v_rtu_oa_'object_type'(1..4095) = 0
+         #LOOP_WITH _ba = 1..4095
+            @v_rtu_oa_'object_type'(%_ba) = RTU_OA(%object_type, %_ba)
+         #LOOP_END
+         #SET APL:BSV11 = MERGE_ATTRIBUTES(APL:BSV11, LIST (v_rtu_oa_'object_type' = %v_rtu_oa_'object_type'))
+      #BLOCK_END
+      #ELSE #BLOCK
+         @TMP_BSV = APL:BSV11
+         @v_rtu_oa_'object_type' = %TMP_BSV.v_rtu_oa_'object_type'
+         #DELETE TMP_BSV:V
+      #BLOCK_END
+
+      #IF %object_type == 7 #THEN #BLOCK
+         #LOOP_WITH Obj_addr = %start_addr .. 4095
+            @PoOa = %v_rtu_oa_'object_type'(%obj_addr)
+                                #if data_type(%_un_num) == "TEXT" #then @_un_num = dec_scan(%_un_num)
+                                @obj_list = APPLICATION_OBJECT_LIST(0, "IX", "P", "",%_un_num, -
+                                "(OA == 'PoOa') AND (OB >= 'start_bit')",-
+                                vector("DX", "OB"))
+;            @obj_list = APPLICATION_OBJECT_LIST(0, "IX", "P", "", "", -
+;            "(UN == '_un_num') AND (OA == 'PoOa') AND (OB >= 'start_bit')",-
+;            vector("DX", "OB"))
+            ;;; Find used OBs
+            @_vstats = CLASSIFY(obj_list:Vob, 16, 0, 15) ; bits from 0 to 15 filled
+            ;;; find double indications and fill with 1 next odd OBs
+            @_vdbl_idx = SELECT(obj_list:Vdx, "==""N7D"" or ==""E7D""")    ; indices in the full object vector
+            @_vob_dbl = PICK(obj_list:Vob, %_vdbl_idx) + 1          ; actual bits for double indications increased by 1
+            @_vstats = SPREAD(%_vstats, %_vob_dbl + 1, 1.0) ; fill with 1 the bits
+            ; (+1 again because vector index of _vstats starts from 1)
+            ;;; filter not used OB (EVEN for double indications)
+            @_idx = SELECT(%_vstats(%start_bit+1..16), "<1")
+            #IF %dx_attr == "N7D" or %dx_attr == "E7D" #THEN @_idx = PICK(%_idx, SELECT(%_idx, "EVEN(()+%start_bit)==FALSE"))
+            ;;; Enjoy
+            #IF LENGTH(%_idx) >= 1 #THEN #BLOCK
+               @bit_num = %start_bit + %_idx(1) - 1
+               @l_addr_list_'object_type' = vector(%obj_addr, %bit_num)
+               #RETURN %l_addr_list_'object_type'
+            #BLOCK_END
+
+            @start_bit = 0
+         #LOOP_END
+      #BLOCK_END
+      #ELSE #BLOCK
+         #LOOP_WITH obj_addr = %start_addr .. 4095
+            @PoOa = %v_rtu_oa_'object_type'(%obj_addr)
+                                #if data_type(%_un_num) == "TEXT" #then @_un_num = dec_scan(%_un_num)
+            @obj_count = APPLICATION_OBJECT_COUNT(0, "IX", "P", "",%_un_num, -
+            "(OA == 'PoOa') AND (OB == 'start_bit')")
+            #IF %obj_count == 0 #THEN #BLOCK
+               @l_addr_list_'object_type' = vector(%obj_addr, %start_bit)
+
+               #RETURN %l_addr_list_'object_type'
+            #BLOCK_END
+         #LOOP_END
+      #BLOCK_END
+      #RETURN %l_addr_list
+   #BLOCK_END
+   #OTHERWISE #BLOCK
+      #IF b_DBG #THEN @XX = CONSOLE_OUTPUT("Function 'Function' was not found in 'SourceFile'")
+      #ERROR RAISE STATUS_CODE("SCIL_UNKNOWN_FUNCTION")
+   #BLOCK_END
+#CASE_END 

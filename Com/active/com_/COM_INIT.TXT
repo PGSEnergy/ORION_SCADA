@@ -1,0 +1,111 @@
+﻿; This command procedure is used for marked signals initialization
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @STATION_NUMBER_OF_TRIP_SIGNAL, station number, integer
+;
+;--------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+@ENABLE_LOGGING = COM_GENVAR:PBZ(3)
+
+@TIME = HR_CLOCK
+@RT = TIMES(TIME:VCL)
+@RM = ROUND(TIME:VUS/1000)
+@UN_VECTOR = VECTOR()
+@STA_OS_VECTOR = VECTOR()
+@STATION_STATUS_OK = TRUE
+
+
+#IF %STATION_NUMBER_OF_TRIP_SIGNAL == 0 #THEN #BLOCK
+   @ATTR_LIST=APPLICATION_OBJECT_LIST(0,"IX","A","F","","GI>0 AND TI<> 0 AND PT<>5 AND PT<>7 AND PT<>11 AND PT<>16",VECTOR("AG","UN","OA","OB","PT","GI","LA","UN"))   
+#BLOCK_END
+#ELSE @ATTR_LIST=APPLICATION_OBJECT_LIST(0,"IX","U","F",%STATION_NUMBER_OF_TRIP_SIGNAL,"GI>0 AND TI<> 0 AND PT<>5 AND PT<>7 AND PT<>11 AND PT<>16",VECTOR("AG","UN","OA","OB","PT","GI","LA","UN"))
+
+
+#LOOP_WITH I = 1 .. ATTR_LIST:VCOUNT
+   @UN_VECTOR(%I)=ATTR_LIST:VUN(%I)       
+#LOOP_END
+@UN_VECTOR = REMOVE_DUPLICATES(%UN_VECTOR)
+#LOOP_WITH I = 1 .. LENGTH(%UN_VECTOR)  
+   @UN_TMP = %UN_VECTOR(%I)
+   #IF %UN_TMP <> 0 #THEN #BLOCK      
+    #IF %UN_TMP <> 0 #THEN #BLOCK      
+      #IF STA'UN_TMP':BST == "OAE" #THEN @STA_OS_VECTOR(%I) = 0
+      #ELSE #BLOCK
+         #ERROR IGNORE
+         @S = STATUS
+         @STA_OS_VECTOR(%I) = STA'UN_TMP':SOS
+         @S = STATUS
+         #ERROR CONTINUE
+         #IF %S <> 0 #THEN @STA_OS_VECTOR(%I) = %S
+      #BLOCK_END
+   #BLOCK_END
+   #BLOCK_END
+#LOOP_END
+
+#CREATE ADDR0:V
+#CREATE ADDR1:V
+#SET ADDR0:VUN=0
+#SET ADDR0:VOA=0
+@STATE="NULL"
+#LOOP_WITH I = 1 .. ATTR_LIST:VCOUNT
+   @UN=ATTR_LIST:VUN(%I)
+   #IF %UN <> 0 #THEN #BLOCK
+      @STA_INDEX=FIND_ELEMENT(%UN_VECTOR,%UN)
+      #IF %STA_OS_VECTOR(%STA_INDEX) == 0 #THEN @STATION_STATUS_OK = TRUE
+      #ELSE @STATION_STATUS_OK = FALSE
+   #BLOCK_END
+   ;if status of station is ok or UN is 0
+   #IF %STATION_STATUS_OK #THEN #BLOCK  
+      @LN=ATTR_LIST:VLN(%I)
+      @IX=ATTR_LIST:VIX(%I)
+      @PT=ATTR_LIST:VPT(%I)
+      @GI=ATTR_LIST:VGI(%I)   
+      @INIT_SIGNAL = BIT(%GI,0)
+      #IF %INIT_SIGNAL==1 #THEN #BLOCK
+         #IF %PT==3 #THEN @AG=ATTR_LIST:VAG(%I)
+         #IF %PT==12 #THEN @LA=ATTR_LIST:VLA(%I)      
+         @FETCH=FETCH(0,"P",%LN,%IX)
+         #IF 'LN':PSS'IX' <> 0 AND 'LN':PIU'IX' == 1 #THEN #BLOCK
+            #IF 'LN':POS'IX'==10 OR 'LN':POS'IX'==2 #THEN #BLOCK
+               #MODIFY 'LN':P'IX'=%ADDR0
+               #IF 'LN':POS'IX'==10 #THEN #BLOCK  
+                  #IF %PT==3 #THEN #BLOCK
+                     #IF %AG > 1 #THEN #SET 'LN':P'IX'=LIST(OV=0,RT=CLOCK,RM=0,OS=0)
+                     #ELSE #SET 'LN':P'IX'=LIST(OV=ABS(%AG-1),RT=CLOCK,RM=0,OS=0)
+                  #BLOCK_END
+                  #ELSE_IF %PT==12 #THEN #BLOCK
+                     ;assume that middle positions are alarming
+                     #IF BIT(%LA,1)==0 #THEN #SET 'LN':P'IX'=LIST(OV=1,RT=CLOCK,RM=0,OS=0)
+                     #ELSE_IF BIT(%LA,1)==1 AND BIT(%LA,2)==0 #THEN #SET 'LN':P'IX'=LIST(OV=2,RT=CLOCK,RM=0,OS=0)
+                     #ELSE #SET 'LN':P'IX'=LIST(OV=1,RT=CLOCK,RM=0,OS=0)
+                  #BLOCK_END
+                  #ELSE #SET 'LN':P'IX'=LIST(OV=0,RT=CLOCK,RM=0,OS=0)
+               #BLOCK_END         
+               #IF 'LN':POS'IX'==2 #THEN #BLOCK  
+                  #SET 'LN':P'IX'=LIST(OV='LN':POV'IX',RT=CLOCK,RM=0,OS=0)
+               #BLOCK_END         
+               #SET ADDR1:VUN=ATTR_LIST:VUN(%I)
+               #SET ADDR1:VOA=ATTR_LIST:VOA(%I)
+               #SET ADDR1:VOB=ATTR_LIST:VOB(%I)
+               #MODIFY 'LN':P'IX'=%ADDR1
+               @STATE='LN':POS'IX'
+            #BLOCK_END
+         #BLOCK_END
+      #BLOCK_END
+   #BLOCK_END   
+#LOOP_END
+
+#IF %ENABLE_LOGGING #THEN #BLOCK ; 5
+   @TIME = HR_CLOCK
+   @RT = TIMES(TIME:VCL)
+   @RM = ROUND(TIME:VUS/1000)      
+   @INFO="'rt':'rm',INIT,0,,,uninitialized process object configured with nonerrorneous OV and OS,,,,,,,,,,,,,,,,"
+   #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+   #ELSE #DO COM_LOG:CIN
+#BLOCK_END
+

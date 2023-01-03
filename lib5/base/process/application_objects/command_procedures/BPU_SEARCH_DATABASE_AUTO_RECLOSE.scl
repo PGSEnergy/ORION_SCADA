@@ -1,0 +1,76 @@
+;Function: BPU_SEARCH_DATABASE_AUTO_RECLOSE:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_search_database_AUTO_RECLOSE.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute), U_OTHER_OBJECTS, result
+;Return data:
+;Description: returns bay LN and bay indication indexes (position, interlocking ...)
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument t_OI, hard_coded_info
+#local l_Result = argument(3)
+#local l_objects, i, j, ar_ln = ""
+#local i_Count = length(l_Result.EVENT_OBJECTS)
+#local rx1, rx2, rx3, rx4
+#local ar_sw_ix = 10, ar_hw_ix = 11
+
+#if attribute_exists(hard_coded_info, "ar_ln") #then ar_ln = hard_coded_info.ar_ln
+
+#if data_type(ar_ln) == "TEXT" #then #block
+   #if ar_ln=="NONE" #then l_Result.all_objects.bay_lr_required = false
+#block_end
+#else_if data_type(ar_ln) == "VECTOR" and length(ar_ln)==1 #then #block
+   #if data_type(ar_ln(1)) == "TEXT" #then #block
+      #if ar_ln(1) =="NONE" #then l_Result.all_objects.bay_lr_required = false
+      #else ar_ln = ar_ln(1)
+   #block_end
+#block_end
+
+;search objects by checking the complete process object database   
+rx1 = "%%%%%%%%%%%%%%%%%%%%%%%%%%IARC*"
+rx2 = "%%%%%%%%%%%%%%%%%%%%FPFARCISCE*"
+rx3 = "%%%%%%%%%%%%%%%%%%%%FPFARCCINR*"
+rx4 = "%%%%%%%%%%%%%%%%%%%%FPFARCCSCE*"
+
+#if ar_ln == "" #then  #block
+   l_objects = application_object_list(0, "IX",  "OI", "", "'t_OI'*", "(IU>0 AND SS>0) AND (RX==""'RX1'"" OR RX==""'RX2'"" OR RX==""'RX3'"" OR RX==""'RX4'"")", vector("IU", "SS", "RX"))
+#block_end
+#else #block
+   l_objects = application_object_list(0, "IX",  "I", "F", ar_ln, "(IU>0 AND SS>0) AND (RX==""'RX1'"" OR RX==""'RX2'"" OR RX==""'RX3'"" OR RX==""'RX4'"")", vector("IU", "SS", "RX"))
+#block_end
+
+#loop_with i = 1 .. l_objects.count
+   ;auto-reclosing running
+   #if substr(l_objects.rx(i),27,4)=="IARC" #then #block
+      l_Result.ALL_OBJECTS = merge_attributes(l_Result.ALL_OBJECTS, list(ar_running_ln1 = l_objects.ln(i), ar_running_ix1 = l_objects.ix(i), ar_object = true))
+      i_Count = i_Count + 1
+      l_Result.EVENT_OBJECTS(i_Count) = list(LN = l_objects.ln(i), IX = l_objects.ix(i))
+   #block_end
+   ;auto-reclosing in use (software)
+   #else_if substr(l_objects.rx(i),21,10) == "FPFARCISCE" and l_objects.ix(i) == ar_sw_ix #then #block
+      l_Result.ALL_OBJECTS = merge_attributes(l_Result.ALL_OBJECTS, list(ar_in_use_sw_ln = l_objects.ln(i), ar_in_use_sw_ix = l_objects.ix(i)))
+      i_Count = i_Count + 1
+      l_Result.EVENT_OBJECTS(i_Count) = list(LN = l_objects.ln(i), IX = l_objects.ix(i))
+   #block_end   
+   ;auto-reclosing in use (hardware)
+   #else_if substr(l_objects.rx(i),21,10) == "FPFARCISCE" and l_objects.ix(i) == ar_hw_ix #then #block
+      l_Result.ALL_OBJECTS = merge_attributes(l_Result.ALL_OBJECTS, list(ar_in_use_hw_ln = l_objects.ln(i), ar_in_use_hw_ix = l_objects.ix(i)))
+      i_Count = i_Count + 1
+      l_Result.EVENT_OBJECTS(i_Count) = list(LN = l_objects.ln(i), IX = l_objects.ix(i))
+   #block_end
+   ;auto-reclosure interruption
+   #else_if substr(l_objects.rx(i),21,10)== "FPFARCCINR" #then #block
+      l_Result.ALL_OBJECTS = merge_attributes(l_Result.ALL_OBJECTS, list(ar_interrupt_ln = l_objects.ln(i), ar_interrupt_ix = l_objects.ix(i)))
+      i_Count = i_Count + 1
+      l_Result.EVENT_OBJECTS(i_Count) = list(LN = l_objects.ln(i), IX = l_objects.ix(i))
+   #block_end
+   ;auto-reclosing in use command
+   #else_if substr(l_objects.rx(i),21,10)=="FPFARCCSCE" #then #block
+      l_Result.ALL_OBJECTS = merge_attributes(l_Result.ALL_OBJECTS, list(ar_in_use_cmd_ln = l_objects.ln(i), ar_in_use_cmd_ix = l_objects.ix(i)))
+      i_Count = i_Count + 1
+      l_Result.EVENT_OBJECTS(i_Count) = list(LN = l_objects.ln(i), IX = l_objects.ix(i))
+   #block_end
+#loop_end      
+
+#return l_result

@@ -1,0 +1,50 @@
+﻿; This command procedure is used for interpreting CPI system messages
+; in a COM application (system messages as in RP-570 slave protocol)
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @LN, @IX, from the RP system message process object
+; OUTPUT: @COM_EXCLUSIVE_STA_NUMBER, number of the STA object of the NCC sending GI command
+;         @COM_APLCMD_PROTOCOL, protocol of the NCC sending GI command
+;-------------------------------------------------------------------------------------
+
+@ENABLE_LOGGING = COM_GENVAR:PBZ(3)
+
+;STA number of the NCC
+#IF SUBSTR(%LN,1,4) == "BNCC" #THEN #BLOCK
+   @NCC_NR = DEC_SCAN(SUBSTR(%LN,5,1))
+   @NCC_XREF_TABLE = APL:BSV(21)
+   @NCC = %NCC_XREF_TABLE(%NCC_NR)
+   @STA_NR = %NCC(1)
+#BLOCK_END
+#ELSE_IF 'LN':POA'IX' > 1000 #THEN @STA_NR = 'LN':POA'IX' - 1000  
+#ELSE #BLOCK
+   #LOOP_WITH I = 1..LENGTH(APL:BSV(21))
+      @NCC = %NCC_XREF_TABLE(%I)
+      #IF %NCC(2) == 3 #THEN #BLOCK
+         @STA_NR = %NCC(1)   
+         #LOOP_EXIT
+      #BLOCK_END
+   #LOOP_END
+#BLOCK_END
+
+#IF %ENABLE_LOGGING #THEN #BLOCK
+   @STS = ROUND(%AI)
+   @INFO="'rt':'rm',CPISS,'STA_NR','LN':P'IX',,MODBUS/CPI command status 'STS' received,,,,,,,,,,,,,,,,"
+   #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+   #ELSE #DO COM_LOG:CIN 
+#BLOCK_END
+
+;command specific part
+#CASE %AI ; 1
+   #WHEN 13459,13472 #BLOCK ; 2 ;fcom coldstart / fcom activate
+      ;execute general interrogation with RP570S protocol and found STA number
+      #EXEC COM_GENINT:C (@COM_APLCMD_PROTOCOL = 3, @COM_EXCLUSIVE_STA_NUMBER = %STA_NR)
+   #BLOCK_END ; 2        
+   #WHEN 13499 #BLOCK ; 2 ;Initiate initialization status code from modbus slave 
+      ;write all cross-referenced values to modbus slave database
+      #EXEC COM_GENINT:C (@COM_APLCMD_PROTOCOL = 3, @COM_EXCLUSIVE_STA_NUMBER = %STA_NR)
+   #BLOCK_END ; 2        
+#CASE_END ; 1

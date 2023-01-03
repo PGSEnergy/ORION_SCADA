@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:variable type="external" name="control" default="''" />
+    <d:meta name="dv-custom-attribute|ABB SA Symbols" content="v1.0" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Raw Button Status" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="Button" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="top-text" default="''" />
+    <d:variable type="external" name="middle-text" default="''" />
+    <d:variable type="external" name="bottom-text" default="''" />
+    <d:variable type="external" name="status-color" default="0" />
+    <d:variable type="external" name="show-status-color" default="0" />
+    <d:variable type="external" name="normal-text-visibility" default="0" />
+    <d:variable type="external" name="bold-text-visibility" default="0" />
+    <d:variable type="external" name="state-color" default="0" />
+    <d:variable type="external" name="show-state-color" default="0" />
+    <d:variable type="external" name="sunken" default="0" />
+    <d:variable type="external" name="flat" default="0" />
+    <d:mapping name="f26" parameters="value">
+      <d:step value="true" when="value &lt;= 40.500" />
+      <d:step value="false" when="value &lt;= 42.500" />
+      <d:step value="true" when="value &lt;= 44.500" />
+      <d:step value="false" when="value &lt;= 46.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f27" parameters="value">
+      <d:step value="'url(#i2)'" when="value &lt;= 40.500" />
+      <d:step value="'url(#i3)'" when="value &lt;= 41.500" />
+      <d:step value="'url(#i4)'" when="value &lt;= 42.500" />
+      <d:step value="'url(#i5)'" when="value &lt;= 44.500" />
+      <d:step value="'url(#i6)'" when="value &lt;= 45.500" />
+      <d:step value="'url(#i7)'" when="value &lt;= 46.500" />
+      <d:otherwise value="'url(#i8)'" />
+    </d:mapping>
+    <d:mapping name="f28" parameters="value">
+      <d:step value="'url(#i9)'" when="value &lt;= 0.500" />
+      <d:otherwise value="'url(#i10)'" />
+    </d:mapping>
+  </d:head>
+  <d:body n:LN="{LN(control)}" n:IX="{IX(control)}" x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <s:linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="i2" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(224, 224, 224)" offset="0" />
+      <s:stop stop-color="rgb(160, 160, 160)" offset="1" />
+    </s:linearGradient>
+    <s:linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="i3" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="{colors[41]}" offset="0" />
+      <s:stop stop-color="{colors[49]}" offset="1" />
+    </s:linearGradient>
+    <s:linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="i4" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="{colors[42]}" offset="0" />
+      <s:stop stop-color="{colors[49]}" offset="1" />
+    </s:linearGradient>
+    <s:linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="i5" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(224, 224, 224)" offset="0" />
+      <s:stop stop-color="rgb(160, 160, 160)" offset="1" />
+    </s:linearGradient>
+    <s:linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="i6" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="{colors[45]}" offset="0" />
+      <s:stop stop-color="{colors[48]}" offset="1" />
+    </s:linearGradient>
+    <s:linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="i7" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="{colors[46]}" offset="0" />
+      <s:stop stop-color="{colors[48]}" offset="1" />
+    </s:linearGradient>
+    <s:linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="i8" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(224, 224, 224)" offset="0" />
+      <s:stop stop-color="rgb(160, 160, 160)" offset="1" />
+    </s:linearGradient>
+    <s:linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="i9" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(224, 224, 224)" offset="0" />
+      <s:stop stop-color="rgb(160, 160, 160)" offset="1" />
+    </s:linearGradient>
+    <s:linearGradient x1="0%" y1="0%" x2="0%" y2="100%" id="i10" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(160, 160, 160)" offset="0" />
+      <s:stop stop-color="rgb(224, 224, 224)" offset="1" />
+    </s:linearGradient>
+    <s:rect width="39" height="19" x="-19.500" y="-9.500" s:pointer-events="visiblePainted" d:hidden="f26(`status-color`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="{if(`subdrawing_dynamics`, f28(`sunken`), 'rgb(160, 160, 160)')}" y:fill-rule="evenodd" y:stroke="none" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Status Face">
+      <d:animate attributes="fill, stroke" values="if(`subdrawing_dynamics`, f27(`status-color`), 'rgb(160, 160, 160)')" />
+    </s:rect>
+  </d:body>
+</d:document>

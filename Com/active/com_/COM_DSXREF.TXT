@@ -1,0 +1,57 @@
+﻿; This command procedure is used for decoding cross-reference information
+; in the downstream direction in a COM application 
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @LN, @IX, from input process object
+;         @XREF_INDEX, cross-reference table pointer of the pobj, integer
+;         APL:BSV(20), general parameters
+;         APL:BSV(21), ncc cross-reference table
+;         APL:BSV(2x), downstream cross-reference table
+; OUTPUT: @COMMAND_TYPE, type of the command (direct/secured-2/secured-4), integer
+;         @OUTPUT_OBJECT_LNS, logical name(s) of the output object(s), text/vector
+;         @OUTPUT_OBJECT_IXS, indexe(s) of the output object(s), vector
+;         @SIGNAL_HANDLING_ATTRS, datatype-specific special conditions, integer (bit mask)
+;         @NCC_NUMBER, number of the NCC sending the command    
+;-----------------------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+;read general parameters
+@GEN_INFO = APL:BSV(20)
+
+;calculate table number and index
+@TABLE_NUMBER = %XREF_INDEX DIV GEN_INFO:VDOWNSTREAM_XREF_TABLE_LENGTH
+@TABLE_INDEX = %XREF_INDEX MOD GEN_INFO:VDOWNSTREAM_XREF_TABLE_LENGTH
+#IF %TABLE_INDEX == 0 #THEN #BLOCK
+   @TABLE_NUMBER = %TABLE_NUMBER - 1
+   @TABLE_INDEX = GEN_INFO:VDOWNSTREAM_XREF_TABLE_LENGTH
+#BLOCK_END
+
+;read in the cross-reference tables
+@NCC_XREF_TABLE = APL:BSV(21)
+@DOWNSTREAM_XREF_TABLE = APL:BSV(26+%TABLE_NUMBER)
+#IF DATA_TYPE(%DOWNSTREAM_XREF_TABLE) == "VECTOR" #THEN @SIGNAL_VECTOR = %DOWNSTREAM_XREF_TABLE(%TABLE_INDEX)
+
+;find the number of the NCC sending the command
+@NCC_STA_NUMBER = APL:BST('LN':PUN'IX')
+#IF  DATA_TYPE(%NCC_XREF_TABLE) == "VECTOR" AND LENGTH(%NCC_XREF_TABLE) > 0 #THEN #BLOCK
+   #LOOP_WITH COUNT = 1..LENGTH(%NCC_XREF_TABLE)
+      @NCC = %NCC_XREF_TABLE(%COUNT)
+      #IF %NCC(1) == %NCC_STA_NUMBER #THEN #BLOCK
+         @NCC_NUMBER = %COUNT
+         #LOOP_EXIT
+      #BLOCK_END
+   #LOOP_END
+#BLOCK_END
+
+;collect xref information to vectors
+#IF LENGTH(%SIGNAL_VECTOR) >= 4 #THEN #BLOCK
+    @COMMAND_TYPE = %SIGNAL_VECTOR(1)
+    @OUTPUT_OBJECT_LNS = %SIGNAL_VECTOR(2)
+    @OUTPUT_OBJECT_IXS = %SIGNAL_VECTOR(3)
+    @TMP = %SIGNAL_VECTOR(4)
+    @SIGNAL_HANDLING_ATTRS = %TMP(%NCC_NUMBER)
+#BLOCK_END

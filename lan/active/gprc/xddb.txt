@@ -1,0 +1,24 @@
+DRAW_DIALOG_FRAME
+
+@BW = 7
+.PEND ON
+.PUSH
+@XOLD = %X
+@YOLD = %Y
+@WOLD = %W
+@HOLD = %H
+@CC = (5,12,13)
+#DO SYS_GPRC:VDRAW_FIELD
+@X = %X + %ST + %BW
+@Y = %Y + %ST + %BW
+@W = %W - 2*%ST - 2*%BW
+@H = %H - 2*%ST - 2*%BW
+@CC = (5,13,12)
+#DO SYS_GPRC:VDRAW_FIELD
+@X = %XOLD
+@Y = %YOLD
+@W = %WOLD
+@H = %HOLD
+.POP
+.PEND OFF
+

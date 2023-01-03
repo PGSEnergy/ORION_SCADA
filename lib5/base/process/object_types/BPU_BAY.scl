@@ -1,0 +1,52 @@
+#return  LIST(-
+         VERSION = "1.0",-
+         OBJECT_TYPE = "BAY_CONTROL",-
+			OBJECT_LEVEL = "BAY",-
+      -;
+      -; Attributes defining index convention.
+      -;
+         INDEXES = LIST(-
+				BAY_LR_OBJ_IX            = 0,-
+				BAY_LR_DIS_CMD_IX        = 0,-
+				BAY_LR_LOC_CMD_IX        = 0,-
+				BAY_LR_REM_CMD_IX        = 0,-
+				BAY_LR_RES_CMD_IX        = 0,-
+				EXT_HW_INTRL_IX          = 0,-
+				EXT_SW_INTRL_IX          = 0,-
+				EXT_SW_INTRL_CMD_IX      = 0,-
+				INT_INTRL_IX             = 0,-
+				INT_INTRL_CMD_IX         = 0,-
+				BLOCKINGS_IX             = 0,-
+				SEL_ON_MON_IX            = 0,-
+				BAY_OP_OBJ_IX            = 0,-
+				BAY_OP_NOT_IN_USE_CMD_IX = 0,-
+				BAY_OP_STATION_CMD_IX    = 0,-
+				BAY_OP_REMOTE_CMD_IX     = 0,-
+				BAY_OP_STA_REM_CMD_IX    = 0,-
+				BAY_LR_EV_OBJ_IX         = 0,-
+				BAY_LR_EV2_OBJ_IX        = 0),-
+      -;
+      -; Attributes defining switch control methods
+      -;
+         COMMAND_PROCEDURES=LIST(-
+			   ACKNOWLEDGE_ALARMS = "BPU_ACKNOWLEDGE_ALARMS",-
+			   GET_ALARMS = "BPU_GET_ALARMS",-
+            VALUE_SELECT="BPU_VALUE_SELECT_BAY",-
+            VALUE_EXECUTE="BPU_VALUE_EXECUTE_BAY",-
+            CANCEL="BPU_CANCEL",-
+            CALCULATE_STATE = "BPU_CALCULATE_STATE_BAY",-
+            SEARCH_OBJECTS = "BPU_SEARCH_OBJECTS",-
+				CHECK_OBJECT_INDEXES = "BPU_OBJECT_INDEXES_BAY",-
+            SEARCH_DATABASE_OBJECT = "BPU_SEARCH_OBJECTS_BAY"),-
+      -;
+      -; Methods Executed by POT.
+      -;   
+      -;INIT_SIGNALS=VECTOR("#DO READ_TEXT(""SAGR_OBJT/CREATE_PO.POT"")"),-
+      -;CUSTOMIZE_OBJECTS=LIST()),-
+      -;
+      -; Attributes for overriding SCT selections
+      -;
+         FIXED_SCT_VALUES = LIST(-
+            SYNCHROCHECK_BYPASS = FALSE,-
+				CMD_PARAMETER = 45,-
+            INTERLOCKING_BYPASS = FALSE))

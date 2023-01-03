@@ -1,0 +1,1493 @@
+# Substation
+length(item(attr("IL"), "STA")) > 0 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("STA"))
+RuleId: "SUBSTATION_1_0"
+FunctionalStructureType: "Substation"
+}
+
+# Voltage Level
+length(item(attr("IL"), "VOL")) > 0 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("VOL"))
+RuleId: "VOLTAGE_LEVEL_1_0"
+FunctionalStructureType: "Voltage Level"
+}
+
+# Power Transformer
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 22, 8) = "TAVRIPOS" and attr("IX") = 10 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("DEV")))
+RuleId: "POWER_TRANSFORMER_1_0"
+FunctionalStructureType: "Power Transformer"
+}
+
+# Power Transformer Winding (normal)
+length(item(attr("IL"), "DEV")) > 0 and attr("IX") >= 50000 and attr("IX") <= 50003 and substr(attr("RX"), 22, 8) = "TAVRXVOL" {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("DEV")), concat("W", attr("IX") - 49999))
+RuleId: "POWER_TRANSFORMER_WINDING_(NORMAL)_1_0"
+FunctionalStructureType: "Power Transformer Winding (normal)"
+TopologyReference: attr("LN")
+TopologyReferenceIndex: attr("IX")
+TopologySubType: concat("TransformerWinding", attr("IX") - 49999)
+}
+
+# Bay
+length(item(attr("IL"), "BAY")) > 0 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "BAY_1_0"
+FunctionalStructureType: "Bay"
+}
+
+# Substation
+length(item(attr("IL"), "STA")) > 0 and substr(attr("RX"), 22, 8) = "ASTAILRS" and attr("IX") = 10 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("STA"))
+RuleId: "SUBSTATION_STATION_LOCAL_/_REMOTE_1_0"
+FunctionalStructureType: "Substation"
+DataPoint: "Station local / remote"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Dbool"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Group alarm state
+length(item(attr("IL"), "STA")) > 0 and substr(attr("RX"), 22, 8) = "ASTAILRS" and attr("IX") = 10 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("STA"))
+RuleId: "SUBSTATION_GROUP_ALARM_STATE_1_0"
+DataPoint: "Group alarm state"
+DataPointValueType: "Bool"
+LN: attr("LN")
+ValueAttribute: "GS"
+}
+
+# Group alarm blocking
+length(item(attr("IL"), "STA")) > 0 and substr(attr("RX"), 22, 8) = "ASTAILRS" and attr("IX") = 10 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("STA"))
+RuleId: "SUBSTATION_ALARM_BLOCKING_OF_GROUPED_DATA_POINTS_1_0"
+DataPoint: "Alarm blocking of grouped Data Points"
+DataPointAttributes: list(DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+ValueAttribute: "GB"
+}
+
+# Group event blocking
+length(item(attr("IL"), "STA")) > 0 and substr(attr("RX"), 22, 8) = "ASTAILRS" and attr("IX") = 10 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("STA"))
+RuleId: "SUBSTATION_EVENT_BLOCKING_OF_GROUPED_DATA_POINTS_1_0"
+DataPoint: "Event blocking of grouped Data Points"
+DataPointAttributes: list(DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+ValueAttribute: "GB"
+}
+
+# Group update blocking
+length(item(attr("IL"), "STA")) > 0 and substr(attr("RX"), 22, 8) = "ASTAILRS" and attr("IX") = 10 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("STA"))
+RuleId: "SUBSTATION_UPDATE_BLOCKING_OF_GROUPED_DATA_POINTS_1_0"
+DataPoint: "Update blocking of grouped Data Points"
+DataPointAttributes: list(DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+ValueAttribute: "GB"
+}
+
+# Group control blocking
+length(item(attr("IL"), "STA")) > 0 and substr(attr("RX"), 22, 8) = "ASTAILRS" and attr("IX") = 10 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("STA"))
+RuleId: "SUBSTATION_CONTROL_BLOCKING_OF_GROUPED_DATA_POINTS_1_0"
+DataPoint: "Control blocking of grouped Data Points"
+DataPointAttributes: list(DataPointAttribute("control_blocking_permitted ", "", "AUTHORIZATION"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+ValueAttribute: "GB"
+}
+
+#  Station/Remote command
+length(item(attr("IL"), "STA")) > 0 and substr(attr("RX"), 22, 8) = "ASTACLRS" and attr("IX") = 11 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("STA"))
+RuleId: "STATION_LOCAL_/_REMOTE_COMMAND_1_0"
+DataPoint: "Station local / remote command"
+DataPointAttributes: list(DataPointAttribute("level_permitted", "", "SCIL"), DataPointAttribute("control_permitted", "", "SCIL"), DataPointAttribute("control_inhibit_reason", "", "SCIL"))
+DataPointValueType: "CommandWithValue"
+LN: attr("LN")
+IX: attr("IX")
+SubscriptionType: "SCIL"
+}
+
+# Bay
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 22, 8) = "ABAYILRS" and attr("IX") = 10 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "BAY_CONTROL_IED_AUTHORITY_1_0"
+FunctionalStructureType: "Bay"
+DataPoint: "Control IED authority"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Dbool"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Group alarm state
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 22, 8) = "ABAYILRS" and attr("IX") = 10 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "BAY_GROUP_ALARM_STATE_1_0"
+DataPoint: "Group alarm state"
+DataPointValueType: "Bool"
+LN: attr("LN")
+ValueAttribute: "GS"
+}
+
+# Group alarm blocking
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 22, 8) = "ABAYILRS" and attr("IX") = 10 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "BAY_ALARM_BLOCKING_OF_GROUPED_DATA_POINTS_1_0"
+DataPoint: "Alarm blocking of grouped Data Points"
+DataPointAttributes: list(DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+ValueAttribute: "GB"
+}
+
+# Group event blocking
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 22, 8) = "ABAYILRS" and attr("IX") = 10 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "BAY_EVENT_BLOCKING_OF_GROUPED_DATA_POINTS_1_0"
+DataPoint: "Event blocking of grouped Data Points"
+DataPointAttributes: list(DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+ValueAttribute: "GB"
+}
+
+# Group update blocking
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 22, 8) = "ABAYILRS" and attr("IX") = 10 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "BAY_UPDATE_BLOCKING_OF_GROUPED_DATA_POINTS_1_0"
+DataPoint: "Update blocking of grouped Data Points"
+DataPointAttributes: list(DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+ValueAttribute: "GB"
+}
+
+# Group control blocking
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 22, 8) = "ABAYILRS" and attr("IX") = 10 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "BAY_CONTROL_BLOCKING_OF_GROUPED_DATA_POINTS_1_0"
+DataPoint: "Control blocking of grouped Data Points"
+DataPointAttributes: list(DataPointAttribute("control_blocking_permitted ", "", "AUTHORIZATION"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+ValueAttribute: "GB"
+}
+
+# Equipment local / remote
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 1) = "Q" and attr("IX") = 70 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "EQUIPMENT_LOCAL_/_REMOTE_1_0"
+DataPoint: "Equipment local / remote"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Remote Power Connection
+length(item(attr("IL"), "BAY")) > 0 and (substr(attr("RX"), 26, 4) = "IPFD") and attr("IX") = 11 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("BAY")), attr("LN"))
+RuleId: "REMOTE_POWER_CONNECTION_POWER_FLOW_DIRECTION_1_0"
+FunctionalStructureType: "Remote Power Connection"
+DataPoint: "Power flow direction"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Int8"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+CustomerName: item(attr("IL"), "DEV")
+}
+
+# Remote Power Connection
+length(item(attr("IL"), "BAY")) > 0 and (substr(attr("RX"), 22, 8) = "HMTCXFCD") and attr("IX") = 10 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("BAY")), attr("LN"))
+RuleId: "REMOTE_POWER_CONNECTION_1_0"
+FunctionalStructureType: "Remote Power Connection"
+TopologyReference: attr("LN")
+TopologyReferenceIndex: attr("IX")
+TopologySubType: "Power"
+}
+
+# Synch. Machine (Generator, Motor)
+length(item(attr("IL"), "BAY")) > 0 and (substr(attr("RX"), 22, 8) = "EGENIGST") and attr("IX") = 11 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("BAY")), attr("LN"))
+RuleId: "SYNCH._MACHINE_(GENERATOR,_MOTOR)_MACHINE_STATE_1_0"
+FunctionalStructureType: "Synch. Machine (Generator, Motor)"
+DataPoint: "Machine state"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Int8"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+CustomerName: item(attr("IL"), "DEV")
+}
+
+# Synch. Machine (Generator, Motor)
+length(item(attr("IL"), "BAY")) > 0 and (substr(attr("RX"), 22, 8) = "EGENIGIF") and attr("IX") = 10 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("BAY")), attr("LN"))
+RuleId: "SYNCH._MACHINE_(GENERATOR,_MOTOR)_1_0"
+FunctionalStructureType: "Synch. Machine (Generator, Motor)"
+TopologyReference: attr("LN")
+TopologyReferenceIndex: attr("IX")
+TopologySubType: "Generator"
+}
+
+# Circuit Breaker
+length(item(attr("IL"), "DEV")) > 0 and (substr(attr("RX"), 22, 2) = "QB" or substr(attr("RX"), 22, 2) = "QS" or substr(attr("RX"), 22, 2) = "QI") and substr(attr("RX"), 26, 4) = "IPOS" and attr("IX") = 10 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "CIRCUIT_BREAKER_SWITCH_POSITION_1_0"
+FunctionalStructureType: "Circuit Breaker"
+DataPoint: "Switch position"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Dbool"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+TopologyReference: attr("LN")
+TopologyReferenceIndex: attr("IX")
+TopologySubType: "SwitchingDevice"
+ValueAttribute: "TS"
+}
+
+# Double-Sided Truck
+length(item(attr("IL"), "DEV")) > 0 and (substr(attr("RX"), 22, 2) = "QT") and substr(attr("RX"), 26, 4) = "IPOS" and attr("IX") = 30 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "DOUBLE-SIDED_TRUCK_SWITCH_POSITION_1_0"
+FunctionalStructureType: "Double-Sided Truck"
+DataPoint: "Switch position"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Dbool"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+TopologyReference: attr("LN")
+TopologyReferenceIndex: attr("IX")
+TopologySubType: "Truck"
+ValueAttribute: "TS"
+}
+
+# Disconnector
+length(item(attr("IL"), "DEV")) > 0 and (substr(attr("RX"), 22, 2) = "QD") and substr(attr("RX"), 26, 4) = "IPOS" and attr("IX") = 10 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "DISCONNECTOR_SWITCH_POSITION_1_0"
+FunctionalStructureType: "Disconnector"
+DataPoint: "Switch position"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Dbool"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+TopologyReference: attr("LN")
+TopologyReferenceIndex: attr("IX")
+TopologySubType: "SwitchingDevice"
+ValueAttribute: "TS"
+}
+
+# Disconnector (Fuse switch, Fault - making switch)
+length(item(attr("IL"), "DEV")) > 0 and (substr(attr("RX"), 22, 2) = "QF" or substr(attr("RX"), 22, 2) = "QM") and substr(attr("RX"), 26, 4) = "IPOS" and attr("IX") = 10 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "QF_DISCONNECTOR_SWITCH_POSITION_1_0"
+FunctionalStructureType: "Disconnector"
+DataPoint: "Switch position"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Dbool"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+TopologyReference: attr("LN")
+TopologyReferenceIndex: attr("IX")
+TopologySubType: "SwitchingDevice"
+ValueAttribute: "TS"
+}
+
+# Load-Break Switch
+length(item(attr("IL"), "DEV")) > 0 and (substr(attr("RX"), 22, 2) = "QL") and substr(attr("RX"), 26, 4) = "IPOS" and attr("IX") = 10 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "LOAD-BREAK_SWITCH_SWITCH_POSITION_1_0"
+FunctionalStructureType: "Load-Break Switch"
+DataPoint: "Switch position"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Dbool"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+TopologyReference: attr("LN")
+TopologyReferenceIndex: attr("IX")
+TopologySubType: "SwitchingDevice"
+ValueAttribute: "TS"
+}
+
+# Disconnector
+length(item(attr("IL"), "DEV")) > 0 and (substr(attr("RX"), 22, 2) = "QE") and substr(attr("RX"), 26, 4) = "IPOS" and attr("IX") = 10 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "QE_DISCONNECTOR_SWITCH_POSITION_1_0"
+FunctionalStructureType: "Disconnector"
+DataPoint: "Switch position"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Dbool"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+TopologyReference: attr("LN")
+TopologyReferenceIndex: attr("IX")
+TopologySubType: "SwitchingDevice"
+ValueAttribute: "TS"
+IsEarthed: True
+}
+
+# Auxiliary plug
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 2) = "QB" and attr("IX") = 21 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "AUXILIARY_CONTACT_PLUG_1_0"
+DataPoint: "Auxiliary contact plug"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Tagout
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 8) = "XTAGXIND" and attr("IX") = 49 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "TAGOUT_1_0"
+DataPoint: "Tagout"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Int8"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Open/Close command
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 1) = "Q" and (attr("IX") = 13 or attr("IX") = 33) {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "SWITCH_COMMAND_(OPEN_/_CLOSE)_1_0"
+DataPoint: "Switch command (open / close)"
+DataPointAttributes: list(DataPointAttribute("level_permitted", "", "SCIL"), DataPointAttribute("control_permitted", "", "SCIL"), DataPointAttribute("control_inhibit_reason", "", "SCIL"))
+DataPointValueType: "CommandWithValue"
+LN: attr("LN")
+IX: attr("IX")
+SubscriptionType: "SCIL"
+}
+
+# Switch device open interlocked
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 1) = "Q" and attr("IX") = 16 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "OPEN_INTERLOCKED_1_0"
+DataPoint: "Open interlocked"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Switch device close interlocked
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 1) = "Q" and attr("IX") = 17 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "CLOSE_INTERLOCKED_1_0"
+DataPoint: "Close interlocked"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Switch device open blocked
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 1) = "Q" and (attr("IX") = 41 or attr("IX") = 61) {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "OPEN_BLOCKED_1_0"
+DataPoint: "Open blocked"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Switch device close blocked
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 1) = "Q"and (attr("IX") = 42 or attr("IX") = 62) {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "CLOSE_BLOCKED_1_0"
+DataPoint: "Close blocked"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Switch device under command
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 1) = "Q" and (attr("IX") = 20 or attr("IX") = 40) {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "OBJECT_SELECTION_1_0"
+DataPoint: "Object selection"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Device selected on another monitor
+length(item(attr("IL"), "DEV")) > 0 and (substr(attr("RX"), 22, 1) = "Q" or substr(attr("RX"), 22, 8) = "TAVRXMEV") and (attr("IX") = 19 or attr("IX") = 30 or attr("IX") = 39) {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "COMMAND_BLOCKED_DUE_TO_SELECTION_ON_OTHER_MONITOR_1_0"
+DataPoint: "Command blocked due to selection on other monitor"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Switch device operation counter enabled
+length(item(attr("IL"), "DEV")) > 0 and (substr(attr("RX"), 22, 1) = "Q") and (attr("IX") = 10 or attr("IX") = 30) and substr(attr("RX"), 26, 4) = "IPOS" {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "OPERATION_COUNTER_STATE_1_0"
+DataPoint: "Operation counter state"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "CE"
+}
+
+# Switch device operation counter value
+length(item(attr("IL"), "DEV")) > 0 and (substr(attr("RX"), 22, 1) = "Q") and (attr("IX") = 10 or attr("IX") = 30) and substr(attr("RX"), 26, 4) = "IPOS" {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "OPERATION_COUNTER_VALUE_1_0"
+DataPoint: "Operation counter value"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Int32"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "CV"
+}
+
+# Switch device operation counter limit
+length(item(attr("IL"), "DEV")) > 0 and (substr(attr("RX"), 22, 1) = "Q") and (attr("IX") = 10 or attr("IX") = 30) and substr(attr("RX"), 26, 4) = "IPOS" {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "OPERATION_COUNTER_ALARM_LIMIT_1_0"
+DataPoint: "Operation counter alarm limit"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Int32"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "CL"
+}
+
+# Switch device operation operation counter limit command
+length(item(attr("IL"), "DEV")) > 0 and (substr(attr("RX"), 22, 1) = "Q") and (attr("IX") = 10 or attr("IX") = 30) and substr(attr("RX"), 26, 4) = "IPOS" {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "SET_OPERATION_COUNTER_ALARM_LIMIT_1_0"
+DataPoint: "Set operation counter alarm limit"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "CommandWithValue"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "CL"
+}
+
+# Switch device operation operation counter reset command
+length(item(attr("IL"), "DEV")) > 0 and (substr(attr("RX"), 22, 1) = "Q") and (attr("IX") = 10 or attr("IX") = 30) and substr(attr("RX"), 26, 4) = "IPOS" {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "OPERATION_COUNTER_RESET_1_0"
+DataPoint: "Operation counter reset"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Command"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "CV"
+}
+
+# Open control allowed
+length(item(attr("IL"), "DEV")) > 0 and (substr(attr("RX"), 22, 1) = "Q") and (attr("IX") = 10 or attr("IX") = 30) and substr(attr("RX"), 26, 4) = "IPOS" {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "OPEN_ALLOWED_1_0"
+DataPoint: "Open allowed"
+DataPointValueType: "Bool"
+LN: attr("LN")
+IX: attr("IX")
+SubscriptionType: "SCIL"
+}
+
+# Close control allowed
+length(item(attr("IL"), "DEV")) > 0 and (substr(attr("RX"), 22, 1) = "Q") and (attr("IX") = 10 or attr("IX") = 30) and substr(attr("RX"), 26, 4) = "IPOS" {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "CLOSE_ALLOWED_1_0"
+DataPoint: "Close allowed"
+DataPointValueType: "Bool"
+LN: attr("LN")
+IX: attr("IX")
+SubscriptionType: "SCIL"
+}
+
+# Autorecloser ON/OFF
+length(item(attr("IL"), "BAY")) > 0 and (substr(attr("RX"), 22, 8) = "FARCISCE") and attr("IX") = 10 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "AUTO-RECLOSING_MODE_1_0"
+DataPoint: "Auto-reclosing mode"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Int8"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Autorecloser ON/OFF command
+length(item(attr("IL"), "BAY")) > 0 and (substr(attr("RX"), 22, 8) = "FARCCSCE") and attr("IX") = 14 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "SET_AUTO-RECLOSING_MODE_1_0"
+DataPoint: "Set auto-reclosing mode"
+DataPointAttributes: list(DataPointAttribute("level_permitted", "", "SCIL"), DataPointAttribute("control_permitted", "", "SCIL"), DataPointAttribute("control_inhibit_reason", "", "SCIL"))
+DataPointValueType: "CommandWithValue"
+LN: attr("LN")
+IX: attr("IX")
+SubscriptionType: "SCIL"
+}
+
+# Autorecloser state
+length(item(attr("IL"), "BAY")) > 0 and (substr(attr("RX"), 22, 8) = "FARCIARC") and attr("IX") = 12 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "AUTO-RECLOSING_STATE_1_0"
+DataPoint: "Auto-reclosing state"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Int8"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Current Transformer (CT)
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMCUR" and attr("IX") = 10 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("BAY")), attr("LN"))
+RuleId: "CURRENT_TRANSFORMER_(CT)_1_0"
+FunctionalStructureType: "Current Transformer (CT)"
+CustomerName: item(attr("IL"), "DEV")
+}
+
+# Voltage Transformer (VT)
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMVOL" and attr("IX") = 16 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("BAY")), attr("LN"))
+RuleId: "VOLTAGE_TRANSFORMER_(VT)_1_0"
+FunctionalStructureType: "Voltage Transformer (VT)"
+CustomerName: item(attr("IL"), "DEV")
+}
+
+# Current
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMCUR" and attr("IX") = 131 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "CURRENT_1_0"
+DataPoint: "Current"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Voltage
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMVOL" and attr("IX") = 132 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "VOLTAGE_1_0"
+DataPoint: "Voltage"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Active power
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMAPW" and attr("IX") = 133 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "ACTIVE_POWER_1_0"
+DataPoint: "Active power"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Reactive power
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMRPW" and attr("IX") = 134 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "REACTIVE_POWER_1_0"
+DataPoint: "Reactive power"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Apparent power
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMAPP" and attr("IX") = 135 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "APPARENT_POWER_1_0"
+DataPoint: "Apparent power"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Power factor
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMCOS" and attr("IX") = 136 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "POWER_FACTOR_1_0"
+DataPoint: "Power factor"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Impedance
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMIMP" and attr("IX") = 137 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "IMPEDANCE_1_0"
+DataPoint: "Impedance"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Frequency
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMFRQ" and (attr("IX") = 24 or attr("IX") = 138) {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "FREQUENCY_1_0"
+DataPoint: "Frequency"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Current L1
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMCUR" and attr("IX") = 10 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "CURRENT_L1_1_0"
+DataPoint: "Current L1"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Current L2
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMCUR" and attr("IX") = 11 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "CURRENT_L2_1_0"
+DataPoint: "Current L2"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Current L3
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMCUR" and attr("IX") = 12 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "CURRENT_L3_1_0"
+DataPoint: "Current L3"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Neutral current
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMNCU" and attr("IX") = 13 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "NEUTRAL_CURRENT_1_0"
+DataPoint: "Neutral current"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Voltage L1-L2
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMVOL" and attr("IX") = 16 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "VOLTAGE_L1-L2_1_0"
+DataPoint: "Voltage L1-L2"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Voltage L2-L3
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMVOL" and attr("IX") = 17 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "VOLTAGE_L2-L3_1_0"
+DataPoint: "Voltage L2-L3"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Voltage L3-L1
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMVOL" and attr("IX") = 18 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "VOLTAGE_L3-L1_1_0"
+DataPoint: "Voltage L3-L1"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Active power (total)
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMAPW" and attr("IX") = 20 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "ACTIVE_POWER_(TOTAL)_1_0"
+DataPoint: "Active power (total)"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Reactive power (total)
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMRPW" and attr("IX") = 21 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "REACTIVE_POWER_(TOTAL)_1_0"
+DataPoint: "Reactive power (total)"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Apparent power (total)
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMAPP" and attr("IX") = 22 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "APPARENT_POWER_(TOTAL)_1_0"
+DataPoint: "Apparent power (total)"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Average power factor
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMCOS" and attr("IX") = 23 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "AVERAGE_POWER_FACTOR_1_0"
+DataPoint: "Average power factor"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Active energy consumed
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMAEN" and attr("IX") = 38 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "ACTIVE_ENERGY_CONSUMED_1_0"
+DataPoint: "Active energy consumed"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Int128"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Active energy delivered
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMAEN" and attr("IX") = 41 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "ACTIVE_ENERGY_DELIVERED_1_0"
+DataPoint: "Active energy delivered"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Int128"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Reactive energy delivered
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMREN" and attr("IX") = 44 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "REACTIVE_ENERGY_DELIVERED_1_0"
+DataPoint: "Reactive energy delivered"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Int128"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Reactive energy consumed
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMREN" and attr("IX") = 47 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "REACTIVE_ENERGY_CONSUMED_1_0"
+DataPoint: "Reactive energy consumed"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Int128"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Active power L1
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMPAP" and attr("IX") = 73 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "ACTIVE_POWER_L1_1_0"
+DataPoint: "Active power L1"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Active power L2
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMPAP" and attr("IX") = 74 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "ACTIVE_POWER_L2_1_0"
+DataPoint: "Active power L2"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Active power L3
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMPAP" and attr("IX") = 75 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "ACTIVE_POWER_L3_1_0"
+DataPoint: "Active power L3"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Apparent power L1
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMPAP" and attr("IX") = 76 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "APPARENT_POWER_L1_1_0"
+DataPoint: "Apparent power L1"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Apparent power L2
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMPAP" and attr("IX") = 77 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "APPARENT_POWER_L2_1_0"
+DataPoint: "Apparent power L2"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Apparent power L3
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMPAP" and attr("IX") = 78 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "APPARENT_POWER_L3_1_0"
+DataPoint: "Apparent power L3"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Reactive power L1
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMPRP" and attr("IX") = 79 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "REACTIVE_POWER_L1_1_0"
+DataPoint: "Reactive power L1"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Reactive power L2
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMPRP" and attr("IX") = 80 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "REACTIVE_POWER_L2_1_0"
+DataPoint: "Reactive power L2"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Reactive power L3
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMPRP" and attr("IX") = 81 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "REACTIVE_POWER_L3_1_0"
+DataPoint: "Reactive power L3"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Power factor L1
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMCOS" and attr("IX") = 91 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "POWER_FACTOR_L1_1_0"
+DataPoint: "Power factor L1"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Power factor L2
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMCOS" and attr("IX") = 92 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "POWER_FACTOR_L2_1_0"
+DataPoint: "Power factor L2"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Power factor L3
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMCOS" and attr("IX") = 93 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "POWER_FACTOR_L3_1_0"
+DataPoint: "Power factor L3"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Voltage L1-N
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMVOL" and attr("IX") = 50 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "VOLTAGE_L1-N_1_0"
+DataPoint: "Voltage L1-N"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Voltage L2-N
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMVOL" and attr("IX") = 51 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "VOLTAGE_L2-N_1_0"
+DataPoint: "Voltage L2-N"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Voltage L3-N
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMVOL" and attr("IX") = 52 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "VOLTAGE_L3-N_1_0"
+DataPoint: "Voltage L3-N"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Voltage N-E
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMVOL" and attr("IX") = 53 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "VOLTAGE_N-E_1_0"
+DataPoint: "Voltage N-E"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Impedance L1
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMPIM" and attr("IX") = 97 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "IMPEDANCE_L1_1_0"
+DataPoint: "Impedance L1"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Impedance L2
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMPIM" and attr("IX") = 98 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "IMPEDANCE_L2_1_0"
+DataPoint: "Impedance L2"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Impedance L3
+length(item(attr("IL"), "BAY")) > 0 and substr(attr("RX"), 23, 7) = "MEAMPIM" and attr("IX") = 99 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("BAY"))
+RuleId: "IMPEDANCE_L3_1_0"
+DataPoint: "Impedance L3"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Group alarm state
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 8) = "TAVRIPOS" and attr("IX") = 10 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("DEV")), "W2", "Tap Changer")
+RuleId: "TAP_CHANGER_GROUP_ALARM_STATE_1_0"
+DataPoint: "Group alarm state"
+DataPointValueType: "Bool"
+LN: attr("LN")
+ValueAttribute: "GS"
+}
+
+# Group alarm blocking
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 8) = "TAVRIPOS" and attr("IX") = 10 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("DEV")), "W2", "Tap Changer")
+RuleId: "TAP_CHANGER_ALARM_BLOCKING_OF_GROUPED_DATA_POINTS_1_0"
+DataPoint: "Alarm blocking of grouped Data Points"
+DataPointAttributes: list(DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+ValueAttribute: "GB"
+}
+
+# Group event blocking
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 8) = "TAVRIPOS" and attr("IX") = 10 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("DEV")), "W2", "Tap Changer")
+RuleId: "TAP_CHANGER_EVENT_BLOCKING_OF_GROUPED_DATA_POINTS_1_0"
+DataPoint: "Event blocking of grouped Data Points"
+DataPointAttributes: list(DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+ValueAttribute: "GB"
+}
+
+# Group update blocking
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 8) = "TAVRIPOS" and attr("IX") = 10 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("DEV")), "W2", "Tap Changer")
+RuleId: "TAP_CHANGER_UPDATE_BLOCKING_OF_GROUPED_DATA_POINTS_1_0"
+DataPoint: "Update blocking of grouped Data Points"
+DataPointAttributes: list(DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+ValueAttribute: "GB"
+}
+
+# Group control blocking
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 8) = "TAVRIPOS" and attr("IX") = 10 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("DEV")), "W2", "Tap Changer")
+RuleId: "TAP_CHANGER_CONTROL_BLOCKING_OF_GROUPED_DATA_POINTS_1_0"
+DataPoint: "Control blocking of grouped Data Points"
+DataPointAttributes: list(DataPointAttribute("control_blocking_permitted ", "", "AUTHORIZATION"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+ValueAttribute: "GB"
+}
+
+# Tap position
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 8) = "TAVRIPOS" and attr("IX") = 10 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("DEV")), "W2", "Tap Changer")
+RuleId: "TAP_CHANGER_TAP_POSITION_1_0"
+FunctionalStructureType: "Tap Changer"
+DataPoint: "Tap position"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Int8"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Release device reservation
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 8) = "TAVRIPOS" and attr("IX") = 10 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("DEV")), "W2", "Tap Changer")
+RuleId: "TAP_CHANGER_FORCE-RELEASE_PENDING_LOCAL_RESERVATIONS_1_0"
+DataPoint: "Force-release pending local reservations"
+DataPointAttributes: list(DataPointAttribute("level_permitted", "", "SCIL"), DataPointAttribute("control_permitted", "", "SCIL"), DataPointAttribute("control_inhibit_reason", "", "SCIL"))
+DataPointValueType: "CommandWithValue"
+LN: attr("LN")
+IX: attr("IX")
+SubscriptionType: "SCIL"
+}
+
+# Tap raise/lower command
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 8) = "TAVRCPOS" and (attr("IX") = 13 or attr("IX") = 16) {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("DEV")), "W2", "Tap Changer")
+RuleId: "TAP_CHANGER_COMMAND_1_0"
+DataPoint: "Tap changer command"
+DataPointAttributes: list(DataPointAttribute("level_permitted", "", "SCIL"), DataPointAttribute("control_permitted", "", "SCIL"), DataPointAttribute("control_inhibit_reason", "", "SCIL"))
+DataPointValueType: "Command"
+LN: attr("LN")
+IX: attr("IX")
+SubscriptionType: "SCIL"
+}
+
+# Auto/Manual indication
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 8) = "TAVRIMAN" and attr("IX") = 11 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("DEV")), "W2", "Tap Changer")
+RuleId: "TAP_CHANGER_OPERATION_MODE_1_0"
+FunctionalStructureType: "Tap Changer"
+DataPoint: "Operation mode"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Tap Auto/Manual command
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 8) = "TAVRCMAN" and attr("IX") = 14 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("DEV")), "W2", "Tap Changer")
+RuleId: "SET_OPERATION_MODE_(AUTO_/_MANUAL)_1_0"
+DataPoint: "Set operation mode (auto / manual)"
+DataPointAttributes: list(DataPointAttribute("level_permitted", "", "SCIL"), DataPointAttribute("control_permitted", "", "SCIL"), DataPointAttribute("control_inhibit_reason", "", "SCIL"))
+DataPointValueType: "Command"
+LN: attr("LN")
+IX: attr("IX")
+SubscriptionType: "SCIL"
+}
+
+# Voltage
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 8) = "TAVRMVOL" and attr("IX") = 24 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("DEV")), "W2", "Tap Changer")
+RuleId: "TAP_CHANGER_VOLTAGE_1_0"
+FunctionalStructureType: "Tap Changer"
+DataPoint: "Voltage"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Voltage
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 8) = "TAVRMRVO" and attr("IX") = 25 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("DEV")), "W2", "Tap Changer")
+RuleId: "TAP_CHANGER_REFERENCE_VOLTAGE_1_0"
+FunctionalStructureType: "Tap Changer"
+DataPoint: "Reference voltage"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", "IL[DEV]"), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("high_2_limit", "HI"), DataPointAttribute("high_1_limit", "HW"), DataPointAttribute("low_1_limit", "LW"), DataPointAttribute("low_2_limit", "LI"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Float16"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# reference voltage command
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 8) = "TAVRSRVO" and attr("IX") = 26 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("DEV")), "W2", "Tap Changer")
+RuleId: "SET_REFERENCE_VOLTAGE_1_0"
+DataPoint: "Set reference voltage"
+DataPointAttributes: list(DataPointAttribute("level_permitted", "", "SCIL"), DataPointAttribute("control_permitted", "", "SCIL"), DataPointAttribute("control_inhibit_reason", "", "SCIL"))
+DataPointValueType: "CommandWithValue"
+LN: attr("LN")
+IX: attr("IX")
+SubscriptionType: "SCIL"
+}
+
+# Single parallel indication
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 8) = "TAVRISGL" and attr("IX") = 12 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("DEV")), "W2", "Tap Changer")
+RuleId: "TAP_CHANGER_PARALLEL_CO-OPERATION_MODE_1_0"
+FunctionalStructureType: "Tap Changer"
+DataPoint: "Parallel co-operation mode"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Dbool"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Single parallel command
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 8) = "TAVRCSGL" and attr("IX") = 15 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("DEV")), "W2", "Tap Changer")
+RuleId: "SET_CO-OPERATION_MODE_IN_PARALLEL_MODE_1_0"
+DataPoint: "Set co-operation mode in parallel mode"
+DataPointAttributes: list(DataPointAttribute("level_permitted", "", "SCIL"), DataPointAttribute("control_permitted", "", "SCIL"), DataPointAttribute("control_inhibit_reason", "", "SCIL"))
+DataPointValueType: "CommandWithValue"
+LN: attr("LN")
+IX: attr("IX")
+SubscriptionType: "SCIL"
+}
+
+# Master/Follower indication
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 8) = "TAVRIMST" and attr("IX") = 31 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("DEV")), "W2", "Tap Changer")
+RuleId: "TAP_CHANGER_CO-OPERATION_ROLE_IN_PARALLEL_MODE_1_0"
+FunctionalStructureType: "Tap Changer"
+DataPoint: "Co-operation role in parallel mode"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# Master/Follower command
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 5) = "TAVRI" and attr("IX") = 33 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("DEV")), "W2", "Tap Changer")
+RuleId: "SET_CO-OPERATION_ROLE_IN_PARALLEL_MODE_1_0"
+DataPoint: "Set co-operation role in parallel mode"
+DataPointAttributes: list(DataPointAttribute("level_permitted", "", "SCIL"), DataPointAttribute("control_permitted", "", "SCIL"), DataPointAttribute("control_inhibit_reason", "", "SCIL"))
+DataPointValueType: "CommandWithValue"
+LN: attr("LN")
+IX: attr("IX")
+SubscriptionType: "SCIL"
+}
+
+# Allow lower
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 8) = "TAVRIPOS" and attr("IX") = 10 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("DEV")), "W2", "Tap Changer")
+RuleId: "LOWER_ALLOWED_1_0"
+DataPoint: "Lower allowed"
+DataPointValueType: "Bool"
+LN: attr("LN")
+IX: attr("IX")
+SubscriptionType: "SCIL"
+}
+
+# Allow raise
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 8) = "TAVRIPOS" and attr("IX") = 10 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("DEV")), "W2", "Tap Changer")
+RuleId: "RAISE_ALLOWED_1_0"
+DataPoint: "Raise allowed"
+DataPointValueType: "Bool"
+LN: attr("LN")
+IX: attr("IX")
+SubscriptionType: "SCIL"
+}
+
+# Tap lowest position
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 8) = "TAVRIPOS" and attr("IX") = 10 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("DEV")), "W2", "Tap Changer")
+RuleId: "TAP_CHANGER_MINIMUM_POSITION_1_0"
+DataPoint: "Tap Changer Minimum Position"
+DataPointValueType: "Int8"
+LN: attr("LN")
+IX: attr("IX")
+SubscriptionType: "SCIL"
+}
+
+# Tap highest position
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 8) = "TAVRIPOS" and attr("IX") = 10 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("DEV")), "W2", "Tap Changer")
+RuleId: "TAP_CHANGER_MAXIMUM_POSITION_1_0"
+DataPoint: "Tap Changer Maximum Position"
+DataPointValueType: "Int8"
+LN: attr("LN")
+IX: attr("IX")
+SubscriptionType: "SCIL"
+}
+
+# Selected on another monitor
+length(item(attr("IL"), "DEV")) > 0 and substr(attr("RX"), 22, 8) = "TAVRXMEV" and attr("IX") = 30 {
+FunctionalStructurePath: append(take(attr("IE"), OiLevelOf("DEV")), "W2", "Tap Changer")
+RuleId: "TAP_CHANGER_COMMAND_BLOCKED_DUE_TO_SELECTION_ON_OTHER_MONITOR_1_0"
+DataPoint: "Command blocked due to selection on other monitor"
+DataPointAttributes: list(DataPointAttribute("path", "OI"), DataPointAttribute("name", if(length(item(attr("IL"), "DEV")) > 0, "IL[DEV]", if(length(item(attr("IL"), "BAY")) > 0, "IL[BAY]", if(length(item(attr("IL"), "STA")) > 0, "IL[STA]", "")))), DataPointAttribute("customer_text", "TX"), DataPointAttribute("state", "SX"), DataPointAttribute("update_blocked", "UB"), DataPointAttribute("alarm_blocked", "AB"), DataPointAttribute("event_blocked", "HB"), DataPointAttribute("printout_blocked", "PB"), DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"), DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"), DataPointAttribute("simulation_permitted ", "", "AUTHORIZATION"), DataPointAttribute("local_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("remote_substitution_permitted", "", "AUTHORIZATION"), DataPointAttribute("active", "AL"), DataPointAttribute("acknowledged", "AR"), DataPointAttribute("severity", "AV"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+IX: attr("IX")
+PT: attr("PT")
+ValueAttribute: "OV"
+}
+
+# IED
+length(item(attr("IL"), "STA")) > 0 {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("STA"))
+}
+
+# Group alarm state
+length(item(attr("IL"), "DEV")) > 0 and ((substr(attr("RX"), 22, 1) = "Q" and substr(attr("RX"), 26, 4) = "IPOS") or (substr(attr("RX"), 22, 8) = "EGENIGST")) {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "DEV_GROUP_ALARM_STATE_1_0"
+DataPoint: "Group alarm state"
+DataPointValueType: "Bool"
+LN: attr("LN")
+ValueAttribute: "GS"
+}
+
+# Group alarm blocking
+length(item(attr("IL"), "DEV")) > 0 and ((substr(attr("RX"), 22, 1) = "Q" and substr(attr("RX"), 26, 4) = "IPOS") or (substr(attr("RX"), 22, 8) = "EGENIGST")) {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "DEV_ALARM_BLOCKING_OF_GROUPED_DATA_POINTS_1_0"
+DataPoint: "Alarm blocking of grouped Data Points"
+DataPointAttributes: list(DataPointAttribute("alarm_blocking_permitted", "", "AUTHORIZATION"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+ValueAttribute: "GB"
+}
+
+# Group event blocking
+length(item(attr("IL"), "DEV")) > 0 and ((substr(attr("RX"), 22, 1) = "Q" and substr(attr("RX"), 26, 4) = "IPOS") or (substr(attr("RX"), 22, 8) = "EGENIGST")) {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "DEV_EVENT_BLOCKING_OF_GROUPED_DATA_POINTS_1_0"
+DataPoint: "Event blocking of grouped Data Points"
+DataPointAttributes: list(DataPointAttribute("event_blocking_permitted", "", "AUTHORIZATION"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+ValueAttribute: "GB"
+}
+
+# Group update blocking
+length(item(attr("IL"), "DEV")) > 0 and ((substr(attr("RX"), 22, 1) = "Q" and substr(attr("RX"), 26, 4) = "IPOS") or (substr(attr("RX"), 22, 8) = "EGENIGST")) {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "DEV_UPDATE_BLOCKING_OF_GROUPED_DATA_POINTS_1_0"
+DataPoint: "Update blocking of grouped Data Points"
+DataPointAttributes: list(DataPointAttribute("update_blocking_permitted ", "", "AUTHORIZATION"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+ValueAttribute: "GB"
+}
+
+# Group control blocking
+length(item(attr("IL"), "DEV")) > 0 and ((substr(attr("RX"), 22, 1) = "Q" and substr(attr("RX"), 26, 4) = "IPOS") or (substr(attr("RX"), 22, 8) = "EGENIGST")) {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "DEV_CONTROL_BLOCKING_OF_GROUPED_DATA_POINTS_1_0"
+DataPoint: "Control blocking of grouped Data Points"
+DataPointAttributes: list(DataPointAttribute("control_blocking_permitted ", "", "AUTHORIZATION"))
+DataPointValueType: "Bool"
+LN: attr("LN")
+ValueAttribute: "GB"
+}
+
+# Release device reservation
+length(item(attr("IL"), "DEV")) > 0 and ((substr(attr("RX"), 22, 1) = "Q" and substr(attr("RX"), 26, 4) = "IPOS") or (substr(attr("RX"), 22, 8) = "EGENIGST")) {
+FunctionalStructurePath: take(attr("IE"), OiLevelOf("DEV"))
+RuleId: "DEV_FORCE-RELEASE_PENDING_LOCAL_RESERVATIONS_1_0"
+DataPoint: "Force-release pending local reservations"
+DataPointAttributes: list(DataPointAttribute("level_permitted", "", "SCIL"), DataPointAttribute("control_permitted", "", "SCIL"), DataPointAttribute("control_inhibit_reason", "", "SCIL"))
+DataPointValueType: "CommandWithValue"
+LN: attr("LN")
+IX: attr("IX")
+SubscriptionType: "SCIL"
+}
+

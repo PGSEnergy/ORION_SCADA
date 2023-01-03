@@ -1,0 +1,159 @@
+;Pipeline_LIB Process
+;-----------------------------------------------------------------------------
+;Rev. 0.10
+;-----------------------------------------------------------------------------
+; 0.00     2011.09.23  NN    Initial version
+;-----------------------------------------------------------------------------
+
+;Control Authority (Station)
+/Pipeline_LIB/Process/Station
+   @SFNAME                  = "F5_INST/FDI_PLA"
+   @CONF_FILE               = "F5_INST/FDI_PLA.DAT"
+   @Required_PF_Name        = "FDI_PLA"
+   @Required_PF_SFName      = "F5_INST/FDI_PLA"
+   @Required_PSAGR_INSTallPosX = 7
+   @Required_PSAGR_INSTallPosY = 47
+
+;Composition
+/Pipeline_LIB/Process/Bay (Equipment Group)
+   @SFNAME                  = "F5_INST/FDI_GRO"
+   @CONF_FILE               = "F5_INST/FDI_GRO.DAT"
+   @Required_PF_Name        = "FDI_GRO"
+   @Required_PF_SFName      = "F5_INST/FDI_GRO"
+   @Required_PSAGR_INSTallPosX = 7
+   @Required_PSAGR_INSTallPosY = 47
+
+;Valve
+/Pipeline_LIB/Process/Valve/Standard
+   @SFNAME                  = "F5_INST/FDI_VA"
+   @CONF_FILE               = "F5_INST/FDI_VA.DAT"
+   @Required_PF_Name        = "FDI_VA"
+   @Required_PF_SFName      = "F5_INST/FDI_VA"
+   @Required_PSAGR_INSTallPosX = 7
+   @Required_PSAGR_INSTallPosY = 47
+
+;Valve 4BI
+/Pipeline_LIB/Process/Valve/4 Single Indications (4 BI)
+   @SFNAME                  = "F5_INST/FDI_VA_4BI"
+   @CONF_FILE               = "F5_INST/FDI_VA_4BI.DAT"
+   @Required_PF_Name        = "FDI_VA_4BI"
+   @Required_PF_SFName      = "F5_INST/FDI_VA_4BI"
+   @Required_PSAGR_INSTallPosX = 7
+   @Required_PSAGR_INSTallPosY = 47
+
+;Valve 4BIAI
+/Pipeline_LIB/Process/Valve/4 Single Indications, 1 Measured value (Adjustment Valve)
+   @SFNAME                  = "F5_INST/FDI_VA_4BIAI"
+   @CONF_FILE               = "F5_INST/FDI_VA_4BIAI.DAT"
+   @Required_PF_Name        = "FDI_VA_4BIAI"
+   @Required_PF_SFName      = "F5_INST/FDI_VA_4BIAI"
+   @Required_PSAGR_INSTallPosX = 7
+   @Required_PSAGR_INSTallPosY = 47
+
+;Pump
+/Pipeline_LIB/Process/Pump/Standard
+   @SFNAME                  = "F5_INST/FDI_PUMP"
+   @CONF_FILE               = "F5_INST/FDI_PUMP.DAT"
+   @Required_PF_Name        = "FDI_PUMP"
+   @Required_PF_SFName      = "F5_INST/FDI_PUMP"
+   @Required_PSAGR_INSTallPosX = 7
+   @Required_PSAGR_INSTallPosY = 47
+
+;Pump
+/Pipeline_LIB/Process/Pump/Standard Automatic Manual
+   @SFNAME                  = "F5_INST/FDI_PUMP_AUTOMAN"
+   @CONF_FILE               = "F5_INST/FDI_PUMP_AUTOMAN.DAT"
+   @Required_PF_Name        = "FDI_PUMP_AUTOMAN"
+   @Required_PF_SFName      = "F5_INST/FDI_PUMP_AUTOMAN"
+   @Required_PSAGR_INSTallPosX = 7
+   @Required_PSAGR_INSTallPosY = 47
+
+;Pump
+/Pipeline_LIB/Process/Pump/Standard Automatic Manual Alarm
+   @SFNAME                  = "F5_INST/FDI_PUMP_AUTOMAN_ALARM"
+   @CONF_FILE               = "F5_INST/FDI_PUMP_AUTOMAN_ALARM.DAT"
+   @Required_PF_Name        = "FDI_PUMP_AUTOMAN_STOER"
+   @Required_PF_SFName      = "F5_INST/FDI_PUMP_AUTOMAN_ALARM"
+   @Required_PSAGR_INSTallPosX = 7
+   @Required_PSAGR_INSTallPosY = 47
+
+;Pump 3BI
+/Pipeline_LIB/Process/Pump/3 Single Indications (3 BI)
+   @SFNAME                  = "F5_INST/FDI_PUMP_3BI"
+   @CONF_FILE               = "F5_INST/FDI_PUMP_3BI.DAT"
+   @Required_PF_Name        = "FDI_PUMP_3BI"
+   @Required_PF_SFName      = "F5_INST/FDI_PUMP_3BI"
+   @Required_PSAGR_INSTallPosX = 7
+   @Required_PSAGR_INSTallPosY = 47
+
+;Pump3BIAI
+/Pipeline_LIB/Process/Pump/3 Single Indications, 1 Measured Value (Multi-level)
+   @SFNAME                  = "F5_INST/FDI_PUMP_3BIAI"
+   @CONF_FILE               = "F5_INST/FDI_PUMP_3BIAI.DAT"
+   @Required_PF_Name        = "FDI_PUMP_3BIAI"
+   @Required_PF_SFName      = "F5_INST/FDI_PUMP_3BIAI"
+   @Required_PSAGR_INSTallPosX = 7
+   @Required_PSAGR_INSTallPosY = 47
+
+;Pump 5BI
+/Pipeline_LIB/Process/Pump/5 Single Indications (2 for Throttle Valve)
+   @SFNAME                  = "F5_INST/FDI_PUMP_5BI"
+   @CONF_FILE               = "F5_INST/FDI_PUMP_5BI.DAT"
+   @Required_PF_Name        = "FDI_PUMP_5BI"
+   @Required_PF_SFName      = "F5_INST/FDI_PUMP_5BI"
+   @Required_PSAGR_INSTallPosX = 7
+   @Required_PSAGR_INSTallPosY = 47
+
+;Fan 3BI
+/Pipeline_LIB/Process/Fan (3 BI)
+   @SFNAME                  = "F5_INST/FDI_FAN_3BI"
+   @CONF_FILE               = "F5_INST/FDI_FAN_3BI.DAT"
+   @Required_PF_Name        = "FDI_FAN_3BI"
+   @Required_PF_SFName      = "F5_INST/FDI_FAN_3BI"
+   @Required_PSAGR_INSTallPosX = 7
+   @Required_PSAGR_INSTallPosY = 47
+
+;Compressor
+/Pipeline_LIB/Process/Compressor
+   @SFNAME                  = "F5_INST/FDI_COMP"
+   @CONF_FILE               = "F5_INST/FDI_COMP.DAT"
+   @Required_PF_Name        = "FDI_COMP"
+   @Required_PF_SFName      = "F5_INST/FDI_COMP"
+   @Required_PSAGR_INSTallPosX = 7
+   @Required_PSAGR_INSTallPosY = 47
+
+;Motor
+/Pipeline_LIB/Process/Motor
+   @SFNAME                  = "F5_INST/FDI_MOTOR"
+   @CONF_FILE               = "F5_INST/FDI_MOTOR.DAT"
+   @Required_PF_Name        = "FDI_MOTOR"
+   @Required_PF_SFName      = "F5_INST/FDI_MOTOR"
+   @Required_PSAGR_INSTallPosX = 7
+   @Required_PSAGR_INSTallPosY = 47
+
+;Rotary Feeder
+/Pipeline_LIB/Process/Rotary Feeder
+   @SFNAME                  = "F5_INST/FDI_ZRS"
+   @CONF_FILE               = "F5_INST/FDI_ZRS.DAT"
+   @Required_PF_Name        = "FDI_ZRS"
+   @Required_PF_SFName      = "F5_INST/FDI_ZRS"
+   @Required_PSAGR_INSTallPosX = 7
+   @Required_PSAGR_INSTallPosY = 47
+
+;Measurement Bar Presentation (Measurement)
+/Pipeline_LIB/Process/Measurement
+   @SFNAME                  = "F5_INST/FDI_ME1"
+   @CONF_FILE               = "F5_INST/FDI_ME1.DAT"
+   @Required_PF_Name        = "FDI_MEA"
+   @Required_PF_SFName      = "F5_INST/FDI_ME1"
+   @Required_PSAGR_INSTallPosX = 16
+   @Required_PSAGR_INSTallPosY = 47
+
+;Control Unit
+/Pipeline_LIB/Process/Miscellaneous/Control Unit/Simple
+   @SFNAME                  = "F5_INST/FDI_SETPOINT1"
+   @CONF_FILE               = "F5_INST/FDI_SETPOINT1.DAT"
+   @Required_PF_Name        = "SAGR_MEA"
+   @Required_PF_SFName      = "F5_INST/FDI_SETPOINT1"
+   @Required_PSAGR_INSTallPosX = 16
+   @Required_PSAGR_INSTallPosY = 47

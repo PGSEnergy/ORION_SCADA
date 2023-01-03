@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="dv-custom-attribute|ABB SA Symbols" content="v1.0" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Tank 1" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="Tank" />
+    <d:meta name="dv-custom-attribute|SATopology" content="" />
+    <d:role name="symbol" />
+  </d:head>
+  <d:body x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <s:linearGradient x1="0%" y1="0%" x2="100%" y2="0%" id="i2" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(224, 224, 224)" offset="0" />
+      <s:stop stop-color="rgb(176, 176, 176)" offset="1" />
+    </s:linearGradient>
+    <s:ellipse cx="0" cy="40" rx="40" ry="5" y:fill="url(#i2)" y:fill-rule="evenodd" y:stroke="rgb(112, 112, 112)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Bottom" />
+    <s:linearGradient x1="0%" y1="0%" x2="100%" y2="0%" id="i3" d:adjustToScreenCoordSystem="true">
+      <s:stop stop-color="rgb(224, 224, 224)" offset="0" />
+      <s:stop stop-color="rgb(176, 176, 176)" offset="1" />
+    </s:linearGradient>
+    <s:rect width="80" height="160" x="-40" y="-120" s:pointer-events="visiblePainted" y:fill="url(#i3)" y:fill-rule="evenodd" y:stroke="none" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Body" />
+    <s:line x1="-40" y1="-120" x2="-40" y2="40" y:stroke="rgb(112, 112, 112)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" y:shape-rendering="crispEdges" d:object-name="Border" />
+    <s:ellipse cx="0" cy="-120" rx="5" ry="40" transform="rotate(90, 0, -120)" y:fill="rgb(208, 208, 208)" y:fill-rule="evenodd" y:stroke="rgb(112, 112, 112)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Top" />
+    <s:line x1="40" y1="-120" x2="40" y2="40" y:stroke="rgb(112, 112, 112)" y:vector-effect="non-scaling-stroke" y:stroke-width="1" y:shape-rendering="crispEdges" d:object-name="Border" />
+    <s:rect width="0" height="0" x="-40" y="-102.500" s:pointer-events="visiblePainted" y:fill="none" y:fill-rule="evenodd" y:stroke="{subdrawing_color}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Hotspot1" />
+    <s:rect width="0" height="0" x="-40" y="32.500" s:pointer-events="visiblePainted" y:fill="none" y:fill-rule="evenodd" y:stroke="{subdrawing_color}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Hotspot2" />
+    <s:rect width="0" height="0" x="40" y="-102.500" s:pointer-events="visiblePainted" y:fill="none" y:fill-rule="evenodd" y:stroke="{subdrawing_color}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Hotspot3" />
+    <s:rect width="0" height="0" x="40" y="32.500" s:pointer-events="visiblePainted" y:fill="none" y:fill-rule="evenodd" y:stroke="{subdrawing_color}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Hotspot4" />
+    <s:rect width="0" height="0" x="0" y="-120" s:pointer-events="visiblePainted" y:fill="none" y:fill-rule="evenodd" y:stroke="{subdrawing_color}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Hotspot5" />
+    <s:rect width="0" height="0" x="0" y="40" s:pointer-events="visiblePainted" y:fill="none" y:fill-rule="evenodd" y:stroke="{subdrawing_color}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" d:object-name="Hotspot6" />
+  </d:body>
+</d:document>

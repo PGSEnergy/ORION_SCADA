@@ -1,0 +1,95 @@
+;GRAPHICS, FONT DEFINITIONS
+
+#DO READ_TEXT("GPRC/X_SGETDISP.TXT")
+#IF %VSNATIVE #THEN #BLOCK
+   #DO READ_TEXT("GPRC/V_SFONDESC.TXT")
+#BLOCK_END
+#ELSE #BLOCK
+
+   .GC 0 = DEFAULT_GC: 
+   @SG_FONT = FONT_IN(0)
+   #CASE SG_FONT:VHE
+
+   #WHEN 10 #BLOCK;   MICROSCADA FONT 8-10 
+      @X_SFONDESC = LIST(-
+         SCOPE_OF_SETTINGS   = "SYSTEM",-
+         NAME_1 = "-*-times-medium-r-*--18-*-*-*-*-*-iso8859-1",-
+         NAME_2 = "-*-times-medium-r-*--10-*-*-*-*-*-iso8859-1",-
+         NAME_3 = "-*-times-medium-r-*--8-*-*-*-*-*-iso8859-1",-
+         NAME_4 = "-*-helvetica-medium-r-*--14-*-*-*-*-*-iso8859-1",-
+         NAME_5 = "-*-helvetica-medium-r-*--10-*-*-*-*-*-iso8859-1",-
+         NAME_6 = "-*-helvetica-medium-r-*--8-*-*-*-*-*-iso8859-1",-
+         NAME_7 = "-*-courier-medium-r-*--14-*-*-*-*-*-iso8859-1",-
+         NAME_8 = "-*-courier-medium-r-*--10-*-*-*-*-*-iso8859-1",-
+         NAME_9 = "-*-courier-medium-r-*--8-*-*-*-*-*-iso8859-1",-
+         NAME_10 = "-abb-linedraw-medium-r-normal--10-100-75-75-m-60-iso8859-1",-
+         NAME_11 = "",-
+         NAME_12 = "-abb-scalo-medium-r-normal--10-100-75-75-c-100-iso8859-1")
+      #BLOCK_END
+
+
+   #WHEN 15 #BLOCK;   MICROSCADA FONT 12-15
+      @X_SFONDESC = LIST(-
+         SCOPE_OF_SETTINGS   = "SYSTEM",-
+         NAME_1 = "-*-times-bold-r-*--24-*-*-*-*-*-iso8859-1",-
+         NAME_2 = "-*-times-bold-r-*--14-*-*-*-*-*-iso8859-1",-
+         NAME_3 = "-*-times-medium-r-*--12-*-*-*-*-*-iso8859-1",-
+         NAME_4 = "-*-helvetica-bold-r-*--18-*-*-*-*-*-iso8859-1",-
+         NAME_5 = "-*-helvetica-medium-r-*--14-*-*-*-*-*-iso8859-1",-
+         NAME_6 = "-*-helvetica-medium-r-*--12-*-*-*-*-*-iso8859-1",-
+         NAME_7 = "-*-courier-medium-r-*--18-*-*-*-*-*-iso8859-1",-
+         NAME_8 = "-*-courier-medium-r-*--14-*-*-*-*-*-iso8859-1",-
+         NAME_9 = "-*-courier-medium-r-*--12-*-*-*-*-*-iso8859-1",-
+         NAME_10 = "-abb-linedraw-medium-r-normal--14-140-75-75-m-90-iso8859-1",-
+         NAME_11 = "",-
+         NAME_12 = "-abb-scalo-medium-r-normal--15-150-75-75-c-100-iso8859-1")
+      #BLOCK_END
+
+   #WHEN 20 #BLOCK;   MICROSCADA FONT 16-20
+      @X_SFONDESC = LIST(-
+         SCOPE_OF_SETTINGS   = "SYSTEM",-
+         NAME_1  = "-*-times-bold-r-*--24-*-*-*-*-*-iso8859-1",-
+         NAME_2  = "-*-times-medium-r-*--18-*-*-*-*-*-iso8859-1",-
+         NAME_3  = "-*-times-medium-r-*--14-*-*-*-*-*-iso8859-1",-
+         NAME_4  = "-*-helvetica-bold-r-*--24-*-*-*-*-*-iso8859-1",-
+         NAME_5  = "-*-helvetica-medium-r-*--18-*-*-*-*-*-iso8859-1",-
+         NAME_6  = "-*-helvetica-medium-r-*--14-*-*-*-*-*-iso8859-1",-
+         NAME_7  = "-*-courier-bold-r-*--24-*-*-*-*-*-iso8859-1",-
+         NAME_8  = "-*-courier-medium-r-*--18-*-*-*-*-*-iso8859-1",-
+         NAME_9  = "-*-courier-medium-r-*--14-*-*-*-*-*-iso8859-1",-
+         NAME_10 = "-abb-linedraw-medium-r-normal--18-180-75-75-m-110-iso8859-1",-
+         NAME_11 = "",-
+         NAME_12 = "-abb-scalo-medium-r-normal--20-200-75-75-c-100-iso8859-1")
+      #BLOCK_END
+
+   #OTHERWISE #BLOCK;   MICROSCADA FONT 20x25
+      @X_SFONDESC = LIST(-
+         SCOPE_OF_SETTINGS   = "SYSTEM",-
+         NAME_1  = "-*-times-bold-r-*--28-*-*-*-*-*-iso8859-1",-
+         NAME_2  = "-*-times-medium-r-*--22-*-*-*-*-*-iso8859-1",-
+         NAME_3  = "-*-times-medium-r-*--18-*-*-*-*-*-iso8859-1",-
+         NAME_4  = "-*-helvetica-bold-r-*--28-*-*-*-*-*-iso8859-1",-
+         NAME_5  = "-*-helvetica-medium-r-*--22-*-*-*-*-*-iso8859-1",-
+         NAME_6  = "-*-helvetica-medium-r-*--18-*-*-*-*-*-iso8859-1",-
+         NAME_7  = "-*-courier-bold-r-*--28-*-*-*-*-*-iso8859-1",-
+         NAME_8  = "-*-courier-medium-r-*--22-*-*-*-*-*-iso8859-1",-
+         NAME_9  = "-*-courier-medium-r-*--18-*-*-*-*-*-iso8859-1",-
+         NAME_10 = "-abb-linedraw-bold-r-normal--24-240-75-75-m-150-iso8859-1",-
+         NAME_11 = "",-
+         NAME_12 = "-abb-scalo-medium-r-normal--25-200-75-75-c-100-iso8859-1")
+      #BLOCK_END
+
+   #CASE_END
+
+   #ERROR IGNORE
+   @S = STATUS
+   #DO READ_TEXT("PICT/'STATION'_M.FON")
+   #IF STATUS <> 0 #THEN #DO READ_TEXT("PICT/DEFAUL_M.FON")
+   @S = STATUS
+#BLOCK_END
+
+#ERROR CONTINUE
+#DO READ_TEXT("GPRC/X_SFONINFO.TXT")
+
+#ERROR STOP
+

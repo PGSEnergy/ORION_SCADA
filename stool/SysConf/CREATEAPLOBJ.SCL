@@ -1,0 +1,266 @@
+; File: CreateAPLobj.scl
+; Description: Creates application objects needed by the standard system configuration mechanism.
+; -----------------------------------------------------------------------------------------------
+
+@l_System_Configuration_Data = SYS:BSV(2)
+@t_Init_Proc_Name            = "SYS_INIT_1"
+@t_Init_Proc_Source          = "sys_tool/Sys_Init_1.scl"
+@t_Init_Proc_Comment         = "System Initialisation at Application Startup"
+@l_PCNET_Node_Info           = do(read_text("sys_tool/GetINodeInfo.scl"))
+
+#loop_with i = 1 .. length(l_PCNET_Node_Info:vv_Node_Number)
+   
+   ; Create/update objects only if the PC-NET node and link is defined
+   #if l_PCNET_Node_Info:vv_Link_Number(%i) > 0 and l_PCNET_Node_Info:vv_Node_Number(%i) > 0 #then #block
+
+      @i_Link_Number = l_PCNET_Node_Info:vv_Link_Number(%i)
+      @i_Node_Number = l_PCNET_Node_Info:vv_Node_Number(%i)
+      @i_Station_Address = l_PCNET_Node_Info:vv_Station_Address(%i)
+
+      @t_System_Message_Proc_Name          = "SYS_NET'i_Node_Number'D"
+      @t_System_Message_Proc_Source        = "sys_tool/Sys_NetD.scl"
+      @t_System_Message_Action_Name        = "SYS_NET'i_Node_Number'D"
+      @i_Max_Secondary_Object_Count        = 10
+      @i_NET_System_Message_Address        = 6000 + %i_Node_Number
+      @t_NET_System_Message_Pobj_Name      = "SYS_NETD"
+      @t_NET_System_Message_Pobj_Index     = %i_Node_Number
+      @t_NET_System_Message_Pobj_Comment   = "NET 'i_Node_Number' Diagnostics"
+      @t_NET_System_Message_Action_Comment = "NET 'i_Node_Number' Diagnostics"
+      @t_NET_System_Message_Proc_Comment   = "NET 'i_Node_Number' Diagnostics"
+      @t_NET_System_Message_Group_Comment  = "NET Diagnostics"
+
+      ; Create application initialisation command procedure, if not exist. Otherwise modify its contents
+      @l_Obj = fetch(0, "C", %t_Init_Proc_Name)
+      #if l_Obj:vIU == -1 #then #create 't_Init_Proc_Name':C = list()
+   
+      #modify 't_Init_Proc_Name':C = list(-
+         IU = 1,-
+         IN = read_text(%t_Init_Proc_Source),-
+         CM = %t_Init_Proc_Comment)
+         
+      ; Connect application initialisation command procedure to APL_INIT_1:A or (APL_INIT_1:A and APL_INIT_H:A)
+      #loop_with i_Count = 1 .. SYS:BSH + 1
+
+         #if %i_Count == 1 #then @t_Event_Init_Proc_Name = "APL_INIT_1"
+            #else @t_Event_Init_Proc_Name = "APL_INIT_H"
+
+         @l_Obj = fetch(0, "A", %t_Event_Init_Proc_Name)
+         #if l_Obj:vIU == -1 #then #create 't_Event_Init_Proc_Name':A = list(OT = "C", ON = %t_Event_Init_Proc_Name)
+   
+         @l_Obj = fetch(0, "C", %t_Event_Init_Proc_Name)
+         #if l_Obj:vIU == -1 #then #create 't_Event_Init_Proc_Name':C = list()
+
+         @v_Activated_Objects = 't_Event_Init_Proc_Name':ASN
+         @v_Activated_Object_Types = 't_Event_Init_Proc_Name':AST
+
+         #if length(select(%v_Activated_Objects, "==%t_Init_Proc_Name")) == 0 #then #block
+
+            #if length(%v_Activated_Objects) == %i_Max_Secondary_Object_Count #then #block
+
+               @t_Removed_Object = %v_Activated_Objects(%i_Max_Secondary_Object_Count)
+               @t_Removed_Type = %v_Activated_Object_Types(%i_Max_Secondary_Object_Count)
+               @i_Status = do(read_text("sys_tool/MsgLog.scl"), "INFO", "Last object ('t_Removed_Object':'t_Removed_Type') was removed from the secondary object list of 't_Event_Init_Proc_Name':A")
+               @v_Activated_Objects = delete_element(%v_Activated_Objects, %i_Max_Secondary_Object_Count)
+               @v_Activated_Object_Types = delete_element(%v_Activated_Object_Types, %i_Max_Secondary_Object_Count)
+            
+            #block_end
+            #modify 't_Event_Init_Proc_Name':A = list(SN = append(vector(%t_Init_Proc_Name), %v_Activated_Objects),-
+                                                      ST = append(vector("C"), %v_Activated_Object_Types))
+         #block_end
+         #modify 't_Event_Init_Proc_Name':A = list(IU = 1)
+
+      #loop_end
+   
+;;      ; Connect application initialisation command procedure to APL_INIT_1:A
+;;      @l_Obj = fetch(0, "A", "APL_INIT_1")
+;;      #if l_Obj:vIU == -1 #then #create APL_INIT_1:A = list(OT = "C", ON = "APL_INIT_1")
+;;   
+;;      @l_Obj = fetch(0, "C", "APL_INIT_1")
+;;      #if l_Obj:vIU == -1 #then #create APL_INIT_1:C = list()
+;;
+;;      @v_Activated_Objects = APL_INIT_1:ASN
+;;      @v_Activated_Object_Types = APL_INIT_1:AST
+;;
+;;      #if length(select(%v_Activated_Objects, "==%t_Init_Proc_Name")) == 0 #then #block
+;;
+;;         #if length(%v_Activated_Objects) == %i_Max_Secondary_Object_Count #then #block
+;;
+;;            @t_Removed_Object = %v_Activated_Objects(%i_Max_Secondary_Object_Count)
+;;            @t_Removed_Type = %v_Activated_Object_Types(%i_Max_Secondary_Object_Count)
+;;            @i_Status = do(read_text("sys_tool/MsgLog.scl"), "INFO", "Last object ('t_Removed_Object':'t_Removed_Type') was removed from the secondary object list of APL_INIT_1:A")
+;;            @v_Activated_Objects = delete_element(%v_Activated_Objects, %i_Max_Secondary_Object_Count)
+;;            @v_Activated_Object_Types = delete_element(%v_Activated_Object_Types, %i_Max_Secondary_Object_Count)
+;;
+;;         #block_end
+;;         #modify APL_INIT_1:A = list(SN = append(vector(%t_Init_Proc_Name), %v_Activated_Objects),-
+;;                                     ST = append(vector("C"), %v_Activated_Object_Types))
+;;      #block_end
+;;      #modify APL_INIT_1:A = list(IU = 1)
+
+      ; Create NET system message command procedure
+      @l_Obj = fetch(0, "C", %t_System_Message_Proc_Name)
+      #if l_Obj:vIU == -1 #then #create 't_System_Message_Proc_Name':C = list(LN = %t_System_Message_Proc_Name)
+   
+      #modify 't_System_Message_Proc_Name':C = list(-
+         IU = 1,-
+         IN = read_text(%t_System_Message_Proc_Source),-
+         CM = %t_NET_System_Message_Proc_Comment)
+   
+      ; Create NET system message event channel
+      @l_Obj = fetch(0, "A", %t_System_Message_Action_Name)
+      @v_Previous_SN = vector()
+      @v_Previous_ST = vector()
+      #if l_Obj:vIU <> -1 #then #block
+         @v_Previous_SN = 't_System_Message_Action_Name':ASN
+         @v_Previous_ST = 't_System_Message_Action_Name':AST
+         #delete 't_System_Message_Action_Name':A
+      #block_end
+      #create 't_System_Message_Action_Name':A = list(LN = %t_System_Message_Action_Name,-
+         ON = %t_System_Message_Proc_Name,-
+         OT = "C",-
+         SN = %v_Previous_SN,-
+         ST = %v_Previous_ST,-
+         CM = %t_NET_System_Message_Action_Comment)
+   
+      ; Create scale with name 1_1, if it does not exist
+      @l_Xobj = fetch(0, "X", "1_1")
+      #if l_Xobj:vIU == -1 #then #create 1_1:X = list(SA = 0)
+   
+      ; Create NET system message p-object, or modify action if already exists
+      ; if object with right address exists under different name (e.g. LIB name) - modify actions
+      @l_Pobj = phys_fetch(0, 0, %i_NET_System_Message_Address)
+
+      #if l_Pobj:vIU >= 0 #then #block
+   
+         #if l_Pobj:vLN <> %t_NET_System_Message_Pobj_Name #then #block
+
+            @t_Prev_Action_Name = 'l_Pobj:vLN':PAN(l_Pobj:vIX)
+
+            #if %t_Prev_Action_Name > "" and %t_Prev_Action_Name <> %t_System_Message_Action_Name #then #block
+
+               @l_Aobj = fetch(0, "A", %t_Prev_Action_Name)
+
+               #if l_Aobj:vIU >= 0 #then #block
+
+                  @v_Activated_Objects = append(vector('t_Prev_Action_Name':AON), 't_Prev_Action_Name':ASN)
+                  @v_Activated_Object_Types = append(vector('t_Prev_Action_Name':AOT), 't_Prev_Action_Name':AST)
+
+                  #if length(%v_Activated_Objects) > %i_Max_Secondary_Object_Count #then #block
+
+                     @v_Activated_Objects = %v_Activated_Objects(1 .. %i_Max_Secondary_Object_Count)
+                     @v_Activated_Object_Types = %v_Activated_Object_Types(1 .. %i_Max_Secondary_Object_Count)
+
+                  #block_end
+
+                  #modify 't_System_Message_Action_Name':A = list(-
+                     SN = %v_Activated_Objects,-
+                     ST = %v_Activated_Object_Types)
+
+               #block_end
+
+            #block_end
+
+         #block_end
+   
+         ;if object with right address exists under right name but wrong index - delete object
+         #else #if l_Pobj:vIX <> %t_NET_System_Message_Pobj_Index #then #delete 'l_Pobj:vLN':P(l_Pobj:vIX)
+   
+      #block_end
+   
+      ; If neither address nor right name/index exists - create object
+      @l_Pobj = phys_fetch(0, 0, %i_NET_System_Message_Address)
+
+      #if l_Pobj:vIU == -1 #then #block
+
+         @l_Pobj = fetch(0, "P", %t_NET_System_Message_Pobj_Name, %t_NET_System_Message_Pobj_Index)
+
+         #if l_Pobj:vIU == -1 #then #block
+
+            #create 't_NET_System_Message_Pobj_Name':P(%t_NET_System_Message_Pobj_Index) = list(-
+               LN = %t_NET_System_Message_Pobj_Name,-
+               IX = %t_NET_System_Message_Pobj_Index,-
+               PT = 9,-
+               AI = 0,-
+               IU = 1,-
+               SN = "1_1",-
+               DX = "9")
+            #modify l_Pobj:v = list(LN = %t_NET_System_Message_Pobj_Name,-
+                                    IX = %t_NET_System_Message_Pobj_Index)
+            #set 't_NET_System_Message_Pobj_Name':PGC = %t_NET_System_Message_Group_Comment
+
+         #block_end
+
+      #block_end
+   
+      ; Modify object
+      #modify 'l_Pobj:vLN':P(l_Pobj:vIX) = list(-
+         CX = %t_NET_System_Message_Pobj_Comment,-
+         UN = 0,-
+         OA = %i_NET_System_Message_Address,-
+         SS = 2,-
+         AN = %t_System_Message_Action_Name,-
+         AE = 1,-
+         AA = 2,-
+         AF = 1,-
+         SN = "1_1",-
+         RI = %i_Node_Number)
+
+   #block_end
+
+#loop_end
+
+; Delete all the previous command procedures done by the System Configuration Tool, which are not relavant to
+; the active configuration files.
+@l_Command_Procedures = application_object_list(0, "C", "A", "F", "", "LN==""SYS_NET*""")
+@v_Existing = l_Command_Procedures:vLN
+@v_Node_Numbers = vector()
+
+#loop_with i = 1 .. l_Command_Procedures:vCOUNT
+
+   #if substr(l_Command_Procedures:vLN(1), length(l_Command_Procedures:vLN(1)), 0) == "D" #then #block
+
+      @i_Status = status
+      #error ignore
+         @i_Test = dec_scan(substr(substr(l_Command_Procedures:vLN(%i), 8, 0), 1, length(substr(l_Command_Procedures:vLN(%i), 8, 0)) - 1))
+      #error stop
+      #if status == 0 #then @v_Node_Numbers = append(%v_Node_Numbers, dec_scan(substr(substr(l_Command_Procedures:vLN(%i), 8, 0), 1, length(substr(l_Command_Procedures:vLN(%i), 8, 0)) - 1)))
+
+   #block_end
+
+#loop_end
+
+#loop_with i = 1 .. length(%v_Node_Numbers)
+
+   @t_This_Node = %v_Node_Numbers(%i)
+   @t_This_LN = l_Command_Procedures:vLN(%i)
+   #if length(select(l_PCNET_Node_Info:vv_Node_Number, "==%t_This_Node")) == 0 #then #delete 't_This_LN':C
+
+#loop_end
+
+; Delete all the previous event channels done by the System Configuration Tool, which are not relavant to
+; the active configuration files.
+@l_Event_Channels = application_object_list(0, "A", "A", "F", "", "LN==""SYS_NET*""")
+@v_Existing = l_Event_Channels:vLN
+@v_Node_Numbers = vector()
+
+#loop_with i = 1 .. l_Event_Channels:vCOUNT
+
+   #if substr(l_Event_Channels:vLN(1), length(l_Event_Channels:vLN(1)), 0) == "D" #then #block
+
+      @i_Status = status
+      #error ignore
+         @i_Test = dec_scan(substr(substr(l_Event_Channels:vLN(%i), 8, 0), 1, length(substr(l_Event_Channels:vLN(%i), 8, 0)) - 1))
+      #error stop
+      #if status == 0 #then @v_Node_Numbers = append(%v_Node_Numbers, dec_scan(substr(substr(l_Event_Channels:vLN(%i), 8, 0), 1, length(substr(l_Event_Channels:vLN(%i), 8, 0)) - 1)))
+
+   #block_end
+
+#loop_end
+
+#loop_with i = 1 .. length(%v_Node_Numbers)
+
+   @t_This_Node = %v_Node_Numbers(%i)
+   @t_This_LN = l_Event_Channels:vLN(%i)
+   #if length(select(l_PCNET_Node_Info:vv_Node_Number, "==%t_This_Node")) == 0 #then #delete 't_This_LN':A
+
+#loop_end

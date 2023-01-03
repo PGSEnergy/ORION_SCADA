@@ -1,0 +1,520 @@
+#local iAplNr = 0
+;resolve LN groups from creted process objects
+@v_Process_Objects = vector
+@v_Process_Objects = argument(1)
+#if length(%v_Process_Objects) == 0 #then #return
+
+#if argument_count > 1 #then iAplNr = argument(2)
+
+#loop_with i = 1 .. length(%v_Process_Objects)
+   @v_LNs(%i) = %v_Process_Objects(%i).LN
+#loop_end
+@v_LNs = remove_duplicates(%v_LNs)
+
+;.load dlg_Progress_SA = vs_dialog("Sys_Tool/Progress.vso", "PROGRESS",-
+;   _title = "SA LIB database model check",-
+;   _leader_dialog = "ROOT",-
+;   t_General_Description = "",-
+;   t_Specific_Description = "",-
+;   i_Max_Count = length(%v_LNs),-
+;   b_Stop_Enabled = FALSE)
+
+;dlg_Progress_SA._place("ROOT", "PLACE_CENTER", "PLACE_CENTER")
+
+;dlg_Progress_SA.Clear_Count
+;.set dlg_Progress_SA._open = TRUE
+;read in apl:bsv15
+@Apl_Bsv15 = apl:bsv15
+@l_Tmp = Apl_Bsv15:vprocess_objects
+@l_OI = l_Tmp:VOI
+
+;init variables
+@i_Special_ID = 1
+@i_OI_Start_STA = 0
+@i_OI_Start_BAY = 0
+@i_OI_Start_DEV = 0
+@i_OI_Start_SPECIAL1 = 0
+@i_OI_Start_SPECIAL2 = 0
+@i_OI_Start_SPECIAL3 = 0
+
+#loop_with i = 1 .. 5
+
+   @i_OI_'i' = l_OI:vlength'i'
+   #if %i == 1 #then @i_OI_Length = %i_OI_'i'
+   
+   #if %i_OI_'i' > 0 #then #block
+   
+      @t_ID = l_OI:vField'i'(1)
+      #if %t_ID == "STA" #then #block
+         @i_OI_Length_STA = l_OI:vlength'i'
+         #if %i == 1 #then @i_OI_Start_STA = 1
+         #else @i_OI_Start_STA = %i_OI_Length + 1
+      #block_end
+      #else_if %t_ID == "BAY" #then #block
+         @i_OI_Length_BAY = l_OI:vlength'i'
+         @i_OI_Start_BAY = %i_OI_Length + 1
+      #block_end
+      #else_if %t_ID == "DEV" #then #block
+         @i_OI_Length_DEV = l_OI:vlength'i'
+         @i_OI_Start_DEV = %i_OI_Length + 1
+      #block_end
+      #else #block
+         @i_OI_Length_SPECIAL'i_Special_ID' = l_OI:vlength'i'
+         #if %i == 1 #then @i_OI_Start_SPECIAL'i_Special_ID' = 1
+         #else @i_OI_Start_SPECIAL'i_Special_ID' = %i_OI_Length + 1
+         @i_Special_ID = %i_Special_ID + 1
+      #block_end
+      
+   #block_end
+   
+   #if %i <> 1 #then @i_OI_Length = %i_OI_Length + %i_OI_'i'
+   
+#loop_end
+
+#loop_with i = 1 .. length(%v_LNs)
+
+   @t_LN = %v_LNs(%i)
+   ;@l_P_objects = application_object_list(0, "IX", "A", "FORWARD", "", "LN==""'t_LN'""", vector("PF","RX","OI","DX","PT"))
+   @l_P_objects = application_object_list(iAplNr, "IX", "I", "FORWARD", %t_LN, "", vector("PF","RX","OI","DX","PT"))
+
+   ;dlg_Progress_SA.Update_Information("Modifying database to SA LIB compatible ...", "'t_LN'", length(%v_LNs))
+   ;dlg_Progress_SA.Set_Count(%i)
+   ;.flush
+   
+   #loop_with ii = 1 .. l_P_objects:VCOUNT
+      
+      #if substr(l_P_objects:VRX(%ii),21,2) == "FP" #then #block   ;sa lib process functions
+      
+         @t_LN = l_P_objects:VLN(%ii)
+         @i_IX = l_P_objects:VIX(%ii)
+         @t_OI = l_P_objects:VOI(%ii)
+         @t_RX = l_P_objects:VRX(%ii)
+         @t_PF = l_P_objects:VPF(%ii)
+         @t_DX = l_P_objects:VDX(%ii)
+         @i_PT = l_P_objects:VPT(%ii)
+   
+         @t_Device = edit(substr(%t_RX, 11, 10), "RIGHT_TRIM")
+         
+         #case substr(%t_DX, 1, 1)
+            #when "N" @t_Station_type = "SPA"
+            #when "X" @t_Station_type = "LON"
+            #when "I" @t_Station_type = "RTU"
+            #when "R" @t_Station_type = "RTU_E"
+            #when "D" @t_Station_type = "DNP_30"
+            #when "E" @t_Station_type = "IEC61850"
+            #when "C" @t_Station_type = "IEC101"
+            #when "O" @t_Station_type = "PROCOL"
+            #otherwise @t_Station_type = "ANSI"
+         #case_end
+         
+         #case substr(%t_RX,23,1)
+            #when "A" #block  ;station, bay
+               #case substr(%t_RX,24,3)
+               
+                  #when "BAY" #block
+                  
+                     @l_Conf_Data = do(BGU_CREATEDB:C,"SAGR_INST/SAI_BAY2.DAT", "GET_DEFAULTS")
+                     
+                     @v_U_Other(1) = "@U_OTHER_OBJECTS = LIST(-"
+                     @v_U_Other(2) = "STATION_LN = """",-"
+                     @v_U_Other(3) = "BAY_LN     = """",-"
+                     @v_U_Other(4) = "#RETURN %U_OTHER_OBJECTS"
+                     
+                     #modify l_Conf_Data:v = list(-
+                        P_OBJECT_LN = %t_LN,-
+                        STATION_NAME = edit(substr(%t_OI, %i_OI_Start_STA, %i_OI_Length_STA), "RIGHT_TRIM"),-
+                        BAY_NAME = edit(substr(%t_OI, %i_OI_Start_BAY, %i_OI_Length_BAY), "RIGHT_TRIM"),-
+                        CONFIG_DATA_FILE = "SAGR_INST/SAI_BAY2.DAT",-
+                        BAY_LR_POLARITY = "L1",-
+                        IND_DOUBLE_BINARY = FALSE,-
+                        U_OTHER_OBJECTS = %v_U_Other,-
+                        TYPE_PF = "SAGR_BAY",-
+                        STATION_TYPE = %t_Station_type)
+                        
+                     #if %i_IX == 10 #then #block
+                        #case %i_PT
+                           #when 3 #block
+                              #modify l_Conf_Data:v = list(IND_DOUBLE_BINARY = FALSE)
+                           #block_end
+                           #when 9 #block
+                              #modify l_Conf_Data:v = list(IND_DOUBLE_BINARY = FALSE, IND_ANALOG_INPUT = TRUE)
+                           #block_end
+                           #when 12 #block
+                              ;this is default
+                              #modify l_Conf_Data:v = list(IND_DOUBLE_BINARY = TRUE, IND_ANALOG_INPUT = FALSE)
+                           #block_end
+                        #case_end
+                     #block_end
+                     
+                     ;*** Device specific start ***
+                     #case %t_Device
+                        #when "MY_DEVICE1" #block
+                        #block_end
+                     #case_end
+                     ;*** Device specific end   ***
+                        
+                     #set 't_LN':PCD = %l_Conf_Data
+                     #loop_exit
+                     
+                  #block_end
+                  #when "STA" #block
+                     @l_Conf_Data = do(BGU_CREATEDB:C,"SAGR_INST/SAI_STA2.DAT", "GET_DEFAULTS")
+               
+                     @v_U_Other(1) = "@U_OTHER_OBJECTS = LIST(-"
+                     @v_U_Other(2) = "STATION_LN = """",-"
+                     @v_U_Other(3) = "#RETURN %U_OTHER_OBJECTS"
+
+                     #modify l_Conf_Data:v = list(-
+                        P_OBJECT_LN = %t_LN,-
+                        STATION_NAME =edit(substr(%t_OI, %i_OI_Start_STA, %i_OI_Length_STA), "RIGHT_TRIM"),-
+                        CONFIG_DATA_FILE = "SAGR_INST/SAI_STA2.DAT",-
+                        IND_DOUBLE_BINARY = FALSE,-
+                        U_OTHER_OBJECTS = %v_U_Other,-
+                        TYPE_PF = "SAGR_STA",-
+                        STATION_TYPE = %t_Station_type)
+                        
+                        
+                     ;*** Device specific start ***
+                     #case %t_Device
+                        #when "MY_DEVICE1" #block
+                        #block_end
+                     #case_end
+                     ;*** Device specific end   ***
+                     
+                     #set 't_LN':PCD = %l_Conf_Data
+                  #block_end
+                  
+               #case_end
+               
+            #block_end
+            #when "F" #block  ;protection relays
+            #block_end
+            #when "P" #block  ;measurements
+               
+               @l_Conf_Data = do(BGU_CREATEDB:C,"SAGR_INST/SAI_ME1.DAT", "GET_DEFAULTS")
+               
+               @v_U_Other(1) = "@U_OTHER_OBJECTS = LIST(-"
+               @v_U_Other(2) = "STATION_LN = """",-"
+               @v_U_Other(3) = "BAY_LN     = """",-"
+               @v_U_Other(4) = "#RETURN %U_OTHER_OBJECTS"
+
+               @v_Meas_Type = vector               
+               #loop_with iii = 1 .. length(l_P_objects:VIX)
+                  @i_Tmp_IX = l_P_objects:VIX(%iii)
+                  #case %i_Tmp_IX
+                     
+                     #when 10,11,12 @v_Meas_Type(%iii) = "CUR000'i_Tmp_IX'"
+                     #when 13 @v_Meas_Type(%iii) = "NCU000'i_Tmp_IX'"
+                     #when 14 @v_Meas_Type(%iii) = "DNC000'i_Tmp_IX'"
+                     #when 15 @v_Meas_Type(%iii) = "MDC000'i_Tmp_IX'"
+                     #when 16,17,18 @v_Meas_Type(%iii) = "VOL000'i_Tmp_IX'"
+                     #when 19 @v_Meas_Type(%iii) = "RVL000'i_Tmp_IX'"
+                     #when 20 @v_Meas_Type(%iii) = "APW000'i_Tmp_IX'"
+                     #when 21 @v_Meas_Type(%iii) = "RPW000'i_Tmp_IX'"
+                     #when 22 @v_Meas_Type(%iii) = "APP000'i_Tmp_IX'"
+                     #when 23 @v_Meas_Type(%iii) = "COS000'i_Tmp_IX'"
+                     #when 24 @v_Meas_Type(%iii) = "FRQ000'i_Tmp_IX'"
+                     #when 25 @v_Meas_Type(%iii) = "HDS000'i_Tmp_IX'"
+                     #when 26 @v_Meas_Type(%iii) = "TMP000'i_Tmp_IX'"
+                     #when 27,28,29,30,31,32,33,34,35,36,37 @v_Meas_Type(%iii) = "XXX000'i_Tmp_IX'"
+                     #when 38,39,40,41,42,43 @v_Meas_Type(%iii) = "AEN000'i_Tmp_IX'"
+                     #when 44,45,46,47,48,49 @v_Meas_Type(%iii) = "REN000'i_Tmp_IX'"
+                     #when 50,51,52,53 @v_Meas_Type(%iii) = "VOL000'i_Tmp_IX'"
+                  #case_end
+                  
+               #loop_end
+               
+               #if length(l_P_objects:VIX) <= 4 #then #block
+               
+                  @l_CD_Data = list
+                  @TYPE_MEAS_1 = ""
+                  @TYPE_MEAS_2 = ""
+                  @TYPE_MEAS_3 = ""
+                  @TYPE_MEAS_4 = ""
+                  @FOLDER_1_TITLE = ""
+                  @FOLDER_2_TITLE = ""
+                  @FOLDER_3_TITLE = ""
+                  @FOLDER_4_TITLE = ""
+                  
+                  @P_Object_indexes = vector
+                  #loop_with iii = 1 .. length(%v_Meas_Type)
+                     @TYPE_MEAS_'iii' = %v_Meas_Type(%iii)
+                     @i_Index = dec_scan(substr(%TYPE_MEAS_'iii',length(%TYPE_MEAS_'iii')-2,0))
+                     @P_Object_indexes = append(%P_Object_indexes, %i_Index)
+                     @FOLDER_'iii'_TITLE = 't_LN':POX'i_Index'
+                  #loop_end
+               
+                  #modify l_Conf_Data:v = list(-
+                     P_OBJECT_LN = %t_LN,-
+                     P_OBJECT_INDEXES = %P_Object_indexes,-
+                     STATION_NAME = edit(substr(%t_OI, %i_OI_Start_STA, %i_OI_Length_STA), "RIGHT_TRIM"),-
+                     BAY_NAME = edit(substr(%t_OI, %i_OI_Start_BAY, %i_OI_Length_BAY), "RIGHT_TRIM"),-
+                     CONFIG_DATA_FILE = "SAGR_INST/SAI_ME1.DAT",-
+                     FOLDER_1_TITLE = %FOLDER_1_TITLE,-
+                     FOLDER_2_TITLE = %FOLDER_2_TITLE,-
+                     FOLDER_3_TITLE = %FOLDER_3_TITLE,-
+                     FOLDER_4_TITLE = %FOLDER_4_TITLE,-
+                     TYPE_MEAS_1 = %TYPE_MEAS_1,-
+                     TYPE_MEAS_2 = %TYPE_MEAS_2,-
+                     TYPE_MEAS_3 = %TYPE_MEAS_3,-
+                     TYPE_MEAS_4 = %TYPE_MEAS_4,-
+                     U_OTHER_OBJECTS = %v_U_Other,-
+                     TYPE_PF = "SAGR_MEA",-
+                     STATION_TYPE = %t_Station_type)
+
+                     #modify l_CD_Data:v = %l_Conf_Data
+                  #block_end
+                  #else #block
+                  
+                     @v_Group1 = vector
+                     @v_Group1 = select(substr(%v_Meas_Type, 1, 3),"==""CUR""")
+                     @v_Neutral = select(substr(%v_Meas_Type, 1, 3),"==""NCU""")
+                     #if length(%v_Neutral) > 0 #then @v_Group1 = append(%v_Group1, %v_Neutral(1))
+                     
+                     @v_Group2 = vector
+                     @v_Group2 = select(substr(%v_Meas_Type, 1, 3),"==""VOL""")
+                     @v_Residual = select(substr(%v_Meas_Type, 1, 3),"==""RVL""")
+                     #if length(%v_Residual) > 0 #then @v_Group2 = append(%v_Group2, %v_Residual(1))
+                     
+                     @v_Group3 = vector
+                     @v_Power = select(substr(%v_Meas_Type, 1, 3),"==""APW""")
+                     #if length(%v_Power) > 0 #then @v_Group3 = append(%v_Group3, %v_Power(1))
+                     @v_Power = select(substr(%v_Meas_Type, 1, 3),"==""RPW""")                     
+                     #if length(%v_Power) > 0 #then @v_Group3 = append(%v_Group3, %v_Power(1))
+                     @v_Power = select(substr(%v_Meas_Type, 1, 3),"==""APP""")
+                     #if length(%v_Power) > 0 #then @v_Group3 = append(%v_Group3, %v_Power(1))
+                     @v_Power = select(substr(%v_Meas_Type, 1, 3),"==""COS""")
+                     #if length(%v_Power) > 0 #then @v_Group3 = append(%v_Group3, %v_Power(1))
+                     
+                     @v_Group4 = vector
+                     @v_Misc_Function = select(substr(%v_Meas_Type, 1, 3),"==""FRQ""")
+                     #if length(%v_Misc_Function) > 0 #then @v_Group4 = append(%v_Group4, %v_Misc_Function(1))
+                     @v_Misc_Function = select(substr(%v_Meas_Type, 1, 3),"==""HDS""")
+                     #if length(%v_Misc_Function) > 0 #then @v_Group4 = append(%v_Group4, %v_Misc_Function(1))
+                     @v_Misc_Function = select(substr(%v_Meas_Type, 1, 3),"==""TMP""")
+                     #if length(%v_Misc_Function) > 0 #then @v_Group4 = append(%v_Group4, %v_Misc_Function(1))
+                     
+                     @v_Group5 = vector
+                     @v_Group6 = vector
+                     @v_Group5 = select(substr(%v_Meas_Type, 1, 3),"==""XXX""")
+                     #if length(%v_Group5) > 3 #then @v_Group6 = %v_Group5(4..)
+                     
+                     @v_Group7 = vector
+                     @v_Group8 = vector
+                     @v_Group7 = select(substr(%v_Meas_Type, 1, 3),"==""AEN""")
+                     #if length(%v_Group7) > 3 #then @v_Group8 = %v_Group7(4..)
+                     
+                     @v_Group9 = vector
+                     @v_Group10 = vector
+                     @v_Group9 = select(substr(%v_Meas_Type, 1, 3),"==""REN""")
+                     #if length(%v_Group9) > 3 #then @v_Group10 = %v_Group9(4..)
+                     
+                     @l_CD_Data = list
+                     
+                     #modify l_Conf_Data:v = list(-
+                           P_OBJECT_LN = %t_LN,-
+                           STATION_NAME = edit(substr(%t_OI, %i_OI_Start_STA, %i_OI_Length_STA), "RIGHT_TRIM"),-
+                           BAY_NAME = edit(substr(%t_OI, %i_OI_Start_BAY, %i_OI_Length_BAY), "RIGHT_TRIM"),-
+                           CONFIG_DATA_FILE = "SAGR_INST/SAI_ME1.DAT",-
+                           U_OTHER_OBJECTS = %v_U_Other,-
+                           TYPE_PF = "SAGR_MEA",-
+                           STATION_TYPE = %t_Station_type)
+                     
+                     @i_Group_count = 1      
+                     #loop_with iii = 1 .. 10
+                     
+                        #if length(%v_Group'iii') > 0 #then #block
+                        
+                           
+                           @TYPE_MEAS_1 = ""
+                           @TYPE_MEAS_2 = ""
+                           @TYPE_MEAS_3 = ""
+                           @TYPE_MEAS_4 = ""
+                           @FOLDER_1_TITLE = ""
+                           @FOLDER_2_TITLE = ""
+                           @FOLDER_3_TITLE = ""
+                           @FOLDER_4_TITLE = ""
+
+                           @P_Object_indexes = vector
+                           #loop_with iiii = 1 .. length(%v_Group'iii')
+                              @TYPE_MEAS_'iiii' = %v_Meas_Type(%v_Group'iii'(%iiii))
+                              @i_Index = dec_scan(substr(%TYPE_MEAS_'iiii',length(%TYPE_MEAS_'iiii')-2,0))
+                              @P_Object_indexes = append(%P_Object_indexes, %i_Index)
+                              @FOLDER_'iiii'_TITLE = 't_LN':POX'i_Index'
+                           #loop_end
+                           
+                           
+                           #modify l_Conf_Data:v = list(-
+                           P_OBJECT_INDEXES = %P_Object_indexes,-
+                           FOLDER_1_TITLE = %FOLDER_1_TITLE,-
+                           FOLDER_2_TITLE = %FOLDER_2_TITLE,-
+                           FOLDER_3_TITLE = %FOLDER_3_TITLE,-
+                           FOLDER_4_TITLE = %FOLDER_4_TITLE,-
+                           TYPE_MEAS_1 = %TYPE_MEAS_1,-
+                           TYPE_MEAS_2 = %TYPE_MEAS_2,-
+                           TYPE_MEAS_3 = %TYPE_MEAS_3,-
+                           TYPE_MEAS_4 = %TYPE_MEAS_4)
+                           #set l_CD_Data:VL_CD'i_Group_count' = %l_Conf_Data
+                           
+                           @i_Group_count = %i_Group_count + 1
+                        #block_end
+
+                     #loop_end
+                                      
+                  #block_end
+                  
+                  #if %i_OI_Start_DEV > 0 #then #modify l_Conf_Data:v = list(-
+                    DEVICE_NAME = substr(%t_OI, %i_OI_Start_DEV, %i_OI_Length_DEV))
+                     
+                  #if %i_OI_Start_SPECIAL1 > 0 #then #modify l_Conf_Data:v = list(-
+                    SPECIAL_IDENTIFIER_1 = substr(%t_OI,%i_OI_Start_SPECIAL1, %i_OI_Length_SPECIAL1))
+
+                  #if %i_OI_Start_SPECIAL2 > 0 #then #modify l_Conf_Data:v = list(-
+                    SPECIAL_IDENTIFIER_2 = substr(%t_OI,%i_OI_Start_SPECIAL2, %i_OI_Length_SPECIAL2))
+
+                  #if %i_OI_Start_SPECIAL3 > 0 #then #modify l_Conf_Data:v = list(-
+                    SPECIAL_IDENTIFIER_3 = substr(%t_OI,%i_OI_Start_SPECIAL3, %i_OI_Length_SPECIAL3))
+                  
+                  ;*** Device specific start ***
+                  #case %t_Device
+                     #when "MY_DEVICE1" #block
+                     #block_end
+                  #case_end
+                  ;*** Device specific end   ***
+                  
+                  #modify l_CD_Data:v = list(CREATED_BY = "SA_LIB")
+                  #set 't_LN':PCD = %l_CD_Data
+                  #loop_exit
+               
+            #block_end
+            #when "Q" #block  ;switch devices
+            
+               @l_Conf_Data = do(BGU_CREATEDB:C,"SAGR_INST/SAI_SSW.DAT", "GET_DEFAULTS")
+               
+               @v_U_Other(1) = "@U_OTHER_OBJECTS = LIST(-"
+               @v_U_Other(2) = "STATION_LN = """",-"
+               @v_U_Other(3) = "BAY_LN     = """",-"
+               @v_U_Other(4) = "AR_LN      = """",-"
+               @v_U_Other(5) = "TRIP_LN    = """")"
+               @v_U_Other(6) = "#RETURN %U_OTHER_OBJECTS"
+               
+               @t_Object_type = ""
+               @t_Motorized = TRUE
+               @t_Indication_Type = "DB"
+               
+               #case %t_Station_type
+                  #when "IEC61850" #block
+                     @t_Control_Type = "SEC-5AO"
+                     #loop_with iii = 1 .. %l_P_objects.Count
+                        @iTmpIX = %l_P_objects.IX(%iii)
+                        #if substr('t_LN':prx'iTmpIX', 27, 4) == "TAEC" #then #block
+                           #modify l_Conf_Data:v = list(ADD_CAUSE_IX = %iTmpIX)
+                           #loop_exit
+                        #block_end
+                     #loop_end
+                  #block_end
+               #case_end  
+               
+               #modify l_Conf_Data:v = list(-
+                  P_OBJECT_LN = %t_LN,-
+                  SWITCHING_DEVICE_TYPE = substr(%t_RX, 23, 2),-
+                  SWITCHING_DEVICE_PURPOSE = substr(%t_RX, 25, 2),-
+                  CONTROL_TYPE = %t_Control_Type,-
+                  MOTORIZED = %t_Motorized,-
+                  INDICATION_TYPE = %t_Indication_Type,-
+                  STATION_NAME = edit(substr(%t_OI, %i_OI_Start_STA, %i_OI_Length_STA), "RIGHT_TRIM"),-
+                  BAY_NAME = edit(substr(%t_OI, %i_OI_Start_BAY, %i_OI_Length_BAY), "RIGHT_TRIM"),-
+                  BAY_LR_POLARITY = "L1",-
+                  CONFIG_DATA_FILE = "SAGR_INST/SAI_SSW.DAT",-
+                  LIB_OBJECT_TYPE = %t_Object_type,-
+                  U_OTHER_OBJECTS = %v_U_Other,-
+                  TYPE_PF = "SAGR_SW",-
+                  STATION_TYPE = %t_Station_type)
+                  
+               #if %i_OI_Start_DEV > 0 #then #modify l_Conf_Data:v = list(-
+                    DEVICE_NAME = edit(substr(%t_OI, %i_OI_Start_DEV, %i_OI_Length_DEV), "RIGHT_TRIM"))
+                     
+                  #if %i_OI_Start_SPECIAL1 > 0 #then #modify l_Conf_Data:v = list(-
+                    SPECIAL_IDENTIFIER_1 = edit(substr(%t_OI,%i_OI_Start_SPECIAL1, %i_OI_Length_SPECIAL1), "RIGHT_TRIM"))
+
+                  #if %i_OI_Start_SPECIAL2 > 0 #then #modify l_Conf_Data:v = list(-
+                    SPECIAL_IDENTIFIER_2 = edit(substr(%t_OI,%i_OI_Start_SPECIAL2, %i_OI_Length_SPECIAL2), "RIGHT_TRIM"))
+                  #if %i_OI_Start_SPECIAL3 > 0 #then #modify l_Conf_Data:v = list(-
+                    SPECIAL_IDENTIFIER_3 = edit(substr(%t_OI,%i_OI_Start_SPECIAL3, %i_OI_Length_SPECIAL3), "RIGHT_TRIM"))
+                  
+               #if l_Conf_Data:vSWITCHING_DEVICE_TYPE == "QS" #then #block
+                  #modify l_Conf_Data:v = list(SYNCHROCHECK_BYPASS = TRUE, SYN_IND_IX = 22)
+               #block_end
+               
+               ;*** Device specific start ***
+               #case %t_Device
+                  #when "MY_DEVICE1" #block
+                  #block_end
+               #case_end
+               ;*** Device specific end   ***
+                  
+               #set 't_LN':PCD = %l_Conf_Data
+               #loop_exit
+               
+            #block_end
+            #when "T" #block  ;transformers
+            
+               @l_Conf_Data = do(BGU_CREATEDB:C,"SAGR_INST/SAI_TRI_2.DAT", "GET_DEFAULTS")
+               
+               @v_U_Other(1) = "@U_OTHER_OBJECTS = LIST(-"
+               @v_U_Other(2) = "STATION_LN = """",-"
+               @v_U_Other(3) = "BAY_LN     = """",-"
+               @v_U_Other(4) = "#RETURN %U_OTHER_OBJECTS"
+
+               #modify l_Conf_Data:v = list(-
+                  P_OBJECT_LN = %t_LN,-
+                  STATION_NAME = edit(substr(%t_OI, %i_OI_Start_STA, %i_OI_Length_STA), "RIGHT_TRIM"),-
+                  BAY_NAME = edit(substr(%t_OI, %i_OI_Start_BAY, %i_OI_Length_BAY), "RIGHT_TRIM"),-
+                  AUTO_MANUAL_IND_TYPE = 1,-
+                  CONFIG_DATA_FILE = "SAGR_INST/SAI_TRI_2.DAT",-
+                  U_OTHER_OBJECTS = %v_U_Other,-
+                  TYPE_PF = "SAGR_TAP",-
+                  STATION_TYPE = %t_Station_type)
+                  
+               #if %i_OI_Start_DEV > 0 #then #modify l_Conf_Data:v = list(-
+                    DEVICE_NAME = edit(substr(%t_OI, %i_OI_Start_DEV, %i_OI_Length_DEV), "RIGHT_TRIM"))
+                     
+                  #if %i_OI_Start_SPECIAL1 > 0 #then #modify l_Conf_Data:v = list(-
+                    SPECIAL_IDENTIFIER_1 = edit(substr(%t_OI,%i_OI_Start_SPECIAL1, %i_OI_Length_SPECIAL1), "RIGHT_TRIM"))
+
+                  #if %i_OI_Start_SPECIAL2 > 0 #then #modify l_Conf_Data:v = list(-
+                    SPECIAL_IDENTIFIER_2 = edit(substr(%t_OI,%i_OI_Start_SPECIAL2, %i_OI_Length_SPECIAL2), "RIGHT_TRIM"))
+
+                  #if %i_OI_Start_SPECIAL3 > 0 #then #modify l_Conf_Data:v = list(-
+                    SPECIAL_IDENTIFIER_3 = edit(substr(%t_OI,%i_OI_Start_SPECIAL3, %i_OI_Length_SPECIAL3), "RIGHT_TRIM"))
+                  
+               ;*** Device specific start ***
+               #case %t_Device
+                  #when "MY_DEVICE1" #block
+                  #block_end
+               #case_end
+               ;*** Device specific end   ***
+                  
+               #set 't_LN':PCD = %l_Conf_Data
+               #loop_exit
+            #block_end
+         #case_end
+      #block_end
+      
+   #loop_end
+
+#loop_end
+
+;**  Set b_openTool = TRUE to open IEC 61850 communication configuration tool automatically in post import activities
+@b_openTool = FALSE
+#if %b_openTool #then #block
+
+   #error ignore
+   .delete DACONF
+   #error stop
+   .load DACONF = vs_main_dialog("sys_tool/OpcConf.vso", "MAIN", l_OPC_Items = %v_Process_Objects, _open = true)   
+
+#block_end
+;**
+
+@v_Process_Objects

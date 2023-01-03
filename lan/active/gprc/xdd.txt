@@ -1,0 +1,26 @@
+DRAW_DIAMOND
+
+@XM = %X+%W/2+1
+@YM = %Y+%H/2
+
+@ST = SYS_GPRC:VSHADOW_THICKNESS + 1
+@X1 = (%X       ,%XM      ,%X+%W    ,%XM)
+@Y1 = (%YM      ,%Y       ,%YM      ,%Y+%H)
+@X2 = (%X-%ST   ,%XM      ,%X+%W+%ST)
+@Y2 = (%YM      ,%Y-%ST   ,%YM      )
+@X3 = (%X-%ST   ,%XM      ,%X+%W+%ST)
+@Y3 = (%YM      ,%Y+%H+%ST,%YM      )
+
+.PEND ON
+.PUSH
+.GC : FG = ("M",%CC(1)), LS = "SOLID", LW = 0
+.POLYLINE %X2,%Y2,FILL
+.GC : FG = ("M",%CC(2))
+.POLYLINE %X3,%Y3,FILL
+.GC : FG = ("M",%CC(3))
+.POLYLINE %X1,%Y1,FILL
+.POP
+.PEND OFF
+
+
+

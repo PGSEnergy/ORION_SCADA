@@ -1,0 +1,18 @@
+;create mlib5_index.txt
+#local apl = APL:BNA
+#local v_libs, i, w, v_mlib5 = vector, l_info, t_file
+
+v_libs = DO(READ_TEXT("B5_BBONE/BGU_GET_LIBRARIES.SCL"))
+
+;append file contents to vector
+#loop_with i = 1 .. length(v_libs)
+	l_info = v_libs(I)
+	t_file = l_info.base_path  + "/INST/INDEX5.txt"
+	#if l_info.prepared #then #block	
+		#if FILE_MANAGER("EXISTS", FM_SCIL_FILE(t_file)) #then -
+			v_mlib5 = append(v_mlib5, read_text(t_file))
+	#block_end
+#loop_end
+
+;create path5.txt
+w = write_text("/APL/'apl'/PAR/APL/mlib5_index.txt", v_mlib5)

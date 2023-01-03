@@ -1,0 +1,854 @@
+﻿;OBJECT       : SAI_TRIP2.DAT
+;Copyright Hitachi Power Grids. All rights reserved.
+;
+;DESCRIPTION  : The configuration data file for the trip signal standard function
+;	                             
+;--------------------------------------------------------------------------------
+
+##FUNC_INIT_BEGIN
+
+@'.ID'_PICTURE_FUNCTION_CONF = LIST(-
+   CREATED_BY               = "SA_LIB",-
+   CONFIG_DATA_FILE         = "?CONF_FILE?",-
+   LIB_REVISION             = " 3.0",-
+   TYPE_PF                  = "?REQUIRED_PF_NAME?",-
+   CONTROL_DIALOG           = "",-
+   CONTROL_DIALOG_WINDOW    = "",-
+   STATION_NAME             = "",-
+   BAY_NAME                 = "",-
+   DEVICE_NAME              = "",-
+   SPECIAL_IDENTIFIER_1     = "",-
+   SPECIAL_IDENTIFIER_2     = "",-
+   SPECIAL_IDENTIFIER_3     = "",-
+   P_OBJECT_LN              = "",-
+   P_OBJECT_INDEXES         = "",-
+   STATION_TYPE             = "IEC61850",-
+   DEFINE_ITEM_NAME         = FALSE,-
+   OPC_ITEM_PREFIX          = "IEC61850 Subnetwork.IED1.LD1",-
+   OPC_LN_INSTANCES         = VECTOR("PTOC1"),-
+   DA_CONFIG_FILE           = "",-
+   UNIT_NUMBER              = 0,-
+   OUTPUT_STATUS            = FALSE,-
+   DATA_ACQUISITION_UNIT    = "",-
+   FUNCTION_BLOCK           = "",-
+   EVENT_RECORDING          = FALSE,-
+   LINK_TRIP_TAG_TO_LN_1    = "",-
+   LINK_TRIP_TAG_TO_MODULE_1= "",-
+   LINK_TRIP_TAG_TO_LN_2    = "",-
+   LINK_TRIP_TAG_TO_MODULE_2= "",-
+   LINK_TRIP_TAG_TO_LN_3    = "",-
+   LINK_TRIP_TAG_TO_MODULE_3= "",-
+   LINK_TRIP_TAG_TO_LN_4    = "",-
+   LINK_TRIP_TAG_TO_MODULE_4= "",-
+   LINK_TRIP_TAG_TO_LN_5    = "",-
+   LINK_TRIP_TAG_TO_MODULE_5= "",-
+   AUTHORIZATION_GROUP      = "MV_CONTROL",-
+   SYMBOL_WITH_BUTTON       = FALSE,-
+   SA_LIB_INDEXES           = "0,0,0",-
+   TRIP_REPRESENTATION      = "F_REPR/F_TRIP1",-
+   LATCH_REPRESENTATION     = "F_REPR/F_LATCH1")
+
+##FUNC_INIT_END
+
+##FUNC_DEF_BEGIN
+
+;check the usage of object identification (OI) -attribute
+@S = STATUS
+@POINTER_STA  = 0
+@POINTER_BAY  = 0
+@POINTER_DEV  = 0
+#ERROR IGNORE
+@APL_BSV15      = APL:BSV15
+@PROCESSOBJECTS = APL_BSV15:VPROCESS_OBJECTS
+@OI             = PROCESSOBJECTS:VOI
+#LOOP_WITH I = 1 .. 30
+  #IF DATA_TYPE(OI:VLENGTH'I')=="INTEGER" #THEN #BLOCK  
+    @OI_LENGTH'I' = OI:VLENGTH'I'
+    ;if field in use
+    #IF %OI_LENGTH'I' > 0 #THEN #BLOCK  
+      @NR_OF_FIELDS = %I
+      @OI_TITLE'I'  = OI:VTITLE'I'
+      @OI_FIELD'I'  = OI:VFIELD'I'
+      #IF      LENGTH(SELECT(%OI_FIELD'I',"==""STA"""))>0 #THEN @POINTER_STA = %I
+      #ELSE_IF LENGTH(SELECT(%OI_FIELD'I',"==""BAY"""))>0 #THEN @POINTER_BAY = %I
+      #ELSE_IF LENGTH(SELECT(%OI_FIELD'I',"==""DEV"""))>0 #THEN @POINTER_DEV = %I
+    #BLOCK_END
+    #ELSE #BLOCK
+      @OI_TITLE'I'  = ""
+      @OI_FIELD'I'  = ""
+    #BLOCK_END
+  #BLOCK_END
+  #ELSE #LOOP_EXIT
+#LOOP_END
+#ERROR CONTINUE
+
+;set defaults if APL:BSV15 not correctly defined
+@S = STATUS
+#IF %S <> 0 #THEN #BLOCK
+  @OI_TITLE1    = "Substation"
+  @OI_TITLE2    = "Bay"
+  @OI_TITLE3    = "Device"
+  @OI_TITLE4    = ""
+  @OI_TITLE5    = ""
+  @OI_LENGTH1   = 10
+  @OI_LENGTH2   = 15
+  @OI_LENGTH3   = 5
+  @OI_LENGTH4   = 0
+  @OI_LENGTH5   = 0
+  @POINTER_STA  = 1
+  @POINTER_BAY  = 2
+  @POINTER_DEV  = 3
+  @NR_OF_FIELDS = 3
+#BLOCK_END
+
+;set configurable attributes according to OI-configuration
+@NR_OF_SPECIAL_FIELD = 0
+@OBJECT_IDENTIFIERS  = VECTOR()
+
+#LOOP_WITH I = 1 .. 30
+  #IF %I <= %NR_OF_FIELDS #THEN #BLOCK  
+
+    ;define the name of the configurable attribute
+    #IF      %I == %POINTER_STA #THEN @OBJECT_IDENTIFIER_'I'_NAME = "STATION_NAME"
+    #ELSE_IF %I == %POINTER_BAY #THEN @OBJECT_IDENTIFIER_'I'_NAME = "BAY_NAME"
+    #ELSE_IF %I == %POINTER_DEV #THEN @OBJECT_IDENTIFIER_'I'_NAME = "DEVICE_NAME"
+    #ELSE #BLOCK
+      @NR_OF_SPECIAL_FIELD = %NR_OF_SPECIAL_FIELD + 1
+      @OBJECT_IDENTIFIER_'I'_NAME = "SPECIAL_IDENTIFIER_'NR_OF_SPECIAL_FIELD'"
+    #BLOCK_END
+
+    ;set one space between different fields
+    #IF %I < %NR_OF_FIELDS AND %OI_LENGTH'I' > 1 #THEN @OBJECT_IDENTIFIER_'I'_MAX_LENGTH = %OI_LENGTH'I' - 1
+    #ELSE @OBJECT_IDENTIFIER_'I'_MAX_LENGTH = %OI_LENGTH'I'
+
+    ;create a list of previously used identifiers
+    @SECTION  = %OBJECT_IDENTIFIER_'I'_NAME
+    @KEYS     = VECTOR()
+    #LOOP_WITH J = 1 .. 10
+      @NEW_KEY= "'SECTION''J'"
+      @KEY'J' = READ_PARAMETER("PICT/OBJ_IDEN.INI",%SECTION,%NEW_KEY)
+      @KEY    = %KEY'J'
+      #IF KEY:VSTATUS == 0 #THEN #BLOCK
+        @KEYS = APPEND(%KEYS,KEY:VVALUE)
+       #BLOCK_END
+    #LOOP_END
+    @OBJECT_IDENTIFIER_'I'_VALUES = %KEYS
+
+    ;set configuration for SCT
+    @OBJECT_IDENTIFIER_'I' = LIST(-
+         NAME       = %OBJECT_IDENTIFIER_'I'_NAME,-
+         TYPE       = "EDITABLE_SELECTOR",-
+         INPUT_TYPE = "TEXT",-
+         VALUES     = %OBJECT_IDENTIFIER_'I'_VALUES,-
+         REPRESENT  = %OBJECT_IDENTIFIER_'I'_VALUES,-
+         MAX_LENGTH = %OBJECT_IDENTIFIER_'I'_MAX_LENGTH)
+    @OBJECT_IDENTIFIERS = APPEND(%OBJECT_IDENTIFIERS, %OBJECT_IDENTIFIER_'I')
+  #BLOCK_END
+  #ELSE #LOOP_EXIT
+#LOOP_END
+
+;cross connection table for relay tripping indexes and tags
+@CROSS_CONNECTION_TABLE = (-
+                 (""),-
+                 ("SPAM 05x","","F_REPR/F_LATCH1","122","F_REPR/F_TRIP52","125","F_REPR/F_TRIP21","126","F_REPR/F_TRIP37","128","F_REPR/F_TRIP11","129","F_REPR/F_TRIP3"),-
+                 ("SPCD 2D55","26","F_REPR/F_LATCH1","12","F_REPR/F_TRIP32","15","F_REPR/F_TRIP33"),-
+                 ("SPCD 3C21","","F_REPR/F_LATCH1","32","F_REPR/F_TRIP25"),-
+                 ("SPCD 3C22","","F_REPR/F_LATCH1","34","F_REPR/F_TRIP27"),-
+                 ("SPCD 3C23","","F_REPR/F_LATCH1","35","F_REPR/F_TRIP29"),-
+                 ("SPCD 3D53","44","F_REPR/F_LATCH1","31","F_REPR/F_TRIP23","32","F_REPR/F_TRIP24","49","F_REPR/F_TRIP25","50","F_REPR/F_TRIP26","53","F_REPR/F_TRIP27","54","F_REPR/F_TRIP28","57","F_REPR/F_TRIP29","58","F_REPR/F_TRIP30"),-
+                 ("SPCJ 1C7","","F_REPR/F_LATCH1","12","F_REPR/F_TRIP11","14","F_REPR/F_TRIP12"),-
+                 ("SPCJ 1C8","","F_REPR/F_LATCH1","16","F_REPR/F_TRIP11","18","F_REPR/F_TRIP12"),-
+                 ("SPCJ 2C30","","F_REPR/F_LATCH1","23","F_REPR/F_TRIP31","25","F_REPR/F_TRIP11"),-
+                 ("SPCJ 3C3","","F_REPR/F_LATCH1","20","F_REPR/F_TRIP3","22","F_REPR/F_TRIP4"),-
+                 ("SPCJ 3C48","","F_REPR/F_LATCH1","57","F_REPR/F_TRIP3","59","F_REPR/F_TRIP4","61","F_REPR/F_TRIP11"),-
+                 ("SPCJ 3D35","51","F_REPR/F_LATCH1","41","F_REPR/F_TRIP6","43","F_REPR/F_TRIP7","45","F_REPR/F_TRIP8","47","F_REPR/F_TRIP9"),-
+                 ("SPCJ 4D24","44","F_REPR/F_LATCH1","33","F_REPR/F_TRIP3","35","F_REPR/F_TRIP4","37","F_REPR/F_TRIP11","39","F_REPR/F_TRIP12"),-
+                 ("SPCJ 4D28","80","F_REPR/F_LATCH1","66","F_REPR/F_TRIP3","68","F_REPR/F_TRIP4","70","F_REPR/F_TRIP5","72","F_REPR/F_TRIP11","74","F_REPR/F_TRIP12","76","F_REPR/F_TRIP40"),-
+                 ("SPCJ 4D29","57","F_REPR/F_LATCH1","46","F_REPR/F_TRIP3","48","F_REPR/F_TRIP4","50","F_REPR/F_TRIP11","52","F_REPR/F_TRIP12"),-
+                 ("SPCJ 4D34","78","F_REPR/F_LATCH1","60","F_REPR/F_TRIP52","61","F_REPR/F_TRIP53","63","F_REPR/F_TRIP37","65","F_REPR/F_TRIP4","67","F_REPR/F_TRIP11","69","F_REPR/F_TRIP41","71","F_REPR/F_TRIP10"),-
+                 ("SPCJ 4D36","39","F_REPR/F_LATCH1","28","F_REPR/F_TRIP3","30","F_REPR/F_TRIP4","32","F_REPR/F_TRIP11","34","F_REPR/F_TRIP12"),-
+                 ("SPCJ 4D40","95","F_REPR/F_LATCH1","80","F_REPR/F_TRIP39","82","F_REPR/F_TRIP38","84","F_REPR/F_TRIP10","86","F_REPR/F_TRIP40","88","F_REPR/F_TRIP41"),-
+                 ("SPCJ 4D44","108","F_REPR/F_LATCH1","97","F_REPR/F_TRIP3","99","F_REPR/F_TRIP4","101","F_REPR/F_TRIP13","103","F_REPR/F_TRIP15"),-
+                 ("SPCJ 4D61","135","F_REPR/F_LATCH1","121","F_REPR/F_TRIP3","123","F_REPR/F_TRIP4","125","F_REPR/F_TRIP5","127","F_REPR/F_TRIP11","129","F_REPR/F_TRIP12","131","F_REPR/F_TRIP40"),-
+                 ("SPCP 3C2","","F_REPR/F_LATCH1","62","F_REPR/F_TRIP42","64","F_REPR/F_TRIP54"),-
+                 ("SPCS 2D26","95","F_REPR/F_LATCH1","87","F_REPR/F_TRIP51"),-
+                 ("SPCS 2D32","107","F_REPR/F_LATCH1","97","F_REPR/F_TRIP11","99","F_REPR/F_TRIP50","101","F_REPR/F_TRIP12","103","F_REPR/F_TRIP34"),-
+                 ("SPCS 2D37","22","F_REPR/F_LATCH1","12","F_REPR/F_TRIP13","14","F_REPR/F_TRIP14","16","F_REPR/F_TRIP15","18","F_REPR/F_TRIP17"),-
+                 ("SPCS 3C4","","F_REPR/F_LATCH1","29","F_REPR/F_TRIP19","31","F_REPR/F_TRIP20"),-
+                 ("SPCS 4D11","121","F_REPR/F_LATCH1","111","F_REPR/F_TRIP3","113","F_REPR/F_TRIP4","115","F_REPR/F_TRIP5"),-
+                 ("SPCS 4D12","134","F_REPR/F_LATCH1","124","F_REPR/F_TRIP3","126","F_REPR/F_TRIP4","128","F_REPR/F_TRIP5"),-
+                 ("SPCS 4D13","147","F_REPR/F_LATCH1","137","F_REPR/F_TRIP3","139","F_REPR/F_TRIP4","141","F_REPR/F_TRIP5"),-
+                 ("SPCU 1C1","","F_REPR/F_LATCH1","12","F_REPR/F_TRIP42","14","F_REPR/F_TRIP44"),-
+                 ("SPCU 1C6","","F_REPR/F_LATCH1","16","F_REPR/F_TRIP48","18","F_REPR/F_TRIP49"),-
+                 ("SPCU 1D39","126","F_REPR/F_LATCH1","120","F_REPR/F_TRIP48"),-
+                 ("SPCU 1D47","142","F_REPR/F_LATCH1","136","F_REPR/F_TRIP42"),-
+                 ("SPCU 3C14","","F_REPR/F_LATCH1","20","F_REPR/F_TRIP42","22","F_REPR/F_TRIP44"),-
+                 ("SPCU 3C15","","F_REPR/F_LATCH1","20","F_REPR/F_TRIP44","22","F_REPR/F_TRIP47"),-
+                 ("SPEF 3A2","","F_REPR/F_LATCH1","101","F_REPR/F_TRIP3","103","F_REPR/F_TRIP11","105","F_REPR/F_TRIP40"))
+
+;text presented in the list for cross connection table
+@CROSS_CONNECTION_PRES  =  (-
+                  "No linking",-
+                  "SPAM 05x",-
+                  "SPCD 2D55",-
+                  "SPCD 3C21",-
+                  "SPCD 3C22",-
+                  "SPCD 3C23",-
+                  "SPCD 3D53",-
+                  "SPCJ 1C7",-
+                  "SPCJ 1C8",-
+                  "SPCJ 2C30",-
+                  "SPCJ 3C3",-
+                  "SPCJ 3C48",-
+                  "SPCJ 3D35",-
+                  "SPCJ 4D24",-
+                  "SPCJ 4D28",-
+                  "SPCJ 4D29",-
+                  "SPCJ 4D34",-
+                  "SPCJ 4D36",-
+                  "SPCJ 4D40",-
+                  "SPCJ 4D44",-
+                  "SPCJ 4D61",-
+                  "SPCP 3C2",-
+                  "SPCS 2D26",-
+                  "SPCS 2D32",-
+                  "SPCS 2D37",-
+                  "SPCS 3C4",-
+                  "SPCS 4D11",-
+                  "SPCS 4D12",-
+                  "SPCS 4D13",-
+                  "SPCU 1C1",-
+                  "SPCU 1C6",-
+                  "SPCU 1D39",-
+                  "SPCU 1D47",-
+                  "SPCU 3C14",-
+                  "SPCU 3C15",-
+                  "SPEF 3A2")
+
+;supported protocols
+@STATION_TYPE_VALUES = (-
+                  "SPA",-
+                  "ANSI",-
+                  "LON",-
+                  "RTU",-
+                  "RTU_E",-
+                  "IEC101",-
+                  "IEC103",-
+                  "ICCP")
+@STATION_TYPE_REPRESENT = (-
+                  "SPA",-
+                  "ANSI",-
+                  "LON",-
+                  "RP570",-
+                  "RP570 with FTABs",-
+                  "IEC 870-5-101/104",-
+                  "IEC 870-5-103",-
+                  "ICCP")
+
+#IF ROOT.ST_GET_LIB_REVISION > " 2.3" #THEN #BLOCK
+   @STATION_TYPE_VALUES = APPEND(%STATION_TYPE_VALUES,("DNP_30","MODBUS_RTU"))
+   @STATION_TYPE_REPRESENT = APPEND(%STATION_TYPE_REPRESENT,("DNP 3.0","MODBUS RTU"))
+#BLOCK_END
+
+@STATION_TYPE_VALUES    = APPEND(%STATION_TYPE_VALUES, VECTOR("PROC"))
+@STATION_TYPE_REPRESENT = APPEND(%STATION_TYPE_REPRESENT, VECTOR("PROCOL"))
+
+#IF ROOT.ST_GET_LIB_REVISION > " 2.9" #THEN #BLOCK
+   @STATION_TYPE_VALUES = APPEND(%STATION_TYPE_VALUES,("IEC61850"))
+   @STATION_TYPE_REPRESENT = APPEND(%STATION_TYPE_REPRESENT,("IEC 61850-8"))
+#BLOCK_END
+
+;lists for cmd parameter
+@CMD_PARAMETER_LIST1 = LIST(-
+     VALUES    = (4,-
+                  5,-
+                  6),-
+     REPRESENT = ("Select-Operate",-
+                  "Direct",-
+                  "Direct-No ack."))
+
+@CMD_PARAMETER_LIST2 = LIST(-
+     VALUES    = (45,-
+                  46),-
+     REPRESENT = ("Single command",-
+                  "Double command"))
+
+;set default lists for cmd parameter
+@CMD_PARAMETER_VALUES    = CMD_PARAMETER_LIST1:VVALUES
+@CMD_PARAMETER_REPRESENT = CMD_PARAMETER_LIST1:VREPRESENT
+
+
+;read the list of data acquisition units
+#DO READ_TEXT("SAGR_INST/SAI_DAU.TXT")
+;read the list of function blocks
+#DO READ_TEXT("SAGR_INST/SAI_FB.TXT")
+
+;create a list of all existing authorization groups
+#ERROR IGNORE
+@AUTHORIZATION_GROUPS = LIST_ATTR(MON:BSV(9))
+#IF DATA_TYPE(%AUTHORIZATION_GROUPS) <> "VECTOR" #THEN @AUTHORIZATION_GROUPS = VECTOR()
+#ERROR CONTINUE
+
+#IF ROOT.ST_GET_LIB_REVISION > " 2.3" #THEN #BLOCK
+  @FUNC_DEF=LIST(-
+      CONFIGURABLE_ATTRIB = (-
+                  "STATION_NAME",-
+                  "BAY_NAME",-
+                  "DEVICE_NAME",-
+                  "SPECIAL_IDENTIFIER_1",-
+                  "SPECIAL_IDENTIFIER_2",-
+                  "SPECIAL_IDENTIFIER_3",-
+                  "P_OBJECT_LN",-
+                  "P_OBJECT_INDEXES",-
+                  "STATION_TYPE",-
+		  "OUTPUT_STATUS",-
+                  "EVENT_RECORDING",-
+                  "LINK_TRIP_TAG_TO_LN_1",-
+                  "LINK_TRIP_TAG_TO_MODULE_1",-
+                  "LINK_TRIP_TAG_TO_LN_2",-
+                  "LINK_TRIP_TAG_TO_MODULE_2",-
+                  "LINK_TRIP_TAG_TO_LN_3",-
+                  "LINK_TRIP_TAG_TO_MODULE_3",-
+                  "LINK_TRIP_TAG_TO_LN_4",-
+                  "LINK_TRIP_TAG_TO_MODULE_4",-
+                  "LINK_TRIP_TAG_TO_LN_5",-
+                  "LINK_TRIP_TAG_TO_MODULE_5",-
+                  "TRIP_REPRESENTATION",-
+                  "LATCH_REPRESENTATION"),-
+      SCT_ATTRIBUTES = (-
+                  LIST(NAME              =  "P_OBJECT_LN",-
+                       TYPE              =  "TEXT",-
+                       MAX_LENGTH        =  63,-
+                       CHANGE_CALLBACK   =  VECTOR("#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_P_OBJECT_LN"")")),-
+                  LIST(NAME              =  "STATION_TYPE",-
+                       TYPE              =  "SELECTOR",-
+                       VALUES            =  %STATION_TYPE_VALUES,-
+                       REPRESENT         =  %STATION_TYPE_REPRESENT,-
+                       CHANGE_CALLBACK   =  VECTOR("#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_STATION_TYPE"")")),-
+                  LIST(NAME              =  "DEFINE_ITEM_NAME",-
+                       TYPE              =  "BOOLEAN",-
+                       CHANGE_CALLBACK   =  VECTOR("#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_DEFINE_ITEM_NAME"")")),-
+                  LIST(NAME              =  "OPC_ITEM_PREFIX",-
+                       TYPE              =  "TEXT",-
+                       MAX_LENGTH        =  255),-
+                  LIST(NAME              =  "OPC_LN_INSTANCES",-
+                       TYPE              =  "VECTOR",-
+                       ELEMENT_TYPE      =  "TEXT",-
+                       MAX_LENGTH        =  4,-
+                       MAX_ELEMENT_LENGTH=  15,-
+                       MIN_ELEMENT_LENGTH=  0),-
+		  LIST(NAME              =  "OUTPUT_STATUS",-
+                       TYPE              =  "BOOLEAN"),-
+                  LIST(NAME              =  "EVENT_RECORDING",-
+                       TYPE              =  "BOOLEAN"),-
+                  LIST(NAME              =  "LINK_TRIP_TAG_TO_LN_1",-
+                       TYPE              =  "TEXT",-
+                       MAX_LENGTH        =  63,-
+                       CHANGE_CALLBACK   =  VECTOR("@ATTR_NR=1","#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_LINK_TRIP_TAG_TO_LN"")")),-
+                  LIST(NAME              =  "LINK_TRIP_TAG_TO_MODULE_1",-
+                       TYPE              =  "EDITABLE_SELECTOR",-
+                       INPUT_TYPE        =  "VECTOR",-
+                       VALUES            =  %CROSS_CONNECTION_TABLE,-
+                       REPRESENT         =  %CROSS_CONNECTION_PRES),-
+                  LIST(NAME              =  "LINK_TRIP_TAG_TO_LN_2",-
+                       TYPE              =  "TEXT",-
+                       MAX_LENGTH        =  63,-
+                       CHANGE_CALLBACK   =  VECTOR("@ATTR_NR=2","#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_LINK_TRIP_TAG_TO_LN"")")),-
+                  LIST(NAME              =  "LINK_TRIP_TAG_TO_MODULE_2",-
+                       TYPE              =  "EDITABLE_SELECTOR",-
+                       INPUT_TYPE        =  "VECTOR",-
+                       VALUES            =  %CROSS_CONNECTION_TABLE,-
+                       REPRESENT         =  %CROSS_CONNECTION_PRES),-
+                  LIST(NAME              =  "LINK_TRIP_TAG_TO_LN_3",-
+                       TYPE              =  "TEXT",-
+                       MAX_LENGTH        =  63,-
+                       CHANGE_CALLBACK   =  VECTOR("@ATTR_NR=3","#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_LINK_TRIP_TAG_TO_LN"")")),-
+                  LIST(NAME              =  "LINK_TRIP_TAG_TO_MODULE_3",-
+                       TYPE              =  "EDITABLE_SELECTOR",-
+                       INPUT_TYPE        =  "VECTOR",-
+                       VALUES            =  %CROSS_CONNECTION_TABLE,-
+                       REPRESENT         =  %CROSS_CONNECTION_PRES),-
+                  LIST(NAME              =  "LINK_TRIP_TAG_TO_LN_4",-
+                       TYPE              =  "TEXT",-
+                       MAX_LENGTH        =  63,-
+                       CHANGE_CALLBACK   =  VECTOR("@ATTR_NR=4","#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_LINK_TRIP_TAG_TO_LN"")")),-
+                  LIST(NAME              =  "LINK_TRIP_TAG_TO_MODULE_4",-
+                       TYPE              =  "EDITABLE_SELECTOR",-
+                       INPUT_TYPE        =  "VECTOR",-
+                       VALUES            =  %CROSS_CONNECTION_TABLE,-
+                       REPRESENT         =  %CROSS_CONNECTION_PRES),-
+                  LIST(NAME              =  "LINK_TRIP_TAG_TO_LN_5",-
+                       TYPE              =  "TEXT",-
+                       MAX_LENGTH        =  63,-
+                       CHANGE_CALLBACK   =  VECTOR("@ATTR_NR=5","#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_LINK_TRIP_TAG_TO_LN"")")),-
+                  LIST(NAME              =  "LINK_TRIP_TAG_TO_MODULE_5",-
+                       TYPE              =  "EDITABLE_SELECTOR",-
+                       INPUT_TYPE        =  "VECTOR",-
+                       VALUES            =  %CROSS_CONNECTION_TABLE,-
+                       REPRESENT         =  %CROSS_CONNECTION_PRES)),-
+      SCT_HELP_FILE = "SAGR_LANG/SAI_TRIP2.HLP",-
+      REPR_ATTRIBUTES = (-
+                  LIST(NAME              =  "TRIP_REPRESENTATION",-
+                       VALUES            = ("F_REPR/F_TRIP1",-      ;General trip text
+                                            "F_REPR/F_TRIP2",-      ;General trip symbol
+                                            "F_REPR/F_TRIP3",-      ;I>
+                                            "F_REPR/F_TRIP4",-      ;I>>
+                                            "F_REPR/F_TRIP5",-      ;I>>>
+                                            "F_REPR/F_TRIP6",-      ;I1>
+                                            "F_REPR/F_TRIP7",-      ;I2>
+                                            "F_REPR/F_TRIP8",-      ;I3>
+                                            "F_REPR/F_TRIP9",-      ;I4>
+                                            "F_REPR/F_TRIP10",-     ;I<
+                                            "F_REPR/F_TRIP11",-     ;I0>
+                                            "F_REPR/F_TRIP12",-     ;I0>>
+                                            "F_REPR/F_TRIP13",-     ;I01>
+                                            "F_REPR/F_TRIP14",-     ;I01>>
+                                            "F_REPR/F_TRIP15",-     ;I02>
+                                            "F_REPR/F_TRIP16",-     ;I02>>
+                                            "F_REPR/F_TRIP17",-     ;I03>
+                                            "F_REPR/F_TRIP18",-     ;I03>>
+                                            "F_REPR/F_TRIP19",-     ;Iphii>
+                                            "F_REPR/F_TRIP20",-     ;Iphii>>
+                                            "F_REPR/F_TRIP21",-     ;dI>
+                                            "F_REPR/F_TRIP22",-     ;dI>>
+                                            "F_REPR/F_TRIP23",-     ;3di>
+                                            "F_REPR/F_TRIP24",-     ;3dI>>
+                                            "F_REPR/F_TRIP25",-     ;dIL1>
+                                            "F_REPR/F_TRIP26",-     ;dIL1>>
+                                            "F_REPR/F_TRIP27",-     ;dIL2>
+                                            "F_REPR/F_TRIP28",-     ;dIL2>>
+                                            "F_REPR/F_TRIP29",-     ;dIL3>
+                                            "F_REPR/F_TRIP30",-     ;dIL3>>
+                                            "F_REPR/F_TRIP31",-     ;dI0>
+                                            "F_REPR/F_TRIP32",-     ;dI01>
+                                            "F_REPR/F_TRIP33",-     ;dI02>
+                                            "F_REPR/F_TRIP34",-     ;Itr>
+                                            "F_REPR/F_TRIP35",-     ;I1f>
+                                            "F_REPR/F_TRIP36",-     ;I2f>
+                                            "F_REPR/F_TRIP37",-     ;Is>
+                                            "F_REPR/F_TRIP38",-     ;Ia>
+                                            "F_REPR/F_TRIP39",-     ;Ib>
+                                            "F_REPR/F_TRIP40",-     ;Id>
+                                            "F_REPR/F_TRIP41",-     ;Id>>
+                                            "F_REPR/F_TRIP42",-     ;U>
+                                            "F_REPR/F_TRIP43",-     ;U>>
+                                            "F_REPR/F_TRIP44",-     ;U<
+                                            "F_REPR/F_TRIP45",-     ;U<<
+                                            "F_REPR/F_TRIP46",-     ;3U<
+                                            "F_REPR/F_TRIP47",-     ;3U<<
+                                            "F_REPR/F_TRIP48",-     ;U0>
+                                            "F_REPR/F_TRIP49",-     ;U0>>
+                                            "F_REPR/F_TRIP50",-     ;U02>
+                                            "F_REPR/F_TRIP51",-     ;U0b>
+                                            "F_REPR/F_TRIP52",-     ;T1>
+                                            "F_REPR/F_TRIP53",-     ;T2>
+                                            "F_REPR/F_TRIP54")),-   ;<-
+                  LIST(NAME              =  "LATCH_REPRESENTATION",-
+                       VALUES            = ("F_REPR/F_LATCH1"))),-  ;General latch text
+      REPR_USER_PROGS = "")
+#BLOCK_END
+#ELSE #BLOCK
+ @FUNC_DEF=LIST(-
+      CONFIGURABLE_ATTRIB = (-
+                  "STATION_NAME",-
+                  "BAY_NAME",-
+                  "DEVICE_NAME",-
+                  "SPECIAL_IDENTIFIER_1",-
+                  "SPECIAL_IDENTIFIER_2",-
+                  "SPECIAL_IDENTIFIER_3",-
+                  "P_OBJECT_LN",-
+                  "P_OBJECT_INDEXES",-
+		  "OUTPUT_STATUS",-
+                  "EVENT_RECORDING",-
+                  "LINK_TRIP_TAG_TO_LN_1",-
+                  "LINK_TRIP_TAG_TO_MODULE_1",-
+                  "LINK_TRIP_TAG_TO_LN_2",-
+                  "LINK_TRIP_TAG_TO_MODULE_2",-
+                  "LINK_TRIP_TAG_TO_LN_3",-
+                  "LINK_TRIP_TAG_TO_MODULE_3",-
+                  "LINK_TRIP_TAG_TO_LN_4",-
+                  "LINK_TRIP_TAG_TO_MODULE_4",-
+                  "LINK_TRIP_TAG_TO_LN_5",-
+                  "LINK_TRIP_TAG_TO_MODULE_5",-
+                  "TRIP_REPRESENTATION",-
+                  "LATCH_REPRESENTATION"),-
+      SCT_ATTRIBUTES = (-
+                  LIST(NAME              =  "P_OBJECT_LN",-
+                       TYPE              =  "TEXT",-
+                       MAX_LENGTH        =  63,-
+                       CHANGE_CALLBACK   =  VECTOR("#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_P_OBJECT_LN"")")),-
+                  LIST(NAME              =  "STATION_TYPE",-
+                       TYPE              =  "SELECTOR",-
+                       VALUES            =  %STATION_TYPE_VALUES,-
+                       REPRESENT         =  %STATION_TYPE_REPRESENT,-
+                       CHANGE_CALLBACK   =  VECTOR("#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_STATION_TYPE"")")),-
+                  LIST(NAME              =  "EVENT_RECORDING",-
+                       TYPE              =  "BOOLEAN"),-
+                  LIST(NAME              =  "LINK_TRIP_TAG_TO_LN_1",-
+                       TYPE              =  "TEXT",-
+                       MAX_LENGTH        =  63,-
+                       CHANGE_CALLBACK   =  VECTOR("@ATTR_NR=1","#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_LINK_TRIP_TAG_TO_LN"")")),-
+                  LIST(NAME              =  "LINK_TRIP_TAG_TO_MODULE_1",-
+                       TYPE              =  "EDITABLE_SELECTOR",-
+                       INPUT_TYPE        =  "VECTOR",-
+                       VALUES            =  %CROSS_CONNECTION_TABLE,-
+                       REPRESENT         =  %CROSS_CONNECTION_PRES),-
+                  LIST(NAME              =  "LINK_TRIP_TAG_TO_LN_2",-
+                       TYPE              =  "TEXT",-
+                       MAX_LENGTH        =  63,-
+                       CHANGE_CALLBACK   =  VECTOR("@ATTR_NR=2","#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_LINK_TRIP_TAG_TO_LN"")")),-
+                  LIST(NAME              =  "LINK_TRIP_TAG_TO_MODULE_2",-
+                       TYPE              =  "EDITABLE_SELECTOR",-
+                       INPUT_TYPE        =  "VECTOR",-
+                       VALUES            =  %CROSS_CONNECTION_TABLE,-
+                       REPRESENT         =  %CROSS_CONNECTION_PRES),-
+                  LIST(NAME              =  "LINK_TRIP_TAG_TO_LN_3",-
+                       TYPE              =  "TEXT",-
+                       MAX_LENGTH        =  63,-
+                       CHANGE_CALLBACK   =  VECTOR("@ATTR_NR=3","#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_LINK_TRIP_TAG_TO_LN"")")),-
+                  LIST(NAME              =  "LINK_TRIP_TAG_TO_MODULE_3",-
+                       TYPE              =  "EDITABLE_SELECTOR",-
+                       INPUT_TYPE        =  "VECTOR",-
+                       VALUES            =  %CROSS_CONNECTION_TABLE,-
+                       REPRESENT         =  %CROSS_CONNECTION_PRES),-
+                  LIST(NAME              =  "LINK_TRIP_TAG_TO_LN_4",-
+                       TYPE              =  "TEXT",-
+                       MAX_LENGTH        =  63,-
+                       CHANGE_CALLBACK   =  VECTOR("@ATTR_NR=4","#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_LINK_TRIP_TAG_TO_LN"")")),-
+                  LIST(NAME              =  "LINK_TRIP_TAG_TO_MODULE_4",-
+                       TYPE              =  "EDITABLE_SELECTOR",-
+                       INPUT_TYPE        =  "VECTOR",-
+                       VALUES            =  %CROSS_CONNECTION_TABLE,-
+                       REPRESENT         =  %CROSS_CONNECTION_PRES),-
+                  LIST(NAME              =  "LINK_TRIP_TAG_TO_LN_5",-
+                       TYPE              =  "TEXT",-
+                       MAX_LENGTH        =  63,-
+                       CHANGE_CALLBACK   =  VECTOR("@ATTR_NR=5","#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_LINK_TRIP_TAG_TO_LN"")")),-
+                  LIST(NAME              =  "LINK_TRIP_TAG_TO_MODULE_5",-
+                       TYPE              =  "EDITABLE_SELECTOR",-
+                       INPUT_TYPE        =  "VECTOR",-
+                       VALUES            =  %CROSS_CONNECTION_TABLE,-
+                       REPRESENT         =  %CROSS_CONNECTION_PRES)),-
+      SCT_HELP_FILE = "SAGR_LANG/SAI_TRIP2.HLP",-
+      REPR_ATTRIBUTES = (-
+                  LIST(NAME              =  "TRIP_REPRESENTATION",-
+                       VALUES            = ("F_REPR/F_TRIP1",-      ;General trip text
+                                            "F_REPR/F_TRIP2",-      ;General trip symbol
+                                            "F_REPR/F_TRIP3",-      ;I>
+                                            "F_REPR/F_TRIP4",-      ;I>>
+                                            "F_REPR/F_TRIP5",-      ;I>>>
+                                            "F_REPR/F_TRIP6",-      ;I1>
+                                            "F_REPR/F_TRIP7",-      ;I2>
+                                            "F_REPR/F_TRIP8",-      ;I3>
+                                            "F_REPR/F_TRIP9",-      ;I4>
+                                            "F_REPR/F_TRIP10",-     ;I<
+                                            "F_REPR/F_TRIP11",-     ;I0>
+                                            "F_REPR/F_TRIP12",-     ;I0>>
+                                            "F_REPR/F_TRIP13",-     ;I01>
+                                            "F_REPR/F_TRIP14",-     ;I01>>
+                                            "F_REPR/F_TRIP15",-     ;I02>
+                                            "F_REPR/F_TRIP16",-     ;I02>>
+                                            "F_REPR/F_TRIP17",-     ;I03>
+                                            "F_REPR/F_TRIP18",-     ;I03>>
+                                            "F_REPR/F_TRIP19",-     ;Iphii>
+                                            "F_REPR/F_TRIP20",-     ;Iphii>>
+                                            "F_REPR/F_TRIP21",-     ;dI>
+                                            "F_REPR/F_TRIP22",-     ;dI>>
+                                            "F_REPR/F_TRIP23",-     ;3di>
+                                            "F_REPR/F_TRIP24",-     ;3dI>>
+                                            "F_REPR/F_TRIP25",-     ;dIL1>
+                                            "F_REPR/F_TRIP26",-     ;dIL1>>
+                                            "F_REPR/F_TRIP27",-     ;dIL2>
+                                            "F_REPR/F_TRIP28",-     ;dIL2>>
+                                            "F_REPR/F_TRIP29",-     ;dIL3>
+                                            "F_REPR/F_TRIP30",-     ;dIL3>>
+                                            "F_REPR/F_TRIP31",-     ;dI0>
+                                            "F_REPR/F_TRIP32",-     ;dI01>
+                                            "F_REPR/F_TRIP33",-     ;dI02>
+                                            "F_REPR/F_TRIP34",-     ;Itr>
+                                            "F_REPR/F_TRIP35",-     ;I1f>
+                                            "F_REPR/F_TRIP36",-     ;I2f>
+                                            "F_REPR/F_TRIP37",-     ;Is>
+                                            "F_REPR/F_TRIP38",-     ;Ia>
+                                            "F_REPR/F_TRIP39",-     ;Ib>
+                                            "F_REPR/F_TRIP40",-     ;Id>
+                                            "F_REPR/F_TRIP41",-     ;Id>>
+                                            "F_REPR/F_TRIP42",-     ;U>
+                                            "F_REPR/F_TRIP43",-     ;U>>
+                                            "F_REPR/F_TRIP44",-     ;U<
+                                            "F_REPR/F_TRIP45",-     ;U<<
+                                            "F_REPR/F_TRIP46",-     ;3U<
+                                            "F_REPR/F_TRIP47",-     ;3U<<
+                                            "F_REPR/F_TRIP48",-     ;U0>
+                                            "F_REPR/F_TRIP49",-     ;U0>>
+                                            "F_REPR/F_TRIP50",-     ;U02>
+                                            "F_REPR/F_TRIP51",-     ;U0b>
+                                            "F_REPR/F_TRIP52",-     ;T1>
+                                            "F_REPR/F_TRIP53",-     ;T2>
+                                            "F_REPR/F_TRIP54")),-   ;<-
+                  LIST(NAME              =  "LATCH_REPRESENTATION",-
+                       VALUES            = ("F_REPR/F_LATCH1"))),-  ;General latch text
+      REPR_USER_PROGS = "")
+#BLOCK_END
+
+;add configurable attributes for object identifiers
+#SET FUNC_DEF:VSCT_ATTRIBUTES = APPEND(%OBJECT_IDENTIFIERS, FUNC_DEF:VSCT_ATTRIBUTES)
+
+;read object identification from database when SCT opens
+@S = STATUS
+#ERROR IGNORE
+@PRODUCT_ID = .PRODUCT_ID
+#ERROR CONTINUE
+@S = STATUS
+#IF %S == 0 #THEN #BLOCK
+  #IF UPPER_CASE(.PRODUCT_ID) == "PF_CONF" #THEN #BLOCK
+    #ERROR IGNORE
+    @S = STATUS
+    @DB_LN = 'ID'_PICTURE_FUNCTION_CONF:VP_OBJECT_LN
+    @DB_IX = 'ID'_PICTURE_FUNCTION_CONF:VP_OBJECT_INDEXES(1)
+    @DB_OI = 'DB_LN':POI'DB_IX'
+    @OI_START_POS = 1
+    #ERROR CONTINUE
+    @S = STATUS
+    #IF %S == 0 #THEN #BLOCK
+      #LOOP_WITH I = 1..30
+        #IF %I < %NR_OF_FIELDS #THEN #BLOCK  
+          @TEXT_FROM_DB = EDIT(SUBSTR(%DB_OI,%OI_START_POS,%OI_LENGTH'I'-1),"TRIM")
+          @CONF_VALUE = .ST_GET_ATTRIBUTE(%OBJECT_IDENTIFIER_'I'_NAME)
+          #IF %TEXT_FROM_DB <> %CONF_VALUE #THEN .ST_SET_ATTRIBUTE(%OBJECT_IDENTIFIER_'I'_NAME,%TEXT_FROM_DB)
+          @OI_START_POS = %OI_START_POS + %OI_LENGTH'I'
+        #BLOCK_END
+        #ELSE_IF %I == %NR_OF_FIELDS #THEN #BLOCK  
+          @TEXT_FROM_DB = EDIT(SUBSTR(%DB_OI,%OI_START_POS,%OI_LENGTH'I'),"TRIM")
+          @CONF_VALUE = .ST_GET_ATTRIBUTE(%OBJECT_IDENTIFIER_'I'_NAME)
+          #IF %TEXT_FROM_DB <> %CONF_VALUE #THEN .ST_SET_ATTRIBUTE(%OBJECT_IDENTIFIER_'I'_NAME,%TEXT_FROM_DB)
+          @OI_START_POS = %OI_START_POS + %OI_LENGTH'I'
+        #BLOCK_END
+        #ELSE #LOOP_EXIT
+      #LOOP_END
+    #BLOCK_END
+  #BLOCK_END
+#BLOCK_END
+
+##FUNC_DEF_END
+
+
+;-------- Callback programs -----------------
+
+;callback logical name
+##CALLBACK_P_OBJECT_LN_BEGIN
+
+;#IF ROOT.ST_GET_ATTRIBUTE("P_OBJECT_LN")=="" #THEN #BLOCK
+;  #IF NOT %INITIALIZATION #THEN #BLOCK
+;    ROOT.ST_SET_ATTRIBUTE_DEFINITION("STATION_TYPE",LIST(VALUE="LON"))
+;    ROOT.ST_SET_ATTRIBUTE_DEFINITION("EVENT_RECORDING",LIST(VALUE=FALSE))
+;  #BLOCK_END
+;  ROOT.ST_DISABLE_ATTRIBUTE("STATION_TYPE")
+;  ROOT.ST_DISABLE_ATTRIBUTE("EVENT_RECORDING")
+;#BLOCK_END
+;#ELSE #BLOCK
+;  ROOT.ST_ENABLE_ATTRIBUTE("STATION_TYPE")
+;#BLOCK_END
+
+##CALLBACK_P_OBJECT_LN_END
+
+;callback station type
+##CALLBACK_STATION_TYPE_BEGIN
+
+@B_PASTE_ON = ROOT.ST_IS_PASTING
+@STATION_TYPE = ROOT.ST_GET_ATTRIBUTE("STATION_TYPE")
+
+#IF NOT %INITIALIZATION #THEN #BLOCK
+  #IF NOT %B_PASTE_ON #THEN #BLOCK
+     #IF (%STATION_TYPE=="RTU" OR %STATION_TYPE=="RTU_E") AND ROOT.ST_GET_ATTRIBUTE_STATE("STATION_TYPE")=="ENABLED" #THEN ROOT.ST_SET_ATTRIBUTE_DEFINITION("EVENT_RECORDING",LIST(VALUE=TRUE))
+     #ELSE ROOT.ST_SET_ATTRIBUTE_DEFINITION("EVENT_RECORDING",LIST(VALUE=FALSE))
+  #BLOCK_END
+#BLOCK_END
+
+#IF ROOT.ST_GET_LIB_REVISION > " 2.3" #THEN #BLOCK
+#CASE %STATION_TYPE
+	#WHEN "IEC101", "ICCP" #BLOCK
+		#IF NOT %INITIALIZATION #THEN #BLOCK
+		ROOT.ST_DISABLE_ATTRIBUTE("OUTPUT_STATUS") 
+		ROOT.ST_SET_ATTRIBUTE_DEFINITION("OUTPUT_STATUS",LIST(VALUE=FALSE))
+		;ROOT.ST_ENABLE_ATTRIBUTE("CMD_PARAMETER")
+		;ROOT.ST_SET_ATTRIBUTE_DEFINITION("CMD_PARAMETER",%CMD_PARAMETER_LIST2)
+		;ROOT.ST_SET_ATTRIBUTE_DEFINITION("CMD_PARAMETER",LIST(VALUE=46))
+		#BLOCK_END
+	#BLOCK_END
+	#WHEN "DNP_30" #BLOCK
+		#IF NOT %INITIALIZATION #THEN #BLOCK 
+		ROOT.ST_ENABLE_ATTRIBUTE("OUTPUT_STATUS")
+  		ROOT.ST_SET_ATTRIBUTE_DEFINITION("OUTPUT_STATUS",LIST(VALUE=FALSE))
+		;ROOT.ST_ENABLE_ATTRIBUTE("CMD_PARAMETER")
+		;ROOT.ST_SET_ATTRIBUTE_DEFINITION("CMD_PARAMETER",%CMD_PARAMETER_LIST1)
+        	;ROOT.ST_SET_ATTRIBUTE_DEFINITION("CMD_PARAMETER",LIST(VALUE=4))
+		#BLOCK_END
+	#BLOCK_END
+        #WHEN "IEC61850" #BLOCK
+		#IF NOT %INITIALIZATION #THEN #BLOCK 
+		   ROOT.ST_SET_ATTRIBUTE_DEFINITION("OUTPUT_STATUS",LIST(VALUE=FALSE))
+  		   ROOT.ST_ENABLE_ATTRIBUTE("DEFINE_ITEM_NAME")
+		#BLOCK_END
+	#BLOCK_END
+	#OTHERWISE #BLOCK
+		#IF NOT %INITIALIZATION #THEN #BLOCK 
+		ROOT.ST_SET_ATTRIBUTE_DEFINITION("OUTPUT_STATUS",LIST(VALUE=FALSE))
+		;ROOT.ST_SET_ATTRIBUTE_DEFINITION("CMD_PARAMETER",LIST(VALUE=4))
+		#BLOCK_END
+	#BLOCK_END
+#CASE_END
+
+#IF %STATION_TYPE=="DNP_30" AND ROOT.ST_GET_ATTRIBUTE_STATE("STATION_TYPE")=="ENABLED" #THEN ROOT.ST_ENABLE_ATTRIBUTE("OUTPUT_STATUS")
+#ELSE ROOT.ST_DISABLE_ATTRIBUTE("OUTPUT_STATUS")
+;#IF %STATION_TYPE=="DNP_30" OR %STATION_TYPE=="IEC101" #THEN ROOT.ST_ENABLE_ATTRIBUTE("CMD_PARAMETER")
+;#ELSE ROOT.ST_DISABLE_ATTRIBUTE("CMD_PARAMETER")
+#BLOCK_END
+#IF (%STATION_TYPE=="RTU" OR %STATION_TYPE=="RTU_E" OR %STATION_TYPE=="DNP_30") AND ROOT.ST_GET_ATTRIBUTE_STATE("STATION_TYPE")=="ENABLED" #THEN ROOT.ST_ENABLE_ATTRIBUTE("EVENT_RECORDING")
+#ELSE ROOT.ST_DISABLE_ATTRIBUTE("EVENT_RECORDING")
+
+#IF %STATION_TYPE <> "IEC61850" #THEN #BLOCK
+   ROOT.ST_DISABLE_ATTRIBUTE("DEFINE_ITEM_NAME")
+   ROOT.ST_DISABLE_ATTRIBUTE("OPC_ITEM_PREFIX")
+   ROOT.ST_DISABLE_ATTRIBUTE("OPC_LN_INSTANCES")
+   ROOT.ST_SET_ATTRIBUTE_DEFINITION("OPC_ITEM_PREFIX",LIST(VALUE=""))
+   ROOT.ST_SET_ATTRIBUTE_DEFINITION("OPC_LN_INSTANCES",LIST(VALUE=VECTOR()))   
+
+#BLOCK_END
+#ELSE #BLOCK
+
+ #IF ROOT.ST_GET_ATTRIBUTE("DEFINE_ITEM_NAME") #THEN #BLOCK
+      ROOT.ST_ENABLE_ATTRIBUTE("OPC_ITEM_PREFIX")
+      ROOT.ST_ENABLE_ATTRIBUTE("OPC_LN_INSTANCES")
+   #BLOCK_END
+   #ELSE #BLOCK
+      ROOT.ST_DISABLE_ATTRIBUTE("OPC_ITEM_PREFIX")
+      ROOT.ST_DISABLE_ATTRIBUTE("OPC_LN_INSTANCES")
+   #BLOCK_END
+
+#BLOCK_END
+
+
+##CALLBACK_STATION_TYPE_END
+
+##CALLBACK_DEFINE_ITEM_NAME_BEGIN
+   #IF ROOT.ST_GET_ATTRIBUTE("DEFINE_ITEM_NAME") #THEN #BLOCK
+      ROOT.ST_ENABLE_ATTRIBUTE("OPC_ITEM_PREFIX")
+      ROOT.ST_ENABLE_ATTRIBUTE("OPC_LN_INSTANCES")
+      #IF ROOT.ST_GET_ATTRIBUTE("OPC_ITEM_PREFIX") == "" #THEN  ROOT.ST_SET_ATTRIBUTE_DEFINITION("OPC_ITEM_PREFIX",LIST(VALUE="IEC61850 Subnetwork.IED1.LD1"))
+      @v_tmp = ROOT.ST_GET_ATTRIBUTE("OPC_LN_INSTANCES")
+      @v_LNs = VECTOR("PTOC1")
+      #IF LENGTH(%v_tmp) == 0 #THEN ROOT.ST_SET_ATTRIBUTE_DEFINITION("OPC_LN_INSTANCES",LIST(VALUE=%v_LNs))
+      #ELSE_IF %v_tmp(1) == "" #THEN ROOT.ST_SET_ATTRIBUTE_DEFINITION("OPC_LN_INSTANCES",LIST(VALUE=%v_LNs))
+   #BLOCK_END
+   #ELSE #BLOCK
+      ROOT.ST_DISABLE_ATTRIBUTE("OPC_ITEM_PREFIX")
+      ROOT.ST_DISABLE_ATTRIBUTE("OPC_LN_INSTANCES")
+   #BLOCK_END
+##CALLBACK_DEFINE_ITEM_NAME_END
+
+
+;callback link AR tag to logical name
+##CALLBACK_LINK_TRIP_TAG_TO_LN_BEGIN
+
+;#IF NOT %INITIALIZATION #THEN ROOT.ST_SET_ATTRIBUTE_DEFINITION("LINK_TRIP_TAG_TO_MODULE_'ATTR_NR'",LIST(VALUE=""))
+#IF ROOT.ST_GET_ATTRIBUTE("LINK_TRIP_TAG_TO_LN_'ATTR_NR'")<>"" #THEN ROOT.ST_ENABLE_ATTRIBUTE("LINK_TRIP_TAG_TO_MODULE_'ATTR_NR'")
+#ELSE ROOT.ST_DISABLE_ATTRIBUTE("LINK_TRIP_TAG_TO_MODULE_'ATTR_NR'")
+
+##CALLBACK_LINK_TRIP_TAG_TO_LN_END
+
+
+;-------- SCT Initialization -----------------
+##SCT_INIT_BEGIN
+
+;execute callbacks once to initialize SCT
+@INITIALIZATION = TRUE
+#DO .ST_READ_DATA_FILE_SECTION("CALLBACK_P_OBJECT_LN")
+#DO .ST_READ_DATA_FILE_SECTION("CALLBACK_STATION_TYPE")
+#LOOP_WITH I=1..5
+  @ATTR_NR=%I
+  #DO .ST_READ_DATA_FILE_SECTION("CALLBACK_LINK_TRIP_TAG_TO_LN")
+#LOOP_END
+@INITIALIZATION = FALSE
+
+##SCT_INIT_END
+
+
+;-------- Define Configuration Tool Menu -----------------
+##MENU_TXT_BEGIN
+
+.ENABLE_POT
+.ENABLE_REPRESENTATION_TOOL
+
+##MENU_TXT_END
+
+##MENU_PROG_BEGIN
+
+##MENU_PROG_END
+
+
+;-------- Define Process Objects -----------------
+##P_OBJECTS_BEGIN
+
+   #DO READ_TEXT("SAGR_INST/SAI_TRIP2.POT",1,10000)
+
+##P_OBJECTS_END
+
+;-------- Program Executed when OK -----------------
+##OK_BEGIN
+
+;save the object identifier (OI-attribute) for the future use
+#LOOP_WITH I = 1 .. %NR_OF_FIELDS
+  @SECTION    = %OBJECT_IDENTIFIER_'I'_NAME
+  @CONF_VALUE = .ST_GET_ATTRIBUTE(%SECTION)
+
+  ;if field not empty
+  #IF %CONF_VALUE<>"" #THEN #BLOCK
+    ;check if identifier already exists
+    @NEW_IDENTIFIER=TRUE
+    #LOOP_WITH J = 1 .. 10
+      @KEY          = "'SECTION''J'"
+      @KEY_VALUE'J' = READ_PARAMETER("PICT/OBJ_IDEN.INI",%SECTION,%KEY)
+      @KEY_VALUE    = %KEY_VALUE'J'
+      #IF KEY_VALUE:VSTATUS == 0 #THEN #BLOCK
+        #IF KEY_VALUE:VVALUE == %CONF_VALUE #THEN @NEW_IDENTIFIER=FALSE
+      #BLOCK_END
+    #LOOP_END
+
+    ;replace the last identifier with a new one
+    #IF %NEW_IDENTIFIER #THEN #BLOCK
+      #LOOP_WITH J = 1 .. 9
+        @CNTR1 = 10 - %J
+        @CNTR2 = %CNTR1 + 1
+        @KEY_OLD = "'SECTION''CNTR1'"
+        @KEY_NEW = "'SECTION''CNTR2'"
+        @KEY_VALUE'CNTR1' = READ_PARAMETER("PICT/OBJ_IDEN.INI",%SECTION,%KEY_OLD)
+        @KEY_PREV = %KEY_VALUE'CNTR1'
+        #IF KEY_PREV:VSTATUS == 0 #THEN #BLOCK
+          @KEY_OLD_VALUE = KEY_PREV:VVALUE
+          @NEW = WRITE_PARAMETER("PICT/OBJ_IDEN.INI",%SECTION,%KEY_NEW,%KEY_OLD_VALUE)
+          @OLD = DELETE_PARAMETER("PICT/OBJ_IDEN.INI",%SECTION,%KEY_OLD)
+        #BLOCK_END
+      #LOOP_END
+      @FIRST_KEY = "'SECTION'"+"1"
+      @KEY'I' = WRITE_PARAMETER("PICT/OBJ_IDEN.INI",%SECTION,%FIRST_KEY,%CONF_VALUE)
+    #BLOCK_END
+  #BLOCK_END
+#LOOP_END
+
+##OK_END
+
+;-------- Program Executed when CANCEL -----------------
+##CANCEL_BEGIN
+ 
+ 
+ 
+##CANCEL_END
+
+;-------- Program Executed when DELETE -----------------
+##DELETE_BEGIN
+
+
+
+##DELETE_END
+

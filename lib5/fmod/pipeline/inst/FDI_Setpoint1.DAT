@@ -1,0 +1,400 @@
+﻿;OBJECT       : DEI_Setpoint1.DAT
+;Copyright Hitachi Power Grids. All rights reserved.
+;
+;DESCRIPTION  : Configuration data file for the Setpoint1 standard function
+
+##FUNC_INIT_BEGIN
+@'.ID'_PICTURE_FUNCTION_CONF = LIST(-
+   CONFIG_DATA_FILE          = "?CONF_FILE?",-
+   LIB_REVISION              = " 3.0",-
+   TYPE_PF                   = "?REQUIRED_PF_NAME?",-
+   DEFAULT_TYPE_PF           = "SAGR_MEA",-
+   CONTROL_DIALOG            = "F_USE/FPU_MEA",-
+   CONTROL_DIALOG_WINDOW     = "MNOPER",-
+   STATION_NAME              = "",-
+   BAY_NAME                  = "",-
+   DEVICE_NAME               = "",-
+   SPECIAL_IDENTIFIER_1      = "",-
+   SPECIAL_IDENTIFIER_2      = "",-
+   SPECIAL_IDENTIFIER_3      = "",-
+   P_OBJECT_LN               = "",-
+   P_OBJECT_INDEXES          = "",-
+   STATION_TYPE              = "IEC101",-
+   DEFINE_ITEM_NAME          = FALSE,-
+   OPC_ITEM_PREFIX           = "IEC61850 Subnetwork.IED1.LD1",-
+   FOLDER_1_TITLE            = "",-
+   TYPE_MEAS_1               = "XXX00010",-
+   OPC_LN_INSTANCE_1         = VECTOR("MMXU1"),-
+   MEAS_1_DECIMALS           = 0,-
+   DATA_ACQUISITION_UNIT_1   = "",-
+   FUNCTION_BLOCK_1          = "",-
+   FOLDER_2_TITLE            = "",-
+   TYPE_MEAS_2               = "XXX00013",-
+   OPC_LN_INSTANCE_2         = VECTOR("MMXU1"),-
+   MEAS_2_DECIMALS           = 0,-
+   DATA_ACQUISITION_UNIT_2   = "",-
+   FUNCTION_BLOCK_2          = "",-
+   FOLDER_3_TITLE            = "",-
+   TYPE_MEAS_3               = "",-
+   OPC_LN_INSTANCE_3         = VECTOR("MMXU1"),-
+   MEAS_3_DECIMALS           = 0,-
+   DATA_ACQUISITION_UNIT_3   = "",-
+   FUNCTION_BLOCK_3          = "",-
+   FOLDER_4_TITLE            = "",-
+   TYPE_MEAS_4               = "",-
+   OPC_LN_INSTANCE_4         = VECTOR("MMXU1"),-
+   MEAS_4_DECIMALS           = 0,-
+   DATA_ACQUISITION_UNIT_4   = "",-
+   FUNCTION_BLOCK_4          = "",-
+   AUTHORIZATION_GROUP       = "PL_CONTROL",-
+   SA_LIB_INDEXES            = "0,19,13",-
+   EVENT_RECORDING           = FALSE,-
+   OBJECT_TYPE_DESCRIPTION   = "F5_USE/FDU_SETPOINT.scl")
+
+##FUNC_INIT_END
+
+
+##FUNC_DEF_BEGIN
+
+;define values for OBJECT_IDENTIFIERS, AUTORIZATION_GROUP, STATION_TYPE and OBJECT_TYPE_DESCRIPTION
+@I_RES = DO(READ_TEXT("B5_INST/BPI_SCT_BEGIN_COMMON.SCL"), "DEV")
+
+
+@I_RES = DO(READ_TEXT("F5_INST/FDI_SCT_BEGIN_COMMON.SCL"))
+
+@TYPE_MEAS_VALUES = (-
+                  "",-
+                  "XXX00010",-
+                  "XXX00013",-
+                  "XXX00014",-
+                  "XXX00015")
+@TYPE_MEAS_VALUES1 = vector(-
+                  "XXX00010")
+@TYPE_MEAS_VALUES2 = vector(-
+                  "XXX00013")
+@TYPE_MEAS_VALUES3 = vector(-
+                  "",-
+                  "XXX00014")
+@TYPE_MEAS_VALUES4 = vector(-
+                  "",-
+                  "XXX00015")
+
+                  
+@TYPE_MEAS_REPRESENT = (-
+                  "None",-
+                  "(10) Measurement",-
+                  "(13) Sollwert",-
+                  "(14) Messwert2",-
+                  "(15) Messwert3")
+@TYPE_MEAS_REPRESENT1 = vector(-
+                  "(10) Measurement (Analog)")
+@TYPE_MEAS_REPRESENT2 = vector(-
+                  "(13) Setpoint (Analog)")
+@TYPE_MEAS_REPRESENT3 = vector(-
+                  "None",-
+                  "(14) Measurement2")
+@TYPE_MEAS_REPRESENT4 = vector(-
+                  "None",-
+                  "(15) Measurement3")
+
+
+@FUNC_DEF=LIST(-
+      CONFIGURABLE_ATTRIB = (-
+                  "STATION_NAME",-
+                  "BAY_NAME",-
+                  "DEVICE_NAME",-
+                  "SPECIAL_IDENTIFIER_1",-
+                  "SPECIAL_IDENTIFIER_2",-
+                  "SPECIAL_IDENTIFIER_3",-
+                  "P_OBJECT_LN",-
+                  "P_OBJECT_INDEXES",-
+                  "STATION_TYPE",-
+                  "OPC_ITEM_PREFIX",-
+                  "TYPE_MEAS_1",-
+                  "OPC_LN_INSTANCE_1",-
+                  "FOLDER_1_TITLE",-
+                  "MEAS_1_DECIMALS",-
+                  "TYPE_MEAS_2",-
+                  "OPC_LN_INSTANCE_2",-
+                  "FOLDER_2_TITLE",-
+                  "MEAS_2_DECIMALS",-
+                  "TYPE_MEAS_3",-
+                  "OPC_LN_INSTANCE_3",-
+                  "FOLDER_3_TITLE",-
+                  "MEAS_3_DECIMALS",-
+                  "TYPE_MEAS_4",-
+                  "OPC_LN_INSTANCE_4",-
+                  "FOLDER_4_TITLE",-
+                  "MEAS_4_DECIMALS",-
+                  "AUTHORIZATION_GROUP",-
+                  "EVENT_RECORDING",-
+                  "REPRESENTATION",-
+                  "TOPO_OBJECT_TYPE"),-
+      SCT_ATTRIBUTES = (-
+                  LIST(NAME              =  "P_OBJECT_LN",-
+                       TYPE              =  "TEXT",-
+                       MAX_LENGTH        =  63),-
+                  LIST(NAME              =  "STATION_TYPE",-
+                       TYPE              =  "SELECTOR",-
+                       VALUES            =  %STATION_TYPE_VALUES,-
+                       REPRESENT         =  %STATION_TYPE_REPRESENT,-
+                       CHANGE_CALLBACK   =  VECTOR("#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_STATION_TYPE"")")),-
+                  LIST(NAME              =  "DEFINE_ITEM_NAME",-
+                       TYPE              =  "BOOLEAN",-
+                       CHANGE_CALLBACK   =  VECTOR("#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_DEFINE_ITEM_NAME"")")),-
+                  LIST(NAME              =  "OPC_ITEM_PREFIX",-
+                       TYPE              =  "TEXT",-
+                       MAX_LENGTH        =  255),-
+                  LIST(NAME              =  "TYPE_MEAS_1",-
+                       TYPE              =  "SELECTOR",-
+                       VALUES            =  %TYPE_MEAS_VALUES1,-
+                       REPRESENT         =  %TYPE_MEAS_REPRESENT1,-
+                       CHANGE_CALLBACK   =  VECTOR("@ATTR_NR=1","#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_TYPE_MEAS"")")),-
+                  LIST(NAME              =  "OPC_LN_INSTANCE_1",-
+                       TYPE              =  "VECTOR",-
+                       ELEMENT_TYPE      =  "TEXT",-
+                       MAX_LENGTH        =  4,-
+                       MAX_ELEMENT_LENGTH=  15,-
+                       MIN_ELEMENT_LENGTH=  0),-
+                  LIST(NAME              =  "FOLDER_1_TITLE",-
+                       TYPE              =  "TEXT",-
+                       MAX_LENGTH        =  10),-
+                  LIST(NAME              =  "MEAS_1_DECIMALS",-
+                       TYPE              =  "INTEGER",-
+                       MAX_VALUE         =  4,-
+                       MIN_VALUE         =  0),-
+                  LIST(NAME              =  "TYPE_MEAS_2",-
+                       TYPE              =  "SELECTOR",-
+                       VALUES            =  %TYPE_MEAS_VALUES2,-
+                       REPRESENT         =  %TYPE_MEAS_REPRESENT2,-
+                       CHANGE_CALLBACK   =  VECTOR("@ATTR_NR=2","#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_TYPE_MEAS"")")),-
+                  LIST(NAME              =  "OPC_LN_INSTANCE_2",-
+                       TYPE              =  "VECTOR",-
+                       ELEMENT_TYPE      =  "TEXT",-
+                       MAX_LENGTH        =  4,-
+                       MAX_ELEMENT_LENGTH=  15,-
+                       MIN_ELEMENT_LENGTH=  0),-
+                  LIST(NAME              =  "FOLDER_2_TITLE",-
+                       TYPE              =  "TEXT",-
+                       MAX_LENGTH        =  10),-
+                  LIST(NAME              =  "MEAS_2_DECIMALS",-
+                       TYPE              =  "INTEGER",-
+                       MAX_VALUE         =  4,-
+                       MIN_VALUE         =  0),-
+                  LIST(NAME              =  "TYPE_MEAS_3",-
+                       TYPE              =  "SELECTOR",-
+                       VALUES            =  %TYPE_MEAS_VALUES3,-
+                       REPRESENT         =  %TYPE_MEAS_REPRESENT3,-
+                       CHANGE_CALLBACK   =  VECTOR("@ATTR_NR=3","#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_TYPE_MEAS"")")),-
+                  LIST(NAME              =  "OPC_LN_INSTANCE_3",-
+                       TYPE              =  "VECTOR",-
+                       ELEMENT_TYPE      =  "TEXT",-
+                       MAX_LENGTH        =  4,-
+                       MAX_ELEMENT_LENGTH=  15,-
+                       MIN_ELEMENT_LENGTH=  0),-
+                  LIST(NAME              =  "FOLDER_3_TITLE",-
+                       TYPE              =  "TEXT",-
+                       MAX_LENGTH        =  10),-
+                  LIST(NAME              =  "MEAS_3_DECIMALS",-
+                       TYPE              =  "INTEGER",-
+                       MAX_VALUE         =  4,-
+                       MIN_VALUE         =  0),-
+                  LIST(NAME              =  "TYPE_MEAS_4",-
+                       TYPE              =  "SELECTOR",-
+                       VALUES            =  %TYPE_MEAS_VALUES4,-
+                       REPRESENT         =  %TYPE_MEAS_REPRESENT4,-
+                       CHANGE_CALLBACK   =  VECTOR("@ATTR_NR=4","#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_TYPE_MEAS"")")),-
+                  LIST(NAME              =  "OPC_LN_INSTANCE_4",-
+                       TYPE              =  "VECTOR",-
+                       ELEMENT_TYPE      =  "TEXT",-
+                       MAX_LENGTH        =  4,-
+                       MAX_ELEMENT_LENGTH=  15,-
+                       MIN_ELEMENT_LENGTH=  0),-
+                  LIST(NAME              =  "FOLDER_4_TITLE",-
+                       TYPE              =  "TEXT",-
+                       MAX_LENGTH        =  10),-
+                  LIST(NAME              =  "MEAS_4_DECIMALS",-
+                       TYPE              =  "INTEGER",-
+                       MAX_VALUE         =  4,-
+                       MIN_VALUE         =  0),-
+                  LIST(NAME              =  "AUTHORIZATION_GROUP",-
+                       TYPE              =  "EDITABLE_SELECTOR",-
+                       INPUT_TYPE        =  "TEXT",-
+                       VALUES            =  %AUTHORIZATION_GROUPS,-
+                       REPRESENT         =  %AUTHORIZATION_GROUPS,-
+                       MAX_LENGTH        =  63)),-
+-;                  LIST(NAME              =  "EVENT_RECORDING",-
+-;                       TYPE              =  "BOOLEAN")),-
+      SCT_USER_PROGS = (-
+                  "U_OTHER_OBJECTS"),-
+      SCT_HELP_FILE = "F5_INST/FDI_MEAS_HLP.SCL")
+                           
+;add configurable attributes for object identifiers
+#SET FUNC_DEF:VSCT_ATTRIBUTES = APPEND(%OBJECT_IDENTIFIERS, FUNC_DEF:VSCT_ATTRIBUTES)
+
+;sets STATION_NAME, BAY_NAME ... from OI to attribute in question
+@I_RES = DO(READ_TEXT("B5_INST/BPI_SCT_BEGIN_READ_OI_FROM_DB.SCL"), "DEV")
+
+##FUNC_DEF_END
+
+;-------- Callback programs -----------------
+
+;callback station type
+##CALLBACK_STATION_TYPE_BEGIN
+
+@B_PASTE_ON = ROOT.ST_IS_PASTING
+@STATION_TYPE = ROOT.ST_GET_ATTRIBUTE("STATION_TYPE")
+
+#IF NOT %INITIALIZATION #THEN #BLOCK
+  #IF NOT %B_PASTE_ON #THEN #BLOCK
+     #IF %STATION_TYPE=="RTU" OR %STATION_TYPE=="RTU_E" #THEN ROOT.ST_SET_ATTRIBUTE_DEFINITION("EVENT_RECORDING",LIST(VALUE=TRUE))
+     #ELSE ROOT.ST_SET_ATTRIBUTE_DEFINITION("EVENT_RECORDING",LIST(VALUE=FALSE))
+  #BLOCK_END
+#BLOCK_END
+
+#IF %STATION_TYPE=="RTU" OR %STATION_TYPE=="RTU_E" OR %STATION_TYPE=="DNP_30" #THEN ROOT.ST_ENABLE_ATTRIBUTE("EVENT_RECORDING")
+#ELSE ROOT.ST_DISABLE_ATTRIBUTE("EVENT_RECORDING")
+
+#IF %STATION_TYPE <> "IEC61850" #THEN #BLOCK
+
+   #IF NOT %INITIALIZATION #THEN #BLOCK
+      ROOT.ST_DISABLE_ATTRIBUTE("OPC_ITEM_PREFIX")
+      ROOT.ST_SET_ATTRIBUTE_DEFINITION("OPC_ITEM_PREFIX",LIST(VALUE=""))
+      ROOT.ST_DISABLE_ATTRIBUTE("DEFINE_ITEM_NAME")
+   #BLOCK_END
+   
+#BLOCK_END
+#ELSE #BLOCK
+
+   #IF NOT %INITIALIZATION #THEN ROOT.ST_ENABLE_ATTRIBUTE("DEFINE_ITEM_NAME")
+
+#BLOCK_END
+
+#IF %STATION_TYPE <> "IEC61850" #THEN #BLOCK
+   ROOT.ST_DISABLE_ATTRIBUTE("DEFINE_ITEM_NAME")
+   ROOT.ST_DISABLE_ATTRIBUTE("OPC_ITEM_PREFIX")
+   #LOOP_WITH I = 1..4
+      ROOT.ST_DISABLE_ATTRIBUTE("OPC_LN_INSTANCE_'I'")
+      ROOT.ST_SET_ATTRIBUTE_DEFINITION("OPC_LN_INSTANCE_'I'",LIST(VALUE=VECTOR()))   
+   #LOOP_END 
+   ROOT.ST_SET_ATTRIBUTE_DEFINITION("OPC_ITEM_PREFIX",LIST(VALUE=""))
+   
+#BLOCK_END
+#ELSE #BLOCK
+
+   #IF ROOT.ST_GET_ATTRIBUTE("DEFINE_ITEM_NAME") #THEN #BLOCK
+      ROOT.ST_ENABLE_ATTRIBUTE("OPC_ITEM_PREFIX")
+      #LOOP_WITH I = 1..4
+         ROOT.ST_ENABLE_ATTRIBUTE("OPC_LN_INSTANCE_'I'")
+      #LOOP_END 
+   #BLOCK_END
+   #ELSE #BLOCK
+      ROOT.ST_DISABLE_ATTRIBUTE("OPC_ITEM_PREFIX")
+      #LOOP_WITH I = 1..4
+         ROOT.ST_DISABLE_ATTRIBUTE("OPC_LN_INSTANCE_'I'")
+      #LOOP_END 
+   #BLOCK_END
+#BLOCK_END
+
+
+##CALLBACK_STATION_TYPE_END
+
+##CALLBACK_DEFINE_ITEM_NAME_BEGIN
+   #IF ROOT.ST_GET_ATTRIBUTE("DEFINE_ITEM_NAME") #THEN #BLOCK
+      ROOT.ST_ENABLE_ATTRIBUTE("OPC_ITEM_PREFIX")
+      #IF ROOT.ST_GET_ATTRIBUTE("OPC_ITEM_PREFIX") == "" #THEN  ROOT.ST_SET_ATTRIBUTE_DEFINITION("OPC_ITEM_PREFIX",LIST(VALUE="IEC61850 Subnetwork.IED1.LD1"))
+      #LOOP_WITH I = 1..4
+         ROOT.ST_ENABLE_ATTRIBUTE("OPC_LN_INSTANCE_'I'")
+         @v_tmp = ROOT.ST_GET_ATTRIBUTE("OPC_LN_INSTANCE_'I'")
+         @v_LNs = VECTOR("MMXU1")   
+         #IF LENGTH(%v_tmp) == 0 #THEN ROOT.ST_SET_ATTRIBUTE_DEFINITION("OPC_LN_INSTANCE_'I'",LIST(VALUE=%v_LNs))
+         #ELSE_IF %v_tmp(1) == "" #THEN ROOT.ST_SET_ATTRIBUTE_DEFINITION("OPC_LN_INSTANCE_'I'",LIST(VALUE=%v_LNs))
+      #LOOP_END 
+   #BLOCK_END
+   #ELSE #BLOCK
+      ROOT.ST_DISABLE_ATTRIBUTE("OPC_ITEM_PREFIX")
+      #LOOP_WITH I = 1..4
+         ROOT.ST_DISABLE_ATTRIBUTE("OPC_LN_INSTANCE_'I'")
+      #LOOP_END 
+   #BLOCK_END
+##CALLBACK_DEFINE_ITEM_NAME_END
+
+;callback measurement type
+##CALLBACK_TYPE_MEAS_BEGIN
+
+#IF NOT %INITIALIZATION #THEN #BLOCK
+  #IF NOT %B_PASTE_ON #THEN #BLOCK
+     ;ROOT.ST_SET_ATTRIBUTE_DEFINITION("FOLDER_'ATTR_NR'_TITLE",LIST(VALUE=""))
+     ;ROOT.ST_SET_ATTRIBUTE_DEFINITION("MEAS_'ATTR_NR'_DECIMALS",LIST(VALUE=0))
+  #BLOCK_END
+#BLOCK_END
+#IF ROOT.ST_GET_ATTRIBUTE("TYPE_MEAS_'ATTR_NR'")<>"" #THEN #BLOCK
+  ROOT.ST_ENABLE_ATTRIBUTE("FOLDER_'ATTR_NR'_TITLE")
+  ROOT.ST_ENABLE_ATTRIBUTE("MEAS_'ATTR_NR'_DECIMALS")
+;  ROOT.ST_ENABLE_ATTRIBUTE("OPC_LN_INSTANCE_'ATTR_NR'")
+;  ROOT.ST_SET_ATTRIBUTE_DEFINITION("OPC_LN_INSTANCE_'ATTR_NR'",LIST(VALUE=VECTOR("MMXU1")))
+#BLOCK_END
+#ELSE #BLOCK
+  ROOT.ST_DISABLE_ATTRIBUTE("FOLDER_'ATTR_NR'_TITLE")
+  ROOT.ST_DISABLE_ATTRIBUTE("MEAS_'ATTR_NR'_DECIMALS")
+;  ROOT.ST_DISABLE_ATTRIBUTE("OPC_LN_INSTANCE_'ATTR_NR'")
+;  ROOT.ST_SET_ATTRIBUTE_DEFINITION("OPC_LN_INSTANCE_'ATTR_NR'",LIST(VALUE=VECTOR()))
+#BLOCK_END
+
+
+##CALLBACK_TYPE_MEAS_END
+
+
+;-------- SCT Initialization -----------------
+##SCT_INIT_BEGIN
+
+;execute callbacks once to initialize SCT
+@INITIALIZATION = TRUE
+#DO .ST_READ_DATA_FILE_SECTION("CALLBACK_STATION_TYPE")
+#LOOP_WITH I=1..4
+  @ATTR_NR=%I
+  #DO .ST_READ_DATA_FILE_SECTION("CALLBACK_TYPE_MEAS")
+#LOOP_END
+@INITIALIZATION = FALSE
+
+##SCT_INIT_END
+
+;-------- Define Configuration Tool Menu -----------------
+##MENU_TXT_BEGIN
+
+   .ENABLE_POT
+
+##MENU_TXT_END
+
+##MENU_PROG_BEGIN
+
+##MENU_PROG_END
+
+
+;-------- Define Process Objects -----------------
+##P_OBJECTS_BEGIN
+
+   #DO READ_TEXT("F5_INST/FDI_Setpoint1.POT",1,10000)
+
+##P_OBJECTS_END
+
+;-------- Program Executed when OK -----------------
+##OK_BEGIN
+
+;save the object identifier (OI-attribute) for the future use
+@I_RES = DO(READ_TEXT("B5_INST/BPI_SCT_OK.SCL"), "DEV")
+
+##OK_END
+
+;-------- Program Executed when CANCEL -----------------
+##CANCEL_BEGIN
+ 
+ 
+ 
+##CANCEL_END
+
+;-------- Program Executed when DELETE -----------------
+##DELETE_BEGIN
+
+##DELETE_END
+

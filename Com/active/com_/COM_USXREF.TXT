@@ -1,0 +1,145 @@
+﻿; This command procedure is used for decoding cross-reference information
+; in the upstream direction in a COM application 
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @XREF_INDEX, cross-reference table pointer of the pobj, integer
+;         @COM_EXCLUSIVE_STA_NUMBER, STA number of a NCC given when executed manually
+;         APL:BSV(21), ncc cross-reference table
+;         BNCC*_XRS*, free type object containing the cross-reference data
+; OUTPUT: @NCC_STA_NUMBERS , STA numbers of the NCCs, vector
+;         @NCC_PROTOCOLS, protocols of the NCCs, vector
+;         @NCC_ADDRESSES, addresses of the NCCs, vector
+;         @NCC_BIT_ADDRESSES, bit addresses of the NCCs, vector
+;         @SIGNAL_CLASSES, classes of the signals, vector
+;         @SCALE_NAMES, names of the scales, vector
+;         @ADDITIONAL_DATA, additional xref data, vector
+;         @NCC_OPERATION_MODES, operation modes of the NCCs, vector   
+;         @AL_GROUP_NUMBERS, alarm group numbers, vector
+;         @AL_GROUP_BIT_NUMBERS, alarm group bit numbers, vector
+;         @SIGNAL_HANDLING_ATTRS, datatype-specific special conditions, integer (bit mask)
+;         @NCC_NUMBERS, numbers of the NCCs, vector 
+;         @UTC_LOCAL_CONVERSION, UTC - Local time conversion 
+;---------------------------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+;initialise
+@NCC_STA_NUMBERS = VECTOR()
+@NCC_NUMBERS = VECTOR()      
+@NCC_STA_NUMBERS = VECTOR()
+@NCC_PROTOCOLS = VECTOR()
+@NCC_SUBPROTOCOLS = VECTOR()         
+@NCC_OPERATION_MODES = VECTOR()
+@NCC_ADDRESSES = VECTOR()
+@NCC_BIT_ADDRESSES = VECTOR()
+@SCALE_NAMES = VECTOR()
+@SIGNAL_CLASSES = VECTOR()
+@ADDITIONAL_DATA = VECTOR()
+@AL_GROUP_NUMBERS = VECTOR()
+@AL_GROUP_BIT_NUMBERS = VECTOR()
+@SIGNAL_HANDLING_ATTRS = 0
+@UTC_LOCAL_CONVERSION = VECTOR()
+
+;read information from the ncc xref table and free type process objects
+@J = 1
+@NCC_XREF_TABLE = APL:BSV(21)
+#IF LENGTH(%NCC_XREF_TABLE) > 0 #THEN #BLOCK
+   #LOOP_WITH I = 1..LENGTH(%NCC_XREF_TABLE)
+      @NCC_VECTOR = %NCC_XREF_TABLE(%I)
+      #IF LENGTH(%NCC_VECTOR) > 0 #THEN #BLOCK
+         #IF DATA_TYPE(%COM_EXCLUSIVE_STA_NUMBER) == "INTEGER" #THEN #BLOCK
+            #IF %COM_EXCLUSIVE_STA_NUMBER == %NCC_VECTOR(1) #THEN #BLOCK
+               #IF LENGTH(%NCC_VECTOR) == 4 #THEN @NCC_VECTOR(5) = 1 ; add fifth element
+               @OBJECT_NUMBER = (%XREF_INDEX DIV 2000) + 1
+               @ATTRIBUTE_INDEX = %XREF_INDEX MOD 2000
+               #IF %ATTRIBUTE_INDEX == 0 #THEN #BLOCK
+                  @OBJECT_NUMBER = %OBJECT_NUMBER - 1
+                  @ATTRIBUTE_INDEX = 2000
+               #BLOCK_END
+               @NCC_NUMBERS(%J) = %I
+               @NCC_STA_NUMBERS(%J) = %NCC_VECTOR(1)
+               @NCC_PROTOCOLS(%J) = %NCC_VECTOR(2)
+               @NCC_OPERATION_MODES(%J) = %NCC_VECTOR(5)
+               #IF LENGTH(%NCC_VECTOR) > 6 #THEN @NCC_SUBPROTOCOLS(%J) = %NCC_VECTOR(10)
+               @NCC_ADDRESSES(%J) = BNCC'I'_XRS'OBJECT_NUMBER':PZA(%ATTRIBUTE_INDEX)
+               @NCC_BIT_ADDRESSES(%J) = BNCC'I'_XRS'OBJECT_NUMBER':PZB(%ATTRIBUTE_INDEX)
+               @SCALE_NAMES(%J) = BNCC'I'_XRS'OBJECT_NUMBER':PZC(%ATTRIBUTE_INDEX)          
+               @SIGNAL_CLASSES(%J) = BNCC'I'_XRS'OBJECT_NUMBER':PZD(%ATTRIBUTE_INDEX)  
+               @ADDITIONAL_DATA(%J) = BNCC'I'_XRS'OBJECT_NUMBER':PZE(%ATTRIBUTE_INDEX)         
+               @AL_GROUP_NUMBERS(%J) = BNCC'I'_XRS'OBJECT_NUMBER':PGN(%ATTRIBUTE_INDEX)
+               @AL_GROUP_BIT_NUMBERS(%J) = BNCC'I'_XRS'OBJECT_NUMBER':PBN(%ATTRIBUTE_INDEX)
+               @SIGNAL_HANDLING_ATTRS(%J) = BNCC'I'_XRS'OBJECT_NUMBER':PSH(%ATTRIBUTE_INDEX)     
+          #IF LENGTH(%NCC_VECTOR) == 16 #THEN @NCC_VECTOR(17) = 0
+          @UTC_LOCAL_CONVERSION(%J) = %NCC_VECTOR(17)    
+            #BLOCK_END
+         #BLOCK_END
+         #ELSE #BLOCK
+            #IF LENGTH(%NCC_VECTOR) == 4 #THEN @NCC_VECTOR(5) = 1 ; add fifth element
+            @OBJECT_NUMBER = (%XREF_INDEX DIV 2000) + 1
+            @ATTRIBUTE_INDEX = %XREF_INDEX MOD 2000
+            #IF %ATTRIBUTE_INDEX == 0 #THEN #BLOCK
+               @OBJECT_NUMBER = %OBJECT_NUMBER - 1
+               @ATTRIBUTE_INDEX = 2000
+            #BLOCK_END
+            @NCC_NUMBERS(%J) = %I
+            @NCC_STA_NUMBERS(%J) = %NCC_VECTOR(1)
+            @NCC_PROTOCOLS(%J) = %NCC_VECTOR(2)
+            @NCC_OPERATION_MODES(%J) = %NCC_VECTOR(5)
+            #IF LENGTH(%NCC_VECTOR) > 6 #THEN @NCC_SUBPROTOCOLS(%J) = %NCC_VECTOR(10)
+            @NCC_ADDRESSES(%J) = BNCC'I'_XRS'OBJECT_NUMBER':PZA(%ATTRIBUTE_INDEX)
+            @NCC_BIT_ADDRESSES(%J) = BNCC'I'_XRS'OBJECT_NUMBER':PZB(%ATTRIBUTE_INDEX)
+            @SCALE_NAMES(%J) = BNCC'I'_XRS'OBJECT_NUMBER':PZC(%ATTRIBUTE_INDEX)          
+            @SIGNAL_CLASSES(%J) = BNCC'I'_XRS'OBJECT_NUMBER':PZD(%ATTRIBUTE_INDEX)  
+            @ADDITIONAL_DATA(%J) = BNCC'I'_XRS'OBJECT_NUMBER':PZE(%ATTRIBUTE_INDEX)         
+            @AL_GROUP_NUMBERS(%J) = BNCC'I'_XRS'OBJECT_NUMBER':PGN(%ATTRIBUTE_INDEX)
+            @AL_GROUP_BIT_NUMBERS(%J) = BNCC'I'_XRS'OBJECT_NUMBER':PBN(%ATTRIBUTE_INDEX)
+            @SIGNAL_HANDLING_ATTRS(%J) = BNCC'I'_XRS'OBJECT_NUMBER':PSH(%ATTRIBUTE_INDEX)
+       #IF LENGTH(%NCC_VECTOR) == 16 #THEN @NCC_VECTOR(17) = 0
+       @UTC_LOCAL_CONVERSION(%J) = %NCC_VECTOR(17)    
+         #BLOCK_END 
+         @J = %J + 1
+      #BLOCK_END
+     #ELSE #LOOP_EXIT
+   #LOOP_END
+   ;if STA number given as input (manual execution), exclude other NCCs
+   #IF DATA_TYPE(%COM_EXCLUSIVE_STA_NUMBER) == "INTEGER" #THEN #BLOCK
+      @SEL = SELECT(%NCC_STA_NUMBERS,"==%COM_EXCLUSIVE_STA_NUMBER")
+      #IF LENGTH(%SEL) > 0 #THEN #BLOCK
+         #IF LENGTH(%NCC_STA_NUMBERS) >= %SEL(1) #THEN #BLOCK
+            @NCC_NUMBERS = VECTOR(%NCC_NUMBERS(%SEL(1)))         
+            @NCC_STA_NUMBERS = VECTOR(%NCC_STA_NUMBERS(%SEL(1)))
+            @NCC_PROTOCOLS = VECTOR(%NCC_PROTOCOLS(%SEL(1)))
+            @NCC_SUBPROTOCOLS = VECTOR(%NCC_SUBPROTOCOLS(%SEL(1)))
+            @NCC_OPERATION_MODES = VECTOR(%NCC_OPERATION_MODES(%SEL(1)))
+            @NCC_ADDRESSES = VECTOR(%NCC_ADDRESSES(%SEL(1)))
+            @NCC_BIT_ADDRESSES = VECTOR(%NCC_BIT_ADDRESSES(%SEL(1)))
+            @SCALE_NAMES = VECTOR(%SCALE_NAMES(%SEL(1)))
+            @SIGNAL_CLASSES = VECTOR(%SIGNAL_CLASSES(%SEL(1)))
+            @ADDITIONAL_DATA = VECTOR(%ADDITIONAL_DATA(%SEL(1)))
+            @AL_GROUP_NUMBERS = VECTOR(%AL_GROUP_NUMBERS(%SEL(1)))
+            @AL_GROUP_BIT_NUMBERS = VECTOR(%AL_GROUP_BIT_NUMBERS(%SEL(1)))
+            @SIGNAL_HANDLING_ATTRS = VECTOR(%SIGNAL_HANDLING_ATTRS(%SEL(1))) 
+            @UTC_LOCAL_CONVERSION = VECTOR(%UTC_LOCAL_CONVERSION(%SEL(1)))   
+         #BLOCK_END
+      #BLOCK_END
+      #ELSE #BLOCK
+         @NCC_NUMBERS = VECTOR()      
+         @NCC_STA_NUMBERS = VECTOR()
+         @NCC_PROTOCOLS = VECTOR()
+         @NCC_SUBPROTOCOLS = VECTOR()         
+         @NCC_OPERATION_MODES = VECTOR()
+         @NCC_ADDRESSES = VECTOR()
+         @NCC_BIT_ADDRESSES = VECTOR()
+         @SCALE_NAMES = VECTOR()
+         @SIGNAL_CLASSES = VECTOR()
+         @ADDITIONAL_DATA = VECTOR()
+         @AL_GROUP_NUMBERS = VECTOR()
+         @AL_GROUP_BIT_NUMBERS = VECTOR()
+         @SIGNAL_HANDLING_ATTRS = 0
+         @UTC_LOCAL_CONVERSION = VECTOR()
+      #BLOCK_END
+   #BLOCK_END
+#BLOCK_END

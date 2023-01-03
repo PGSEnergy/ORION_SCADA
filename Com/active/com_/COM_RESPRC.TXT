@@ -1,0 +1,67 @@
+﻿; This command procedure is used for executing reset process command
+; in a COM500 application
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @COM_APLCMD_PROTOCOL, protocol of the STA object of the NCC sending the reset command
+;         @COM_EXCLUSIVE_STA_NUMBER, number of the STA object of the NCC sending the reset command
+;         @COM_ORIGINATOR, originator address of the NCC
+;---------------------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+;intialize variables
+@RESET_UNIT_NUMBERS = VECTOR()
+
+;find all unit numbers with signals cross-referenced
+#LOOP
+   @TMP = APPLICATION_OBJECT_LIST(0,"IX","A","F","","TI <> 0 AND UN <> 0 AND RX <> ""%%%%%%%%%%%%%%%%%%%%BN*""",("UN","DX"),10000)
+   @RESET_UNIT_NUMBERS = REMOVE_DUPLICATES(APPEND(%RESET_UNIT_NUMBERS,TMP:VUN))
+   #IF NOT TMP:VMORE #THEN #LOOP_EXIT
+#LOOP_END
+
+@GEN_INFO = APL:BSV(20)
+;send gi to each of the units found
+#IF LENGTH(%RESET_UNIT_NUMBERS) > 0 #THEN #BLOCK
+    ;set timeout
+    @OLD_TIMEOUT = TIMEOUT(GEN_INFO:VSTA_OBJECT_STATUS_CHECK_TIMEOUT)
+    #LOOP_WITH I = 1..LENGTH(%RESET_UNIT_NUMBERS)
+       @UN = %RESET_UNIT_NUMBERS(%I)
+       #IF STA'UN':BTT == "EXTERNAL" #THEN #BLOCK
+          #ERROR IGNORE
+          #CASE STA'UN':BST
+             #WHEN "REX","IEC","DNP" #SET STA'UN':SGI = 1 ; rex, iec, dnp
+             #WHEN "SPA" #SET STA'UN':SUP = 1; spa
+             #WHEN "RTU" #SET STA'UN':SSC = 1; rtu
+             #WHEN "STA" #BLOCK
+                @ANSI_OBJECTS = APPLICATION_OBJECT_LIST(0,"IX","A","F","",-
+                                "PT < 100 AND IU == 1 AND SS > 0 AND UN == %UN AND (PT==3 OR PT==6 OR PT==9 OR PT==12 OR PT==13 OR PT==14) AND RX <> ""%%%%%%%%%%%%%%%%%%%%BN*""",-
+                                ("LN","IX"),10000)
+                #IF LENGTH(ANSI_OBJECTS:VLN) > 0 #THEN #BLOCK
+                   #LOOP_WITH I = 1..LENGTH(ANSI_OBJECTS:VLN)
+                      @LN = ANSI_OBJECTS:VLN(%I)
+                      @IX = ANSI_OBJECTS:VIX(%I)
+                      #GET 'LN':P'IX'
+                   #LOOP_END
+                #BLOCK_END
+             #BLOCK_END
+          #CASE_END
+          #ERROR CONTINUE
+       #BLOCK_END
+    #LOOP_END
+    ;return timeout
+    @TMP = TIMEOUT(%OLD_TIMEOUT)
+#BLOCK_END
+
+;protocol specific part
+#CASE %COM_APLCMD_PROTOCOL
+   ;IEC 870-5-101 slave
+   #WHEN 2 #BLOCK
+      ;after the time interval send end of initialization to the NCC
+      @REMOTE_RESET = 2 ;value of COI in remote reset
+      #EXEC_AFTER GEN_INFO:VDATABASE_INITIALISATION_TIME COM_IESEI:C (@COM_IEC_STA_NUMBER = %COM_EXCLUSIVE_STA_NUMBER,-
+                                                                      @COI_VALUE = %REMOTE_RESET)
+   #BLOCK_END
+#CASE_END

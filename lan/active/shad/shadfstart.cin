@@ -1,0 +1,61 @@
+; SHADOW - CHECK FOR FORCED APPLICATION START
+;
+; INPUT PARAMETERS:
+;            %APL    - APPLICATION
+#DO SHADGLOBAL:C
+
+@LOCAPL = TRUNC(SHADLOCAPL:D(%APL))
+#IF (APL'APL':BAS <> "COLD") OR (APL'APL':BSS <> "NONE") #THEN @LOCAPL = -1
+#ELSE_IF SHADHOT:DOS(%APL) == 10 #THEN @LOCAPL = -1
+
+#CASE %LOCAPL
+   #WHEN 1 #BLOCK   ; APPLICATION READY FOR SHADOWING
+      #IF SHADSTART:DOS(%APL) == 10 #THEN #BLOCK
+         #SET SHADSTART:DOS(%APL) = 0
+         #SET SHADSTART:D(%APL) = 0
+         #SET SHADSTART:DRT(%APL) = CLOCK
+      #BLOCK_END         ; IF SHADSTART:DOS(%APL) == 10
+      #ELSE #BLOCK
+         #IF (CLOCK - SHADSTART:DRT(%APL)) > %LAPL_START #THEN #BLOCK
+            @NET_OK = FALSE
+            #IF %CHK_NET_START #THEN #BLOCK
+               #LOOP_WITH I = 1 .. %MAX_NET
+                  #IF (NOD'I':BSA > 0) AND (CLOCK - NOD'I':BRT < %NET_CONN) -
+                  #THEN #BLOCK
+                     @NET_OK = TRUE
+                     #LOOP_EXIT
+                  #BLOCK_END
+               #LOOP_END
+            #BLOCK_END         ; IF %CHK_NET_START
+            #ELSE #BLOCK
+               @NET_OK = TRUE
+            #BLOCK_END
+            #IF %NET_OK #THEN #BLOCK
+               @STATUS = STATUS
+               #ERROR CONTINUE
+               #SET APL'APL':BAS="HOT"
+               #ERROR STOP
+               @STATUS = STATUS
+               #IF %STATUS == 0 #THEN #BLOCK
+                  #EXEC SHADHOT:C
+                  #EXEC SHADMAPNET:C (@APL = %APL)
+                  #EXEC SHADMAPMON:C (@APL = %APL)
+                  #EXEC SHADUSR:C (@APL = %APL, @EVENT = %TOVR)
+                  #SET SHAD_XMT:D(%APL) = 12
+                  #SET SHAD_XMT:DRT(%APL) = CLOCK
+                  #EXEC SHADLOG:C (@APL=%APL,-
+                                   @RT=SYS_TIME,-
+                                   @TEXT="FORCED APPLICATION START SUCCESSFULL")
+               #BLOCK_END         ; IF STATUS == 0
+               #ELSE #BLOCK
+                  #SET APL'APL':BAS="COLD"
+                  #SET SHADSTART:DOS(%APL) = 10
+                  #EXEC SHADLOG:C (@APL=%APL,-
+                                   @RT=SYS_TIME,-
+                                   @TEXT="FORCED APPLICATION START FAILED ('STATUS')")
+               #BLOCK_END
+            #BLOCK_END         ; IF %NET_OK
+         #BLOCK_END         ; IF (CLOCK - SHADSTART:DRT(%APL)) > %LAPL_START
+      #BLOCK_END
+      #BLOCK_END
+#CASE_END

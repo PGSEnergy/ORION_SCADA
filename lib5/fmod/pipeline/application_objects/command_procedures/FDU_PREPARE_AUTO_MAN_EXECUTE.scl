@@ -1,0 +1,169 @@
+;Function: FDU_PREPARE_AUTO_MAN_EXECUTE:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/fdu_prepare_auto_man_execute.scl
+;Version: 1.0
+;Parameters: 
+;Return data:
+;Description: Prepares execute command for OFF (open)
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data, i_forced_value, t_direction
+#local t_execute_ln, i_execute_ix, i_execute_value, t_sta_type, t_control_type, i_cmd_param = 0, i_execute = 0
+#local l_value_convention, t_Attr, v_Attrs, i, i_la_value = 0, i_simulate_value = 0, t_keyword = "", t_convention_attr = ""
+#local l_result = list(value = 0, index = 0, cmd_parameter = 0, la_value = 0)
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_FDU_PREPARE_AUTO_MAN_EXECUTE"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+         @REDIRECTED = true                                                                        
+         i_ArgCnt = argument_count                                                                 
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+         #loop_end                                                                                 
+         #return 't_Redirect_Command' ;;;;;                                                        
+      #block_end                                                                                   
+   #block_end                                                                                      
+   #else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+
+t_execute_ln = l_object_info.p_object_ln
+t_sta_type = l_object_info.station_type
+t_control_type = l_object_info.auto_manual_cmd_type
+
+#if l_object_info.auto_manual_ind_type == "2BI" #then #block
+   #if t_direction == "AUTOMATIC" #then t_convention_attr = "auto_indication"
+   #else_if t_direction == "MANUAL" #then t_convention_attr = "manual_indication"
+   #else 
+#block_end
+#else_if l_object_info.auto_manual_ind_type == "DB" #then t_convention_attr = "auto_manual_indication"
+
+l_value_convention = do(fdu_get_indications_switch_auto_man:c, l_object_info)
+
+#if t_direction == "AUTOMATIC" #then t_keyword = "AUTO"
+#else t_keyword = "MANUAL"
+
+#loop_with i =  0 .. (length(list_attr(l_value_convention.'t_convention_attr'))) - 1
+   #if l_value_convention.'t_convention_attr'.ov_'i' == t_keyword #then #block   
+      #if i == 1 #then #block
+         #if t_keyword == "AUTO" #then #block
+            i_la_value = 13
+            i_simulate_value = 1
+         #block_end
+         #else #block
+            i_la_value = 11
+            i_simulate_value = 1
+         #block_end
+         #loop_exit
+      #block_end
+      #else #block
+         #if t_keyword == "MANUAL" #then #block
+            i_la_value = 11
+            i_simulate_value = 2
+         #block_end
+         #else #block
+            i_la_value = 13
+            i_simulate_value = 2
+         #block_end
+         #loop_exit
+      #block_end
+   #block_end
+#loop_end
+
+;define execute value and index depending on direction, control type and protocol
+#case t_direction
+   #when "AUTOMATIC" #block
+      #case t_control_type
+         #when "SEC-5AO" #block
+            #if attribute_exists(l_data.all_objects, "execute_open_cmd_ix") #then i_execute_ix = l_data.all_objects.execute_open_cmd_ix
+            #if i_forced_value > 1 #then i_execute_value = i_forced_value
+            #else i_execute_value = 1
+         #block_end
+         #when "SEC-5BO" #block
+            #if attribute_exists(l_data.all_objects, "execute_open_cmd_ix") #then i_execute_ix = l_data.all_objects.execute_open_cmd_ix
+            i_execute_value = 1
+         #block_end
+         #when "SEC-4BO" #block
+            #if attribute_exists(l_data.all_objects, "execute_cmd_ix") #then i_execute_ix = l_data.all_objects.execute_cmd_ix
+            i_execute_value = 1
+         #block_end
+         #when "AO" #block
+            #if attribute_exists(l_data.all_objects, "execute_cmd_ix") #then i_execute_ix = l_data.all_objects.execute_cmd_ix
+            #if length(l_object_info.control_bits) == 2 #then i_execute_value = 2**l_object_info.control_bits(1)
+            #else_if length(l_object_info.control_bits) == 4 #then i_execute_value = 2**l_object_info.control_bits(3)
+            #else_if length(l_object_info.control_bits) == 5 #then i_execute_value = 2**l_object_info.control_bits(3)
+         #block_end
+         #when "SEC-2BO", "SEC-2DO" #block
+            #if attribute_exists(l_data.all_objects, "auto_cmd_ix") #then i_execute_ix = l_data.all_objects.auto_cmd_ix
+            #if t_sta_type == "DNP_30" #then i_execute_value = 1
+            #else #block
+               #if t_control_type == "SEC-2DO" #then i_execute_value = l_object_info.control_pulse_length
+               #else i_execute_value = 1
+            #block_end
+         #block_end
+         #when "SEC-BO", "DIR-BO" #block
+            #if attribute_exists(l_data.all_objects, "execute_cmd_ix") #then i_execute_ix = l_data.all_objects.execute_cmd_ix
+            i_execute_value = 0
+         #block_end
+      #case_end
+   #block_end
+   #when "MANUAL" #block
+      #case t_control_type
+         #when "SEC-5AO" #block
+            #if attribute_exists(l_data.all_objects, "execute_close_cmd_ix") #then i_execute_ix = l_data.all_objects.execute_open_cmd_ix
+            #if i_forced_value > 1 #then i_execute_value = i_forced_value
+            #else i_execute_value = 1
+         #block_end
+         #when "SEC-5BO" #block
+            #if attribute_exists(l_data.all_objects, "execute_close_cmd_ix") #then i_execute_ix = l_data.all_objects.execute_open_cmd_ix
+            i_execute_value = 1
+         #block_end
+         #when "SEC-4BO" #block
+            #if attribute_exists(l_data.all_objects, "execute_cmd_ix") #then i_execute_ix = l_data.all_objects.execute_cmd_ix
+            i_execute_value = 1
+         #block_end
+         #when "AO" #block
+            #if attribute_exists(l_data.all_objects, "execute_cmd_ix") #then i_execute_ix = l_data.all_objects.execute_cmd_ix
+            #if length(l_object_info.control_bits) == 2 #then i_execute_value = 2**l_object_info.control_bits(2)
+            #else_if length(l_object_info.control_bits) == 4 #then i_execute_value = 2**l_object_info.control_bits(3)
+            #else_if length(l_object_info.control_bits) == 5 #then i_execute_value = 2**l_object_info.control_bits(4)
+         #block_end
+         #when "SEC-2BO", "SEC-2DO" #block
+            #if attribute_exists(l_data.all_objects, "manual_cmd_ix") #then i_execute_ix = l_data.all_objects.manual_cmd_ix
+            #if t_sta_type == "DNP_30" #then i_execute_value = 1
+            #else #block
+               #if t_control_type == "SEC-2DO" #then i_execute_value = l_object_info.control_pulse_length
+               #else i_execute_value = 1
+            #block_end
+         #block_end
+         #when "SEC-BO", "DIR-BO" #block
+            #if attribute_exists(l_data.all_objects, "execute_cmd_ix") #then i_execute_ix = l_data.all_objects.execute_cmd_ix
+            i_execute_value = 1
+         #block_end
+      #case_end
+   #block_end
+#case_end
+
+;define command parameter for iec 101 and dnp 3.0 protocols
+#if l_object_info.station_type == "IEC101" or l_object_info.station_type == "DNP_30" #then #block
+   #if attribute_exists(l_object_info, "cmd_parameter") #then #block
+      i_cmd_param = l_object_info.cmd_parameter
+      #if i_cmd_param <> 't_execute_ln':pty'i_execute_ix' #then #set 't_execute_ln':pty'i_execute_ix' = i_cmd_param
+   #block_end
+   #else i_cmd_param = 't_execute_ln':pty'i_execute_ix'
+#block_end
+
+l_result = merge_attributes(l_result, list(-
+   value = i_execute_value, index = i_execute_ix, cmd_parameter = i_cmd_param , la_value = i_la_value, simulate_value = i_simulate_value))
+
+#return l_result

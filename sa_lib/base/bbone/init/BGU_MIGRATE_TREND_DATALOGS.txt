@@ -1,0 +1,44 @@
+; Function:    BGU_MIGRATE_TREND_DATALOGS.TXT
+; Version:     1.0
+; Parameters:  
+; Return data:
+; Description: Moves the information of connected process object from IN - to RX - attribute. 
+;             
+;----------------------------------------------------------------------------------------------------------------------------------------------------
+
+#local -
+   l_Trend_Objects,-
+   t_Datalog,-
+   t_LN,-
+   t_IX,-
+   t_IN,-
+   t_Char,-
+   i,-
+   j,-
+   s
+
+l_Trend_Objects = application_object_list(0,"D","" ,"","","LN==""FTU_TRD*"" AND IU == 1 AND RX == """" AND IN <>""""", vector("IN"))
+
+#loop_with i = 1 .. l_Trend_Objects.COUNT      
+   t_IN = separate(l_Trend_Objects.IN(i), ":")
+   t_LN = t_IN(1)
+   t_IN = t_IN(2)
+   t_IX = ""
+   #error ignore
+   #loop_with j = 1 .. length(t_IN)
+      t_Char = substr(t_IN , j, 1)
+      s = status
+      s = dec_scan(t_Char)
+      s = status
+      #if s == 0 #then t_IX = t_IX + t_Char
+   #loop_end
+   #error stop
+   #if t_IX <> "" #then #block
+      #if (validate("APPLICATION_OBJECT_NAME", t_LN) == 0) and (dec_scan(t_IX) <= MAX_PROCESS_OBJECT_INDEX) #then #block
+         #if application_object_exists(0, "IX", list(LN = t_LN, IX = dec_scan(t_IX))) #then #block
+            t_Datalog = l_Trend_Objects.LN(i)
+            #set 't_Datalog':DRX = t_LN + ":" + t_IX
+         #block_end
+      #block_end
+   #block_end   
+#loop_end

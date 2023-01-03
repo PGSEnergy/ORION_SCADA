@@ -1,0 +1,322 @@
+﻿; This command procedure is used for handling suspended stations in a COM application
+; This command procedure is activated by the pre-defined event channel APL_EVENT
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @SOURCE, source of the event, text
+;         @SOURCE_NR, number of the station, integer
+;         @EVENT, event causing the activation
+;         APL:BSV(20), general parameters
+;         APL:BSV(21), ncc cross-reference table
+; OUTPUT  @LN, @IX, @OS, @RT, @RM, @CA, @OV, @BL, @SB attributes of the object to be  
+;         sent to the NCC,forwarded to upstream procedures
+;---------------------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+#IF LENGTH(APL:BSV) >= 19 #THEN #BLOCK
+#IF DATA_TYPE(APL:BSV(20)) =="LIST" #THEN #BLOCK
+   ;intialize
+   @STA_STATUS = 0
+   @NCC_STA_NUMBERS = VECTOR()
+   @OK_STATUS_CODES = (0,13258)
+   @RTU_VALID_INDEX = TRUE
+   @ENABLE_LOGGING = COM_GENVAR:PBZ(3)
+   @ENABLE_SENDING = TRUE 
+   @DISABLE_TRIP_SIGNALS_WHEN_SUSPENDED = COM_GENVAR:PBZ(20) 
+   @STATION_NUMBER_OF_TRIP_SIGNAL = 0
+   
+   @TIME = HR_CLOCK
+   @RT = TIMES(TIME:VCL)
+   @RM = ROUND(TIME:VUS/1000)
+   
+   ;read in general parameters
+   @GEN_INFO = APL:BSV(20)
+   
+   ;set timeout for status check
+   @OLD_TIMEOUT = TIMEOUT(GEN_INFO:VSTA_OBJECT_STATUS_CHECK_TIMEOUT)
+   
+   ;if activated by station getting suspened
+   #IF %SOURCE == "UN" #THEN #BLOCK; 1
+      ;find all ncc station numbers from the cross-reference table 
+      @NCC_XREF_TABLE = APL:BSV(21)
+      #IF LENGTH(%NCC_XREF_TABLE) > 0 #THEN #BLOCK
+         #LOOP_WITH COUNT = 1..LENGTH(%NCC_XREF_TABLE)
+            @NCC = %NCC_XREF_TABLE(%COUNT)
+            #IF LENGTH(%NCC) > 0 #THEN @NCC_STA_NUMBERS = APPEND(%NCC_STA_NUMBERS,%NCC(1))
+        #LOOP_END
+     #BLOCK_END
+     ;continue if not ncc station
+     #IF LENGTH(SELECT(%NCC_STA_NUMBERS,"==%SOURCE_NR")) == 0 #THEN #BLOCK ; 2    
+        ;check the status of the station (if attribute exists)
+        #ERROR IGNORE
+        @S = STATUS
+        @STA_STATUS = STA'SOURCE_NR':SOS
+        @S = STATUS
+        #ERROR CONTINUE
+        ;suspended station
+        #IF %S <> 0 OR LENGTH(SELECT(%OK_STATUS_CODES,"==%STA_STATUS")) == 0 #THEN #BLOCK ; 3
+        @QUERY_CONDITION="IU==1 AND(SS>=2 AND(OS==2 OR OS==10)AND ((((TI<>0 AND(PT==3 OR PT==6 OR PT==9 OR PT==12 OR PT==13 OR PT==14 OR PT==16))OR DX==""9"")AND RX<>""%%%%%%%%%%%%%%%%%%%%BN*"")OR((PT==5 OR PT==11)AND TI<>0 AND GI>0)))"
+        #BLOCK_END ; 3
+        ;running station 
+        #ELSE #BLOCK
+           ;initialize marked signals to default status
+           @STATION_NUMBER_OF_TRIP_SIGNAL = %SOURCE_NR
+           #IF COM_INIT:CCS == 1 #THEN #DO COM_INIT:CCP
+           #ELSE #DO COM_INIT:CIN
+           ;check if RTU station
+           #ERROR IGNORE
+           @S = STATUS
+           @TMP = STA'SOURCE_NR':SHR
+           @S = STATUS
+           #ERROR CONTINUE     
+           #IF %S == 0 #THEN #BLOCK
+              @QUERY_CONDITION = "IU==1 AND SS>=2 AND (OS==10 OR OS==2) AND TI<>0 AND (DX==""I10S"" OR DX==""R10S"" OR DX==""I11"" OR DX==""R11"" OR DX==""I10D"" OR DX==""R10D"")"     
+           #BLOCK_END
+           #ELSE @QUERY_CONDITION = "IU==1 AND SS>=2 AND (AN==""COM_USAO"" OR AN==""COM_USBO"") AND (PT==5 OR PT==11) AND TI<>0" 
+        #BLOCK_END
+        #IF GEN_INFO:VCOM_DATABASE_INITIALISED #THEN #BLOCK ; 3  
+            #IF %ENABLE_LOGGING #THEN #BLOCK ; 4
+               @UN_EVENT_TEXT = LOWER_CASE(%EVENT)
+               @INFO="'rt':'rm',SUSSTA,'SOURCE_NR',,,Station 'SOURCE_NR' 'UN_EVENT_TEXT',,,,,,,,,,,,,,,,"
+               #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+               #ELSE #DO COM_LOG:CIN
+            #BLOCK_END ; 4         
+           ;send up all indications with a NCC connection connected to the suspended station if faulty time/value or obsolete status
+            @SUSP_OBJECTS = APPLICATION_OBJECT_LIST(0,"IX","U","F",%SOURCE_NR,%QUERY_CONDITION,("OS","PT","OV","AL","LN","IX","RT","RM","BL","SB","OR","CT","OG","DX","GI","RZ","OF","QL"),50000)
+            #IF LENGTH(SUSP_OBJECTS:VLN) > 0 #THEN #BLOCK ; 5
+               #LOOP_WITH I = 1..LENGTH(SUSP_OBJECTS:VLN) ; 6
+                  @GI = SUSP_OBJECTS:VGI(%I)
+                  ;check that trip signals sending is allowed when station suspended 
+                  #IF BIT(%GI,0) == 1 AND %DISABLE_TRIP_SIGNALS_WHEN_SUSPENDED #THEN @ENABLE_SENDING = FALSE 
+                  #ELSE @ENABLE_SENDING = TRUE 
+                  #IF %ENABLE_SENDING #THEN #BLOCK ;7            
+                     ;if ANSI analog input object, switch to the lower index (DB)
+                     @LN = SUSP_OBJECTS:VLN(%I)
+                     @IX = SUSP_OBJECTS:VIX(%I)
+                     #IF SUSP_OBJECTS:VDX(%I) == "9" #THEN #BLOCK ; 8
+                        @LOW_IX = %IX - 100
+                        @LOW_DX = ""
+                        #ERROR IGNORE
+                        @LOW_DX = 'LN':PDX'LOW_IX'
+                        #ERROR CONTINUE
+                        #IF %LOW_DX == "3" OR %LOW_DX == "12" #THEN #BLOCK ; 9
+                            #SET SUSP_OBJECTS:VIX(%I) = %LOW_IX
+                            #SET SUSP_OBJECTS:VDX(%I) = %LOW_DX
+                            #SET SUSP_OBJECTS:VPT(%I) = 'LN':PPT'LOW_IX'
+                            #SET SUSP_OBJECTS:VRT(%I) = 'LN':PRT'LOW_IX'
+                            #SET SUSP_OBJECTS:VRM(%I) = 'LN':PRM'LOW_IX'
+                            #SET SUSP_OBJECTS:VOV(%I) = 'LN':POV'LOW_IX'
+                            #SET SUSP_OBJECTS:VAL(%I) = 'LN':PAL'LOW_IX'
+                            #SET SUSP_OBJECTS:VBL(%I) = 'LN':PBL'LOW_IX'
+                            #SET SUSP_OBJECTS:VSB(%I) = 'LN':PSB'LOW_IX'
+                            #SET SUSP_OBJECTS:VCT(%I) = 'LN':PCT'LOW_IX'
+                            #SET SUSP_OBJECTS:VOG(%I) = 'LN':POG'LOW_IX' 
+                            #SET SUSP_OBJECTS:VRZ(%I) = 'LN':PRZ'LOW_IX' 
+                            #SET SUSP_OBJECTS:VOF(%I) = 'LN':POF'LOW_IX'
+                            #SET SUSP_OBJECTS:VQL(%I) = 'LN':PQL'LOW_IX'
+                        #BLOCK_END ;9 
+                     #BLOCK_END ; 8 
+                     ;if not sampled RTU event recording object, read from lower index
+                     @SUS_PT = SUSP_OBJECTS:VPT(%I)
+                     #IF (%SUS_PT==3 OR %SUS_PT==12) AND STA'SOURCE_NR':BST == "RTU" AND (SUSP_OBJECTS:VOS(%I) == 10 OR SUSP_OBJECTS:VOS(%I) == 2) #THEN #BLOCK ; 8
+                        @LOW_IX = %IX - 100
+                        ;check that signal is not negative index from previous calculation
+                        #IF ( %LOW_IX >= 0 ) #THEN #BLOCK ; 9
+                           #IF ( 'LN':POS'LOW_IX' < 10 ) #THEN #BLOCK ; 10
+                              #SET SUSP_OBJECTS:VOV(%I) = 'LN':POV'LOW_IX'
+                              #SET SUSP_OBJECTS:VOS(%I) = 'LN':POS'LOW_IX'
+                              #SET SUSP_OBJECTS:VAL(%I) = 'LN':PAL'LOW_IX'
+                           #BLOCK_END ; 10
+                           @RTU_VALID_INDEX = TRUE
+                        #BLOCK_END ;9
+                        #ELSE @RTU_VALID_INDEX = FALSE ; 9
+                     #BLOCK_END ; 8
+                     ;set default values if suspended object
+                     #IF SUSP_OBJECTS:VOS(%I) == 10 #THEN #BLOCK ; 8
+                        @SUS_OBJ_PT = SUSP_OBJECTS:VPT(%I)
+                        #IF %SUS_OBJ_PT == 14 #THEN #SET SUSP_OBJECTS:VOV(%I) = BIT_STRING(0)
+                        #ELSE #SET SUSP_OBJECTS:VOV(%I) = 0
+                        #IF NOT (%SUS_OBJ_PT == 14 OR %SUS_OBJ_PT == 13 OR %SUS_OBJ_PT == 11) #THEN #BLOCK ; 9
+                           #SET SUSP_OBJECTS:VAL(%I) = 1
+                        #BLOCK_END ; 9
+                     #BLOCK_END ; 8
+                     
+                     #IF %RTU_VALID_INDEX #THEN #BLOCK ; 8
+                        #CASE SUSP_OBJECTS:VPT(%I) ; 9
+                           #WHEN 3 #BLOCK
+                              #EXEC  COM_USBI:C (@LN = SUSP_OBJECTS:VLN(%I),@IX = SUSP_OBJECTS:VIX(%I),-
+                                                   @OS = SUSP_OBJECTS:VOS(%I),@RT = SUSP_OBJECTS:VRT(%I),-
+                                                   @RM = SUSP_OBJECTS:VRM(%I),@BI = SUSP_OBJECTS:VOV(%I),-
+                                                   @AL = SUSP_OBJECTS:VAL(%I),@BL = SUSP_OBJECTS:VBL(%I),-
+                                                   @SB = SUSP_OBJECTS:VSB(%I),@CT = SUSP_OBJECTS:VCT(%I),-
+                                                   @OG = SUSP_OBJECTS:VOG(%I),@RZ = SUSP_OBJECTS:VRZ(%I),- 
+                                                   @QL = SUSP_OBJECTS:VQL(%I),@COM_CAUSE_OF_TRANSMISSION = 3)
+      
+                              #IF SUSP_OBJECTS:VDX(%I) == "I7S" OR SUSP_OBJECTS:VDX(%I) == "R7S" #THEN #BLOCK
+                                 @HIGH_IX = %IX + 100
+                                 @HIGH_OS = 0
+                                 #ERROR IGNORE
+                                    @HIGH_OS = 'LN':POS'HIGH_IX'
+                                 #ERROR CONTINUE
+                                 #IF %HIGH_OS == 10 #THEN #EXEC COM_USBI:C (@LN = SUSP_OBJECTS:VLN(%I),@IX = SUSP_OBJECTS:VIX(%I) + 100,-
+                                                         @OS = SUSP_OBJECTS:VOS(%I),@RT = SUSP_OBJECTS:VRT(%I),-
+                                                         @RM = SUSP_OBJECTS:VRM(%I),@BI = SUSP_OBJECTS:VOV(%I),-
+                                                         @AL = SUSP_OBJECTS:VAL(%I),@BL = SUSP_OBJECTS:VBL(%I),-
+                                                         @SB = SUSP_OBJECTS:VSB(%I),@CT = SUSP_OBJECTS:VCT(%I),-
+                                                         @OG = SUSP_OBJECTS:VOG(%I),@RZ = SUSP_OBJECTS:VRZ(%I),- 
+                                                         @QL = SUSP_OBJECTS:VQL(%I),@COM_CAUSE_OF_TRANSMISSION = 3)
+                              #BLOCK_END
+      
+                           #BLOCK_END
+                           #WHEN 5 #BLOCK
+                              #IF BIT(%GI,1)==1 #THEN #BLOCK
+                                                #IF %EVENT == "RUNNING" #THEN #BLOCK
+                                                         #EXEC  COM_USBO:C (@LN = SUSP_OBJECTS:VLN(%I),@IX = SUSP_OBJECTS:VIX(%I),-
+                                                         @OS = 0         ,@RT = SUSP_OBJECTS:VRT(%I),-
+                                                         @RM = SUSP_OBJECTS:VRM(%I),@BO = SUSP_OBJECTS:VOV(%I),-
+                                                         @BL = SUSP_OBJECTS:VBL(%I),@SB = SUSP_OBJECTS:VSB(%I),-
+                                                         @CT = SUSP_OBJECTS:VCT(%I),@RZ = SUSP_OBJECTS:VRZ(%I),- 
+                                                         @OG = SUSP_OBJECTS:VOG(%I),@COM_CAUSE_OF_TRANSMISSION = 3)                
+                                                 #BLOCK_END
+                                                 #ELSE #BLOCK
+                                                         #EXEC  COM_USBO:C (@LN = SUSP_OBJECTS:VLN(%I),@IX = SUSP_OBJECTS:VIX(%I),-
+                                                         @OS = SUSP_OBJECTS:VOS(%I),@RT = SUSP_OBJECTS:VRT(%I),-
+                                                         @RM = SUSP_OBJECTS:VRM(%I),@BO = SUSP_OBJECTS:VOV(%I),-
+                                                         @BL = SUSP_OBJECTS:VBL(%I),@SB = SUSP_OBJECTS:VSB(%I),-
+                                                         @CT = SUSP_OBJECTS:VCT(%I),@RZ = SUSP_OBJECTS:VRZ(%I),- 
+                                                         @OG = SUSP_OBJECTS:VOG(%I),@COM_CAUSE_OF_TRANSMISSION = 3)                
+                                                 #BLOCK_END                        
+
+                              #BLOCK_END                                                                    
+                           #BLOCK_END                                                          
+                                                                              
+                           #WHEN 6 #EXEC  COM_USDI:C (@LN = SUSP_OBJECTS:VLN(%I),@IX = SUSP_OBJECTS:VIX(%I),-
+                                                      @OS = SUSP_OBJECTS:VOS(%I),@RT = SUSP_OBJECTS:VRT(%I),-
+                                                      @RM = SUSP_OBJECTS:VRM(%I),@DI = SUSP_OBJECTS:VOV(%I),-
+                                                      @AL = SUSP_OBJECTS:VAL(%I),@BL = SUSP_OBJECTS:VBL(%I),-
+                                                      @SB = SUSP_OBJECTS:VSB(%I),@CT = SUSP_OBJECTS:VCT(%I),-
+                                                      @RZ = SUSP_OBJECTS:VRZ(%I),@OG = SUSP_OBJECTS:VOG(%I),-
+                                                      @QL = SUSP_OBJECTS:VQL(%I),@COM_CAUSE_OF_TRANSMISSION = 3)
+                           #WHEN 9 #BLOCK
+                              #EXEC COM_USAI:C (@LN = SUSP_OBJECTS:VLN(%I),@IX = SUSP_OBJECTS:VIX(%I),-
+                                                   @OS = SUSP_OBJECTS:VOS(%I),@RT = SUSP_OBJECTS:VRT(%I),-
+                                                   @RM = SUSP_OBJECTS:VRM(%I),@AI = SUSP_OBJECTS:VOV(%I),-
+                                                   @AL = SUSP_OBJECTS:VAL(%I),@BL = SUSP_OBJECTS:VBL(%I),-
+                                                   @SB = SUSP_OBJECTS:VSB(%I),@OR = SUSP_OBJECTS:VOR(%I),-
+                                                   @OG = SUSP_OBJECTS:VOG(%I),@RZ = SUSP_OBJECTS:VRZ(%I),- 
+                                                   @QL = SUSP_OBJECTS:VQL(%I),@COM_CAUSE_OF_TRANSMISSION = 3)
+      
+                              #IF SUSP_OBJECTS:VDX(%I) == "I6" OR SUSP_OBJECTS:VDX(%I) == "R6" #THEN #BLOCK
+                                 @HIGH_IX = %IX + 100
+                                 @HIGH_OS = 0
+                                 #ERROR IGNORE
+                                    @HIGH_OS = 'LN':POS'HIGH_IX'
+                                 #ERROR CONTINUE
+      
+                                 #IF %HIGH_OS == 10 #THEN #EXEC COM_USAI:C (@LN = SUSP_OBJECTS:VLN(%I),@IX = SUSP_OBJECTS:VIX(%I) + 100,-
+                                                      @OS = SUSP_OBJECTS:VOS(%I),@RT = SUSP_OBJECTS:VRT(%I),-
+                                                      @RM = SUSP_OBJECTS:VRM(%I),@AI = SUSP_OBJECTS:VOV(%I),-
+                                                      @AL = SUSP_OBJECTS:VAL(%I),@BL = SUSP_OBJECTS:VBL(%I),-
+                                                      @SB = SUSP_OBJECTS:VSB(%I),@OR = SUSP_OBJECTS:VOR(%I),-
+                                                      @OG = SUSP_OBJECTS:VOG(%I),@RZ = SUSP_OBJECTS:VRZ(%I),- 
+                                                      @QL = SUSP_OBJECTS:VQL(%I),@COM_CAUSE_OF_TRANSMISSION = 3)
+                              #BLOCK_END
+      
+                           #BLOCK_END
+                              #WHEN 11 #block 
+                                                #IF %EVENT == "RUNNING" #THEN #BLOCK
+                                                         #EXEC COM_USAO:C (@LN = SUSP_OBJECTS:VLN(%I),@IX = SUSP_OBJECTS:VIX(%I),-
+                                                         @OS = 0                   ,@RT = SUSP_OBJECTS:VRT(%I),-
+                                                         @RM = SUSP_OBJECTS:VRM(%I),@AO = SUSP_OBJECTS:VOV(%I),-
+                                                         @BL = SUSP_OBJECTS:VBL(%I),@SB = SUSP_OBJECTS:VSB(%I),-
+                                                         @OR = SUSP_OBJECTS:VOR(%I),@OG = SUSP_OBJECTS:VOG(%I),-
+                                                         @RZ = SUSP_OBJECTS:VRZ(%I),@CT = SUSP_OBJECTS:VCT(%I),-
+                                                         @COM_CAUSE_OF_TRANSMISSION = 3) 
+                                                #BLOCK_END                                                               
+                                                #ELSE #BLOCK
+                                                         #EXEC COM_USAO:C (@LN = SUSP_OBJECTS:VLN(%I),@IX = SUSP_OBJECTS:VIX(%I),-
+                                                         @OS = SUSP_OBJECTS:VOS(%I),@RT = SUSP_OBJECTS:VRT(%I),-
+                                                         @RM = SUSP_OBJECTS:VRM(%I),@AO = SUSP_OBJECTS:VOV(%I),-
+                                                         @BL = SUSP_OBJECTS:VBL(%I),@SB = SUSP_OBJECTS:VSB(%I),-
+                                                         @OR = SUSP_OBJECTS:VOR(%I),@OG = SUSP_OBJECTS:VOG(%I),-
+                                                         @RZ = SUSP_OBJECTS:VRZ(%I),@CT = SUSP_OBJECTS:VCT(%I),-
+                                                         @COM_CAUSE_OF_TRANSMISSION = 3)                        
+                                                #BLOCK_END
+                                       #block_end                  
+                           #WHEN 12 #BLOCK
+                              #EXEC COM_USDB:C (@LN = SUSP_OBJECTS:VLN(%I),@IX = SUSP_OBJECTS:VIX(%I),-
+                                                   @OS = SUSP_OBJECTS:VOS(%I),@RT = SUSP_OBJECTS:VRT(%I),-
+                                                   @RM = SUSP_OBJECTS:VRM(%I),@DB = SUSP_OBJECTS:VOV(%I),-
+                                                   @AL = SUSP_OBJECTS:VAL(%I),@BL = SUSP_OBJECTS:VBL(%I),-
+                                                   @CT = SUSP_OBJECTS:VCT(%I),@SB = SUSP_OBJECTS:VSB(%I),-
+                                                   @OG = SUSP_OBJECTS:VOG(%I),@RZ = SUSP_OBJECTS:VRZ(%I),-
+                                                   @QL = SUSP_OBJECTS:VQL(%I),@COM_CAUSE_OF_TRANSMISSION = 3)
+      
+                              #IF SUSP_OBJECTS:VDX(%I) == "I7D" OR SUSP_OBJECTS:VDX(%I) == "R7D" #THEN #BLOCK
+                                 @HIGH_IX = %IX + 100
+                                 @HIGH_OS = 0
+                                 #ERROR IGNORE
+                                    @HIGH_OS = 'LN':POS'HIGH_IX'
+                                 #ERROR CONTINUE
+      
+                                 #IF %HIGH_OS == 10 #THEN #EXEC COM_USDB:C (@LN = SUSP_OBJECTS:VLN(%I),@IX = SUSP_OBJECTS:VIX(%I) + 100,-
+                                                   @OS = SUSP_OBJECTS:VOS(%I),@RT = SUSP_OBJECTS:VRT(%I),-
+                                                   @RM = SUSP_OBJECTS:VRM(%I),@DB = SUSP_OBJECTS:VOV(%I),-
+                                                   @AL = SUSP_OBJECTS:VAL(%I),@BL = SUSP_OBJECTS:VBL(%I),-
+                                                   @CT = SUSP_OBJECTS:VCT(%I),@SB = SUSP_OBJECTS:VSB(%I),-
+                                                   @OG = SUSP_OBJECTS:VOG(%I),@RZ = SUSP_OBJECTS:VRZ(%I),- 
+                                                   @QL = SUSP_OBJECTS:VQL(%I),@COM_CAUSE_OF_TRANSMISSION = 3)
+                              #BLOCK_END
+                           #BLOCK_END
+                           #WHEN 13 #EXEC COM_USPC:C (@LN = SUSP_OBJECTS:VLN(%I),@IX = SUSP_OBJECTS:VIX(%I),-
+                                                      @OS = SUSP_OBJECTS:VOS(%I),@RT = SUSP_OBJECTS:VRT(%I),-
+                                                      @RM = SUSP_OBJECTS:VRM(%I),@PC = SUSP_OBJECTS:VOV(%I),-
+                                                      @BL = SUSP_OBJECTS:VBL(%I),@SB = SUSP_OBJECTS:VSB(%I),-
+                                                      @OG = SUSP_OBJECTS:VOG(%I),@RZ = SUSP_OBJECTS:VRZ(%I),- 
+                                                      @CT = SUSP_OBJECTS:VCT(%I),@OF = SUSP_OBJECTS:VOF(%I),- 
+                                                      @QL = SUSP_OBJECTS:VQL(%I),@COM_CAUSE_OF_TRANSMISSION = 3)
+                                                      
+                           #WHEN 14 #EXEC COM_USBS:C (@LN = SUSP_OBJECTS:VLN(%I),@IX = SUSP_OBJECTS:VIX(%I),-
+                                                      @OS = SUSP_OBJECTS:VOS(%I),@RT = SUSP_OBJECTS:VRT(%I),-
+                                                      @RM = SUSP_OBJECTS:VRM(%I),@BS = SUSP_OBJECTS:VOV(%I),-
+                                                      @BL = SUSP_OBJECTS:VBL(%I),@SB = SUSP_OBJECTS:VSB(%I),-
+                                                      @CT = SUSP_OBJECTS:VCT(%I),@RZ = SUSP_OBJECTS:VRZ(%I),- 
+                                                      @OG = SUSP_OBJECTS:VOG(%I),@QL = SUSP_OBJECTS:VQL(%I),-
+                                                      @COM_CAUSE_OF_TRANSMISSION = 3)
+                                                      
+                           #WHEN 16 #EXEC  COM_USOE:C (@LN = SUSP_OBJECTS:VLN(%I),@IX = SUSP_OBJECTS:VIX(%I),-
+                                                   @OS = SUSP_OBJECTS:VOS(%I),@RT = SUSP_OBJECTS:VRT(%I),-
+                                                   @RM = SUSP_OBJECTS:VRM(%I),@OE = SUSP_OBJECTS:VOV(%I),-
+                                                   @AL = SUSP_OBJECTS:VAL(%I),@BL = SUSP_OBJECTS:VBL(%I),-
+                                                   @SB = SUSP_OBJECTS:VSB(%I),@CT = SUSP_OBJECTS:VCT(%I),-
+                                                   @OG = SUSP_OBJECTS:VOG(%I),@RZ = SUSP_OBJECTS:VRZ(%I),- 
+                                                   @COM_CAUSE_OF_TRANSMISSION = 3)
+         
+                        #CASE_END ; 9
+                     #BLOCK_END ; 8
+                  #BLOCK_END ; 7
+               #LOOP_END ; 6
+            #BLOCK_END ; 5
+         #BLOCK_END ; 3   
+      #BLOCK_END ; 2
+      #ELSE_IF %ENABLE_LOGGING #THEN #BLOCK ; 4
+         @UN_EVENT_TEXT = LOWER_CASE(%EVENT)
+         @INFO="'rt':'rm',SUSSTA,'SOURCE_NR',,,NCC station 'SOURCE_NR' 'UN_EVENT_TEXT',,,,,,,,,,,,,,,,"
+         #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+         #ELSE #DO COM_LOG:CIN
+      #BLOCK_END ; 4   
+   #BLOCK_END ; 1
+   #ELSE_IF %SOURCE == "HOST" #THEN #BLOCK
+      #IF %EVENT == "CONNECTED" #THEN #BLOCK
+         ;initialize marked signals to default status
+         #IF COM_INIT:CCS == 1 #THEN #DO COM_INIT:CCP
+         #ELSE #DO COM_INIT:CIN
+      #BLOCK_END
+   #BLOCK_END
+   ;return timeout
+   @TMP = TIMEOUT(%OLD_TIMEOUT)
+#BLOCK_END
+#BLOCK_END

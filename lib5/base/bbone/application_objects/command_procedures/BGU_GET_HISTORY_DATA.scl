@@ -1,0 +1,156 @@
+#argument t_Method_Name
+#local i_IX, t_LN, args, tc
+#local v_trdObjs, v_tcObjs, v_plus_query, v_minus_query, v_append
+#local i_max_return_log_count, r_step_multiplier, v_result_indices, v_attributes, v_additional_attributes
+#local start_time, end_time
+#local v_PLN=vector(), v_PIX=vector(), tmp_vec=vector()
+
+#case upper_case(t_Method_Name)
+   #when "GET_TREND_DATALOGS" #block
+      v_trdObjs = application_object_list(0,"D","" ,"","","LN==""FTU_TRD*"" AND IU == 1 AND RX <>""""", ("RX"))
+      v_tcObjs = vector()
+      #loop_with counter = 1 .. v_trdObjs.COUNT
+         tmp_vec = SEPARATE(v_trdObjs.RX(%counter),":")
+         v_PLN = APPEND(v_PLN,tmp_vec(1))
+         v_PIX = APPEND(v_PIX,tmp_vec(2))
+         tc = v_trdObjs.LN(%counter)
+         #if 'tc':DTC <> "" #then #block
+            tc = 'tc':DTC
+            v_tcObjs = APPEND(v_tcObjs,'tc':TCY(2))
+         #block_end
+         #else #block
+            v_tcObjs = APPEND(v_tcObjs,0)
+         #block_end
+      #loop_end         
+      v_trdObjs= merge_attributes(v_trdObjs,list(TREND_LN=v_trdObjs.LN))
+      v_trdObjs= merge_attributes(v_trdObjs,application_object_attributes(0,"IX_AND_UP",LIST(LN=v_PLN,IX=DEC_SCAN(v_PIX)),VECTOR("OX","IE","ST","IX", "LN")))
+      v_trdObjs= merge_attributes(v_trdObjs,list(EXECUTION_INTERVAL=v_tcObjs))
+      #return v_trdObjs 
+   #block_end
+
+   #when "READ_LIVEMODE_TREND_VALUE_RANGE" #block
+      v_trdObjs = list()
+      args = argument(2)
+      #if data_type(args) == "VECTOR" and length(args) == 4 #then #block
+         tc = args(1)
+         start_time = args(2)
+         end_time = args(3)         
+         i_max_return_log_count = args(4)  ;Max items to return
+         #if i_max_return_log_count > 0 #then #block
+            v_tcObjs = DATA_FETCH(0,"FTU_TRD'tc'",start_time,end_time)
+            #if i_max_return_log_count >= v_tcObjs.LE #then #block ; v_tcObjs.LE indicates the length of the result list vector items
+               #return v_tcObjs
+            #block_end
+            #else #block
+               v_result_indices = vector()
+               #if i_max_return_log_count == 1 #then #block
+                  v_result_indices = append(v_result_indices, v_tcObjs.LE) ; Take the last index
+               #block_end
+               #else #block
+                  r_step_multiplier = (v_tcObjs.LE - 1)/i_max_return_log_count  ;Multiplier
+                  #loop_with k = 1 .. i_max_return_log_count
+                     v_result_indices(length(v_result_indices)+1) = round(1+%k*r_step_multiplier)
+                  #loop_end
+               #block_end
+               v_attributes = list_attr(v_tcObjs)
+               #loop_with i = 1 .. length(v_attributes)
+                  v_additional_attributes = v_attributes(%i)
+                  #if data_type(v_tcObjs.'v_additional_attributes') == "VECTOR" #then #block
+                     v_trdObjs = merge_attributes(v_trdObjs, list('v_additional_attributes' = pick(v_tcObjs.'v_additional_attributes', v_result_indices)))
+                  #block_end
+               #loop_end
+            #block_end
+         #block_end
+      #block_end
+      #return v_trdObjs
+   #block_end
+   
+   #when "READ_TREND_VALUE_RANGE" #block
+      v_trdObjs = list()
+      args = argument(2)
+      #if data_type(args) == "VECTOR" and length(args) == 4 #then #block
+         tc = args(1)
+         start_time = args(2)
+         end_time = args(3)         
+         i_max_return_log_count = args(4)  ;Max items to return
+         #if i_max_return_log_count > 0 #then #block
+            v_tcObjs = DATA_FETCH(0,"FTU_TRD'tc'",start_time,end_time)
+            v_plus_query = DATA_FETCH(0,"FTU_TRD'tc'",end_time,1,1)
+            v_minus_query = DATA_FETCH(0,"FTU_TRD'tc'",start_time,-1,1)
+            v_attributes = list_attr(v_tcObjs)
+            #if i_max_return_log_count >= v_tcObjs.LE #then #block ; v_tcObjs.LE indicates the length of the result list vector items
+               #if i_max_return_log_count == 1 #then #block
+                  #return v_tcObjs
+               #block_end
+               #loop_with i = 1 .. length(v_attributes)
+                  v_additional_attributes = v_attributes(%i)
+                  #if data_type(v_tcObjs.'v_additional_attributes') == "VECTOR" #then #block
+                     v_append = append(v_minus_query.'v_additional_attributes', v_tcObjs.'v_additional_attributes')
+                     v_append = append(v_append, v_plus_query.'v_additional_attributes')
+                     v_trdObjs = merge_attributes(v_trdObjs, list('v_additional_attributes' = v_append))
+                  #block_end
+               #loop_end
+               #return v_trdObjs
+            #block_end
+            #else #block
+               v_result_indices = vector()
+               #if i_max_return_log_count == 1 #then #block
+                  v_result_indices = append(v_result_indices, v_tcObjs.LE) ; Take the last index
+               #block_end
+               #else #block
+                  r_step_multiplier = (v_tcObjs.LE - 1)/i_max_return_log_count  ;Multiplier
+                  #loop_with k = 1 .. i_max_return_log_count
+                     v_result_indices(length(v_result_indices)+1) = round(1+%k*r_step_multiplier)
+                  #loop_end
+               #block_end
+               #loop_with i = 1 .. length(v_attributes)
+                  v_additional_attributes = v_attributes(%i)
+                  #if data_type(v_tcObjs.'v_additional_attributes') == "VECTOR" #then #block
+                     #if i_max_return_log_count == 1 #then #block
+                        v_trdObjs = merge_attributes(v_trdObjs, list('v_additional_attributes' = pick(v_tcObjs.'v_additional_attributes', v_result_indices)))
+                     #block_end
+                     #else #block
+                        v_append = append(v_minus_query.'v_additional_attributes', pick(v_tcObjs.'v_additional_attributes', v_result_indices))
+                        v_append = append(v_append, v_plus_query.'v_additional_attributes')
+                        v_trdObjs = merge_attributes(v_trdObjs, list('v_additional_attributes' = v_append))
+                     #block_end
+                  #block_end
+               #loop_end
+            #block_end
+         #block_end
+      #block_end
+      #return v_trdObjs
+   #block_end
+
+   #when "READ_LATEST_TREND_VALUE" #block
+      args = argument(2)
+      #return DATA_FETCH(0, "FTU_TRD'args'", FTU_TRD'args':DLR)
+   #block_end
+   
+   #when "GET_TREND_IDENTIFIER" #block
+      args = argument(2)
+      v_trdObjs = list()
+      #if data_type(args) == "VECTOR" and length(args) == 2 #then #block
+         t_LN = args(1)
+         i_IX = args(2)
+         v_tcObjs = application_object_list(0, "D", "", "", "", "LN == ""FTU_TRD*"" AND IU == 1", vector("RX","TC"))
+         #if v_tcObjs.COUNT > 0 #then #block
+            v_result_indices = find_element(v_tcObjs.RX, t_LN + ":" + dec(i_IX, 0))
+            #if v_result_indices > 0 #then #block
+               tc = v_tcObjs.TC(v_result_indices)
+               #if tc <> "" #then #block
+                  v_trdObjs = list(-
+                     IE = 't_LN':PIE'i_IX',-
+                     DESCRIPTION = 't_LN':POX'i_IX',-
+                     DATALOG_NAME = v_tcObjs.LN(v_result_indices),-
+                     EXECUTION_INTERVAL = 'tc':TCY(2))
+                  #if 't_LN':PPT'i_IX' == 9 or 't_LN':PPT'i_IX' == 11 or 't_LN':PPT'i_IX' == 13 #then -
+                     v_trdObjs = merge_attributes(v_trdObjs, list(UNIT = 't_LN':PST'i_IX'))
+                  #else v_trdObjs = merge_attributes(v_trdObjs, list(UNIT = ""))
+               #block_end
+            #block_end
+         #block_end
+      #block_end
+      #return v_trdObjs
+   #block_end
+#case_end

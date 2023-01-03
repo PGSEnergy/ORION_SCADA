@@ -1,0 +1,437 @@
+; Function:    SAGR_TAGOUT_AM:C
+; Version:     1.1 (Build 7.2.2013) 
+; Parameters:  1. command selector, 2.vector(LN,IX) for Section reference 
+;              3. new value 4. blk.Attr for LOCAL_BLOCK, 5. Tagout ID
+; Return data: depending on command
+; Description: Action Methods for Tagouts
+;----------------------------------------------------------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;07.02.2013 1.1      HoDa   List creation for Update_Objects fails for LN start with numerical character, SSS as prefix
+;                           Reset local inhibit -> force update for simulated objects (ID:15391)
+;25.06.2009 1.0      HoDa   error fix in bit number assignment corrected
+;23.04.2009 1.0      HoDa   final clean-up, ready to test
+;21.04.2009 0.7      HoDa   dedicated RZ value for all local block functions added
+;                    HoDa   Tag_Text handling modified, always use the Text from the highest priority
+;31.01.2009 0.6      HoDa   PDB search extended for three-state switch and commands
+;06.12.2008 0.3      <:-)   Attr. vector for local lock/inhibit missed UB
+;----------------------------------------------------------------------------------------------------------------------------------------------------
+#argument tCommandSelector
+#local iDBHandle,iDBError=0,lDBData=List(),tSection="",vTagouts=vector(),tTagoutID="",tAMAttrName=""
+#local bSearchByLN=true,bSearchByOI=false,bmainIndexOnly = false,bMiscFunct=false
+#local lAplObjects=list(),lBlockingSettings=List()
+#local tInObjSearchCondition="",tOutObjSearchCondition="",tCondition="",tSelectiveCondition=""
+#local tCom500File = "APL_/apl_com.txt",bCom500FileExist=false
+#local b_,i,i1,j,k,t,v,v_,l_=List(),x,v1,v2,iStatus,tLN_="",iIX_=0
+#local tLN,iIX,tOI="",iOV,iOS,tNewValue,iNewValue=-1,iActValue=-1,iActRZ,tBlockingAttr="",iBitNr=0
+#local lReturn,bEnableDebugging=sys:bdm==1,bSysVersion93 = not(sys:bre < " 9.2")
+
+#error ignore
+;bEnableDebugging = false
+#if bEnableDebugging #then -
+   x=trace_begin("PICT/TRACE_TAGOUT_AM_'tCommandSelector'.txt")
+
+;----------------------------- SCIL Action Methods from com500i -------------------------------------------------------------------------------------
+#case upper_case(tCommandSelector)
+
+;====================================================================================================================================================
+   #when "GET_REMOTELOCK_STATE" #block
+      iStatus = status
+      #error ignore
+      tLN=%OUTPUT_OBJECT_LNS(1)
+      iIX=%OUTPUT_OBJECT_IXS(1)
+      iStatus = status
+      #error continue
+      #if iStatus <> 0 #then b_ = false  ;error in command from com500i, that actual means command will not be blocked
+      ;check if PO exist
+      #if application_object_exists(0,"IX",List(LN="'tLN'",IX='iIX')) and bSysVersion93 #then #block
+      ;check if remote lock is active
+         b_ =  bit('tLN':PRZ'iIX',4) == 1
+      #block_end
+      #else b_ = false
+                                                                                                                                                     #if bEnableDebugging #then x = console_output(times+" Tagout_AM: = 'tCommandSelector', 'tLN':P'iIX' blocked = 'b_'")
+      #return b_
+   #block_end
+#case_end
+
+;----------------------------- Argument check for SCIL Action Methods from control dialog -----------------------------------------------------------
+#if argument_count<5 #then #return -1
+
+#if data_type(argument(2))=="VECTOR" #then #block
+   v=argument(2)
+   tLN=v(1)
+   iIX=v(2)
+   tSection = "'tLN':PIX'iIX'"
+#block_end
+#else #return -1
+
+tNewValue     = argument(3)
+tBlockingAttr = argument(4)
+tTagoutID     = argument(5)
+iStatus = status
+#error ignore
+iNewValue = type_cast(tNewValue=="X","INTEGER")
+#error stop
+iStatus = status
+#if iStatus <> 0 or data_type(iNewvalue)<>"INTEGER" #then #return -1
+
+;SDB
+;----------------------------- open Class database --------------------------------------------------------------------------------------------------
+ x= DATA_MANAGER("OPEN", "apl_/APL_Tagout.sdb")
+#if x.status <> 0 #then #return -1
+#else #block
+   iDBHandle = x.handle
+   lDBData = DATA_MANAGER("GET", iDBHandle,tSection,"TAGOUTS")
+   #if lDBData.status == 0 #then -
+      #if data_type(lDBData.value)=="VECTOR" #then vTagouts = lDBData.value
+      #else #return -1
+   #else #return -1
+
+   lDBData = DATA_MANAGER("GET", iDBHandle,"Settings","Blockings")  
+   #if lDBData.status == 0 #then #block
+      lBlockingSettings = lDBData.value
+      iStatus=Status
+      #error ignore
+      bSearchByLN     = lBlockingSettings.bSearchByLN.Value == 1
+      bSearchByOI     = lBlockingSettings.bSearchByOI.Value == 1
+      bMainIndexOnly  = lBlockingSettings.bMainIndexOnly.Value == 1
+      iStatus=Status
+      #if iStatus <> 0 #then iDBError=109
+   #block_end
+   #else iDBError= 111
+
+#block_end
+
+;construct the AMAttrName out of commandSelector, could be done different but I'm to tired to change all the time
+#case upper_case(tCommandSelector)
+   #when "LOCALINHIBIT"  tAMAttrName = "AM_LOCALINHIBIT"
+   #when "LOCALLOCK"     tAMAttrName = "AM_LOCALLOCK"
+   #when "LOCAL_BLOCK"   tAMAttrName = "AM_LOCAL"+upper_case(tBlockingAttr)
+   #when "REMOTEINHIBIT" tAMAttrName = "AM_REMOTEINHIBIT"
+   #when "REMOTELOCK"    tAMAttrName = "AM_REMOTELOCK"
+   #otherwise bMiscFunct = true               ;we can skip the calculation
+#case_end
+
+#if not bMiscFunct #then #block               ;calculate the new state for selected AM attribute
+   lDBData = DATA_MANAGER("GET", iDBHandle,tSection,"NACTIVETAGOUT")
+   #if lDBData.status <> 0 #then #return -1
+   #if lDBData.value <> length(vTagouts) #then #return -1   ;fatal error, discrepancy in SDB
+   iActValue=0
+   #loop_with i=1..lDBData.value
+      #if vTagouts(i)<>tTagoutID #then #block
+         t = vTagouts(i)
+         lDBData = DATA_MANAGER("GET", iDBHandle,tSection,t,tAMAttrName)
+         #if lDBData.status == 0 #then -
+           iActValue=iActValue+type_cast(lDBData.value=="X","Integer")
+      #block_end
+   #loop_end
+   iActValue=type_cast(iActValue>0,"Integer")
+                                                                                                                                                     #if bEnableDebugging #then x = console_output(times+" Tagout_AM: = 'tCommandSelector', LN='tLN':P'tBlockingAttr''iIX',/StateCalc/ act='iActValue'")
+   iNewValue=type_cast((iActValue+iNewValue)>=1,"Integer")
+                                                                                                                                                     #if bEnableDebugging #then x = console_output(times+" Tagout_AM: = 'tCommandSelector', LN='tLN':P'tBlockingAttr''iIX',/StateCalc/ new='iNewValue'")
+#block_end
+
+x = DATA_MANAGER("CLOSE", iDBHandle)
+
+;----------------------------- Search Condition Construction-- --------------------------------------------------------------------------------------
+#if upper_case(tCommandSelector) == "LOCALINHIBIT" or -
+    upper_case(tCommandSelector) == "LOCALLOCK" or-
+    upper_case(tCommandSelector) == "LOCAL_BLOCK" #then #block
+   tInObjSearchCondition="IU==1 AND   SS >0 "+-
+                     "AND ((RX==""%%%%%%%%%%%%%%%%%%%%%%%%%%I*"" " + -                            ;Indications
+                     "OR    RX==""%%%%%%%%%%%%%%%%%%%%%%%%%%E*"" " + -                            ;Event Objects: RP570 or 2BItoDB or..
+                     "OR    RX==""%%%%%%%%%%%%%%%%%%%%%%%%%%M*"") "+ -                            ;Measurements
+                     "OR  ((PT==3 OR PT==6 OR PT==9 OR PT==12 OR PT==13 OR PT==14 OR PT==16) "+-
+                     "AND RX<>""%%%%%%%%%%%%%%%%%%%%%%%%%%X*"" "+-                                ;excluding internal objects
+                     "AND RX<>""%%%%%%%%%%%%%%%%%%%%BN*""))"                                      ;excluding NCC input objects, command receiving Objects                     
+
+   tOutObjSearchCondition="IU==1 AND   SS >0 "+-
+      "AND ((RX==""%%%%%%%%%%%%%%%%%%%%%%%%%%C*"" "+-
+      "OR    RX==""%%%%%%%%%%%%%%%%%%%%%%%%%%S*"") "+-
+      "OR  ((PT==5 OR PT==7 OR PT==11) "+-
+      "AND   RX<>""%%%%%%%%%%%%%%%%%%%%%%%%%%X*""))"
+#block_end
+#else_if upper_case(tCommandSelector) == "REMOTEINHIBIT" or -
+         upper_case(tCommandSelector) == "REMOTELOCK" #then #block
+   tInObjSearchCondition="IU==1 AND   SS >0 and TI>0 and AN<>"""""+-
+                         "AND ((RX==""%%%%%%%%%%%%%%%%%%%%%%%%%%I*"" " + -                       ;Indications
+                         "OR    RX==""%%%%%%%%%%%%%%%%%%%%%%%%%%E*"" " + -                       ;Event Objects ,mainly RP570
+                         "OR    RX==""%%%%%%%%%%%%%%%%%%%%%%%%%%M*"") "+ -                       ;Measurements
+                         "OR ((PT==3 OR PT==6 OR PT==9 OR PT==12 OR PT==13 OR PT==14 OR PT==16) "+ -
+                         "AND RX<>""%%%%%%%%%%%%%%%%%%%%%%%%%%X*"" "+ -                          ;excluding internal objects
+                         "AND RX<>""%%%%%%%%%%%%%%%%%%%%BN*""))"                                 ;excluding NCC input objects, command receiving Objects                     
+      
+#block_end
+
+;handle the options as defined in settings/action methods section
+#if bmainIndexOnly #then #block
+   #if upper_case(tCommandSelector)=="LOCALLOCK" or upper_case(tCommandSelector)=="REMOTELOCK" #then -
+      tSelectiveCondition="LN==""'tLN'"" and RX==""%%%%%%%%%%%%%%%%%%%%%%Q%%%COBC*"" and "
+   #else_if upper_case(tCommandSelector)=="LOCAL_BLOCK" #then #block
+      t = 'tLN':PRX'iIX'
+      #if substr(t,23,4) <> "Q301" #then -
+         tSelectiveCondition="((LN==""'tLN'"" and IX=='iIX') or (LN==""'tLN'"" and RX==""%%%%%%%%%%%%%%%%%%%%%%Q%%%COBC*"")) and "
+      #else tSelectiveCondition="((LN==""'tLN'"" and (IX==10 or IX==11)) or (LN==""'tLN'"" and RX==""%%%%%%%%%%%%%%%%%%%%%%Q%%%COBC*"")) and "
+   #block_end
+   #else #block
+      t = 'tLN':PRX'iIX'
+      #if substr(t,23,4) <> "Q301" #then -
+         tSelectiveCondition="LN==""'tLN'"" and IX=='iIX' and "
+      #else tSelectiveCondition="LN==""'tLN'"" and (IX==10 or IX==11) and "
+   #block_end
+#block_end
+#else #block
+   #if bSearchByLN #then -
+      tSelectiveCondition="LN==""'tLN'"" and "
+   #else #block
+      tOI='tLN':POI'iIX'
+      tSelectiveCondition= "OI==""'tOI'"" and "
+   #block_end
+#block_end
+                                                                                                                                                     #if bEnableDebugging #then x = console_output(times+" Tagout_AM: = 'tCommandSelector', LN='tLN':P'iIX', new value = 'tNewValue'")
+;----------------------------- SCIL Action Methods from control dialog ------------------------------------------------------------------------------
+
+#case upper_case(tCommandSelector)
+    
+;============block local update   ===================================================================================================================
+;=========== block commands local ===================================================================================================================
+   #when "LOCALINHIBIT","LOCALLOCK" #block
+      iBitNr=1+type_cast(upper_case(tCommandSelector)=="LOCALLOCK","INTEGER")        ;bit 1 for LocalInhibit, bit 2 for LocalLock
+      
+      #if upper_case(tCommandSelector)=="LOCALINHIBIT" #then -
+         tCondition = tSelectiveCondition + tInObjSearchCondition
+      #else -   ;local lock
+         tCondition = tSelectiveCondition + tOutObjSearchCondition
+      
+      #if bSysVersion93 #then v_= vector("UB","RZ","HE","PB")
+      #else v_ =vector("UB","HE","PB")
+
+      lAplObjects=Application_Object_List(0,"IX","","","",tCondition,v_)
+
+      #if lAplObjects.COUNT > 0 #then #block
+         #loop_with i=1..lAplObjects.COUNT
+            tLN_=lAplObjects.LN(i)
+            iIX_=lAplObjects.IX(i)
+            iActValue=lAplObjects.UB(i)
+            #if bSysVersion93 #then iActRZ   =lAplObjects.RZ(i)
+            #if iActValue<>iNewvalue #then -
+               #set 'tLN_':PUB'iIX_' = iNewValue
+
+            #if bSysVersion93 #then -
+               #if iNewValue == 1 #then -
+                     #set 'tLN_':PRZ'iIX_' = Bit_Set(iActRZ,iBitNr)
+               #else #set 'tLN_':PRZ'iIX_' = Bit_Clear(iActRZ,iBitNr)
+                                                                                                                                                     #if bEnableDebugging #then x = console_output(times+" Tagout_AM = 'tCommandSelector', LN='tLN_':P'iIX_', new='iNewValue',act.='iActValue'")
+            #if iNewValue == 0 and (iActValue<>iNewvalue) and upper_case(tCommandSelector)=="LOCALINHIBIT" #then #block
+               #if 'tLN_':PSS'iIX_' == 2 and 'tLN_':PUN'iIX_' <> 0 #then #block                                          ;### needs update from procss
+                  #if attribute_exists(l_,"SSS'tLN_'") #then l_.SSS'tLN_' = append(l_.SSS'tLN_',iIX_)
+                  #else l_ = merge_attributes(l_,list(SSS'tLN_' = vector(iIX_))) 
+               #block_end                                                                                                 ;### HoDa (ID:15391)
+               #else_if 'tLN_':POS'iIX_' == 2 #then #block
+                  #if lAplObjects.HE(i) <> 0 #then #set 'tLN_':PHE'iIX_'= 0
+                  #if lAplObjects.PB(i) <> 0 #then #set 'tLN_':PPB'iIX_'= 0
+                  #set 'tLN_':POV'iIX_' = 'tLN_':POV'iIX_'
+                  #if lAplObjects.PB(i)<>0 #then #set 'tLN_':PPB'iIX_'= lAplObjects.PB(i)
+                  #if lAplObjects.HE(i)<>0 #then #set 'tLN_':PHE'iIX_'= lAplObjects.HE(i)
+               #block_end
+            #block_end      
+         #loop_end
+
+;-[ in case of reset update block on indication a GI has to be performed, launch bgu... :-/
+         #if iNewValue == 0 and (iActValue<>iNewValue) and upper_case(tCommandSelector)=="LOCALINHIBIT" #then #block
+                                                                                                                                                     #if bEnableDebugging #then x = console_output(times+" Tagout_AM = 'tCommandSelector', launch BGU_UPDATE:C")
+                                                                                                                                                     #if bEnableDebugging #then x = write_text("pict/debug_Tagout_AM_'tCommandSelector'_dump_listData_bgu_update.txt",dump(l_))
+            #exec bgu_update:c (@UPDATE_OBJECTS=l_)
+         #block_end
+         #if application_object_exists(0,"C","SAGR_TAGOUT_AM_UD") #then - 
+            #exec SAGR_TAGOUT_AM_UD:C (@LN="'tLN'",@IX=iIX,@CA="'tCommandSelector'",@NEW_VALUE=iNewValue)
+      #block_end
+
+   #block_end
+
+;=========== block remote commands ==================================================================================================================
+   #when "REMOTELOCK" #block
+   ;we need to know if there is any remote connection
+   ;1.0 check if com500i is installed and used
+      bCom500FileExist = FILE_MANAGER("EXISTS", FM_SCIL_FILE(tCOM500File))
+      #if bCom500FileExist #then #block
+         #if application_object_exists(0,"C","COM_DSCMDBLK") #then #block
+            tCondition = tSelectiveCondition + tOutObjSearchCondition
+      
+            #if bSysVersion93 #then v_= vector("UB","RZ")
+            #else v_ =vector("UB")
+      
+            lAplObjects=Application_Object_List(0,"IX","","","",tCondition,v_)
+      
+            #if lAplObjects.COUNT > 0 #then #block
+               #loop_with i=1..lAplObjects.COUNT
+                  tLN_=lAplObjects.LN(i)
+                  iIX_=lAplObjects.IX(i)
+                  #if bSysVersion93 #then #block
+                     iActRZ   =lAplObjects.RZ(i)
+      
+                     #if iNewValue == 1 #then -
+                           #set 'tLN_':PRZ'iIX_' = Bit_Set(iActRZ,4)
+                     #else #set 'tLN_':PRZ'iIX_' = Bit_Clear(iActRZ,4)
+                  #block_end
+                                                                                                                                                           #if bEnableDebugging #then x = console_output(times+" Tagout_AM = 'tCommandSelector', LN='tLN_':P'iIX_', new='iNewValue',act.='iActValue'")
+               #loop_end
+            #block_end
+         #block_end
+      #block_end
+
+       #if application_object_exists(0,"C","SAGR_TAGOUT_AM_UD") #then - 
+          #exec SAGR_TAGOUT_AM_UD:C (@LN="'tLN'",@IX=iIX,@CA="REMOTELOCK",@NEW_VALUE=iNewValue)       ;remote control block
+   #block_end
+
+;====================================================================================================================================================
+   #when "REMOTEINHIBIT" #block
+;need to know if there is any remote connection
+
+;++ begin for com500i +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;1.0 check if com500i is installed and used
+   bCom500FileExist = FILE_MANAGER("EXISTS", FM_SCIL_FILE(tCOM500File))
+   #if bCom500FileExist #then #block
+      ;1.1 check if this object is used in com500i, TI for main indication object must be bigger than 0
+      #if 'tLN':PTI'iIX' > 0 #then #block
+         ;1.2 check if this object is connected to com500 event channel
+         #if 'tLN':PAN'iIX' <> "" #then #block
+            t = 'tLN':PAN'iIX'
+            #if application_object_exists(0,"A",t) #then #block
+               #if substr('t':AON,1,6) == "COM_US" or -
+                  length(select('t':ASN,"==""COM_US*""","WILDCARDS")) > 0 #then #block  
+                 ;so finally we come to the conclusion that we have some NCC remote connection
+                 ;collect Input objects with remote connection
+                  tCondition = tSelectiveCondition + tInObjSearchCondition
+
+                  #if bSysVersion93 #then v_= vector("OS","PT","OV","AL","LN","IX","RT","RM","BL","SB","OR","CT","OG","DX","GI","RZ")
+                  #else v_ =vector("OS","PT","OV","AL","LN","IX","RT","RM","BL","SB","OR","CT","OG","DX","GI")
+
+                  lAplObjects=Application_Object_List(0,"IX","","","",tCondition,v_)
+                  #if lAplObjects.COUNT > 0 #then #block
+                     #loop_with i1=1..lAplObjects.COUNT
+                        tLN_=lAplObjects.LN(i1)
+                        iIX_=lAplObjects.IX(i1)
+                        #if bSysVersion93 #then #block
+                           iActRZ   =lAplObjects.RZ(i1)
+                           #if iNewValue == 1 #then #block
+                                                                         ;check if it's the first activation for this blocking type
+                              #if bit(iActRZ,3)==0 #then #block          ;if yes we need to inform com500i about it by setting Bit 8 to 1 and force an update
+                                 #set 'tLN_':PRZ'iIX_' = Bit_Set(iActRZ,3)
+                                 #if bit(iActRZ,8)==0 #then #block       ;inform com500i about to send next update with qualifier
+                                    iActRZ = 'tLN_':PRZ'iIX_'
+                                    #set 'tLN_':PRZ'iIX_' = Bit_Set(iActRZ,8)
+                                    iActRZ = 'tLN_':PRZ'iIX_'
+                                    lAplObjects.RZ(i1) = iActRZ
+                                    x= do(sagr_tagout_am_ex:c,lAplObjects,i1)
+                                    #set 'tLN_':PRZ'iIX_' = Bit_Clear(iActRZ,8) ;reset the on first update bit
+                                 #block_end
+                              #block_end
+                           #block_end
+                           #else #block
+                              #set 'tLN_':PRZ'iIX_' = Bit_Clear(iActRZ,3)
+                              iActRZ = 'tLN_':PRZ'iIX_'
+                              lAplObjects.RZ(i1) = iActRZ
+                              x= do(sagr_tagout_am_ex:c,lAplObjects,i1)
+                           #block_end
+                           
+                        #block_end
+                        #else #block
+                          ;dirty solution for <9.3, just disable Event channel
+                           iActValue=1-lAplObjects.AE(i1)               ;iNewValue=1 for REMOTEINHIBIT=true so AE must be 0
+                           #if iActValue<>iNewvalue #then -
+                              #set 'tLN_':PAE'iIX_' = 1-iNewValue
+                        #block_end
+                                                                                                                                                              #if bEnableDebugging #then x = console_output(times+" Tagout_AM = 'tCommandSelector', LN='tLN_':P'tBlockingAttr''iIX_', new='iNewValue',act.='iActValue'")
+                     #loop_end
+                  #block_end
+               #block_end
+            #block_end
+         #block_end
+      #block_end
+   #block_end
+;++ end for com500i +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+;++ for OPC DA/AE Server ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;2.0 used in OPC-DA Server, ON<>"" could be one indication for that, but what can I do on that??
+;    used in OPC-AE Server, ES<>"" could be one indication for that, but what can I do on that??
+;2.1 inhibit update to OPC-DA client. How can this be done? I guess the only way is to set UB, in this case it's the same as LOCALINHIBIT   
+;    inhibit update to OPC-AE client, How can this be done? For alarms set AB or set AC=0? For events set HB or set HE=0  
+;++ for OPC DA/AE Server ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+;++ for mirroring in host application +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+;3.0 check if mirroring is used 
+;3.1 check if indications are connected to a station acting as host
+;3.2 inhibit update to Image application, in this case it's the same as LOCALINHIBIT 
+;++ for mirroring in host application +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+       #if application_object_exists(0,"C","SAGR_TAGOUT_AM_UD") #then - 
+          #exec SAGR_TAGOUT_AM_UD:C (@LN="'tLN'",@IX=iIX,@CA="REMOTEINHIBIT",@NEW_VALUE=iNewValue)       ;remote update block
+
+   #block_end
+
+;=========================== for AB,HB,PB,XB ========================================================================================================
+   #when "LOCAL_BLOCK" #block
+      tBlockingAttr = argument(4)
+      v=("In","Out")
+      @tIn =tInObjSearchCondition
+      @tOut=tOutObjSearchCondition
+      #loop_with i=1..2
+         t=v(i)
+         tCondition = tSelectiveCondition + %t't'
+         #case tBlockingAttr
+            #when "AB" #block
+                           iBitNr = 11
+                           tCondition = tCondition + " and AC>0"
+                       #block_end
+            #when "HB" #block
+                           iBitNr = 12
+                           tCondition = tCondition + " and HE>0"
+                       #block_end
+            #when "PB" #block
+                           iBitNr = 13
+                           tCondition = tCondition + " and LD>0"
+                       #block_end
+            #when "XB" #block
+                           iBitNr = 14
+                           tCondition = tCondition + " and AE>0"
+                       #block_end
+         #case_end
+
+         #if bSysVersion93 #then v_= vector("'tBlockingAttr'","RZ")
+         #else v_ =vector("'tBlockingAttr'")
+
+         lAplObjects=Application_Object_List(0,"IX","","","",tCondition,v_)
+         #if lAplObjects.COUNT > 0 #then #block
+            #loop_with i1=1..lAplObjects.COUNT
+               tLN_=lAplObjects.LN(i1)
+               iIX_=lAplObjects.IX(i1)
+               iActValue=lAplObjects.'tBlockingAttr'(i1)
+               #if bSysVersion93 #then -
+                  iActRZ   =lAplObjects.RZ(i1)
+               #if iActValue<>iNewvalue #then -
+                  #set 'tLN_':P'tBlockingAttr''iIX_' = iNewValue
+               #if bSysVersion93 #then -
+                  #if iNewValue == 1 #then -
+                        #set 'tLN_':PRZ'iIX_' = Bit_Set(iActRZ,iBitNr)
+                  #else #block
+                     #set 'tLN_':PRZ'iIX_' = Bit_Clear(iActRZ,iBitNr)
+            iActRZ = 'tLN_':PRZ'iIX_'
+                     #set 'tLN_':PRZ'iIX_' = Bit_Clear(iActRZ,5) 
+                  #block_end
+                                                                                                                                                     #if bEnableDebugging #then x = console_output(times+" Tagout_AM = 'tCommandSelector', LN='tLN_':P'tBlockingAttr''iIX_', /Set/ new='iNewValue',act='iActValue'")
+            #loop_end
+         #block_end
+      #loop_end
+   #block_end
+
+;====================================================================================================================================================
+   #when "OTHER" #block
+     
+   #block_end
+
+;====================================================================================================================================================
+#case_end
+
+#if bEnableDebugging #then x = trace_end
+ 

@@ -1,0 +1,48 @@
+;Function: BPU_CALCULATE_STATE_SWITCH:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_calculate_state_switch.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute),  search_result, session number of control dialog, name of workstation
+;Return data:
+;Description: Calculates state of main tab and messages related to the object
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data
+#local i_session = 0, l_Objects, l_connection_state = list, l_result
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found
+#local t_Redirect_Proc = "APLMOD5_BPU_CALCULATE_STATE_SWITCH"
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block
+   #if data_type(%REDIRECTED)=="NONE" #then #block
+      #if 't_Redirect_Proc':CIU == 1 #then #block
+         @REDIRECTED = true
+         i_ArgCnt = argument_count
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP"
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"
+         #loop_with i_arg_loop = 1 .. i_ArgCnt
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"
+         #loop_end
+         #return 't_Redirect_Command' ;;;;;
+      #block_end
+   #block_end
+   #else #delete REDIRECTED:V
+#block_end
+;**************************************************************************************************
+;MAIN START
+
+#if argument_count > 2 #then i_session = argument(3)
+
+l_Objects = l_data.all_objects
+
+;object state os, ss, un, ub ...
+l_connection_state = do(bpu_define_switch_state:c, l_object_info, l_Objects)
+
+;add object specific indexes
+l_result = do(bpu_switch_state_general:c, l_object_info, l_Objects, i_session, l_connection_state)
+
+#return l_result

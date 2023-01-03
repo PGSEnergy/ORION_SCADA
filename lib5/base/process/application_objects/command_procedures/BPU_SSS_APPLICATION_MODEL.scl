@@ -1,0 +1,595 @@
+﻿;SSS Application Object Model and Object References generator
+
+#local SSS_OR = VECTOR()   ;SSS object references model
+#local SSS_OR_IX = 1
+#local SSS_PO_LN
+#local SSS_PO_IX
+
+#local SSS_PO_apl_number
+#local own_main_apl_number
+
+#local ln
+#local ix
+#local pt
+#local datapoint_type
+
+;Application model 
+#local internal_name
+#local visible_name
+#local object_reference
+#local applications
+#local application_name
+#local equipments = VECTOR()
+#local equipment_counter = 1
+#local node_equipment_lookup = VECTOR()
+#local apl_number
+#local node
+#local sys_node
+#local application_container
+#local equipment
+#local shadowing_peer_table = VECTOR()
+#local application_id_table = VECTOR()
+
+#local image_applications
+#local image_apl_number
+#local image_apl_name
+#local image_node
+#local image_apl_counter
+#local image_apl_table
+#local image
+#local image_station
+#local host_apl_number
+#local host_apl_name
+#local host_node
+#local host_apl_counter
+#local host_apl_table
+#local host
+#local host_apl
+#local this_apl_number
+#local shadowing_partner_number
+
+#local id
+
+#local i_Status
+#local i
+
+#local links
+#local link_counter = 1
+#local this_apl_name
+#local this_apl
+#local this_node
+#local peer_apl_number
+#local peer_apl_name
+#local peer_node 
+
+#local is_hsb_apl
+#local hsb_in_this_node
+
+
+;IED model
+#local PO_TYPE
+#local stations
+#local nodes
+#local node_lookup
+#local node_line_id
+#local node_line
+#local sta_number
+#local sta_number_string
+#local sta_type
+#local line
+#local line_nr
+#local sys_equipment
+#local line_container = VECTOR()
+#local line_container_count
+#local com_node
+#local node_container
+#local containers
+#local equipment_array
+
+#local root_container_name
+
+#local iattributes = VECTOR()
+
+iattributes(1) = list (name = "path",            ValueAttribute = "OI")
+iattributes(2) = list (name = "name",            ValueAttribute = "IL[DEV]")
+iattributes(3) = list (name = "customer_text",   ValueAttribute = "TX")
+iattributes(4) = list (name = "state",           ValueAttribute = "SX")
+iattributes(5) = list (name = "update_blocked",  ValueAttribute = "UB")
+iattributes(6) = list (name = "alarm_blocked",   ValueAttribute = "AB")
+iattributes(7) = list (name = "event_blocked",   ValueAttribute = "HB")
+iattributes(8) = list (name = "printout_blocked",ValueAttribute = "PB")
+iattributes(9) = list (name = "active",          ValueAttribute = "AL")
+iattributes(10) = list (name = "acknowledged",   ValueAttribute = "AR")
+iattributes(11) = list (name = "severity",       ValueAttribute = "AV")
+
+root_container_name = "applications"
+
+;Get all applications configured in this SYS
+applications = BASE_SYSTEM_OBJECT_LIST("APL")
+
+
+;
+; Create equipment containers for each SYS node and add Application data containers in them
+;
+;
+
+
+;Initialize lookup table for nodes
+node_equipment_lookup(1..MAX_NODE_NUMBER)= 0
+
+;Initialize shadowing peer table
+shadowing_peer_table(1..MAX_APPLICATION_NUMBER)= 0
+
+is_hsb_apl(1..MAX_APPLICATION_NUMBER) = FALSE
+hsb_in_this_node(1..MAX_APPLICATION_NUMBER) = 0
+
+
+#LOOP_WITH i = 1 .. applications.count
+ apl_number = applications.BM(i) 
+ #IF (APL'apl_number':BSN <> 0) #THEN shadowing_peer_table(APL'apl_number':BSN) = apl_number
+#LOOP_END
+
+#LOOP_WITH i = 1 .. applications.count
+ apl_number = applications.BM(i) 
+ #IF (APL'apl_number':BSN <> 0) #THEN shadowing_peer_table(APL'apl_number':BSN) = apl_number
+ #IF (APL'apl_number':BSN <> 0) #THEN is_hsb_apl(apl_number) = TRUE
+ #IF (shadowing_peer_table(apl_number) <> 0) #THEN is_hsb_apl(apl_number) = TRUE
+ #IF is_hsb_apl(apl_number) == TRUE #THEN #BLOCK
+     node = APL'apl_number':BND 
+     #IF node == 0 #THEN node = SYS:BND
+     #IF (node == SYS:BND) #THEN #BLOCK
+        hsb_in_this_node(apl_number) = apl_number  ;apl number of this node is used in SYS_AxxxxI LN name, it is stored here
+        hsb_in_this_node(APL'apl_number':BSN) = apl_number   ;same LN used for peer apl
+     #BLOCK_END
+ #BLOCK_END
+#LOOP_END
+
+#LOOP_WITH i = 1 .. applications.count
+ apl_number = applications.BM(i) 
+ node = APL'apl_number':BND 
+ #IF node == 0 #THEN node = SYS:BND
+ 
+ ;Is this application in SYS node, that is not yet added as equipment container 
+ #IF node_equipment_lookup(node)==0 #THEN #BLOCK
+    node_equipment_lookup(node) = equipment_counter
+   
+    internal_name = "SYS"+"'node'"
+    object_reference = root_container_name + "." + internal_name
+   
+    ln = "SYS_N" + SUBSTR("0000", 1, 4 - LENGTH("'node'")) + "'node'" + "I"
+    ix = 10
+    
+    visible_name = internal_name  ;Use this as visible name if no communication_state process object found
+       
+    i_Status = status
+    #error ignore
+    pt= 'ln':PPT'ix'
+    #error stop
+    i_Status = status
+    #if i_Status == 0 #then #BLOCK  ;Process object exists
+       visible_name = 'ln':POI'ix'    ;Use communication state process object OI as visible name for the equipment
+    #BLOCK_END
+   
+   
+   
+    ;Add SYS equipment and the application
+    sys_node = LIST( -
+                        id = object_reference,-
+                        internal_name = internal_name,-
+                        type = "SYS_SERVER", -
+                        visible_name = visible_name - 
+                     )
+                
+   ;Add SSS object references for application SSS datapoints
+
+    ;Node group alam state
+    datapoint_type = "group_alarm_state"
+
+    SSS_OR(SSS_OR_IX) = LIST(name = object_reference + "." + datapoint_type, value = LIST(-
+                                                                               DataPointType = datapoint_type, -
+                                                                               ObjectReference = object_reference , -
+                                                                               LN = ln, -
+                                                                               ValueAttribute = "GS" -
+                                                                           ) -
+                            )                           
+    SSS_OR_IX = SSS_OR_IX + 1   
+   
+    ;Node communication state
+    
+     datapoint_type = "communication_state"
+     
+     i_Status = status
+     #error ignore
+     pt= 'LN':PPT'IX'
+     #error stop
+     i_Status = status
+     #if i_Status == 0 #then #BLOCK  ;Process object exists
+       
+       SSS_OR(SSS_OR_IX) = LIST(name = object_reference + "." + datapoint_type, value = LIST(-
+                                                                                     DataPointType = datapoint_type, -
+                                                                                     ObjectReference = object_reference, -
+                                                                                     LN = ln, -
+                                                                                     IX = ix, -
+                                                                                     PT = 'pt', -
+                                                                                     ValueAttribute = "OV", -
+                                                                                     Attributes = iattributes -
+                                                                                 ) -
+                                  ) 
+       SSS_OR_IX = SSS_OR_IX + 1 
+       
+     #BLOCK_END
+                   
+    internal_name = APL'apl_number':BNA
+    object_reference = object_reference + "." + internal_name
+    application_id_table(apl_number) = object_reference
+
+                      
+    application_container = VECTOR( -
+                                       LIST( -
+                                             identifier = -
+                                                LIST( - 
+                                                      id = object_reference, -
+                                                      internal_name = internal_name, -
+                                                      type="APPLICATION", -
+                                                      visible_name = internal_name -
+                                                    ), -
+                                             datapoints = VECTOR("application_state"), -
+                                             containers = VECTOR() -
+                                           ) -
+                                     ) -
+    
+    equipments(equipment_counter) = LIST( - 
+                                             identifier = sys_node, -
+                                             datapoints = VECTOR("group_alarm_state", "communication_state"), -
+                                             containers = application_container -
+                                          )
+
+ 
+    this_apl_number = APL:BBM 
+    
+    #IF hsb_in_this_node(apl_number) > 0 #THEN #BLOCK 
+       SSS_PO_apl_number = APL'apl_number':BTN
+       #IF SSS_PO_apl_number == 0 #THEN SSS_PO_apl_number = apl_number
+       SSS_PO_IX = 100 * node + 1000 + SSS_PO_apl_number
+       
+       ;HSB application information is in apl LN of the apl that is in this node 
+       own_main_apl_number = hsb_in_this_node(apl_number)       
+       
+       SSS_PO_LN = "SYS_A" + SUBSTR("0000", 1, 4 - LENGTH("'own_main_apl_number'")) + "'own_main_apl_number'" + "I"     
+    #BLOCK_END
+    #ELSE #BLOCK    ;This is single application 
+       SSS_PO_LN = "SYS_A" + SUBSTR("0000", 1, 4 - LENGTH("'apl_number'")) + "'apl_number'" + "I"
+       SSS_PO_IX = 100 + apl_number
+    #BLOCK_END  
+    
+    ln = SSS_PO_LN
+    ix = SSS_PO_IX
+    datapoint_type = "application_state"
+
+    i_Status = status
+    #error ignore
+    pt= 'LN':PPT'IX'
+    #error stop
+    i_Status = status
+    #if i_Status == 0 #then #BLOCK  ;Process object exists
+
+          
+       SSS_OR(SSS_OR_IX) = LIST(name = object_reference + "." + datapoint_type, value = LIST(-
+                                                                                     DataPointType = datapoint_type, -
+                                                                                     ObjectReference = object_reference, -
+                                                                                     LN = ln, -
+                                                                                     IX = ix, -
+                                                                                     PT = 'pt', -
+                                                                                     ValueAttribute = "OV", -
+                                                                                     Attributes = iattributes -
+                                                                                 ) -
+                                  ) 
+                                  
+       SSS_OR_IX = SSS_OR_IX + 1 
+
+    #BLOCK_END
+    
+    equipment_counter = equipment_counter + 1
+ #BLOCK_END 
+ #ELSE #BLOCK  ;This is another application in a SYS node that was already added as equipment
+    ;SYS node name & reference
+      internal_name = "SYS"+"'node'"
+   object_reference = root_container_name + "." + internal_name 
+   
+   ;Application name & reference
+    internal_name = APL'apl_number':BNA
+    object_reference = object_reference + "." + internal_name
+    application_id_table(apl_number) = object_reference
+   
+    equipment = node_equipment_lookup(node)
+    equipments(equipment).containers = APPEND(equipments(equipment).containers,-
+                                                  VECTOR( -
+                                                         LIST( -
+                                                               identifier = -
+                                                                  LIST( - 
+                                                                        id = object_reference, -
+                                                                        internal_name = internal_name, -
+                                                                        type="APPLICATION", -
+                                                                        visible_name = internal_name -
+                                                                      ), -
+                                                               datapoints = VECTOR("application_state"), -
+                                                               containers = VECTOR() -
+                                                             ) -                                               
+                                                        ) -
+                                               )
+   #IF hsb_in_this_node(apl_number) > 0 #THEN #BLOCK 
+       SSS_PO_apl_number = APL'apl_number':BTN
+       #IF SSS_PO_apl_number == 0 #THEN SSS_PO_apl_number = apl_number
+       SSS_PO_IX = 100 * node + 1000 + SSS_PO_apl_number
+       
+       ;HSB application information is in apl LN of the apl that is in this node 
+       own_main_apl_number = hsb_in_this_node(apl_number)       
+       
+       SSS_PO_LN = "SYS_A" + SUBSTR("0000", 1, 4 - LENGTH("'own_main_apl_number'")) + "'own_main_apl_number'" + "I"     
+    #BLOCK_END
+    #ELSE #BLOCK    ;This is single application 
+       SSS_PO_LN = "SYS_A" + SUBSTR("0000", 1, 4 - LENGTH("'apl_number'")) + "'apl_number'" + "I"
+       SSS_PO_IX = 100 + apl_number
+    #BLOCK_END  
+ 
+    ln = SSS_PO_LN
+    ix = SSS_PO_IX
+    datapoint_type = "application_state"
+
+    i_Status = status
+    #error ignore
+    pt= 'LN':PPT'IX'
+    #error stop
+    i_Status = status
+    #if i_Status == 0 #then #BLOCK  ;Process object exists
+
+          
+       SSS_OR(SSS_OR_IX) = LIST(name = object_reference + "." + datapoint_type, value = LIST(-
+                                                                                     DataPointType = datapoint_type, -
+                                                                                     ObjectReference = object_reference, -
+                                                                                     LN = ln, -
+                                                                                     IX = ix, -
+                                                                                     PT = 'pt', -
+                                                                                     ValueAttribute = "OV", -
+                                                                                     Attributes = iattributes -
+                                                                                 ) -
+                                  ) 
+                                  
+       SSS_OR_IX = SSS_OR_IX + 1 
+
+    #BLOCK_END
+    
+ #BLOCK_END
+ 
+#LOOP_END
+
+
+links = VECTOR()
+;
+; Create HSB shadowing links between containers 
+;
+
+
+
+;Loop again through applications to create links
+#LOOP_WITH i = 1 .. applications.count
+ apl_number = applications.BM(i) 
+ node = APL'apl_number':BND 
+ #IF node == 0 #THEN node = SYS:BND
+ 
+ #IF ((apl_number == APL:BBM) AND (APL'apl_number':BSN <> 0)) #THEN #BLOCK  ;This application and has shadowing partner configured 
+  this_apl_name = APL'apl_number':BNA
+  this_node = node  
+  peer_apl_number = APL'apl_number':BSN
+  peer_apl_name = APL'peer_apl_number':BNA
+  peer_node = APL'peer_apl_number':BND
+  #IF peer_node == 0 #THEN peer_node = SYS:BND
+  #IF peer_node <> this_node #THEN #BLOCK  ;Filter out local backup application shadowing links
+     links(link_counter) = LIST( - 
+                                    identifier = LIST( -
+                                                       id="SYS"+"'this_node'"+"_"+"'this_apl_name'"+"_SYS"+"'peer_node'"+"_"+"'peer_apl_name'"+"_HSB", - 
+                                                       internal_name="HSB'I'", - 
+                                                       type="SHADOWING", -
+                                                       visible_name="Shadowing 'I'"), -
+                                    source = application_id_table(apl_number), -
+                                    target = application_id_table(peer_apl_number) -
+                                  )
+     link_counter = link_counter + 1
+   #BLOCK_END
+ #BLOCK_END
+#LOOP_END
+
+
+;
+; Create Mirroring links between applications 
+;
+
+
+;Find Image stations and their host applications
+
+;Get all STA objects configured in this SYS
+stations = BASE_SYSTEM_OBJECT_LIST("STA", "AP==APL:BBM")
+
+host_apl_counter = 0
+;Initialize host apl table
+host_apl_table(1..MAX_APPLICATION_NUMBER)= 0
+
+#LOOP_WITH i = 1 .. stations.count   
+ sta_number = stations.BM(i) 
+ #IF ((STA'sta_number':BMR == "IMAGE") OR (STA'sta_number':BMR == "BOTH")) #THEN #BLOCK   ;This STA/SYS/APL acts as Image
+   host = STA'sta_number':BHS
+   host_apl = host.APL
+
+   #IF (host_apl_table(host_apl) == 0) #THEN #BLOCK ;This is new found host apl
+      host_apl_counter = host_apl_counter + 1
+      host_apl_table(host_apl) = host_apl
+   #BLOCK_END 
+   
+   ;If host system is HSB we need to add the shadowing partner application
+   shadowing_partner_number = APL'host_apl':BSN
+   #IF shadowing_partner_number <> 0 #THEN #BLOCK  
+      host_apl_counter = host_apl_counter + 1
+      host_apl_table(shadowing_partner_number) = shadowing_partner_number
+   #BLOCK_END
+   
+   
+ #BLOCK_END 
+#LOOP_END
+
+;add links between hosts and this apl
+
+#LOOP_WITH i = 1 .. applications.count
+  #IF host_apl_table(applications.BM(i)) <> 0 #THEN #BLOCK
+   this_node = SYS:BND 
+   this_apl_name = APL:BNA
+   this_apl = APL:BBM
+   host_apl = applications.BM(i) 
+   host_apl_name = APL'host_apl':BNA
+   host_node = APL'host_apl':BND
+
+   links(link_counter) = LIST( - 
+                                    identifier = LIST( -
+                                                         id="SYS"+"'host_node'"+"_"+"'host_apl_name'"+"_SYS"+"'this_node'"+"_"+"'this_apl_name'"+"_MIRRORING", - 
+                                                         internal_name="MIRRORING", - 
+                                                         type="MIRRORING", -
+                                                         visible_name="Mirroring_from_host"), -
+                                    source = application_id_table(host_apl), -
+                                    target = application_id_table(this_apl) -
+                                    )
+   link_counter = link_counter + 1
+  #BLOCK_END
+#LOOP_END
+
+
+
+;Find image applications from STA definitions
+
+
+;Get all STA objects configured in this SYS
+stations = BASE_SYSTEM_OBJECT_LIST("STA", "AP==APL:BBM")
+
+image_apl_counter = 0
+;Initialize image apl table
+image_apl_table(1..MAX_APPLICATION_NUMBER)= 0
+
+#LOOP_WITH i = 1 .. stations.count   
+ sta_number = stations.BM(i) 
+ #IF ((STA'sta_number':BMR == "HOST") OR (STA'sta_number':BMR == "BOTH")) #THEN #BLOCK   ;This STA/SYS/APL acts as Host
+    #LOOP_WITH image_station = 1..10
+      image = STA'sta_number':BIS(image_station)
+      image_apl_number = image.APL
+      #IF image_apl_number <> 0 #THEN #BLOCK
+         #IF (image_apl_table(image_apl_number) == 0) #THEN #BLOCK ;This is new found image apl
+            image_apl_counter = image_apl_counter + 1
+            image_apl_table(image_apl_number) = image_apl_number
+         #BLOCK_END 
+         
+         ;If image system is HSB we need to add the shadowing partner application
+         shadowing_partner_number = APL'image_apl_number':BSN
+         #IF shadowing_partner_number <> 0 #THEN #BLOCK  
+            #IF (image_apl_table(shadowing_partner_number) == 0) #THEN #BLOCK ;This is new found image apl
+               image_apl_counter = image_apl_counter + 1
+               image_apl_table(shadowing_partner_number) = shadowing_partner_number
+            #BLOCK_END 
+         #BLOCK_END
+      #BLOCK_END
+    #LOOP_END     
+ #BLOCK_END 
+#LOOP_END
+
+
+;Find image applications from application definitions
+
+this_apl_number = APL:BBM 
+image_applications = APL'this_apl_number':BIS
+
+;Loop through image applications  
+#LOOP_WITH i = 1 .. LENGTH(image_applications)
+ image_apl_number = image_applications(i).APL
+ image_node = APL'image_apl_number':BND
+ 
+ #IF image_apl_number <> 0 #THEN #BLOCK
+    #IF (image_apl_table(image_apl_number) == 0) #THEN #BLOCK ;This is new found image apl
+      image_apl_counter = image_apl_counter + 1
+      image_apl_table(image_apl_number) = image_apl_number
+   #BLOCK_END 
+   
+   ;If image system is HSB we need to add the shadowing partner application
+   shadowing_partner_number = APL'image_apl_number':BSN
+   #IF shadowing_partner_number <> 0 #THEN #BLOCK  
+      #IF (image_apl_table(shadowing_partner_number) == 0) #THEN #BLOCK ;This is new found image apl
+         image_apl_counter = image_apl_counter + 1
+         image_apl_table(shadowing_partner_number) = shadowing_partner_number
+      #BLOCK_END 
+   #BLOCK_END
+ #BLOCK_END
+#LOOP_END
+ 
+
+;add links between images and this apl
+
+#LOOP_WITH i = 1 .. applications.count
+  #IF image_apl_table(applications.BM(i)) <> 0 #THEN #BLOCK
+     image_apl_number = applications.BM(i)
+     this_apl_name = APL:BNA
+     this_apl = APL:BBM
+     this_node = SYS:BND
+     image_apl_name = APL'image_apl_number':BNA
+     image_node = APL'image_apl_number':BND
+   
+     links(link_counter) = LIST( - 
+                                       identifier = LIST( -
+                                                          id="SYS"+"'this_node'"+"_"+"'this_apl_name'"+"_SYS"+"'image_node'"+"_"+"'image_apl_name'"+"_MIRRORING", - 
+                                                          internal_name="MIRRORING", - 
+                                                          type="MIRRORING", -
+                                                          visible_name="Mirroring_from_Image"), -
+                                       source = application_id_table(this_apl), -
+                                       target = application_id_table(image_apl_number) -
+                                     )
+     link_counter = link_counter + 1
+ #BLOCK_END
+#LOOP_END
+
+
+
+
+;
+; Create the top level applications container
+;
+;
+
+
+
+#LOOP_WITH i=1..length(equipments)
+   equipment_array(i) = equipments(i).identifier.id
+#LOOP_END
+
+containers = VECTOR( -
+                      LIST(-
+                              identifier = LIST( -
+                                                 id="applications", - 
+                                                 internal_name="applications", - 
+                                                 type="APPLICATIONS", -
+                                                 visible_name="Applications"), -
+                              datapoints = VECTOR(), -
+                              equipments = equipment_array, -
+                              containers = VECTOR() -
+                           ) -
+                   )
+
+;
+; Merge all to applications model
+;
+;                 
+                   
+                   
+
+applications = LIST( - 
+                      name = "applications", -
+                      containers = containers, -
+                      equipments = equipments, -
+                      links = links - 
+                     )
+                       
+
+#RETURN LIST(object_model=applications, object_references=SSS_OR)

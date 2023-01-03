@@ -1,0 +1,100 @@
+;Function: FDU_EXECUTE_MANUAL:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/fdu_execute_manual.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute),  search_result, forced operation
+;Return data:
+;Description: Prepares execute command for OFF (open)
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data, i_forced_value
+#local t_execute_ln, t_sta_type, i_execute = 0, t_control_type, l_execution
+#local l_result = list(status = 0, err_desription = ""), i_IX, l_connection_state
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_EXECUTE_MANUAL"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+         @REDIRECTED = true                                                                        
+         i_ArgCnt = argument_count                                                                 
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+         #loop_end                                                                                 
+         #return 't_Redirect_Command' ;;;;;                                                        
+      #block_end                                                                                   
+   #block_end                                                                                      
+   #else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+
+t_execute_ln = l_object_info.p_object_ln
+t_sta_type = l_object_info.station_type
+t_control_type = l_object_info.auto_manual_cmd_type
+
+;return index, value, command parameter and LA value
+l_execution =  do(fdu_prepare_auto_man_execute:c, l_object_info, l_data, i_forced_value, "MANUAL")
+
+;set LA
+
+;send execute command
+i_execute = do(bpu_execute:c, t_execute_ln, l_execution.index, l_execution.value, t_sta_type, t_control_type, l_execution.cmd_parameter)
+
+#if i_execute <> 0 #then #block ;error code of failure
+   l_result.status = i_execute
+   l_result.err_description = status_code_name(i_execute)
+#block_end
+#else #block 
+   ;simulate process feedback if needed
+   
+   ;set indication if simulated process
+   l_connection_state = do(bpu_define_switch_state:c,  l_object_info, l_data.all_objects)
+   #if not (l_connection_state.i_connection_ss == 1 and l_connection_state.i_connection_un == 1) #then #block
+   #case l_object_info.auto_manual_ind_type
+      #when "DB" #block
+         i_IX = l_data.all_objects.indication_auto_man_up_ix
+         #set 't_execute_ln':pov'i_IX' = l_execution.simulate_value
+      #block_end
+      #when "AI" #block
+         i_IX = l_data.all_objects.indication_up1_ix
+         #set 't_execute_ln':pov'i_IX'= l_execution.simulate_value
+      #block_end
+      #when "BI" #block
+         i_IX = l_data.all_objects.indication_up1_ix
+         #set 't_execute_ln':pov'i_IX' = round(abs(l_execution.simulate_value**2-3))-1
+      #block_end
+      #when "2BI" #block
+         #if l_execution.simulate_value == 1 #then #block
+            i_IX = l_data.all_objects.indication_manual_ix
+            #set 't_execute_ln':pov'i_IX' = 1
+            i_IX = l_data.all_objects.indication_auto_ix
+            #set 't_execute_ln':pov'i_IX' = 0
+         #block_end
+         #else #block
+            i_IX = l_data.all_objects.indication_auto_ix
+            #set 't_execute_ln':pov'i_IX' = 1
+            i_IX = l_data.all_objects.indication_manual_ix
+            #set 't_execute_ln':pov'i_IX' = 0
+         #block_end
+      #block_end
+     #case_end
+   #block_end
+
+#block_end
+
+;set command event
+#if attribute_exists(l_data.all_objects, "cmd_event_ix") #then #block
+   i_IX = l_data.all_objects.cmd_event_ix
+   #if 't_execute_ln':pub'i_IX' == 0 and not ('t_execute_ln':PSS'i_IX' > 1 and -
+   't_execute_ln':pun'i_IX'<>0) #then #set 't_execute_ln':pov'i_IX' = 0 ;
+#block_end
+
+#return l_result

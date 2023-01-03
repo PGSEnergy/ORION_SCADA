@@ -1,0 +1,38 @@
+;create path5.scl
+#local apl = APL:BNA, s, e_state = ERROR_STATE, t_attr
+#local I, i_res, v_libs = vector(), l_Info, t_file, l_Paths = APL:BPH
+#local lib5_dir = fm_scil_directory("/lib5"), l_result, v_attrs
+
+v_libs = DO(READ_TEXT("B5_BBONE/BGU_GET_LIBRARIES.SCL"))
+
+#ERROR STOP
+#loop_with I = 1 .. length(v_libs)
+	l_Info = v_libs(I)
+	t_file = l_info.base_path + "/USE/PATH5.SCL"
+	#IF l_info.prepared and FILE_MANAGER("EXISTS", FM_SCIL_FILE(t_file)) #then #block
+		#ERROR IGNORE
+			s = STATUS
+			l_result = DO(READ_TEXT(t_file), l_info.base_path)
+			s = STATUS
+		#ERROR 'e_state'
+
+		#IF s == 0 #then #if data_type(l_result) == "LIST" #then #block
+			v_attrs = LIST_ATTR(l_result)
+
+			#loop_with I = 1 .. LENGTH(v_attrs)
+				t_attr = v_attrs(I)
+				#IF attribute_exists(l_paths, t_attr) #then #block
+					l_paths.'t_attr' = APPEND(l_paths.'t_attr', l_result.'t_attr')
+				#block_end
+				#else l_Paths = merge_attributes(l_paths, LIST('t_attr' = l_result.'t_attr'))
+			#loop_end
+			@trsh = CONSOLE_OUTPUT("Paths added from package " + l_info.IDENTIFIER + ".", "I", "LIB5")
+		#block_end
+	#block_end
+#loop_end
+
+;append the application paths
+l_paths = DO(read_text("b5_bbone/bgu_paths_application.SCL"), l_paths)
+l_paths = merge_attributes(APL:BPH, l_paths)
+
+#SET APL:BPH = l_paths

@@ -1,0 +1,21 @@
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Mikko Ripatti/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">LD</Parameter>
+		<Parameter name="Caption">Logical Device</Parameter>
+		<Parameter name="Description">Logical Device</Parameter>
+		<Parameter name="Group">Communication</Parameter>
+		<Parameter name="Type">LD</Parameter>
+		<Parameter name="IconFileName">ld.ico</Parameter>
+		<Parameter name="Tools"/>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="CanInherit">True</Parameter>
+	    <Parameter name="Visible">False</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="DataStructureObjectType">IED, LSG</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+</ObjectType>

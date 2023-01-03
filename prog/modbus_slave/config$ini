@@ -1,0 +1,57 @@
+[OwnNodeParameters]
+own_node_no = 4
+own_station_no = 204
+serial_port_in_use = 1
+serial_port_2_in_use = 0
+tcpip_1_in_use = 0
+tcpip_2_in_use = 0
+[BaseSystem1]
+basesystem_node_no = 9
+basesystem_station_no = 209
+tcp_ipadd = 127.0.0.1
+application_number = 1
+[SerialPortCommPar]
+port_name = COM1
+baud_rate = 1200
+parity = 0
+stop_bit = 0 ;NOTE! stop_bit 0 = 1 stop bit is used, 1 = 1.5 stop bits are used, 2 = 2 stop bits are used
+data_bits = 8
+flow_control = 0
+dtr_control = 1
+config_delay_msecs = 0
+[SerialPortCommPar2]
+port_name = COM2
+baud_rate = 1200
+parity = 0
+stop_bit = 0 ;NOTE! stop_bit 0 = 1 stop bit is used, 1 = 1.5 stop bits are used, 2 = 2 stop bits are used
+data_bits = 8
+flow_control = 0
+dtr_control = 1
+[TCPIPCommPar1]
+slave_ip_addr =
+tcp_ip_port = 502
+no_of_masters = 1
+no_of_ips = 1
+allowed_ip_addr_1 = 0
+connection_watchdog = 20
+[TCPIPCommPar2]
+slave_ip_addr = 
+tcp_ip_port = 502
+no_of_masters = 1
+no_of_ips = 1
+allowed_ip_addr_1 = 0
+connection_watchdog = 20
+[ModbusSlavePar]
+address_offset = 0
+change_bit_offset = 0
+modbus_master = 1
+no_of_stns = 1
+stn_no_1 = 3
+format_analog = 5
+respond_also_if_invalid = 1
+se_applevent_used = 1
+[Debug]
+debug_info = 0
+debug_window = 0
+namedpipe_name = 
+error_debugs_only = 0

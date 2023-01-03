@@ -1,0 +1,35 @@
+﻿; This command procedure is used for marking the COM500 startup finished
+; and database constructed
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+;--------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+@ENABLE_LOGGING = COM_GENVAR:PBZ(3)
+
+@GEN_INFO = APL:BSV(20)
+
+#IF ( NOT GEN_INFO:VCOM_DATABASE_INITIALISED ) #THEN #BLOCK
+   #SET GEN_INFO:VCOM_DATABASE_INITIALISED = TRUE
+   #SET APL:BSV(20) = %GEN_INFO
+#BLOCK_END
+
+;enable data sending to NCC's after database intialisation
+#SET COM_GENVAR:PBZ(4) = 1
+
+#IF %ENABLE_LOGGING #THEN #BLOCK
+   @TIME = HR_CLOCK
+   @RT = TIMES(TIME:VCL)
+   @RM = ROUND(TIME:VUS/1000)
+   @INFO="'RT':'RM',DBSTA,0,,,COM 500 database marked as initialized,,,,,,,,,,,,,,,,"
+   @CMDP_CP = COM_LOG:CCP
+   #IF LENGTH(%CMDP_CP) == 0 #THEN #BLOCK
+      #DO COM_LOG:CIN
+   #BLOCK_END      
+   #ELSE #DO COM_LOG:CCP
+#BLOCK_END
+

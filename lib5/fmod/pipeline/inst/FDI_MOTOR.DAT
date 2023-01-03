@@ -1,0 +1,210 @@
+﻿;OBJECT       : FDI_PUMP  (FDI_PUMP.DAT)
+;Copyright Hitachi Power Grids. All rights reserved.
+;
+;DESCRIPTION  : The configuration data file for the pump standard function  
+
+##FUNC_INIT_BEGIN
+
+@'.ID'_PICTURE_FUNCTION_CONF = LIST(-
+   CONFIG_DATA_FILE          = "?CONF_FILE?",-
+   LIB_REVISION              = " 3.0",-
+   TYPE_PF                   = "?REQUIRED_PF_NAME?",-
+   DEFAULT_TYPE_PF           = "FDI_MO",-
+   CONTROL_DIALOG_WINDOW     = "MNOPER",-
+   STATION_NAME              = "",-
+   BAY_NAME                  = "",-
+   DEVICE_NAME               = "",-
+   SPECIAL_IDENTIFIER_1      = "",-
+   SPECIAL_IDENTIFIER_2      = "",-
+   SPECIAL_IDENTIFIER_3      = "",-
+   SWITCHING_DEVICE_TYPE     = "DS",-
+   SWITCHING_DEVICE_PURPOSE  = "05",-
+   SWITCH_SECTION            = 0,-
+   P_OBJECT_LN               = "",-
+   P_OBJECT_INDEXES          = "",-
+   STATION_TYPE              = "IEC101",-
+   DEFINE_ITEM_NAME          = FALSE,-
+   INDICATION_TYPE           = "DB",-
+   MOTORIZED                 = TRUE,-
+   INTERLOCKING_BYPASS       = FALSE,-
+   SYNCHROCHECK_BYPASS       = FALSE,-
+   CMD_PARAMETER             = 46,- 
+   CONTROL_TYPE              = "DIR-BO",-
+   OUTPUT_STATUS             = FALSE,-
+   CONTROL_PULSE_LENGTH      = 0,-
+   CONTROL_BITS              = VECTOR(),-
+   AUTHORIZATION_GROUP       = "PL_CONTROL",-
+   BAY_LR_POLARITY           = "R1",-
+   AUXILIARY_PLUG            = FALSE,-
+   EVENT_RECORDING           = FALSE,-
+   REPRESENTATION            = "F_REPR/NO_REPR_S",-
+   OPC_ITEM_PREFIX           = "",-
+   OPC_LN_INSTANCES          = VECTOR(),-
+   OBJECT_TYPE_DESCRIPTION   = "F5_USE/FDU_SWITCH.scl",-
+   SA_LIB_INDEXES            = "20,19,13")
+
+##FUNC_INIT_END
+
+##FUNC_DEF_BEGIN
+
+;define values for OBJECT_IDENTIFIERS, AUTORIZATION_GROUP, STATION_TYPE and OBJECT_TYPE_DESCRIPTION
+@I_RES = DO(READ_TEXT("B5_INST/BPI_SCT_BEGIN_COMMON.SCL"), "DEV")
+
+;define values for CMD_PARAMETER and CONTROL_TYPE and STATION_TYPE
+@I_RES = DO(READ_TEXT("B5_INST/BPI_SCT_BEGIN_SW.SCL"))
+
+@I_RES = DO(READ_TEXT("F5_INST/FDI_SCT_BEGIN_COMMON.SCL"))
+
+;define proper set of representations
+@FUNC_DEF=LIST(-
+	SCT_ATTRIBUTES = (-
+					LIST(NAME              =  "P_OBJECT_LN",-
+						  TYPE              =  "TEXT",-
+						  MAX_LENGTH        =  63),-
+					LIST(NAME              =  "STATION_TYPE",-
+						  TYPE              =  "SELECTOR",-
+						  VALUES            =  %STATION_TYPE_VALUES,-
+						  REPRESENT         =  %STATION_TYPE_REPRESENT,-
+						  CHANGE_CALLBACK   =  VECTOR("#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_STATION_TYPE"")")),-
+					LIST(NAME              =  "INDICATION_TYPE",-
+						  TYPE              =  "SELECTOR",-
+						  VALUES            = ("DB",-
+													  "BI",-
+													  "2BI",-
+													  "AI"),-
+						  REPRESENT         = ("Double indication (DB)",-
+													  "Single indication (BI)",-
+													  "2 x Single indications (2xBI)",-
+													  "Analog input (AI)")),-
+					LIST(NAME              =  "MOTORIZED",-
+						  TYPE              =  "BOOLEAN",-
+						  CHANGE_CALLBACK   =  VECTOR("#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_MOTORIZED"")")),-
+					LIST(NAME              =  "CONTROL_TYPE",-
+						  TYPE              =  "SELECTOR",-
+						  VALUES            =  %CONTROL_TYPE_VALUES,-
+						  REPRESENT         =  %CONTROL_TYPE_REPRESENT,-
+						  CHANGE_CALLBACK   =  VECTOR("#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_MOTORIZED"")","#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_CONTROL_TYPE"")")),-
+					LIST(NAME		 			=  "CMD_PARAMETER",-
+										TYPE		 =  "SELECTOR",-
+						  VALUES		 =  %CMD_PARAMETER_VALUES,-
+			 REPRESENT         =  %CMD_PARAMETER_REPRESENT,-
+						  CHANGE_CALLBACK   =  VECTOR("#DO .ST_READ_DATA_FILE_SECTION(""CALLBACK_CMD_PARAMETER"")")),-
+					LIST(NAME              =  "CONTROL_PULSE_LENGTH",-
+						  TYPE              =  "INTEGER",-
+						  MAX_VALUE         =  65000,-
+						  MIN_VALUE         =  0),-
+					LIST(NAME              =  "CONTROL_BITS",-
+						  TYPE              =  "VECTOR",-
+						  ELEMENT_TYPE      =  "INTEGER",-
+						  MAX_LENGTH        =  5,-
+						  MAX_ELEMENT_VALUE =  15,-
+						  MIN_ELEMENT_VALUE =  0),-
+					LIST(NAME              =  "AUTHORIZATION_GROUP",-
+						  TYPE              =  "EDITABLE_SELECTOR",-
+						  INPUT_TYPE        =  "TEXT",-
+						  VALUES            =  %AUTHORIZATION_GROUPS,-
+						  REPRESENT         =  %AUTHORIZATION_GROUPS,-
+						  MAX_LENGTH        =  63),-
+					LIST(NAME              =  "BAY_LR_POLARITY",-
+						  TYPE              =  "SELECTOR",-
+						  VALUES            =  ("R1",-
+														"L1"),-
+						  REPRESENT         =  ("Local=0,Remote=1",-
+														"Remote=0,Local=1")),-
+-;					LIST(NAME              =  "EVENT_RECORDING",-
+-;						  TYPE              =  "BOOLEAN"),-			  
+					LIST(NAME              =  "OBJECT_TYPE_DESCRIPTION",-
+						  TYPE              =  "SELECTOR",-
+						  VALUES            = %OBJECT_TYPE_TYPE_VALUES,-
+						  REPRESENT         = %OBJECT_TYPE_TYPE_REPRESENT)),-
+	SCT_USER_PROGS = (-
+					"U_INTERLOCKING",-
+					"U_OTHER_OBJECTS"),-
+	SCT_HELP_FILE = "F5_INST/FDI_COMMON_DEV_HLP.SCL")
+                   
+;add configurable attributes for object identifiers
+#SET FUNC_DEF:VSCT_ATTRIBUTES = APPEND(%OBJECT_IDENTIFIERS, FUNC_DEF:VSCT_ATTRIBUTES)
+
+;sets STATION_NAME, BAY_NAME ... from OI to attribute in question
+@I_RES = DO(READ_TEXT("B5_INST/BPI_SCT_BEGIN_READ_OI_FROM_DB.SCL"), "DEV")
+
+##FUNC_DEF_END
+
+;-------- Callback programs -----------------
+
+;callback motorized
+##CALLBACK_MOTORIZED_BEGIN
+
+@I_RES = DO(READ_TEXT("F5_INST/FDI_SCT_CALLBACK_MOTORIZED.SCL"))
+
+##CALLBACK_MOTORIZED_END
+
+;callback station type  
+##CALLBACK_STATION_TYPE_BEGIN
+
+@I_RES = DO(READ_TEXT("F5_INST/FDI_SCT_CALLBACK_SW_STATION_TYPE.SCL"))
+
+##CALLBACK_STATION_TYPE_END
+
+;callback cmd parameter
+##CALLBACK_CMD_PARAMETER_BEGIN
+
+@I_RES = DO(READ_TEXT("F5_INST/FDI_SCT_CALLBACK_CMD_PARAMETER.SCL"))
+
+##CALLBACK_CMD_PARAMETER_END
+
+##CALLBACK_CONTROL_TYPE_BEGIN
+  
+@I_RES = DO(READ_TEXT("F5_INST/FDI_SCT_CALLBACK_CONTROL_TYPE.SCL"))
+  
+##CALLBACK_CONTROL_TYPE_END
+
+
+;-------- SCT Initialization -----------------
+##SCT_INIT_BEGIN
+
+;execute callbacks once to initialize SCT
+@INITIALIZATION = TRUE
+#DO .ST_READ_DATA_FILE_SECTION("CALLBACK_STATION_TYPE")
+@INITIALIZATION = FALSE
+
+##SCT_INIT_END
+
+;-------- Define Configuration Tool Menu -----------------
+##MENU_TXT_BEGIN
+
+.ENABLE_POT
+
+##MENU_TXT_END
+
+##MENU_PROG_BEGIN
+
+##MENU_PROG_END
+
+;-------- Define Process Objects -----------------
+##P_OBJECTS_BEGIN
+  
+#DO READ_TEXT("F5_INST/FDI_MOTOR.POT",1,10000)
+
+##P_OBJECTS_END
+
+;-------- Program Executed when OK -----------------
+##OK_BEGIN
+
+;save the object identifier (OI-attribute) for the future use
+@I_RES = DO(READ_TEXT("B5_INST/BPI_SCT_OK.SCL"), "DEV")
+
+##OK_END
+
+;-------- Program Executed when CANCEL -----------------
+##CANCEL_BEGIN
+ 
+ 
+##CANCEL_END
+
+;-------- Program Executed when DELETE -----------------
+##DELETE_BEGIN
+
+
+##DELETE_END
+

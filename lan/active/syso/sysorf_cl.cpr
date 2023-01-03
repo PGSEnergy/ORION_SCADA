@@ -1,0 +1,1141 @@
+;REDUNDANT FRONTEND COMMAND PROCEDURES
+;  17.02.97
+RF_BOBJ_SB:C
+;**************************************************************************
+;*
+;*   Command procedure RF_BOBJ_SB
+;*
+;*   1.0                RB
+;*   1.1   1997.01.21   JK
+;*
+;*   Function: Remaps the station and printer objects to peer NET
+;*
+;*   Parameters 
+;*   In,Out :      NETNR   The old hot NET
+;*
+;*************************************************************************
+
+#ERROR CONTINUE
+;Read station and printer object list
+
+   #DO RF_U_BOBJ:C
+
+
+;Station object remapping
+
+   #LOOP_WITH I=1..LENGTH(%RF_STAOBJ)
+      @STANR = %RF_STAOBJ(%I)
+      #IF (STA'STANR':BND == %NETNR) #THEN #BLOCK
+         #SET STA'STANR':BND = ROUND(RF_PEERND:D(%NETNR))
+      #BLOCK_END
+   #LOOP_END
+
+
+;Printer object remapping
+
+   #LOOP_WITH I=1..LENGTH(%RF_PRIOBJ)
+      @PRINR = %RF_PRIOBJ(%I)
+      #IF (PRI'PRINR':BND == %NETNR) #THEN #BLOCK
+         #SET PRI'PRINR':BCL = LIST(ND=ROUND(RF_PEERND:D(%NETNR)))
+      #BLOCK_END
+   #LOOP_END
+END RF_BOBJ_SB:C
+RF_CONST:C
+;**************************************************************************
+;*
+;*   Command procedure RF_CONST
+;*
+;*   1.0                RB
+;*   1.1   1997.01.21   JK
+;*
+;*   Function: Constant initialization for redundant frontends   
+;*
+;*   Parameters 
+;*   In,Out :     
+;*
+;*************************************************************************
+
+ ; CONSTANT INITIALIZATION FOR REDUNDANT FRONTENDS
+
+   @RF_SINMODE = 0
+   @RF_HOTMODE = 1
+   @RF_SB_MODE = 2
+
+   @RF_OK      = 0
+   @RF_FAIL    = 1
+
+   @RF_NO_SHAD = 0
+   @RF_SEND    = 1
+   @RF_RECEIVE = 2
+
+
+   ; TRANSITION PROCEDURE NAMES
+   @TRANSITION(1)="RF_HOTOK"
+   @TRANSITION(2)="RF_SBOK"
+   @TRANSITION(3)="RF_HOTFAIL"
+   @TRANSITION(4)="RF_SBFAIL"
+
+   ; EVENTS
+   @H_FAILSM   = 1
+   @H_OKSM     = 2
+   @H_LINSUSP  = 3
+   @SB_FAILSM  = 4
+   @SB_OKSM    = 5
+
+   ; OTHER TRANSITION MATRIX CONSTANTS
+   @STATE_BEGIN   = 5   ; LINE NR OF FIRST STATE
+   @MAX_STATE     = 3
+   @MAX_TRANS     = 4
+   @EVENT_BEGIN   = 24   ; COLUMN OF FIRST EVENT
+   @EVENT_WIDTH   = 6    ; WIDTH OF EVENT CELL
+   @MAX_EVENT     = 9
+
+   @REDSWITCH     = 6
+
+; --------------------------------
+; *** USER CHANGEABLE CONSTANT SECTION
+
+   @RF_TIMEOUT = 1500 ; (MS, GENERAL)
+   @RFIUTIMOUT = 7000 ; (MS, FOR STOPPING LINES ETC )
+   @RF_TLIMIT  = 100  ; (MAX ALLOWED AGE OF NODx:BRT TIME)
+   @MAX_NET_NR = 32
+
+END RF_CONST:C
+RF_GRPLOOP:C
+;**************************************************************************
+;*
+;*   Command procedure RF_GRPLOOP
+;*
+;*   1.0                RB
+;*   1.1   1997.01.21   JK
+;*
+;*   Function: Runs a given command procedure with #DO for an RF node group
+;*
+;*   Parameters 
+;*   In,Out : NETNR
+;*   In     : LOOP_PROC
+;*
+;*************************************************************************
+;
+
+@OLD_NETNR = %NETNR
+@GROUP=ROUND(RF_NDGRPS:D(%NETNR))
+#IF %GROUP > 0 #THEN #BLOCK
+   #LOOP_WITH I=1..LENGTH(RF_NDGRP'GROUP':D(..))
+     @NEXT_NR = ROUND(RF_NDGRP'GROUP':D(%I))
+     #IF %NEXT_NR > 0 #THEN #BLOCK
+         @NETNR = %NEXT_NR
+         @STOPNETNR=ROUND(RF_PEERND:D(%NETNR))        
+         #DO 'LOOP_PROC':C ; DO PROCEDURE FOR THIS GROUP
+      #BLOCK_END
+   #LOOP_END
+#BLOCK_END
+#ELSE #BLOCK
+   #DO 'LOOP_PROC':C ; DO PROCEDURE FOR THE GIVEN NET NR ONLY
+#BLOCK_END
+@NETNR = %OLD_NETNR
+
+END RF_GRPLOOP:C
+RF_HOTFAIL:C
+;**************************************************************************
+;*
+;*   Command procedure RF_HOTFAIL
+;*
+;*   1.0                RB
+;*   1.1   1997.01.21   JK
+;*
+;*   Function: 
+;*
+;*   Parameters 
+;*   In,Out : NETNR
+;*   
+;*
+;*************************************************************************
+;
+
+   #SET RF_NDSTATE:D(%NETNR)=%RF_FAIL
+   #DO RF_SWITCH:C
+END RF_HOTFAIL:C
+RF_HOTOK:C
+;**************************************************************************
+;*
+;*   Command procedure RF_HOTOK
+;*
+;*   1.0                RB
+;*   1.1   1997.01.21   JK
+;*
+;*   Function: 
+;*
+;*   Parameters 
+;*   In,Out : NETNR
+;*   
+;*
+;*************************************************************************
+;
+
+
+
+   #SET RF_NDSTATE:D(%NETNR)=%RF_OK
+   #IF NET'NETNR':SRM==%RF_HOTMODE #THEN #SET NET'NETNR':SSH=%RF_SEND
+END RF_HOTOK:C
+RF_HOTTOSB:C
+;**************************************************************************
+;*
+;*   Command procedure RF_HOTTOSB
+;*
+;*   1.0                RB
+;*   1.1   1997.01.21   JK
+;*
+;*   Function: Switches a hot NET into standby mode
+;*             (A parallel queue is recommended, because the timeout
+;*              probability is great)
+;*
+;*   Parameters
+;*   In,Out : NETNR         The hot NET at calling moment
+;*
+;*
+;*************************************************************************
+;
+
+
+   @OLDTI=TIMEOUT(%RF_TIMEOUT)
+   #ERROR IGNORE
+   #SET RF_NDMODE:D(%NETNR)=%RF_SB_MODE
+   #SET NET'NETNR':SRM = %RF_SB_MODE
+   #SET NET'NETNR':SSH = %RF_RECEIVE
+   #ERROR STOP
+END RF_HOTTOSB:C
+RF_MATRIX:C
+;                      HOT   HOT   HOT   SB    SB    HOT   SB    HOT   SB
+;                      FAIL  OK    LINE  FAIL  OK    ERR   ERR   DIAG  DIAG
+;                      SM    SM    SUSP  SM    SM    REPLY REPLY TMOUT TMOUT
+;                                  SM
+; HOT_OK_SB_OK         03    IG    03    04    IG    03    04    03    04
+; HOT_FAIL_SB_OK       IG    01    IG    04    IG    IG    04    IG    04
+; HOT_OK_SB_FAIL       03    IG    03    IG    02    03    IG    03    IG
+; HOT_FAIL_SB_FAIL     IG    01    IG    IG    02    IG    IG    IG    IG
+END RF_MATRIX:C
+RF_MONCREA:C
+;**************************************************************************
+;*
+;*   Command procedure RF_MONCREA
+;*
+;*   1.0                RB
+;*   1.1   1997.01.21   JK
+;*
+;*   Function: Creation of RF_MONITOR process objects
+;*                                        
+;*
+;*   Parameters
+;*
+;*
+;*************************************************************************
+;
+
+ ; CREATION OF RF_MONITOR PROCESS OBJECT
+ ;
+
+ @A=FETCH (0,"P","RF_MONITOR",1)
+ #IF A:VIU==-1 #THEN #BLOCK
+    #CREATE V:V
+    #SET V:VLN="RF_MONITOR"
+    #SET V:VIX=1
+    #SET V:VPT=9
+    #SET V:VOA=0
+    #SET V:VUN=0
+    #SET V:VIU=1
+    #SET V:VSS=2
+    #SET V:VSN="1_1"
+    #SET V:VHE=1
+    #SET V:VHA=2
+    #SET V:VHF=1
+    @A=FETCH (0,"P","RF_MONITOR",1)
+    #CREATE RF_MONITOR:P1 = %V
+  #BLOCK_END
+END RF_MONCREA:C
+RF_NETCREA:C
+;**************************************************************************
+;*
+;*   Command procedure RF_NETCREA
+;*
+;*   1.0                RB
+;*   1.1   1997.01.21   JK
+;*
+;*   Function: Creation and initialization of objects related to system
+;*             object NET
+;*             - Process objects for handling system messages
+;*             - Event channel creation
+;*             - Datalog object initialization
+;*
+;*   Parameters 
+;*   In,Out : NETNR      NET number
+;*            PEERNODE   NET number of peer node
+;*
+;*************************************************************************
+;
+
+; PROCESS OBJECTS
+
+ #CREATE V:V
+
+ ; GENERAL, APPL. DIAGN, PEER NET DIAGN.
+ #LOOP_WITH I=1..3
+   #SET V:VLN="NET'NETNR'"
+   #SET V:VIX=%I
+   #SET V:VPT=9
+   #CASE %I
+     #WHEN 1  #BLOCK
+  ;      GENERAL MESSAGES (STARTUP ETC)
+          #SET V:VOA=6000+%NETNR
+          #SET V:VFX="GENERAL"
+       #BLOCK_END
+     #WHEN 2   #BLOCK
+  ;      APPLICATION DIAGNOSTICS
+          #SET V:VOA=6050+%NETNR
+          #SET V:VFX="APL_DIAG"
+       #BLOCK_END
+     #WHEN 3   #BLOCK
+  ;      PEER NET DIAGNOSTICS
+          #SET V:VOA=5900+%NETNR
+          #SET V:VFX="NET_DIAG"
+       #BLOCK_END
+   #CASE_END
+   #SET V:VFI=%NETNR
+   #SET V:VUN=0
+   #SET V:VIU=1
+   #SET V:VSS=2
+   #SET V:VSN="1_1"
+   #SET V:VAE=1
+   #SET V:VAN="RF_NETSMSG"
+   #SET V:VAA=2
+   #SET V:VAF=1
+   #SET V:VHE=1
+   #SET V:VHA=2
+   #SET V:VHF=1
+   @A=FETCH(0,"P","NET'NETNR'",%I)
+   #IF A:VIU == -1 #THEN #CREATE NET'NETNR':P'I' = %V
+   #ELSE #MODIFY NET'NETNR':P'I' = %V
+ #LOOP_END
+
+ ; LINES
+ #LOOP_WITH I=1..8
+   #SET V:VLN="NET'NETNR'_LIN"
+   #SET V:VIX=%I
+   #SET V:VPT=9
+   #SET V:VOA=6000+100*%NETNR+%I
+   #SET V:VUN=0
+   #SET V:VIU=1
+   #SET V:VSS=2
+   #SET V:VSN="1_1"
+   #SET V:VHE=1
+   #SET V:VHA=2
+   #SET V:VHF=1
+ ;
+ ; LINE OBJECTS NOT CREATED, BECAUSE NOT USED BY SWITCHOVER LOGIC
+ ;  @A=FETCH(0,"P","NET'NETNR'_LIN",%I)
+ ;  #IF A:VIU == -1 #THEN #CREATE NET'NETNR'LIN:P'I' = %V
+ ;  #ELSE #MODIFY NET'NETNR'LIN:P'I' = %V
+ #LOOP_END
+
+; EVENT CHANNELS
+
+ #CREATE EV:V
+   #SET EV:VLN="RF_NETSMSG"
+   #SET EV:VOT="C"
+   #SET EV:VON="RF_NETSMSG"
+   #SET EV:VST1 = "C"
+   #SET EV:VSN1 ="RF_U_NETMS"
+   @A=FETCH(0,"A","RF_NETSMSG")
+   #IF A:VIU == -1 #THEN #CREATE RF_NETSMSG:A = %EV
+   #ELSE #MODIFY RF_NETSMSG:A = %EV
+
+   #SET EV:VLN="LINSYSMSG"
+   #SET EV:VOT="C"
+   #SET EV:VON="LINSYSMSG"
+;  LINSYSMSG NOT CREATED, BECAUSE NOT USED BY SWITCHOVER LOGIC
+;   @A=FETCH(0,"A","LINSYSMSG")
+;   #IF A:VIU == -1 #THEN #CREATE LINSYSMSG:A = %EV
+;   #ELSE #MODIFY LINSYSMSG:A = %EV
+
+
+; COMMAND PROCEDURE CREATION / MODIFICATION
+ #CREATE CP:V
+   #SET CP:VLN="RF_NETSMSG"
+   #SET CP:VIU=1
+   #SET CP:VMO=1
+   @A=FETCH(0,"C","RF_NETSMSG")
+   #IF A:VIU == -1 #THEN #CREATE RF_NETSMSG:C = %CP
+   #ELSE #MODIFY RF_NETSMSG:C = %CP
+
+   #SET CP:VLN="LINSYSMSG"
+   #SET CP:VIU=1
+   #SET CP:VMO=1
+; LINSYSMSG NOT CREATED, BECAUSE NOT USED AS SWITCHOVER LOGIC INPUT
+;   @A=FETCH(0,"C","LINSYSMSG")
+;   #IF A:VIU == -1 #THEN #CREATE LINSYSMSG:C = %CP
+;   #ELSE #MODIFY LINSYSMSG:C = %CP
+
+; DATALOG OBJECT (RE)INITIALIZATION
+   #DO RF_CONST:C
+   #SET RF_NDSTATE:D(%NETNR)=%RF_OK
+   #SET RF_NDSTATE:DLR=RF_NDSTATE:DHR
+   #SET RF_NDMODE:D(%NETNR)=%RF_SB_MODE
+   #SET RF_NDMODE:DLR=RF_NDMODE:DHR
+   #SET RF_PEERND:D(%NETNR)=%PEERNODE
+   #SET RF_PEERND:DLR=RF_PEERND:DHR
+   @LUSE_DHR = RF_LOOPUSE:DHR
+   #SET RF_LOOPUSE:DLR=%LUSE_DHR
+   #LOOP_WITH LUSEIND=1..%LUSE_DHR
+      #IF RF_LOOPUSE:DOS(%LUSEIND) == 10 #THEN #BLOCK
+         #SET RF_LOOPUSE:DOV(%LUSEIND) = 0
+      #BLOCK_END
+   #LOOP_END
+
+; RF MONITOR PROCESS OBJECT CREATION
+   #DO RF_MONCREA:C
+
+END RF_NETCREA:C
+RF_NETSMSG:C
+;**************************************************************************
+;*
+;*   Command procedure RF_NETSMSG
+;*
+;*   1.0                RB
+;*   1.1   1997.01.21   JK
+;*
+;*   Function: NET system message handling                             
+;*
+;*   Parameters 
+;*
+;*************************************************************************
+;
+
+   #DO RF_CONST:C
+   #CASE 'LN':PFX'IX'
+      #WHEN "GENERAL"   #BLOCK
+            @NETNR= 'LN':PFI'IX'
+            ; SET SYSTEM MESSAGES ENABLED 
+            #SET NET'NETNR':SSE=1
+         #BLOCK_END
+
+      #WHEN "APL_DIAG"   #BLOCK
+            @NETNR= 'LN':PFI'IX'
+            @INITMODE = NET'NETNR':SRM
+            #IF %INITMODE <> %RF_SINMODE #THEN #BLOCK
+               @PEER=ROUND(RF_PEERND:D(%NETNR))
+               #IF (CLOCK-NOD'PEER':BRT) > %RF_TLIMIT #THEN #BLOCK
+                  #SET RF_NDMODE:D(%PEER)=%RF_SB_MODE
+                  #SET RF_NDSTATE:D(%PEER) = %RF_FAIL
+               #BLOCK_END
+               @PEERMODE = ROUND(RF_NDMODE:D(%PEER))
+               #SET RF_NDMODE:D(%NETNR)=%INITMODE
+               #SET RF_NDSTATE:D(%NETNR) = %RF_OK
+               @NEWMODE = %RF_HOTMODE
+               #IF RF_NDSTATE:D(%PEER) == %RF_OK #THEN #BLOCK
+                  #IF %PEERMODE == %RF_HOTMODE #THEN #BLOCK
+                    #ERROR CONTINUE
+                    #IF NET'PEER':SRM == %RF_HOTMODE #THEN @NEWMODE=%RF_SB_MODE
+                    #ERROR STOP
+                  #BLOCK_END
+               #BLOCK_END
+               #IF %NEWMODE <> %INITMODE #THEN #BLOCK
+                  #IF %NEWMODE == %RF_SB_MODE #THEN #BLOCK
+                     @LOOP_PROC = "RF_HOTTOSB"
+                     #DO RF_GRPLOOP:C
+                  #BLOCK_END
+                  #ELSE #IF %NEWMODE == %RF_HOTMODE #THEN #BLOCK
+
+; POSSIBLE ADDITION FOR COMM. LOOPS : CAUSE NET TO RESEND SYSTEM MESSAGES
+;                      #EXEC LOOPRTUINI:C
+
+                     @LOOP_PROC = "RF_SBTOHOT"
+                     #DO RF_GRPLOOP:C
+                     @LOOP_PROC = "RF_SETLIN"
+                     #DO RF_GRPLOOP:C
+                     @LOOP_PROC = "RF_SETSTA"
+                     #DO RF_GRPLOOP:C
+                   #BLOCK_END   
+               #BLOCK_END
+               #CASE ROUND(RF_NDMODE:D(%NETNR))
+                  #WHEN  %RF_HOTMODE  @EVENT=%H_OKSM
+                  #OTHERWISE          @EVENT=%SB_OKSM
+               #CASE_END
+               #DO RF_PROC:C
+            #BLOCK_END
+         #BLOCK_END
+
+      #WHEN "NET_DIAG" #BLOCK
+            #IF %AI=='LN':PAI'IX' #THEN #BLOCK
+               #IF %AI <=%MAX_NET_NR #THEN #BLOCK
+                  @NETNR=ROUND(%AI)
+                  @STAT=STATUS
+                  @OLDTI=TIMEOUT(%RF_TIMEOUT)
+                  #ERROR IGNORE
+                  ; CHECK THAT FAILED NET IS NOT ANSWERING
+                  @OKTEST=NET'NETNR':SSA
+                  @STAT=STATUS
+                  #ERROR STOP
+                  #IF %STAT <> 0 #THEN #BLOCK
+                     ; CHECK THAT PEER NET IS ANSWERING
+                     @PEER=ROUND(RF_PEERND:D(%NETNR))
+                     @STAT=STATUS
+                     @OKTEST=NET'PEER':SSA
+                     @STAT=STATUS
+                     #IF %STAT == 0 #THEN #BLOCK                     
+                        #CASE ROUND(RF_NDMODE:D(%NETNR))
+                           #WHEN %RF_HOTMODE  @EVENT=%H_FAILSM
+                           #OTHERWISE         @EVENT=%SB_FAILSM
+                        #CASE_END
+                        #DO RF_PROC:C
+                     #BLOCK_END
+                  #BLOCK_END
+               #BLOCK_END
+               #ELSE_IF (%AI > 1000) AND (%AI <= 1000+%MAX_NET_NR) #THEN #BLOCK
+                  @NETNR=(ROUND(%AI)) MOD 1000
+                  #CASE ROUND(RF_NDMODE:D(%NETNR))
+                     #WHEN %RF_HOTMODE  @EVENT=%H_OKSM
+                     #OTHERWISE         @EVENT=%SB_OKSM
+                  #CASE_END
+                  #DO RF_PROC:C
+               #BLOCK_END
+            #BLOCK_END
+         #BLOCK_END
+   #CASE_END
+END RF_NETSMSG:C
+RF_PROC:C
+;**************************************************************************
+;*
+;*   Command procedure RF_PROC
+;*
+;*   1.0                RB
+;*   1.1   1997.01.21   JK
+;*
+;*   Function:
+;*
+;*   Parameters 
+;*
+;*************************************************************************
+;
+
+ #IF RF_NDMODE:D(%NETNR)==%RF_HOTMODE #THEN #BLOCK
+    @STATE=RF_NDSTATE:D(%NETNR)+2*RF_NDSTATE:D(RF_PEERND:D(%NETNR))
+ #BLOCK_END
+ #ELSE #BLOCK
+    @STATE=2*RF_NDSTATE:D(%NETNR)+RF_NDSTATE:D(RF_PEERND:D(%NETNR))
+ #BLOCK_END
+
+ #SET RF_MONITOR:P1=1000*%NETNR+%EVENT
+ @LIN=RF_MATRIX:CIN(%STATE_BEGIN + %STATE)
+ @TRNSSTART=%EVENT_BEGIN+(%EVENT_WIDTH*(%EVENT-1))
+ @TRNS=SUBSTR(%LIN, %TRNSSTART, 2)
+
+ #IF %TRNS=="IG" #THEN @PROCEDURE = ""
+ #ELSE #BLOCK
+   @PROCEDURE = %TRANSITION(DEC_SCAN(%TRNS))
+   #SET RF_MONITOR:PFI1=DEC_SCAN(%TRNS)
+   #SET RF_MONITOR:PFX1="'PROCEDURE'"
+ #BLOCK_END
+ #IF %PROCEDURE <> "" #THEN #DO 'PROCEDURE':C
+
+END RF_PROC:C
+RF_SBFAIL:C
+;**************************************************************************
+;*
+;*   Command procedure RF_SBFAIL
+;*
+;*   1.0                RB
+;*   1.1   1997.01.21   JK
+;*
+;*   Function:
+;*
+;*   Parameters
+;*   In,Out : NETNR
+;*
+;*************************************************************************
+;
+
+
+   #SET RF_NDSTATE:D(%NETNR)=%RF_FAIL
+   #IF ROUND(RF_NDMODE:D(RF_PEERND:D(%NETNR))) == %RF_SB_MODE #THEN #BLOCK
+   ; BOTH NODES STANDBY, SET PEER TO HOT
+      #DO RF_SWITCH:C
+   #BLOCK_END
+END RF_SBFAIL:C
+RF_SBOK:C
+;**************************************************************************
+;*
+;*   Command procedure RF_SBFOK
+;*
+;*   1.0                RB
+;*   1.1   1997.01.21   JK
+;*
+;*   Function:
+;*
+;*   Parameters
+;*   In,Out : NETNR
+;*
+;*************************************************************************
+;
+
+   #SET RF_NDSTATE:D(%NETNR)=%RF_OK
+END RF_SBOK:C
+RF_SBTOHOT:C
+;**************************************************************************
+;*
+;*   Command procedure RF_SBTOHOT
+;*
+;*   1.0                RB
+;*   1.1   1997.01.21   JK
+;*
+;*   Function: Switches the stand-by NET into hot mode
+;*
+;*   Parameters
+;*   In,Out : NETNR
+;*
+;*************************************************************************
+;
+
+
+   #SET NET'NETNR':SRM = %RF_HOTMODE
+   #SET NET'NETNR':SSH = %RF_SEND
+   #SET RF_NDMODE:D(%NETNR)=%RF_HOTMODE
+END RF_SBTOHOT:C
+RF_SETLIN:C
+;**************************************************************************
+;*
+;*   Command procedure RF_SETLIN
+;*
+;*   1.0                RB
+;*   1.1   1997.01.21   JK
+;*
+;*   Function: Sets the lined defined in the RF_SETLIN:D of a NET into use
+;*             and sets required NET attributes to start the lines
+;*
+;*   Parameters
+;*   In,Out : NETNR
+;*
+;*************************************************************************
+;
+
+
+   @OLDTI=TIMEOUT(%RFIUTIMOUT)
+
+   #LOOP_WITH LINENR=1..8
+      ;IS THE LINE INCLUDED IN LINE SWITCH CONTROL
+      #IF BIT(ROUND(RF_SETLIN:D'NETNR'),%LINENR) == 1 #THEN #BLOCK
+         #DO RF_U_LIN:C
+      #BLOCK_END
+   #LOOP_END
+
+   @OLDTI=TIMEOUT(%RF_TIMEOUT)
+END RF_SETLIN:C
+RF_SETSTA:C
+;**************************************************************************
+;*
+;*   Command procedure RF_SETSTA
+;*
+;*   1.0                RB
+;*   1.1   1997.01.21   JK
+;*
+;*   Function: Sets the stations defined in RF_U_BOBJ:C of a NET into use
+;*                                                                
+;*
+;*   Parameters
+;*   In,Out : NETNR
+;*
+;*************************************************************************
+;
+
+
+   #DO RF_U_BOBJ:C
+
+   @OLDTI=TIMEOUT(%RFIUTIMOUT)
+   #LOOP_WITH I=1..LENGTH(%RF_STAOBJ)
+      @STANR = %RF_STAOBJ(%I)
+      #IF (STA'STANR':BND == %NETNR) #THEN #BLOCK
+         #DO RF_U_STA:C
+      #BLOCK_END
+   #LOOP_END
+   @OLDTI=TIMEOUT(%RF_TIMEOUT)
+END RF_SETSTA:C
+RF_STACREA:C
+;**************************************************************************
+;*
+;*   Command procedure RF_STACREA
+;*
+;*   1.0                RB
+;*   1.1   1997.01.21   JK
+;*
+;*   Function: Creates STA:B object, process objects and event channel for
+;*             system messages
+;*
+;*   Parameters
+;*   In     : STANR      Station number
+;*   In     : STATYPE    Station type
+;*   In     : ND         Node number
+;*   In     : TN         Translated object number
+;*************************************************************************
+;
+
+
+ ; STATION CREATION
+ ; CREATE / MODIFY B OBJECT
+ #IF STA'STANR':BTT=="NONE" #THEN #BLOCK
+   #CREATE STA:V
+   #SET STA:VST=%STATYPE
+   #SET STA:VND=%ND
+   #SET STA:VTN=%TN
+   #SET STA:VTT="EXTERNAL"
+   #CREATE STA'STANR':B=%STA
+ #BLOCK_END
+ #ELSE #BLOCK
+   #SET STA'STANR':BST=%STATYPE
+   #SET STA'STANR':BND=%ND
+   #SET STA'STANR':BTN=%TN
+   #SET STA'STANR':BTT="EXTERNAL"
+ #BLOCK_END
+
+ ; SYSTEM MESSAGE PROCESS OBJECTS
+ #CREATE V:V
+ #IF %STATYPE=="RTU" #THEN #BLOCK
+    #LOOP_WITH I=1..4
+      #SET V:VLN="'STATYPE''STANR'"
+      #SET V:VIX=%I
+      #SET V:VPT=9
+      #SET V:VOA=8000+%STANR+500*(%I-1)
+      #SET V:VUN=0
+      #SET V:VIU=1
+      #SET V:VSS=2
+      #SET V:VSN="1_1"
+      #IF %I==1 #THEN #BLOCK
+        #SET V:VAE=1
+        #SET V:VAN="RF_STASMSG"
+        #SET V:VAA=2
+        #SET V:VAF=1
+      #BLOCK_END
+      #SET V:VHE=1
+      #SET V:VHA=2
+      #SET V:VHF=1
+      @A=FETCH (0,"P","'STATYPE''STANR'",%I)
+      #IF A:VIU==-1 #THEN #CREATE 'STATYPE''STANR':P'I' = %V
+      #ELSE #MODIFY 'STATYPE''STANR':P'I' = %V
+    #LOOP_END
+  #BLOCK_END
+  #ELSE #BLOCK
+    #SET V:VLN="'STATYPE''STANR'"
+    #SET V:VIX=1
+    #SET V:VPT=9
+    #SET V:VOA=1000+%STANR
+    #SET V:VUN=0
+    #SET V:VIU=1
+    #SET V:VSS=2
+    #SET V:VSN="1_1"
+    #SET V:VAE=1
+    #SET V:VAN="RF_STASMSG"
+    #SET V:VAA=2
+    #SET V:VAF=1
+    #SET V:VHE=1
+    #SET V:VHA=2
+    #SET V:VHF=1
+      @A=FETCH (0,"P","'STATYPE''STANR'",%I)
+      #IF A:VIU==-1 #THEN #CREATE 'STATYPE''STANR':P'I' = %V
+      #ELSE #MODIFY 'STATYPE''STANR':P'I' = %V
+  #BLOCK_END
+
+  ; EVENT CHANNEL
+  #CREATE EV:V
+  #SET EV:VLN="RF_STASMSG"
+  #SET EV:VOT="C"
+  #SET EV:VON="RF_STASMSG"
+; NOT CREATED, BECAUSE CURRENTLY NOT USED BY RF SWITCHOVER LOGIC
+;  @A=FETCH (0,"A","RF_STASMSG")
+;  #IF A:VIU==-1 #THEN #CREATE RF_STASMSG:A=%EV 
+;  #ELSE #MODIFY RF_STASMSG:A=%EV 
+
+  ; COMMAND PROCEDURE
+  #CREATE C:V
+  #SET C:VLN="RF_STASMSG"
+  #SET C:VIN1="; PROCEDURE FOR SYSTEM MESSAGE HANDLING"
+  #SET C:VIU=1
+; NOT CREATED, BECAUSE CURRENTLY NOT USED BY RF SWITCHOVER LOGIC
+;  @A=FETCH (0,"C","RF_STASMSG")
+;  #IF A:VIU==-1 #THEN #CREATE RF_STASMSG:C=%C 
+;  #ELSE #MODIFY RF_STASMSG:C=%C 
+END RF_STACREA:C
+RF_STOPLIN:C
+;**************************************************************************
+;*
+;*   Command procedure RF_STOPLIN
+;*
+;*   1.0                RB
+;*   1.1   1997.01.21   JK
+;*
+;*   Function: Stops the lines of a NET which are included in the line    
+;*             switch table  RF_SETLIN:D
+;*
+;*   Parameters
+;*   In,Out : STOPNETNR     Net node number which lines are stopped
+;*
+;*************************************************************************
+;
+
+
+   @OLDTI=TIMEOUT(%RFIUTIMOUT)
+   #LOOP_WITH I=1..8
+      #IF BIT(ROUND(RF_SETLIN:D'STOPNETNR'),%I) == 1 #THEN #BLOCK
+         #SET NET'STOPNETNR':SIU'I'=0
+      #BLOCK_END
+   #LOOP_END
+   @OLDTI=TIMEOUT(%RF_TIMEOUT)
+END RF_STOPLIN:C
+RF_SUPERV:C
+;**************************************************************************
+;*
+;*   Command procedure RF_SUPERV
+;*
+;*   1.0                RB
+;*   1.1   1997.01.21   JK
+;*
+;*   Function: Supervises the arrival time of diagnostic messages from NET
+;*
+;*   Parameters
+;*
+;*************************************************************************
+;
+;
+
+
+   #DO RF_CONST:C
+   #LOOP_WITH NETNR=1..%MAX_NET_NR
+      #IF RF_PEERND:DOS(%NETNR)==0 #THEN #BLOCK
+         #IF RF_PEERND:D(%NETNR)<>0 #THEN #BLOCK
+            @TIMEDIFF=CLOCK-NOD'NETNR':BRT
+            #IF %TIMEDIFF > %RF_TLIMIT #THEN #BLOCK
+               #CASE ROUND(RF_NDMODE:D(%NETNR))
+                  #WHEN %RF_HOTMODE  @EVENT=%H_FAILSM
+                  #OTHERWISE         @EVENT=%SB_FAILSM
+               #CASE_END
+               #DO RF_PROC:C
+            #BLOCK_END
+         #BLOCK_END
+      #BLOCK_END
+   #LOOP_END
+END RF_SUPERV:C
+RF_SWITCH:C
+;**************************************************************************
+;*
+;*   Command procedure RF_SWITCH
+;*
+;*   1.0                RB
+;*   1.1   1997.01.21   JK
+;*
+;*   Function: Initiates front-end switch over                            
+;*
+;*   Parameters
+;*   In, Out :   NETNR     Number of current hot NET
+;*
+;*************************************************************************
+;
+;
+
+   #DO RF_CONST:C
+
+   @LOOP_PROC = "RF_HOTTOSB"   
+   #DO RF_GRPLOOP:C
+   @LOOP_PROC = "RF_BOBJ_SB"   
+   #DO RF_GRPLOOP:C
+
+   @OLD_HOT = %NETNR   
+   @NETNR=ROUND(RF_PEERND:D(%NETNR))
+   @LOOP_PROC = "RF_SBTOHOT"   
+   #DO RF_GRPLOOP:C
+   @LOOP_PROC = "RF_SETLIN"
+   #DO RF_GRPLOOP:C
+   @LOOP_PROC = "RF_SETSTA"
+   #DO RF_GRPLOOP:C
+
+   #EXEC RF_SWITCH:E1
+
+   @STOPNETNR=%OLD_HOT
+; OPTION, USED BY DEFAULT
+   @LOOP_PROC = "RF_STOPLIN"
+   #DO RF_GRPLOOP:C
+
+END RF_SWITCH:C
+RF_U_BOBJ:C
+;STATION OBJECTS ACCORDING THE BASESYSTEM OBJECTS
+;
+@RF_STAOBJ = VECTOR(-
+             1,-
+             2,-
+             11,-
+             12,-
+             14,-
+             31,-
+             32,-
+             33,-
+             999)
+;PRINTER OBJECTS ACCORDING THE BASESYSTEM OBJECTS
+;
+@RF_PRIOBJ = VECTOR(-
+             1,-
+             2)
+END RF_U_BOBJ:C
+RF_U_LIN:C
+
+;**************************************************************************
+;*
+;*   Command procedure RF_U_LIN
+;*
+;*   1.0                RB
+;*   1.1   1997.01.21   JK
+;*
+;*   Function: Sets a line defined in RF_SETLIN:D of a NET into use
+;*             and sets the required NET attributes to start the lines
+;*
+;*   Parameters
+;*   In, Out :   NETNR     Number of current hot NET
+;*   In      :   LINENR    Line Number
+;*************************************************************************
+;
+
+; *** User selectable : Loop control, prevent reconnection
+
+
+#CASE NET'NETNR':SPO'LINENR' ;Which protocol
+   #WHEN 7 #BLOCK            ;RP570 lines
+      ; Is communication loop used
+      @LOOPDEF = ROUND(RF_LOOPUSE:D(10*%NETNR+%I))
+      @LOOP_NUM = %LOOPDEF MOD 256
+      #IF %LOOP_NUM <> 0 #THEN #BLOCK  ;COMM LOOP START ******************
+         #IF %LOOPDEF > 256 #THEN #BLOCK
+            #SET LOOP_BNET:D'LOOP_NUM'=%NETNR
+         #BLOCK_END
+         #ELSE #BLOCK
+            #SET LOOP_ANET:D'LOOP_NUM'=%NETNR
+         #BLOCK_END
+            ; If not prevent_reconn
+            ;   #SET NET'NETNR':SIU'LINENR'=0
+            ;   #SET NET'NETNR':SIU'LINENR'=1
+            ; Else
+            #EXEC LOOP_CTRL'LOOP_NUM':C-
+                 (@LOOPNUMB=%LOOP_NUM,@SIGNAL=%REDSWITCH)
+            ; End_if not prevent_reconn
+      #BLOCK_END
+      #ELSE #BLOCK  ;COMM LOOP END ****************************************     
+         #SET NET'NETNR':SIU'LINENR'=0
+         #SET NET'NETNR':SIU'LINENR'=1
+      #BLOCK_END
+   #BLOCK_END
+   #OTHERWISE #BLOCK                  ;Other protocols
+      #SET NET'NETNR':SIU'LINENR'=0
+      #SET NET'NETNR':SIU'LINENR'=1
+   #BLOCK_END
+
+#CASE_END
+END RF_U_LIN:C
+RF_U_NETMS:C
+;**************************************************************************
+;*
+;*   Command procedure RF_U_NETMS
+;*
+;*   1.1   1997.01.21   JK
+;*
+;*   Function: NET system message handling (USER)
+;*
+;*   Parameters 
+;*
+;*************************************************************************
+;
+
+   #DO RF_CONST:C
+   #CASE 'LN':PFX'IX'
+      #WHEN "GENERAL"   #BLOCK
+      ;General NET messages
+
+            @NETNR= 'LN':PFI'IX'
+
+      #BLOCK_END
+
+      #WHEN "APL_DIAG"   #BLOCK
+      ;Application diagnostics messages
+            @NETNR= 'LN':PFI'IX'
+            #IF %AI==1001 #THEN #BLOCK
+            ;If main application connection OK (APL1)
+               #IF NET'NETNR':SRM == %RF_HOTMODE #THEN #BLOCK
+               ;If NET is HOT map basesystem objects to it
+                  @NETNR = (ROUND(RF_PEERND:D(%NETNR)))
+                  #DO RF_BOBJ_SB:C
+                  @NETNR = (ROUND(RF_PEERND:D(%NETNR)))
+               #BLOCK_END
+            ;If NET online configuration needed
+               #DO RF_U_ONLC:C
+            #BLOCK_END
+      #BLOCK_END
+
+      #WHEN "NET_DIAG" #BLOCK
+      ;Redundant frontend messages
+      #BLOCK_END
+
+   #CASE_END
+END RF_U_NETMS:C
+RF_U_ONLC:C
+;**************************************************************************
+;*
+;*   Command procedure RF_U_ONLC
+;*
+;*   1.1   1997.01.21   JK
+;*
+;*   Function: NET online configuration
+;*
+;*   Started from: RF_U_NETMS:C
+;*   Parameters   In,Out    NETNR   ;Net node number
+;*
+;*************************************************************************
+;
+
+   #DO RF_CONST:C
+   #CASE %NETNR
+
+;Example of online configuration of NET 21 and 22
+
+      #WHEN 21,22 #BLOCK          ;NET node numbers
+
+         ;Basesystem STA object used for STA creation 
+         @ALIAS_STA = 999  ;Basesystem STA object used
+
+;Example of SPANET configuration download
+
+         ;Peer NET node number
+;         @PEER_NET = ROUND(RF_PEERND:D'NETNR')
+
+         ;If this is HOT NET set lines in use otherwise not
+;         #IF NET'NETNR':SRM == %RF_HOTMODE #THEN #BLOCK
+;            @SET_LI_IN_USE = TRUE
+;         #BLOCK_END
+;         #ELSE #BLOCK
+;            @SET_LI_IN_USE = FALSE
+;         #BLOCK_END
+
+         ;Download SPANET configuration
+;         @A = DO((READ_TEXT("SYS_SNET1.COM",1,10000)),-
+;                %NETNR, %ALIAS_STA, %SET_LI_IN_USE, %PEER_NET)
+
+;Example of online creation of RTU types of stations
+
+        ;Arrays of stations to be created
+;        @STA_NR   = (31,32,33)
+;        @STA_LINE = ( 1, 1, 1)
+;        @STA_SA   = (31,32,33)
+      
+;        #LOOP_WITH I=1..LENGTH(%STA_NR)
+;           #SET STA'ALIAS_STA':BND = %NETNR
+;           #SET STA'ALIAS_STA':BST = "RTU"
+;           #SET STA'ALIAS_STA':BTN = %STA_NR(%I)
+;           #SET NET'NETNR':SRT(%STA_NR(%I)) = %STA_LINE(%I)
+;           #SET STA'ALIAS_STA':SSA = %STA_SA(%I)
+;           #SET STA'ALIAS_STA':SAL = 1
+;           #SET STA'ALIAS_STA':SAS = 1
+;           #SET STA'ALIAS_STA':SIU = 1
+;       #LOOP_END   
+
+   #BLOCK_END
+
+   #CASE_END
+END RF_U_ONLC:C
+RF_U_CHECK:C
+;**************************************************************************
+;*
+;*   Command procedure RF_U_CHECK
+;*
+;*   1.0   1997.02.17   JK
+;*
+;*   Function: 1. Checks that the main application in NETs is mapped to
+;*             this node. If not it runs a RF_U_WD:C procedure in 
+;*             watchdog application and remaps the application to this 
+;*             SYS node.                                              
+;*             2. Checks if the system messages enabled attribute SE is
+;*             still 2, if it is then it is set to 1
+;*             3. Checks if the NET pairs are in a same state eg. both
+;*             in standby mode, if yes then switchover.
+;*************************************************************************
+;
+
+;Go through all the redundant NETs
+#LOOP_WITH NETNR=1..32
+   #IF RF_PEERND:DOS'NETNR' <> 10 #THEN #BLOCK
+      #IF RF_PEERND:D'NETNR' <> 0 #THEN #BLOCK
+         #ERROR CONTINUE
+         @T = TIMEOUT(4000)
+
+         ;Check APL1 definition in NET 
+         @SY = NET'NETNR':SSY1
+         @S = STATUS
+         #IF %S == 14050 #THEN #BLOCK
+            ;APL mapped to wrong SYS node, let WD to remap it to this node
+            #EXEC RF_U_WD:2C (@NETNR = %NETNR)
+         #BLOCK_END
+
+         ;Check if SE is still 2
+         #IF NET'NETNR':SSE == 2 #THEN #SET NET'NETNR':SSE=1
+
+      #BLOCK_END
+   #BLOCK_END
+#LOOP_END
+
+
+;Check if NET pairs are in the same state
+#LOOP_WITH NETNR = 1..32
+   #IF RF_PEERND:DOS'NETNR' <> 10 #THEN #BLOCK
+      #IF RF_PEERND:D'NETNR' <> 0 #THEN #BLOCK
+         #ERROR CONTINUE
+         ;Check if both NETs are in the same state (
+         @PEERNET = ROUND(RF_PEERND:D'NETNR')
+         @NETSTATE = NET'NETNR':SRM  ;Check state of this NET
+         @S=STATUS
+         #IF %S==0 #THEN #BLOCK
+            @PEERSTATE = NET'PEERNET':SRM  ;Check state of PEER NET
+            @S=STATUS
+            #IF %S==0 #THEN #BLOCK
+               #IF %NETSTATE==%PEERSTATE #THEN #BLOCK
+                  ;NETs are in the same state -> switch
+                  #EXEC RF_SWITCH:C (@NETNR =%NETNR)
+                  ;Exit loop, only one switch wanted per check cycle
+                  #LOOP_EXIT
+               #BLOCK_END
+            #BLOCK_END
+         #BLOCK_END
+      #BLOCK_END
+   #BLOCK_END
+#LOOP_END
+END RF_U_CHECK:C
+RF_U_STA:C
+;**************************************************************************
+;*
+;*   Command procedure RF_U_STA
+;*
+;*   1.0                RB
+;*   1.1   1997.01.21   JK
+;*
+;*   Function: Sets the stations defined in RF_U_BOBJ:C of the into use 
+;*             and makes station specific actions
+;*
+;*   Parameters
+;*   In      :   STANR     Number of the printer
+;*                                      
+;*************************************************************************
+;
+
+   #CASE STA'STANR':BST
+
+      #WHEN "RTU" #BLOCK         ;RTU TYPE OF STATION
+         #SET STA'STANR':SIU=1
+         #SET STA'STANR':SSC=1   ;GENERAL INTERROGATION
+      #BLOCK_END
+
+      #OTHERWISE #BLOCK
+         #SET STA'STANR':SIU=1
+      #BLOCK_END
+
+   #CASE_END
+END RF_U_STA:C

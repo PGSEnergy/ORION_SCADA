@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Markku Hamarila/RSC (ABB OY Substation Automation) -->
+<ObjectTypes>
+	<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">SSS IED Template 1</Parameter>
+		<Parameter name="Caption">objectTypeCaption</Parameter>
+		<Parameter name="Description">objectTypeDesc</Parameter>
+		<Parameter name="Group">SSS</Parameter>
+		<Parameter name="Type">IED</Parameter>
+		<Parameter name="IconFileName">GenIED.ico</Parameter>
+		<Parameter name="Tools"></Parameter>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="Visible">True</Parameter>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="PCMObjectType">SSS Subnetwork</Condition>
+			</Structure>
+		</Parameter>
+		<Parameter name="ChildObjects">
+			<Structure name="COMMUNICATION">
+				
+						<ChildObject type="SSS LD" name="LD0">
+							<ChildObject type="SSS LLN0" name="LLN0">
+								<ChildObject type="SSS INC" name="Mod">
+									<SetPropertyValue name="DOISCL" value="&lt;DOI xmlns=&quot;http://www.iec.ch/61850/2003/SCL&quot; name=&quot;Mod&quot; desc=&quot;Mode&quot;&gt; &lt;DAI name=&quot;stVal&quot; valKind=&quot;Set&quot; &gt;&lt;Val&gt;0&lt;/Val&gt;&lt;/DAI&gt;&lt;DAI name=&quot;d&quot; sAddr=&quot;null, 0, TIMER, 0, ,&quot; valKind=&quot;Set&quot;&gt;&lt;Val&gt;Mode&lt;/Val&gt;&lt;/DAI&gt;&lt;DAI name=&quot;ctlModel&quot; valKind=&quot;Set&quot;&gt;&lt;Val&gt;0&lt;/Val&gt;&lt;/DAI&gt;&lt;/DOI&gt;"/>
+								</ChildObject>
+								<ChildObject type="SSS INS" name="Beh">
+									<SetPropertyValue name="DOISCL" value="&lt;DOI xmlns=&quot;http://www.iec.ch/61850/2003/SCL&quot; name=&quot;Beh&quot; desc=&quot;Behaviour&quot;&gt;&lt;DAI name=&quot;stVal&quot; valKind=&quot;Set&quot; &gt;&lt;Val&gt;0&lt;/Val&gt;&lt;/DAI&gt;&lt;DAI name=&quot;d&quot; sAddr=&quot;null, 0, TIMER, 0, ,&quot; valKind=&quot;Set&quot;&gt;&lt;Val&gt;Behaviour&lt;/Val&gt;&lt;/DAI&gt;&lt;/DOI&gt;"/>
+								</ChildObject>
+								<ChildObject type="SSS INS" name="Health">
+									<SetPropertyValue name="DOISCL" value="&lt;DOI xmlns=&quot;http://www.iec.ch/61850/2003/SCL&quot; name=&quot;Health&quot; desc=&quot;Health&quot;&gt;&lt;DAI name=&quot;stVal&quot; valKind=&quot;Set&quot; &gt;&lt;Val&gt;0&lt;/Val&gt;&lt;/DAI&gt;&lt;DAI name=&quot;d&quot; sAddr=&quot;null, 0, TIMER, 0, ,&quot; valKind=&quot;Set&quot;&gt;&lt;Val&gt;Health&lt;/Val&gt;&lt;/DAI&gt;&lt;/DOI&gt;"/>
+								</ChildObject>
+								<ChildObject type="SSS LPL" name="NamPlt">
+									<SetPropertyValue name="DOISCL" value="&lt;DOI xmlns=&quot;http://www.iec.ch/61850/2003/SCL&quot; name=&quot;NamPlt&quot; desc=&quot;Name plate&quot;&gt;&lt;DAI name=&quot;d&quot; sAddr=&quot;null, 0, TIMER, 0, ,&quot; valKind=&quot;Set&quot;&gt;&lt;Val&gt;IEC 61850 System Supervision Server&lt;/Val&gt;&lt;/DAI&gt;&lt;DAI name=&quot;swRev&quot; valKind=&quot;Set&quot;&gt;	&lt;Val&gt;1&lt;/Val&gt;&lt;/DAI&gt;&lt;DAI name=&quot;vendor&quot; valKind=&quot;Set&quot;&gt;&lt;Val&gt;ABB&lt;/Val&gt;&lt;/DAI&gt;&lt;DAI name=&quot;configRev&quot; valKind=&quot;Set&quot;&gt;&lt;Val&gt;1&lt;/Val&gt;&lt;/DAI&gt;&lt;/DOI&gt;"/>
+								</ChildObject>
+								<ChildObject type="DataSet 3.5" name="dsSCADA">
+								</ChildObject>
+								<ChildObject type="ReportControlBlock 4.1" name="rcbSCADA">
+									<ChildObject type="ReportEnabled" name="Report_Enabled">
+										<ChildObject type="ReportClient" name="Client1">
+										</ChildObject>
+										<ChildObject type="ReportClient" name="Client2">
+										</ChildObject>
+										<ChildObject type="ReportClient" name="Client3">
+										</ChildObject>
+										<ChildObject type="ReportClient" name="Client4">
+										</ChildObject>
+										<ChildObject type="ReportClient" name="Client5">
+										</ChildObject>
+									</ChildObject>
+									<SetPropertyValue value="dsSCADA" name="datSet" />
+								</ChildObject>
+							</ChildObject>
+						</ChildObject>						
+						<ChildObject type="SSS LD" name="SCADA">
+							<ChildObject type="SSS LLN0" name="LLN0">
+								<ChildObject type="SSS INC" name="Mod">
+									<SetPropertyValue name="DOISCL" value="&lt;DOI xmlns=&quot;http://www.iec.ch/61850/2003/SCL&quot; name=&quot;Mod&quot; desc=&quot;Mode&quot;&gt; &lt;DAI name=&quot;stVal&quot; valKind=&quot;Set&quot; &gt;&lt;Val&gt;0&lt;/Val&gt;&lt;/DAI&gt;&lt;DAI name=&quot;d&quot; sAddr=&quot;null, 0, TIMER, 0, ,&quot; valKind=&quot;Set&quot;&gt;&lt;Val&gt;Mode&lt;/Val&gt;&lt;/DAI&gt;&lt;DAI name=&quot;ctlModel&quot; valKind=&quot;Set&quot;&gt;&lt;Val&gt;0&lt;/Val&gt;&lt;/DAI&gt;&lt;/DOI&gt;"/>
+								</ChildObject>
+								<ChildObject type="SSS INS" name="Beh">
+									<SetPropertyValue name="DOISCL" value="&lt;DOI xmlns=&quot;http://www.iec.ch/61850/2003/SCL&quot; name=&quot;Beh&quot; desc=&quot;Behaviour&quot;&gt;&lt;DAI name=&quot;stVal&quot; valKind=&quot;Set&quot; &gt;&lt;Val&gt;0&lt;/Val&gt;&lt;/DAI&gt;&lt;DAI name=&quot;d&quot; sAddr=&quot;null, 0, TIMER, 0, ,&quot; valKind=&quot;Set&quot;&gt;&lt;Val&gt;Behaviour&lt;/Val&gt;&lt;/DAI&gt;&lt;/DOI&gt;"/>
+								</ChildObject>
+								<ChildObject type="SSS INS" name="Health">
+									<SetPropertyValue name="DOISCL" value="&lt;DOI xmlns=&quot;http://www.iec.ch/61850/2003/SCL&quot; name=&quot;Health&quot; desc=&quot;Health&quot;&gt;&lt;DAI name=&quot;stVal&quot; valKind=&quot;Set&quot; &gt;&lt;Val&gt;0&lt;/Val&gt;&lt;/DAI&gt;&lt;DAI name=&quot;d&quot; sAddr=&quot;null, 0, TIMER, 0, ,&quot; valKind=&quot;Set&quot;&gt;&lt;Val&gt;Health&lt;/Val&gt;&lt;/DAI&gt;&lt;/DOI&gt;"/>
+								</ChildObject>
+								<ChildObject type="SSS LPL" name="NamPlt">
+									<SetPropertyValue name="DOISCL" value="&lt;DOI xmlns=&quot;http://www.iec.ch/61850/2003/SCL&quot; name=&quot;NamPlt&quot; desc=&quot;Name plate&quot;&gt;&lt;DAI name=&quot;d&quot; sAddr=&quot;null, 0, TIMER, 0, ,&quot; valKind=&quot;Set&quot;&gt;&lt;Val&gt;IEC 61850 System Supervision Server&lt;/Val&gt;&lt;/DAI&gt;&lt;DAI name=&quot;swRev&quot; valKind=&quot;Set&quot;&gt;	&lt;Val&gt;1&lt;/Val&gt;&lt;/DAI&gt;&lt;DAI name=&quot;vendor&quot; valKind=&quot;Set&quot;&gt;&lt;Val&gt;ABB&lt;/Val&gt;&lt;/DAI&gt;&lt;DAI name=&quot;configRev&quot; valKind=&quot;Set&quot;&gt;&lt;Val&gt;1&lt;/Val&gt;&lt;/DAI&gt;&lt;/DOI&gt;"/>
+								</ChildObject>
+							</ChildObject>
+						</ChildObject>			
+			</Structure>
+		</Parameter>
+	</Parameters>
+	<Parameters type="SCLExport">
+		<Export name="CDATA">SimulationMode, DeviceConnectionStatus, InUse, BadQualityIndicatorOpcPath, BadQualityIndicatorOpcServerName, StationRemoteSwitchOPCPath</Export>
+		<Export name="Addresses">IP, OSI-TSEL, OSI-SSEL, OSI-PSEL, OSI-AP_Title, OSI_AE_Qualifier, ProgID, TreeDelimiter, RemoteNodeName</Export>
+		<Export name="DeviceConnectionStatus" exportType="csv">DeviceConnectionStatusClass, Section, PrintBlock</Export>
+		<Export name="SCLConfigVersion">SCLConfigVersion</Export>
+		<Export name="SCLIedType">SCLIedType</Export>
+	</Parameters>
+	<Properties type="PropertyDefinitions">
+		<Property name="OPCObjectType" category="[010] Basic">
+			<Value>SSS IED</Value>
+			<DescID>OPCObjectTypeDesc</DescID>
+			<CaptionID>OPCObjectType</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>OPCObjectType</AttributeName>
+		</Property>
+		<Property name="AccessPointName" category="[010] Basic">
+			<Value>1</Value>
+			<DescID>AccessPointNameDesc</DescID>
+			<CaptionID>AccessPointName</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>AccessPointName</AttributeName>
+		</Property>	
+		<Property name="SimulationMode" category="[010] Basic">
+			<Value>0</Value>
+			<DescID>SimulationModeDesc</DescID>
+			<CaptionID>SimulationMode</CaptionID>
+			<Values type="singleChoice">
+				<Enum textID="False" value="0"/>
+				<Enum textID="True" value="1"/>
+			</Values>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>SimulationMode</AttributeName>
+		</Property>
+		<Property name="Section" category="[070] OPC Alarm and Event">
+			<Value>0</Value>
+			<DescID>SectionDesc</DescID>
+			<CaptionID>Section</CaptionID>
+			<Values type="numerical">
+				<Min>0</Min>
+				<Max>16</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName>Section</AttributeName>
+		</Property>
+		<Property name="PrintBlock" category="[070] OPC Alarm and Event">
+			<Value>False</Value>
+			<DescID>PrintBlockDesc</DescID>
+			<CaptionID>PrintBlock</CaptionID>
+			<Values type="boolean"/>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName>PrintBlock</AttributeName>
+		</Property>
+		<Property name="InUse" category="[010] Basic">
+			<Value>1</Value>
+			<DescID>InUseDesc</DescID>
+			<CaptionID>InUse</CaptionID>
+			<Values type="singleChoice">
+				<Enum value="1" textID="In Use"/>
+				<Enum value="0" textID="Not In Use"/>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>InUse</AttributeName>
+		</Property>
+		<Property name="IP" category="[020] Addresses">
+			<Value>127.0.0.1</Value>
+			<DescID>IPDesc</DescID>
+			<CaptionID>IP</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName>IP</AttributeName>
+		</Property>
+		<Property name="SCLIedType" category="">
+			<Value>SSS IED</Value>
+			<DescID>SCLIedTypeDesc</DescID>
+			<CaptionID>SCLIedType</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RRR</Access>
+			<AttributeName>SCLIedType</AttributeName>
+		</Property>
+				<Property name="DeviceConnectionStatusClass" category="[070] OPC Alarm and Event">
+			<Value>Device Connection Status</Value>
+			<DescID>DeviceConnectionStatusClassDesc</DescID>
+			<CaptionID>DeviceConnectionStatusClass</CaptionID>
+			<Values type="singleChoiceDynamic">
+				<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupDCSEvents" secondchildObjectType="DeviceConnectionEventGroup"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HWW</Access>
+			<AttributeName>DeviceConnectionStatusClass</AttributeName>
+		</Property>
+		<Property name="OSI-TSEL" category="[020] Addresses">
+			<Value>0001</Value>
+			<DescID>OSI-TSELDesc</DescID>
+			<CaptionID>OSI-TSEL</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>OSI-TSEL</AttributeName>
+		</Property>
+		<Property name="OSI-SSEL" category="[020] Addresses">
+			<Value>0001</Value>
+			<DescID>OSI-SSELDesc</DescID>
+			<CaptionID>OSI-SSEL</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>OSI-SSEL</AttributeName>
+		</Property>
+		<Property name="OSI-PSEL" category="[020] Addresses">
+			<Value>00000001</Value>
+			<DescID>OSI-PSELDesc</DescID>
+			<CaptionID>OSI-PSEL</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>OSI-PSEL</AttributeName>
+		</Property>
+		<Property name="OSI_AE_Qualifier" category="[020] Addresses">
+			<Value>23</Value>
+			<DescID>OSI_AE_QualifierDesc</DescID>
+			<CaptionID>OSI_AE_Qualifier</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>OSI-AE-Qualifier</AttributeName>
+		</Property>
+		<Property name="OSI-AP_Title" category="[020] Addresses">
+			<Value>1,3,9999,23</Value>
+			<DescID>OSI-AP_TitleDesc</DescID>
+			<CaptionID>OSI-AP_Title</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>OSI-AP-Title</AttributeName>
+		</Property>
+		<Property name="ProgID" category="[020] Addresses">
+			<Value>ABB.MicroSCADA.OPC.Server.DA</Value>
+			<DescID>ProgIDDesc</DescID>
+			<CaptionID>ProgID</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName>ProgID</AttributeName>
+		</Property>
+				<Property name="TreeDelimiter" category="[020] Addresses">
+			<Value>\</Value>
+			<DescID>TreeDelimiterDesc</DescID>
+			<CaptionID>TreeDelimiter</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName>TreeDelmiter</AttributeName>
+		</Property>
+		<Property name="RemoteNodeName" category="[020] Addresses">
+			<Value>localhost</Value>
+			<DescID>RemoteNodeNameDesc</DescID>
+			<CaptionID>RemoteNodeName</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName>RemoteNodeName</AttributeName>
+		</Property>
+	</Properties>
+</ObjectType>
+
+
+</ObjectTypes>

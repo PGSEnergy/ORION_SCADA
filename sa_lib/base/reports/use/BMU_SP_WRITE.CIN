@@ -1,0 +1,41 @@
+; Function:   BMU_SP_WRITE:C
+; Version:    3.0 (Build 10.02.2012)
+; Parameters: DATA_ID - object name
+;             l_ReportObject - ReportObjectConf
+;             v_OV - object value vector
+;             T1 - start time
+;             T2 - end time (not obl.)
+; Return data: none
+; Description: Write sampled values to db, 
+;              GUI Edit Value (NOT SUPPORTED for HOUR report data)
+;-------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;-------------------------------------------------------------------------------
+#local v_ = vector(),i_Status = status, cot,-
+       l_Data = list(),t_DO_LN = %DATA_ID
+#error ignore
+
+#if BMU_GLOBAL:CSS==1 #then #DO BMU_GLOBAL:CCP
+#else #DO BMU_GLOBAL:C
+
+#if BMU_SP_IND:CCS==1 #then #do BMU_SP_IND:CCP
+#else #DO BMU_SP_IND:C
+
+#if %IS2 >= %IS1 #then #block                                                   ;*** Data in one part
+   v_(1..%NS) = clock
+   l_Data   = list(OV = %v_OV, OS = get_status(%v_OV), RT = v_)
+   i_Status = data_store(0, t_DO_LN, l_Data, %IS1)
+#block_end
+#else #block                                                                    ;*** Data in two parts
+   v_(1..%N1) = clock
+   l_Data   = list(OV = %v_OV(1..%N1), OS = get_status(%v_OV(1..%N1)), RT = v_)
+   i_Status = data_store(0, t_DO_LN, l_Data, %IS1)
+   
+   v_(1..%N2) = clock
+   l_Data   = LIST(OV = %v_OV((%N1+1)..),OS = get_status(%v_OV((%N1+1)..)), RT = v_)
+   i_Status = data_store(0, t_DO_LN, l_Data, 1)
+#block_end
+
+i_Status = status
+#if i_Status <> 0 #then cot = console_output("BMU_SP_WRITE:C - Report object 't_DO_LN' - SCIL Error='i_Status'","E","MREP")

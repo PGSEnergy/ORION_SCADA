@@ -1,0 +1,99 @@
+; Function:   BMU_LOGMAN:C
+; Version:    3.0 (Build 23.02.2012)
+; Parameters: DATA_ID - object name, text
+;             T1 - start time, time
+;             T2 - end time, time
+;             OLD_DATA - old object data, list(OV,OS)
+;             NEW_DATA - new object data, list(OV,OS)
+;             DST - daylight saving time, boolean
+;             l_ReportObject - Object properties from APL:BSV30
+; Return data: none
+; Description: Writes edited data to a log file,
+;              if manual marking is enabled
+; Note! This procedure is run from the edit dialog
+;-------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;-------------------------------------------------------------------------------
+#local i, i_ = 0, t_ = "", l_=list(),i_Status = Status, cot,-
+       l_DB = list(), i_SDB_Handle = -1, t_CS = ";",-
+       l_Setup = list(), l_TR = list(), i_LastNo = 0, t_LogLine = "",-
+	   v_Old_OV = vector(), e_T1 = clock, e_T2 = clock
+#error ignore
+
+#if BMU_GLOBAL:CCS==1 #then #DO BMU_GLOBAL:CCP
+#else #DO BMU_GLOBAL:C
+
+;*** SDB open
+l_DB = data_manager("OPEN","REPORTS/measreport.sdb")
+#if l_DB.Status == 0 #then i_SDB_Handle = l_DB.Handle
+#else #return
+
+l_  = data_manager("GET",i_SDB_Handle,"Settings","Setup")                       ;*** read global setup settings
+#if l_.STATUS <> 0 #then #return
+
+l_Setup = l_.Value
+#if l_Setup.File_Path == "" #then #block
+   t_ = APL:BNA
+   l_Setup.File_Path = "/APL/'t_'/REPORTS"
+#block_end
+
+t_CS = l_Setup.CSV_Column_Separator
+;*** Read in the log file (if exist...)
+l_TR = text_read("'l_Setup.File_Path'\'l_Setup.Edit_Log_File_Name'.LOG")
+
+;*** Define the number of log events
+#if      l_TR.Status == 0    #then i_LastNo = length(l_TR.TEXT)                 ;*** File exist
+#else_if l_TR.Status == 5007 #then i_LastNo = 0                                 ;*** File does not exist
+#else #return
+
+;*** Define the log event
+#if i_Status == 0 OR i_Status == 5007 #then #block
+   #if BMU_BP_IND:CCS==1 #then #do BMU_BP_IND:CCP
+   #else #do BMU_BP_IND:C
+
+   #loop_with i = 1..length(%l_OldData.OV)
+      i_LastNo = i_LastNo + 1                                                   ;*** log number and log start time
+      e_T1 = %T1 + (i-1) * %l_ReportObject.BP
+      e_T2 = %T1 + i     * %l_ReportObject.BP
+   
+      ;*** check the old data
+      v_Old_OV(i) = " "
+      v_Old_OV(i) = dec(%l_OldData.OV(i),1,2)
+    
+      #if NOT(%b_DST) #then -                                                   ;*** Daylight saving time not activated
+         t_LogLine = "['i_LastNo']" + t_CS + " " + TIMES + t_CS + " " + -
+                     %DATA_ID + t_CS + " " + 'DATA_ID''YE1':DCM + t_CS+ -
+                     " " + DATE(e_T1) + " " + TOD(e_T1)+ -
+                     " - " + TOD(e_T2) + t_CS + " " + "Old value: "+ -
+                     v_Old_OV(i) + t_CS + " " + "Old status: "+ -
+                     DEC(%l_OldData.OS(i),1,0) + t_CS + " " + "New value: "+ -
+                     DEC(%l_NewData.OV(i),1,2) + t_CS + " " + "Changed by 't_USER'"
+      #else -                                                                   ;*** Daylight saving time activated
+         t_LogLine = "['i_LastNo']" + t_CS + " " + TIMES + t_CS + " "+ -
+                     %DATA_ID + t_CS + " " + 'DATA_ID''YE1':DCM + t_CS + -
+                     " " + DATE(e_T1) + " " + TOD(e_T1)+ -
+                     " - " + TOD(e_T2) + "(Leap hour)" + t_CS + " " + -
+                     "Old value: " + v_Old_OV(i) + t_CS + " "+ -
+                     "Old status: " + dec(l_OldData.OS(i),1,0) + t_CS + -
+                     " " + "New value: " + DEC(l_NewData.OV(i),1,2) + -
+                     t_CS + " " + "Changed by 't_USER'"
+
+      l_ = write_text("'l_Setup.File_Path'\'l_Setup.Edit_Log_File_Name'.LOG", vector(t_LogLine),1)
+      
+      ;*** check if maximum number of log event has been exceeded
+      #if i_LastNo == 10000 #then #block                                        ;*** Move log file to another name
+         l_TR = text_read("'l_Setup.File_Path'\'l_Setup.Edit_Log_File_Name'.LOG")
+         i_  = write_text("'l_Setup.File_Path'\'l_Setup.Edit_Log_File_Name'.OLD", l_TR.TEXT,  0)
+         i_  = write_text("'l_Setup.File_Path'\'l_Setup.Edit_Log_File_Name'.LOG", vector(),0)
+         
+         #set BMU_ALARM:POV10 = abs(BMU_ALARM:POV10 - 1)                        ;*** generate event, NEEDED ????
+         i_LastNo = 0                                                           ;*** initialize pointer
+      #block_end
+   #loop_end
+#block_end
+
+;*** Show notification, if errors...
+i_Status = status
+#if i_Status <> 0 #then -
+   cot = console_output("BMU_LOGMAN:C - SCIL Error='i_Status'","E","MREP") 

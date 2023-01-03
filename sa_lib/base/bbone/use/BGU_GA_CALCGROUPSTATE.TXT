@@ -1,0 +1,54 @@
+; Function:    SAGR_GA_CALCGROUPSTATE:C
+; Version:     1.0 (Build 15.03.2009) 
+; Parameters:  LN,IX,Method
+; Return data: LIST containing following attributes 
+;                 ERROR = 0 if success, non-zero if there was an error. Other attributes
+;                 shouldn't be trusted in this case.
+;                 AL = Alarm State which the group should be in according to the alarm values of its children (signal + subgroups)
+;                 b_All_Ackn = Set to true if all the groups children have AR set to 1. Otherwise FALSE
+; Description: Calculates the state of a alarm group given to the procedure as the 2nd argument (logical name of the
+;              corresponding group node). 1st parameter is the handle to open Group alarm database.
+;--------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;
+;---------------------------------------------------------------------------------------------
+
+#Local Group_LN = Argument(2), DBHandle = Argument(1)
+#Local t_LN, t_IX, v_Path, t_Path, l_Members, v_Member, i_State=0, b_All_Ackn =true, cot, l_AplObj=List()
+
+v_Path = 'GROUP_LN':PCD
+v_Path = v_Path.PATH
+
+#IF LENGTH(v_Path) > 1 #THEN #BLOCK
+   t_Path = COLLECT("""" + DELETE_ELEMENT(v_Path, 1) + """", ",")
+   l_Members = evaluate("DATA_MANAGER(""GET"", DBHandle, v_Path(1),"+ t_Path + ")")
+#BLOCK_END
+#ELSE l_Members = DATA_MANAGER("GET", DBHandle, v_Path(1))
+
+#IF l_Members.STATUS <> 0 #THEN #RETURN LIST(ERROR = 1, AL = 0, b_All_Ackn = FALSE)
+l_Members = l_Members.VALUE
+
+; For all children check the AL and AR attributes
+#LOOP_WITH I = 1 .. LENGTH(l_Members.MEMBERS) 
+   v_Member = SEPARATE(l_Members.MEMBERS(%I), ":") 
+   #IF LENGTH(v_Member) == 2 #THEN #BLOCK
+       t_LN = v_Member(1)
+       t_IX = v_Member(2)
+   #BLOCK_END
+   #ELSE #BLOCK
+      t_LN = Group_LN + v_Member(1)
+      t_IX = "10"
+   #BLOCK_END
+
+   l_AplObj=APPLICATION_OBJECT_LIST(0,"IX","A","F","'t_LN'","IX=='t_IX'",Vector("OS","AL","AR","IU"),1)
+
+   #IF l_AplObj.COUNT == 0 #then -
+      cot = CONSOLE_OUTPUT(TIMES + " GROUP ALARM member 't_LN':P't_IX' does not exist. Correct the Group Alarm data base.")
+   #ELSE_IF l_AplObj.IU(1) == 1 and l_AplObj.OS(1) <> 10 #THEN #BLOCK
+      #IF l_AplObj.AL(1) <> 0 #THEN i_State = 1
+      #IF l_AplObj.AR(1) == 0 #THEN b_All_Ackn = FALSE
+   #BLOCK_END
+#LOOP_END
+  
+#RETURN LIST(ERROR = 0, AL = i_State, b_All_Ackn = b_All_Ackn)

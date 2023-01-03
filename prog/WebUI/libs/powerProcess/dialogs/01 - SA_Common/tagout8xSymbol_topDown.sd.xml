@@ -1,0 +1,598 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="SAVersionInfo" content="1" />
+    <d:meta name="SAObjectType" content="Breaker" />
+    <d:meta name="dv-custom-attribute|SAObjectType" content="Breaker" />
+    <d:meta name="dv-custom-attribute|SASuperType" content="Switching Device" />
+    <d:meta name="dv-custom-attribute|SATopology" content="" />
+    <d:meta name="dv-custom-attribute|SARepresentation" content="ANSI" />
+    <d:meta name="dv-custom-attribute|SANoRotate" content="" />
+    <d:meta name="dv-custom-attribute|SAOrientation" content="Vertical" />
+    <d:meta name="dv-custom-attribute|SAVersionInfo" content="1" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="value" default="0" />
+    <d:mapping name="f372" parameters="value">
+      <d:step value="true" when="value &lt;= 0.500" />
+      <d:step value="false" when="value &lt;= 1.500" />
+      <d:step value="true" when="value &lt;= 2.500" />
+      <d:step value="false" when="value &lt;= 3.500" />
+      <d:step value="true" when="value &lt;= 4.500" />
+      <d:step value="false" when="value &lt;= 5.500" />
+      <d:step value="true" when="value &lt;= 6.500" />
+      <d:step value="false" when="value &lt;= 7.500" />
+      <d:step value="true" when="value &lt;= 8.500" />
+      <d:step value="false" when="value &lt;= 9.500" />
+      <d:step value="true" when="value &lt;= 10.500" />
+      <d:step value="false" when="value &lt;= 11.500" />
+      <d:step value="true" when="value &lt;= 12.500" />
+      <d:step value="false" when="value &lt;= 13.500" />
+      <d:step value="true" when="value &lt;= 14.500" />
+      <d:step value="false" when="value &lt;= 15.500" />
+      <d:step value="true" when="value &lt;= 16.500" />
+      <d:step value="false" when="value &lt;= 17.500" />
+      <d:step value="true" when="value &lt;= 18.500" />
+      <d:step value="false" when="value &lt;= 19.500" />
+      <d:step value="true" when="value &lt;= 20.500" />
+      <d:step value="false" when="value &lt;= 21.500" />
+      <d:step value="true" when="value &lt;= 22.500" />
+      <d:step value="false" when="value &lt;= 23.500" />
+      <d:step value="true" when="value &lt;= 24.500" />
+      <d:step value="false" when="value &lt;= 25.500" />
+      <d:step value="true" when="value &lt;= 26.500" />
+      <d:step value="false" when="value &lt;= 27.500" />
+      <d:step value="true" when="value &lt;= 28.500" />
+      <d:step value="false" when="value &lt;= 29.500" />
+      <d:step value="true" when="value &lt;= 30.500" />
+      <d:step value="false" when="value &lt;= 31.500" />
+      <d:step value="true" when="value &lt;= 32.500" />
+      <d:step value="false" when="value &lt;= 33.500" />
+      <d:step value="true" when="value &lt;= 34.500" />
+      <d:step value="false" when="value &lt;= 35.500" />
+      <d:step value="true" when="value &lt;= 36.500" />
+      <d:step value="false" when="value &lt;= 37.500" />
+      <d:step value="true" when="value &lt;= 38.500" />
+      <d:step value="false" when="value &lt;= 39.500" />
+      <d:step value="true" when="value &lt;= 40.500" />
+      <d:step value="false" when="value &lt;= 41.500" />
+      <d:step value="true" when="value &lt;= 42.500" />
+      <d:step value="false" when="value &lt;= 43.500" />
+      <d:step value="true" when="value &lt;= 44.500" />
+      <d:step value="false" when="value &lt;= 45.500" />
+      <d:step value="true" when="value &lt;= 46.500" />
+      <d:step value="false" when="value &lt;= 47.500" />
+      <d:step value="true" when="value &lt;= 48.500" />
+      <d:step value="false" when="value &lt;= 49.500" />
+      <d:step value="true" when="value &lt;= 50.500" />
+      <d:step value="false" when="value &lt;= 51.500" />
+      <d:step value="true" when="value &lt;= 52.500" />
+      <d:step value="false" when="value &lt;= 53.500" />
+      <d:step value="true" when="value &lt;= 54.500" />
+      <d:step value="false" when="value &lt;= 55.500" />
+      <d:step value="true" when="value &lt;= 56.500" />
+      <d:step value="false" when="value &lt;= 57.500" />
+      <d:step value="true" when="value &lt;= 58.500" />
+      <d:step value="false" when="value &lt;= 59.500" />
+      <d:step value="true" when="value &lt;= 60.500" />
+      <d:step value="false" when="value &lt;= 61.500" />
+      <d:step value="true" when="value &lt;= 62.500" />
+      <d:step value="false" when="value &lt;= 63.500" />
+      <d:step value="true" when="value &lt;= 64.500" />
+      <d:step value="false" when="value &lt;= 65.500" />
+      <d:step value="true" when="value &lt;= 66.500" />
+      <d:step value="false" when="value &lt;= 67.500" />
+      <d:step value="true" when="value &lt;= 68.500" />
+      <d:step value="false" when="value &lt;= 69.500" />
+      <d:step value="true" when="value &lt;= 70.500" />
+      <d:step value="false" when="value &lt;= 71.500" />
+      <d:step value="true" when="value &lt;= 72.500" />
+      <d:step value="false" when="value &lt;= 73.500" />
+      <d:step value="true" when="value &lt;= 74.500" />
+      <d:step value="false" when="value &lt;= 75.500" />
+      <d:step value="true" when="value &lt;= 76.500" />
+      <d:step value="false" when="value &lt;= 77.500" />
+      <d:step value="true" when="value &lt;= 78.500" />
+      <d:step value="false" when="value &lt;= 79.500" />
+      <d:step value="true" when="value &lt;= 80.500" />
+      <d:step value="false" when="value &lt;= 81.500" />
+      <d:step value="true" when="value &lt;= 82.500" />
+      <d:step value="false" when="value &lt;= 83.500" />
+      <d:step value="true" when="value &lt;= 84.500" />
+      <d:step value="false" when="value &lt;= 85.500" />
+      <d:step value="true" when="value &lt;= 86.500" />
+      <d:step value="false" when="value &lt;= 87.500" />
+      <d:step value="true" when="value &lt;= 88.500" />
+      <d:step value="false" when="value &lt;= 89.500" />
+      <d:step value="true" when="value &lt;= 90.500" />
+      <d:step value="false" when="value &lt;= 91.500" />
+      <d:step value="true" when="value &lt;= 92.500" />
+      <d:step value="false" when="value &lt;= 93.500" />
+      <d:step value="true" when="value &lt;= 94.500" />
+      <d:step value="false" when="value &lt;= 95.500" />
+      <d:step value="true" when="value &lt;= 96.500" />
+      <d:step value="false" when="value &lt;= 97.500" />
+      <d:step value="true" when="value &lt;= 98.500" />
+      <d:step value="false" when="value &lt;= 99.500" />
+      <d:step value="true" when="value &lt;= 100.500" />
+      <d:step value="false" when="value &lt;= 101.500" />
+      <d:step value="true" when="value &lt;= 102.500" />
+      <d:step value="false" when="value &lt;= 103.500" />
+      <d:step value="true" when="value &lt;= 104.500" />
+      <d:step value="false" when="value &lt;= 105.500" />
+      <d:step value="true" when="value &lt;= 106.500" />
+      <d:step value="false" when="value &lt;= 107.500" />
+      <d:step value="true" when="value &lt;= 108.500" />
+      <d:step value="false" when="value &lt;= 109.500" />
+      <d:step value="true" when="value &lt;= 110.500" />
+      <d:step value="false" when="value &lt;= 111.500" />
+      <d:step value="true" when="value &lt;= 112.500" />
+      <d:step value="false" when="value &lt;= 113.500" />
+      <d:step value="true" when="value &lt;= 114.500" />
+      <d:step value="false" when="value &lt;= 115.500" />
+      <d:step value="true" when="value &lt;= 116.500" />
+      <d:step value="false" when="value &lt;= 117.500" />
+      <d:step value="true" when="value &lt;= 118.500" />
+      <d:step value="false" when="value &lt;= 119.500" />
+      <d:step value="true" when="value &lt;= 120.500" />
+      <d:step value="false" when="value &lt;= 121.500" />
+      <d:step value="true" when="value &lt;= 122.500" />
+      <d:step value="false" when="value &lt;= 123.500" />
+      <d:step value="true" when="value &lt;= 124.500" />
+      <d:step value="false" when="value &lt;= 125.500" />
+      <d:step value="true" when="value &lt;= 126.500" />
+      <d:step value="false" when="value &lt;= 127.500" />
+      <d:step value="true" when="value &lt;= 128.500" />
+      <d:step value="false" when="value &lt;= 129.500" />
+      <d:step value="true" when="value &lt;= 130.500" />
+      <d:step value="false" when="value &lt;= 131.500" />
+      <d:step value="true" when="value &lt;= 132.500" />
+      <d:step value="false" when="value &lt;= 133.500" />
+      <d:step value="true" when="value &lt;= 134.500" />
+      <d:step value="false" when="value &lt;= 135.500" />
+      <d:step value="true" when="value &lt;= 136.500" />
+      <d:step value="false" when="value &lt;= 137.500" />
+      <d:step value="true" when="value &lt;= 138.500" />
+      <d:step value="false" when="value &lt;= 139.500" />
+      <d:step value="true" when="value &lt;= 140.500" />
+      <d:step value="false" when="value &lt;= 141.500" />
+      <d:step value="true" when="value &lt;= 142.500" />
+      <d:step value="false" when="value &lt;= 143.500" />
+      <d:step value="true" when="value &lt;= 144.500" />
+      <d:step value="false" when="value &lt;= 145.500" />
+      <d:step value="true" when="value &lt;= 146.500" />
+      <d:step value="false" when="value &lt;= 147.500" />
+      <d:step value="true" when="value &lt;= 148.500" />
+      <d:step value="false" when="value &lt;= 149.500" />
+      <d:step value="true" when="value &lt;= 150.500" />
+      <d:step value="false" when="value &lt;= 151.500" />
+      <d:step value="true" when="value &lt;= 152.500" />
+      <d:step value="false" when="value &lt;= 153.500" />
+      <d:step value="true" when="value &lt;= 154.500" />
+      <d:step value="false" when="value &lt;= 155.500" />
+      <d:step value="true" when="value &lt;= 156.500" />
+      <d:step value="false" when="value &lt;= 157.500" />
+      <d:step value="true" when="value &lt;= 158.500" />
+      <d:step value="false" when="value &lt;= 159.500" />
+      <d:step value="true" when="value &lt;= 160.500" />
+      <d:step value="false" when="value &lt;= 161.500" />
+      <d:step value="true" when="value &lt;= 162.500" />
+      <d:step value="false" when="value &lt;= 163.500" />
+      <d:step value="true" when="value &lt;= 164.500" />
+      <d:step value="false" when="value &lt;= 165.500" />
+      <d:step value="true" when="value &lt;= 166.500" />
+      <d:step value="false" when="value &lt;= 167.500" />
+      <d:step value="true" when="value &lt;= 168.500" />
+      <d:step value="false" when="value &lt;= 169.500" />
+      <d:step value="true" when="value &lt;= 170.500" />
+      <d:step value="false" when="value &lt;= 171.500" />
+      <d:step value="true" when="value &lt;= 172.500" />
+      <d:step value="false" when="value &lt;= 173.500" />
+      <d:step value="true" when="value &lt;= 174.500" />
+      <d:step value="false" when="value &lt;= 175.500" />
+      <d:step value="true" when="value &lt;= 176.500" />
+      <d:step value="false" when="value &lt;= 177.500" />
+      <d:step value="true" when="value &lt;= 178.500" />
+      <d:step value="false" when="value &lt;= 179.500" />
+      <d:step value="true" when="value &lt;= 180.500" />
+      <d:step value="false" when="value &lt;= 181.500" />
+      <d:step value="true" when="value &lt;= 182.500" />
+      <d:step value="false" when="value &lt;= 183.500" />
+      <d:step value="true" when="value &lt;= 184.500" />
+      <d:step value="false" when="value &lt;= 185.500" />
+      <d:step value="true" when="value &lt;= 186.500" />
+      <d:step value="false" when="value &lt;= 187.500" />
+      <d:step value="true" when="value &lt;= 188.500" />
+      <d:step value="false" when="value &lt;= 189.500" />
+      <d:step value="true" when="value &lt;= 190.500" />
+      <d:step value="false" when="value &lt;= 191.500" />
+      <d:step value="true" when="value &lt;= 192.500" />
+      <d:step value="false" when="value &lt;= 193.500" />
+      <d:step value="true" when="value &lt;= 194.500" />
+      <d:step value="false" when="value &lt;= 195.500" />
+      <d:step value="true" when="value &lt;= 196.500" />
+      <d:step value="false" when="value &lt;= 197.500" />
+      <d:step value="true" when="value &lt;= 198.500" />
+      <d:step value="false" when="value &lt;= 199.500" />
+      <d:step value="true" when="value &lt;= 200.500" />
+      <d:step value="false" when="value &lt;= 201.500" />
+      <d:step value="true" when="value &lt;= 202.500" />
+      <d:step value="false" when="value &lt;= 203.500" />
+      <d:step value="true" when="value &lt;= 204.500" />
+      <d:step value="false" when="value &lt;= 205.500" />
+      <d:step value="true" when="value &lt;= 206.500" />
+      <d:step value="false" when="value &lt;= 207.500" />
+      <d:step value="true" when="value &lt;= 208.500" />
+      <d:step value="false" when="value &lt;= 209.500" />
+      <d:step value="true" when="value &lt;= 210.500" />
+      <d:step value="false" when="value &lt;= 211.500" />
+      <d:step value="true" when="value &lt;= 212.500" />
+      <d:step value="false" when="value &lt;= 213.500" />
+      <d:step value="true" when="value &lt;= 214.500" />
+      <d:step value="false" when="value &lt;= 215.500" />
+      <d:step value="true" when="value &lt;= 216.500" />
+      <d:step value="false" when="value &lt;= 217.500" />
+      <d:step value="true" when="value &lt;= 218.500" />
+      <d:step value="false" when="value &lt;= 219.500" />
+      <d:step value="true" when="value &lt;= 220.500" />
+      <d:step value="false" when="value &lt;= 221.500" />
+      <d:step value="true" when="value &lt;= 222.500" />
+      <d:step value="false" when="value &lt;= 223.500" />
+      <d:step value="true" when="value &lt;= 224.500" />
+      <d:step value="false" when="value &lt;= 225.500" />
+      <d:step value="true" when="value &lt;= 226.500" />
+      <d:step value="false" when="value &lt;= 227.500" />
+      <d:step value="true" when="value &lt;= 228.500" />
+      <d:step value="false" when="value &lt;= 229.500" />
+      <d:step value="true" when="value &lt;= 230.500" />
+      <d:step value="false" when="value &lt;= 231.500" />
+      <d:step value="true" when="value &lt;= 232.500" />
+      <d:step value="false" when="value &lt;= 233.500" />
+      <d:step value="true" when="value &lt;= 234.500" />
+      <d:step value="false" when="value &lt;= 235.500" />
+      <d:step value="true" when="value &lt;= 236.500" />
+      <d:step value="false" when="value &lt;= 237.500" />
+      <d:step value="true" when="value &lt;= 238.500" />
+      <d:step value="false" when="value &lt;= 239.500" />
+      <d:step value="true" when="value &lt;= 240.500" />
+      <d:step value="false" when="value &lt;= 241.500" />
+      <d:step value="true" when="value &lt;= 242.500" />
+      <d:step value="false" when="value &lt;= 243.500" />
+      <d:step value="true" when="value &lt;= 244.500" />
+      <d:step value="false" when="value &lt;= 245.500" />
+      <d:step value="true" when="value &lt;= 246.500" />
+      <d:step value="false" when="value &lt;= 247.500" />
+      <d:step value="true" when="value &lt;= 248.500" />
+      <d:step value="false" when="value &lt;= 249.500" />
+      <d:step value="true" when="value &lt;= 250.500" />
+      <d:step value="false" when="value &lt;= 251.500" />
+      <d:step value="true" when="value &lt;= 252.500" />
+      <d:step value="false" when="value &lt;= 253.500" />
+      <d:step value="true" when="value &lt;= 254.500" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f373" parameters="value">
+      <d:step value="true" when="value &lt;= 7.500" />
+      <d:step value="false" when="value &lt;= 15.500" />
+      <d:step value="true" when="value &lt;= 23.500" />
+      <d:step value="false" when="value &lt;= 31.500" />
+      <d:step value="true" when="value &lt;= 39.500" />
+      <d:step value="false" when="value &lt;= 47.500" />
+      <d:step value="true" when="value &lt;= 55.500" />
+      <d:step value="false" when="value &lt;= 63.500" />
+      <d:step value="true" when="value &lt;= 71.500" />
+      <d:step value="false" when="value &lt;= 79.500" />
+      <d:step value="true" when="value &lt;= 87.500" />
+      <d:step value="false" when="value &lt;= 95.500" />
+      <d:step value="true" when="value &lt;= 103.500" />
+      <d:step value="false" when="value &lt;= 111.500" />
+      <d:step value="true" when="value &lt;= 119.500" />
+      <d:step value="false" when="value &lt;= 127.500" />
+      <d:step value="true" when="value &lt;= 135.500" />
+      <d:step value="false" when="value &lt;= 143.500" />
+      <d:step value="true" when="value &lt;= 151.500" />
+      <d:step value="false" when="value &lt;= 159.500" />
+      <d:step value="true" when="value &lt;= 167.500" />
+      <d:step value="false" when="value &lt;= 175.500" />
+      <d:step value="true" when="value &lt;= 183.500" />
+      <d:step value="false" when="value &lt;= 191.500" />
+      <d:step value="true" when="value &lt;= 199.500" />
+      <d:step value="false" when="value &lt;= 207.500" />
+      <d:step value="true" when="value &lt;= 215.500" />
+      <d:step value="false" when="value &lt;= 223.500" />
+      <d:step value="true" when="value &lt;= 231.500" />
+      <d:step value="false" when="value &lt;= 239.492" />
+      <d:step value="true" when="value &lt;= 247.492" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f374" parameters="value">
+      <d:step value="true" when="value &lt;= 3.500" />
+      <d:step value="false" when="value &lt;= 7.500" />
+      <d:step value="true" when="value &lt;= 11.500" />
+      <d:step value="false" when="value &lt;= 15.500" />
+      <d:step value="true" when="value &lt;= 19.500" />
+      <d:step value="false" when="value &lt;= 23.500" />
+      <d:step value="true" when="value &lt;= 27.500" />
+      <d:step value="false" when="value &lt;= 31.500" />
+      <d:step value="true" when="value &lt;= 35.500" />
+      <d:step value="false" when="value &lt;= 39.500" />
+      <d:step value="true" when="value &lt;= 43.500" />
+      <d:step value="false" when="value &lt;= 47.500" />
+      <d:step value="true" when="value &lt;= 51.500" />
+      <d:step value="false" when="value &lt;= 55.500" />
+      <d:step value="true" when="value &lt;= 59.500" />
+      <d:step value="false" when="value &lt;= 63.500" />
+      <d:step value="true" when="value &lt;= 67.500" />
+      <d:step value="false" when="value &lt;= 71.500" />
+      <d:step value="true" when="value &lt;= 75.500" />
+      <d:step value="false" when="value &lt;= 79.500" />
+      <d:step value="true" when="value &lt;= 83.500" />
+      <d:step value="false" when="value &lt;= 87.500" />
+      <d:step value="true" when="value &lt;= 91.500" />
+      <d:step value="false" when="value &lt;= 95.500" />
+      <d:step value="true" when="value &lt;= 99.500" />
+      <d:step value="false" when="value &lt;= 103.500" />
+      <d:step value="true" when="value &lt;= 107.492" />
+      <d:step value="false" when="value &lt;= 111.492" />
+      <d:step value="true" when="value &lt;= 115.492" />
+      <d:step value="false" when="value &lt;= 119.500" />
+      <d:step value="true" when="value &lt;= 123.500" />
+      <d:step value="false" when="value &lt;= 127.500" />
+      <d:step value="true" when="value &lt;= 131.500" />
+      <d:step value="false" when="value &lt;= 135.500" />
+      <d:step value="true" when="value &lt;= 139.500" />
+      <d:step value="false" when="value &lt;= 143.500" />
+      <d:step value="true" when="value &lt;= 147.500" />
+      <d:step value="false" when="value &lt;= 151.500" />
+      <d:step value="true" when="value &lt;= 155.500" />
+      <d:step value="false" when="value &lt;= 159.500" />
+      <d:step value="true" when="value &lt;= 163.500" />
+      <d:step value="false" when="value &lt;= 167.500" />
+      <d:step value="true" when="value &lt;= 171.500" />
+      <d:step value="false" when="value &lt;= 175.500" />
+      <d:step value="true" when="value &lt;= 179.500" />
+      <d:step value="false" when="value &lt;= 183.500" />
+      <d:step value="true" when="value &lt;= 187.500" />
+      <d:step value="false" when="value &lt;= 191.500" />
+      <d:step value="true" when="value &lt;= 195.500" />
+      <d:step value="false" when="value &lt;= 199.500" />
+      <d:step value="true" when="value &lt;= 203.500" />
+      <d:step value="false" when="value &lt;= 207.500" />
+      <d:step value="true" when="value &lt;= 211.500" />
+      <d:step value="false" when="value &lt;= 215.500" />
+      <d:step value="true" when="value &lt;= 219.500" />
+      <d:step value="false" when="value &lt;= 223.500" />
+      <d:step value="true" when="value &lt;= 227.500" />
+      <d:step value="false" when="value &lt;= 231.500" />
+      <d:step value="true" when="value &lt;= 235.500" />
+      <d:step value="false" when="value &lt;= 239.500" />
+      <d:step value="true" when="value &lt;= 243.500" />
+      <d:step value="false" when="value &lt;= 247.500" />
+      <d:step value="true" when="value &lt;= 251.500" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f375" parameters="value">
+      <d:step value="true" when="value &lt;= 1.500" />
+      <d:step value="false" when="value &lt;= 3.500" />
+      <d:step value="true" when="value &lt;= 5.500" />
+      <d:step value="false" when="value &lt;= 7.500" />
+      <d:step value="true" when="value &lt;= 9.500" />
+      <d:step value="false" when="value &lt;= 11.500" />
+      <d:step value="true" when="value &lt;= 13.500" />
+      <d:step value="false" when="value &lt;= 15.500" />
+      <d:step value="true" when="value &lt;= 17.500" />
+      <d:step value="false" when="value &lt;= 19.500" />
+      <d:step value="true" when="value &lt;= 21.500" />
+      <d:step value="false" when="value &lt;= 23.500" />
+      <d:step value="true" when="value &lt;= 25.500" />
+      <d:step value="false" when="value &lt;= 27.500" />
+      <d:step value="true" when="value &lt;= 29.500" />
+      <d:step value="false" when="value &lt;= 31.500" />
+      <d:step value="true" when="value &lt;= 33.500" />
+      <d:step value="false" when="value &lt;= 35.500" />
+      <d:step value="true" when="value &lt;= 37.500" />
+      <d:step value="false" when="value &lt;= 39.500" />
+      <d:step value="true" when="value &lt;= 41.500" />
+      <d:step value="false" when="value &lt;= 43.500" />
+      <d:step value="true" when="value &lt;= 45.500" />
+      <d:step value="false" when="value &lt;= 47.500" />
+      <d:step value="true" when="value &lt;= 49.500" />
+      <d:step value="false" when="value &lt;= 51.500" />
+      <d:step value="true" when="value &lt;= 53.500" />
+      <d:step value="false" when="value &lt;= 55.500" />
+      <d:step value="true" when="value &lt;= 57.500" />
+      <d:step value="false" when="value &lt;= 59.500" />
+      <d:step value="true" when="value &lt;= 61.500" />
+      <d:step value="false" when="value &lt;= 63.500" />
+      <d:step value="true" when="value &lt;= 65.500" />
+      <d:step value="false" when="value &lt;= 67.500" />
+      <d:step value="true" when="value &lt;= 69.500" />
+      <d:step value="false" when="value &lt;= 71.500" />
+      <d:step value="true" when="value &lt;= 73.500" />
+      <d:step value="false" when="value &lt;= 75.500" />
+      <d:step value="true" when="value &lt;= 77.500" />
+      <d:step value="false" when="value &lt;= 79.500" />
+      <d:step value="true" when="value &lt;= 81.500" />
+      <d:step value="false" when="value &lt;= 83.500" />
+      <d:step value="true" when="value &lt;= 85.500" />
+      <d:step value="false" when="value &lt;= 87.500" />
+      <d:step value="true" when="value &lt;= 89.500" />
+      <d:step value="false" when="value &lt;= 91.500" />
+      <d:step value="true" when="value &lt;= 93.500" />
+      <d:step value="false" when="value &lt;= 95.500" />
+      <d:step value="true" when="value &lt;= 97.500" />
+      <d:step value="false" when="value &lt;= 99.500" />
+      <d:step value="true" when="value &lt;= 101.500" />
+      <d:step value="false" when="value &lt;= 103.500" />
+      <d:step value="true" when="value &lt;= 105.500" />
+      <d:step value="false" when="value &lt;= 107.500" />
+      <d:step value="true" when="value &lt;= 109.500" />
+      <d:step value="false" when="value &lt;= 111.500" />
+      <d:step value="true" when="value &lt;= 113.500" />
+      <d:step value="false" when="value &lt;= 115.500" />
+      <d:step value="true" when="value &lt;= 117.500" />
+      <d:step value="false" when="value &lt;= 119.500" />
+      <d:step value="true" when="value &lt;= 121.500" />
+      <d:step value="false" when="value &lt;= 123.500" />
+      <d:step value="true" when="value &lt;= 125.500" />
+      <d:step value="false" when="value &lt;= 127.500" />
+      <d:step value="true" when="value &lt;= 129.500" />
+      <d:step value="false" when="value &lt;= 131.500" />
+      <d:step value="true" when="value &lt;= 133.500" />
+      <d:step value="false" when="value &lt;= 135.500" />
+      <d:step value="true" when="value &lt;= 137.500" />
+      <d:step value="false" when="value &lt;= 139.500" />
+      <d:step value="true" when="value &lt;= 141.500" />
+      <d:step value="false" when="value &lt;= 143.500" />
+      <d:step value="true" when="value &lt;= 145.500" />
+      <d:step value="false" when="value &lt;= 147.500" />
+      <d:step value="true" when="value &lt;= 149.500" />
+      <d:step value="false" when="value &lt;= 151.500" />
+      <d:step value="true" when="value &lt;= 153.500" />
+      <d:step value="false" when="value &lt;= 155.500" />
+      <d:step value="true" when="value &lt;= 157.500" />
+      <d:step value="false" when="value &lt;= 159.500" />
+      <d:step value="true" when="value &lt;= 161.500" />
+      <d:step value="false" when="value &lt;= 163.500" />
+      <d:step value="true" when="value &lt;= 165.500" />
+      <d:step value="false" when="value &lt;= 167.500" />
+      <d:step value="true" when="value &lt;= 169.500" />
+      <d:step value="false" when="value &lt;= 171.500" />
+      <d:step value="true" when="value &lt;= 173.500" />
+      <d:step value="false" when="value &lt;= 175.500" />
+      <d:step value="true" when="value &lt;= 177.500" />
+      <d:step value="false" when="value &lt;= 179.500" />
+      <d:step value="true" when="value &lt;= 181.500" />
+      <d:step value="false" when="value &lt;= 183.500" />
+      <d:step value="true" when="value &lt;= 185.500" />
+      <d:step value="false" when="value &lt;= 187.500" />
+      <d:step value="true" when="value &lt;= 189.500" />
+      <d:step value="false" when="value &lt;= 191.500" />
+      <d:step value="true" when="value &lt;= 193.500" />
+      <d:step value="false" when="value &lt;= 195.500" />
+      <d:step value="true" when="value &lt;= 197.500" />
+      <d:step value="false" when="value &lt;= 199.500" />
+      <d:step value="true" when="value &lt;= 201.500" />
+      <d:step value="false" when="value &lt;= 203.500" />
+      <d:step value="true" when="value &lt;= 205.500" />
+      <d:step value="false" when="value &lt;= 207.500" />
+      <d:step value="true" when="value &lt;= 209.500" />
+      <d:step value="false" when="value &lt;= 211.500" />
+      <d:step value="true" when="value &lt;= 213.500" />
+      <d:step value="false" when="value &lt;= 215.500" />
+      <d:step value="true" when="value &lt;= 217.500" />
+      <d:step value="false" when="value &lt;= 219.500" />
+      <d:step value="true" when="value &lt;= 221.500" />
+      <d:step value="false" when="value &lt;= 223.500" />
+      <d:step value="true" when="value &lt;= 225.500" />
+      <d:step value="false" when="value &lt;= 227.500" />
+      <d:step value="true" when="value &lt;= 229.500" />
+      <d:step value="false" when="value &lt;= 231.500" />
+      <d:step value="true" when="value &lt;= 233.500" />
+      <d:step value="false" when="value &lt;= 235.500" />
+      <d:step value="true" when="value &lt;= 237.500" />
+      <d:step value="false" when="value &lt;= 239.500" />
+      <d:step value="true" when="value &lt;= 241.500" />
+      <d:step value="false" when="value &lt;= 243.500" />
+      <d:step value="true" when="value &lt;= 245.500" />
+      <d:step value="false" when="value &lt;= 247.500" />
+      <d:step value="true" when="value &lt;= 249.500" />
+      <d:step value="false" when="value &lt;= 251.500" />
+      <d:step value="true" when="value &lt;= 253.500" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f376" parameters="value">
+      <d:step value="true" when="value &lt;= 15.500" />
+      <d:step value="false" when="value &lt;= 31.500" />
+      <d:step value="true" when="value &lt;= 47.500" />
+      <d:step value="false" when="value &lt;= 63.500" />
+      <d:step value="true" when="value &lt;= 79.500" />
+      <d:step value="false" when="value &lt;= 95.500" />
+      <d:step value="true" when="value &lt;= 111.500" />
+      <d:step value="false" when="value &lt;= 127.500" />
+      <d:step value="true" when="value &lt;= 143.500" />
+      <d:step value="false" when="value &lt;= 159.500" />
+      <d:step value="true" when="value &lt;= 175.500" />
+      <d:step value="false" when="value &lt;= 191.500" />
+      <d:step value="true" when="value &lt;= 207.500" />
+      <d:step value="false" when="value &lt;= 223.500" />
+      <d:step value="true" when="value &lt;= 239.500" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f377" parameters="value">
+      <d:step value="true" when="value &lt;= 31.500" />
+      <d:step value="false" when="value &lt;= 63.500" />
+      <d:step value="true" when="value &lt;= 95.500" />
+      <d:step value="false" when="value &lt;= 127.500" />
+      <d:step value="true" when="value &lt;= 159.500" />
+      <d:step value="false" when="value &lt;= 191.500" />
+      <d:step value="true" when="value &lt;= 223.500" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f378" parameters="value">
+      <d:step value="true" when="value &lt;= 63.500" />
+      <d:step value="false" when="value &lt;= 127.500" />
+      <d:step value="true" when="value &lt;= 191.500" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f379" parameters="value">
+      <d:step value="true" when="value &lt;= 127.500" />
+      <d:otherwise value="false" />
+    </d:mapping>
+  </d:head>
+  <d:body x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <d:view name="01 - SA_Common/tagoutxSymbol1.sd" s:transform="translate(0,-8.400) scale(1,1)" d:hidden="f372(`value`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" d:object-name="Symbol8">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node1" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="" />
+    </d:view>
+    <d:view name="01 - SA_Common/tagoutxSymbol4.sd" s:transform="translate(0,-1.200) scale(1,1)" d:hidden="f373(`value`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" d:object-name="Symbol5">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node2" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="" />
+    </d:view>
+    <d:view name="01 - SA_Common/tagoutxSymbol3.sd" s:transform="translate(0,-3.600) scale(1,1)" d:hidden="f374(`value`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" d:object-name="Symbol6">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node3" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="" />
+    </d:view>
+    <d:view name="01 - SA_Common/tagoutxSymbol2.sd" s:transform="translate(0,-6) scale(1,1)" d:hidden="f375(`value`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" d:object-name="Symbol7">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node4" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="" />
+    </d:view>
+    <d:view name="01 - SA_Common/tagoutxSymbol5.sd" s:transform="translate(0,1.200) scale(1,1)" d:hidden="f376(`value`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" d:object-name="Symbol4">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node5" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="" />
+    </d:view>
+    <d:view name="01 - SA_Common/tagoutxSymbol6.sd" s:transform="translate(0,3.600) scale(1,1)" d:hidden="f377(`value`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" d:object-name="Symbol3">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node6" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="" />
+    </d:view>
+    <d:view name="01 - SA_Common/tagoutxSymbol7.sd" s:transform="translate(0,6) scale(1,1)" d:hidden="f378(`value`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" d:object-name="Symbol2">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node7" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="" />
+    </d:view>
+    <d:view name="01 - SA_Common/tagoutxSymbol8.sd" s:transform="translate(0,8.400) scale(1,1)" d:hidden="f379(`value`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" d:object-name="Symbol1">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node8" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="" />
+    </d:view>
+  </d:body>
+</d:document>

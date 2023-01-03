@@ -1,0 +1,56 @@
+; Function:    BMU_BP_WRITE:C
+; Version:     3.0 (Build 23.02.2012)
+; Parameters:  DATA_ID - object name
+;              l_ReportObject - ReportObjectConf
+;              T1 - start time
+;              T2 - end time (not obl.)
+;              v_OV - object value
+;              b_MANUAL - mark manually entered values
+; Return data: none
+; Description: Write period values to db, SAGR_Reports_Set_Value:C
+;-------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;-------------------------------------------------------------------------------
+#local i_Status = status, cot,-
+       v_OV1 = vector(), v_OV2 = vector(), l_Data = list(),-
+	   t_DO_LN = %DATA_ID
+#error ignore
+
+#if BMU_GLOBAL:CCS==1 #then #DO BMU_GLOBAL:CCP
+#else #DO BMU_GLOBAL:C
+
+#if BMU_BP_IND:CCS==1 #then #do BMU_BP_IND:CCP
+#else #DO BMU_BP_IND:C
+
+;*** write values to Data Object
+#if %YE1 == %YE2 #then #block                                                   ;*** Data inside the same year
+   #if %b_Manual #then -                                                        ;*** manually entered data
+         l_Data = list(OV = %v_OV, OS = get_status(set_status(%v_OV,9)))
+   #else l_Data = LIST(OV = %v_OV, OS = get_status(%v_OV))
+
+   t_DO_LN  = %DATA_ID + "'YE1'"
+   i_Status = data_store(0,t_DO_LN, l_Data, %IP1)
+#block_end
+#else #block                                                                    ;*** Data not inside the same year (not supported in current version)
+   v_OV1 = %v_OV(1..%N1)                                                        ;*** 'first' year
+   #if %b_manual #then -                                                        ;*** manually entered data
+         l_Data = list(OV = v_OV1, OS = get_status(set_status(v_OV1,9)))
+   #else l_Data = list(OV = v_OV1, OS = get_status(v_OV1))
+ 
+   t_DO_LN = %DATA_ID+"'YE1'"
+   i_Status = data_store(0,t_DO_LN, l_Data, %IP1)
+   
+   v_OV2 = %v_OV((%N1+1)..)                                                     ;*** 'second' year
+   #if %b_Manual #then -                                                        ;*** manually entered data
+         l_Data = list(OV = v_OV2, OS = get_status(set_status(v_OV2,9)))
+   #else l_Data = list(OV = v_OV2, OS = get_status(v_OV2))
+ 
+   t_DO_LN = %DATA_ID+"'YE2'"
+   i_Status = data_store(0,t_DO_LN, l_Data, 1)
+#block_end
+
+i_Status = status
+#if i_Status <> 0 #then cot = console_output("BMU_BP_WRITE:C - SCIL Error='i_Status'","E","MREP") 
+
+

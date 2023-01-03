@@ -1,0 +1,71 @@
+;Function: BPU_SET_LIMIT_MEAS:C
+;Source file: sc/lib5/base/process/use/bpu_set_limit_meas.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute),  search_result[, limit values]
+;Return data:
+;Description: sets the limits of the measurement
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data, i_IX, l_new_limits
+#local t_LN, l_result = list(status = 0, err_description = ""), e_state = error_state, s
+#local l_set_limits = list(high_alarm = 0, high_warning = 0, low_warning = 0, low_alarm = 0)
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_SET_LIMIT_MEAS"                                          
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+		#if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+			@REDIRECTED = true                                                                        
+			i_ArgCnt = argument_count                                                                 
+			#if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"						      
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"											      
+			#loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+				t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+				#if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+			#loop_end                                                                                 
+			#return 't_Redirect_Command' ;;;;;                                                        
+		#block_end                                                                                   
+	#block_end                                                                                      
+	#else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+
+t_LN = l_object_info.p_object_ln
+
+#if 't_LN':psz'i_IX' == 1 #then #block
+
+	#if attribute_exists(l_new_limits, "high_alarm") #then l_set_limits.high_alarm = l_new_limits.high_alarm
+	#else l_set_limits.high_alarm = 't_LN':phi'i_IX'
+	
+	#if attribute_exists(l_new_limits, "high_warning") #then l_set_limits.high_warning = l_new_limits.high_warning
+	#else l_set_limits.high_warning = 't_LN':phw'i_IX'
+	
+	#if attribute_exists(l_new_limits, "low_warning") #then l_set_limits.low_warning = l_new_limits.low_warning
+	#else l_set_limits.low_warning = 't_LN':plw'i_IX'
+	
+	#if attribute_exists(l_new_limits, "low_alarm") #then l_set_limits.low_alarm = l_new_limits.low_alarm
+	#else l_set_limits.low_alarm = 't_LN':pli'i_IX'
+	
+	#if l_set_limits.high_alarm >= l_set_limits.high_warning and l_set_limits.high_warning >= l_set_limits.low_warning -
+		and l_set_limits.low_warning >= l_set_limits.low_alarm #then #block
+		#error ignore
+		s = status
+		#modify 't_LN':p'i_IX' = list(-
+			hi = l_set_limits.high_alarm,-
+			hw = l_set_limits.high_warning,-
+			lw = l_new_limits.low_warning,-
+			li = l_set_limits.low_alarm)
+		s = status
+		#error 'e_state'
+		#if s <> 0 #then l_result = list(status = s, err_description = translation(status_code_name(s)))
+	#block_end
+	#else l_result = list(status = -1, err_description = translation("Limits out of order"))
+#block_end
+#else l_result = list(status = -1, err_description = translation("Limit supervision at device level"))
+
+#return l_result

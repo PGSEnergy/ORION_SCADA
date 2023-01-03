@@ -1,0 +1,75 @@
+;Function: BPU_GET_BLOCKINGS:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_get_blockings.scl
+;Version: 1.0
+;Input arguments: l_object_info (content of CD-attribute)
+;Return data: LIST(STATUS=0, err_description="", UPDATE = -1|0|1|2, CONTROL =- 1|0|1|2, ALARM = -1|0|1|2, EVENT =- -1|0|1|2, PRINTOUT = -1|0|1|2, ACTION = -1|0|1|2)
+;-1= not available, 0 = not blocked, 1 = blocked, 2 = some signals bkocked, can happen e.g. with bay function 
+;Description: Searches process objects that are blocked
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, i_IX
+#local l_Result = LIST(STATUS=0, err_description="", UPDATE = -1, CONTROL = -1, ALARM = -1, EVENT = -1, PRINTOUT = -1, ACTION = -1)
+#local v_Blocked, v_Signals, v_IO_Combined, v_IO_Block_Has_Meaning, l_All_Signals
+#local v_Attr_Names = vector("Alarm", "Event", "Printout", "Action"), t_Attr1, t_Attr2, i, t_Name
+#local v_Blocking_Attrs = vector("AB", "HB", "PB", "XB"), v_Related_Attrs = vector("AC", "HE", "LD", "AE")
+
+;****************************************************************************************************
+;redirect command if application specific command procedure is found                               ;*
+#local t_Redirect_Proc = "APLMOD5_BPU_GET_BLOCKINGS"                                               ;*
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    ;*
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            ;*
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 ;*
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  ;*
+         @REDIRECTED = true                                                                        ;*
+         i_ArgCnt = argument_count                                                                 ;*
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        ;*
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" ;*
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       ;*
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     ;*
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    ;*
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        ;*
+         #loop_end                                                                                 ;*
+         #return 't_Redirect_Command' ;;;;;                                                        ;*
+      #block_end                                                                                   ;*
+   #block_end                                                                                      ;*
+   #else #delete REDIRECTED:V                                                                      ;*
+#block_end                                                                                         ;*
+;****************************************************************************************************
+;MAIN START
+;search process objects
+l_All_Signals = do(bpu_search_blockings:c, l_object_info)
+    
+;update blocked
+#if l_All_Signals.Input_Objects.COUNT > 0 #then #block
+   v_Blocked = select(l_All_Signals.Input_Objects.UB, "==1")
+   #if length(v_Blocked) == 0 #then l_Result.Update = 0
+   #else_if length(v_Blocked) == length(l_All_Signals.Input_Objects.UB) #then l_Result.Update = 1
+   #else l_Result.Update = 2
+#block_end
+
+;control blocked
+#if l_All_Signals.Output_Objects.COUNT > 0 #then #block
+   v_Blocked = select(l_All_Signals.Output_Objects.UB, "==1")
+   #if length(v_Blocked) == 0 #then l_Result.Control = 0
+   #else_if length(v_Blocked) == length(l_All_Signals.Output_Objects.UB) #then l_Result.Control = 1
+   #else l_Result.Control = 2
+#block_end
+   
+;alarm blocked, event blocked, printout blocked, action blocked
+#loop_with i = 1 .. length(v_Attr_Names)
+   t_Attr1 = v_Blocking_Attrs(i)
+   t_Attr2 = v_Related_Attrs(i)
+   t_Name = v_Attr_Names(i)
+   v_IO_Combined = append(l_All_Signals.input_objects.'t_Attr1', l_All_Signals.output_objects.'t_Attr1') ;combine input and output objects for blocking attribute
+   v_IO_Block_Has_Meaning = append(l_All_Signals.input_objects.'t_Attr2', l_All_Signals.output_objects.'t_Attr2') ;combine input and output objects for attribute, where blocking has meaning
+   v_Signals = pick(v_IO_Combined, select(v_IO_Block_Has_Meaning, "<>0")) ;select signals, where blocking has meaning
+   V_Blocked = select(v_Signals, "==1") ;select blocked signals
+   #if length(select(v_IO_Block_Has_Meaning, "<>0")) == 0 #then l_Result.'t_Name' = -1
+   #else_if length(v_Blocked) == 0 #then l_Result.'t_Name' = 0
+   #else_if length(v_Blocked) == length(v_Signals) #then l_Result.'t_Name' = 1
+   #else l_Result.'t_Name' = 2
+#loop_end
+
+#return l_Result

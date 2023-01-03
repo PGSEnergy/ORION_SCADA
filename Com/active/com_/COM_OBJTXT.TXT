@@ -1,0 +1,92 @@
+﻿; This file contains the texts for the COM500 command procedures and event channels   
+;
+; SYS600 10.2.0
+;
+; DO NOT edit this program without consulting with Hitachi Power Grids. 
+;                          
+;-------------------------------------------------------------------------------
+
+#CREATE COM_OBJTXT:V=LIST(-
+     C_REVDTA_COMMENT = "COM 500 command procedure for revision information",-
+     C_COMINI_COMMENT = "COM 500 command procedure for application initialization",-
+     C_COMINI_H_COMMENT = "COM 500 command procedure for application initialization after switchover",-
+     C_DCNET_COMMENT  = "COM 500 command procedure for creating the COM 500 restart objects",-     
+     C_DBSTA_COMMENT  = "COM 500 command procedure for database state initialization",-
+     C_RDGEN_COMMENT  = "COM 500 command procedure for reading general application information",-
+     C_RDXREF_COMMENT = "COM 500 command procedure for reading cross-reference tables to RAM",-
+     C_NETINI_COMMENT = "COM 500 command procedure for NET database initialization",-
+     C_NETINI_H_COMMENT = "COM 500 command procedure for NET database initialization after switchover",-
+     C_INIT_COMMENT   = "COM 500 command procedure for marked signals initialization",-
+     C_LOG_COMMENT    = "COM 500 command procedure for logging capabilities",-     
+     C_GENINT_COMMENT = "COM 500 command procedure for general interrogation",-
+     C_CNTINT_COMMENT = "COM 500 command procedure for counter interrogation",-
+     C_RDDATA_COMMENT = "COM 500 command procedure for reading user data",-
+     C_RESPRC_COMMENT = "COM 500 command procedure for reset process command",-
+     C_RPSDI_COMMENT  = "COM 500 command procedure for DI attribute switching (RP570S)",-
+     C_CPIDI_COMMENT  = "COM 500 command procedure for DI attribute switching (CPI)",-     
+     C_USXREF_COMMENT = "COM 500 command procedure for decoding cross-reference information (upstream direction, input objects)",-
+     C_DSXREF_COMMENT = "COM 500 command procedure for decoding cross-reference information (downstream direction)",-
+     C_USOXR_COMMENT  = "COM 500 command procedure for decoding cross-reference information (upstream direction, output objects)",-     
+     C_AUTHCH_COMMENT = "COM 500 command procedure for command authority checking",-
+     C_GRPAL_COMMENT  = "COM 500 command procedure for group alarm value checking",-
+     E_GRPAL_COMMENT  = "COM 500 event channel for group alarm value checking",-
+     C_GRPSND_COMMENT = "COM 500 command procedure for sending group alarm values",-
+     C_SUSHOST_COMMENT = "COM 500 command procedure for handling host events",-
+     C_SUSNOD_COMMENT = "COM 500 command procedure for handling suspended nodes",-
+     C_SUSSTA_COMMENT = "COM 500 command procedure for handling suspended stations",-
+     C_TRPSPA_COMMENT = "COM 500 command procedure for receiving and sending transparent spa messages",-  
+     E_TRPSPA_COMMENT = "COM 500 event channel for receiving and sending transparent spa messages",-  
+     T_PNDIND_COMMENT = "COM 500 time channel for pending indication timeout handling",-
+     C_PNDIND_COMMENT = "COM 500 command procedure for pending indication timeout handling",-
+     C_RESSEL_COMMENT = "COM 500 command procedure for reseting CPI command selection flags",-
+     C_RPSCR_COMMENT  = "COM 500 command procedure for configuring RP570S line and station",-
+     C_101SCR_COMMENT = "COM 500 command procedure for configuring IEC 870-5-101S line and station",-
+     C_104SCR_COMMENT = "COM 500 command procedure for configuring IEC 870-5-104S line and station",-     
+     C_DNPSCR_COMMENT = "COM 500 command procedure for configuring DNP 3.0S line and station",-
+     C_RPSS_COMMENT   = "COM 500 command procedure for handling RP570S system messages",-
+     C_RPSY_COMMENT   = "COM 500 command procedure for handling RP570S synchronization",-
+     E_RPSY_COMMENT   = "COM 500 event channel for handling RP570S synchronization",-
+     E_DNPSS_COMMENT  = "COM 500 event channel for handling unknown DNP commands",-
+     C_DNPSS_COMMENT  = "COM 500 command procedure for handling unknown DNP commands",-     
+     C_RPSFT_COMMENT  = "COM 500 command procedure for loading FTABS to a RP570S protocol converter",-
+     E_RPSS_COMMENT   = "COM 500 event channel for handling RP570S system messages",-
+     E_CPISS_COMMENT  = "COM 500 event channel for handling CPI system messages",-
+     C_CPISS_COMMENT  = "COM 500 command procedure for handling CPI system messages",-
+     C_IESS_COMMENT   = "COM 500 command procedure for handling IEC101S system commands",-
+     E_IESS_COMMENT   = "COM 500 event channel for handling IEC101S system commands",-    
+     C_IESA_COMMENT   = "COM 500 command procedure for handling IEC101S application commands",-
+     E_IESA_COMMENT   = "COM 500 event channel for handling IEC101S application commands",-  
+     C_IESEI_COMMENT  = "COM 500 command procedure for sending end of initialization to a IEC101S NCC",-                
+     C_IEFT_COMMENT   = "COM 500 command procedure for handling IEC101S/IEC104S file transfer",-               
+     C_IEGICL_COMMENT = "COM 500 command procedure for reseting GI data in IEC101/104 queues of PC_NET",-                 
+     C_USAI_COMMENT   = "COM 500 command procedure for Analog Input process objects (upstream direction)",-
+     E_USAI_COMMENT   = "COM 500 event channel for Analog Input process objects (upstream direction)",-
+     C_USBI_COMMENT   = "COM 500 command procedure for Binary Input process objects (upstream direction)",-
+     E_USBI_COMMENT   = "COM 500 event channel for Binary Input process objects (upstream direction)",-
+     C_USDI_COMMENT   = "COM 500 command procedure for Digital Input process objects (upstream direction)",-
+     E_USDI_COMMENT   = "COM 500 event channel for Digital Input process objects (upstream direction)",-
+     C_USDB_COMMENT   = "COM 500 command procedure for Double Binary process objects (upstream direction)",-
+     E_USDB_COMMENT   = "COM 500 event channel for Double Binary process objects (upstream direction)",-
+     C_USPC_COMMENT   = "COM 500 command procedure for Pulse Counter process objects (upstream direction)",-
+     E_USPC_COMMENT   = "COM 500 event channel for Pulse Counter process objects (upstream direction)",-
+     C_USBS_COMMENT   = "COM 500 command procedure for Bit Stream process objects (upstream direction)",-
+     E_USBS_COMMENT   = "COM 500 event channel for Bit Stream process objects (upstream direction)",-
+     C_USBO_COMMENT   = "COM 500 command procedure for Binary Output process objects (upstream direction)",-
+     E_USBO_COMMENT   = "COM 500 event channel for Binary Output process objects (upstream direction)",-
+     C_USAO_COMMENT   = "COM 500 command procedure for Analog Output process objects (upstream direction)",-
+     E_USAO_COMMENT   = "COM 500 event channel for Analog Output process objects (upstream direction)",-     
+     C_USFT_COMMENT   = "COM 500 command procedure for file transfer (upstream direction)",-
+     T_USFT_COMMENT   = "COM 500 time channel for file transfer (upstream direction)",-
+     C_USOE_COMMENT   = "COM 500 command procedure for OPC Event process objects (upstream direction)",-
+     E_USOE_COMMENT   = "COM 500 event channel for OPC Event process objects (upstream direction)",-
+     C_IECTRM_COMMENT = "COM 500 command procedure for forwarding command terminations",-
+     E_IECTRM_COMMENT = "COM 500 event channel for forwarding command terminations",-
+     C_DSAO_COMMENT   = "COM 500 command procedure for Analog Output process objects (downstream direction)",-
+     E_DSAO_COMMENT   = "COM 500 event channel for Analog Output process objects (downstream direction)",-
+     C_DSBO_COMMENT   = "COM 500 command procedure for Binary Output process objects (downstream direction)",-
+     E_DSBO_COMMENT   = "COM 500 event channel for Binary Output process objects (downstream direction)",-
+     C_BOCMD_COMMENT  = "COM 500 command procedure for BO command handling (downstream direction)",-
+     C_DSDO_COMMENT   = "COM 500 command procedure for Digital Output process objects (downstream direction)",-
+     E_DSDO_COMMENT   = "COM 500 event channel for Digital Output process objects (downstream direction)",-
+     C_DSCMDBLK_COMMENT = "COM 500 command procedure for command blocking (downstream direction)",-
+     C_DSUN_COMMENT   = "COM 500 event channel for unknown command address")

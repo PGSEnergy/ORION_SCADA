@@ -1,0 +1,57 @@
+;Function: BPU_SEARCH_BAY_MEASUREMENT:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_search_database_station.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute), U_OTHER_OBJECTS, result
+;Return data:
+;Description: returns Station L/R index and Station Blockings index
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument t_OI
+#local l_result = argument(2)
+#local l_objects, i, v_sorted
+#local rx1
+
+;****************************************************************************************************
+;redirect command if application specific command procedure is found                               ;*
+#local t_Redirect_Proc = "APLMOD5_BPU_SEARCH_BAY_MEASUREMENT"                                      ;*
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    ;*
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            ;*
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 ;*
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  ;*
+         @REDIRECTED = true                                                                        ;*
+         i_ArgCnt = argument_count                                                                 ;*
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                      ;*
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" ;*
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       ;*
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     ;*
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    ;*
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        ;*
+         #loop_end                                                                                 ;*
+         #return 't_Redirect_Command' ;;;;;                                                        ;*
+      #block_end                                                                                   ;*
+   #block_end                                                                                      ;*
+   #else #delete REDIRECTED:V                                                                      ;*
+#block_end                                                                                         ;*
+;****************************************************************************************************
+;MAIN START
+l_result = merge_attributes(l_result, list(BAY_MEASUREMENT_OBJECTS = vector()))
+
+;search objects by checking the complete process object database   
+rx1 = "*MEAM*"
+l_objects = application_object_list(0, "IX", "OI", "", "'t_OI'*", "RX==""'RX1'""", vector("IU", "SS", "RX"), 1000000)
+
+#if l_objects.count > 0 #then #block
+   v_sorted = sort(l_objects.IX)
+   l_objects.LN = pick(l_objects.LN, v_sorted)
+   l_objects.IX = pick(l_objects.IX, v_sorted)
+   
+   #loop_with i = 1 .. l_objects.count
+      #if l_objects.iu(i) > 0 and l_objects.ss(i) > 0 #then #block
+         l_result.BAY_MEASUREMENT_OBJECTS(i) = list(LN = l_objects.ln(i), IX = l_objects.ix(i))
+      #block_end
+   #loop_end
+#block_end
+
+#return l_result

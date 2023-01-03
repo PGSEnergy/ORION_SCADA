@@ -1,0 +1,55 @@
+;Function: BPU_USER_AUTHORIZED:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/user_authorized.scl
+;Version: 1.0
+;Parameters:
+;Return data: TRUE | FALSE
+;Description: returns auhority for selected function
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info
+
+#local i_required_Level = 0, t_Auth_Group = "", i_IX = 0, t_LN = ""
+
+;****************************************************************************************************
+;redirect command if application specific command procedure is found                               ;*
+#local t_Redirect_Proc = "APLMOD5_BPU_USER_AUTHORIZED"                                              ;*
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    ;*
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            ;*
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 ;*
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  ;*
+         @REDIRECTED = true                                                                        ;*
+         i_ArgCnt = argument_count                                                                 ;*
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        ;*
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" ;*
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       ;*
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     ;*
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    ;*
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        ;*
+         #loop_end                                                                                 ;*
+         #return 't_Redirect_Command' ;;;;;                                                        ;*
+      #block_end                                                                                   ;*
+   #block_end                                                                                      ;*
+   #else #delete REDIRECTED:V                                                                      ;*
+#block_end                                                                                         ;*
+;****************************************************************************************************
+;MAIN START
+
+#if argument_count > 1 #then i_required_Level = argument(2)
+#if argument_count > 2 #then t_Auth_Group = argument(3)
+#else #block
+   #if attribute_exists(l_object_info, "authorization_group") #then t_Auth_Group = l_object_info.authorization_group
+#block_end
+
+#if attribute_exists(l_object_info, "p_object_ln") #then t_LN = l_object_info.p_object_ln
+#if attribute_exists(l_object_info, "p_object_indexes") #then #block
+   #if data_type(l_object_info.p_object_indexes) == "VECTOR" #then #block
+      #if length(l_object_info.p_object_indexes) > 0 #then i_IX = l_object_info.p_object_indexes(1)
+   #block_end
+#block_end
+
+#if t_LN <> "" and i_IX > 0 #then -
+   #return (USM_Authorization_Level_For_Object(t_auth_group, t_LN, i_IX) >= i_required_Level)
+#else -
+   #return (USM_Authorization_Level(t_auth_group) >= i_required_Level)

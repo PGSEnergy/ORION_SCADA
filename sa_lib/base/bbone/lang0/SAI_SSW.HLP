@@ -1,0 +1,873 @@
+COMMON SWITCHING DEVICE
+
+1. Environmental requirements
+
+In order for the switching device to have full
+functionality, the following components need to
+be installed:
+
+SA-LIB
+
+   - Station
+   - Bay
+
+It is also possible to configure the switching
+device to operate without station and bay. 
+
+2. Configurable attributes
+
+It is important to configure attributes in the order
+of appearance since setting one attribute may
+enable/disable and/or reset another attribute
+later.
+
+STATION_NAME
+
+A selector type of an editable combo box to
+select or enter the name of the substation. As a
+default, the maximum length of the text is 9
+characters. The selection list shows up to ten
+latest entries.
+
+The configurable attribute is being read directly
+from the process object database, if there is any
+process object linked to the selected switching
+device. Therefore, the configurable attribute
+within a standard function has meaning only when the
+process objects have not been created.
+
+This text will be used as a substation identifier of
+the switching device objects on event list, alarm
+list, printout, database query, etc. It is very
+important that this text is similar to all objects
+within the same substation.
+
+BAY_NAME
+
+A selector type of an editable combo box to
+select or enter the name of the bay (feeder). As a
+default, the maximum length of the text is 14
+characters. The selection list shows up to ten
+latest entries.
+
+The configurable attribute is being read directly
+from the process object database, if there is any
+process object linked to the selected switching
+device. Therefore, the configurable attribute
+within a standard function has meaning only when the
+process objects have not been created.
+
+This text will be used as a bay (feeder) identifier
+of the switching device objects on event list,
+alarm list, printout, database query, etc. It is
+very important that this text is similar to all
+objects within the same bay (feeder).
+
+DEVICE_NAME
+
+A selector type of an editable combo box to
+select or enter the name (identifier) of the switching
+device. As a default, the maximum length of the
+text is 5 characters. The selection list shows up to
+ten latest entries.
+
+The configurable attribute is being read directly
+from the process object database, if there is any
+process object linked to the selected switching
+device. Therefore, the configurable attribute
+within a standard function has meaning only when the
+process objects have not been created.
+
+This text will be used as an identifier of the
+switching device on event list, alarm list,
+printout, database query, etc.
+
+P_OBJECT_LN
+
+The logical name of the database process objects.
+The maximum length of the text is 10 characters.
+Allowed characters are the letters A-Z, all
+digits and the underscore (_).
+
+The logical names of process objects have to be
+unique throughout the entire system, that is,
+different objects cannot have the same logical
+name. Therefore, it is very important to have a
+proper naming convention for the process object
+database.
+
+Certain naming convention is also required to speed
+up the opening time of the main dialogs. With the
+predefined naming convention it is possible to
+collect all station and bay related database
+objects without searching through the complete
+database. Therefore, it is advised to use the
+following naming convention:
+
+  - The first three characters identify the substation
+  - The following four characters identify the bay
+  - The last three characters can be freely used to
+    identify the source of the signal, i.e. device,
+    unit, etc.
+
+The following list is presented as an example of a
+proper naming convention within one bay. The
+station name is Green Bay and the bay name is HA12
+Downtown:
+
+  - GRB, station
+  - GRBHA12BAY, bay
+  - GRBHA12Q0, circuit breaker Q0
+  - GRBHA12Q1, truck Q1
+  - GRBHA12Q9, earth switch Q9
+  - GRBHA12CT, measurements/current transformer
+  - GRBHA12VT, measurements/voltage
+    transformer
+  - GRBHA12ALA, alarm indicator
+  - GRBHA12AR, auto-reclosing tag
+  - GRBHA12TRP, tripping tag
+  - GRBHA12R1, feeder terminal or protection unit
+    1
+  - GRBHA12R2, feeder terminal or protection unit
+    2
+  - GRBHA12LS1, line segment 1 of busbar
+    coloring
+  - GRBHA12LS2, line segment 2 of busbar
+    coloring
+  - GRBHA12LS3, line segment 3 of busbar
+    coloring
+  - GRBHA12LI, line indicator of busbar
+    coloring
+
+SWITCHING_DEVICE_TYPE
+
+A selector type of a combo box to select the type
+of the switching device. As a default, the type is a
+circuit breaker.
+
+The configurable attribute has a great effect since
+it defines the index range for process objects, the
+texts within database and dialogs, the
+functionality and methods on dialogs, etc. It is
+also used by the event and alarm list when
+filtering certain types of switching devices.
+
+Circuit breakers:
+
+  - Circuit breaker
+  - Circuit breaker with synchro-check
+  - Circuit breaker-disconnector (no full breaking
+    capacity)
+
+Disconnectors:
+
+  - Disconnector
+  - Fuse switch
+  - Load breaking switch
+
+Earth switch
+
+Fault-making switch
+
+Truck
+
+Three-state switch (needs to be set up by installing
+two standard functions)
+
+SWITCHING_DEVICE_PURPOSE
+
+A selector type of a combo box to select the
+purpose of the switching device.
+
+The configurable attribute has just an
+informative purpose since by the default it is not
+used by any function within SA-LIB. The
+attribute is being stored into process object
+database (the 25th or the 26th character of the RX
+attribute) for user-defined purposes, e.g. for
+special search condition on the alarm or event
+list.
+
+Circuit breakers:
+
+  - Circuit breaker
+  - Main busbar circuit breaker
+  - Main busbar A circuit breaker
+  - Main busbar B circuit breaker
+  - Reserve busbar circuit breaker
+  - By-pass circuit breaker
+  - Bus-section circuit breaker
+  - Bus-coupler circuit breaker
+
+Disconnectors:
+
+  - Disconnector
+  - Main busbar disconnector
+  - Main busbar A disconnector
+  - Main busbar B disconnector
+  - Reserve busbar disconnector
+  - By-pass disconnector
+  - Line disconnector
+  - Line disconnector A
+  - Line disconnector B
+  - Bus-section disconnector
+  - Bus-section A disconnector
+  - Bus-section B disconnector
+  - Bus-section C disconnector
+  - Bus-coupler disconnector
+
+Earth switches:
+
+  - Earth switch
+  - Main busbar earth switch
+  - Main busbar A earth switch
+  - Main busbar B earth switch
+  - Reserve busbar earth switch
+  - By-pass earth switch
+  - Line earth switch
+  - Line earth switch A
+  - Line earth switch B
+  - CT-section earth switch
+
+Fault-making switch
+
+Truck
+
+Three-state switch
+
+SWITCH_SECTION
+
+A selector type of a combo box to select the
+switch section for the truck and the three-state
+switch. If SWITCHING_DEVICE_TYPE is some
+other than truck or three-state switch, the
+configurable attribute is being disabled, and the
+value has no meaning.
+
+When the type of the switching device is truck, this
+configurable attribute is needed to combine two
+standard functions as one physical truck for Busbar
+Coloring. If there is a circuit breaker with two
+truck standard functions, this attribute should have
+a different value for both truck picture
+functions. In that way the Busbar Coloring
+calculation algorithm knows that the other
+standard function is not a duplicate but a part of
+the other one.
+
+Any of the two standard functions can be selected
+as the first section as long as the other picture
+function is selected as the second section of the
+truck. If only one standard function will be used
+(i.e. one sided installation), the attribute can be
+left as a default.
+
+As far as the three-state switch is concerned, this
+selection will be used to identify whether the
+standard function is for the disconnector section or
+for the earth switch section of the three-state switch.
+
+STATION_TYPE
+
+A selector type of a combo box to select the
+station type of the objects.
+
+The database process objects will be created for
+the station type defined here. The list of supported
+protocols is as follows:
+
+  - SPA
+  - ANSI
+  - LON
+  - RP570
+  - RP570 with FTABs
+  - IEC 870-5-101
+  - IEC 870-5-103
+  - ICCP
+  - DNP 3.0
+  - MODBUS RTU
+  - IEC 61850-8
+  - PROCOL
+
+INDICATION_TYPE
+
+A selector type of a combo box to select the type
+of the position indication process object(s). As a
+default, the process object type is defined as a
+double indication (DB).
+
+The purpose of this configurable attribute is to
+support other data type than double indication as
+the position indication of the switching device. The
+supported data types are:
+
+  - Double indication (DB)
+  - Single indication (BI)
+  - 2 x Single indications (2 x BI)
+  - Analog input (AI)
+
+The interface between the standard function and the
+process object database is always with double
+indication object, i.e. there is an additional
+process object(s) receiving information and then
+passing it to double indication.
+
+MOTORIZED
+
+An ON/OFF type of a toggle button to select if
+the switching device is motorized and remotely
+controllable by SCS/MicroSCADA. As a
+default, the switching device is defined as a
+motorized object.
+
+By selecting Motorized option, the Process Object
+Tool (POT) will create a set of process objects
+for control purpose and all configurable
+attributes related to control are being enabled.
+
+CMD_PARAMETER
+
+A selector type of a combo box to select the
+command parameter for control method. This
+attribute has meaning only if IEC 870-5-101 or
+DNP 3.0 protocol or ICCP is selected, otherwise this
+attribute is being disabled. The supported control
+parameters are:
+
+  - Double command (TY = 46)
+  - Single command (TY = 45)
+
+for IEC 870-5-101 and ICCP protocol and
+
+  - Select-Operate
+  - Direct
+  - Direct-No ack.
+
+for DNP 3.0 protocol.
+
+CONTROL_TYPE
+
+A selector type of a combo box to select the
+control method and the type of the control process
+object(s). If the configurable attribute
+MOTORIZED is not selected, this attribute is being
+disabled, and the value has no meaning.
+
+The purpose of this configurable attribute is to
+support other control methods and process object
+types than the conventional one. The
+conventional control method depends very much on
+the configurable attribute STATION_TYPE since
+there is a certain default method for each
+protocol to control switching device. The
+supported control methods are:
+
+  - Secured command with four binary outputs (Open
+    select, Close select, Execute, Cancel)
+  - Secured command with two binary outputs (Open
+    execute, Close execute)
+  - Secured command with two digital outputs (Open
+    execute, Close execute; pulse length
+    configurable)
+  - Secured command with a single binary output
+    (*) (Open select/Close
+    select/Execute/Cancel)
+  - Secured command with a single analog output
+    (Open select, Close select, Execute, ancel or
+    Open execute/Close execute)
+  - Direct command with a single binary output
+    (Open execute/Close execute)
+
+(*) Control method not supported with SPA and
+ANSI protocols
+
+A control device from SPACOM or RED 500
+family with SPA or LON protocol normally
+utilizes secured command with four binary outputs.
+
+Normally, A RTU 2xx with RP 570 uses secured
+command with a single binary output.
+
+CONTROL_SUPERVISION_TIMEOUT
+
+Timeout starts to run after the execute command. If indication
+is not received within the timeout, an event is generated about
+a failed command.
+
+Timeout is given in milliseconds. 0 means that timeout
+is not in use.
+
+The expected open/close state can be configured by STA:BSM and/or APL:BSM
+attributes.
+
+CONTROL_SUPERVISION_ALARM
+
+Defines the alarm class (AC) for control supervision timeout.
+
+OUTPUT_STATUS
+
+An ON/OFF type of a toggle button to select
+whether there is need for output status process
+objects with the DNP 3.0 protocol. If
+STATION_TYPE is other than DNP 3.0, the
+configurable attribute is being disabled, and the
+value has no meaning.
+
+CONTROL_PULSE_LENGTH
+
+An input field for integer value to set the pulse
+length of the control pulses. The configurable
+attribute is being enabled if the attribute
+MOTORIZED is set and CONTROL_TYPE is secured
+control with two digital outputs.
+
+CONTROL_BITS
+
+A vector type of an input field for integer
+values to specify the bits to be used to send a
+control command to the switching device. The
+configurable attribute is being enabled if the
+attribute MOTORIZED is set and
+CONTROL_TYPE is a secured control with an
+analog output.
+
+There is a need to specify two or four elements for
+that vector. If two elements are being specified,
+the first element represents the bit for Open
+execute, while the second element is for Close
+execute. When four elements are used, the first
+represents the bit for Open select, the second
+represents Close select, the third represents
+Execute and the fourth represents Cancel.
+
+The bit vector shall be given to the SCT in the
+following way: (0,1) or (9,10,11,8)
+
+AUTHORIZATION_GROUP
+
+A selector type of an editable combo box to
+select the authorization group for the object. The
+maximum length of the text is 63 characters. The
+given text has to be usable as a SCIL list
+attribute name (see SCIL manual). The contents
+of the selection list is taken from the existing
+authorization groups.
+
+NOTE! The name may not be composed of two
+letters followed by a number.
+
+The attribute needs to be defined, if the object is
+wanted to be included in some authorization group.
+The authorization level of each user in this group
+can be defined afterwards by the system manager with
+the User Management pictures.
+
+OPERATOR_PLACE_HANDLING
+
+This setting enables the check of authorized
+control location (SCS/NCC) for an object. This setting is
+available only with IEC 61850-8 protocol.
+
+Depending on the selection, a different kind of set of process
+objects are are created. The following options are available:
+
+ None:
+ Object-specific control authority not used. Control dialog
+ automatically detects if MicroSCADA Internal authority check
+ is in use in bay level and allows the control accordingly.
+		
+ Loc:
+ There is an object-specific Local/Remote switch on logical
+ node (e.g. CSWI/ATCC) level.
+
+ LocSta:
+ There is an object-specific Station/NCC switch on logical
+ node (e.g. CSWI/ATCC) level.
+ 
+ Loc and LocSta:
+ Both Local/Remote and Station/NCC switches exist on logical
+ node level.
+
+BAY_LR_POLARITY
+
+The polarity of the bay local/remote-switch
+input signal.
+
+AUXILIARY_PLUG
+
+An ON/OFF type of a toggle button to select
+whether the type of the switching device is truck. If
+the SWITCHING_DEVICE_TYPE is truck or
+three-state switch, the configurable attribute is
+being disabled, and the value has no meaning.
+
+The process object for an auxiliary plug informs
+if the control cable from the switching device to
+the cubicle has been disconnected, i.e. if the
+switching device is being fully racked out from the
+cubicle. In that case no switching device symbol is
+shown in the single line diagram.
+
+The process object can also be used as an internal
+tag without the process connection. In that case the
+control dialog asks the auxiliary plug state when
+the object state is intermediate.
+
+EVENT_RECORDING
+
+An ON/OFF type of a toggle button to select
+whether there is need for event recording process
+objects with the RP 570 protocol. If
+STATION_TYPE is other than RTU 2xx or RTU
+2xx/FTABs, the configurable attribute is being
+disabled, and the value has no meaning.
+
+With the RP 570 the time stamp from process device
+comes into the event recording process object. If no
+accurate time stamp is needed or available, or the
+device is emulating the RP 570 without an event
+recording possibility, do not set this attribute ON.
+
+3. Configurations made with Process Object Tool
+
+THE DATABASE OBJECTS WILL NOT BE
+CREATED UNTIL THE PROCESS OBJECT
+TOOL HAS BEEN USED TO CREATE THEM.
+
+Based on the configuration made with the Standard
+Configuration Tool, the Process Object Tool
+(POT) creates a set of process objects among those
+that have been listed below.
+
+Circuit breaker, disconnector and earth switch
+
+Switching device position indication
+
+  - Obligatory
+  - Used for position indication of the switching
+    device state open/closed/intermediate/faulty
+  - Index 10, DB
+
+Switching device control objects
+
+  - Obligatory if switching device is remotely
+    controllable
+  - Used for sending control commands to the
+    switching device
+  - Index 11, Open select or Open execute, BO or
+    DO
+  - Index 12, Close select or Close execute, BO
+    or DO
+  - Index 13, Execute selected, Execute directly
+    or Select and Execute, BO, DO or AO
+  - Index 14, Cancel selected, BO or DO
+
+Switching device external control blocking
+
+  - Optional
+  - Receives a control blocking signal from the
+    control unit and prevents the control actions
+    in the single line diagram
+  - Index 15, BI
+
+Switching device open interlocked
+
+  - Optional
+  - Receives a control blocking signal for the
+    Open command from the control unit and
+    prevents the Open command in the single line
+    diagram
+  - Index 16, BI
+
+Switching device close interlocked
+
+  - Optional
+  - Receives a control blocking signal for the
+    Close command from the control unit and
+    prevents the Close command in the single line
+    diagram
+  - Index 17, BI
+
+Switching device interlocking cause
+
+  - Optional
+  - Receives an interlocking cause, i.e. an integer
+    value that represents a reason for an
+    unsuccessful control action
+  - Index 18, AI
+
+Switching device selected on monitor
+
+  - Optional
+  - Internal tag that shows if the switching device is
+    being selected on different pictures and monitors
+  - Index 19, AI
+
+Switching device command event
+
+  - Optional
+  - Internal or external tag that shows if the
+    switching device is under command sequence i.e.
+    Select open or Select close has been issued and
+    it is waiting for the Execute or Cancel command
+  - Index 20, BI
+
+Switching device auxiliary plug
+
+  - Optional
+  - Internal or external tag to indicate if the
+    switching device is being fully racked out from
+    cubicle and therefore, it should not be shown in
+    the single line diagram
+  - Index 21, BI
+
+Switching device position indication
+
+   - Obligatory if the indication type is other than
+     DB
+   - Receives position indication such as BI, 2 x BI
+     and AI
+   - Index 110, DB (also index 108 if pos. ind. with
+     2 x BI)
+
+Event recording for input signals with the RP 570
+protocol
+
+   - Optional
+   - Receives an accurate time stamp from the
+     control unit
+   - Indexes 110, 115, 116, 117, 120, 121, 210,
+     208
+
+Command termination indication for output signals
+with the IEC 870-5-101 and IEC 870-5-103
+protocols
+
+   - Optional
+   - Indicates whether the command was successful or
+     not
+   - Indexes 111, 112, 113, 114
+
+Truck
+
+Truck position indication
+
+  - Obligatory
+  - Used for indication of the truck state
+    open/closed/intermediate/faulty
+  - Index 30, DB
+
+Truck control objects
+
+  - Obligatory if truck remotely controllable
+  - Used for sending control commands to the truck
+  - Index 31, Open select or Open execute, BO or
+    DO
+  - Index 32, Close select or Close execute, BO
+    or DO
+  - Index 33, Execute selected, Execute directly
+    or Select and Execute, BO, DO or AO
+  - Index 34, Cancel selected, BO or DO
+
+Truck external control blocking
+
+  - Optional
+  - Receives a control blocking signal from the
+    control unit and prevents the control actions
+    in the single line diagram
+  - Index 35, BI
+
+Truck open interlocked
+
+  - Optional
+  - Receives a control blocking signal for the
+    Open command from the control unit and
+    prevents the Open command in the single line
+    diagram
+  - Index 36, BI
+
+Truck close interlocked
+
+  - Optional
+  - Receives a control blocking signal for the
+    Close command from the control unit and
+    prevents the Close command in the single line
+    diagram
+  - Index 37, BI
+
+Truck interlocking cause
+
+  - Optional
+  - Receives an interlocking cause i.e. an integer
+    value that represents a reason for an
+    unsuccessful control action
+  - Index 38, AI
+
+Truck selected on monitor
+
+  - Optional
+  - Internal tag to show if the truck is being
+    selected on different pictures and monitors
+  - Index 39, AI
+
+Truck command event
+
+  - Optional
+  - Internal or external tag that shows if the
+    truck is under command sequence, i.e. Select open
+    or Select close has been issued and it is waiting
+    for Execute or Cancel command
+  - Index 40, BI
+
+Truck position indication
+
+   - Obligatory if indication type is other than DB
+   - Receives position indication such as BI, 2 x BI
+     and AI
+   - Index 130, DB (also index 128 if pos. ind. with
+     2 x BI)
+
+Event recording for input signals with the RP 570
+protocol
+
+   - Optional
+   - Receives an accurate time stamp from the
+     control unit
+   - Indexes 130, 135, 136, 137, 140, 230, 228
+
+Command termination indication for output signals
+with the IEC 870-5-101 and IEC 870-5-103
+protocols
+
+   - Optional
+   - Indicates whether the command was successful or
+     not
+   - Indexes 131, 132, 133, 134
+
+Three-state switch
+
+Three-state switch position indication
+
+  - Obligatory
+  - Used for indication of the three-state switch
+    state
+    open/closed/free/earthed/intermediate/faulty
+  - Index 10 for disconnector section, index 11 for
+    earth switch section, DB
+
+Three-state switch control objects
+
+  - Obligatory if three-state switch is remotely
+    controllable
+  - Used for sending control commands to the three-
+    state switch
+  - Index 12, Open select or Open execute, BO or
+    DO
+  - Index 13, Close select or Close execute, BO
+    or DO
+  - Index 14, Free select or Free execute, BO or
+    DO
+  - Index 15, Earth select or Earth execute, BO or
+    DO
+  - Index 16, Execute selected, Execute
+    disconnector section directly or Open or Close
+    select and execute, BO, DO or AO
+  - Index 17, Cancel selected, Execute earth
+    switch section directly or Free or Earth select
+    and execute, BO, DO or AO
+
+Three-state switch external control blocking
+
+  - Optional
+  - Receives a control blocking signal from the
+    control unit and prevents the control actions
+    in the single line diagram
+  - Index 18, BI
+
+Three-state switch open interlocked
+
+  - Optional
+  - Receives a control blocking signal for the
+    Open command from the control unit and
+    prevents the Open command in the single line
+    diagram
+  - Index 19, BI
+
+Three-state switch close interlocked
+
+  - Optional
+  - Receives a control blocking signal for the
+    Close command from the control unit and
+    prevents the Close command in the single line
+    diagram
+  - Index 20, BI
+
+Three-state switch free interlocked
+
+  - Optional
+  - Receives a control blocking signal for the
+    Free command from the control unit and
+    prevents the Free command in the single line
+    diagram
+  - Index 21, BI
+
+Three-state switch earth interlocked
+
+  - Optional
+  - Receives a control blocking signal for the
+    Earth command from the control unit and
+    prevents the Earth command in the single line
+    diagram
+  - Index 22, BI
+
+Three-state switch interlocking cause
+
+  - Optional
+  - Receives an interlocking cause i.e. an integer
+    value that represents a reason for an
+    unsuccessful control action
+  - Indexes 23 and 24, AI
+
+Three-state switch selected on monitor
+
+  - Optional
+  - Internal tag to shows if the three-state switch is
+    being selected on different pictures and monitors
+  - Index 25, AI
+
+Three-state switch command event
+
+  - Optional
+  - Internal or external tag that shows if the
+    three-state switch is under command sequence i.e.
+    Select Open, Close Free or Earth has been
+    issued and it is waiting for Execute or Cancel
+    command
+  - Index 26, BI
+
+Three-state switch position indication
+
+  - Obligatory if the indication type is other than
+    DB
+  - Receives position indication such as BI, 2 x BI
+    and AI
+  - Indexes 110 and 111, DB (also indexes 108 and
+    109 if pos. indication with 2 x BI)
+
+Event recording for input signals with the RP 570
+protocol
+
+  - Optional
+  - Receives an accurate time stamp from control
+    unit
+  - Indexes 110, 111, 118, 119, 120, 121, 122, 126,
+    210, 211, 208, 209
+
+Command termination indication for output signals
+with the IEC 870-5-101 and IEC 870-5-103
+protocols
+
+   - Optional
+   - Indicates whether the command was successful or
+     not
+   - Indexes 112, 113, 114, 115, 116, 117

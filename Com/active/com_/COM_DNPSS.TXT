@@ -1,0 +1,51 @@
+﻿; This command procedure is used for handling DNP commands
+; in a COM application 
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:  @LN, @IX, @BS, from the DNP command process object
+; OUTPUT: @COM_EXCLUSIVE_STA_NUMBER, number of the STA object of the NCC sending the application command
+;         @COM_APLCMD_PROTOCOL, protocol of the NCC sending the application command
+;--------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+;STA number of the NCC
+@NCC_STA_NR = 'LN':PUN'IX'   
+
+@ENABLE_LOGGING = COM_GENVAR:PBZ(3)
+@DEBUG_MODE_ENABLED = COM_GENVAR:PBZ(17)
+
+;unpack the system command
+@SYS_CMD = UNPACK_STR(%BS,8)
+
+;application control function code of the command
+@FUNC_CODE = ROUND(%SYS_CMD(2))
+
+#IF %ENABLE_LOGGING #THEN #BLOCK ; 6
+   @INFO="'rt':'rm',DNPSS,'NCC_STA_NR','LN':P'IX',,DNP restart command received (FNC:'FUNC_CODE'),,,,,,,,,,,,,,,,"
+   #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+   #ELSE #DO COM_LOG:CIN 
+#BLOCK_END ; 6
+
+;perform the command based on the function code
+#CASE %FUNC_CODE
+   ;cold restart
+   #WHEN 13 #BLOCK
+      ;reset all event queues in NET
+      #SET STA'NCC_STA_NR':SRS = 0
+      ;execute reset process command
+      #EXEC COM_RESPRC:C (@COM_APLCMD_PROTOCOL = 4,@COM_EXCLUSIVE_STA_NUMBER = %NCC_STA_NR)
+   #BLOCK_END
+   ;warm restart
+   #WHEN 14 #BLOCK
+       ;reset all event queues in NET
+       #SET STA'NCC_STA_NR':SRS = 0   
+      ;initialise NET database (make an internal GI)
+      #EXEC COM_GENINT:C (@COM_APLCMD_PROTOCOL = 4,@COM_EXCLUSIVE_STA_NUMBER = %NCC_STA_NR)  
+   #BLOCK_END
+#CASE_END
+
+

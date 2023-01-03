@@ -1,0 +1,11 @@
+@l_Arg = argument(1)
+
+@v_Monitors = vector()
+#error ignore
+@v_Monitors = upper_case(read_text("SYS_TOOL/Fontset_converted.txt"))
+#error stop
+  
+@t_Current_Mon = upper_case(l_Arg:vt_Mon_Type + "_" + l_Arg:vt_Mon_Size + "_" + l_Arg:vt_Apl_Name + "_" + l_Arg:vt_Workstation)
+@v = select(%v_Monitors, "==%t_Current_Mon")
+
+#return (length(%v) > 0)

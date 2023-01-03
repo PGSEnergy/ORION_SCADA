@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2011 sp1 (http://www.altova.com) by XMLSpy 2011 Professional Ed., Installed for 10 users (with SMP from 2010-09-23 to 2011-09-24) (ABB Oy) -->
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Markku Hamarila/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">Level</Parameter>
+		<Parameter name="Caption">objectTypeCaption</Parameter>
+		<Parameter name="Description">objectTypeDesc</Parameter>
+		<Parameter name="Group">Event Classes</Parameter>
+		<Parameter name="Type">EVENT</Parameter>
+		<Parameter name="IconFileName">ae.ico</Parameter>
+		<Parameter name="Tools"/>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="Visible">True</Parameter>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="PCMObjectType">LevelEventGroup</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+	<Parameters type="DynamicPropertyLists">
+		<Parameter name="SendSimpleEvent">
+			<List value="False" properties="BaseType, HiWaDescription, HiWaSeverity, HiWaSubConditionName, HiWaAckReq, LoWaDescription, LoWaSeverity, LoWaSubConditionName, LoWaAckReq, HiAlDescription, HiAlSeverity, HiAlSubConditionName, HiAlAckReq, LoAlDescription, LoAlSeverity, LoAlSubConditionName, LoAlAckReq, ConditionCategory, InActiveDescription, InActiveAckReq, SendSimpleEvent"/>
+			<List value="True" properties="BaseType, HiWaDescription, HiWaSeverity, HiWaSubConditionName, HiWaAckReq, LoWaDescription, LoWaSeverity, LoWaSubConditionName, LoWaAckReq, HiAlDescription, HiAlSeverity, HiAlSubConditionName, HiAlAckReq, LoAlDescription, LoAlSeverity, LoAlSubConditionName, LoAlAckReq, ConditionCategory, InActiveDescription, InActiveAckReq, SendSimpleEvent, SimpleEventCategory"/>
+		</Parameter>
+	</Parameters>
+	<Parameters type="SCLExport">
+		<Export name="CDATA">
+			<ConfigurationProperties>SendSimpleEvent</ConfigurationProperties>
+			<List value="True" properties="BaseType, HiWaDescription, HiWaSeverity, HiWaSubConditionName, HiWaAckReq, LoWaDescription, LoWaSeverity, LoWaSubConditionName, LoWaAckReq, HiAlDescription, HiAlSeverity, HiAlSubConditionName, HiAlAckReq, LoAlDescription, LoAlSeverity, LoAlSubConditionName, LoAlAckReq, ConditionCategory, InActiveDescription, InActiveAckReq, SendSimpleEvent, SimpleEventCategory"/>
+			<List value="False" properties="BaseType, HiWaDescription, HiWaSeverity, HiWaSubConditionName, HiWaAckReq, LoWaDescription, LoWaSeverity, LoWaSubConditionName, LoWaAckReq, HiAlDescription, HiAlSeverity, HiAlSubConditionName, HiAlAckReq, LoAlDescription, LoAlSeverity, LoAlSubConditionName, LoAlAckReq, ConditionCategory, InActiveDescription, InActiveAckReq, SendSimpleEvent"/>
+		</Export>
+	</Parameters>
+	<Properties type="PropertyDefinitions">
+		<Property name="OPCObjectType" category="[010] Basic">
+			<Value>Event Class</Value>
+			<DescID>OPCObjectTypeDesc</DescID>
+			<CaptionID>OPCObjectType</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHR</Access>
+			<AttributeName>OPCObjectType</AttributeName>
+		</Property>
+		<Property name="BaseType" category="[010] Basic">
+			<Value>Level</Value>
+			<DescID>Base Type of Event Condition</DescID>
+			<CaptionID>Base Type</CaptionID>
+			<Values type="singleChoice">
+				<Enum textID="Discrete Indication" value="DiscInd"/>
+				<Enum textID="Limit Supervision" value="MVLevelBase"/>
+				<Enum textID="Trip Event" value="Trip"/>
+				<Enum textID="Advanced Discrete Indication" value="Discrete"/>
+				<Enum textID="Device Connection Status" value="DeviceConnectionStatus"/>
+				<Enum textID="Advanced Limit Supervision" value="Level"/>
+				<Enum textID="Quality Texts" value="Quality Texts"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RRR</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="HiWaDescription" category="[020] State HiWa">
+			<Value>hi wa</Value>
+			<DescID>HiWaDescriptionDesc</DescID>
+			<CaptionID>HiWaDescription</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="HiWaSeverity" category="[020] State HiWa">
+			<Value>600</Value>
+			<DescID>HiWaSeverityDesc</DescID>
+			<CaptionID>HiWaSeverity</CaptionID>
+			<Values type="numerical">
+				<Min>1</Min>
+				<Max>1000</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="HiWaSubConditionName" category="[020] State HiWa">
+			<Value>hi wa</Value>
+			<DescID>HiWaSubConditionNameDesc</DescID>
+			<CaptionID>HiWaSubConditionName</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="HiWaAckReq" category="[020] State HiWa">
+			<Value>False</Value>
+			<DescID>HiWaAckReqDesc</DescID>
+			<CaptionID>HiWaAckReq</CaptionID>
+			<Values type="boolean">
+      </Values>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="LoWaDescription" category="[022]State LoWa">
+			<Value>lo wa</Value>
+			<DescID>LoWaDescriptionDesc</DescID>
+			<CaptionID>LoWaDescription</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="LoWaSeverity" category="[022]State LoWa">
+			<Value>600</Value>
+			<DescID>LoWaSeverityDesc</DescID>
+			<CaptionID>LoWaSeverity</CaptionID>
+			<Values type="numerical">
+				<Min>1</Min>
+				<Max>1000</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="LoWaSubConditionName" category="[022]State LoWa">
+			<Value>lo wa</Value>
+			<DescID>LoWaSubConditionNameDesc</DescID>
+			<CaptionID>LoWaSubConditionName</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="LoWaAckReq" category="[022]State LoWa">
+			<Value>False</Value>
+			<DescID>LoWaAckReqDesc</DescID>
+			<CaptionID>LoWaAckReq</CaptionID>
+			<Values type="boolean">
+      </Values>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="HiAlDescription" category="[021] State HiAl">
+			<Value>hi al</Value>
+			<DescID>HiAlDescriptionDesc</DescID>
+			<CaptionID>HiAlDescription</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="HiAlSeverity" category="[021] State HiAl">
+			<Value>800</Value>
+			<DescID>HiAlSeverityDesc</DescID>
+			<CaptionID>HiAlSeverity</CaptionID>
+			<Values type="numerical">
+				<Min>1</Min>
+				<Max>1000</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="HiAlSubConditionName" category="[021] State HiAl">
+			<Value>hi al</Value>
+			<DescID>HiAlSubConditionNameDesc</DescID>
+			<CaptionID>HiAlSubConditionName</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="HiAlAckReq" category="[021] State HiAl">
+			<Value>False</Value>
+			<DescID>HiAlAckReqDesc</DescID>
+			<CaptionID>HiAlAckReq</CaptionID>
+			<Values type="boolean">
+      </Values>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="LoAlDescription" category="[023] State LoAl">
+			<Value>lo al</Value>
+			<DescID>LoAlDescriptionDesc</DescID>
+			<CaptionID>LoAlDescription</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="LoAlSeverity" category="[023] State LoAl">
+			<Value>800</Value>
+			<DescID>LoAlSeverityDesc</DescID>
+			<CaptionID>LoAlSeverity</CaptionID>
+			<Values type="numerical">
+				<Min>1</Min>
+				<Max>1000</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="LoAlSubConditionName" category="[023] State LoAl">
+			<Value>lo al</Value>
+			<DescID>LoAlSubConditionNameDesc</DescID>
+			<CaptionID>LoAlSubConditionName</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="LoAlAckReq" category="[023] State LoAl">
+			<Value>False</Value>
+			<DescID>LoAlAckReqDesc</DescID>
+			<CaptionID>LoAlAckReq</CaptionID>
+			<Values type="boolean">
+      </Values>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="InActiveDescription" category="[010] Basic">
+			<Value>in active</Value>
+			<DescID>InActiveDescriptionDesc</DescID>
+			<CaptionID>InActiveDescription</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="InActiveAckReq" category="[010] Basic">
+			<Value>False</Value>
+			<DescID>InActiveAckReqDesc</DescID>
+			<CaptionID>InActiveAckReq</CaptionID>
+			<Values type="boolean">
+      </Values>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="SendSimpleEvent" category="[010] Basic">
+			<Value>True</Value>
+			<DescID>SendSimpleEventDesc</DescID>
+			<CaptionID>SendSimpleEvent</CaptionID>
+			<Values type="boolean">
+      </Values>
+			<DataType>System.Boolean</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="ConditionCategory" category="[010] Basic">
+			<Value>ConditionLevelEvent</Value>
+			<DescID>ConditionCategoryDesc</DescID>
+			<CaptionID>ConditionCategory</CaptionID>
+			<Values type="singleChoiceDynamic">
+				<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupCommonDefinitions" secondchildObjectType="ConditionEventGroup"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HWW</Access>
+			<AttributeName/>
+		</Property>
+		<Property name="SimpleEventCategory" category="[010] Basic">
+			<Value>SimpleLevelEvent</Value>
+			<DescID>SimpleEventCategoryDesc</DescID>
+			<CaptionID>SimpleEventCategory</CaptionID>
+			<Values type="singleChoiceDynamic">
+				<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupCommonDefinitions" secondchildObjectType="SimpleEventGroup"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HWW</Access>
+			<AttributeName/>
+		</Property>
+	</Properties>
+</ObjectType>

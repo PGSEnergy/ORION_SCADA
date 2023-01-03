@@ -1,0 +1,96 @@
+#if mon:bdt <> "MW" #then #block ;fonts are not set for Microworkstation
+
+  ; Values of these variables must be the same as corresponding user attributes in
+  ; FontSet.vso/MAIN._INIT
+
+  @t_Local_Ws_Mark = " <local>"
+  @t_Fonts_Def_Section_Start = "_##"
+  @t_Fonts_Def_Section_End = "##_"
+  @t_Apl_Prefix = "apl_"
+  @t_Ws_Prefix = "ws_"
+  @t_UFonts_Def_File = "Sys_Tool/U_fonts.def"
+  @t_MFonts_Def_File = "Sys_Tool/M_fonts.def"
+
+
+  @Gv_MFonts_Def = vector()
+  @Gv_UFonts_Def = vector()
+
+  #error ignore
+  @Gv_MFonts_Def = read_text(%t_MFonts_Def_File)
+  @Gv_UFonts_Def = read_text(%t_UFonts_Def_File)
+  #error stop
+
+
+  @l_Mon_Attrs = do(read_text("SYS_TOOL/FontSet_Return_Monitor_Attributes.scl"))
+  @t_Mon_Type = l_Mon_Attrs:vt_Mon_Type
+  @t_Mon_Size = l_Mon_Attrs:vt_Mon_Size
+  @t_Apl_Name = l_Mon_Attrs:vt_Apl_Name
+  @t_Workstation = l_Mon_Attrs:vt_Workstation
+
+  ; *** Font conversion
+  @b_Converted = do(read_text("sys_tool/FontSet_Is_Converted.scl"), %l_Mon_Attrs)
+
+  #if not %b_Converted #then @i_stat = do(read_text("SYS_TOOL/FontSet_Convert.scl"), %l_Mon_Attrs)
+
+ ; *** read the font definitions
+  @Gv_MFonts_Def = vector()
+  @Gv_UFonts_Def = vector()
+
+  #error ignore
+  @Gv_MFonts_Def = read_text(%t_MFonts_Def_File)
+  @Gv_UFonts_Def = read_text(%t_UFonts_Def_File)
+  #error stop
+
+  @Gl_Ws_MFonts = do(read_text("sys_tool/FontSet_Return_Font_Definitions.scl"),-
+     %t_Fonts_Def_Section_Start + %t_Ws_Prefix + %t_Workstation,-
+     %t_Ws_Prefix + %t_Workstation + %t_Fonts_Def_Section_End, "M")
+  @Gl_Ws_UFonts = do(read_text("sys_tool/FontSet_Return_Font_Definitions.scl"),-
+     %t_Fonts_Def_Section_Start + %t_Ws_Prefix + %t_Workstation,-
+     %t_Ws_Prefix + %t_Workstation + %t_Fonts_Def_Section_End, "U")
+  @Gl_M_Font_Texts = do(read_text("sys_tool/FontSet_Return_Font_Definitions.scl"),-
+     %t_Fonts_Def_Section_Start + "SYSTEM_TEXTS", "SYSTEM_TEXTS" + %t_Fonts_Def_Section_End, "M")
+  
+
+  @Gl_Apl_MFonts = do(read_text("sys_tool/FontSet_Return_Font_Definitions.scl"),-
+     %t_Fonts_Def_Section_Start + %t_Apl_Prefix + %t_Apl_Name,-
+     %t_Apl_Prefix + %t_Apl_Name + %t_Fonts_Def_Section_End, "M")
+  @Gl_Apl_UFonts = do(read_text("sys_tool/FontSet_Return_Font_Definitions.scl"),-
+     %t_Fonts_Def_Section_Start + %t_Apl_Prefix + %t_Apl_Name,-
+     %t_Apl_Prefix + %t_Apl_Name + %t_Fonts_Def_Section_End, "U")
+
+  @Gl_Sys_MFonts = do(read_text("sys_tool/FontSet_Return_Font_Definitions.scl"),-
+     %t_Fonts_Def_Section_Start + "SYSTEM",-
+     "SYSTEM" + %t_Fonts_Def_Section_End, "M")
+  @Gl_Sys_UFonts = do(read_text("sys_tool/FontSet_Return_Font_Definitions.scl"),-
+     %t_Fonts_Def_Section_Start + "SYSTEM",-
+     "SYSTEM" + %t_Fonts_Def_Section_End, "U")
+
+  ; *** Set M- and U-scope fonts
+
+  #loop_with i = 1 .. 20
+     @l_M_Font = list(t_Scope = "M", i_Font_Nr = %i, t_Mon_Type = %t_Mon_Type, t_Appl = %t_Apl_Name, t_Ws = %t_Workstation,-
+       t_Mon_Size = %t_Mon_Size) 
+     @l_M_Def = do(read_text("sys_tool/FontSet_Return_Font.scl"), %l_M_Font)
+
+     @l_U_Font = list(t_Scope = "U", i_Font_Nr = %i, t_Mon_Type = %t_Mon_Type, t_Appl = %t_Apl_Name, t_Ws = %t_Workstation,-
+       t_Mon_Size = %t_Mon_Size)
+     @l_U_Def = do(read_text("sys_tool/FontSet_Return_Font.scl"), %l_U_Font)
+
+     #if length(%l_M_Def) > 0 #then #block
+        @l_M = l_M_Def:vl_Defined_Font
+        #if %t_Mon_Type == "VS_LOCAL" #then .font ("M",%i) : list(family = l_M:vfamily, face = l_M:vface, point_size = l_M:vpoint_size)
+        #else .font ("M",%i) : l_M:vname
+     #block_end
+
+     #if length(%l_U_Def) > 0 #then #block
+        @l_U = l_U_Def:vl_Defined_Font
+        #if %t_Mon_Type == "VS_LOCAL" #then .font ("U",%i) : list(family = l_U:vfamily, face = l_U:vface, point_size = l_U:vpoint_size)
+        #else .font ("U",%i) : l_U:vname
+     #block_end   
+  #loop_end
+
+#block_end
+
+
+
+

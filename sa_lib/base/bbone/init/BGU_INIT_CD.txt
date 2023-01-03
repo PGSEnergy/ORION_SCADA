@@ -1,0 +1,31 @@
+;Moves the configuration data from DAT files to the CD attribute when system is updated
+
+#error continue
+@Source_Directory = fm_scil_represent(fm_application_directory("pobjconf"))
+@apl_name = apl:bna
+@Destination_Directory = fm_directory("\SC\SA_LIB\OLD\'apl_name'\POBJCONF")
+@create = directory_manager("CREATE", %Destination_Directory , "RECURSIVE")
+#if not directory_manager("EXISTS",fm_scil_directory(%Source_Directory)) #then #return
+@v_Files = vector
+@v_files = fm_represent(file_manager("LIST",fm_scil_directory(%Source_Directory),"*.dat"))
+#loop_with i = 1 .. length(%v_Files)
+   @t_file = %v_files(%i)
+   #if locate(%t_file, "%") == 0 #then #block
+      @text = text_read("'Source_Directory'/'t_file'")
+      @TEXT = replace(%text.text,"''","")         ;single quote replacement ID 14947
+      @l_attrs=evaluate(%Text)
+      #if data_type(l_attrs:vp_object_ln) <> "NONE" #then #block
+         @LN = edit(l_attrs:vp_object_ln, "COLLAPSE")
+         #if validate("APPLICATION_OBJECT_NAME","'LN'") == 0 #then #block
+            @l_check = fetch(0, "P", %LN)
+            #if l_check:viu > 0 #then #block
+               #if length('LN':PCD) == 0 #then #block
+                  #set 'LN':PCD = %l_attrs
+              #block_end
+            #block_end
+         #block_end
+         ;@del = file_manager("DELETE", fm_scil_file("'Source_Directory'/'t_file'"))
+         @move = file_manager("MOVE",  fm_scil_file("'Source_Directory'/'t_file'"), %Destination_Directory)
+      #block_end
+   #block_end
+#loop_end

@@ -1,0 +1,169 @@
+﻿; This command procedure is used for initializing NET in a COM application
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+; INPUT:   APL:BSV(20), general parameters
+; OUTPUT:  @COM_IEC_STA_NUMBER, number of the STA object of the IEC NCC (protocol converter)
+;          @COM_RP_STA_NUMBER, number of the STA object of the RP NCC (protocol converter)
+;          @COM_APLCMD_PROTOCOL, protocol of the DNP NCC
+;          @COM_SEND_GRPAL_STA_NUMBER, sta number of the NCC, used in sending group alarms
+;          @STATION_NUMBER_OF_TRIP_SIGNAL, to com_init
+;
+;--------------------------------------------------------------------------------------------------------
+
+#ERROR CONTINUE
+
+;read in general parametrs
+@GEN_INFO = APL:BSV(20)
+
+@ENABLE_LOGGING = COM_GENVAR:PBZ(3)
+
+@TIME = HR_CLOCK
+@RT = TIMES(TIME:VCL)
+@RM = ROUND(TIME:VUS/1000)
+
+; set cdc-II info vector index
+@cdc2_index = 99
+@cdc2_names_retrieved = FALSE
+
+@STATION_NUMBER_OF_TRIP_SIGNAL = 0
+
+;create directories for file transfer 
+#LOOP_WITH I=1..8
+   @DISTURBANCE_DIR = FM_APPLICATION_DIRECTORY("COM500/NCC'I'_File_Transfer")
+   @CREATE_DIRECTORY = DIRECTORY_MANAGER("CREATE",%DISTURBANCE_DIR) 
+#LOOP_END
+
+;find all slave protocol emulators (STA objects) defined in the NCC xref table
+;and initialize their databases in NET or send end of ininialization information
+@NCC_XREF_TABLE = APL:BSV(21)
+#IF DATA_TYPE(%NCC_XREF_TABLE) == "VECTOR" AND LENGTH(%NCC_XREF_TABLE) > 0 #THEN #BLOCK
+   ;mark the database initialized and enable data sending to NCCs
+   #EXEC_AFTER GEN_INFO:VSWITCH_OVER_DB_INIT_TIME COM_DBSTA:C
+   ;initialize marked signals to default values
+   #IF COM_INIT:CCS == 1 #THEN #DO COM_INIT:CCP
+   #ELSE #DO COM_INIT:CIN
+   #LOOP_WITH I = 1..(LENGTH(%NCC_XREF_TABLE))
+      @NCC_VECTOR = %NCC_XREF_TABLE(%I)
+      #IF LENGTH(%NCC_VECTOR) > 0 #THEN #BLOCK
+         #IF LENGTH(%NCC_VECTOR) < 6 #THEN @NCC_VECTOR(6) = FALSE
+         @STA_NR = %NCC_VECTOR(1)
+         #CASE %NCC_VECTOR(2)
+            #WHEN 1 #BLOCK ;RP570S protocol ;5
+               #IF %ENABLE_LOGGING #THEN #BLOCK ; 6
+                  @INFO="'rt':'rm',NETINI_H,'STA_NR',,,RP570 NCC link initialization started,,,,,,,,,,,,,,,,"
+                  #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                  #ELSE #DO COM_LOG:CIN
+               #BLOCK_END ; 6            
+               ;check if local function table downloading
+               #IF LENGTH(%NCC_VECTOR) > 6 #THEN #BLOCK
+                  #IF %NCC_VECTOR(7)==2 #THEN #BLOCK ;6
+                     #EXEC COM_RPSFT:C (@RP_STA_NUMBER = %NCC_VECTOR(1),@RP_CONF_FILE = %NCC_VECTOR(8))
+                  #BLOCK_END ;6
+               #BLOCK_END
+               ;after the time interval initialise NET database (make an internal GI)
+               #EXEC_AFTER GEN_INFO:VSWITCH_OVER_DB_INIT_TIME COM_GENINT:C (@COM_APLCMD_PROTOCOL = 1,@COM_EXCLUSIVE_STA_NUMBER = %STA_NR)
+            #BLOCK_END ; 5
+            #WHEN 2 #BLOCK ;IEC101S protocol
+                #IF %NCC_VECTOR(10) == 2 #THEN #BLOCK
+                  #IF %ENABLE_LOGGING #THEN #BLOCK ; 6
+                     @INFO="'rt':'rm',NETINI_H,'STA_NR',,,ICCP NCC link initialization started,,,,,,,,,,,,,,,,"
+                     #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                     #ELSE #DO COM_LOG:CIN
+                  #BLOCK_END ; 6
+                  #EXEC_AFTER GEN_INFO:VSWITCH_OVER_DB_INIT_TIME COM_GENINT:C (@COM_APLCMD_PROTOCOL = 2,@COM_EXCLUSIVE_STA_NUMBER = %STA_NR, @SUB_PROTOCOL = 2)
+               #BLOCK_END
+               #ELSE_IF %NCC_VECTOR(10) == 3 #THEN #BLOCK
+                     #IF %ENABLE_LOGGING #THEN #BLOCK ; 6
+                     @INFO="'rt':'rm',NETINI_H,'STA_NR',,,IEC 61850 NCC link initialization started,,,,,,,,,,,,,,,,"
+                     #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                     #ELSE #DO COM_LOG:CIN
+                  #BLOCK_END ; 6
+                  #EXEC_AFTER GEN_INFO:VSWITCH_OVER_DB_INIT_TIME COM_GENINT:C (@COM_APLCMD_PROTOCOL = 2,@COM_EXCLUSIVE_STA_NUMBER = %STA_NR, @SUB_PROTOCOL = 3)
+               #BLOCK_END
+               #ELSE #BLOCK
+                  #IF %ENABLE_LOGGING #THEN #BLOCK ; 6
+                     @INFO="'rt':'rm',NETINI_H,'STA_NR',,,IEC101/104 NCC link initialization started,,,,,,,,,,,,,,,,"
+                     #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                     #ELSE #DO COM_LOG:CIN
+                  #BLOCK_END ; 6
+                  ;after the time interval send end of initialization to the NCC
+                  @LOCAL_MANUAL_RESET = 1 ;value of COI byte when local manual reset
+                  #EXEC_AFTER GEN_INFO:VSWITCH_OVER_DB_INIT_TIME COM_IESEI:C (@COM_IEC_STA_NUMBER = %STA_NR,-
+                                                                                  @COI_VALUE = %LOCAL_MANUAL_RESET)
+               #BLOCK_END                                                                              
+            #BLOCK_END ; 5
+            #WHEN 3 #BLOCK ;CPI interface 
+               #IF %ENABLE_LOGGING #THEN #BLOCK ; 6
+                  @INFO="'rt':'rm',NETINI_H,'STA_NR',,,MODBUS/CPI NCC link initialization started,,,,,,,,,,,,,,,,"
+                  #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                  #ELSE #DO COM_LOG:CIN
+               #BLOCK_END ; 6
+               ;in the case of partly upgraded application
+               #IF (LENGTH(%NCC_VECTOR) <= 6) #THEN @NCC_VECTOR(10) = 0
+
+               #CASE %NCC_VECTOR(10)
+                  ;standard CPI initialisation
+                  #WHEN 0 #BLOCK
+                     ;initialize database
+                     @T = RTU_ATIME(CLOCK)
+                     #LOOP_WITH BLK_NR = 0..255
+                        #LOOP_WITH BIT_NR = 0..15
+                           #SET STA'STA_NR':SID'BLK_NR'=(%T,'BIT_NR',0,1)
+                        #LOOP_END
+                     #LOOP_END
+                     #LOOP_WITH BLK_NR = 0..255
+                        #SET STA'STA_NR':SAV'BLK_NR'=(%T,0,7)
+                     #LOOP_END
+                     #LOOP_WITH BLK_NR = 0..255
+                        #SET STA'STA_NR':SDV'BLK_NR'=(%T,0,7)
+                     #LOOP_END                             
+                     #LOOP_WITH BLK_NR = 0..255
+                        #SET STA'STA_NR':SPC'BLK_NR'=(%T,66,0)
+                     #LOOP_END
+                     ;after the time interval return STA object's DI to 1 (database is considered as initialized)
+                     #EXEC_AFTER GEN_INFO:VSWITCH_OVER_DB_INIT_TIME COM_CPIDI:C (@COM_RP_STA_NUMBER = %STA_NR)
+                  #BLOCK_END
+                  ;cdc-II 
+                  #WHEN 1 #BLOCK
+                     ; S.A.: retrieve NCC names
+                     #IF FALSE == %cdc2_names_retrieved #THEN #BLOCK
+                        @cdc2_vec = vector( "", "" )
+                        #ERROR IGNORE
+                        @cdc2_vec(1) = STA'STA_NR':SNC(1)   
+                        @cdc2_vec(2) = STA'STA_NR':SNC(2)
+                        #ERROR CONTINUE
+                        #SET APL:BSV(%cdc2_index) = %cdc2_vec
+                        @cdc2_names_retrieved = TRUE
+                     #BLOCK_END
+                     ; end-of-mod S.A.
+                     #EXEC_AFTER GEN_INFO:VSWITCH_OVER_DB_INIT_TIME COM_GENINT:C (@COM_APLCMD_PROTOCOL = 3,@COM_EXCLUSIVE_STA_NUMBER = %STA_NR)
+                  #BLOCK_END
+                  ;Modbus
+                  #WHEN 2 #BLOCK
+                     ;initialize database
+                     @T = RTU_ATIME(CLOCK)
+                     #SET STA'STA_NR':SII=(%T,0,0) ; Init all binary points 
+                     #SET STA'STA_NR':SAI=(%T,0,0) ; Init all analog points
+                     ;write all cross-referenced values to modbus slave database after sys database is updated
+                     #EXEC_AFTER GEN_INFO:VSWITCH_OVER_DB_INIT_TIME COM_GENINT:C (@COM_APLCMD_PROTOCOL = 3,@COM_EXCLUSIVE_STA_NUMBER = %STA_NR)
+                  #BLOCK_END
+               #CASE_END
+            #BLOCK_END ; 5
+            #WHEN 4 #BLOCK ; DNP 3.0 slave protocol
+               #IF %ENABLE_LOGGING #THEN #BLOCK ; 6
+                  @INFO="'rt':'rm',NETINI_H,'STA_NR',,,DNP30 NCC link initialization started,,,,,,,,,,,,,,,,"
+                  #IF COM_LOG:CCS == 1 #THEN #DO COM_LOG:CCP
+                  #ELSE #DO COM_LOG:CIN
+               #BLOCK_END ; 6
+               ;after the time interval initialise NET database (make an internal GI)
+               #EXEC_AFTER GEN_INFO:VSWITCH_OVER_DB_INIT_TIME COM_GENINT:C (@COM_APLCMD_PROTOCOL = 4,@COM_EXCLUSIVE_STA_NUMBER = %STA_NR)
+            #BLOCK_END
+         #CASE_END
+         ;send group alarms if required
+         #IF %NCC_VECTOR(6) #THEN #EXEC_AFTER GEN_INFO:VSWITCH_OVER_DB_INIT_TIME COM_GRPSND:C (@COM_SEND_GRPAL_STA_NUMBER = %STA_NR) 
+      #BLOCK_END
+   #LOOP_END
+#BLOCK_END

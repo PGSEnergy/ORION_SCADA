@@ -1,0 +1,68 @@
+;Function: BPU_ADD_CAUSE_VALUES:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_add_cause_values.scl
+;Version: 1.0
+;Parameters: None
+;Return data: : Add cause values as list
+;Description: Returns the known add cause values (reasons for command failure)
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+
+#local l_add_cause
+
+;**************************************************************************************************
+;redirect command if application specific command procedure is found                               
+#local t_Redirect_Proc = "APLMOD5_BPU_ADD_CAUSE_VALUES"                                         
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  
+         @REDIRECTED = true                                                                        
+         i_ArgCnt = argument_count                                                                 
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                      
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" 
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        
+         #loop_end                                                                                 
+         #return 't_Redirect_Command' ;;;;;                                                        
+      #block_end                                                                                   
+   #block_end                                                                                      
+   #else #delete REDIRECTED:V                                                                      
+#block_end                                                                                         
+;**************************************************************************************************
+;MAIN START
+
+l_add_cause = list(-
+   UNKNOWN = 0,-;  // Command not successful due to Unknown causes
+   NOT_SUPPORTED = 1,-;  // Command not supported
+   BLOCKED_BY_SWITCHING_HIERARCHY = 2,-; // Not successful since one of the downstream Loc switches like in CSWI has the value TRUE
+   SELECT_FAILED = 3,-;   // Canceled due to an unsuccessful selection (select service)
+   INVALID_POSITION = 4,-;  // Control action is aborted due to invalid switch position (Pos in XCBR or XSWI)
+   POSITION_REACHED = 5,-;  // Switch is already in the intended position (Pos in XCBR or XSWI)
+   PARAMETER_CHANGE_IN_EXECUTION = 6,-;  // Control action is blocked due to running parameter change.
+   STEP_LIMIT = 7,-;  // Control action is blocked, because tap changer has reached the limit (EndPosR or EndPosL in YLTC).
+   BLOCKED_BY_MODE = 8,-;  // Control action is blocked, because the LN (CSWI or XCBR/XSWI)is in a mode (Mod) which doesn’t allow any switching.
+   BLOCKED_BY_PROCESS = 9,-;  //Control action is blocked due to some external event at process level that prevents a successful operation, for example blocking indication (EEHealth in XCBR or XSWI).
+   BLOCKED_BY_INTERLOCKING = 10,-;  // Control action is blocked due to interlocking of switching devices (in CILO attribute EnaOpn.stVal=”FALSE” or EnaCls.stVal=”FALSE”).
+   BLOCKED_BY_SYNCHROCHECK = 11,-;  // Control action with synchrocheck is aborted due to exceed of time limit and missing synchronism condition.
+   COMMAND_ALREADY_IN_EXECUTION = 12,-;  // Control, select or cancel service is rejected, because control action is already running.
+   BLOCKED_BY_HEALTH = 13,-;  // Control action is blocked due to some internal event that prevents asuccessful operation (Health).
+   ONE_OF_N_CONTROL = 14,-;  // Control action is blocked, because another control action in a domain (for example substation) is already running (in any XCBR or XSWI of that domain, the DPC.stSeld=”TRUE”).
+   ABORTION_BY_CANCEL = 15,-;  // Control action is aborted due to cancel service.
+   TIME_LIMIT_OVER = 16,-;  // Control action is terminated due to exceed of some time limit.
+   ABORTION_BY_TRIP = 17,-;  // Control action is aborted due to a trip (PTRC with ACT.general=”TRUE”).
+   OBJECT_NOT_SELECTED = 18,-;  // Control action is rejected, because control object was not selected
+   OBJECT_ALREADY_SELECTED = 19,-;  // Select action is not executed, because the addressed object is already selected
+   NO_ACCESS_AUTHORITY = 20,-;  // Control action is blocked due to lack of access authority
+   ENDED_WITH_OVERSHOOT = 21,-;  // Control action executed but the end position has overshoot
+   ABORTION_DUE_TO_DEVIATION = 22,-;  // Control action is aborted due to deviation between the command value and the measured value.
+   ABORTION_DUE_TO_COMMUNICATION_LOSS = 23,-;  // Control action is aborted due to the loss of connection with the client that issued the control.
+   BLOCKED_BY_COMMAND = 24,-; // Control action is blocked due to the data attribute CmdBlk.stVal is TRUE. // 
+   NONE = 25,-;  // Control action successfully executed
+   LOCKED_BY_OTHER_CLIENT = 26,-; // Another client has already reserved the object.
+   INCONSISTENT_PARAMETERS = 27);  // The parameters between successive control services are not consistent, for example the ctlNum of Select and Operate service are different.
+
+#return l_add_cause

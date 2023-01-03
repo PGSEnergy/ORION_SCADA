@@ -1,0 +1,31 @@
+#local v_files, v_libs = vector(), I, e_state, s, l_info 
+#local lib5_dir = fm_scil_directory("/lib5"), t_filter = "INIT_PACKAGE.SCL"
+
+;find all INIT_PACKAGE.scl
+v_files = fm_combine(lib5_dir, file_manager("LIST", lib5_dir, t_filter, "RECURSIVE"))
+
+#loop_with I = 1..length(v_files)
+	#if UPPER_CASE(FM_REPRESENT(fm_extract(fm_extract(v_files(I), "DIRECTORY"), "LAST"))) == "USE" #THEN #BLOCK
+		e_state = ERROR_STATE
+		#ERROR IGNORE
+		#IF SYS:BDM == 1 #THEN -
+			@trsh = CONSOLE_OUTPUT("Found INIT_PACKAGE: " + FM_SCIL_REPRESENT(v_files(I)), "D", "LIB5")
+		s = STATUS
+		l_info = do(read_text(v_files(I)), "GET_INFO")
+		s = STATUS
+		#if s <> 0 #then @trsh = CONSOLE_OUTPUT("INIT_PACKAGE (" + FM_SCIL_REPRESENT(v_files(I)) + ") Failed with status 's'", "W", "LIB5")
+		#ERROR 'e_state'
+		#IF S == 0 AND DATA_TYPE(l_info) == "LIST" #THEN #block
+			l_info = MERGE_ATTRIBUTES(l_info, -
+				LIST(base_path = FM_SCIL_REPRESENT(fm_extract(fm_extract(v_files(I),-
+				"DIRECTORY"), "DIRECTORY"))))
+
+			l_Info = MERGE_ATTRIBUTES(LIST(prepared = FALSE), l_info) ; If package defines prepared status it will be used
+			v_libs = APPEND(v_libs, l_info)
+		#block_end
+		#else @trsh = CONSOLE_OUTPUT("INIT_PACKAGE " + FM_SCIL_REPRESENT(v_files(I)) + " ignored.", "W", "LIB5")
+	#block_end
+#loop_end
+
+#return v_libs
+

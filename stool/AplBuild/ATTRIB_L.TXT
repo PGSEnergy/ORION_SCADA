@@ -1,0 +1,97 @@
+;************************************ ATTRIB_L.TXT ********************************************
+;************************************              ********************************************
+
+;Defines the limit properties of MicroScada Logging Profile object attributes (excluding read-only).
+
+;Logging Profile Object
+
+#local I_MIN_INTEGER = -2147483647,- ;min_integer + 1
+       I_MAX_INTEGER = max_integer,-
+       MIN_REAL = -1.7*(10**38),-
+       MAX_REAL = 1.7*10**38
+
+#CREATE ATTRIB_LLN:V = LIST(DATA_TYPE = "TEXT",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = max_object_name_length)
+
+#CREATE ATTRIB_LCM:V = LIST(DATA_TYPE = "TEXT",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_LPT:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "OBJECT",-
+         ALLOWED = vector("OBJECT","DATABASE","HISTORY"),-
+         MIN_LENGTH = length("OBJECT"),-
+         MAX_LENGTH = length("DATABASE"))
+
+#CREATE ATTRIB_LIU:V = LIST(DATA_TYPE = "INTEGER",-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1)
+
+@ATTRIB_LST_DB_HC = VECTOR(-
+         LIST(DATA_TYPE = "TEXT",-
+            MIN_LENGTH = 0,-
+            MAX_LENGTH = max_object_name_length),-
+         LIST(DATA_TYPE = "TEXT",-
+            MIN_LENGTH = 0,-
+            MAX_LENGTH = max_object_name_length))
+
+#CREATE ATTRIB_LDI:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "DEFAULT",-
+         ALLOWED = vector("DEFAULT","YES","NO"),-
+         MIN_LENGTH = length("NO"),-
+         MAX_LENGTH = length("DEFAULT"))
+
+#CREATE ATTRIB_LCA:V = LIST(DATA_TYPE = "REAL",-
+         DEFAULT_VALUE = 0.0,-
+         MIN_VALUE = MIN_REAL,-
+         MAX_VALUE = MAX_REAL)
+
+#CREATE ATTRIB_LDA:V = LIST(DATA_TYPE = "TEXT",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_LUS:V = LIST(DATA_TYPE = "TEXT",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 63)
+
+#CREATE ATTRIB_LPW:V = LIST(DATA_TYPE = "TEXT",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 63)
+
+#CREATE ATTRIB_LNP:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "LN + "":"" + dec(IX, 0)",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_LDP:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "TX",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_LEP:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "join(""."", IE)",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_LND:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "LN",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_LDD:V = LIST(DATA_TYPE = "TEXT",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_LED:V = LIST(DATA_TYPE = "TEXT",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_LHC:V = LIST(DATA_TYPE = "VECTOR",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 10,-
+         EDATA_TYPE = "TEXT",-
+         EMIN_LENGTH = 0,-
+         EMAX_LENGTH = 255)
+
+

@@ -1,0 +1,110 @@
+; Function: Return_Font(list(t_Level, t_Mon_Type, t_Mon_Size, t_Scope)), l
+; Parameters: Parameters are given in a list with following attributes:
+;              t_Scope        "M", "U"
+;              i_Font_Nr      Number of the font.
+;              t_Mon_Type     "VS_LOCAL", "VS_REMOTE", "X_REMOTE"
+;              t_Appl         Application name
+;              t_WS           The name of the workstation.     
+;              t_Mon_Size     "640x480","960x720","1280x960","1600x1200"
+; Description: Returns information about font defined in .v_Apl_Fonts and .l_Sys_Fonts which are read from font definition file.
+;              (e.g fonts.def) at the initialization of the tool. First the workstation specific font matching defined parameters is 
+;              looked (only if t_Mon_Type <> "VS_LOCAL"). If it is not found, application specific font is looked. If it is not found
+;              system specific font is looked. The function returns the font defined to be used for the scope in certain monitor type, 
+;              application and possible workstation. Information is returned in a list variable with following structure:
+;              list(-
+;                 l_Mapped_Font,    list containing information about the mapped font. i.e the font used to display the
+;                                   font defined in .v_Apl_fonts or .l_Sys_fonts in current monitor.
+;                 l_Defined_Font,   list containing the information about the font defined in .v_Apl_Fonts or .l_Sys_Fonts
+;                 t_Level,          For which level the font found is defined. "APPLICATION", "WORKSTATION", "SYSTEM"
+;              If no font definition is found, empty list is returned. 
+; ----------------------------------------------------------------------
+
+@l_Arg       = argument(1)
+@l_Font      = list()
+@l_Mapped_Font = list()
+@l_Defined_Font = list()
+
+@v_Face = vector()
+@t_Family = ""
+@t_Font   = ""
+@i_Size = 0
+@t_Level = ""
+@t_Comment = ""
+@t_Info = ""
+
+#error ignore
+
+#if l_Arg:vt_Ws <> "" #then #block
+   @t_Font = Gl_Ws_'l_Arg:vt_Scope'Fonts:v'l_Arg:vt_Scope''l_Arg:vi_Font_Nr'_'l_Arg:vt_Mon_Type'_'l_Arg:vt_Mon_Size'
+   @t_Comment = Gl_Ws_'l_Arg:vt_Scope'Fonts:v'l_Arg:vt_Scope''l_Arg:vi_Font_Nr'_'l_Arg:vt_Mon_Type'_'l_Arg:vt_Mon_Size'_COMMENT
+   @t_Info = Gl_Ws_'l_Arg:vt_Scope'Fonts:v'l_Arg:vt_Scope''l_Arg:vi_Font_Nr'_'l_Arg:vt_Mon_Type'_'l_Arg:vt_Mon_Size'_INFO
+#block_end
+
+#if %t_Font <> "" #then @t_Level = "WORKSTATION"
+#else_if l_Arg:vt_Appl <> "" #then #block
+   @t_Font = Gl_Apl_'l_Arg:vt_Scope'Fonts:v'l_Arg:vt_Scope''l_Arg:vi_Font_Nr'_'l_Arg:vt_Mon_Type'_'l_Arg:vt_Mon_Size'
+   @t_Comment = Gl_Apl_'l_Arg:vt_Scope'Fonts:v'l_Arg:vt_Scope''l_Arg:vi_Font_Nr'_'l_Arg:vt_Mon_Type'_'l_Arg:vt_Mon_Size'_COMMENT
+   @t_Info = Gl_Apl_'l_Arg:vt_Scope'Fonts:v'l_Arg:vt_Scope''l_Arg:vi_Font_Nr'_'l_Arg:vt_Mon_Type'_'l_Arg:vt_Mon_Size'_INFO
+   #if %t_Font <> "" #then @t_Level = "APPLICATION"
+#block_end
+
+#if %t_Level == "" #then #block
+   @t_Font = Gl_Sys_'l_Arg:vt_Scope'Fonts:v'l_Arg:vt_Scope''l_Arg:vi_Font_Nr'_'l_Arg:vt_Mon_Type'_'l_Arg:vt_Mon_Size'
+   
+   #if l_Arg:vt_Scope == "M" #then #block
+      @t_Comment = Gl_M_Font_Texts:v'l_Arg:vt_Scope''l_Arg:vi_Font_Nr'_COMMENT
+      @t_Info = Gl_M_Font_Texts:v'l_Arg:vt_Scope''l_Arg:vi_Font_Nr'_INFO
+   #block_end
+   
+   #else_if l_Arg:vt_Scope == "U" #then #block
+      @t_Comment = Gl_Sys_'l_Arg:vt_Scope'Fonts:v'l_Arg:vt_Scope''l_Arg:vi_Font_Nr'_'l_Arg:vt_Mon_Type'_'l_Arg:vt_Mon_Size'_COMMENT
+      @t_Info = Gl_Sys_'l_Arg:vt_Scope'Fonts:v'l_Arg:vt_Scope''l_Arg:vi_Font_Nr'_'l_Arg:vt_Mon_Type'_'l_Arg:vt_Mon_Size'_INFO
+   #block_end
+   
+   #if %t_Font <> "" #then @t_Level = "SYSTEM"
+#block_end
+
+#error stop
+
+@t_Font = edit(substr(%t_Font, 1, 0),"trim")
+
+#if %t_Font <> "" #then #block                   
+   #if l_Arg:vt_Mon_Type == "VS_LOCAL" #then #block
+      @v_Tmp=locate(%t_Font,",","all")
+      @i_Dots=length(%v_Tmp)
+      @t_Family=edit(substr(%t_Font, 1, (%v_Tmp(1)-1)), "trim")
+      
+      #if %i_Dots > 3 #then #block
+         @i_Face=%i_Dots-2
+         #loop_with J=1..%i_Face
+            @v_Face(%J)=substr(%t_Font,(%v_Tmp(%J)+1),(%v_Tmp(%J+1)-%v_Tmp(%J)-1))
+         #loop_end
+      #block_end
+      #else @v_Face(1)=substr(%t_Font, (%v_Tmp(1)+1),(%v_Tmp(2)-%v_Tmp(1)-1))
+      
+      @i_Size=dec_scan(substr(%t_Font, %v_Tmp(%i_Dots-1)+1,%v_Tmp(%i_Dots)-%v_Tmp(%i_Dots-1)-1))   ;size
+   
+      @l_Defined_Font = list(family=%t_Family,-
+                             face=%v_Face,-
+                             point_size=%i_Size,-
+                             t_Level = %t_Level)
+      
+      .font ("R", 1) : list(family = %t_Family, face = %v_Face, point_size = %i_Size)
+      @l_Mapped_Font = font("R", 1)
+      @l_Font = list(l_Mapped_Font = %l_Mapped_Font, l_Defined_Font = %l_Defined_Font,-
+                     t_Comment = %t_Comment, t_Info = %t_Info)
+   #block_end
+   
+   #else #block
+      #if length(%t_Font) > 1 #then #block
+         @l_Defined_Font = list(name = %t_Font, t_Level = %t_Level)
+         .font ("R",1) : %t_Font
+         @l_Mapped_Font = font("R", 1)
+         @l_Font = list(l_Mapped_Font = %l_Mapped_Font, l_Defined_Font = %l_Defined_Font,-
+                        t_Comment = %t_Comment, t_Info = %t_Info)
+      #block_end
+      #else @l_Font = list()
+   #block_end
+#block_end
+
+#return %l_Font

@@ -1,0 +1,49 @@
+;** Scaling, used for calculating scil-coordinates
+.GC 0 = DEFAULT_GC:
+@l_FONT = FONT_IN(0)
+
+#if l_Font:vHE > 25 or l_Font:vHE == 0 #then #block
+   #set l_Font:vHE = l_Font:vPS
+   #if l_Font:vHE > 25 or l_Font:vHE == 0 #then #set l_Font:vHE = 10
+#block_end
+
+@i_Scaling = 20/l_Font:vHE
+
+;** Monitor Size
+#case l_Font:VHE
+  #when 10 @t_Size = "640x480"
+  #when 15 @t_Size = "960x720"
+  #when 20 @t_Size = "1280x960"
+  #when 25 @t_Size = "1600x1200"
+  #otherwise @t_Size = "unknown"
+#case_end
+
+; *** Monitor type
+
+#if mon:bsd == "" #then @t_Mon_Type = "VS_LOCAL"
+#else @t_Mon_Type = mon:bdt + "_REMOTE"
+
+; *** Application name
+
+@i_Apl_Nr = mon:bap
+@t_Apl_Name = apl'i_Apl_Nr':bna
+
+; *** Workstation name
+
+#if mon:bsd == "" #then @t_Workstation = upper_case(sys:bnn) + %t_Local_Ws_Mark
+#else #block
+@i = locate(mon:bsd, ":")
+#if %i > 0 #then #block 
+@t_Workstation = substr(mon:bsd, 1, %i - 1)
+#if upper_case(%t_Workstation) == upper_case(sys:bnn) #then @t_Workstation = %t_Workstation + %t_Local_Ws_Mark
+#block_end
+#else @t_Workstation = ""
+#block_end
+
+@t_User = ""
+#error ignore
+@t_User = upper_case(edit(a_pass'video_nr':dcm,"trim"))
+#error stop
+
+#return list(i_Scaling = %i_Scaling, t_Mon_Size = %t_Size, t_Mon_Type = %t_Mon_Type, t_Workstation = %t_Workstation,-
+   t_Apl_Name = %t_Apl_Name, t_User = %t_User)

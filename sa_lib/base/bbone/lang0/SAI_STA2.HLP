@@ -1,0 +1,329 @@
+COMMON STATION OBJECTS
+
+1. Environmental requirements
+
+In order for the station to have full
+functionality, the following components need to
+be installed:
+
+SA-LIB
+
+It is also possible to configure the station to
+operate without the station local/remote-switch
+standard function. For further information, please
+refer to the help of the configurable attribute
+STATION_LR_IN_USE.
+
+2. Configurable attributes
+
+It is important to configure attributes in the order
+of appearance since setting one attribute may
+enable/disable and/or reset another attribute
+later.
+
+STATION_NAME
+
+A selector type of an editable combo box to
+select or enter the name of the substation. As a
+default the maximum length of the text is 9
+characters. The selection list shows up to ten
+latest entries.
+
+The configurable attribute is being read directly
+from the process object database, if there is any
+process object linked to the selected station
+standard function. Therefore, the configurable
+attribute within a standard function has only
+meaning when the process objects have not been
+created.
+
+This text will be used as a substation identifier of
+the common station objects on event list, alarm
+list, printout, database query, etc. It is very
+important that this text is similar to all objects
+within the same substation.
+
+P_OBJECT_LN
+
+The logical name of the database process objects.
+The maximum length of the text is 10 characters.
+Allowed characters are the letters A-Z, all
+digits and the underscore (_).
+
+The logical names of process objects have to be
+unique throughout the entire system, that is,
+different objects cannot have the same logical
+name. Therefore, it is very important to have a
+proper naming convention for the process object
+database.
+
+Certain naming convention is also required to speed
+up the opening time of the main dialogs. With the
+predefined naming convention it is possible to
+collect all station and bay related database
+objects without searching through the complete
+database. Therefore, it is advised to use the
+following naming convention:
+
+   - The first three characters identify the
+     substation
+   - The following four characters identify the bay
+   - The last three characters can be freely used to
+     identify the source of the signal i.e. device,
+     unit, etc.
+
+The following list is presented as an example of
+the proper naming convention within one bay. The
+station name is Green Bay and the bay name is HA12
+Downtown:
+
+   - GRB, station
+   - GRBHA12BAY, bay
+   - GRBHA12Q0, circuit breaker Q0
+   - GRBHA12Q1, truck Q1
+   - GRBHA12Q9, earth switch Q9
+   - GRBHA12CT, measurements/current transformer
+   - GRBHA12VT, measurements/voltage
+     transformer
+   - GRBHA12ALA, alarm indicator
+   - GRBHA12AR, auto-reclosing tag
+   - GRBHA12TRP, tripping tag
+   - GRBHA12R1, feeder terminal or protection
+     unit 1
+   - GRBHA12R2, feeder terminal or protection
+     unit 1
+   - GRBHA12LS1, line segment 1 of busbar
+     coloring
+   - GRBHA12LS2, line segment 2 of busbar
+     coloring
+   - GRBHA12LS3, line segment 3 of busbar
+     coloring
+   - GRBHA12LI, line indicator of busbar
+     coloring
+
+STATION_TYPE
+
+A selector type of a combo box to select the
+station type of the objects.
+
+The database process objects will be created for
+the station type defined here. The list of supported
+protocols is as follows:
+
+   - SPA
+   - ANSI
+   - LON
+   - RP570
+   - RP570 with FTABs
+   - IEC 870-5-101
+   - IEC 870-5-103
+   - ICCP
+   - DNP 3.0
+   - MODBUS RTU
+   - IEC 61850-8
+   - PROCOL
+
+CMD_PARAMETER
+
+A selector type of a combo box to select the
+command parameter for control method. This
+attribute has meaning only if IEC 870-5-101 or
+DNP 3.0 or ICCP protocol is selected, otherwise this
+attribute is being disabled. The supported control
+parameters are:
+
+  - Double command (TY = 46)
+  - Single command (TY = 45)
+
+for IEC 870-5-101 and ICCP protocol and
+
+  - Direct
+  - Direct-No ack.
+
+for DNP 3.0 protocol.
+
+OUTPUT_STATUS
+
+An ON/OFF type of a toggle button to select
+whether there is need for output status process
+objects with the DNP 3.0 protocol. If
+STATION_TYPE is other than DNP 3.0, the
+configurable attribute is being disabled, and the
+value has no meaning.
+
+AUTHORIZATION_GROUP
+
+A selector type of an editable combo box to
+select the authorization group for the object. The
+maximum length of the text is 63 characters. The
+given text has to be usable as a SCIL list
+attribute name (see SCIL manual). The contents
+of the selection list is taken from the existing
+authorization groups.
+
+NOTE! The name may not be composed of two
+letters followed by a number.
+
+The attribute needs to be defined, if the object is
+wanted to be included in some authorization group.
+The authorization level of each user in this group
+can be defined afterwards by the system manager with
+User Management pictures.
+
+STATION_LR_IN_USE
+
+An ON/OFF type of a toggle button to select if
+the station local/remote-switch is in use, i.e. a
+physical switch exists.
+
+As a default the station local/remote-switch is in
+use.
+
+If this selection is set to OFF, the control
+authority is given to everyone whose personal
+authorization level is high enough for the control
+actions. This is gained by setting the state (value)
+of the station local/remote-switch permanently
+out of use.
+
+The process object for station local/remote-switch
+is created regardless of the selection. If the
+station local/remote-switch is NOT in use, the
+process object should be left as it is created, i.e.
+switching state (SS) to manual and value (DB)
+as 3 (out of use).
+
+LR_REMOTELY_CONTROLLABLE
+
+An ON/OFF type of a toggle button to select if
+the station local/remote-switch can be
+controlled remotely by SCS/MicroSCADA.
+
+As a default the station local/remote-switch is
+defined as manually controllable only.
+
+It is typical that if there is a remote control for
+station local/remote- switch, shift between station
+and remote can be done remotely, whereas shift to or
+from local has to be performed locally. This
+can be achieved by setting the attribute SS
+(switching state) of the local command process
+object to OFF (0). By setting the SS-attribute
+to 0 will make relevant radio-button on dialog
+insensitive for selections.
+
+EVENT_RECORDING
+
+An ON/OFF type of a toggle button to select
+whether there is need for event recording process
+objects with the RP 570 protocol. If
+STATION_TYPE is other than RTU 2xx or RTU
+2xx/FTABs, the configurable attribute is being
+disabled, and the value has no meaning.
+
+With the RP 570 the time stamp from process device
+comes into the event recording process object. If no
+accurate time stamp is needed or available, or the
+device is emulating the RP 570 without an event
+recording possibility, do not set this attribute ON.
+
+3. Configurable attributes with Process Object
+Tool
+
+THE DATABASE OBJECTS WILL NOT BE
+CREATED UNTIL THE PROCESS OBJECT
+TOOL HAS BEEN USED TO CREATE THEM.
+
+Based on the configuration made with the Standard
+Configuration Tool, the Process Object Tool
+(POT) creates a set of process objects among those
+that are listed below.
+
+Station local/remote-switch state indication
+
+   - Obligatory
+   - The local/station/remote/out of use-switch is
+     used to determine whether the control to the
+     station objects is allowed from the panel,
+     from the substation control system, from the
+     network control system or station authority
+     checking is out of use.
+   - Index 10, DB
+
+Station local/remote-switch to the Local
+
+   - Obligatory if local/remote-switch is remotely
+     controllable
+   - Used for sending Local command to the
+     local/remote- switch to set the station
+     control to local (panel only).
+   - Index 11, BO
+
+Station local/remote-switch to the Station
+
+   - Obligatory if local/remote-switch is remotely
+     controllable
+   - Used for sending Station command to the
+     local/remote- switch to set the station
+     control to station (substation control
+     system).
+   - Index 12, BO
+
+Station local/remote-switch to the Remote
+
+   - Obligatory if local/remote-switch is remotely
+     controllable
+   - Used for sending Remote command to the
+     local/remote- switch to set the station
+     control to remote (network control system).
+   - Index 13, BO
+
+Station local/remote-switch to the Out of use
+
+   - Obligatory if local/remote-switch is remotely
+     controllable
+   - Used for sending the command Out of use to the
+     local/remote- switch to set the station
+     authority checking out of use. The position Out
+     of use can be used for special purposes.
+   - Index 14, BO
+
+Station blockings
+
+   - Optional
+   - The indication Station blockings is an
+     internal object which is meant for generating
+     events and printouts of the station blockings.
+   - Index 15, AI
+
+Station selected on monitor
+
+   - Optional
+   - Internal tag that shows if the station dialog
+     is being selected on different pictures and
+     monitors
+   - Index 16, AI
+
+Station local/remote-switch state indication
+
+   - Obligatory if the STATION_TYPE type is
+     SPACOM/SRIO (ANSI)
+   - Index 110, AI
+
+Event recording for Station L/R-switch with the
+RP 570 protocol
+
+   - Optional
+   - Receives an accurate time stamp from the
+     control unit
+   - Index 110
+
+Command termination indication for output signals
+with the IEC 870-5-101 and IEC 870-5-103
+protocols
+
+   - Optional
+   - Indicates whether the command was successful or
+     not
+   - Indexes 111, 112, 113, 114
+

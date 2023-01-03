@@ -1,0 +1,46 @@
+;************************************ ATTRIB_A.TXT ********************************************
+;************************************ SR 24.7.1996 ********************************************
+
+;Defines the limit properties of MicroScada Event Channel attributes (excluding read-only).
+
+
+#CREATE ATTRIB_ALN:V = LIST(DATA_TYPE = "TEXT",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = max_object_name_length)
+
+#CREATE ATTRIB_AON:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = max_object_name_length)
+
+#CREATE ATTRIB_AOT:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "C",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 1,-
+         SPECIAL_STRINGS = ("C","D","T"))
+
+#CREATE ATTRIB_ASN:V = LIST(DATA_TYPE = "VECTOR",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 10,-
+         EDATA_TYPE = "TEXT",-
+         EMIN_LENGTH = 0,-
+         EMAX_LENGTH = max_object_name_length)
+
+#CREATE ATTRIB_AST:V = LIST(DATA_TYPE = "VECTOR",-
+         DEFAULT_VALUE = "C",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 10,-
+         EDATA_TYPE = "TEXT",-
+         EMIN_LENGTH = 0,-
+         EMAX_LENGTH = 1,-
+         ESPECIAL_STRINGS = ("C","D","T"))
+
+#CREATE ATTRIB_ACM:V = LIST(DATA_TYPE = "TEXT",-
+         DEFAULT_VALUE = "",-
+         MIN_LENGTH = 0,-
+         MAX_LENGTH = 255)
+
+#CREATE ATTRIB_AZT:V = LIST(DATA_TYPE = "INTEGER",-
+         MIN_VALUE = 0,-
+         MAX_VALUE = 1000000000)

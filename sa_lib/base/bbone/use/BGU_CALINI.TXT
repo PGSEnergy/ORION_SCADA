@@ -1,0 +1,98 @@
+﻿;OBJECT       : BGU_CALINI.TXT
+;Copyright Hitachi Power Grids. All rights reserved.
+;
+;DESCRIPTION  : Create objects for the backbone calendar
+;-------------------------------------------------------------------------
+
+@appl_name_tmp=apl:bna
+@init_tcs=0
+@ini_file="PICT/CAL_1.INI"
+@par_dir="PICT/"
+@code_dir="SAGR_BBONE/"
+
+; read texts in
+@st = do(read_text("SAGR_LANG/BGU_OBJTXT.TXT"))
+
+#if application_object_count(0, "T", "A", "F", "", "LN==""BGU_CALTC1""") == 0 #then #block
+   #create bgu_caltc1:t = list(-
+      iu = 1,-
+      cm = BGU_OBJTXT:VT_CALTC1_COMMENT)
+   @init_tcs = 1
+#block_end
+
+#if application_object_count(0, "T", "A", "F", "", "LN==""BGU_CALTC2""") == 0 #then #block
+   #create bgu_caltc2:t=list(-
+      iu = 1,-
+      cm = BGU_OBJTXT:VT_CALTC2_COMMENT)
+   @init_tcs = 1
+#block_end
+
+#if application_object_count(0, "C", "A", "F", "", "LN==""BGU_CALEN""") == 0 #then #block
+   #create bgu_calen:c = list(-
+      iu               = 1,-
+      cm               = BGU_OBJTXT:VC_CALEN_COMMENT,-
+      in               = read_text(%code_dir+"bgu_calen.txt"))         ;should be bbone/
+   @stat=console_output(times +" 'appl_name_tmp' BGU_CALINI.TXT: BGU_CALEN:C created.")
+#block_end
+
+#if application_object_count(0, "C", "A", "F", "", "LN==""BGU_CALMP""") == 0 #then #block
+   #create bgu_calmp:c = list(-
+      iu               = 1,-
+      cm               = BGU_OBJTXT:VC_CALMP_COMMENT,-
+      in               = read_text(%code_dir+"bgu_calmp.txt"))
+   @stat=console_output(times +" 'appl_name_tmp' BGU_CALINI.TXT: BGU_CALMP:C created.")
+#block_end
+
+#if application_object_count(0, "C", "A", "F", "", "LN==""BGU_CALTC1""") == 0 #then #block
+   #create bgu_caltc1:c = list(-
+      iu               = 1,-
+      cm               = BGU_OBJTXT:VC_CALTC1_COMMENT,-
+      in               = read_text(%code_dir+"bgu_caltc.txt"),-
+      tc               = "bgu_caltc1")
+   @stat=console_output(times + " 'appl_name_tmp' BGU_CALINI.TXT: BGU_CALTC1:C created.")
+#block_end
+
+#if application_object_count(0, "C", "A", "F", "", "LN==""BGU_CALTC2""") == 0 #then #block
+   @proc_2_code=read_text(%code_dir+"bgu_caltc.txt")
+   @proc_2_code(20)="@other_set=1"
+
+   #create bgu_caltc2:c = list(-
+      iu               = 1,-
+      cm               = BGU_OBJTXT:VC_CALTC2_COMMENT,-
+      in               = %proc_2_code,-
+      tc               = "bgu_caltc2")
+   @stat=console_output(times+" 'appl_name_tmp' BGU_CALINI.TXT: BGU_CALTC2:C created.")
+#block_end
+
+;Copy data storage files:
+@SOURCE_FILES=vector(-
+   "CAL_1.INI",-
+   "CAL_PROC.DAT",-
+   "CALGEN.DAT",-
+   "PERIODS.DAT",-
+   "DAYTYPES.DAT")
+@SOURCE_DIR=%code_dir+""
+@DEST_DIR=%par_dir
+
+
+;Copy run-time setting files to application-specific directory:
+#loop_with i_tmp=1..length(%source_files)
+   ;Test if file exists already:
+   @st=status
+   #error ignore
+   @i_tst=read_text(%dest_dir+%source_files(%i_tmp))
+   @st=status
+   #error stop
+   #if %st<>0 #then #block
+      ;If status is <> 0, the file doesn't exist:
+      @code_txt=read_text(%source_dir+%source_files(%i_tmp))
+      @st=write_text(%dest_dir+%source_files(%i_tmp),%code_txt)
+   #block_end
+#loop_end
+
+;Initialize time channels if they were just created:
+#if %init_tcs==1 #then #block
+   @st=do(bgu_caltc1:c,1)
+   @st=write_parameter(%ini_file,"General","period_file_valid","0")
+   @st=do(bgu_calmp:c)
+#block_end

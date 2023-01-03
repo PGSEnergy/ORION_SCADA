@@ -1,0 +1,219 @@
+﻿;argument: VECTOR(LIST(LN="",IX = 'ix', COMMAND = 'action')))
+;if LN = "NAME_NOT_FOUND", the item address was not resolved -> SUCCESS = FALSE
+;if IX = 0 whole process object group is blocked/unblocked, othewise only the given index
+
+;Actions
+;  BLOCK_EVENTS, UNBLOCK_EVENTS
+;  BLOCK_ALARMS, UNBLOCK_ALARMS
+;  BLOCK_UPDATES, UNBLOCK_UPDATES
+;  BLOCK_CONTROLS, UNBLOCK_CONTROLS
+
+;returns vector(list(-
+;            value = 0,- ; Error code, 0 when success is true
+;            status_type = 0,- ; 0 = confirmation, 1 = termination (only 0 supported)
+;            success = TRUE | FALSE)))
+
+#argument v_Command
+
+#local -
+   i,-
+   j,-
+   t_LN,-
+   i_IX,-
+   v_Command_response = vector(),-
+   t_Command,-
+   v_Process_Objects,-
+   t_Attribute,-
+   i_Value,-
+   s,-
+   b_Success = true,-
+   v_Update_Objects = vector(),-
+   t_Filter,-
+   t_Filter_All,-
+   t_Filter_Input,-
+   t_Filter_Output,-
+   t_Trimmed_OI,-
+   t_OI,-
+   l_Add_Cause_Values,-
+   i_Response,-
+   l_CD,-
+   t_Authorization_Group,-
+   l_Temp_Group = "MV_CONTROL",-
+   t_Authorization_Group_Alarms = "ALARM_HANDLING",-
+   t_Authorization_Group_EVENTS = "EVENT_HANDLING",-
+   b_Authorized,-
+   i_Event_Value,-
+   t_Event_OI
+     
+l_Add_Cause_Values = do(BPU_ADD_CAUSE_VALUES:C)
+
+t_Filter_All = "IU > 0 AND SS > 0 AND RZ == 0"
+t_Filter_Input = "IU > 0 AND SS > 0 AND RZ == 0 AND (PT == 3 OR PT == 6 OR PT == 9 OR PT == 12 OR PT == 13)"
+t_Filter_Output = "IU > 0 AND SS > 0 AND RZ == 0 AND (PT == 5 OR PT == 7 OR PT == 11)"
+
+#loop_with i = 1 .. length(v_Command)
+   
+   #if v_Command(i).LN <> "NAME_NOT_FOUND" #then #block
+   
+      t_Command = v_Command(i).COMMAND
+      t_LN = v_Command(i).LN
+      i_IX = v_Command(i).IX
+      l_CD = 't_LN':PCD
+      
+      #if attribute_exists(l_CD, "AUTHORIZATION_GROUP") #then l_Temp_Group = l_CD.AUTHORIZATION_GROUP
+         
+      #case t_Command      
+         #when "BLOCK_EVENTS" #block
+            t_Attribute = "HB"
+            i_Value = 1
+            t_Filter = t_Filter_All
+            t_Authorization_Group = "EVENT_HANDLING"
+            i_Event_Value = 7
+         #block_end         
+         #when "UNBLOCK_EVENTS" #block
+            t_Attribute = "HB"
+            i_Value = 0
+            t_Filter = t_Filter_All
+            t_Authorization_Group = "EVENT_HANDLING"
+            i_Event_Value = 6
+         #block_end         
+         #when "BLOCK_ALARMS" #block
+            t_Attribute = "AB"
+            i_Value = 1
+            t_Filter = t_Filter_All
+            t_Authorization_Group = "ALARM_HANDLING"
+            i_Event_Value = 5
+         #block_end         
+         #when "UNBLOCK_ALARMS" #block
+            t_Attribute = "AB"
+            i_Value = 0
+            t_Filter = t_Filter_All
+            t_Authorization_Group = "ALARM_HANDLING"
+            i_Event_Value = 4
+         #block_end         
+         #when "BLOCK_UPDATES" #block
+            t_Attribute = "UB"
+            i_Value = 1
+            t_Filter = t_Filter_Input
+            t_Authorization_Group = l_Temp_Group
+            i_Event_Value = 1
+         #block_end                
+         #when "UNBLOCK_UPDATES" #block
+            t_Attribute = "UB"
+            i_Value = 0
+            t_Filter = t_Filter_Input
+            t_Authorization_Group = l_Temp_Group
+            i_Event_Value = 0
+         #block_end         
+         #when "BLOCK_CONTROLS" #block
+            t_Attribute = "UB"
+            i_Value = 1
+            t_Filter = t_Filter_Output
+            t_Authorization_Group = l_Temp_Group
+            i_Event_Value = 3
+         #block_end       
+         #when "UNBLOCK_CONTROLS" #block
+            t_Attribute = "UB"
+            i_Value = 0
+            t_Filter = t_Filter_Output
+            t_Authorization_Group = l_Temp_Group
+            i_Event_Value = 2
+         #block_end         
+         #otherwise #block
+            #return append(v_Command_Response, list(-
+               value = l_Add_Cause_Values.NOT_SUPPORTED,-
+               status_type = 0,- ; 0 = confirmation, 1 = termination (only 0 supported)
+               success = FALSE))
+         #block_end   
+      #case_end
+      
+      b_Authorized = do(bpu_user_authorized:c, l_CD, 1, t_Authorization_Group)
+      
+      #if b_Authorized #then #block
+         t_Trimmed_OI = do(bpu_trim_oi_for_query:c, l_CD)    
+         #if i_IX == 0 #then #block
+            #if application_object_exists(0, "IX", list(LN = t_LN, IX = 10)) #then #block               
+               #if substr('t_LN':PRX10, 23, 4) == "ASTA" or substr('t_LN':PRX10, 23, 4) == "ABAY" #then #block
+                  #if substr('t_LN':PRX10, 23, 4) == "ASTA" #then t_OI = t_Trimmed_OI.station_name_trimmed
+                  #else_if substr('t_LN':PRX10, 23, 4) == "ABAY" #then t_OI = t_Trimmed_OI.bay_name_trimmed
+                  v_Process_Objects = application_object_list(0, "IX",  "OI", "", "'t_OI'*", t_Filter, vector("HE"))
+               #block_end
+               #else v_Process_Objects = application_object_list(0, "IX", "I", "F", t_LN, t_Filter, vector("HE"))
+            #block_end
+            #else -
+               v_Process_Objects = application_object_list(0, "IX", "I", "F", t_LN, t_Filter, vector("HE"))
+         #block_end
+         #else -
+            v_Process_Objects = list(LN = vector(t_LN), IX = vector(i_IX), COUNT = 1 , HE = vector('t_LN':PHE'i_IX'))
+         
+         b_Success = true
+         #loop_with j = 1 .. v_Process_Objects.COUNT    
+            t_LN = v_Process_Objects.LN(j)
+            i_IX = v_Process_Objects.IX(j)
+            #if j == 1 #then t_Event_OI = 't_LN':POI'i_IX'
+            #error ignore
+            s = status
+            #if v_Process_Objects.HE(j) <> 0 #then #set 't_LN':phe'i_IX' = 0
+            #set 't_LN':P't_Attribute''i_IX' = i_Value
+            #if v_Process_Objects.HE(j) <> 0 #then #set 't_LN':phe'i_IX' = 1
+            s = status
+            #if s <> 0 #then b_Success = false
+            #if v_Command(i).IX > 0 #then -
+               v_Command_Response = append(v_Command_Response, list(-
+                  value = l_Add_Cause_Values.UNKNOWN,-
+                  status_type = 0,- ; 0 = confirmation, 1 = termination (only 0 supported)
+                  success = (s == 0)))
+
+            #if t_Command == "UNBLOCK_UPDATES" and s == 0 #then #block
+               #if 't_LN':PSS'i_IX' > 1 and 't_LN':PUN'i_IX' > 0 #then -
+                  v_Update_Objects(length(v_Update_Objects) + 1) = list(ln = t_LN, ix = i_IX)
+               #else_if 't_LN':pos'i_IX' >= 2 #then #block
+                  ;simulated process        
+                  #if v_Process_Objects.HE(j) <> 0 #then #set 't_LN':phe'i_IX' = 0              
+                  #set 't_LN':pov'i_IX' = 't_LN':pov'i_IX'              
+                  #if v_Process_Objects.HE(j) <> 0 #then #set 't_LN':phe'i_IX' = 1
+               #block_end
+            #block_end
+         #loop_end
+         
+         ;generate event from bay blocking process object if it is found
+         ;to be changed when blocking from station/bay level are supported from WebUI
+         t_OI = t_Trimmed_OI.bay_name_trimmed
+         t_Filter = pad("%", 22) + "ABAYXBLK"
+         v_Process_Objects = application_object_list(0, "IX",  "OI", "", "'t_OI'*", "RX == ""'t_Filter'""")
+         #if v_Process_Objects.COUNT == 1 #then #block
+            t_LN = v_Process_Objects.LN(1)
+            i_IX = v_Process_Objects.IX(1)
+            #set 't_LN':POI'i_IX' = t_Event_OI
+            #set 't_LN':POX'i_IX' = translation("Blocking")
+            #set 't_LN':POV'i_IX' = i_Event_Value
+         #block_end
+
+         #if t_Command == "UNBLOCK_UPDATES" #then #exec bpu_update:c (@update_objects = v_Update_Objects)
+         
+         #if v_Command(i).IX == 0 #then #block
+            #if b_Success #then i_Response = l_Add_Cause_Values.NONE
+            #else i_Response = l_Add_Cause_Values.UNKNOWN
+            v_Command_Response = append(v_Command_Response, list(-
+                  value = i_Response,-
+                  status_type = 0,- ; 0 = confirmation, 1 = termination (only 0 supported)
+                  success = (b_Success)))        
+         #block_end
+      #block_end
+      #else #block
+         v_Command_Response = append(v_Command_Response, list(-
+            value = l_Add_Cause_Values.NO_ACCESS_AUTHORITY,- ; Simulate SubscriptionError "NAME_NOT_FOUND"
+            status_type = 0,- ; 0 = confirmation, 1 = termination (only 0 supported)
+            success = FALSE))
+      #block_end
+   #block_end
+   #else #block
+       v_Command_Response = append(v_Command_Response, list(-
+            value = l_Add_Cause_Values.NOT_SUPPORTED,- ; Simulate SubscriptionError "NAME_NOT_FOUND"
+            status_type = 0,- ; 0 = confirmation, 1 = termination (only 0 supported)
+            success = FALSE))
+   #block_end  
+
+#loop_end
+
+#return v_Command_Response

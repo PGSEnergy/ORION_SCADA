@@ -1,0 +1,772 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" zoomable="true" background="{colors[23]}" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="SAVersionInfo" content="2" />
+    <d:meta name="dv-custom-attribute|SATopologyModel" content="Strict" />
+    <d:meta name="dv-custom-attribute|DefaultScalingFactor" content="1" />
+    <d:meta name="dv-custom-attribute|SADisplayName" content="ORION_VCHZ" />
+    <d:meta name="dv-custom-attribute|SAVersionInfo" content="2" />
+    <d:use name="single-line-diagram" />
+    <d:role name="sld" />
+  </d:head>
+  <d:body x1="-316.980" y1="-233.900" x2="312.400" y2="209.980">
+    <s:g />
+    <s:rect width="629.380" height="443.880" x="-316.980" y="-233.900" class="bounding-box" y:fill="none" y:fill-rule="evenodd" y:stroke="rgb(0, 0, 0)" y:stroke-dasharray="10,2" y:vector-effect="non-scaling-stroke" y:stroke-width="1" s:visibility="hidden" d:object-name="Bounding Box" />
+    <d:view name="04 - SA_Indication/4xLED_green.sd" s:transform="translate(-181.680,-134.400) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (+ 5 V)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1LED\1:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1LED\1?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="status-text" value="`\\APL\1\P\ST1BAY1LED\1:OX?default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1LED\1'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1LED\1:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1LED\1" />
+      <d:meta name="dv-variable-mapping|Status Text" content="\\APL\1\P\ST1BAY1LED\1:OX" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node4" />
+      <d:meta name="dv-custom-attribute|SAHighlight" content="1" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1LED\1" />
+      <d:meta name="dv-custom-attribute|SAObjectType" content="Bay" />
+    </d:view>
+    <d:view name="04 - SA_Indication/4xLED_green.sd" s:transform="translate(-181.980,-108.980) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (+ 24 V)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1LED\2:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1LED\2?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="status-text" value="`\\APL\1\P\ST1BAY1LED\2:OX?default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1LED\2'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1LED\2:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1LED\2" />
+      <d:meta name="dv-variable-mapping|Status Text" content="\\APL\1\P\ST1BAY1LED\2:OX" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node5" />
+      <d:meta name="dv-custom-attribute|SAHighlight" content="1" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1LED\2" />
+      <d:meta name="dv-custom-attribute|SAObjectType" content="Bay" />
+    </d:view>
+    <d:view name="04 - SA_Indication/4xLED_green.sd" s:transform="translate(-181.980,-83.820) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (ВЧ - ПРД)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1LED\3:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1LED\3?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="status-text" value="`\\APL\1\P\ST1BAY1LED\3:OX?default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1LED\3'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1LED\3:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1LED\3" />
+      <d:meta name="dv-variable-mapping|Status Text" content="\\APL\1\P\ST1BAY1LED\3:OX" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node6" />
+      <d:meta name="dv-custom-attribute|SAHighlight" content="1" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1LED\3" />
+      <d:meta name="dv-custom-attribute|SAObjectType" content="Bay" />
+    </d:view>
+    <d:view name="04 - SA_Indication/4xLED_green.sd" s:transform="translate(-182,-58.680) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (ВЧ - ПРМ)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1LED\4:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1LED\4?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="status-text" value="`\\APL\1\P\ST1BAY1LED\4:OX?default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1LED\4'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1LED\4:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1LED\4" />
+      <d:meta name="dv-variable-mapping|Status Text" content="\\APL\1\P\ST1BAY1LED\4:OX" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node7" />
+      <d:meta name="dv-custom-attribute|SAHighlight" content="1" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1LED\4" />
+      <d:meta name="dv-custom-attribute|SAObjectType" content="Bay" />
+    </d:view>
+    <d:view name="04 - SA_Indication/4xLED_orange.sd" s:transform="translate(-181.960,-34.120) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Автоконтроль)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1LED\5:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1LED\5?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="status-text" value="`\\APL\1\P\ST1BAY1LED\5:OX?default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1LED\5'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1LED\5:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1LED\5" />
+      <d:meta name="dv-variable-mapping|Status Text" content="\\APL\1\P\ST1BAY1LED\5:OX" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node8" />
+      <d:meta name="dv-custom-attribute|SAHighlight" content="1" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1LED\5" />
+      <d:meta name="dv-custom-attribute|SAObjectType" content="Bay" />
+    </d:view>
+    <d:view name="04 - SA_Indication/4xLED_green.sd" s:transform="translate(-182.280,-9) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Ввод ВЧЗ)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1LED\6:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1LED\6?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="status-text" value="`\\APL\1\P\ST1BAY1LED\6:OX?default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1LED\6'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1LED\6:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1LED\6" />
+      <d:meta name="dv-variable-mapping|Status Text" content="\\APL\1\P\ST1BAY1LED\6:OX" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node9" />
+      <d:meta name="dv-custom-attribute|SAHighlight" content="1" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1LED\6" />
+      <d:meta name="dv-custom-attribute|SAObjectType" content="Bay" />
+    </d:view>
+    <d:view name="04 - SA_Indication/4xLED_green.sd" s:transform="translate(-182.560,16.420) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Ввод РЗ)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1LED\7:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1LED\7?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="status-text" value="`\\APL\1\P\ST1BAY1LED\7:OX?default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1LED\7'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1LED\7:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1LED\7" />
+      <d:meta name="dv-variable-mapping|Status Text" content="\\APL\1\P\ST1BAY1LED\7:OX" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node10" />
+      <d:meta name="dv-custom-attribute|SAHighlight" content="1" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1LED\7" />
+      <d:meta name="dv-custom-attribute|SAObjectType" content="Bay" />
+    </d:view>
+    <d:view name="04 - SA_Indication/4xLED_green.sd" s:transform="translate(-182.860,42.760) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Ввод КА)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1LED\8:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1LED\8?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="status-text" value="`\\APL\1\P\ST1BAY1LED\8:OX?default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1LED\8'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1LED\8:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1LED\8" />
+      <d:meta name="dv-variable-mapping|Status Text" content="\\APL\1\P\ST1BAY1LED\8:OX" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node11" />
+      <d:meta name="dv-custom-attribute|SAHighlight" content="1" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1LED\8" />
+      <d:meta name="dv-custom-attribute|SAObjectType" content="Bay" />
+    </d:view>
+    <d:view name="04 - SA_Indication/4xLED_green.sd" s:transform="translate(-183.160,68.800) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Попередження)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1LED\9:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1LED\9?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="status-text" value="`\\APL\1\P\ST1BAY1LED\9:OX?default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1LED\9'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1LED\9:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1LED\9" />
+      <d:meta name="dv-variable-mapping|Status Text" content="\\APL\1\P\ST1BAY1LED\9:OX" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node12" />
+      <d:meta name="dv-custom-attribute|SAHighlight" content="1" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1LED\9" />
+      <d:meta name="dv-custom-attribute|SAObjectType" content="Bay" />
+    </d:view>
+    <d:view name="04 - SA_Indication/4xLED_red.sd" s:transform="translate(-183.460,93.620) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Аварія)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1LED\10:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1LED\10?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="status-text" value="`\\APL\1\P\ST1BAY1LED\10:OX?default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1LED\10'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1LED\10:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1LED\10" />
+      <d:meta name="dv-variable-mapping|Status Text" content="\\APL\1\P\ST1BAY1LED\10:OX" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node13" />
+      <d:meta name="dv-custom-attribute|SAHighlight" content="1" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1LED\10" />
+      <d:meta name="dv-custom-attribute|SAObjectType" content="Bay" />
+    </d:view>
+    <d:view name="04 - SA_Indication/4xLED_green.sd" s:transform="translate(-288.340,-134.520) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Маніпуляція)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1LED\11:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1LED\11?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="status-text" value="`\\APL\1\P\ST1BAY1LED\11:OX?default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1LED\11'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1LED\11:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1LED\11" />
+      <d:meta name="dv-variable-mapping|Status Text" content="\\APL\1\P\ST1BAY1LED\11:OX" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node14" />
+      <d:meta name="dv-custom-attribute|SAHighlight" content="1" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1LED\11" />
+      <d:meta name="dv-custom-attribute|SAObjectType" content="Bay" />
+    </d:view>
+    <d:view name="04 - SA_Indication/4xLED_green.sd" s:transform="translate(-288.340,-110.120) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Остановка)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1LED\12:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1LED\12?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="status-text" value="`\\APL\1\P\ST1BAY1LED\12:OX?default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1LED\12'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1LED\12:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1LED\12" />
+      <d:meta name="dv-variable-mapping|Status Text" content="\\APL\1\P\ST1BAY1LED\12:OX" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node15" />
+      <d:meta name="dv-custom-attribute|SAHighlight" content="1" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1LED\12" />
+      <d:meta name="dv-custom-attribute|SAObjectType" content="Bay" />
+    </d:view>
+    <d:view name="04 - SA_Indication/4xLED_green.sd" s:transform="translate(-288.340,-86.420) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Пуск ПРД)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1LED\13:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1LED\13?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="status-text" value="`\\APL\1\P\ST1BAY1LED\13:OX?default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1LED\13'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1LED\13:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1LED\13" />
+      <d:meta name="dv-variable-mapping|Status Text" content="\\APL\1\P\ST1BAY1LED\13:OX" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node16" />
+      <d:meta name="dv-custom-attribute|SAHighlight" content="1" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1LED\13" />
+      <d:meta name="dv-custom-attribute|SAObjectType" content="Bay" />
+    </d:view>
+    <d:view name="04 - SA_Indication/4xLED_green.sd" s:transform="translate(-288.340,-62.700) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Пуск РЗ)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1LED\14:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1LED\14?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="status-text" value="`\\APL\1\P\ST1BAY1LED\14:OX?default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1LED\14'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1LED\14:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1LED\14" />
+      <d:meta name="dv-variable-mapping|Status Text" content="\\APL\1\P\ST1BAY1LED\14:OX" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node17" />
+      <d:meta name="dv-custom-attribute|SAHighlight" content="1" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1LED\14" />
+      <d:meta name="dv-custom-attribute|SAObjectType" content="Bay" />
+    </d:view>
+    <d:view name="04 - SA_Indication/4xLED_green.sd" s:transform="translate(-288.360,-39) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Пуск ВЧЗ)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1LED\15:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1LED\15?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="status-text" value="`\\APL\1\P\ST1BAY1LED\15:OX?default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1LED\15'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1LED\15:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1LED\15" />
+      <d:meta name="dv-variable-mapping|Status Text" content="\\APL\1\P\ST1BAY1LED\15:OX" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node18" />
+      <d:meta name="dv-custom-attribute|SAHighlight" content="1" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1LED\15" />
+      <d:meta name="dv-custom-attribute|SAObjectType" content="Bay" />
+    </d:view>
+    <d:view name="04 - SA_Indication/4xLED_green.sd" s:transform="translate(-288.340,-15.280) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Спрацювало ВЧЗ)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1LED\16:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1LED\16?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="status-text" value="`\\APL\1\P\ST1BAY1LED\16:OX?default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1LED\16'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1LED\16:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1LED\16" />
+      <d:meta name="dv-variable-mapping|Status Text" content="\\APL\1\P\ST1BAY1LED\16:OX" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node19" />
+      <d:meta name="dv-custom-attribute|SAHighlight" content="1" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1LED\16" />
+      <d:meta name="dv-custom-attribute|SAObjectType" content="Bay" />
+    </d:view>
+    <d:view name="04 - SA_Indication/4xLED_green.sd" s:transform="translate(-288.340,8.420) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Спрацювало РЗ)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1LED\17:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1LED\17?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="status-text" value="`\\APL\1\P\ST1BAY1LED\17:OX?default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1LED\17'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1LED\17:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1LED\17" />
+      <d:meta name="dv-variable-mapping|Status Text" content="\\APL\1\P\ST1BAY1LED\17:OX" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node20" />
+      <d:meta name="dv-custom-attribute|SAHighlight" content="1" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1LED\17" />
+      <d:meta name="dv-custom-attribute|SAObjectType" content="Bay" />
+    </d:view>
+    <d:view name="04 - SA_Indication/4xLED_green.sd" s:transform="translate(-288.340,32.820) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Спрацювало КА)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1LED\18:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1LED\18?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="status-text" value="`\\APL\1\P\ST1BAY1LED\18:OX?default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1LED\18'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1LED\18:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1LED\18" />
+      <d:meta name="dv-variable-mapping|Status Text" content="\\APL\1\P\ST1BAY1LED\18:OX" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node21" />
+      <d:meta name="dv-custom-attribute|SAHighlight" content="1" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1LED\18" />
+      <d:meta name="dv-custom-attribute|SAObjectType" content="Bay" />
+    </d:view>
+    <d:view name="04 - SA_Indication/4xLED_green.sd" s:transform="translate(-288.340,61.400) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (УРОВ)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1LED\19:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1LED\19?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="status-text" value="`\\APL\1\P\ST1BAY1LED\19:OX?default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1LED\19'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1LED\19:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1LED\19" />
+      <d:meta name="dv-variable-mapping|Status Text" content="\\APL\1\P\ST1BAY1LED\19:OX" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node22" />
+      <d:meta name="dv-custom-attribute|SAHighlight" content="1" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1LED\19" />
+      <d:meta name="dv-custom-attribute|SAObjectType" content="Bay" />
+    </d:view>
+    <d:view name="04 - SA_Indication/4xLED_green.sd" s:transform="translate(-288.320,92.100) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Блокування ПРД)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1LED\20:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1LED\20?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="status-text" value="`\\APL\1\P\ST1BAY1LED\20:OX?default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1LED\20'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1LED\20:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1LED\20" />
+      <d:meta name="dv-variable-mapping|Status Text" content="\\APL\1\P\ST1BAY1LED\20:OX" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node23" />
+      <d:meta name="dv-custom-attribute|SAHighlight" content="1" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1LED\20" />
+      <d:meta name="dv-custom-attribute|SAObjectType" content="Bay" />
+    </d:view>
+    <s:rect width="618.360" height="432.940" x="-312.060" y="-227.960" s:pointer-events="visiblePainted" y:fill="none" y:fill-rule="evenodd" y:stroke="{colors[31]}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <s:rect width="36.940" height="218.240" x="-80.260" y="-134.500" s:pointer-events="visiblePainted" y:fill="none" y:fill-rule="evenodd" y:stroke="{colors[31]}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(-61.760,-115.680) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан дискретного входу 1)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1DI\1:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1DI\1?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1DI\1'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1DI\1:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1DI\1" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node24" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1DI\1" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(-61.760,-89.880) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан дискретного входу 2)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1DI\2:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1DI\2?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1DI\2'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1DI\2:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1DI\2" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node25" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1DI\2" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(-61.780,-64.780) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан дискретного входу 3)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1DI\3:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1DI\3?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1DI\3'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1DI\3:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1DI\3" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node26" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1DI\3" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(-61.760,-40.380) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан дискретного входу 4)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1DI\4:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1DI\4?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1DI\4'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1DI\4:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1DI\4" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node27" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1DI\4" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(-61.740,-14.580) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан дискретного входу 5)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1DI\5:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1DI\5?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1DI\5'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1DI\5:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1DI\5" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node28" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1DI\5" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(-61.760,11.220) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан дискретного входу 6)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1DI\6:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1DI\6?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1DI\6'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1DI\6:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1DI\6" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node29" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1DI\6" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(-61.780,36.320) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан дискретного входу 7)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1DI\7:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1DI\7?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1DI\7'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1DI\7:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1DI\7" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node30" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1DI\7" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(-61.120,61.400) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан дискретного входу 8)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1DI\8:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1DI\8?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1DI\8'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1DI\8:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1DI\8" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node31" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1DI\8" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(270.900,-190.320) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан виходу реле 1)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1DO\1:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1DO\1?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1DO\1'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1DO\1:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1DO\1" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node32" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1DO\1" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(270.860,-166.600) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан виходу реле 2)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1DO\2:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1DO\2?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1DO\2'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1DO\2:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1DO\2" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node33" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1DO\2" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(270.880,-142.900) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан виходу реле 3)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1DO\3:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1DO\3?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1DO\3'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1DO\3:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1DO\3" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node34" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1DO\3" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(270.880,-119.180) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан виходу реле 4)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1DO\4:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1DO\4?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1DO\4'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1DO\4:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1DO\4" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node35" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1DO\4" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(270.900,-95.480) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан виходу реле 5)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1DO\5:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1DO\5?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1DO\5'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1DO\5:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1DO\5" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node36" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1DO\5" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(270.880,-71.780) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан виходу реле 6)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1DO\6:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1DO\6?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1DO\6'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1DO\6:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1DO\6" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node37" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1DO\6" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(270.880,-47.380) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан виходу реле 7)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1DO\7:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1DO\7?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1DO\7'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1DO\7:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1DO\7" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node38" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1DO\7" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(270.900,-23.660) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан виходу реле 8)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1DO\8:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1DO\8?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1DO\8'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1DO\8:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1DO\8" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node39" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1DO\8" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(270.880,0.040) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан виходу реле 9)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1DO\9:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1DO\9?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1DO\9'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1DO\9:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1DO\9" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node40" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1DO\9" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(270.880,23.740) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан виходу реле 10)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1DO\10:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1DO\10?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1DO\10'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1DO\10:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1DO\10" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node41" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1DO\10" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(270.900,47.440) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан виходу реле 11)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1DO\11:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1DO\11?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1DO\11'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1DO\11:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1DO\11" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node42" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1DO\11" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(270.880,71.160) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан виходу реле 12)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1DO\12:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1DO\12?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1DO\12'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1DO\12:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1DO\12" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node43" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1DO\12" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(270.880,94.860) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан виходу реле 13)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1DO\13:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1DO\13?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1DO\13'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1DO\13:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1DO\13" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node44" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1DO\13" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(270.900,118.580) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан виходу реле 14)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1DO\14:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1DO\14?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1DO\14'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1DO\14:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1DO\14" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node45" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1DO\14" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(270.900,142.280) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан виходу реле 15)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1DO\15:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1DO\15?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1DO\15'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1DO\15:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1DO\15" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node46" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1DO\15" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(270.880,166) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан виходу реле 16)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1DO\16:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1DO\16?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1DO\16'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1DO\16:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1DO\16" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node47" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1DO\16" />
+    </d:view>
+    <s:text font-family="Times New Roman" font-size="8.585" fill="{colors[30]}" x="-103.980" y="-140.800" text-anchor="start" dominant-baseline="ideographic" dx="0.859px" d:textScaleAdjustment="true" y:fill="{colors[30]}" y:fill-rule="evenodd">Стан дискретного входу</s:text>
+    <s:rect width="43.220" height="395.340" x="248.560" y="-209.820" s:pointer-events="visiblePainted" y:fill="none" y:fill-rule="evenodd" y:stroke="{colors[31]}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <s:text font-family="Times New Roman" font-size="8.585" fill="{colors[30]}" x="250.660" y="-213.320" text-anchor="start" dominant-baseline="ideographic" dx="0.859px" d:textScaleAdjustment="true" y:fill="{colors[30]}" y:fill-rule="evenodd">Стан реле</s:text>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(49.080,-13.700) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан передачі команди 1)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1TX\1:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1TX\1?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1TX\1'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1TX\1:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1TX\1" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node48" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1TX\1" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(49.080,12.100) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан передачі команди 2)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1TX\2:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1TX\2?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1TX\2'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1TX\2:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1TX\2" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node49" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1TX\2" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(49.100,37.900) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан передачі команди 3)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1TX\3:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1TX\3?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1TX\3'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1TX\3:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1TX\3" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node50" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1TX\3" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(49.100,63.700) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан передачі команди 4)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1TX\4:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1TX\4?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1TX\4'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1TX\4:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1TX\4" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node51" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1TX\4" />
+    </d:view>
+    <s:rect width="35.760" height="112.960" x="30.760" y="-32.520" s:pointer-events="visiblePainted" y:fill="none" y:fill-rule="evenodd" y:stroke="{colors[31]}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <s:text font-family="Times New Roman" font-size="8.585" fill="{colors[30]}" x="5.980" y="-38.960" text-anchor="start" dominant-baseline="ideographic" dx="0.859px" d:textScaleAdjustment="true" y:fill="{colors[30]}" y:fill-rule="evenodd">Стан передачі команд</s:text>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(152.820,-164.500) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан прийому команди 1)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1RX\1:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1RX\1?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1RX\1'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1RX\1:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1RX\1" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node52" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1RX\1" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(152.820,-138.720) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан прийому команди 2)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1RX\2:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1RX\2?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1RX\2'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1RX\2:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1RX\2" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node53" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1RX\2" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(152.840,-112.900) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан прийому команди 3)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1RX\3:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1RX\3?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1RX\3'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1RX\3:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1RX\3" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node54" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1RX\3" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(152.820,-86.920) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан прийому команди 4)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1RX\4:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1RX\4?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1RX\4'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1RX\4:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1RX\4" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node55" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1RX\4" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(152.800,-61.320) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан прийому команди 5)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1RX\5:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1RX\5?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1RX\5'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1RX\5:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1RX\5" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node56" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1RX\5" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(152.820,-35.500) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан прийому команди 6)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1RX\6:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1RX\6?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1RX\6'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1RX\6:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1RX\6" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node57" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1RX\6" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(152.800,-9.720) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан прийому команди 7)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1RX\7:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1RX\7?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1RX\7'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1RX\7:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1RX\7" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node58" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1RX\7" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(152.800,16.100) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан прийому команди 8)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1RX\8:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1RX\8?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1RX\8'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1RX\8:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1RX\8" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node59" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1RX\8" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(152.800,41.200) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан прийому команди 9)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1RX\9:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1RX\9?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1RX\9'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1RX\9:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1RX\9" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node60" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1RX\9" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(152.800,66.280) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан прийому команди 10)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1RX\10:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1RX\10?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1RX\10'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1RX\10:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1RX\10" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node61" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1RX\10" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(152.820,92.100) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан прийому команди 11)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1RX\11:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1RX\11?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1RX\11'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1RX\11:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1RX\11" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node62" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1RX\11" />
+    </d:view>
+    <d:view name="04 - SA_Indication/Alarm.sd" s:transform="translate(152.820,117.900) scale(1,1)" d:object-name="КЕПМ.ОРІОН.ВЧЗЛ (Стан прийому команди 12)">
+      <d:parameter name="subdrawing_color" value="colors[31]" />
+      <d:parameter name="control_action_enabled" value="`control_action_enabled`" />
+      <d:parameter name="state-signal" value="`\\APL\1\P\ST1BAY1RX\12:OV?default=29`" />
+      <d:parameter name="status-color" value="`\\APL\1\P\ST1BAY1RX\12?type=topology&amp;indices=0,0,0&amp;default=29`" />
+      <d:parameter name="control" value="'\\APL\1\P\ST1BAY1RX\12'" />
+      <d:meta name="dv-variable-mapping|State Signal" content="\\APL\1\P\ST1BAY1RX\12:OV" />
+      <d:meta name="dv-variable-mapping|Status Color" content="\\APL\1\P\ST1BAY1RX\12" />
+      <d:meta name="dv-custom-attribute|SAObjectName" content="Node63" />
+      <d:meta name="dv-custom-attribute|OPCItemID" content="\\APL\1\P\ST1BAY1RX\12" />
+    </d:view>
+    <s:rect width="36.960" height="317.260" x="133.280" y="-181.940" s:pointer-events="visiblePainted" y:fill="none" y:fill-rule="evenodd" y:stroke="{colors[31]}" y:vector-effect="non-scaling-stroke" y:stroke-width="1" />
+    <s:text font-family="Times New Roman" font-size="8.585" fill="{colors[30]}" x="110.300" y="-186.120" text-anchor="start" dominant-baseline="ideographic" dx="0.859px" d:textScaleAdjustment="true" y:fill="{colors[30]}" y:fill-rule="evenodd">Стан прийому команд</s:text>
+    <s:text font-weight="bold" font-style="italic" font-family="Times New Roman" font-size="14.767" fill="{colors[30]}" x="-70.100" y="-207.260" text-anchor="start" dominant-baseline="ideographic" dx="1.477px" d:textScaleAdjustment="true" y:fill="{colors[30]}" y:fill-rule="evenodd">ОРІОН  ВЧЗЛ</s:text>
+  </d:body>
+</d:document>

@@ -1,0 +1,555 @@
+;read object texts
+#DO READ_TEXT("SAGR_LANG/SAI_TRIP2.TXT")
+
+;collect information for object identifier (OI-attribute)
+@OBJ_IDENT
+#LOOP_WITH I = 1 .. %NR_OF_FIELDS
+  @FIELD_IDENT = %OBJECT_IDENTIFIER_'I'_NAME
+  @OBJ_IDENT=%OBJ_IDENT+SUBSTR('ID'_PICTURE_FUNCTION_CONF:V'FIELD_IDENT',1,%OI_LENGTH'I')
+#LOOP_END
+
+;collect information for RX-attribute
+@ADDITIONAL_IDENT= SUBSTR('ID'_PICTURE_FUNCTION_CONF:VFUNCTION_BLOCK,1,10)
+@UNIT_IDENT = SUBSTR('ID'_PICTURE_FUNCTION_CONF:VDATA_ACQUISITION_UNIT,1,10)
+
+;create needed scales, command procedures and event channels
+
+;define 1:1 scale for AI object if it does not exist
+@X_SEARCH=FETCH(0,"X","1_1")
+#IF X_SEARCH:VIU == -1 #THEN #BLOCK
+  #CREATE 1_1:X = LIST(SA = 0)
+#BLOCK_END
+
+
+#IF 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE == "IEC61850" #THEN #BLOCK
+      @v_LN_OPC_Instances = vector
+      @t_OPC_Prefix = ""
+      @v_PTOC_Instance(1) = ""
+      @v_PTOC_Instance(1) = 'ID'_PICTURE_FUNCTION_CONF:VOPC_LN_INSTANCES(1)
+      @t_OPC_Prefix = 'ID'_PICTURE_FUNCTION_CONF:VOPC_ITEM_PREFIX
+      #IF DATA_TYPE('ID'_PICTURE_FUNCTION_CONF:VDEFINE_ITEM_NAME) <> "NONE" #THEN - 
+         @b_Fill_IN = 'ID'_PICTURE_FUNCTION_CONF:VDEFINE_ITEM_NAME
+      #ELSE @b_Fill_IN = false
+#BLOCK_END
+@IN(1..10) = ""
+
+;initialize variables
+@DX
+@HE
+@PF
+@LD
+@P_OBJ01
+@P_OBJ02
+@P_OBJ03
+@P_OBJ04
+@P_OBJ05
+@P_OBJ06
+@P_OBJ07
+@P_OBJ08
+@P_OBJ09
+@P_OBJ10
+@P_OBJ11
+@P_OBJ12
+@P_OBJ13
+@P_OBJ14
+@P_OBJ15
+@P_OBJECTS = LIST()
+
+;input object for general tripping indication object
+#CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+  #WHEN "SPA" #BLOCK
+    @DX(1)    = "N7S"
+    @HE(1)    = 1                                        ;history enable = yes
+    @PF(1)    = "FORM5SAGR1"                             ;physical format for printout
+    @LD(1)    = BIT_MASK(1)                              ;listing device = 1
+  #BLOCK_END
+
+  #WHEN "LON","LONMARK" #BLOCK
+    @DX(1)    = "X7S"
+    @HE(1)    = 1                                        ;history enable = yes
+    @PF(1)    = "FORM5SAGR1"                             ;physical format for printout
+    @LD(1)    = BIT_MASK(1)                              ;listing device = 1
+  #BLOCK_END
+
+  #WHEN "IEC101","IEC103", "ICCP" #BLOCK
+    @DX(1)    = "C3"
+    @HE(1)    = 1                                        ;history enable = yes
+    @PF(1)    = "FORM5SAGR1"                             ;physical format for printout
+    @LD(1)    = BIT_MASK(1)                              ;listing device = 1
+  #BLOCK_END
+
+  #WHEN "ANSI" #BLOCK
+    @DX(1)    = "3"
+    @HE(1)    = 1                                        ;history enable = yes
+    @PF(1)    = "FORM5SAGR1"                             ;physical format for printout
+    @LD(1)    = BIT_MASK(1)                              ;listing device = 1
+  #BLOCK_END
+
+  #WHEN "RTU" #BLOCK
+    #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+      @DX(1)    ="I7S" 
+      @HE(1)    = 0                                      ;history enable = no
+      @PF(1)    = "DUMMY"                                ;physical format for printout
+      @LD(1)    = 0                                      ;listing device = none
+    #BLOCK_END
+
+    #ELSE #BLOCK
+      @DX(1)    ="I7S" 
+      @HE(1)    = 1                                      ;history enable = yes
+      @PF(1)    = "FORM5SAGR1"                           ;physical format for printout
+      @LD(1)    = BIT_MASK(1)                            ;listing device = 1
+    #BLOCK_END
+  #BLOCK_END
+
+  #WHEN "RTU_E" #BLOCK
+    #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+      @DX(1)    ="R7S"
+      @HE(1)    = 0                                      ;history enable = no
+      @PF(1)    = "DUMMY"                                ;physical format for printout
+      @LD(1)    = 0                                      ;listing device = none
+    #BLOCK_END
+
+    #ELSE #BLOCK
+      @DX(1)    ="R7S"
+      @HE(1)    = 1                                      ;history enable = yes
+      @PF(1)    = "FORM5SAGR1"                           ;physical format for printout
+      @LD(1)    = BIT_MASK(1)                            ;listing device = 1
+    #BLOCK_END
+  #BLOCK_END
+
+  #WHEN "DNP_30" #BLOCK
+    #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+      @DX(1)    ="D3" 
+      @HE(1)    = 0                                      ;history enable = yes
+      @PF(1)    = "DUMMY"                                ;physical format for printout
+      @LD(1)    = 0                                      ;listing device = 1
+    #BLOCK_END
+    #ELSE #BLOCK
+      @DX(1)    ="D3" 
+      @HE(1)    = 1                                      ;history enable = yes
+      @PF(1)    = "FORM5SAGR1"                           ;physical format for printout
+      @LD(1)    = BIT_MASK(1)                            ;listing device = 1
+    #BLOCK_END
+  #BLOCK_END
+
+  #WHEN "MODBUS_RTU" #BLOCK
+      @DX(1)    ="I7S" 
+      @HE(1)    = 1                                      ;history enable = yes
+      @PF(1)    = "FORM5SAGR1"                           ;physical format for printout
+      @LD(1)    = BIT_MASK(1)                            ;listing device = 1
+  #BLOCK_END
+
+  #WHEN "IEC61850" #BLOCK
+    @DX(1)    = "E7S"
+    @HE(1)    = 1                                        ;history enable = yes
+    @PF(1)    = "FORM5SAGR1"                             ;physical format for printout
+    @LD(1)    = BIT_MASK(1)                              ;listing device = 1
+  #BLOCK_END
+#CASE_END
+
+#IF 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE == "IEC61850" #THEN #BLOCK
+     @RX = SUBSTR(%RX,1,35) + "PTOC.Op.general"
+     #IF %b_Fill_IN #THEN @IN(1) = %t_OPC_Prefix + "." + %v_PTOC_Instance(1) + ".Op.general"
+     #ELSE @IN(1) = ""
+#BLOCK_END
+#ELSE @IN(1) = ""
+
+#MODIFY P_OBJECTS:V = LIST(P_OBJ01 = LIST(-
+          IX = 10,-                                      ;index = 10
+          PT = 3,-                                       ;process object type = BI
+          DX = %DX(1),-                                  ;directive text
+          BI = 0,-                                       ;object value = 0
+          OI = %OBJ_IDENT,-                              ;substation & bay name
+          OX = FPI_TRIP2:VTRIP_IND,-                     ;object text
+          IU = 1,-                                       ;in use = yes
+          SS = 2,-                                       ;switch state = auto
+          EE = 1,-                                       ;event enable = yes
+          HE = %HE(1),-                                  ;history enable
+          HA = 1,-                                       ;history activation = new value
+          HF = 0,-                                       ;history at first update = no
+          HL = BIT_MASK(15),-                            ;history log number = 15
+          RC = 1,-                                       ;receipt = acknowledgement required
+          AB = 0,-                                       ;alarm blocking = no
+          AC = 1,-                                       ;alarm class = 1
+          AG = 1,-                                       ;alarming value = 1
+          AD = 0,-                                       ;alarm delay = 0
+          PD = 0,-                                       ;picture device = none
+          PI = "",-                                      ;alarm picture
+          PF = %PF(1),-                                  ;physical format for printout
+          RI = 34,-                                      ;dynamic texts for printout
+          PA = 1,-                                       ;printout activation = new value
+          PU = 0,-                                       ;picture/ printout at first update = no
+          LD = %LD(1),-                                  ;listing device
+          IN = %IN(1),-
+          RX = %ADDITIONAL_IDENT+%UNIT_IDENT+"FPFTRPITRP")) ;data acquisition unit and group information
+
+;input object for trip relay latched indication object
+#CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+  #WHEN "SPA" #BLOCK
+    @DX(2)    = "N7S"
+    @HE(2)    = 0                                        ;history enable = no
+    @PF(2)    = "FORM5SAGR1"                             ;physical format for printout
+    @LD(2)    = BIT_MASK(1)                              ;listing device = 1
+  #BLOCK_END
+
+  #WHEN "LON","LONMARK" #BLOCK
+    @DX(2)    = "X7S"
+    @HE(2)    = 0                                        ;history enable = no
+    @PF(2)    = "FORM5SAGR1"                             ;physical format for printout
+    @LD(2)    = BIT_MASK(1)                              ;listing device = 1
+  #BLOCK_END
+
+  #WHEN "IEC101","IEC103", "ICCP" #BLOCK
+    @DX(2)    = "C3"
+    @HE(2)    = 0                                        ;history enable = no
+    @PF(2)    = "FORM5SAGR1"                             ;physical format for printout
+    @LD(2)    = BIT_MASK(1)                              ;listing device = 1
+  #BLOCK_END
+
+  #WHEN "ANSI" #BLOCK
+    @DX(2)    = "3"
+    @HE(2)    = 0                                        ;history enable = no
+    @PF(2)    = "FORM5SAGR1"                             ;physical format for printout
+    @LD(2)    = BIT_MASK(1)                              ;listing device = 1
+  #BLOCK_END
+
+  #WHEN "RTU" #BLOCK
+    #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+      @DX(2)    ="I7S" 
+      @HE(2)    = 0                                      ;history enable = no
+      @PF(2)    = "DUMMY"                                ;physical format for printout
+      @LD(2)    = 0                                      ;listing device = none
+    #BLOCK_END
+
+    #ELSE #BLOCK
+      @DX(2)    ="I7S" 
+      @HE(2)    = 1                                      ;history enable = yes
+      @PF(2)    = "FORM5SAGR1"                           ;physical format for printout
+      @LD(2)    = BIT_MASK(1)                            ;listing device = 1
+    #BLOCK_END
+  #BLOCK_END
+
+  #WHEN "RTU_E" #BLOCK
+    #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+      @DX(2)    ="R7S"
+      @HE(2)    = 0                                      ;history enable = no
+      @PF(2)    = "DUMMY"                                ;physical format for printout
+      @LD(2)    = 0                                      ;listing device = none
+    #BLOCK_END
+
+    #ELSE #BLOCK
+      @DX(2)    ="R7S"
+      @HE(2)    = 1                                      ;history enable = yes
+      @PF(2)    = "FORM5SAGR1"                           ;physical format for printout
+      @LD(2)    = BIT_MASK(1)                            ;listing device = 1
+    #BLOCK_END
+  #BLOCK_END
+
+  #WHEN "DNP_30" #BLOCK
+    #IF 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+      @DX(2)    ="D3" 
+      @HE(2)    = 0                                      ;history enable = yes
+      @PF(2)    = "DUMMY"                                ;physical format for printout
+      @LD(2)    = 0                                      ;listing device = 1
+    #BLOCK_END
+    #ELSE #BLOCK
+      @DX(2)    ="D3" 
+      @HE(2)    = 1                                      ;history enable = yes
+      @PF(2)    = "FORM5SAGR1"                           ;physical format for printout
+      @LD(2)    = BIT_MASK(1)                            ;listing device = 1
+    #BLOCK_END
+  #BLOCK_END
+
+  #WHEN "MODBUS_RTU" #BLOCK
+      @DX(2)    ="I7S" 
+      @HE(2)    = 1                                      ;history enable = yes
+      @PF(2)    = "FORM5SAGR1"                           ;physical format for printout
+      @LD(2)    = BIT_MASK(1)                            ;listing device = 1
+   #BLOCK_END
+
+   #WHEN "IEC61850" #BLOCK
+    @DX(2)    = "E7S"
+    @HE(2)    = 0                                        ;history enable = no
+    @PF(2)    = "FORM5SAGR1"                             ;physical format for printout
+    @LD(2)    = BIT_MASK(1)                              ;listing device = 1
+  #BLOCK_END
+#CASE_END
+
+#MODIFY P_OBJECTS:V = LIST(P_OBJ02 = LIST(-
+          IX = 11,-                                      ;index = 11
+          PT = 3,-                                       ;process object type = BI
+          DX = %DX(2),-                                  ;directive text
+          BI = 0,-                                       ;object value = 0
+          OI = %OBJ_IDENT,-                              ;substation & bay name
+          OX = FPI_TRIP2:VLATCH_IND,-                    ;object text
+          IU = 1,-                                       ;in use = yes
+          SS = 2,-                                       ;switch state = auto
+          EE = 1,-                                       ;event enable = yes
+          HE = %HE(2),-                                  ;history enable
+          HA = 1,-                                       ;history activation = new value
+          HF = 0,-                                       ;history at first update = no
+          HL = BIT_MASK(15),-                            ;history log number = 15
+          RC = 1,-                                       ;receipt = acknowledgement required
+          AB = 0,-                                       ;alarm blocking = no
+          AC = 1,-                                       ;alarm class = 1
+          AG = 1,-                                       ;alarming value = 1
+          AD = 0,-                                       ;alarm delay = 0
+          PD = 0,-                                       ;picture device = none
+          PI = "",-                                      ;alarm picture
+          PF = %PF(2),-                                  ;physical format for printout
+          RI = 35,-                                      ;dynamic texts for printout
+          PA = 1,-                                       ;printout activation = new value
+          PU = 0,-                                       ;picture/ printout at first update = no
+          LD = %LD(2),-                                  ;listing device
+          RX = %ADDITIONAL_IDENT+%UNIT_IDENT+"FPFTRPITRL")) ;data acquisition unit and group information
+
+;output object for general trip relay reset command
+#CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+  #WHEN "SPA" #BLOCK
+    @DX(3..8) ="N1"
+  #BLOCK_END
+
+  #WHEN "LON","LONMARK" #BLOCK
+    @DX(3..8) ="X1"
+  #BLOCK_END
+
+  #WHEN "IEC101","IEC103", "ICCP" #BLOCK
+    @DX(3..8) ="C5"
+  #BLOCK_END
+
+  #WHEN "ANSI" #BLOCK
+    @DX(3..8) ="5"
+  #BLOCK_END
+
+  #WHEN "RTU" #BLOCK
+    @DX(3..8) ="I1"
+  #BLOCK_END
+
+  #WHEN "RTU_E" #BLOCK
+    @DX(3..8) ="R1"
+  #BLOCK_END
+
+  #WHEN "DNP_30" #BLOCK
+    @DX(3..8) ="D5"
+    #IF 'ID'_PICTURE_FUNCTION_CONF:VOUTPUT_STATUS #THEN @DX(103..108)="D3T"
+  #BLOCK_END
+
+  #WHEN "MODBUS_RTU" #BLOCK
+    @DX(3..8) ="I1"
+  #BLOCK_END
+
+  #WHEN "IEC61850" #BLOCK
+    @DX(3..8) ="E1"
+  #BLOCK_END
+
+#CASE_END
+
+#LOOP_WITH I=3..8
+  @J = %I - 2
+  @P_OBJ0'I'_LIST = LIST(-
+          IX = 9+%I,-                                    ;index = 12 .. 17
+          PT = 5,-                                       ;process object type = BO
+          DX = %DX('I'),-                                ;directive text
+          OI = %OBJ_IDENT,-                              ;substation & bay name
+          OX = FPI_TRIP2:VRESET_CMD,-                    ;object text
+          CX = FPI_TRIP2:VRESET_COMMENT'J',-             ;comment text
+          IU = 1,-                                       ;in use = yes
+          SS = 2,-                                       ;switch state = auto
+          EE = 0,-                                       ;event enable = no
+          HE = 1,-                                       ;history enable = yes
+          HA = 2,-                                       ;history activation = update
+          HF = 1,-                                       ;history at first update = yes
+          HL = BIT_MASK(15),-                            ;history log number = 15
+          PF = "FORM5SAGR1",-                            ;physical format for printout
+          RI = 46,-                                      ;dynamic texts for printout
+          PA = 2,-                                       ;printout activation = update
+          PU = 1,-                                       ;picture/ printout at first update = yes
+          LD = 0,-                                       ;listing device = none
+          RX = %ADDITIONAL_IDENT+%UNIT_IDENT+"FPFTRPCTRL") ;data acquisition unit and group information
+
+  #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+    #WHEN "IEC101", "ICCP" #MODIFY P_OBJ0'I'_LIST:V = LIST(-
+          TY = 45)                                       ;type identification (ASDU) 45 = single command, 46 = double command
+    #WHEN "IEC103" #MODIFY P_OBJ0'I'_LIST:V = LIST(-
+          TY = 20)                                       ;type identification (ASDU) 20 = general command
+
+    #WHEN "DNP_30" #BLOCK 
+    	#IF 'ID'_PICTURE_FUNCTION_CONF:VOUTPUT_STATUS #THEN #BLOCK
+          @TMP_INDEX = %I + 100 
+	  @P_OBJ0'TMP_INDEX'_LIST = LIST(-
+          IX = 109+%I,-                          ;index = 112..117
+          PT = 3,-                               ;process object type = BO
+          DX = %DX(%I+100),-                     ;directive text
+          OI = %OBJ_IDENT,-                  	 ;substation & bay name
+          OX = FPI_TRIP2:VRESET_CMD,-            ;object text
+          IU = 1,-                               ;in use = yes
+          SS = 1,-                               ;switch state = manual
+          EE = 1,-                               ;event enable = yes
+          HE = 0,-                               ;history enable = no
+          HA = 2,-                               ;history activation = update
+          HF = 1,-                               ;history at first update = yes
+          HL = BIT_MASK(15),-                    ;history log number = 15
+          PF = "FORM5SAGR1",-                    ;physical format for printout
+          RI = 46,-                        	 ;dynamic texts for printout
+          PA = 2,-                               ;printout activation = update
+          PU = 1,-                               ;picture/ printout at first update = yes
+          LD = 0,-                               ;listing device = 0
+          RX = %ADDITIONAL_IDENT+%UNIT_IDENT+"FPFTRPCTRL") ;data acquisition unit and group information
+        #BLOCK_END
+     
+    #BLOCK_END										
+  #CASE_END
+#LOOP_END
+
+#IF 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE == "DNP_30" #THEN #BLOCK
+  #IF 'ID'_PICTURE_FUNCTION_CONF:VOUTPUT_STATUS #THEN #BLOCK
+	#MODIFY P_OBJECTS:V = LIST(P_OBJ0103=%P_OBJ0103_LIST)
+	#IF 'ID'_PICTURE_FUNCTION_CONF:VLINK_TRIP_TAG_TO_LN_1<>"" #THEN #MODIFY P_OBJECTS:V=LIST(P_OBJ0104=%P_OBJ0104_LIST)
+	#IF 'ID'_PICTURE_FUNCTION_CONF:VLINK_TRIP_TAG_TO_LN_2<>"" #THEN #MODIFY P_OBJECTS:V=LIST(P_OBJ0105=%P_OBJ0105_LIST)
+	#IF 'ID'_PICTURE_FUNCTION_CONF:VLINK_TRIP_TAG_TO_LN_3<>"" #THEN #MODIFY P_OBJECTS:V=LIST(P_OBJ0106=%P_OBJ0106_LIST)
+	#IF 'ID'_PICTURE_FUNCTION_CONF:VLINK_TRIP_TAG_TO_LN_4<>"" #THEN #MODIFY P_OBJECTS:V=LIST(P_OBJ0107=%P_OBJ0107_LIST)
+	#IF 'ID'_PICTURE_FUNCTION_CONF:VLINK_TRIP_TAG_TO_LN_5<>"" #THEN #MODIFY P_OBJECTS:V=LIST(P_OBJ0108=%P_OBJ0108_LIST)
+  #BLOCK_END
+#BLOCK_END
+
+#MODIFY P_OBJECTS:V=LIST(P_OBJ03=%P_OBJ03_LIST)
+#IF 'ID'_PICTURE_FUNCTION_CONF:VLINK_TRIP_TAG_TO_LN_1<>"" #THEN #MODIFY P_OBJECTS:V=LIST(P_OBJ04=%P_OBJ04_LIST)
+#IF 'ID'_PICTURE_FUNCTION_CONF:VLINK_TRIP_TAG_TO_LN_2<>"" #THEN #MODIFY P_OBJECTS:V=LIST(P_OBJ05=%P_OBJ05_LIST)
+#IF 'ID'_PICTURE_FUNCTION_CONF:VLINK_TRIP_TAG_TO_LN_3<>"" #THEN #MODIFY P_OBJECTS:V=LIST(P_OBJ06=%P_OBJ06_LIST)
+#IF 'ID'_PICTURE_FUNCTION_CONF:VLINK_TRIP_TAG_TO_LN_4<>"" #THEN #MODIFY P_OBJECTS:V=LIST(P_OBJ07=%P_OBJ07_LIST)
+#IF 'ID'_PICTURE_FUNCTION_CONF:VLINK_TRIP_TAG_TO_LN_5<>"" #THEN #MODIFY P_OBJECTS:V=LIST(P_OBJ08=%P_OBJ08_LIST)
+
+#IF ('ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE=="RTU" OR 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE=="RTU_E" OR 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE=="DNP_30") -
+AND 'ID'_PICTURE_FUNCTION_CONF:VEVENT_RECORDING #THEN #BLOCK
+  ;event recording object for general tripping indication
+  #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+    #WHEN "RTU" #BLOCK
+      @DX(9)    ="I10S"
+    #BLOCK_END
+
+    #WHEN "RTU_E" #BLOCK
+      @DX(9)    ="R10S"
+    #BLOCK_END
+
+   #WHEN "DNP_30" #BLOCK
+      @DX(9)    ="D3"
+    #BLOCK_END
+  #CASE_END
+  
+  #MODIFY P_OBJECTS:V = LIST(P_OBJ09 = LIST(-
+          IX = 110,-                                     ;index = 110
+          PT = 3,-                                       ;process object type = BI
+          DX = %DX(9),-                                  ;directive text
+          OI = %OBJ_IDENT,-                              ;substation & bay name
+          OX = FPI_TRIP2:VTRIP_IND,-                     ;object text
+          IU = 1,-                                       ;in use = yes
+          SS = 2,-                                       ;switch state = auto
+          EE = 1,-                                       ;event enable = yes
+          HE = 1,-                                       ;history enable = yes
+          HA = 2,-                                       ;history activation = update
+          HF = 1,-                                       ;history at first update = yes
+          HL = BIT_MASK(15),-                            ;history log number = 15
+          RC = 0,-                                       ;receipt = acknowledgement not required
+          AB = 0,-                                       ;alarm blocking = no
+          AC = 0,-                                       ;alarm class = 0
+          AG = 0,-                                       ;alarming value = 0
+          AD = 0,-                                       ;alarm delay = 0
+          PD = 0,-                                       ;picture device = none
+          PI = "",-                                      ;alarm picture
+          PF = "FORM5SAGR1",-                            ;physical format for printout
+          RI = 34,-                                      ;dynamic texts for printout
+          PA = 2,-                                       ;printout activation = update
+          PU = 1,-                                       ;picture/ printout at first update = yes
+          LD = BIT_MASK(1),-                             ;listing device = 1
+          RX = %ADDITIONAL_IDENT+%UNIT_IDENT+"FPFTRPETRP")) ;data acquisition unit and group information
+
+  ;event recording object for general trip relay latched indication
+  #CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+    #WHEN "RTU" #BLOCK
+      @DX(10)   ="I10S"
+    #BLOCK_END
+
+    #WHEN "RTU_E" #BLOCK
+      @DX(10)   ="R10S"
+    #BLOCK_END
+
+    #WHEN "DNP_30" #BLOCK
+      @DX(10)   ="D3"
+    #BLOCK_END
+  #CASE_END
+  
+  #MODIFY P_OBJECTS:V = LIST(P_OBJ10 = LIST(-
+          IX = 111,-                                     ;index = 111
+          PT = 3,-                                       ;process object type = BI
+          DX = %DX(10),-                                 ;directive text
+          OI = %OBJ_IDENT,-                              ;substation & bay name
+          OX = FPI_TRIP2:VLATCH_IND,-                    ;object text
+          IU = 1,-                                       ;in use = yes
+          SS = 2,-                                       ;switch state = auto
+          EE = 1,-                                       ;event enable = no
+          HE = 1,-                                       ;history enable = yes
+          HA = 2,-                                       ;history activation = update
+          HF = 1,-                                       ;history at first update = yes
+          HL = BIT_MASK(15),-                            ;history log number = 15
+          RC = 0,-                                       ;receipt = acknowledgement not required
+          AB = 0,-                                       ;alarm blocking = no
+          AC = 0,-                                       ;alarm class = 0
+          AG = 0,-                                       ;alarming value = 0
+          AD = 0,-                                       ;alarm delay = 0
+          PD = 0,-                                       ;picture device = none
+          PI = "",-                                      ;alarm picture
+          PF = "FORM5SAGR1",-                            ;physical format for printout
+          RI = 35,-                                      ;dynamic texts for printout
+          PA = 2,-                                       ;printout activation = update
+          PU = 1,-                                       ;picture/ printout at first update = yes
+          LD = BIT_MASK(1),-                             ;listing device = 1
+          RX = %ADDITIONAL_IDENT+%UNIT_IDENT+"FPFTRPETRL")) ;data acquisition unit and group information
+#BLOCK_END
+
+;command termination
+#IF 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE=="IEC101" OR 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE=="IEC103" #THEN #BLOCK
+  ;command termination for general trip relay reset command
+  #LOOP_WITH I=10..15
+    @J = %I - 9
+    @P_OBJ'I' = LIST (-
+            IX = 103+%I,-                                ;index = 112 .. 117
+            PT = 9,-                                     ;process object type = AI
+            DX = "C9E",-                                 ;directive text
+            OI = %OBJ_IDENT,-                            ;substation & bay name
+            OX = FPI_TRIP2:VRESET_CMD,-                  ;object text
+            CX = FPI_TRIP2:VRESET_COMMENT'J',-           ;comment text
+            IU = 1,-                                     ;in use = yes
+            SS = 2,-                                     ;switch state = auto
+            EE = 1,-                                     ;event enable = yes
+            HE = 1,-                                     ;history enable
+            HA = 2,-                                     ;history activation = update
+            HF = 1,-                                     ;history at first update = yes
+            HL = BIT_MASK(15),-                          ;history log number = 15
+            HI = 0,-                                     ;upper alarm limit = 0
+            HW = 0,-                                     ;upper warning limit = 0
+            LW = 0,-                                     ;lower warning limit = 0
+            LI = 0,-                                     ;lower alarm limit = 0
+            ST = "cmd status",-                          ;unit of value
+            SN = "1_1",-                                 ;scale name
+            SZ = 1,-                                     ;zone supervision = SCADA
+            RC = 0,-                                     ;receipt = acknowledgement not required
+            AB = 0,-                                     ;alarm blocking = no
+            AC = 0,-                                     ;alarm class = 0
+            AD = 0,-                                     ;alarm delay = 0
+            PD = 0,-                                     ;picture device = none
+            PI = "",-                                    ;alarm picture
+            PF = "FORM5SAGR1",-                          ;physical format for printout
+            RI = 10,-                                    ;dynamic texts for printout
+            PA = 2,-                                     ;printout activation = update
+            PU = 1,-                                     ;picture/ printout at first update = yes
+            LD = BIT_MASK(1),-                           ;listing device
+            RX = %ADDITIONAL_IDENT+%UNIT_IDENT+"FPFTRPTTRL") ;data acquisition unit and group information
+  #LOOP_END
+
+  #MODIFY P_OBJECTS:V=LIST(P_OBJ10=%P_OBJ10)
+  #IF 'ID'_PICTURE_FUNCTION_CONF:VLINK_TRIP_TAG_TO_LN_1<>"" #THEN #MODIFY P_OBJECTS:V=LIST(P_OBJ11=%P_OBJ11)
+  #IF 'ID'_PICTURE_FUNCTION_CONF:VLINK_TRIP_TAG_TO_LN_2<>"" #THEN #MODIFY P_OBJECTS:V=LIST(P_OBJ12=%P_OBJ12)
+  #IF 'ID'_PICTURE_FUNCTION_CONF:VLINK_TRIP_TAG_TO_LN_3<>"" #THEN #MODIFY P_OBJECTS:V=LIST(P_OBJ13=%P_OBJ13)
+  #IF 'ID'_PICTURE_FUNCTION_CONF:VLINK_TRIP_TAG_TO_LN_4<>"" #THEN #MODIFY P_OBJECTS:V=LIST(P_OBJ14=%P_OBJ14)
+  #IF 'ID'_PICTURE_FUNCTION_CONF:VLINK_TRIP_TAG_TO_LN_5<>"" #THEN #MODIFY P_OBJECTS:V=LIST(P_OBJ15=%P_OBJ15)
+#BLOCK_END

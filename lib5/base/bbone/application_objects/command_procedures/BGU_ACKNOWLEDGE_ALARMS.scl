@@ -1,0 +1,34 @@
+#local v_Args, ack_LN, ack_IX, l_return, v_itemResults, i_authLevel, l_Add_Cause_Values
+v_Args = argument(1)
+#if data_type(v_Args) == "VECTOR" and length(v_Args) == 2 #then #block
+   l_Add_Cause_Values = do(BPU_ADD_CAUSE_VALUES:C)
+   l_return = list(STATUS = 0, ERR_DESCRIPTION = "")
+   v_itemResults = vector()
+   #loop_with ack_i = 1 .. length(v_Args(1))
+      ack_LN = v_Args(1)(%ack_i)
+      ack_IX = v_Args(2)(%ack_i)
+      #if (ack_LN <> "") and (ack_IX > 0) and application_object_exists(0, "IX", list(ln="'ack_LN'", ix = ack_IX)) #then #block
+         i_authLevel = USM_Authorization_Level_for_Object("ALARM_HANDLING", "'ack_LN'", ack_IX)
+         #if i_authLevel >= 1 #then #block ;at least operator
+            #if 'ack_LN':PPT >= 100 #then #block
+               #set 'ack_LN':PAR = 1 ; free type process objects
+            #block_end
+            #else #block
+               #set 'ack_LN':PAR'ack_IX' = 1 ; usual process objects               
+            #block_end
+               v_itemResults = append(v_itemResults, LIST(STATUS = l_Add_Cause_Values.NONE, ERR_DESCRIPTION = ""))
+         #block_end
+         #else #block
+            v_itemResults = append(v_itemResults, LIST(STATUS = l_Add_Cause_Values.NO_ACCESS_AUTHORITY, ERR_DESCRIPTION = "Unauthorized"))
+         #block_end
+      #block_end                 
+      #else #block
+         v_itemResults = append(v_itemResults, LIST(STATUS = l_Add_Cause_Values.NO_ACCESS_AUTHORITY, ERR_DESCRIPTION = "Item does not exist"))      
+      #block_end
+   #loop_end
+   l_return = merge_attributes(l_return, list(RESULTS = v_itemResults))
+#block_end
+#else #block
+   l_return = list(STATUS = l_Add_Cause_Values.INCONSISTENT_PARAMETERS, ERR_DESCRIPTION = "Invalid parameter") ;General failure
+#block_end
+#return l_return

@@ -1,0 +1,20 @@
+
+#if length(path("b5_bbone")) == 0 #then #path b5_bbone +NO_CREATE, /LIB5/BASE/BBONE/USE
+
+;set text databases
+#do read_text("b5_bbone/bgu_set_text_db.scl")
+
+;create path definitions
+#do read_text("b5_bbone/bgu_create_path5.scl")
+
+;create mlib5_index.txt (this file is called from Installation Tool in Object Navigator)
+#do read_text("b5_bbone/bgu_create_mlib5_index.scl")
+
+;run lib module specific update files (upd*/upda*)
+#do read_text("b5_bbone/bgu_run_update_files.scl")
+
+;create printer definition
+#do read_text("b5_bbone/bgu_printer_definition.scl")
+
+;update SSS models
+#if application_object_exists(0, "C", "BPU_SSS_UPDATE_MODELS") #then #exec BPU_SSS_UPDATE_MODELS:C

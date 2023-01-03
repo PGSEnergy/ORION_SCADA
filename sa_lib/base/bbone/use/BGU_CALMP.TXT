@@ -1,0 +1,194 @@
+;Procedure:       BBONE/BGU_CALMP:C
+;Text file:       BGU_CALMP.TXT
+;Description:     Update period file (PICT/periods.dat)
+;Arguments:       None 
+;Return value:    List containin period information. 
+;                 List attributes:
+;                 ty=type of time period: 1=conventional period, 4=in-day period
+;                 tm=time, SCIL format
+;                 nm=name of period
+;                 ns=new state of period, 1=on 0=off
+;                 nv=name value 2** ([count of period name]-1)
+
+#local argCnt, tRedirectProc, tRedirectCommand, iArgLoop
+tRedirectProc="APLMOD_CALMP"
+#if APPLICATION_OBJECT_EXISTS(0,"C",tRedirectProc) AND -
+DATA_TYPE(%REDIRECTED)=="NONE" #then #block
+   #if 'tRedirectProc':CIU==1 #then #block
+      @REDIRECTED=TRUE
+      argCnt=ARGUMENT_COUNT
+      tRedirectCommand="DO('tRedirectProc':C"
+      #loop_with iArgLoop=1..argCnt
+         tRedirectCommand=tRedirectCommand+",argument('iArgLoop')"
+         #if iArgLoop==argCnt #then #block
+            tRedirectCommand=tRedirectCommand+")"
+         #block_end
+      #loop_end
+      #return 'tRedirectCommand'
+   #block_end
+#block_end
+
+   @par_dir="PICT"
+   @file_nm=%par_dir+"/periods.dat"
+   @data_y=vector()
+
+   @val_stat=read_parameter(%par_dir+"/cal_1.ini","General", "period_file_valid")
+   #if val_stat:vvalue=="1" #then #block
+      @v_temp=evaluate(read_text(%file_nm))
+      #return %v_temp
+   #block_end
+   @data_t=evaluate(read_text(%par_dir+"/daytypes.dat"))
+   @appending=0
+   @st=write_text(%file_nm, vector(""), %appending)
+   @appending=1
+   @curr_time=clock
+   @prev_time=0
+   @rt_found=FALSE
+
+   #create v_temp:v = list(ty=vector, tm=vector(),nm=vector,-
+   ns=vector(),nv=vector(),sv=vector(),pn="",pt=0)
+   #if val_stat:vvalue=="0" #then #block
+      @prev=""
+      @d_temp=""
+      @day_checked=0
+      #loop_with n_4=1978..2045
+        #error ignore
+        @data_y=evaluate(read_text(%par_dir+"/y"+dec(%n_4,4)+".dat"))
+        @st=status
+        #error stop
+        #if %st==0 #then #block
+        @to_sort=vector()
+        #loop_with n_5=1..length(%data_y)
+          @vtmp=%data_y(%n_5)
+          @to_sort(%n_5)=%vtmp(1)
+        #loop_end
+        @st=status
+        @sort_ind=sort(%to_sort)
+        @data_y=pick(%data_y, %sort_ind)
+            #loop_with n_2=1..length(%data_y)
+               @v_level_1=%data_y(%n_2)
+               @v_level_2=%v_level_1(2)
+               @day_and_month=separate(%v_level_1(1),".")
+               @srch_day=evaluate(%day_and_month(1))
+               @srch_month=evaluate(%day_and_month(2))
+               #case %v_level_1(2)
+                  #when 1  #block ;Period
+                     @srch_time=separate(%v_level_1(5),":")
+                     #if %v_level_1(3)==0 #then @mom_type=0
+                     #else @mom_type=1
+                     @srch_h=evaluate(%srch_time(1))
+                     @srch_min=evaluate(%srch_time(2))
+                     #set v_temp:vtm = append(v_temp:vtm,vector(pack_time(%n_4,%srch_month,%srch_day,-
+                     %srch_h,%srch_min,0)))
+                     #set v_temp:vnm = append(v_temp:vnm, %v_level_1(4))
+                     #set v_temp:vns = append(v_temp:vns, %mom_type)
+                     #set v_temp:vty = append(v_temp:vty, 1)
+                  #block_end
+                  #when 3 #block ;Procedure to be run --- This is not in use, procedures handled by bgu_caltc:c and :t
+                     @handmin=separate(%v_level_1(3),":")
+                     @p_h=evaluate(%handmin(1))
+                     @p_min=evaluate(%handmin(2))
+                     @p_time=pack_time(%n_4,%srch_month,%srch_day,%p_h,%p_min,0)
+                     #if %p_time-%curr_time>0 and doy(%p_time)==doy(%prev_time) and -
+                     year(%prev_time)==year(%p_time) and %rt_found==TRUE #then #block
+                        #if %p_time<%prev_time #then #block
+                           #set v_temp:vpn=%v_level_1(4)
+                           #set v_temp:vpt=%p_time
+                           @prev_time=%p_time
+                        #block_end
+                     #block_end
+                     #else #if %p_time-%curr_time>0 and %rt_found==FALSE #then #block
+                        #set v_temp:vpn=%v_level_1(4)
+                        #set v_temp:vpt=%p_time
+                        @prev_time=%p_time
+                        @rt_found=TRUE
+                     #block_end
+                  #block_end
+                  #when 5 #block ;Type assignment, search type settings from day type database
+                   #loop_with n_7=1..length(%data_t)
+                    @v_level_1=%data_t(%n_7)
+                    @v_level_2=%v_level_1(2)
+                    #case %v_level_1(2)
+                     #when 1  #block ;Period
+                        @srch_time=separate(%v_level_1(5),":")
+                        #if %v_level_1(3)==0 #then @mom_type=0
+                        #else @mom_type=1
+                        @srch_h=evaluate(%srch_time(1))
+                        @srch_min=evaluate(%srch_time(2))
+                        #set v_temp:vtm = append(v_temp:vtm,vector(pack_time(%n_4,%srch_month,%srch_day,-
+                        %srch_h,%srch_min,0)))
+                        #set v_temp:vnm = append(v_temp:vnm, %v_level_1(4))
+                        #set v_temp:vns = append(v_temp:vns, %mom_type)  
+                        #set v_temp:vty = append(v_temp:vty, 1)
+                     #block_end
+                     #when 3 #block ;Procedure to be run in type definition
+                        
+                     #block_end
+                    #case_end
+                   #loop_end
+                  #block_end
+               #case_end
+            #loop_end
+        #block_end
+      #loop_end
+
+   @appending=1
+#block_end
+
+;----------------
+;Make period name vector:
+      @prev=""
+      @d_temp=""
+      @v_temp_names=vector()
+      #loop_with n_1=1978..2045+1
+         #if %n_1<2046 #then #block
+            #error ignore
+            @data_y=evaluate(read_text(%par_dir+"/y"+dec(%n_1,4)+".dat"))
+            @st=status
+            #error stop
+         #block_end
+         #else #block 
+            @data_y=evaluate(read_text(%par_dir+"/daytypes.dat"))
+            @st=status
+         #block_end
+         #if %st==0 #then #block
+            ;@data_t=evaluate(read_text(%par_dir+"/daytypes.dat"))
+            #loop_with n_2=1..length(%data_y)
+               @v_level_1=%data_y(%n_2)
+               #case %v_level_1(2)
+                  #when 1  #block ;Period
+                     @d_temp=%v_level_1(4)
+                  #block_end
+                  #when 4 #block ;In-day period
+                     @d_temp=%v_level_1(3)
+                  #block_end
+                  #otherwise @d_temp=""
+               #case_end
+               #if %d_temp<>"" #then @v_temp_names=append(%v_temp_names,vector(%d_temp))
+            #loop_end
+         #block_end
+      #loop_end
+      ;Sort found period names:
+      @picked=sort(%v_temp_names)
+      @v_temp_names=pick(%v_temp_names, %picked)
+
+      @v_max=length(%v_temp_names)
+      #loop_with n_3=1..%v_max-1
+         #if %v_temp_names(%v_max-%n_3+1)==%v_temp_names(%v_max-%n_3) #then @v_temp_names=delete_element(%v_temp_names, %v_max-%n_3+1)
+      #loop_end
+      #set v_temp:vnv = %v_temp_names
+      #loop_with n_4=1..length(v_temp:vnv)
+         #set v_temp:vsv(%n_4)=2**%n_4
+      #loop_end
+      ;Sort whole the list:
+      @picked=sort(v_temp:vtm)
+      #set v_temp:vtm=pick(v_temp:vtm,%picked)  
+      #set v_temp:vnm=pick(v_temp:vnm,%picked)  
+      #set v_temp:vns=pick(v_temp:vns,%picked)  
+      #set v_temp:vty=pick(v_temp:vty,%picked)  
+      @st=write_text(%file_nm, dump(%v_temp))
+      @st=write_parameter(%par_dir+"/cal_1.ini","General","period_file_valid","1")
+      ;@stat=console_output(date+" "+tods+" BGU_CALMP:C executed successfully.")
+      #return %v_temp
+
+

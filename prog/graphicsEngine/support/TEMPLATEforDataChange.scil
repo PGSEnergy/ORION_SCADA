@@ -1,0 +1,15 @@
+; Script file template location
+; <drive>:\sc\prog\graphicsEngine\support\TEMPLATEforDataChange.scil
+; Template copied to <drive>:\sc\apl\<application>\PICT will be used
+; instead of the default template.
+
+; This script is executed when value of OPC item changes (DIRECTION=="READ")
+; or when data variable value changes (DIRECTION=="WRITE")
+; Variable %L_INPUT contains value, name and data type of OPC item, and direction.
+; Format of the variable %L_INPUT is:
+; LIST(ITEM=<Item ID of OPC item>,VALUE=<value of opc item>, -
+;     DATA_TYPE=<data type of OPC item>, DIRECTION=<"READ"|"WRITE">)
+
+; <Add your code here to modify %L_INPUT.VALUE>
+
+#RETURN %L_INPUT.VALUE

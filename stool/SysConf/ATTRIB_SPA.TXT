@@ -1,0 +1,48 @@
+
+#CREATE Lsg_ATTR_PO_Type:V = LIST(DATA_TYPE = "INTEGER",-
+ DEFAULT_VALUE = 1,-
+ SPECIAL_VALUES = (0,1,2,3,4,5),-
+ SPECIAL_STRINGS = ("Indication","Analog Input","Pulse Counter","Digital Setpoint","Analog Setpoint","Object Command"))
+
+#CREATE Lsg_ATTR_Channel1:V = LIST(DATA_TYPE = "INTEGER",-
+                                MIN_VALUE = 0,-
+                                MAX_VALUE = 999)
+
+#CREATE Lsg_ATTR_Channel2:V = LIST(DATA_TYPE = "INTEGER",-
+                                MIN_VALUE = 0,-
+                                MAX_VALUE = 999)
+
+#CREATE Lsg_ATTR_DataType:V = LIST(DATA_TYPE = "INTEGER",-
+ DEFAULT_VALUE = 1,-
+ SPECIAL_VALUES = ("I","O","S","V","M","C"),-
+ SPECIAL_STRINGS = ("(I) Input Data","(O) Output Data","(S) Setting Values","(V) Variables","(M) Memory Data","(C) Slave Status"))
+
+#CREATE Lsg_ATTR_DataNr1:V = LIST(DATA_TYPE = "INTEGER",-
+                                MIN_VALUE = 1,-
+                                MAX_VALUE = 65535)
+
+#CREATE Lsg_ATTR_DataNr2:V = LIST(DATA_TYPE = "INTEGER",-
+                                MIN_VALUE = 1,-
+                                MAX_VALUE = 65535)
+
+#CREATE Lsg_ATTR_ADDRESS:V = LIST(DATA_TYPE = "INTEGER",-
+                                  MIN_VALUE = 0,-
+                                  MAX_VALUE = 65535)
+
+#CREATE Lsg_ATTR_DataFormat:V = LIST(DATA_TYPE = "INTEGER",-
+ DEFAULT_VALUE = 1,-
+ SPECIAL_VALUES = (1,2,3,4),-
+ SPECIAL_STRINGS = ("Bits","Hexadecimal","Real","Long Integer"))
+
+#CREATE Lsg_ATTR_UpdateMethod:V = LIST(DATA_TYPE = "INTEGER",-
+ DEFAULT_VALUE = 1,-
+ SPECIAL_VALUES = (1,2,3,4,5),-
+ SPECIAL_STRINGS = ("Cyclical Polling","Event Update","Event Consume","Event Code Parsing","Event Code Par. Consume"))
+
+#CREATE Lsg_ATTR_BitTypeMask:V = LIST(DATA_TYPE = "INTEGER",-
+ SPECIAL_STRINGS = ("Single Indication","Double Indication"))
+
+#CREATE Lsg_ATTR_BitTransposeMask:V = LIST(DATA_TYPE = "INTEGER",-
+                                MIN_VALUE = 0,-
+                                MAX_VALUE = 65535)
+

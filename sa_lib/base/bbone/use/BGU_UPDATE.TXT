@@ -1,0 +1,132 @@
+; This command procedure is used as a updating service for medium voltage
+; It is used for updating process
+; objects after system start-up or after update blocking is removed.
+;
+; DO NOT EDIT!
+;
+; In: %UPDATE_OBJECTS , list where logical names are attributes and the 
+;                       value of each attribute is a vector of index(es)
+;                       Example:
+;                           @UPDATE_OBJECTS=LIST(-
+;                                      MY_OBJECT1 = VECTOR(25),-
+;                                      MY_OBJECT2 = (26,27,31))
+;--------------------------------------------------------------------------
+;initialize
+#ERROR CONTINUE
+@UPDATE_OBJECT_NAMES
+@TMP_LN
+@TMP_IXS
+@TMP_IX
+@TMP_UN_DONE=VECTOR()
+@TMP_TIMEOUT_ORIGINAL=TIMEOUT(1000)
+@GI_IEC61650_DONE = FALSE
+
+;get list of logical names
+@UPDATE_OBJECT_NAMES = LIST_ATTR(%UPDATE_OBJECTS)
+
+#LOOP_WITH I= 1..LENGTH(%UPDATE_OBJECT_NAMES)
+
+   #IF SUBSTR(%UPDATE_OBJECT_NAMES(%I),1,3) == "SSS" AND LENGTH(%UPDATE_OBJECT_NAMES(%I)) > 3 #THEN #BLOCK
+      @TMP_LN = SUBSTR(%UPDATE_OBJECT_NAMES('I'),4,0)
+      @TMP_IXS = UPDATE_OBJECTS:VSSS'TMP_LN'
+   #BLOCK_END
+   #ELSE #BLOCK
+      @TMP_LN = %UPDATE_OBJECT_NAMES('I')
+      @TMP_IXS = UPDATE_OBJECTS:V'TMP_LN'
+   #BLOCK_END
+
+   #LOOP_WITH J= 1..LENGTH(%TMP_IXS)
+      @TMP_IX = %TMP_IXS('J')
+      @TMP_UN = 'TMP_LN':PUN'TMP_IX'
+
+      #IF %TMP_UN <> 0 AND -
+         LENGTH(SELECT(%TMP_UN_DONE,"=='TMP_UN'")) ==0 AND -
+         ('TMP_LN':PSS'TMP_IX'==2 OR-
+          'TMP_LN':PSS'TMP_IX'==3) #THEN #BLOCK
+         ;case for each station type
+         #CASE 'TMP_LN':PDX'TMP_IX'
+
+            ;rtu
+            #WHEN "R6","R9","R7S","R7D","R8",-
+                  "I6","I9","I7S","I7D","I8" #BLOCK
+               @TMP_TIMEOUT=TIMEOUT(5000)
+               ;resolve station type   
+               @STA_TYPE = UPPER_CASE(STA'TMP_UN':BST)
+               ;update objects
+               #IF %STA_TYPE == "PLC" #THEN #SET STA'TMP_UN':SGD=1 ;modbus
+               #ELSE #SET STA'TMP_UN':SSC=1 ;rtu
+               @TMP_UN_DONE = APPEND(%TMP_UN_DONE,%TMP_UN)
+            #BLOCK_END
+
+            ;ansi
+            #WHEN "9","6","3","12","13","14" #BLOCK
+               @TMP_TIMEOUT=TIMEOUT(5000)
+               ;update objects
+               #GET 'TMP_LN':P'TMP_IX'
+            #BLOCK_END
+
+            ;spa
+            #WHEN "N6","N9","N7S","N7D","N8" #BLOCK
+               @TMP_TIMEOUT=TIMEOUT(3000)
+               ;update objects
+               #SET STA'TMP_UN':SUP=1
+               @TMP_UN_DONE = APPEND(%TMP_UN_DONE,%TMP_UN)
+            #BLOCK_END
+
+           ;IEC61850
+            #WHEN "E6","E9","E7S","E7D","E8" #BLOCK
+               #IF NOT %GI_IEC61650_DONE #THEN #BLOCK
+                  #IF DATA_TYPE(%GI_OBJECTS) <> "NONE" #THEN #BLOCK
+                     #LOOP_WITH K = 1 .. LENGTH(%GI_OBJECTS)
+                        #ERROR CONTINUE
+                        @TMP_GI_OBJECT = %GI_OBJECTS(%K)
+                        #SET 'TMP_GI_OBJECT' = 1
+                     #LOOP_END
+                     #PAUSE 0.5
+                     @GI_IEC61650_DONE = TRUE
+                  #BLOCK_END
+               #BLOCK_END
+               @TMP_TIMEOUT=TIMEOUT(3000)
+               ;update objects
+               #SET STA'TMP_UN':SUP=1
+               @TMP_UN_DONE = APPEND(%TMP_UN_DONE,%TMP_UN)
+            #BLOCK_END
+ 
+            ;lon
+            #WHEN "X6","X9","X7S","X7D","X8" #BLOCK
+               @TMP_TIMEOUT=TIMEOUT(3000)
+               ;update objects
+               #SET STA'TMP_UN':SGI=1
+               @TMP_UN_DONE = APPEND(%TMP_UN_DONE,%TMP_UN)
+            #BLOCK_END
+
+            ;iec 870-5-101, 870-5-103 and ICCP
+            #WHEN "C3","C6","C9","C12","C13","C14" #BLOCK
+               @TMP_TIMEOUT=TIMEOUT(3000)
+               ;update objects
+               #SET STA'TMP_UN':SGI=1
+               @TMP_UN_DONE = APPEND(%TMP_UN_DONE,%TMP_UN)
+            #BLOCK_END
+
+            ;DNP 3.0
+            #WHEN "D3","D6","D9","D12","D13","D14" #BLOCK
+               @TMP_TIMEOUT=TIMEOUT(3000)
+               ;update objects
+               #SET STA'TMP_UN':SGI=1
+               @TMP_UN_DONE = APPEND(%TMP_UN_DONE,%TMP_UN)
+            #BLOCK_END
+
+            ;procol
+            #WHEN "O1","O2","O3","O4" #BLOCK
+               @TMP_TIMEOUT=TIMEOUT(5000)
+               ;update objects
+               #SET STA'TMP_UN':SSC=1
+               @TMP_UN_DONE = APPEND(%TMP_UN_DONE,%TMP_UN)
+            #BLOCK_END
+         #CASE_END
+      #BLOCK_END
+   #LOOP_END     
+#LOOP_END
+
+;return net timeout
+@TMP_RETURN_TIMEOUT=TIMEOUT(%TMP_TIMEOUT_ORIGINAL)

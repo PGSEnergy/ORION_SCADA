@@ -1,0 +1,63 @@
+; File: Docmd.scl(v_Do_Cmds)
+; Parameters: v_Do_Cmds, executable SCIL -program as text vector
+; Description: Executes passed SCIL -program.
+; --------------------------------------------------------------
+
+#argument   v_Do_Cmds
+
+#local   v_Create_Rows,-
+         v_Set_Rows,-
+         v_Other_Rows,-
+         v_Other_Lines,-
+         v_Other_Index,-
+         v_Interpreter_Rows,-
+         i,-
+         i_Start_Index,-
+         i_End_Index,-
+         v_Do_Cmd,-
+         i_Status,-
+         i_Do_Status
+         
+
+v_Create_Rows = select(upper_case(substr(v_Do_Cmds, 1, 7)), "==""#CREATE""")
+v_Set_Rows = select(upper_case(substr(v_Do_Cmds, 1, 4)), "==""#SET""")
+v_Other_Rows = select(upper_case(substr(v_Do_Cmds, 1, 5)), "<>""#SET "" and <>""#CREA""")
+v_Other_Rows = pick(v_Other_Rows, select(pick(substr(v_Do_Cmds, 7, 1), v_Other_Rows), "<>""="""))
+
+;;;; AAa 20.06.2006 Allow row when previous row ends with the continuation character "-"
+v_Other_Index = vector()
+#loop_with i = 1 .. length(v_Other_Rows)
+   #if v_Other_Rows(i) == 1 #then v_Other_Index = append(v_Other_Index, i)
+   #else_if substr(v_Do_Cmds(v_Other_Rows(i)-1), length(v_Do_Cmds(v_Other_Rows(i)-1)), 1) <> "-" #then #block
+      v_Other_Index = append(v_Other_Index, i)
+   #block_end
+#loop_end
+v_Other_Rows = pick(v_Other_Rows, v_Other_Index)
+;;;;;
+
+v_Interpreter_Rows = append(v_Create_Rows, append(v_Set_Rows, v_Other_Rows))
+v_Interpreter_Rows = pick(v_Interpreter_Rows, sort(v_Interpreter_Rows))
+
+#loop_with i = 1 .. length(v_Interpreter_Rows)
+
+   i_Start_Index = v_Interpreter_Rows(i)
+
+   #if i < length(v_Interpreter_Rows) #then #block
+
+      #if find_element(v_Other_Rows, i) > 0 #then i_End_Index = i_Start_Index
+      #else i_End_Index = v_Interpreter_Rows(i + 1) - 1
+
+   #block_end
+   #else i_End_Index = length(v_Do_Cmds)
+
+   v_Do_Cmd = v_Do_Cmds(i_Start_Index .. i_End_Index)
+
+   i_Status = status
+   #error ignore
+      #do v_Do_Cmd
+   #error stop
+   i_Status = status
+
+   #if i_Status <> 0 #then i_Do_Status = do (read_text("sys_tool/msglog.scl"), "Configuration Error: (DoCmd.scl)", collect(v_Do_Cmd, "-"), i_Status)
+
+#loop_end

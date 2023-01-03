@@ -1,0 +1,143 @@
+;Function: BPU_GET_SUBSTITUTION:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_get_substitution.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute),   l_data (search_result9, i_IX
+;Return data:
+;Description: Prepares execute command for operation
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data, i_IX
+
+#local t_tmp, i, j, b_Single_Index, t_LN, t_Filter, v_tmp_DO, l_Objs, l_result
+#local tmp, v_data, v_IN, t_LD, t_logNode, t_DO, t_DA, tmp_IX, i_UN, s
+#local response, start, end, len, answer, tmpIX, tmpEH, vSX, vDataAttrs, t_Message
+#local vScilAttrs
+
+#if argument_count > 3 #then t_TMP = set_language(argument(4))
+#if argument_count > 4 #then b_Single_Index = argument(5)
+#else b_Single_Index = false
+
+t_LN = l_object_info.p_object_ln
+#if b_Single_Index #then #block
+   t_Filter = "IX == 'i_IX'"
+#block_end
+#else t_Filter = "IX > 0"
+v_tmp_DO = vector()
+
+l_Objs = application_object_list(0, "IX", "I", "", t_LN, "'t_Filter' AND UN <> 0 AND SS == 2 AND OS < 10 AND OS <> 2 AND IN<>"""" AND (PT==3 OR PT==9 OR PT==12)", vector("IN", "PT", "TX", "SB", "OV", "EH"))
+
+l_result = list(status = 0, signals = vector, message = "")
+#if l_Objs.COUNT > 0 #then #block
+   
+   #loop_with i = 1 .. l_Objs.COUNT     
+      v_data = vector
+      v_IN = separate(l_Objs.IN(i), ".")
+      t_LD = v_IN(3)
+      t_logNode = v_IN(4)
+      t_DO = v_IN(5)
+      #if length(v_IN) > 6 #then t_DA = v_IN(6) + "$subEna"
+      #else t_DA = "subEna"
+      
+      #if length(select(v_tmp_DO, "==""'t_logNode''t_DO'""")) == 0 #then #block              
+         tmp_IX = l_Objs.IX(i)
+         i_UN = 't_LN':PUN'tmp_IX'
+         #if length(v_IN) == 6 #then v_tmp_DO = append(v_tmp_DO, t_logNode + t_DO)
+         s = status
+         #error ignore
+         #SET STA'i_UN':SXT = "GetDataValue&result=noname&LDInst='t_LD'&LNName='t_logNode'&DORef='t_DO'&Attr='t_DA'&FunConstr=SV"
+         #error stop
+         s = status
+         #if s == 0 #then #block
+            response = STA'i_UN':SXT  
+            start = locate(response , "<v>")
+            end = locate(response , "</v>")
+            
+            #if start > 0 and end > 0 #then #block
+               start = start + 3                   
+               len = end - start
+               answer = substr(response, start, len)
+
+               tmpIX = l_Objs.IX(i)
+               tmpEH = 't_LN':PEH'tmpIX'
+               vSX = 'tmpEH':HSX
+      
+               l_result.signals = append(l_result.signals, list(-
+                  LOGICAL_DEVICE = t_LD,-
+                  LOGICAL_NODE = t_logNode,-
+                  DATA_OBJECT = t_DO,-
+                  DATA_ATTRIBUTE = t_DA,-
+                  SUBSTITUTED = l_Objs.SB(i),-
+                  OBJECT_TYPE = l_Objs.PT(i),-
+                  OBJECT_VALUE = l_Objs.OV(i),-
+                  SIGNAL_TEXT = l_Objs.TX(i),-
+                  LOGICAL_NAME = l_Objs.LN(i),-
+                  OBJECT_INDEX = l_Objs.IX(i),-
+                  STATE_TEXTS = vSX,-
+                  MIN = 0,-
+                  MAX = 0,-
+                  SUBSITUTION_ENABLED = answer))                     
+            #block_end
+            #if locate('t_LN':PRX'tmp_IX', "MEAM") > 0 #then #block
+               vDataAttrs = ("rangeC$min", "rangeC$max")
+               vScilAttrs = ("MIN", "MAX")
+               #loop_with j = 1 .. length(vDataAttrs)
+                  #if length(v_IN) > 6 #then t_DA = v_IN(6) + "$" + vDataAttrs(j)
+                  #else t_DA = vDataAttrs(j)
+                  #error ignore
+                  s = status
+                  #SET STA'i_UN':SXT = "GetDataValue&result=noname&LDInst='t_LD'&LNName='t_logNode'&DORef='t_DO'&Attr='t_DA'&FunConstr=CF"
+                  s = status
+                  #if s == 0 #then #block
+                     response = STA'i_UN':SXT
+                     start = locate(response , "<v>", "ALL")
+                     end = locate(response , "</v>", "ALL")
+                     start = start(length(start)) + 3
+                     end = end(length(end))
+                     len = end - start
+                     answer = substr(response, start, len)
+                     tmp = vScilAttrs(j)
+                     l_result.signals(length(l_result.signals)).'tmp' = answer
+                  #block_end
+                  #else #block
+                     tmp = vScilAttrs(j)
+                     l_result.signals(length(l_result.signals)).'tmp' = 0
+                  #block_end
+               #loop_end                     
+            #block_end
+         #block_end  
+         #else #block
+            #case s
+               #when 8303 #block
+                  t_Message = translation("External OPC DA Client not responding")                 
+                  l_result = list(status = -1, signals = vector, message = t_Message)
+                  #loop_exit
+               #block_end
+               #when 13206 #block
+                  t_Message = translation("Index must be 0 in STA:SXT") + ": STA='i_Un'"                    
+                  l_result = list(status = -1, signals = vector, message = t_Message)
+                  #loop_exit
+               #block_end
+               #when 13208 #block
+                  t_Message = translation("STA:SXT not configured") + ": STA='i_Un'"                    
+                  l_result = list(status = -1, signals = vector, message = t_Message)
+                  #loop_exit
+               #block_end
+            #case_end
+         #block_end    
+      #block_end            
+   #loop_end
+#block_end
+#else #block
+   t_Message = translation("No signals having substitution capability found. ") +-
+      translation("Applying filter: ") +- 
+      "UN<>0 AND SS==2 AND OS<10 AND OS<>2 AND IN<>"""""
+   l_result = list(status = -1, signals = vector, message = t_Message)
+#block_end
+#if l_result.STATUS == 0 and length(l_result.SIGNALS) == 0 #then #block
+   t_Message = translation("No signals having substitution capability found.")
+   l_result = list(status = -1, signals = vector, message = t_Message)
+#block_end
+
+#return l_result

@@ -1,0 +1,317 @@
+; File: Create_B.scl(t_Object_Section)
+; Parameters: t_Object_Section, name of section e.g. "BASE_SYSTEM_LINK", "BASE_SYSTEM_NODE"
+; Description: Constructs a SCIL level clauses for base system objects configuration.
+; -----------------------------------------------------------------------------------------
+
+#argument t_Object_Section
+
+#local t_Object_Name,-
+       l_System_Configuration_Data = SYS:BSV(2),-
+       t_Lon_File = l_System_Configuration_Data.t_System_Configuration_File,-
+       v_Object_Attribute_Indices,-
+       v_Objects,-
+       i_Number,-
+       t_Attribute_Index,-
+       t_Attribute,-
+       t_Attribute_Value,-
+       t_CT_Value,-
+       t_Create_Clause,-
+       t_Previous_Line,-
+       i,i_1,i_2,-
+       l_Attribute_Value,-
+       i_Apl,-
+       i_Un,-
+       i_IS_Count,-
+       b_Dont_Create = FALSE,-
+       b_Host = FALSE,-
+       b_Both = FALSE,-
+       b_Image = FALSE,-
+       v_Proxy_Stations = vector(),-
+       i_Proxy,-
+       i_Primary,-
+       i_Secondary,-
+       v_Proxy_Sources = vector(),-
+       v_Found = vector(),-
+       v_Proxy_Found = vector(),-
+       l_Proxy = list(),-
+       i_Found,-
+       b_Keep_TT_None = FALSE,-
+       t_TT1,-
+       t_TT2,-
+       t_ST,-
+       i_CLOSED,-
+       i_FAULTY,-
+       i_MIDDLE,-
+       i_OPEN,-
+       v_Dump,-
+       t_Dump,-
+       t_PR,-
+       b_Keep_Last = FALSE,-
+       v_Create_Last = vector(),-
+       i_Begin,-
+       t_TT,-
+       i_Sta,-
+       v_Set_Last = vector(),-
+       v_Delete_Index = vector()
+       
+#case t_Object_Section
+
+   #when "BASE_SYSTEM_LINK" t_Object_Name = "lin"
+   #when "BASE_SYSTEM_NODE" t_Object_Name = "nod"
+   #when "BASE_SYSTEM_STATION" t_Object_Name = "sta"
+   #when "BASE_SYSTEM_STATION_TYPE" t_Object_Name = "sty"
+
+#case_end
+
+v_Object_Attribute_Indices = do (%Gv_SCT_Mgr__, "GetObjAttrs", t_Object_Section)
+#if t_Object_Section == "BASE_SYSTEM_STATION_TYPE" #then v_Object_Attribute_Indices = delete_element(v_Object_Attribute_Indices, select(v_Object_Attribute_Indices, "==""DB"" or ==""NA"""))
+v_Objects = do (%Gv_SCT_Mgr__, "GetObjNrs", t_Object_Section)
+#if length(v_Objects) > 0 #then #if v_Objects(1) == 0 #then v_Objects = delete_element(v_Objects,1)
+#if length(v_Objects) > 0 #then #if v_Objects(1) == 0 #then v_Objects = vector()
+
+;#if t_Object_Name == "nod" #then dbg
+
+v_Set_Last = vector()   ;PRIMARY and SECONDARY stations TT set after PROXY stations
+v_Delete_Index = vector()
+
+#loop_with i = 1 .. length(v_Objects)
+
+   i_Number = v_Objects(i)
+   b_Dont_Create = FALSE
+   b_Keep_TT_None = FALSE
+   b_Keep_Last = FALSE
+
+   #if t_Object_Section <> "BASE_SYSTEM_STATION_TYPE" #then #block
+
+      #if t_Object_Section == "BASE_SYSTEM_NODE" #then #block
+         #if nod'i_Number':bSA == 0 #then @v_Create_Block(length(%v_Create_Block) + 1) = "#create 't_Object_Name':v = list(-"
+      #block_end
+      #else @v_Create_Block(length(%v_Create_Block) + 1) = "#create 't_Object_Name':v = list(-"
+
+   #block_end
+
+   i_Begin = length(%v_Create_Block)
+   
+   
+   #loop_with i_1 = 1 .. length(v_Object_Attribute_Indices)
+
+      t_Attribute_Index = v_Object_Attribute_Indices(i_1)
+      t_Attribute_Value = do (%Gv_SCT_Mgr__, "GetAttr", t_Object_Section, i_Number, t_Attribute_Index, TRUE)
+      
+      ;Long attribute name "B_xx" handling, e.g. "B_AS" => "AS"
+      #if substr(t_Attribute_Index,1,2) == "B_" #then t_Attribute = substr(t_Attribute_Index,3,2)
+      #else t_Attribute = t_Attribute_Index
+      
+      #if data_type(t_Attribute_Value) == "VECTOR" #then #block
+      
+         #if t_Attribute_Index == "IS" #then #block
+         
+            i_IS_Count = 0
+            
+            #loop_with i_2 = 1 .. length(t_Attribute_Value)
+
+               l_Attribute_Value = t_Attribute_Value(i_2)
+               i_Apl = l_Attribute_Value.APL
+               i_Un  = l_Attribute_Value.UN
+  
+               #if i_apl <> 0 and i_un <> 0 and (b_Host or b_Both) #then #block
+               
+                 #if i_IS_Count == 0 #then @v_Create_Block(length(%v_Create_Block) + 1) = "   IS = vector(-"
+
+                 t_Create_Clause = "        list(APL='i_Apl',UN='i_Un'),-"
+                 @v_Create_Block(length(%v_Create_Block) + 1) = t_Create_Clause
+
+                 i_IS_Count = i_IS_Count + 1
+      
+               #block_end
+               
+               #if i_2 == length(t_Attribute_Value) and i_IS_Count > 0 #then #block
+
+                  t_Previous_Line = %v_Create_Block(length(%v_Create_Block))
+                  @v_Create_Block(length(%v_Create_Block)) = substr(t_Previous_Line,1, length(t_Previous_Line) - 2) + "),-"
+
+               #block_end
+   
+            #loop_end
+            
+         #block_end
+         #else #block
+
+            #loop_with i_2 = 1 .. length(t_Attribute_Value)
+   
+               #if t_Attribute_Value(i_2) <> "" #then #block
+   
+                  t_CT_Value = t_Attribute_Value(i_2)
+                  t_Create_Clause = "#set 't_Object_Name''i_Number':b't_Attribute''i_2' = ""'t_CT_Value'"""
+                  @v_Create_Block(length(%v_Create_Block) + 1) = t_Create_Clause
+   
+               #block_end
+   
+            #loop_end
+         
+         #block_end
+
+      #block_end
+      #else_if data_type(t_Attribute_Value) == "LIST" #then #block
+      
+         #if t_Attribute_Index == "HS" #then #block
+         
+            l_Attribute_Value = t_Attribute_Value
+            i_Apl = l_Attribute_Value.APL
+            i_Un  = l_Attribute_Value.UN
+            
+            #if i_apl <> 0 and i_un <> 0 and (b_Image or b_Both) #then #block
+
+                 @v_Create_Block(length(%v_Create_Block) + 1) = "   HS = list(APL='i_Apl',UN='i_Un'),-"
+      
+            #block_end
+         
+         #block_end
+         #else_if t_Attribute == "SM" #then #block
+         
+            l_Attribute_Value = t_Attribute_Value
+            
+            v_Dump = dump(l_Attribute_Value)
+            t_Dump = v_Dump(1)
+            @v_Create_Block(length(%v_Create_Block) + 1) = "   SM = 't_Dump',-"
+            
+         #block_end
+         
+      #block_end
+      #else #block
+
+         #if t_Attribute_Value <> "" #then #block
+   
+            #if t_Object_Section == "BASE_SYSTEM_LINK" and t_Attribute_Index == "LT" #then #block
+               #if t_Attribute_Value == """INTEGRATED""" #then t_Attribute_Value = """NONE"""
+               #else_if t_Attribute_Value == """LAN""" #then b_Dont_Create = TRUE
+            #block_end
+            
+            #if t_Object_Section == "BASE_SYSTEM_STATION" and t_Attribute_Index == "MR" #then #block
+               #if t_Attribute_Value == """HOST""" #then #block
+                  b_Host = TRUE
+                  b_Both = FALSE
+                  b_Image = FALSE
+               #block_end
+               #else_if t_Attribute_Value == """BOTH""" #then #block
+                  b_Host = FALSE
+                  b_Both = TRUE
+                  b_Image = FALSE
+               #block_end
+               #else_if t_Attribute_Value == """IMAGE""" #then #block
+                  b_Host = FALSE
+                  b_Both = FALSE
+                  b_Image = TRUE
+               #block_end
+               #else #block
+                  b_Host = FALSE
+                  b_Both = FALSE
+                  b_Image = FALSE
+               #block_end
+            #block_end
+            
+            ;Proxy , Primary, Secondary 3.2.2010
+            
+            #if t_Object_Section == "BASE_SYSTEM_STATION" #then #block
+               #if t_Attribute_Index == "RS" #then #block
+                  #if dec_scan(t_Attribute_Value) > 0 #then #block
+                     v_Proxy_Stations(length(v_Proxy_Stations) + 1) = dec_scan(t_Attribute_Value)
+                     v_Proxy_Sources(length(v_Proxy_Sources) + 1) = i_Number
+                  #block_end
+               #block_end
+               #else_if t_Attribute_Index == "RR" #then #block
+                  #if t_Attribute_Value == """PRIMARY""" or t_Attribute_Value == """SECONDARY""" #then b_Keep_TT_None = TRUE
+                  #else_if t_Attribute_Value == """PROXY""" #then b_Keep_Last = TRUE
+               #block_end
+            #block_end
+   
+            #if t_Object_Section <> "BASE_SYSTEM_STATION_TYPE" #then #block
+               #if t_Object_Section == "BASE_SYSTEM_NODE" #then #block
+                  #if nod'i_Number':bSA == 0 #then t_Create_Clause = "   't_Attribute_Index' = " + t_Attribute_Value + ",-"
+                  #else #block
+                     #if t_Attribute_Index <> "NT" #then t_Create_Clause = "#set 't_Object_Name''i_Number':b't_Attribute' = " + t_Attribute_Value
+                        #else t_Create_Clause = ""
+                  #block_end
+               #block_end
+               #else t_Create_Clause = "   't_Attribute' = " + t_Attribute_Value + ",-"
+            #block_end
+            #else t_Create_Clause = "#set 't_Object_Name''i_Number':b't_Attribute' = " + t_Attribute_Value
+   
+            #if t_Attribute_Index == "RT" or t_Attribute_Index == "LT" #then #block
+               #if t_Object_Section <> "BASE_SYSTEM_NODE" #then #block
+                  @v_Create_Block(length(%v_Create_Block) + 1) = t_Create_Clause
+               #block_end
+            #block_end
+            #else #if t_Create_Clause <> "" #then #block
+               @v_Create_Block(length(%v_Create_Block) + 1) = t_Create_Clause
+            #block_end
+   
+         #block_end
+      
+      #block_end
+
+   #loop_end
+   
+   #if t_Object_Section <> "BASE_SYSTEM_STATION_TYPE" #then #block
+
+      t_Previous_Line = %v_Create_Block(length(%v_Create_Block))
+      
+      #if t_Object_Section == "BASE_SYSTEM_NODE" #then #block
+
+         #if nod'i_Number':bSA == 0 #then #block
+
+            @v_Create_Block(length(%v_Create_Block)) = substr(t_Previous_Line,1, length(t_Previous_Line) - 2) + ")"
+            @v_Create_Block(length(%v_Create_Block) + 1) = "#create 't_Object_Name''i_Number':b = %'t_Object_Name'"
+
+         #block_end
+
+      #block_end
+      #else #block
+      
+         @v_Create_Block(length(%v_Create_Block)) = substr(t_Previous_Line,1, length(t_Previous_Line) - 2) + ")"
+         
+         #if t_Object_Section == "BASE_SYSTEM_STATION" #then #block
+            #if b_Keep_TT_None #then #block
+               @v_Create_Block(length(%v_Create_Block) + 1) = "#set sta:vTT = ""NONE"""
+               v_Set_Last(length(v_Set_Last)+1) = i_Number
+            #block_end
+         #block_end
+
+         #if not b_Dont_Create #then #block
+            @v_Create_Block(length(%v_Create_Block) + 1) = "#create 't_Object_Name''i_Number':b = %'t_Object_Name'"
+         #block_end
+;            #else @v_Create_Block(length(%v_Create_Block) + 1) = "; #create 't_Object_Name''i_Number':b = %'t_Object_Name' ; Disabled by System Configuration Tool"
+         #if b_Keep_Last #then #block
+            #loop_with i_1 = i_Begin .. length(%v_Create_Block)
+               v_Create_Last(length(v_Create_Last) + 1) = %v_Create_Block(i_1) 
+               v_Delete_Index(length(v_Delete_Index) + 1) = i_1
+            #loop_end
+         #block_end
+      #block_end
+
+   #block_end
+
+#loop_end
+
+@v_Create_Block = delete_element(%v_Create_Block, v_Delete_Index)
+
+#if t_Object_Section == "BASE_SYSTEM_STATION" #then #block
+
+   #loop_with i_1 = 1 .. length(v_Create_Last)
+   
+      @v_Create_Block(length(%v_Create_Block) + 1) = v_Create_Last(i_1)
+   
+   #loop_end
+   
+   #loop_with i_1 = 1 .. length(v_Set_Last)
+   
+      i_Sta = v_Set_Last(i_1)
+      t_TT = "NONE"
+      #if i_Sta   > 0 #then t_TT = do (%Gv_SCT_Mgr__, "GetAttr", "BASE_SYSTEM_STATION", i_Sta,   "TT", TRUE)
+
+      @v_Create_Block(length(%v_Create_Block) + 1) = "#set sta'i_Sta':bTT=" + t_TT
+   
+   #loop_end
+
+#block_end
+

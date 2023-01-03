@@ -1,0 +1,2032 @@
+<?xml version="1.0"?>
+<!-- edited with XMLSpy v2011 rel. 3 sp1 (http://www.altova.com) by XMLSpy 2011 Professional Ed., Installed for 10 users (with SMP from 2010-09-23 to 2011-09-24) (ABB Oy) -->
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Markku Hamarila/RSC (ABB OY Substation Automation) -->
+<ObjectTypes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<ObjectType>
+		<Parameters type="InterfaceDefinition">
+			<Parameter name="ObjectType">IEC61850 OPC Server 5.0</Parameter>
+			<Parameter name="Caption">objectTypeCaption</Parameter>
+			<Parameter name="Description">objectTypeDesc</Parameter>
+			<Parameter name="Group">IEC61850</Parameter>
+			<Parameter name="Type">OPCServer</Parameter>
+			<Parameter name="IconFileName">IEC61850.ico</Parameter>
+			<Parameter name="Tools">SCLImport,OnlineDiagnosticsServerIec61850,DiagnosticAeClientServer, SCDExportVerbs, GOOSEConnectionEditor</Parameter>
+			<Parameter name="DataServers"/>
+			<Parameter name="Verbs"/>
+			<Parameter name="CanInherit">False</Parameter>
+			<Parameter name="ParentControlConditions">
+				<Structure name="COMMUNICATION">
+					<Condition type="PCMObjectType">GW 5.0, Computer Node 5.0</Condition>
+				</Structure>
+			</Parameter>
+		</Parameters>
+		<Parameters type="SCLExport">
+			<Export name="CDATA">UseQualityAndTimeAttributes, EnableOPCv2Optimizations, UseDescriptionAttribute, TreeDelimiter, AcceptedTreeDelimiter, EnableTimesyncClient, EnableTimesyncServer, ReportControlIdentity, TimesyncClientConf1, TimesyncClientConf2, TimesyncClientConf3, TimesyncClientConf4, TimesyncServerConf, ServerOriginatorCategory, ServerOriginatorIdentification, SystemEventLevel, ServerInitializationInSeconds, QualityTexts</Export>
+			<Export name="TimesyncClientConf1" exportType="csv">TimesyncClientConf1Head, SNTPServer1SynchInterval, SNTPServer1Port</Export>
+			<Export name="TimesyncClientConf2" exportType="csv">TimesyncClientConf2Head, SNTPServer2SynchInterval, SNTPServer2Port</Export>
+			<Export name="TimesyncClientConf3" exportType="csv">TimesyncClientConf3Head, SNTPServer3SynchInterval, SNTPServer3Port</Export>
+			<Export name="TimesyncClientConf4" exportType="csv">TimesyncClientConf4Head, SNTPServer4SynchInterval, SNTPServer4Port</Export>
+			<Export name="sclXML">DataTypeTemplatesSCL</Export>
+		</Parameters>
+		<Properties type="PropertyDefinitions">
+			<Property name="ServerInitializationInSeconds" category="[010] Basic">
+				<Value>0</Value>
+				<DescID>MaxOpcServerInitTimeDesc</DescID>
+				<CaptionID>MaxOpcServerInitTime</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey>211</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>ServerInitializationInSeconds</AttributeName>
+			</Property>
+			<Property name="DataTypeTemplatesSCL" category="[010] Basic">
+				<Value>
+				</Value>
+				<DescID>DataTypeTemplatesSCLDesc</DescID>
+				<CaptionID>DataTypeTemplatesSCL</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>DataTypeTemplatesSCL</AttributeName>
+			</Property>
+			<Property name="EnableTimesyncClient" category="[020] SNTP Client">
+				<Value>False</Value>
+				<DescID>EnableTimesyncClientDesc</DescID>
+				<CaptionID>EnableTimesyncClient</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>EnableTimesyncClient</AttributeName>
+			</Property>
+			<Property name="EnableTimesyncServer" category="[025] SNTP Server">
+				<Value>False</Value>
+				<DescID>EnableTimesyncServerDesc</DescID>
+				<CaptionID>EnableTimesyncServer</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>EnableTimesyncServer</AttributeName>
+			</Property>
+			<Property name="TreeDelimiter" category="[010] Basic">
+				<Value>\</Value>
+				<DescID>TreeDelimiterDesc</DescID>
+				<CaptionID>TreeDelimiter</CaptionID>
+				<Values type="string"/>
+				<DataType>System.Char</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>TreeDelimiter</AttributeName>
+			</Property>
+			<Property name="AcceptedTreeDelimiter" category="[010] Basic">
+				<Value>\</Value>
+				<DescID>AcceptedTreeDelimiterDesc</DescID>
+				<CaptionID>AcceptedTreeDelimiter</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>AcceptedTreeDelimiter</AttributeName>
+			</Property>
+			<Property name="ShortName" category="[010] Basic">
+				<Value>IEC61850</Value>
+				<DescID>ShortNameDesc</DescID>
+				<CaptionID>ShortName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="InstanceNumber" category="[010] Basic">
+				<Value>0</Value>
+				<DescID>InstanceNumberDesc</DescID>
+				<CaptionID>InstanceNumber</CaptionID>
+				<Values type="numerical"/>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="ProgIDAE" category="[010] Basic">
+				<Value/>
+				<DescID>ProgIDAEDesc</DescID>
+				<CaptionID>ProgIDAE</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HRW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="ProgID" category="[010] Basic">
+				<Value/>
+				<DescID>ProgIDDesc</DescID>
+				<CaptionID>ProgID</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HRW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="OPCObjectType" category="[010] Basic">
+				<Value>OPC Server</Value>
+				<DescID>OPCObjectTypeDesc</DescID>
+				<CaptionID>OPCObjectType</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>OPCObjectType</AttributeName>
+			</Property>
+			<Property name="ProtocolName" category="[010] Basic">
+				<Value>IEC61850</Value>
+				<DescID>ProtocolNameDesc</DescID>
+				<CaptionID>ProtocolName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="UseQualityAndTimeAttributes" category="[010] Basic">
+				<Value>True</Value>
+				<DescID>UseQualityAndTimeAttributesDesc</DescID>
+				<CaptionID>UseQualityAndTimeAttributes</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>205</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>UseQualityAndTimeAttributes</AttributeName>
+			</Property>
+			<Property name="EnableOPCv2Optimizations" category="[010] Basic">
+				<Value>True</Value>
+				<DescID>EnableOPCv2OptimizationsDesc</DescID>
+				<CaptionID>EnableOPCv2Optimizations</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>206</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>EnableOPCv2Optimizations</AttributeName>
+			</Property>
+			<Property name="UseDescriptionAttribute" category="[010] Basic">
+				<Value>False</Value>
+				<DescID>UseDescriptionAttributeDesc</DescID>
+				<CaptionID>UseDescriptionAttribute</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>207</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>UseDescriptionAttribute</AttributeName>
+			</Property>
+			<Property name="ReportControlIdentity" category="[030] Communication Control">
+				<Value>Client1</Value>
+				<DescID>ReportControlIdentityDesc</DescID>
+				<CaptionID>ReportControlIdentity</CaptionID>
+				<Values type="string">
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>ReportControlIdentity</AttributeName>
+			</Property>
+			<Property name="TimesyncClientConf1Head" category="[020] SNTP Client">
+				<Value/>
+				<DescID>TimesyncClientConf1Desc</DescID>
+				<CaptionID>TimesyncClientConf1</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>TimesyncClientConf1</AttributeName>
+			</Property>
+			<Property name="SNTPServer1SynchInterval" category="[020] SNTP Client">
+				<Value>15</Value>
+				<DescID>SNTPServer1SynchIntervalDesc</DescID>
+				<CaptionID>SNTPServer1SynchInterval</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer1Timeout</AttributeName>
+			</Property>
+			<Property name="SNTPServer1Port" category="[020] SNTP Client">
+				<Value>123</Value>
+				<DescID>SNTPServer1PortDesc</DescID>
+				<CaptionID>SNTPServer1Port</CaptionID>
+				<Values type="numerical">
+					<Min>1</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer1Port</AttributeName>
+			</Property>
+			<Property name="TimesyncClientConf2Head" category="[020] SNTP Client">
+				<Value/>
+				<DescID>TimesyncClientConf2Desc</DescID>
+				<CaptionID>TimesyncClientConf2</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>TimesyncClientConf2</AttributeName>
+			</Property>
+			<Property name="SNTPServer2SynchInterval" category="[020] SNTP Client">
+				<Value>15</Value>
+				<DescID>SNTPServer2SynchIntervalDesc</DescID>
+				<CaptionID>SNTPServer2SynchInterval</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer2Timeout</AttributeName>
+			</Property>
+			<Property name="SNTPServer2Port" category="[020] SNTP Client">
+				<Value>123</Value>
+				<DescID>SNTPServer2PortDesc</DescID>
+				<CaptionID>SNTPServer2Port</CaptionID>
+				<Values type="numerical">
+					<Min>1</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer2Port</AttributeName>
+			</Property>
+			<Property name="TimesyncClientConf3Head" category="[020] SNTP Client">
+				<Value/>
+				<DescID>TimesyncClientConf3Desc</DescID>
+				<CaptionID>TimesyncClientConf3</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>TimesyncClientConf3</AttributeName>
+			</Property>
+			<Property name="SNTPServer3SynchInterval" category="[020] SNTP Client">
+				<Value>15</Value>
+				<DescID>SNTPServer3SynchIntervalDesc</DescID>
+				<CaptionID>SNTPServer3SynchInterval</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer3Timeout</AttributeName>
+			</Property>
+			<Property name="SNTPServer3Port" category="[020] SNTP Client">
+				<Value>123</Value>
+				<DescID>SNTPServer3PortDesc</DescID>
+				<CaptionID>SNTPServer3Port</CaptionID>
+				<Values type="numerical">
+					<Min>1</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer3Port</AttributeName>
+			</Property>
+			<Property name="TimesyncClientConf4Head" category="[020] SNTP Client">
+				<Value/>
+				<DescID>TimesyncClientConf4Desc</DescID>
+				<CaptionID>TimesyncClientConf4</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>TimesyncClientConf4</AttributeName>
+			</Property>
+			<Property name="SNTPServer4SynchInterval" category="[020] SNTP Client">
+				<Value>15</Value>
+				<DescID>SNTPServer4SynchIntervalDesc</DescID>
+				<CaptionID>SNTPServer4SynchInterval</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer4Timeout</AttributeName>
+			</Property>
+			<Property name="SNTPServer4Port" category="[020] SNTP Client">
+				<Value>123</Value>
+				<DescID>SNTPServer4PortDesc</DescID>
+				<CaptionID>SNTPServer4Port</CaptionID>
+				<Values type="numerical">
+					<Min>1</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer4Port</AttributeName>
+			</Property>
+			<Property name="TimesyncServerConf" category="[025] SNTP Server">
+				<Value>123</Value>
+				<DescID>TimesyncServerConf</DescID>
+				<CaptionID>TimesyncServerConf</CaptionID>
+				<Values type="numerical">
+					<Min>1</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>TimesyncServerConf</AttributeName>
+			</Property>
+			<Property name="ServerOriginatorCategory" category="[030] Communication Control">
+				<Value>2</Value>
+				<DescID>ServerOriginatorCategoryDesc</DescID>
+				<CaptionID>ServerOriginatorCategory</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="0" textID="not-supported"/>
+					<Enum value="2" textID="station-control"/>
+					<Enum value="3" textID="remote-control"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>ServerOriginatorCategory</AttributeName>
+			</Property>
+			<Property name="ServerOriginatorIdentification" category="[030] Communication Control">
+				<Value>ABB</Value>
+				<DescID>ServerOriginatorIdentificationDesc</DescID>
+				<CaptionID>ServerOriginatorIdentification</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>ServerOriginatorIdentification</AttributeName>
+			</Property>
+			<Property name="QualityTexts" category="[040] OPC Alarm and Event">
+				<Value/>
+				<DescID>MappedEventDesc</DescID>
+				<CaptionID>MappedEvent</CaptionID>
+				<Values type="singleChoiceDynamic">
+					<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupCommonDefinitions" secondchildObjectType="QualityTextsEventGroup"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="SystemEventLevel" category="[030] Communication Control">
+				<Value>0</Value>
+				<DescID>SystemEventLevelDesc</DescID>
+				<CaptionID>SystemEventLevel</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="0" textID="Level0"/>
+					<Enum value="1" textID="Level1"/>
+					<Enum value="2" textID="Level2"/>
+					<Enum value="3" textID="Level3"/>
+					<Enum value="4" textID="Level4"/>
+					<Enum value="5" textID="Level5"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SystemEventLevel</AttributeName>
+			</Property>
+		</Properties>
+	</ObjectType>
+	<ObjectType>
+		<Parameters type="InterfaceDefinition">
+			<Parameter name="ObjectType">IEC61850 OPC Server 4.1</Parameter>
+			<Parameter name="Caption">objectTypeCaption</Parameter>
+			<Parameter name="Description">objectTypeDesc</Parameter>
+			<Parameter name="Group">IEC61850</Parameter>
+			<Parameter name="Type">OPCServer</Parameter>
+			<Parameter name="IconFileName">IEC61850.ico</Parameter>
+			<Parameter name="Tools">SCLImport,OnlineDiagnosticsServerIec61850,DiagnosticAeClientServer, SCDExportVerbs, GOOSEConnectionEditor</Parameter>
+			<Parameter name="DataServers"/>
+			<Parameter name="Verbs"/>
+			<Parameter name="CanInherit">False</Parameter>
+			<Parameter name="ParentControlConditions">
+				<Structure name="COMMUNICATION">
+					<Condition type="PCMObjectType">GW 4.1, Computer Node 4.1</Condition>
+				</Structure>
+			</Parameter>
+		</Parameters>
+		<Parameters type="SCLExport">
+			<Export name="CDATA">UseQualityAndTimeAttributes, EnableOPCv2Optimizations, UseDescriptionAttribute, TreeDelimiter, AcceptedTreeDelimiter, EnableTimesyncClient, EnableTimesyncServer, ReportControlIdentity, TimesyncClientConf1, TimesyncClientConf2, TimesyncClientConf3, TimesyncClientConf4, TimesyncServerConf, ServerOriginatorCategory, ServerOriginatorIdentification, SystemEventLevel, ServerInitializationInSeconds, QualityTexts</Export>
+			<Export name="TimesyncClientConf1" exportType="csv">TimesyncClientConf1Head, SNTPServer1SynchInterval, SNTPServer1Port</Export>
+			<Export name="TimesyncClientConf2" exportType="csv">TimesyncClientConf2Head, SNTPServer2SynchInterval, SNTPServer2Port</Export>
+			<Export name="TimesyncClientConf3" exportType="csv">TimesyncClientConf3Head, SNTPServer3SynchInterval, SNTPServer3Port</Export>
+			<Export name="TimesyncClientConf4" exportType="csv">TimesyncClientConf4Head, SNTPServer4SynchInterval, SNTPServer4Port</Export>
+			<Export name="sclXML">DataTypeTemplatesSCL</Export>
+		</Parameters>
+		<Properties type="PropertyDefinitions">
+			<Property name="ServerInitializationInSeconds" category="[010] Basic">
+				<Value>0</Value>
+				<DescID>MaxOpcServerInitTimeDesc</DescID>
+				<CaptionID>MaxOpcServerInitTime</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey>211</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>ServerInitializationInSeconds</AttributeName>
+			</Property>
+			<Property name="DataTypeTemplatesSCL" category="[010] Basic">
+				<Value>
+				</Value>
+				<DescID>DataTypeTemplatesSCLDesc</DescID>
+				<CaptionID>DataTypeTemplatesSCL</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>DataTypeTemplatesSCL</AttributeName>
+			</Property>
+			<Property name="EnableTimesyncClient" category="[020] SNTP Client">
+				<Value>False</Value>
+				<DescID>EnableTimesyncClientDesc</DescID>
+				<CaptionID>EnableTimesyncClient</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>EnableTimesyncClient</AttributeName>
+			</Property>
+			<Property name="EnableTimesyncServer" category="[025] SNTP Server">
+				<Value>False</Value>
+				<DescID>EnableTimesyncServerDesc</DescID>
+				<CaptionID>EnableTimesyncServer</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>EnableTimesyncServer</AttributeName>
+			</Property>
+			<Property name="TreeDelimiter" category="[010] Basic">
+				<Value>\</Value>
+				<DescID>TreeDelimiterDesc</DescID>
+				<CaptionID>TreeDelimiter</CaptionID>
+				<Values type="string"/>
+				<DataType>System.Char</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>TreeDelimiter</AttributeName>
+			</Property>
+			<Property name="AcceptedTreeDelimiter" category="[010] Basic">
+				<Value>\</Value>
+				<DescID>AcceptedTreeDelimiterDesc</DescID>
+				<CaptionID>AcceptedTreeDelimiter</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>AcceptedTreeDelimiter</AttributeName>
+			</Property>
+			<Property name="ShortName" category="[010] Basic">
+				<Value>IEC61850</Value>
+				<DescID>ShortNameDesc</DescID>
+				<CaptionID>ShortName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="InstanceNumber" category="[010] Basic">
+				<Value>0</Value>
+				<DescID>InstanceNumberDesc</DescID>
+				<CaptionID>InstanceNumber</CaptionID>
+				<Values type="numerical"/>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="ProgIDAE" category="[010] Basic">
+				<Value/>
+				<DescID>ProgIDAEDesc</DescID>
+				<CaptionID>ProgIDAE</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HRW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="ProgID" category="[010] Basic">
+				<Value/>
+				<DescID>ProgIDDesc</DescID>
+				<CaptionID>ProgID</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HRW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="OPCObjectType" category="[010] Basic">
+				<Value>OPC Server</Value>
+				<DescID>OPCObjectTypeDesc</DescID>
+				<CaptionID>OPCObjectType</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>OPCObjectType</AttributeName>
+			</Property>
+			<Property name="ProtocolName" category="[010] Basic">
+				<Value>IEC61850</Value>
+				<DescID>ProtocolNameDesc</DescID>
+				<CaptionID>ProtocolName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="UseQualityAndTimeAttributes" category="[010] Basic">
+				<Value>True</Value>
+				<DescID>UseQualityAndTimeAttributesDesc</DescID>
+				<CaptionID>UseQualityAndTimeAttributes</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>205</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>UseQualityAndTimeAttributes</AttributeName>
+			</Property>
+			<Property name="EnableOPCv2Optimizations" category="[010] Basic">
+				<Value>True</Value>
+				<DescID>EnableOPCv2OptimizationsDesc</DescID>
+				<CaptionID>EnableOPCv2Optimizations</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>206</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>EnableOPCv2Optimizations</AttributeName>
+			</Property>
+			<Property name="UseDescriptionAttribute" category="[010] Basic">
+				<Value>False</Value>
+				<DescID>UseDescriptionAttributeDesc</DescID>
+				<CaptionID>UseDescriptionAttribute</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>207</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>UseDescriptionAttribute</AttributeName>
+			</Property>
+			<Property name="ReportControlIdentity" category="[030] Communication Control">
+				<Value>Client1</Value>
+				<DescID>ReportControlIdentityDesc</DescID>
+				<CaptionID>ReportControlIdentity</CaptionID>
+				<Values type="string">
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>ReportControlIdentity</AttributeName>
+			</Property>
+			<Property name="TimesyncClientConf1Head" category="[020] SNTP Client">
+				<Value/>
+				<DescID>TimesyncClientConf1Desc</DescID>
+				<CaptionID>TimesyncClientConf1</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>TimesyncClientConf1</AttributeName>
+			</Property>
+			<Property name="SNTPServer1SynchInterval" category="[020] SNTP Client">
+				<Value>15</Value>
+				<DescID>SNTPServer1SynchIntervalDesc</DescID>
+				<CaptionID>SNTPServer1SynchInterval</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer1Timeout</AttributeName>
+			</Property>
+			<Property name="SNTPServer1Port" category="[020] SNTP Client">
+				<Value>123</Value>
+				<DescID>SNTPServer1PortDesc</DescID>
+				<CaptionID>SNTPServer1Port</CaptionID>
+				<Values type="numerical">
+					<Min>1</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer1Port</AttributeName>
+			</Property>
+			<Property name="TimesyncClientConf2Head" category="[020] SNTP Client">
+				<Value/>
+				<DescID>TimesyncClientConf2Desc</DescID>
+				<CaptionID>TimesyncClientConf2</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>TimesyncClientConf2</AttributeName>
+			</Property>
+			<Property name="SNTPServer2SynchInterval" category="[020] SNTP Client">
+				<Value>15</Value>
+				<DescID>SNTPServer2SynchIntervalDesc</DescID>
+				<CaptionID>SNTPServer2SynchInterval</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer2Timeout</AttributeName>
+			</Property>
+			<Property name="SNTPServer2Port" category="[020] SNTP Client">
+				<Value>123</Value>
+				<DescID>SNTPServer2PortDesc</DescID>
+				<CaptionID>SNTPServer2Port</CaptionID>
+				<Values type="numerical">
+					<Min>1</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer2Port</AttributeName>
+			</Property>
+			<Property name="TimesyncClientConf3Head" category="[020] SNTP Client">
+				<Value/>
+				<DescID>TimesyncClientConf3Desc</DescID>
+				<CaptionID>TimesyncClientConf3</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>TimesyncClientConf3</AttributeName>
+			</Property>
+			<Property name="SNTPServer3SynchInterval" category="[020] SNTP Client">
+				<Value>15</Value>
+				<DescID>SNTPServer3SynchIntervalDesc</DescID>
+				<CaptionID>SNTPServer3SynchInterval</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer3Timeout</AttributeName>
+			</Property>
+			<Property name="SNTPServer3Port" category="[020] SNTP Client">
+				<Value>123</Value>
+				<DescID>SNTPServer3PortDesc</DescID>
+				<CaptionID>SNTPServer3Port</CaptionID>
+				<Values type="numerical">
+					<Min>1</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer3Port</AttributeName>
+			</Property>
+			<Property name="TimesyncClientConf4Head" category="[020] SNTP Client">
+				<Value/>
+				<DescID>TimesyncClientConf4Desc</DescID>
+				<CaptionID>TimesyncClientConf4</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>TimesyncClientConf4</AttributeName>
+			</Property>
+			<Property name="SNTPServer4SynchInterval" category="[020] SNTP Client">
+				<Value>15</Value>
+				<DescID>SNTPServer4SynchIntervalDesc</DescID>
+				<CaptionID>SNTPServer4SynchInterval</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer4Timeout</AttributeName>
+			</Property>
+			<Property name="SNTPServer4Port" category="[020] SNTP Client">
+				<Value>123</Value>
+				<DescID>SNTPServer4PortDesc</DescID>
+				<CaptionID>SNTPServer4Port</CaptionID>
+				<Values type="numerical">
+					<Min>1</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer4Port</AttributeName>
+			</Property>
+			<Property name="TimesyncServerConf" category="[025] SNTP Server">
+				<Value>123</Value>
+				<DescID>TimesyncServerConf</DescID>
+				<CaptionID>TimesyncServerConf</CaptionID>
+				<Values type="numerical">
+					<Min>1</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>TimesyncServerConf</AttributeName>
+			</Property>
+			<Property name="ServerOriginatorCategory" category="[030] Communication Control">
+				<Value>2</Value>
+				<DescID>ServerOriginatorCategoryDesc</DescID>
+				<CaptionID>ServerOriginatorCategory</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="0" textID="not-supported"/>
+					<Enum value="2" textID="station-control"/>
+					<Enum value="3" textID="remote-control"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>ServerOriginatorCategory</AttributeName>
+			</Property>
+			<Property name="ServerOriginatorIdentification" category="[030] Communication Control">
+				<Value>ABB</Value>
+				<DescID>ServerOriginatorIdentificationDesc</DescID>
+				<CaptionID>ServerOriginatorIdentification</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>ServerOriginatorIdentification</AttributeName>
+			</Property>
+			<Property name="QualityTexts" category="[040] OPC Alarm and Event">
+				<Value/>
+				<DescID>MappedEventDesc</DescID>
+				<CaptionID>MappedEvent</CaptionID>
+				<Values type="singleChoiceDynamic">
+					<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupCommonDefinitions" secondchildObjectType="QualityTextsEventGroup"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="SystemEventLevel" category="[030] Communication Control">
+				<Value>0</Value>
+				<DescID>SystemEventLevelDesc</DescID>
+				<CaptionID>SystemEventLevel</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="0" textID="Level0"/>
+					<Enum value="1" textID="Level1"/>
+					<Enum value="2" textID="Level2"/>
+					<Enum value="3" textID="Level3"/>
+					<Enum value="4" textID="Level4"/>
+					<Enum value="5" textID="Level5"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SystemEventLevel</AttributeName>
+			</Property>
+		</Properties>
+	</ObjectType>
+	<ObjectType>
+		<Parameters type="InterfaceDefinition">
+			<Parameter name="ObjectType">IEC61850 OPC Server 4.0</Parameter>
+			<Parameter name="Caption">objectTypeCaption</Parameter>
+			<Parameter name="Description">objectTypeDesc</Parameter>
+			<Parameter name="Group">IEC61850</Parameter>
+			<Parameter name="Type">OPCServer</Parameter>
+			<Parameter name="IconFileName">IEC61850.ico</Parameter>
+			<Parameter name="Tools">SCLImport,OnlineDiagnosticsServerIec61850,DiagnosticAeClientServer, SCDExportVerbs, GOOSEConnectionEditor</Parameter>
+			<Parameter name="DataServers"/>
+			<Parameter name="Verbs"/>
+			<Parameter name="CanInherit">False</Parameter>
+			<Parameter name="ParentControlConditions">
+				<Structure name="COMMUNICATION">
+					<Condition type="PCMObjectType">GW 4.0, Computer Node 4.0</Condition>
+				</Structure>
+			</Parameter>
+		</Parameters>
+		<Parameters type="SCLExport">
+			<Export name="CDATA">UseQualityAndTimeAttributes, EnableOPCv2Optimizations, UseDescriptionAttribute, TreeDelimiter, AcceptedTreeDelimiter, EnableTimesyncClient, EnableTimesyncServer, ReportControlIdentity, TimesyncClientConf1, TimesyncClientConf2, TimesyncClientConf3, TimesyncClientConf4, TimesyncServerConf, ServerOriginatorCategory, ServerOriginatorIdentification, SystemEventLevel, ServerInitializationInSeconds</Export>
+			<Export name="TimesyncClientConf1" exportType="csv">TimesyncClientConf1Head, SNTPServer1SynchInterval, SNTPServer1Port</Export>
+			<Export name="TimesyncClientConf2" exportType="csv">TimesyncClientConf2Head, SNTPServer2SynchInterval, SNTPServer2Port</Export>
+			<Export name="TimesyncClientConf3" exportType="csv">TimesyncClientConf3Head, SNTPServer3SynchInterval, SNTPServer3Port</Export>
+			<Export name="TimesyncClientConf4" exportType="csv">TimesyncClientConf4Head, SNTPServer4SynchInterval, SNTPServer4Port</Export>
+			<Export name="sclXML">DataTypeTemplatesSCL</Export>
+		</Parameters>
+		<Properties type="PropertyDefinitions">
+			<Property name="ServerInitializationInSeconds" category="[010] Basic">
+				<Value>0</Value>
+				<DescID>MaxOpcServerInitTimeDesc</DescID>
+				<CaptionID>MaxOpcServerInitTime</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey>211</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>ServerInitializationInSeconds</AttributeName>
+			</Property>
+			<Property name="DataTypeTemplatesSCL" category="[010] Basic">
+				<Value>
+				</Value>
+				<DescID>DataTypeTemplatesSCLDesc</DescID>
+				<CaptionID>DataTypeTemplatesSCL</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>DataTypeTemplatesSCL</AttributeName>
+			</Property>
+			<Property name="EnableTimesyncClient" category="[020] SNTP Client">
+				<Value>False</Value>
+				<DescID>EnableTimesyncClientDesc</DescID>
+				<CaptionID>EnableTimesyncClient</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>EnableTimesyncClient</AttributeName>
+			</Property>
+			<Property name="EnableTimesyncServer" category="[025] SNTP Server">
+				<Value>False</Value>
+				<DescID>EnableTimesyncServerDesc</DescID>
+				<CaptionID>EnableTimesyncServer</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>EnableTimesyncServer</AttributeName>
+			</Property>
+			<Property name="TreeDelimiter" category="[010] Basic">
+				<Value>\</Value>
+				<DescID>TreeDelimiterDesc</DescID>
+				<CaptionID>TreeDelimiter</CaptionID>
+				<Values type="string"/>
+				<DataType>System.Char</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>TreeDelimiter</AttributeName>
+			</Property>
+			<Property name="AcceptedTreeDelimiter" category="[010] Basic">
+				<Value>\</Value>
+				<DescID>AcceptedTreeDelimiterDesc</DescID>
+				<CaptionID>AcceptedTreeDelimiter</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>AcceptedTreeDelimiter</AttributeName>
+			</Property>
+			<Property name="ShortName" category="[010] Basic">
+				<Value>IEC61850</Value>
+				<DescID>ShortNameDesc</DescID>
+				<CaptionID>ShortName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="InstanceNumber" category="[010] Basic">
+				<Value>0</Value>
+				<DescID>InstanceNumberDesc</DescID>
+				<CaptionID>InstanceNumber</CaptionID>
+				<Values type="numerical"/>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="ProgIDAE" category="[010] Basic">
+				<Value/>
+				<DescID>ProgIDAEDesc</DescID>
+				<CaptionID>ProgIDAE</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HRW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="ProgID" category="[010] Basic">
+				<Value/>
+				<DescID>ProgIDDesc</DescID>
+				<CaptionID>ProgID</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HRW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="OPCObjectType" category="[010] Basic">
+				<Value>OPC Server</Value>
+				<DescID>OPCObjectTypeDesc</DescID>
+				<CaptionID>OPCObjectType</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>OPCObjectType</AttributeName>
+			</Property>
+			<Property name="ProtocolName" category="[010] Basic">
+				<Value>IEC61850</Value>
+				<DescID>ProtocolNameDesc</DescID>
+				<CaptionID>ProtocolName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="UseQualityAndTimeAttributes" category="[010] Basic">
+				<Value>True</Value>
+				<DescID>UseQualityAndTimeAttributesDesc</DescID>
+				<CaptionID>UseQualityAndTimeAttributes</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>205</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>UseQualityAndTimeAttributes</AttributeName>
+			</Property>
+			<Property name="EnableOPCv2Optimizations" category="[010] Basic">
+				<Value>True</Value>
+				<DescID>EnableOPCv2OptimizationsDesc</DescID>
+				<CaptionID>EnableOPCv2Optimizations</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>206</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>EnableOPCv2Optimizations</AttributeName>
+			</Property>
+			<Property name="UseDescriptionAttribute" category="[010] Basic">
+				<Value>False</Value>
+				<DescID>UseDescriptionAttributeDesc</DescID>
+				<CaptionID>UseDescriptionAttribute</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>207</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>UseDescriptionAttribute</AttributeName>
+			</Property>
+			<Property name="ReportControlIdentity" category="[030] Communication Control">
+				<Value>Client1</Value>
+				<DescID>ReportControlIdentityDesc</DescID>
+				<CaptionID>ReportControlIdentity</CaptionID>
+				<Values type="string">
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>ReportControlIdentity</AttributeName>
+			</Property>
+			<Property name="TimesyncClientConf1Head" category="[020] SNTP Client">
+				<Value/>
+				<DescID>TimesyncClientConf1Desc</DescID>
+				<CaptionID>TimesyncClientConf1</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>TimesyncClientConf1</AttributeName>
+			</Property>
+			<Property name="SNTPServer1SynchInterval" category="[020] SNTP Client">
+				<Value>15</Value>
+				<DescID>SNTPServer1SynchIntervalDesc</DescID>
+				<CaptionID>SNTPServer1SynchInterval</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer1Timeout</AttributeName>
+			</Property>
+			<Property name="SNTPServer1Port" category="[020] SNTP Client">
+				<Value>123</Value>
+				<DescID>SNTPServer1PortDesc</DescID>
+				<CaptionID>SNTPServer1Port</CaptionID>
+				<Values type="numerical">
+					<Min>1</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer1Port</AttributeName>
+			</Property>
+			<Property name="TimesyncClientConf2Head" category="[020] SNTP Client">
+				<Value/>
+				<DescID>TimesyncClientConf2Desc</DescID>
+				<CaptionID>TimesyncClientConf2</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>TimesyncClientConf2</AttributeName>
+			</Property>
+			<Property name="SNTPServer2SynchInterval" category="[020] SNTP Client">
+				<Value>15</Value>
+				<DescID>SNTPServer2SynchIntervalDesc</DescID>
+				<CaptionID>SNTPServer2SynchInterval</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer2Timeout</AttributeName>
+			</Property>
+			<Property name="SNTPServer2Port" category="[020] SNTP Client">
+				<Value>123</Value>
+				<DescID>SNTPServer2PortDesc</DescID>
+				<CaptionID>SNTPServer2Port</CaptionID>
+				<Values type="numerical">
+					<Min>1</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer2Port</AttributeName>
+			</Property>
+			<Property name="TimesyncClientConf3Head" category="[020] SNTP Client">
+				<Value/>
+				<DescID>TimesyncClientConf3Desc</DescID>
+				<CaptionID>TimesyncClientConf3</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>TimesyncClientConf3</AttributeName>
+			</Property>
+			<Property name="SNTPServer3SynchInterval" category="[020] SNTP Client">
+				<Value>15</Value>
+				<DescID>SNTPServer3SynchIntervalDesc</DescID>
+				<CaptionID>SNTPServer3SynchInterval</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer3Timeout</AttributeName>
+			</Property>
+			<Property name="SNTPServer3Port" category="[020] SNTP Client">
+				<Value>123</Value>
+				<DescID>SNTPServer3PortDesc</DescID>
+				<CaptionID>SNTPServer3Port</CaptionID>
+				<Values type="numerical">
+					<Min>1</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer3Port</AttributeName>
+			</Property>
+			<Property name="TimesyncClientConf4Head" category="[020] SNTP Client">
+				<Value/>
+				<DescID>TimesyncClientConf4Desc</DescID>
+				<CaptionID>TimesyncClientConf4</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>TimesyncClientConf4</AttributeName>
+			</Property>
+			<Property name="SNTPServer4SynchInterval" category="[020] SNTP Client">
+				<Value>15</Value>
+				<DescID>SNTPServer4SynchIntervalDesc</DescID>
+				<CaptionID>SNTPServer4SynchInterval</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer4Timeout</AttributeName>
+			</Property>
+			<Property name="SNTPServer4Port" category="[020] SNTP Client">
+				<Value>123</Value>
+				<DescID>SNTPServer4PortDesc</DescID>
+				<CaptionID>SNTPServer4Port</CaptionID>
+				<Values type="numerical">
+					<Min>1</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer4Port</AttributeName>
+			</Property>
+			<Property name="TimesyncServerConf" category="[025] SNTP Server">
+				<Value>123</Value>
+				<DescID>TimesyncServerConf</DescID>
+				<CaptionID>TimesyncServerConf</CaptionID>
+				<Values type="numerical">
+					<Min>1</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>TimesyncServerConf</AttributeName>
+			</Property>
+			<Property name="ServerOriginatorCategory" category="[030] Communication Control">
+				<Value>2</Value>
+				<DescID>ServerOriginatorCategoryDesc</DescID>
+				<CaptionID>ServerOriginatorCategory</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="0" textID="not-supported"/>
+					<Enum value="2" textID="station-control"/>
+					<Enum value="3" textID="remote-control"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>ServerOriginatorCategory</AttributeName>
+			</Property>
+			<Property name="ServerOriginatorIdentification" category="[030] Communication Control">
+				<Value>ABB</Value>
+				<DescID>ServerOriginatorIdentificationDesc</DescID>
+				<CaptionID>ServerOriginatorIdentification</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>ServerOriginatorIdentification</AttributeName>
+			</Property>
+			<Property name="QualityTexts" category="[040] OPC Alarm and Event">
+				<Value/>
+				<DescID>MappedEventDesc</DescID>
+				<CaptionID>MappedEvent</CaptionID>
+				<Values type="singleChoiceDynamic">
+					<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupCommonDefinitions" secondchildObjectType="QualityTextsEventGroup"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="SystemEventLevel" category="[030] Communication Control">
+				<Value>0</Value>
+				<DescID>SystemEventLevelDesc</DescID>
+				<CaptionID>SystemEventLevel</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="0" textID="Level0"/>
+					<Enum value="1" textID="Level1"/>
+					<Enum value="2" textID="Level2"/>
+					<Enum value="3" textID="Level3"/>
+					<Enum value="4" textID="Level4"/>
+					<Enum value="5" textID="Level5"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SystemEventLevel</AttributeName>
+			</Property>
+		</Properties>
+	</ObjectType>
+	<ObjectType>
+		<Parameters type="InterfaceDefinition">
+			<Parameter name="ObjectType">IEC61850 OPC Server 3.5</Parameter>
+			<Parameter name="Caption">objectTypeCaption</Parameter>
+			<Parameter name="Description">objectTypeDesc</Parameter>
+			<Parameter name="Group">IEC61850</Parameter>
+			<Parameter name="Type">OPCServer</Parameter>
+			<Parameter name="IconFileName">IEC61850.ico</Parameter>
+			<Parameter name="Tools">SCLImport,OnlineDiagnosticsServerIec61850,DiagnosticAeClientServer, SCDExportVerbs</Parameter>
+			<Parameter name="DataServers"/>
+			<Parameter name="Verbs"/>
+			<Parameter name="CanInherit">False</Parameter>
+			<Parameter name="ParentControlConditions">
+				<Structure name="COMMUNICATION">
+					<Condition type="PCMObjectType">GW 3.5</Condition>
+				</Structure>
+			</Parameter>
+			<Parameter name="ChildObjects">
+				<Structure name="COMMUNICATION">
+					<!--ChildObject type="EventGroup" name="Event Definitions">
+					<ChildObject type="Device Connection Status Class" name="Device Connection Status">
+          </ChildObject>
+				</ChildObject>
+				<ChildObject type="ScaleGroup" name="Scale Definitions">
+        </ChildObject-->
+				</Structure>
+			</Parameter>
+		</Parameters>
+		<Parameters type="SCLExport">
+			<Export name="CDATA">UseQualityAndTimeAttributes, EnableOPCv2Optimizations, UseDescriptionAttribute, TreeDelimiter, AcceptedTreeDelimiter, EnableTimesyncClient, EnableTimesyncServer, ReportControlIdentity, TimesyncClientConf1, TimesyncClientConf2, TimesyncClientConf3, TimesyncClientConf4, TimesyncServerConf, ServerOriginatorCategory, ServerOriginatorIdentification, SystemEventLevel, ServerInitializationInSeconds</Export>
+			<Export name="TimesyncClientConf1" exportType="csv">TimesyncClientConf1Head, SNTPServer1SynchInterval, SNTPServer1Port</Export>
+			<Export name="TimesyncClientConf2" exportType="csv">TimesyncClientConf2Head, SNTPServer2SynchInterval, SNTPServer2Port</Export>
+			<Export name="TimesyncClientConf3" exportType="csv">TimesyncClientConf3Head, SNTPServer3SynchInterval, SNTPServer3Port</Export>
+			<Export name="TimesyncClientConf4" exportType="csv">TimesyncClientConf4Head, SNTPServer4SynchInterval, SNTPServer4Port</Export>
+			<Export name="sclXML">DataTypeTemplatesSCL</Export>
+		</Parameters>
+		<Properties type="PropertyDefinitions">
+			<Property name="ServerInitializationInSeconds" category="[010] Basic">
+				<Value>0</Value>
+				<DescID>MaxOpcServerInitTimeDesc</DescID>
+				<CaptionID>MaxOpcServerInitTime</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey>211</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>ServerInitializationInSeconds</AttributeName>
+			</Property>
+			<Property name="DataTypeTemplatesSCL" category="[010] Basic">
+				<Value>
+				</Value>
+				<DescID>DataTypeTemplatesSCLDesc</DescID>
+				<CaptionID>DataTypeTemplatesSCL</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>DataTypeTemplatesSCL</AttributeName>
+			</Property>
+			<Property name="EnableTimesyncClient" category="[020] SNTP Client">
+				<Value>False</Value>
+				<DescID>EnableTimesyncClientDesc</DescID>
+				<CaptionID>EnableTimesyncClient</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>EnableTimesyncClient</AttributeName>
+			</Property>
+			<Property name="EnableTimesyncServer" category="[025] SNTP Server">
+				<Value>False</Value>
+				<DescID>EnableTimesyncServerDesc</DescID>
+				<CaptionID>EnableTimesyncServer</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>EnableTimesyncServer</AttributeName>
+			</Property>
+			<Property name="TreeDelimiter" category="[010] Basic">
+				<Value>\</Value>
+				<DescID>TreeDelimiterDesc</DescID>
+				<CaptionID>TreeDelimiter</CaptionID>
+				<Values type="string"/>
+				<DataType>System.Char</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>TreeDelimiter</AttributeName>
+			</Property>
+			<Property name="AcceptedTreeDelimiter" category="[010] Basic">
+				<Value>\</Value>
+				<DescID>AcceptedTreeDelimiterDesc</DescID>
+				<CaptionID>AcceptedTreeDelimiter</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>AcceptedTreeDelimiter</AttributeName>
+			</Property>
+			<Property name="ShortName" category="[010] Basic">
+				<Value>IEC61850</Value>
+				<DescID>ShortNameDesc</DescID>
+				<CaptionID>ShortName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="InstanceNumber" category="[010] Basic">
+				<Value>0</Value>
+				<DescID>InstanceNumberDesc</DescID>
+				<CaptionID>InstanceNumber</CaptionID>
+				<Values type="numerical"/>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="ProgIDAE" category="[010] Basic">
+				<Value/>
+				<DescID>ProgIDAEDesc</DescID>
+				<CaptionID>ProgIDAE</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HRW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="ProgID" category="[010] Basic">
+				<Value/>
+				<DescID>ProgIDDesc</DescID>
+				<CaptionID>ProgID</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HRW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="OPCObjectType" category="[010] Basic">
+				<Value>OPC Server</Value>
+				<DescID>OPCObjectTypeDesc</DescID>
+				<CaptionID>OPCObjectType</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>OPCObjectType</AttributeName>
+			</Property>
+			<Property name="ProtocolName" category="[010] Basic">
+				<Value>IEC61850</Value>
+				<DescID>ProtocolNameDesc</DescID>
+				<CaptionID>ProtocolName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="UseQualityAndTimeAttributes" category="[010] Basic">
+				<Value>True</Value>
+				<DescID>UseQualityAndTimeAttributesDesc</DescID>
+				<CaptionID>UseQualityAndTimeAttributes</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>205</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>UseQualityAndTimeAttributes</AttributeName>
+			</Property>
+			<Property name="EnableOPCv2Optimizations" category="[010] Basic">
+				<Value>True</Value>
+				<DescID>EnableOPCv2OptimizationsDesc</DescID>
+				<CaptionID>EnableOPCv2Optimizations</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>206</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>EnableOPCv2Optimizations</AttributeName>
+			</Property>
+			<Property name="UseDescriptionAttribute" category="[010] Basic">
+				<Value>False</Value>
+				<DescID>UseDescriptionAttributeDesc</DescID>
+				<CaptionID>UseDescriptionAttribute</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>207</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>UseDescriptionAttribute</AttributeName>
+			</Property>
+			<Property name="ReportControlIdentity" category="[030] Communication Control">
+				<Value>Client1</Value>
+				<DescID>ReportControlIdentityDesc</DescID>
+				<CaptionID>ReportControlIdentity</CaptionID>
+				<Values type="string">
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>ReportControlIdentity</AttributeName>
+			</Property>
+			<Property name="TimesyncClientConf1Head" category="[020] SNTP Client">
+				<Value/>
+				<DescID>TimesyncClientConf1Desc</DescID>
+				<CaptionID>TimesyncClientConf1</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>TimesyncClientConf1</AttributeName>
+			</Property>
+			<Property name="SNTPServer1SynchInterval" category="[020] SNTP Client">
+				<Value>15</Value>
+				<DescID>SNTPServer1SynchIntervalDesc</DescID>
+				<CaptionID>SNTPServer1SynchInterval</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer1Timeout</AttributeName>
+			</Property>
+			<Property name="SNTPServer1Port" category="[020] SNTP Client">
+				<Value>123</Value>
+				<DescID>SNTPServer1PortDesc</DescID>
+				<CaptionID>SNTPServer1Port</CaptionID>
+				<Values type="numerical">
+					<Min>1</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer1Port</AttributeName>
+			</Property>
+			<Property name="TimesyncClientConf2Head" category="[020] SNTP Client">
+				<Value/>
+				<DescID>TimesyncClientConf2Desc</DescID>
+				<CaptionID>TimesyncClientConf2</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>TimesyncClientConf2</AttributeName>
+			</Property>
+			<Property name="SNTPServer2SynchInterval" category="[020] SNTP Client">
+				<Value>15</Value>
+				<DescID>SNTPServer2SynchIntervalDesc</DescID>
+				<CaptionID>SNTPServer2SynchInterval</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer2Timeout</AttributeName>
+			</Property>
+			<Property name="SNTPServer2Port" category="[020] SNTP Client">
+				<Value>123</Value>
+				<DescID>SNTPServer2PortDesc</DescID>
+				<CaptionID>SNTPServer2Port</CaptionID>
+				<Values type="numerical">
+					<Min>1</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer2Port</AttributeName>
+			</Property>
+			<Property name="TimesyncClientConf3Head" category="[020] SNTP Client">
+				<Value/>
+				<DescID>TimesyncClientConf3Desc</DescID>
+				<CaptionID>TimesyncClientConf3</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>TimesyncClientConf3</AttributeName>
+			</Property>
+			<Property name="SNTPServer3SynchInterval" category="[020] SNTP Client">
+				<Value>15</Value>
+				<DescID>SNTPServer3SynchIntervalDesc</DescID>
+				<CaptionID>SNTPServer3SynchInterval</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer3Timeout</AttributeName>
+			</Property>
+			<Property name="SNTPServer3Port" category="[020] SNTP Client">
+				<Value>123</Value>
+				<DescID>SNTPServer3PortDesc</DescID>
+				<CaptionID>SNTPServer3Port</CaptionID>
+				<Values type="numerical">
+					<Min>1</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer3Port</AttributeName>
+			</Property>
+			<Property name="TimesyncClientConf4Head" category="[020] SNTP Client">
+				<Value/>
+				<DescID>TimesyncClientConf4Desc</DescID>
+				<CaptionID>TimesyncClientConf4</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>TimesyncClientConf4</AttributeName>
+			</Property>
+			<Property name="SNTPServer4SynchInterval" category="[020] SNTP Client">
+				<Value>15</Value>
+				<DescID>SNTPServer4SynchIntervalDesc</DescID>
+				<CaptionID>SNTPServer4SynchInterval</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer4Timeout</AttributeName>
+			</Property>
+			<Property name="SNTPServer4Port" category="[020] SNTP Client">
+				<Value>123</Value>
+				<DescID>SNTPServer4PortDesc</DescID>
+				<CaptionID>SNTPServer4Port</CaptionID>
+				<Values type="numerical">
+					<Min>1</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer4Port</AttributeName>
+			</Property>
+			<Property name="TimesyncServerConf" category="[025] SNTP Server">
+				<Value>123</Value>
+				<DescID>TimesyncServerConf</DescID>
+				<CaptionID>TimesyncServerConf</CaptionID>
+				<Values type="numerical">
+					<Min>1</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>TimesyncServerConf</AttributeName>
+			</Property>
+			<Property name="ServerOriginatorCategory" category="[030] Communication Control">
+				<Value>2</Value>
+				<DescID>ServerOriginatorCategoryDesc</DescID>
+				<CaptionID>ServerOriginatorCategory</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="0" textID="not-supported"/>
+					<Enum value="2" textID="station-control"/>
+					<Enum value="3" textID="remote-control"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>ServerOriginatorCategory</AttributeName>
+			</Property>
+			<Property name="ServerOriginatorIdentification" category="[030] Communication Control">
+				<Value>ABB</Value>
+				<DescID>ServerOriginatorIdentificationDesc</DescID>
+				<CaptionID>ServerOriginatorIdentification</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>ServerOriginatorIdentification</AttributeName>
+			</Property>
+			<Property name="QualityTexts" category="[040] OPC Alarm and Event">
+				<Value/>
+				<DescID>MappedEventDesc</DescID>
+				<CaptionID>MappedEvent</CaptionID>
+				<Values type="singleChoiceDynamic">
+					<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupCommonDefinitions" secondchildObjectType="QualityTextsEventGroup"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="SystemEventLevel" category="[030] Communication Control">
+				<Value>0</Value>
+				<DescID>SystemEventLevelDesc</DescID>
+				<CaptionID>SystemEventLevel</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="0" textID="Level0"/>
+					<Enum value="1" textID="Level1"/>
+					<Enum value="2" textID="Level2"/>
+					<Enum value="3" textID="Level3"/>
+					<Enum value="4" textID="Level4"/>
+					<Enum value="5" textID="Level5"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SystemEventLevel</AttributeName>
+			</Property>
+		</Properties>
+	</ObjectType>
+	<ObjectType>
+		<Parameters type="InterfaceDefinition">
+			<Parameter name="ObjectType">IEC61850 OPC Server</Parameter>
+			<Parameter name="Caption">objectTypeCaption</Parameter>
+			<Parameter name="Description">objectTypeDesc</Parameter>
+			<Parameter name="Group">IEC61850</Parameter>
+			<Parameter name="Type">OPCServer</Parameter>
+			<Parameter name="IconFileName">IEC61850.ico</Parameter>
+			<Parameter name="Tools">SCLImport,OnlineDiagnosticsServerIec61850,DiagnosticAeClientServer, SCDExportVerbs</Parameter>
+			<Parameter name="DataServers"/>
+			<Parameter name="Verbs"/>
+			<Parameter name="CanInherit">False</Parameter>
+			<Parameter name="ParentControlConditions">
+				<Structure name="COMMUNICATION">
+					<Condition type="PCMObjectType">GW, Computer Node, Computer Node 3.4, Computer Node 3.5, PCM Computer Node, GW 3.1, GW 3.2, GW 3.3, GW 3.4</Condition>
+				</Structure>
+			</Parameter>
+			<Parameter name="ChildObjects">
+				<Structure name="COMMUNICATION">
+					<!--ChildObject type="EventGroup" name="Event Definitions">
+					<ChildObject type="Device Connection Status Class" name="Device Connection Status">
+          </ChildObject>
+				</ChildObject>
+				<ChildObject type="ScaleGroup" name="Scale Definitions">
+        </ChildObject-->
+				</Structure>
+			</Parameter>
+		</Parameters>
+		<Parameters type="SCLExport">
+			<Export name="CDATA">UseQualityAndTimeAttributes, EnableOPCv2Optimizations, UseDescriptionAttribute, TreeDelimiter, AcceptedTreeDelimiter, EnableTimesyncClient, EnableTimesyncServer, ReportControlIdentity, TimesyncClientConf1, TimesyncClientConf2, TimesyncClientConf3, TimesyncClientConf4, TimesyncServerConf, ServerOriginatorCategory, ServerOriginatorIdentification, SystemEventLevel</Export>
+			<Export name="TimesyncClientConf1" exportType="csv">TimesyncClientConf1Head, SNTPServer1SynchInterval, SNTPServer1Port</Export>
+			<Export name="TimesyncClientConf2" exportType="csv">TimesyncClientConf2Head, SNTPServer2SynchInterval, SNTPServer2Port</Export>
+			<Export name="TimesyncClientConf3" exportType="csv">TimesyncClientConf3Head, SNTPServer3SynchInterval, SNTPServer3Port</Export>
+			<Export name="TimesyncClientConf4" exportType="csv">TimesyncClientConf4Head, SNTPServer4SynchInterval, SNTPServer4Port</Export>
+			<Export name="sclXML">DataTypeTemplatesSCL</Export>
+		</Parameters>
+		<Properties type="PropertyDefinitions">
+			<Property name="DataTypeTemplatesSCL" category="[010] Basic">
+				<Value>
+				</Value>
+				<DescID>DataTypeTemplatesSCLDesc</DescID>
+				<CaptionID>DataTypeTemplatesSCL</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>DataTypeTemplatesSCL</AttributeName>
+			</Property>
+			<Property name="EnableTimesyncClient" category="[020] SNTP Client">
+				<Value>False</Value>
+				<DescID>EnableTimesyncClientDesc</DescID>
+				<CaptionID>EnableTimesyncClient</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>EnableTimesyncClient</AttributeName>
+			</Property>
+			<Property name="EnableTimesyncServer" category="[025] SNTP Server">
+				<Value>False</Value>
+				<DescID>EnableTimesyncServerDesc</DescID>
+				<CaptionID>EnableTimesyncServer</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>EnableTimesyncServer</AttributeName>
+			</Property>
+			<Property name="TreeDelimiter" category="[010] Basic">
+				<Value>\</Value>
+				<DescID>TreeDelimiterDesc</DescID>
+				<CaptionID>TreeDelimiter</CaptionID>
+				<Values type="string"/>
+				<DataType>System.Char</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>TreeDelimiter</AttributeName>
+			</Property>
+			<Property name="AcceptedTreeDelimiter" category="[010] Basic">
+				<Value>\</Value>
+				<DescID>AcceptedTreeDelimiterDesc</DescID>
+				<CaptionID>AcceptedTreeDelimiter</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName>AcceptedTreeDelimiter</AttributeName>
+			</Property>
+			<Property name="ShortName" category="[010] Basic">
+				<Value>IEC61850</Value>
+				<DescID>ShortNameDesc</DescID>
+				<CaptionID>ShortName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="InstanceNumber" category="[010] Basic">
+				<Value>0</Value>
+				<DescID>InstanceNumberDesc</DescID>
+				<CaptionID>InstanceNumber</CaptionID>
+				<Values type="numerical"/>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="ProgIDAE" category="[010] Basic">
+				<Value/>
+				<DescID>ProgIDAEDesc</DescID>
+				<CaptionID>ProgIDAE</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HRW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="ProgID" category="[010] Basic">
+				<Value/>
+				<DescID>ProgIDDesc</DescID>
+				<CaptionID>ProgID</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HRW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="OPCObjectType" category="[010] Basic">
+				<Value>OPC Server</Value>
+				<DescID>OPCObjectTypeDesc</DescID>
+				<CaptionID>OPCObjectType</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName>OPCObjectType</AttributeName>
+			</Property>
+			<Property name="ProtocolName" category="[010] Basic">
+				<Value>IEC61850</Value>
+				<DescID>ProtocolNameDesc</DescID>
+				<CaptionID>ProtocolName</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHH</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="UseQualityAndTimeAttributes" category="[010] Basic">
+				<Value>True</Value>
+				<DescID>UseQualityAndTimeAttributesDesc</DescID>
+				<CaptionID>UseQualityAndTimeAttributes</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>205</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>UseQualityAndTimeAttributes</AttributeName>
+			</Property>
+			<Property name="EnableOPCv2Optimizations" category="[010] Basic">
+				<Value>True</Value>
+				<DescID>EnableOPCv2OptimizationsDesc</DescID>
+				<CaptionID>EnableOPCv2Optimizations</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>206</HelpKey>
+				<Access>HHW</Access>
+				<AttributeName>EnableOPCv2Optimizations</AttributeName>
+			</Property>
+			<Property name="UseDescriptionAttribute" category="[010] Basic">
+				<Value>False</Value>
+				<DescID>UseDescriptionAttributeDesc</DescID>
+				<CaptionID>UseDescriptionAttribute</CaptionID>
+				<Values type="boolean"/>
+				<DataType>System.Boolean</DataType>
+				<HelpKey>207</HelpKey>
+				<Access>RWW</Access>
+				<AttributeName>UseDescriptionAttribute</AttributeName>
+			</Property>
+			<Property name="ReportControlIdentity" category="[030] Communication Control">
+				<Value>Client1</Value>
+				<DescID>ReportControlIdentityDesc</DescID>
+				<CaptionID>ReportControlIdentity</CaptionID>
+				<Values type="string">
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>ReportControlIdentity</AttributeName>
+			</Property>
+			<Property name="TimesyncClientConf1Head" category="[020] SNTP Client">
+				<Value/>
+				<DescID>TimesyncClientConf1Desc</DescID>
+				<CaptionID>TimesyncClientConf1</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>TimesyncClientConf1</AttributeName>
+			</Property>
+			<Property name="SNTPServer1SynchInterval" category="[020] SNTP Client">
+				<Value>15</Value>
+				<DescID>SNTPServer1SynchIntervalDesc</DescID>
+				<CaptionID>SNTPServer1SynchInterval</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer1Timeout</AttributeName>
+			</Property>
+			<Property name="SNTPServer1Port" category="[020] SNTP Client">
+				<Value>123</Value>
+				<DescID>SNTPServer1PortDesc</DescID>
+				<CaptionID>SNTPServer1Port</CaptionID>
+				<Values type="numerical">
+					<Min>1</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer1Port</AttributeName>
+			</Property>
+			<Property name="TimesyncClientConf2Head" category="[020] SNTP Client">
+				<Value/>
+				<DescID>TimesyncClientConf2Desc</DescID>
+				<CaptionID>TimesyncClientConf2</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>TimesyncClientConf2</AttributeName>
+			</Property>
+			<Property name="SNTPServer2SynchInterval" category="[020] SNTP Client">
+				<Value>15</Value>
+				<DescID>SNTPServer2SynchIntervalDesc</DescID>
+				<CaptionID>SNTPServer2SynchInterval</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer2Timeout</AttributeName>
+			</Property>
+			<Property name="SNTPServer2Port" category="[020] SNTP Client">
+				<Value>123</Value>
+				<DescID>SNTPServer2PortDesc</DescID>
+				<CaptionID>SNTPServer2Port</CaptionID>
+				<Values type="numerical">
+					<Min>1</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer2Port</AttributeName>
+			</Property>
+			<Property name="TimesyncClientConf3Head" category="[020] SNTP Client">
+				<Value/>
+				<DescID>TimesyncClientConf3Desc</DescID>
+				<CaptionID>TimesyncClientConf3</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>TimesyncClientConf3</AttributeName>
+			</Property>
+			<Property name="SNTPServer3SynchInterval" category="[020] SNTP Client">
+				<Value>15</Value>
+				<DescID>SNTPServer3SynchIntervalDesc</DescID>
+				<CaptionID>SNTPServer3SynchInterval</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer3Timeout</AttributeName>
+			</Property>
+			<Property name="SNTPServer3Port" category="[020] SNTP Client">
+				<Value>123</Value>
+				<DescID>SNTPServer3PortDesc</DescID>
+				<CaptionID>SNTPServer3Port</CaptionID>
+				<Values type="numerical">
+					<Min>1</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer3Port</AttributeName>
+			</Property>
+			<Property name="TimesyncClientConf4Head" category="[020] SNTP Client">
+				<Value/>
+				<DescID>TimesyncClientConf4Desc</DescID>
+				<CaptionID>TimesyncClientConf4</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>TimesyncClientConf4</AttributeName>
+			</Property>
+			<Property name="SNTPServer4SynchInterval" category="[020] SNTP Client">
+				<Value>15</Value>
+				<DescID>SNTPServer4SynchIntervalDesc</DescID>
+				<CaptionID>SNTPServer4SynchInterval</CaptionID>
+				<Values type="numerical">
+					<Min>0</Min>
+					<Max>3600</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer4Timeout</AttributeName>
+			</Property>
+			<Property name="SNTPServer4Port" category="[020] SNTP Client">
+				<Value>123</Value>
+				<DescID>SNTPServer4PortDesc</DescID>
+				<CaptionID>SNTPServer4Port</CaptionID>
+				<Values type="numerical">
+					<Min>1</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SNTPServer4Port</AttributeName>
+			</Property>
+			<Property name="TimesyncServerConf" category="[025] SNTP Server">
+				<Value>123</Value>
+				<DescID>TimesyncServerConf</DescID>
+				<CaptionID>TimesyncServerConf</CaptionID>
+				<Values type="numerical">
+					<Min>1</Min>
+					<Max>65535</Max>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>TimesyncServerConf</AttributeName>
+			</Property>
+			<Property name="ServerOriginatorCategory" category="[030] Communication Control">
+				<Value>2</Value>
+				<DescID>ServerOriginatorCategoryDesc</DescID>
+				<CaptionID>ServerOriginatorCategory</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="0" textID="not-supported"/>
+					<Enum value="2" textID="station-control"/>
+					<Enum value="3" textID="remote-control"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>ServerOriginatorCategory</AttributeName>
+			</Property>
+			<Property name="ServerOriginatorIdentification" category="[030] Communication Control">
+				<Value>ABB</Value>
+				<DescID>ServerOriginatorIdentificationDesc</DescID>
+				<CaptionID>ServerOriginatorIdentification</CaptionID>
+				<Values type="string"/>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>RWW</Access>
+				<AttributeName>ServerOriginatorIdentification</AttributeName>
+			</Property>
+			<Property name="QualityTexts" category="[040] OPC Alarm and Event">
+				<Value/>
+				<DescID>MappedEventDesc</DescID>
+				<CaptionID>MappedEvent</CaptionID>
+				<Values type="singleChoiceDynamic">
+					<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupCommonDefinitions" secondchildObjectType="QualityTextsEventGroup"/>
+				</Values>
+				<DataType>System.String</DataType>
+				<HelpKey/>
+				<Access>HHW</Access>
+				<AttributeName/>
+			</Property>
+			<Property name="SystemEventLevel" category="[030] Communication Control">
+				<Value>0</Value>
+				<DescID>SystemEventLevelDesc</DescID>
+				<CaptionID>SystemEventLevel</CaptionID>
+				<Values type="singleChoice">
+					<Enum value="0" textID="Level0"/>
+					<Enum value="1" textID="Level1"/>
+					<Enum value="2" textID="Level2"/>
+					<Enum value="3" textID="Level3"/>
+					<Enum value="4" textID="Level4"/>
+					<Enum value="5" textID="Level5"/>
+				</Values>
+				<DataType>System.Int32</DataType>
+				<HelpKey/>
+				<Access>HWW</Access>
+				<AttributeName>SystemEventLevel</AttributeName>
+			</Property>
+		</Properties>
+	</ObjectType>
+</ObjectTypes>

@@ -1,0 +1,31 @@
+#local l_paths = LIST(), t_path, t_lpath, v_lpaths, v_paths
+#local apl = APL:BNA, I, chr, code
+
+#IF ARGUMENT_COUNT > 0 #THEN l_paths = ARGUMENT(1)
+
+v_lpaths = VECTOR("5_INST", "5_USE", "5_OT", "5_LANG")
+v_paths = VECTOR(-
+	"/APL/'APL'/APLMOD5/INST",-
+	"/APL/'APL'/APLMOD5/USE",-
+	"/APL/'APL'/APLMOD5/OBJECT_TYPES",-
+	"/APL/'APL'/APLMOD5/LANG_TEXTS")
+
+#LOOP_WITH I = 1 .. LENGTH(v_lpaths) 
+	#LOOP_WITH CODE=65..90
+		chr = ASCII(CODE)
+		t_path = v_paths(I)
+		t_lpath = chr + v_lpaths(I)
+		#IF LENGTH(PATH(t_lpath)) > 0 OR-
+			ATTRIBUTE_EXISTS(l_paths, t_lpath) #THEN #BLOCK
+			#IF DIRECTORY_MANAGER("EXISTS", FM_SCIL_DIRECTORY(t_path)) #THEN #BLOCK
+				#IF ATTRIBUTE_EXISTS(l_paths, t_lpath) #THEN #BLOCK
+					l_paths.'t_lpath' = APPEND(VECTOR(t_path), l_paths.'t_lpath') 
+				#BLOCK_END
+				#ELSE l_paths = MERGE_ATTRIBUTES(l_paths, LIST('t_lpath' = -
+					VECTOR(t_path)))
+			#BLOCK_END
+		#BLOCK_END
+	#LOOP_END
+#LOOP_END
+
+#return l_paths

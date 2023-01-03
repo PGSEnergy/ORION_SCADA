@@ -1,0 +1,440 @@
+﻿;OBJECT       : SAI_GEN.DAT
+;Copyright Hitachi Power Grids. All rights reserved.
+;
+;DESCRIPTION  : The configuration file for the generator function
+                           
+;----------------------------------------------------------------------------------------------------------------------------
+
+##FUNC_INIT_BEGIN
+
+@'.ID'_PICTURE_FUNCTION_CONF   = LIST(-
+   CREATED_BY                  = "SA_LIB",-
+   CONFIG_DATA_FILE            = "?CONF_FILE?",-
+   STATION_NAME                = "",-
+   BAY_NAME                    = "",-
+   DEVICE_NAME                 = "",-
+   SPECIAL_IDENTIFIER_1        = "",-
+   SPECIAL_IDENTIFIER_2        = "",-
+   SPECIAL_IDENTIFIER_3        = "",-
+   P_OBJECT_LN                 = "",-
+   P_OBJECT_INDEXES            = "",-
+   STATION_TYPE                = "IEC61850",-
+   TOPO_OBJECT_TYPE            = "GENERATOR",-
+   TOPO_OBJECT_COLOR_IX        = 255,-
+   TOPO_OBJECT_COLOR_NR        = 36,-
+   TOPO_OBJECT_X_POS           = (8,8,-6,22),-
+   TOPO_OBJECT_Y_POS           = (-4,24,10,10),-
+   SYMBOL_COLOR_NORMAL         = 14,-
+   DA_CONFIG_FILE              = "",-
+   UNIT_NUMBER                 = 0,-
+   SA_LIB_INDEXES              = "0,0,0",-      
+   REPRESENTATION              = "B_REPR/B_GENS1")
+
+@RX_LENGTH1=10
+@RX_LENGTH2=10
+@RX_LENGTH3=10
+
+##FUNC_INIT_END
+
+##FUNC_DEF_BEGIN
+
+;define correct representation list
+@REPR_LIST=""
+#CASE .STANDARD_FUNCTION_NAME
+   #WHEN "B_INST/BCI_GENS" @REPR_LIST= ("B_REPR/B_GENS1")
+   #WHEN "B_INST/BCI_GENM" @REPR_LIST= ("B_REPR/B_GENM1",-
+                                        "B_REPR/B_GENM2",-
+                                        "B_REPR/B_GENM3")
+   #WHEN "B_INST/BCI_GENL" @REPR_LIST= ("B_REPR/B_GENL1",-
+                                        "B_REPR/B_GENL2",-
+                                        "B_REPR/B_GENL3")
+#CASE_END
+
+;check the usage of object identification (OI) -attribute
+@S = STATUS
+@POINTER_STA  = 0
+@POINTER_BAY  = 0
+@POINTER_DEV  = 0
+#ERROR IGNORE
+@APL_BSV15      = APL:BSV15
+@PROCESSOBJECTS = APL_BSV15:VPROCESS_OBJECTS
+@OI             = PROCESSOBJECTS:VOI
+#LOOP_WITH I = 1 .. 30
+  #IF DATA_TYPE(OI:VLENGTH'I')=="INTEGER" #THEN #BLOCK  
+    @OI_LENGTH'I' = OI:VLENGTH'I'
+    ;if field in use
+    #IF %OI_LENGTH'I' > 0 #THEN #BLOCK  
+      @NR_OF_FIELDS = %I
+      @OI_TITLE'I'  = OI:VTITLE'I'
+      @OI_FIELD'I'  = OI:VFIELD'I'
+      #IF      LENGTH(SELECT(%OI_FIELD'I',"==""STA"""))>0 #THEN @POINTER_STA = %I
+      #ELSE_IF LENGTH(SELECT(%OI_FIELD'I',"==""BAY"""))>0 #THEN @POINTER_BAY = %I
+      #ELSE_IF LENGTH(SELECT(%OI_FIELD'I',"==""DEV"""))>0 #THEN @POINTER_DEV = %I
+    #BLOCK_END
+    #ELSE #BLOCK
+      @OI_TITLE'I'  = ""
+      @OI_FIELD'I'  = ""
+    #BLOCK_END
+  #BLOCK_END
+  #ELSE #LOOP_EXIT
+#LOOP_END
+#ERROR CONTINUE
+
+;set defaults if APL:BSV15 not correctly defined
+@S = STATUS
+#IF %S <> 0 #THEN #BLOCK
+  @OI_TITLE1    = "Substation"
+  @OI_TITLE2    = "Bay"
+  @OI_TITLE3    = "Device"
+  @OI_TITLE4    = ""
+  @OI_TITLE5    = ""
+  @OI_LENGTH1   = 10
+  @OI_LENGTH2   = 15
+  @OI_LENGTH3   = 5
+  @OI_LENGTH4   = 0
+  @OI_LENGTH5   = 0
+  @POINTER_STA  = 1
+  @POINTER_BAY  = 2
+  @POINTER_DEV  = 3
+  @NR_OF_FIELDS = 3
+#BLOCK_END
+
+;set configurable attributes according to OI-configuration
+@NR_OF_SPECIAL_FIELD = 0
+@OBJECT_IDENTIFIERS  = VECTOR()
+
+#LOOP_WITH I = 1 .. 30
+  #IF %I <= %NR_OF_FIELDS #THEN #BLOCK  
+
+    ;define the name of the configurable attribute
+    #IF      %I == %POINTER_STA #THEN @OBJECT_IDENTIFIER_'I'_NAME = "STATION_NAME"
+    #ELSE_IF %I == %POINTER_BAY #THEN @OBJECT_IDENTIFIER_'I'_NAME = "BAY_NAME"
+    #ELSE_IF %I == %POINTER_DEV #THEN @OBJECT_IDENTIFIER_'I'_NAME = "DEVICE_NAME"
+    #ELSE #BLOCK
+      @NR_OF_SPECIAL_FIELD = %NR_OF_SPECIAL_FIELD + 1
+      @OBJECT_IDENTIFIER_'I'_NAME = "SPECIAL_IDENTIFIER_'NR_OF_SPECIAL_FIELD'"
+    #BLOCK_END
+
+    ;set one space between different fields
+    #IF %I < %NR_OF_FIELDS AND %OI_LENGTH'I' > 1 #THEN @OBJECT_IDENTIFIER_'I'_MAX_LENGTH = %OI_LENGTH'I' - 1
+    #ELSE @OBJECT_IDENTIFIER_'I'_MAX_LENGTH = %OI_LENGTH'I'
+
+    ;create a list of previously used identifiers
+    @SECTION  = %OBJECT_IDENTIFIER_'I'_NAME
+    @KEYS     = VECTOR()
+    #LOOP_WITH J = 1 .. 10
+      @NEW_KEY= "'SECTION''J'"
+      @KEY'J' = READ_PARAMETER("PICT/OBJ_IDEN.INI",%SECTION,%NEW_KEY)
+      @KEY    = %KEY'J'
+      #IF KEY:VSTATUS == 0 #THEN #BLOCK
+        @KEYS = APPEND(%KEYS,KEY:VVALUE)
+       #BLOCK_END
+    #LOOP_END
+    @OBJECT_IDENTIFIER_'I'_VALUES = %KEYS
+
+    ;set configuration for SCT
+    #IF %I <= %POINTER_DEV #THEN #BLOCK
+      @OBJECT_IDENTIFIER_'I' = LIST(-
+           NAME       = %OBJECT_IDENTIFIER_'I'_NAME,-
+           TYPE       = "EDITABLE_SELECTOR",-
+           INPUT_TYPE = "TEXT",-
+           VALUES     = %OBJECT_IDENTIFIER_'I'_VALUES,-
+           REPRESENT  = %OBJECT_IDENTIFIER_'I'_VALUES,-
+           MAX_LENGTH = %OBJECT_IDENTIFIER_'I'_MAX_LENGTH)
+      @OBJECT_IDENTIFIERS = APPEND(%OBJECT_IDENTIFIERS, %OBJECT_IDENTIFIER_'I')
+    #BLOCK_END
+  #BLOCK_END
+  #ELSE #LOOP_EXIT
+#LOOP_END
+
+;supported protocols
+@STATION_TYPE_VALUES = (-
+                  "SPA",-
+                  "ANSI",-
+                  "LON",-
+                  "RTU",-
+                  "RTU_E",-
+                  "IEC101",-
+                  "IEC103",-
+                  "ICCP",-
+                  "DNP_30",-
+                  "MODBUS_RTU",-
+                  "PROC",-
+                  "IEC61850")
+
+@STATION_TYPE_REPRESENT = (-
+                  "SPA",-
+                  "ANSI",-
+                  "LON",-
+                  "RP570",-
+                  "RP570 with FTABs",-
+                  "IEC 870-5-101/104",-
+                  "IEC 870-5-103",-
+                  "ICCP",-
+                  "DNP 3.0",-
+                  "MODBUS RTU",-
+                  "PROCOL",-
+                  "IEC 61850-8")
+
+@FUNC_DEF=LIST(-
+    CONFIGURABLE_ATTRIB = ("STATION_NAME",-
+                           "BAY_NAME",-
+                           "DEVICE_NAME",-
+                           "SPECIAL_IDENTIFIER_1",-
+                           "SPECIAL_IDENTIFIER_2",-
+                           "SPECIAL_IDENTIFIER_3",-
+                           "P_OBJECT_LN",-
+                           "P_OBJECT_INDEXES",-
+                           "STATION_TYPE",-
+                           "TOPO_OBJECT_COLOR_NR",-
+                           "REPRESENTATION"),-
+    SCT_ATTRIBUTES      = (LIST(NAME   = "P_OBJECT_LN",-
+                                TYPE   = "TEXT",-
+                                MAX_LENGTH =  63),-
+                           LIST(NAME      =  "STATION_TYPE",-
+                                TYPE      =  "SELECTOR",-
+                                VALUES    =  %STATION_TYPE_VALUES,-
+                                REPRESENT =  %STATION_TYPE_REPRESENT)),-
+    REPR_ATTRIBUTES     = (LIST(NAME   = "REPRESENTATION",-
+                                VALUES = %REPR_LIST)),-
+    REPR_USER_PROGS     = "",-
+    SCT_HELP_FILE       = "SAGR_LANG/SAI_GEN.HLP")
+
+;add configurable attributes for object identifiers
+#SET FUNC_DEF:VSCT_ATTRIBUTES = APPEND(%OBJECT_IDENTIFIERS, FUNC_DEF:VSCT_ATTRIBUTES)
+
+;read object identification from database when SCT opens
+@S = STATUS
+#ERROR IGNORE
+@PRODUCT_ID = .PRODUCT_ID
+#ERROR CONTINUE
+@S = STATUS
+#IF %S == 0 #THEN #BLOCK
+  #IF UPPER_CASE(.PRODUCT_ID) == "PF_CONF" #THEN #BLOCK
+    #ERROR IGNORE
+    @S = STATUS
+    @DB_LN = 'ID'_PICTURE_FUNCTION_CONF:VP_OBJECT_LN
+    @DB_IX = 'ID'_PICTURE_FUNCTION_CONF:VP_OBJECT_INDEXES(1)
+    @DB_OI = 'DB_LN':POI'DB_IX'
+    @OI_START_POS = 1
+    #ERROR CONTINUE
+    @S = STATUS
+    #IF %S == 0 #THEN #BLOCK
+      #LOOP_WITH I = 1..30
+        #IF  %I <= %POINTER_STA AND %I < %NR_OF_FIELDS #THEN #BLOCK  
+          @TEXT_FROM_DB = EDIT(SUBSTR(%DB_OI,%OI_START_POS,%OI_LENGTH'I'-1),"TRIM")
+          @CONF_VALUE = .ST_GET_ATTRIBUTE(%OBJECT_IDENTIFIER_'I'_NAME)
+          #IF %TEXT_FROM_DB <> %CONF_VALUE #THEN .ST_SET_ATTRIBUTE(%OBJECT_IDENTIFIER_'I'_NAME,%TEXT_FROM_DB)
+          @OI_START_POS = %OI_START_POS + %OI_LENGTH'I'
+        #BLOCK_END
+        #ELSE_IF %I == %POINTER_STA AND %I == %NR_OF_FIELDS #THEN #BLOCK  
+          @TEXT_FROM_DB = EDIT(SUBSTR(%DB_OI,%OI_START_POS,%OI_LENGTH'I'),"TRIM")
+          @CONF_VALUE = .ST_GET_ATTRIBUTE(%OBJECT_IDENTIFIER_'I'_NAME)
+          #IF %TEXT_FROM_DB <> %CONF_VALUE #THEN .ST_SET_ATTRIBUTE(%OBJECT_IDENTIFIER_'I'_NAME,%TEXT_FROM_DB)
+          @OI_START_POS = %OI_START_POS + %OI_LENGTH'I'
+        #BLOCK_END
+        #ELSE #LOOP_EXIT
+      #LOOP_END
+    #BLOCK_END
+  #BLOCK_END
+#BLOCK_END
+
+##FUNC_DEF_END
+
+
+
+;-------- Define Configuration Tool Menu -----------------
+##MENU_TXT_BEGIN
+    .ENABLE_POT                         ;Process object tool
+    .ENABLE_REPRESENTATION_TOOL         ;Representation tool
+##MENU_TXT_END
+
+
+##MENU_PROG_BEGIN
+
+##MENU_PROG_END
+
+
+;-------- Define Process Objects -----------------
+##P_OBJECTS_BEGIN
+#error stop
+    @RX_LENGTH1=10
+    @RX_LENGTH2=10
+    @RX_LENGTH3=10
+
+    #DO READ_TEXT("SAGR_LANG/SAI_GEN.TXT")
+
+    ;define 1:1 scale for AI object if it does not exist
+    @X_SEARCH=FETCH(0,"X","1_1")
+    #IF X_SEARCH:VIU == -1 #THEN #BLOCK
+      #CREATE 1_1:X = LIST(SA = 0)
+    #BLOCK_END
+
+    @OBJ_IDENT
+    #LOOP_WITH I = 1 .. %NR_OF_FIELDS
+      @FIELD_IDENT = %OBJECT_IDENTIFIER_'I'_NAME
+      @OBJ_IDENT=%OBJ_IDENT+SUBSTR('ID'_PICTURE_FUNCTION_CONF:V'FIELD_IDENT',1,%OI_LENGTH'I')
+    #LOOP_END
+    
+@L_DX = LIST(-
+   SPA = LIST(-
+      DX_6 = "N9",-
+      DX_9 = "N6"),-
+   ANSI = LIST(-
+      DX_6 = "6",-
+      DX_9 = "9"),-
+   LON = LIST(-
+      DX_6 = "X9",-
+      DX_9 = "X6"),-
+   RTU = LIST(-
+      DX_6 = "I9",-
+      DX_9 = "I6"),-
+   RTU_E = LIST(-
+      DX_6 = "R9",-
+      DX_9 = "R6"),-
+   IEC101 = LIST(-
+      DX_6 = "C6",-
+      DX_9 = "C9"),-
+   IEC103 = LIST(-
+      DX_6 = "C6",-
+      DX_9 = "C9"),-
+   ICCP = LIST(-
+      DX_6 = "C6",-
+      DX_9 = "C9"),-
+   DNP_30 = LIST(-
+      DX_6 = "D6",-
+      DX_9 = "D9"),-
+   MODBUS_RTU = LIST(-
+      DX_6 = "I9",-
+      DX_9 = "I6"),-
+   PROC = LIST(-
+      DX_6 = "O3",-
+      DX_9 = "O2"),-
+   IEC61850 = LIST(-
+      DX_6 = "E9",-
+      DX_9 = "E6"))
+      
+   @STATION_TYPE = 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE   
+   @RES_TEXT = - 
+        SUBSTR("",1,%RX_LENGTH1)+ -
+        SUBSTR("",1,%RX_LENGTH2)+ -
+        SUBSTR("BCHTCIXPCD",1,%RX_LENGTH3)
+   @RX1 = PAD(" ",20) + "FPEGENIGIF"
+   @RX2 = PAD(" ",20) + "FPEGENIGST"
+   @RX4 = PAD(" ",20) + "BCHTCIXVOL"
+  
+   @OX1 = %BCI_GEN.GENERATOR_INDICATION
+   @OX2 = %BCI_GEN.GENERATOR_STATE
+   @OX4 = %BCI_GEN.VOLTAGE_LEVEL
+                              
+   #MODIFY P_OBJECTS:V = LIST(-
+       P_OBJ1 = LIST(-
+         IX = 10,-                                    ;index = 10
+         PT = 9,-                                     ;process object type = AI
+         SN = "1_1",-                                 ;scale name
+         DX = %L_DX.'STATION_TYPE'.DX_9,-             ;directive text
+         IU = 1,-                                     ;in use = yes
+         SS = 1,-                                     ;switch state = manual
+         ST = "kV",-                                  ;unit of the value
+         SZ = 1,-                                     ;zone supervision = SCADA
+         EE = 0,-                                     ;event enable = yes
+         HE = 0,-                                     ;history activation = yes
+         HA = 0,-                                     ;history activation = new value
+         HF = 0,-                                     ;history at first update = no
+         PA = 0,-                                     ;printout activation = new value
+         RC = 0,-                                     ;receipt = acknowledgement required
+         RX = %RX1,-                                  ;data acquisition unit and group information
+         OI = %OBJ_IDENT,-                            ;object identification
+         PF = "",-                          ;physical format for printout
+         RI = 0,-                                     ;reserved integer
+         OX = %OX1,-                                  ;object text
+         EH = "",-
+         AI = 1),-                                    ;object value = 0                            ;group information;power flow
+      P_OBJ2 = LIST (-
+         IX = 11,-
+         PT = 6,-                                   ;process object type = DI
+         DX = %L_DX.'STATION_TYPE'.DX_6,-           ;directive text
+         OV = 2,-                                   ;object value
+         OI = %OBJ_IDENT,-                          ;substation & bay name
+         OX = %OX2,-                                ;object text
+         IU = 1,-                                   ;in use = yes
+         SS = 1,-                                   ;switch state = man
+         EE = 0,-                                   ;event enable = yes
+         HE = 1,-                                   ;history enable = yes
+         HA = 1,-                                   ;history activation = new value
+         HF = 0,-                                   ;history at first update = no
+         HL = 0,           -                        ;history log number = 15
+         SZ = 1,-                                   ;zone supervision = SCADA
+         RC = 0,-                                   ;receipt = acknowledgement not required
+         AB = 0,-                                   ;alarm blocking = no
+         AC = 0,-                                   ;alarm class = disabled
+         AD = 0,-                                   ;alarm delay = 0
+         PD = 0,-                                   ;picture device = none
+         PI = "",-                                  ;alarm picture
+         PF = "",-                                  ;physical format for printout
+         PA = 0,-                                   ;printout activation = new value
+         PU = 0,-                                   ;picture/ printout at first update = no
+         LD = 0,-                                   ;listing device
+         AE = 1,-                                   ;action enabled
+         AN = "BGU_SET_GENERATOR_ON_OFF",-          ;action name
+         AA = 2,-                                   ;action activation
+         AF = 1,-                                   ;action at first update
+         EH = "SAGR_FORM5FPDI1_1",-                 ;event handling
+         RI = 0,-                                   ;reserved integer
+         RX = %RX2),-                               ;group information
+      P_OBJ3 = LIST(-
+        IX = 'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_COLOR_IX,-   ;index 
+        PT = 9,-                                     ;process object type = AI
+        DX = %L_DX.'STATION_TYPE'.DX_9,-             ;directive text
+        AI = 'ID'_PICTURE_FUNCTION_CONF:VTOPO_OBJECT_COLOR_NR,-   ;user color
+        OI = %OBJ_IDENT,-                            ;substation & bay name
+        OX = BCI_GEN:VTOPO_OBJECT_TEXT,-             ;object text
+        IU = 1,-                                     ;in use = yes
+        SS = 1,-                                     ;switch state = manual
+        EE = 1,-                                     ;event enable = yes
+        HE = 0,-                                     ;history enable = no
+        SN = "1_1",-                                 ;scale name
+        RX = %RES_TEXT),-
+      P_OBJ4 = LIST(-
+         IX = 50000,-                                 ;index = 50000
+         PT = 9,-                                     ;process object type = AI
+         SN = "1_1",-                                 ;scale name
+         DX = %L_DX.'STATION_TYPE'.DX_9,-             ;directive text
+         IU = 1,-                                     ;in use = yes
+         SS = 1,-                                     ;switch state = manual
+         ST = "kV",-                                  ;unit of the value
+         SZ = 1,-                                     ;zone supervision = SCADA
+         EE = 1,-                                     ;event enable = yes
+         HE = 0,-                                     ;history activation = yes
+         HA = 1,-                                     ;history activation = new value
+         HF = 0,-                                     ;history at first update = no
+         PA = 1,-                                     ;printout activation = new value
+         RC = 1,-                                     ;receipt = acknowledgement required
+         RX = %RX4,-                                  ;data acquisition unit and group information
+         OI = %OBJ_IDENT,-                            ;object identification
+         HL = BIT_MASK(15),-                          ;history log number = 15
+         LD = BIT_MASK(1),-                           ;listing device = 1
+         PF = "FORM5SAGR1",-                          ;physical format for printout
+         RI = 1,-                                     ;reserved integer
+         OX = %OX4,-                                  ;object text
+         AI = 0))                                     ;object value = 0
+              
+##P_OBJECTS_END
+
+
+;-------- Program Executed when OK -----------------
+##OK_BEGIN
+
+##OK_END
+
+
+;-------- Program Executed when CANCEL -----------------
+##CANCEL_BEGIN
+ 
+##CANCEL_END
+
+
+;-------- Program Executed when DELETE -----------------
+##DELETE_BEGIN
+
+##DELETE_END

@@ -1,0 +1,57 @@
+﻿;OBJECT       : BGU_HDS.TXT
+;Copyright Hitachi Power Grids. All rights reserved.
+;
+;DESCRIPTION  : This is the program for creating a time channel, command
+;               procedure and a process object for the Hard Disk Supervision 
+;--------------------------------------------------------------------------------
+;Hard Disk Supervision System
+
+;Define the modify variable
+@MODIFY = TRUE ; True if P-obj modify possible
+
+;read texts in
+#DO READ_TEXT("SAGR_LANG/BGU_HDSTXT.TXT")
+
+;If executed at system startup
+#IF DATA_TYPE(%LOW_ALARM) == "NONE" #THEN #BLOCK
+   @STATUS =STATUS
+   #ERROR IGNORE
+   @LOW_ALARM=B_HDS:PLI10
+   @STATUS = STATUS 
+   ;If P-object does not exist 
+   ;Define default alarm limit
+   #IF %STATUS<>0 #THEN @LOW_ALARM=100
+   @MODIFY = FALSE
+   #ERROR CONTINUE
+#BLOCK_END
+#DO READ_TEXT("SAGR_BBONE/BGU_HDSCFG.TXT")
+
+;create time channel
+@TEST=FETCH(0,"T","BGU_HDS")
+#IF TEST:VIU == -1 #THEN #CREATE BGU_HDS:T = %BGU_HDS_T
+      
+;create bgu_hds:c for getting the free HD space to a process object
+@TEST=FETCH(0,"C","BGU_HDS")
+#IF TEST:VIU == -1 #THEN #CREATE BGU_HDS:C = %BGU_HDS_C1
+
+@TEST=FETCH(0,"C","BGU_HDSACT")
+#IF TEST:VIU == -1 #THEN #CREATE BGU_HDSACT:C = %BGU_HDS_C2
+
+;create scale for the P-object if not exists
+@TEST=FETCH(0,"X","BGU_HDS1_1")
+#IF TEST:VIU == -1 #THEN #CREATE BGU_HDS1_1:X = %X_OBJ
+
+;create process object B_HDS:P10 for the printing and
+;alarm handling
+@TEST=FETCH(0,"P","B_HDS",10)
+@ERROR_STATE = ERROR_STATE
+#ERROR IGNORE
+#IF TEST:VIU == -1 #THEN #CREATE B_HDS:P10 = %BGU_HDS_P
+#ELSE_IF %MODIFY #THEN #MODIFY B_HDS:P10 = %BGU_HDS_P
+#ERROR 'ERROR_STATE'
+
+;create the action to performe when disk space is low 
+@TEST=FETCH(0,"A","BGU_HDSACT")
+#IF TEST:VIU == -1 #THEN #CREATE BGU_HDSACT:A = %BGU_HDS_A1
+
+   

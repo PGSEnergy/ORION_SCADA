@@ -1,0 +1,28 @@
+;--------------------------------------------------------------------
+;This file is created automatically at application startup
+;Do not modify by hand!
+;--------------------------------------------------------------------
+
+;Read the language to use
+@L
+@TMP
+#ERROR IGNORE
+@L=MON:BSV4
+@TMP=APL:BSV(11)
+@TMP=TMP:VB_APPLICATION_LANGUAGE
+#ERROR CONTINUE
+#IF DATA_TYPE(%L)=="TEXT" AND DATA_TYPE(%TMP)=="INTEGER" #THEN  @L=%TMP
+#IF DATA_TYPE(%L)=="TEXT" #THEN @L=0
+;-------------------------------------------------------------------------------
+
+
+;Path definitions for bbone
+#PATH B_INST +NO_CREATE, /SA_LIB/BASE/BBONE/INST
+#PATH B_USE +NO_CREATE, /SA_LIB/BASE/BBONE/USE
+#PATH B_LANG +NO_CREATE, /SA_LIB/BASE/BBONE/LANG'L'
+
+;Path definitions for reports
+#PATH F_USE +NO_CREATE, /SA_LIB/BASE/REPORTS/USE
+
+
+

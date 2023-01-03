@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Markku Hamarila/RSC (ABB OY Substation Automation) -->
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">IEC61850SPA IED</Parameter>
+		<Parameter name="Caption">objectTypeCaption</Parameter>
+		<Parameter name="Description">objectTypeDesc</Parameter>
+		<Parameter name="Group">IEC61850</Parameter>
+		<Parameter name="Type">IED</Parameter>
+		<Parameter name="IconFileName">GenIED.ico</Parameter>
+		<Parameter name="Tools">OnlineDiagnosticsLdIec61850</Parameter>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="Visible">False</Parameter>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="PCMObjectType">IEC61850 IED GW</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+	<Parameters type="SCLExport">
+		<Export name="CDATA">SRSwitchForLogicalDevice, SPATCPDeviceFor</Export>
+		<Export name="SPATCPDeviceFor" exportType="csv">SPATCPDevice, SPATCPTimeout, SPATCPPort</Export>
+	</Parameters>
+	<Properties type="PropertyDefinitions">
+		<Property name="OPCObjectType" category="[010] Basic">
+			<Value>IEC61850 LD</Value>
+			<DescID>OPCObjectTypeDesc</DescID>
+			<CaptionID>OPCObjectType</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RRR</Access>
+			<AttributeName>OPCObjectType</AttributeName>
+		</Property>
+		<Property name="SRSwitchForLogicalDevice" category="[060] Control Authorization">
+			<Value/>
+			<DescID>SRSwitchForLogicalDeviceDesc</DescID>
+			<CaptionID>SRSwitchForLogicalDevice</CaptionID>
+			<Values type="string"/>
+			<DataType>System.String</DataType>
+			<HelpKey>418</HelpKey>
+			<Access>HWW</Access>
+			<AttributeName>SRSwitchForLogicalDevice</AttributeName>
+		</Property>
+		<Property name="SPATCPDevice" category="[030] Transparent SPA">
+			<Value>0</Value>
+			<DescID>SPATCPDeviceDesc</DescID>
+			<CaptionID>SPATCPDevice</CaptionID>
+			<Values type="numerical">
+				<Min>0</Min>
+				<Max>999</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>SPATCPDevice</AttributeName>
+		</Property>
+		<Property name="SPATCPTimeout" category="[030] Transparent SPA">
+			<Value>15</Value>
+			<DescID>SPATCPTimeoutDesc</DescID>
+			<CaptionID>SPATCPTimeout</CaptionID>
+			<Values type="numerical">
+				<Min>1</Min>
+				<Max>65535</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>SPATCPTimeout</AttributeName>
+		</Property>
+		<Property name="SPATCPPort" category="[030] Transparent SPA">
+			<Value>7001</Value>
+			<DescID>SPATCPPortDesc</DescID>
+			<CaptionID>SPATCPPort</CaptionID>
+			<Values type="numerical">
+				<Min>1</Min>
+				<Max>65535</Max>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>SPATCPPort</AttributeName>
+		</Property>
+	</Properties>
+</ObjectType>

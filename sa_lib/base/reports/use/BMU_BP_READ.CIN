@@ -1,0 +1,43 @@
+; Function:    BMU_BP_READ:C
+; Version:     3.0 (Build 23.02.2012)
+; Parameters:  Data_ID  - object name
+;              YE1, YE2 - year reference
+;              IP1      - start pointer YE1
+;              NP       - end pointer
+;              N1, N2   - end pointer for YE1, YE2, fetch data from different years
+; Return data: DATA - fetched values
+; Description: Read period values from db
+;
+; Note! This procedure needs input variables from
+;       procedures BMU_GLOBAL & BMU_BP_IND
+;-------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;-------------------------------------------------------------------------------
+#local i_Status = status, cot,-
+       l_Data = list(), l_DF1 = list(), l_DF2 = list(),-
+       t_DO_LN = %Data_ID+"'YE1'"
+#error ignore
+
+#if not application_object_exists(0,"D",t_DO_LN) #then #block
+   cot = console_output("BMU_BP_READ:C - Data Object 't_DO_LN':D missing","E","MREP") 
+   #return
+#block_end
+
+#if %YE1 == %YE2 #then #block                                                   ;*** data inside the same year
+   l_Data = data_fetch(0, t_DO_LN, %IP1,1,%NP)
+#block_end
+#else #block                                                                    ;*** data not inside the same year
+   l_DF1 = data_fetch(0, t_DO_LN, %IP1, 1, %N1)
+   t_DO_LN = %DATA_ID + "'YE2'"
+   l_DF2 = data_fetch(0, t_DO_LN, 1, 1, %N2)
+   l_Data = list(-
+      OV = append(l_DF1.OV, l_DF2.OV), RT = append(l_DF1.RT, l_DF2.RT), -
+      OS = append(l_DF1.OS, l_DF2.OS), IX = append(l_DF1.IX, l_DF2.IX), -
+      LE = l_DF1.LE + l_DF2.LE)
+#block_end
+
+i_Status = status
+#if i_Status <> 0 #then cot = console_output("BMU_BP_READ:C - Report Object: 'DATA_ID' - SCIL Error='i_Status'","E","MREP") 
+
+@Data = l_Data

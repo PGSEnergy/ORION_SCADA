@@ -1,0 +1,168 @@
+; File: StartPCNET.scl([i_PC_NET_Node])
+; Parameters: i_PC_NET_Node, number of PC-NET node, which is going to be started
+; Description: Starts the PC_NET. The PC_NET.CF1 file is updated before starting 
+;              to enable communication with THIS application.
+; ------------------------------------------------------------------------------
+#local   v_Main_Apls = vector(),-
+         i_Cur_Apl,-
+         i_Apl,-
+         i_Sw,-
+         l_Dos,-
+         b_Hsb,-
+         t_Shad_Do = "SHADLOCAPL",-
+         i_v,-
+         i_Apl_Number,-
+         i_Row,-
+         i_Max_Ext_Appl_Number = 16
+         
+@b_Create_All_Nets = TRUE
+
+#if argument_count == 1 #then #block
+
+   @i_Passed_NET = argument(1)
+   @b_Create_All_Nets = FALSE
+
+#block_end
+
+@t_Error_State = error_state
+#on error #block
+   @i_Status = status
+   @i_Status = do(read_text("sys_tool/MsgLog.scl"),-
+                  "ERROR",-
+                  "Could not start PC_NET (StartPCNET.scl)",-
+                  %i_Status)
+   #error 't_Error_State'
+#block_end
+#error event
+
+@l_System_Configuration_Data = SYS:BSV(2)
+
+#if data_type(%l_System_Configuration_Data) == "LIST" #then #block ; 1
+
+   #if length(select(list_attr(%l_System_Configuration_Data), "==""B_CONF_MECH_IN_USE""")) > 0 #then #block ; 2
+
+      #if l_System_Configuration_Data:vb_Conf_Mech_In_Use #then #block ; 3
+
+         ;Initialise variables
+         @i_Base_System_Station_Address = SYS:BSA
+         @i_Base_System_Node_Number     = SYS:BND
+         @i_Application_Node_Number     = %i_Base_System_Node_Number
+         @i_Application_Number          = APL:BAN
+         @i_PCNET_Station_Address       = 0 ; determined below
+         @b_OK                          = FALSE
+         @t_Configuration_File          = l_System_Configuration_Data:vt_System_Configuration_File
+         @v_File_Contents               = vector()
+         @l_PCNET_Node_Info             = do(read_text("sys_tool/GetINodeInfo.scl"))
+         @b_Successive_PCNETs           = (length(l_PCNET_Node_Info:vv_Node_Number) > 1)
+         
+         #if %b_Create_All_Nets #then @v_Passed_Nets = l_PCNET_Node_Info:vv_Node_Number
+         #else #block
+         
+            @v_Index = select(l_PCNET_Node_Info:vv_Node_Number, "==%i_Passed_NET")
+            @v_Passed_Nets = vector(%i_Passed_NET)
+            #modify l_PCNET_Node_Info:v = list(-
+               v_Node_Number = %v_Passed_Nets,-
+               v_Link_Number = vector(l_PCNET_Node_Info:vv_Link_Number(%v_Index(1))),-
+               v_Station_Address = vector(l_PCNET_Node_Info:vv_Station_Address(%v_Index(1))))
+         
+         #block_end
+         ;
+         ;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 12.5.2006
+         ;
+
+         #if sys:bSH == 1 #then #block    ;Shadowing enabled
+         
+            i_Cur_Apl = apl:bAN
+            
+            #loop_with i_Apl = 1 .. max_application_number
+
+               i_Sw = apl'i_Apl':bSW
+
+               #if apl'i_Apl':bTT == "LOCAL" and apl'i_Apl':bAS == "COLD" and i_Sw == i_Cur_Apl #then #block
+                  l_Dos = application_object_list(i_Sw, "D", "", "", "", "LN == t_Shad_Do")
+                  #if l_Dos.count > 0 #then b_Hsb = (shadlocapl:'i_Sw'd(i_Apl) > 0)
+                  #else b_Hsb = FALSE
+                  #if b_Hsb #then v_Main_Apls(length(v_Main_Apls) + 1) = i_Apl
+               #block_end
+               
+            #loop_end
+            
+         #block_end
+         ;
+         ;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+         ;
+         
+         #loop_with i_PCNET = 1 .. length(%v_Passed_Nets)
+         
+            ;Update PC_NET.CF1 and start PC_NET
+            #if l_PCNET_Node_Info:vv_Link_Number(%i_PCNET) > 0 and l_PCNET_Node_Info:vv_Node_Number(%i_PCNET) > 0 #then #block
+
+               @i_Node_Number = l_PCNET_Node_Info:vv_Node_Number(%i_PCNET)
+               @i_Station_Address = l_PCNET_Node_Info:vv_Station_Address(%i_PCNET)
+               #set NOD'i_Node_Number':BSA = %i_Station_Address
+               @i_Integrated_Link_Number = l_PCNET_Node_Info:vv_Link_Number(%i_PCNET)
+
+               #if LIN'i_Integrated_Link_Number':BLT == "NONE" #then #block
+
+                  @i_Status = do(read_text("sys_tool/MsgLog.scl"),-
+                     "INFO",-
+                     "Starting PC_NET...")
+
+                  @v_File_Contents = (-
+                     "local_node.sa='i_Station_Address'",-
+                     "local_node.nn='i_Node_Number'",-
+                     "ext_node(1).sa='i_Base_System_Station_Address'",-
+                     "ext_node(1).nn='i_Base_System_Node_Number'",-
+                     "ext_apl(1).nn='i_Application_Node_Number'",-
+                     "ext_apl(1).an='i_Application_Number'")
+                  ;
+                  ;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! 12.5.2006
+                  ;
+                  #if length(v_Main_Apls) > 0 #then #block
+                     #loop_with i_v = 1 .. length(v_Main_Apls)
+                        i_Apl_Number = v_Main_Apls(i_v)
+                        i_Row = i_v + 1
+                        #if i_Row > i_Max_Ext_Appl_Number #then #loop_exit  ;PC-NET limit
+                        @v_File_Contents(length(%v_File_Contents)+1)="ext_node('i_Row').sa='i_Base_System_Station_Address'"
+                        @v_File_Contents(length(%v_File_Contents)+1)="ext_node('i_Row').nn='i_Base_System_Node_Number'"
+                        @v_File_Contents(length(%v_File_Contents)+1)="ext_apl('i_Row').nn='i_Application_Node_Number'"
+                        @v_File_Contents(length(%v_File_Contents)+1)="ext_apl('i_Row').an='i_Apl_Number'"
+                     #loop_end
+                  #block_end
+                  ;
+                  ;!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                  ;
+                  @i_Status = write_text("sys_/pc_net.cf1", %v_File_Contents,"ANSI")
+                  @i_Status = write_text("sys_/debug'i_PCNET'.cf1", %v_File_Contents,"ANSI")
+
+                  ;Start PC_NET
+                  #set LIN'i_Integrated_Link_Number':BLT = "INTEGRATED"
+                  #exec net_started:E
+                  
+                  #if %b_Successive_PCNETs #then #block                  
+                     @i_Delay_Time = 1 ; Default delay time is 1 s
+                     @l_Ini_Read = read_parameter(%t_Configuration_File, "*", "PCNET_Start_Delay")
+                     #if l_Ini_Read:vSTATUS == 0 #then @i_Delay_Time = dec_scan(l_Ini_Read:vVALUE)
+                     #pause %i_Delay_Time                  
+                  #block_end                  
+
+               #block_end
+               #else #block
+
+                  #if SYS:BSH == 0 #then @i_Status = do(read_text("sys_tool/MsgLog.scl"),-
+                     "INFO",-
+                     "PC_NET already running, not restarted!")
+
+               #block_end
+
+            #block_end
+
+            #error 't_Error_State'
+
+         #loop_end
+
+      #block_end ; 3
+
+   #block_end ; 2
+
+#block_end ; 1

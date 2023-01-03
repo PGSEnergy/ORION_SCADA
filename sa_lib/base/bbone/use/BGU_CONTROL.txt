@@ -1,0 +1,3181 @@
+#local argCnt, tRedirectProc, tRedirectCommand, iArgLoop
+tRedirectProc="APLMOD_CONTROL"
+#if APPLICATION_OBJECT_EXISTS(0,"C",tRedirectProc) AND -
+DATA_TYPE(%REDIRECTED)=="NONE" #then #block
+   #if 'tRedirectProc':CIU==1 #then #block
+      @REDIRECTED=TRUE
+      argCnt=ARGUMENT_COUNT
+      tRedirectCommand="DO('tRedirectProc':C"
+      #loop_with iArgLoop=1..argCnt
+         tRedirectCommand=tRedirectCommand+",argument('iArgLoop')"
+         #if iArgLoop==argCnt #then #block
+            tRedirectCommand=tRedirectCommand+")"
+         #block_end
+      #loop_end
+      #return 'tRedirectCommand'
+  #block_end
+#block_end
+
+#if sys:bdm<>0 #then @b_enable_debugging=true
+#else @b_enable_debugging=false
+
+@COMMAND_SELECTOR=argument(2) ;Defines the command (e.g. OPEN_SELECT, OBJECT_INFO, SIMULATION...)
+
+#if %b_enable_debugging #then #block
+    @i_Trash=trace_begin("TRACE_BGU_CONTROL_'COMMAND_SELECTOR'.txt")
+;   @file_number=1
+;   #loop 
+;      @trace_file_name = "PICT/TRACE_BGU_CONTROL_'COMMAND_SELECTOR'_'file_number'.TXT"
+;      @source=FM_APPLICATION_FILE(%trace_file_name)
+;      #if FILE_MANAGER("EXISTS", %source) #then @file_number=%file_number+1
+;      #else #loop_exit
+;   #loop_end
+;   @st=trace_begin(%trace_file_name)
+   @dummy
+   #on error #block
+      #if %b_enable_debugging #then #block
+         @i_Stat=status
+         @i_Trash=console_output(-
+            times + -
+            " BGU_CONTROL:C error when executing 'COMMAND_SELECTOR': 'i_Stat'. Trace created to PICT/TRACE_BGU_CONTROL_'COMMAND_SELECTOR'.txt")
+         @i_Trash=trace_end
+         @enable_debugging=false
+      #block_end
+      #return
+   #block_end
+#block_end
+
+#if length(path("SAGR_OT")) == 0 #then #block
+   @source_dir = fm_scil_directory("/SA_LIB/DEFAULTS/OBJECT_TYPES")
+   #if DIRECTORY_MANAGER("EXISTS", %source_dir) #then #block
+      #PATH SAGR_OBJT  +NO_CREATE, /SA_LIB/DEFAULTS/OBJECT_TYPES
+   #block_end
+   
+   @t_Apl = apl:bna
+   @source_dir = fm_scil_directory("/APL/'t_Apl'/APLMOD4/DEFAULTS/OBJECT_TYPES")
+   #if DIRECTORY_MANAGER("EXISTS", %source_dir) #then #block
+      #PATH SAGR_OBJT  +NO_CREATE, /APL/'T_APL'/APLMOD4/DEFAULTS/OBJECT_TYPES
+   #block_end
+#block_end
+
+@id_arg=argument(1)
+@PF_INDICATION_INDEX=10
+#if data_type(%id_arg)=="VECTOR" #then #block
+   @PF_ID=%id_arg(1)
+   @TYPE_OF_PF_ID=data_type(%PF_ID)
+   @TYPE_OF_PF_ID_IS="'TYPE_OF_PF_ID'"
+   @PF_INDICATION_INDEX=%id_arg(2)
+#block_end
+#else #block
+   @PF_ID=%id_arg
+#block_end
+@PF_ID=UPPER_CASE(%PF_ID)
+
+@ConfPath=path("APL_")
+@ConfPath=%ConfPath(1)
+@ConfPath=substr(%ConfPath,1, length(%ConfPath)-4)
+@AplPath=%ConfPath
+@ConfPath=%ConfPath+"POBJCONF"
+@ConfPathIs="'ConfPath'" ;This is for debugging. Makes path readable in trace file.
+@e_state=error_state
+@ConfFileName=%ConfPath+"\'PF_ID'.dat"
+@target = FM_FILE(%ConfFileName)
+
+#if FILE_MANAGER("EXISTS", %target) #then #block  
+   @DAT_FILE=evaluate(read_text(%ConfFileName))
+#block_end
+#if data_type(%DAT_FILE) <> "LIST" #then #block
+   @ConfFileName=%ConfPath+"\'PF_ID'%QT1.dat"
+   @target = FM_FILE(%ConfFileName)
+   #if FILE_MANAGER("EXISTS", %target) #then #block  
+      @DAT_FILE=evaluate(read_text(%ConfFileName))
+   #block_end
+#block_end
+#if data_type(%DAT_FILE) <> "LIST" #then #block
+   @ConfFileName=%ConfPath+"\'PF_ID'%QT2.dat"
+   @target = FM_FILE(%ConfFileName)
+   #if FILE_MANAGER("EXISTS", %target) #then #block  
+      @DAT_FILE=evaluate(read_text(%ConfFileName))
+   #block_end
+#block_end
+
+#if data_type(%DAT_FILE) <> "LIST" AND data_type(%PF_INDICATION_INDEX)=="INTEGER" #then #block
+   @ConfFileName=%ConfPath+"\'PF_ID'%'PF_INDICATION_INDEX'.dat"
+   @target = FM_FILE(%ConfFileName)
+   #if FILE_MANAGER("EXISTS", %target) #then #block  
+      @DAT_FILE=evaluate(read_text(%ConfFileName))
+   #block_end
+   #if data_type(%DAT_FILE) <> "LIST" #then #block
+      #if %PF_INDICATION_INDEX > 100 #then #block
+         @tmp_index = %PF_INDICATION_INDEX - 100
+         @ConfFileName=%ConfPath+"\'PF_ID'%'tmp_index'.dat"
+         @target = FM_FILE(%ConfFileName)
+         #if FILE_MANAGER("EXISTS", %target) #then #block  
+            @DAT_FILE=evaluate(read_text(%ConfFileName))
+         #block_end
+      #block_end
+   #block_end
+#block_end
+@L_Check=fetch(0,"P","'pf_id'")
+#if %L_Check.IU == 1 #then #block
+   #if data_type(%DAT_FILE) <> "LIST" #then @DAT_FILE = 'pf_id':pcd
+   #if length(%DAT_FILE) == 0 #then #delete DAT_FILE:V
+#block_end
+
+@v_Attrs = list_attr(%DAT_FILE)
+#if data_type(%DAT_FILE.Created_By) <> "NONE" #then #if %DAT_FILE.Created_By == "SA_LIB" #then #block
+   @v_Check = pick(%v_Attrs, select(%v_Attrs, "==""L_CD*""", "WILDCARDS"))
+   #if length(%v_Check) > 0 #then #block
+         #loop_with i = 1 .. length(%v_Check)
+            @t_Attr = %v_Check(%i)
+            @l_Tmp_Data = DAT_FILE:VL_CD'i'
+            @v_indexes = l_Tmp_Data:vp_Object_Indexes
+            @v_Check1 = select(%v_indexes, "=='PF_INDICATION_INDEX'")
+            #if length(%v_Check1) > 0 #then #block
+               #CREATE DAT_FILE:V = %l_Tmp_Data
+               #loop_exit
+            #block_end
+         #loop_end
+      #block_end
+#block_end
+
+@LIB_OBJECT_TYPE = ""
+#IF %COMMAND_SELECTOR == "GET_INDICATIONS" #THEN #BLOCK
+   
+   #IF DATA_TYPE(DAT_FILE:VLIB_OBJECT_TYPE)=="NONE" #THEN #RETURN
+   #IF DAT_FILE:VLIB_OBJECT_TYPE == "" #THEN #RETURN
+   #ELSE #BLOCK
+      @e_state=error_state
+      #error ignore
+      @OBJECT_TYPE_FILE=evaluate(read_text(%AplPath+"\APLMOD4\DEFAULTS\OBJECT_TYPES\'LIB_OBJECT_TYPE'"))
+      #error 'e_state'
+      @trash=status
+   
+      #if data_type(%OBJECT_TYPE_FILE)=="NONE" #then #block
+         @LIB_OBJECT_TYPE=DAT_FILE:VLIB_OBJECT_TYPE
+         #error ignore
+         @OBJECT_TYPE_FILE=evaluate(read_text("/SA_LIB/DEFAULTS/OBJECT_TYPES/'LIB_OBJECT_TYPE'"))
+         #error 'e_state'
+         @trash=status
+      #block_end
+      #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_GET_INDICATIONS) == "NONE" #THEN #RETURN
+      #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_GET_INDICATIONS) == 0 #THEN #RETURN
+   #BLOCK_END
+   
+#BLOCK_END
+
+;Detect OI configuration:
+#case %COMMAND_SELECTOR
+   #when "OPEN_SELECT","CLOSE_SELECT","SEARCH_OBJECTS","SET_SIMULATION", "GET_SIMULATION",-
+   "GET_ALARMS", "GET_INDICATIONS", "SET_INDICATIONS","AR_INTERRUPT", "AR_IN_USE" #block
+
+      @STATION_NAME = ""
+      @BAY_NAME = ""
+      @DEVICE_NAME = ""
+      
+      @L_OBJ_IDENT = APL:BOI
+      @T_OI_STRING = ""
+      @STATION_NAME_TRIMMED = ""
+      @BAY_NAME_TRIMMED = ""
+      @DEVICE_NAME_TRIMMED = ""
+      @SPECIAL_IDENTIFIER_1_TRIMMED= ""
+      @SPECIAL_IDENTIFIER_2_TRIMMED = ""
+      @SPECIAL_IDENTIFIER_3_TRIMMED = ""
+      @IDENTIFIER_LIST = 'PF_ID':PIL'PF_INDICATION_INDEX'
+      @I_SPECIAL_FIELDS = 0
+      @LEVEL_STA = 0
+      @LEVEL_BAY = 0
+      @LEVEL_DEVICE = 0
+      
+      #LOOP_WITH I = 1 .. %L_OBJ_IDENT.DEPTH
+            #IF %L_OBJ_IDENT.LEVELS(%I).NAME == "STA" #THEN #BLOCK
+               @LEVEL_STA = %I
+               #IF ATTRIBUTE_EXISTS(%DAT_FILE, "STATION_NAME") #THEN #BLOCK
+                  @STATION_NAME_TRIMMED = %T_OI_STRING + SUBSTR(%IDENTIFIER_LIST.STA, 1, %L_OBJ_IDENT.LEVELS(%I).WIDTH)
+                  @STATION_NAME  =%IDENTIFIER_LIST.STA
+                  @T_OI_STRING = %STATION_NAME_TRIMMED
+               #BLOCK_END
+               #ELSE @T_OI_STRING = %T_OI_STRING + PAD(" ",  %L_OBJ_IDENT.LEVELS(%I).WIDTH)
+            #BLOCK_END
+            #ELSE_IF %L_OBJ_IDENT.LEVELS(%I).NAME == "BAY" #THEN #BLOCK
+               @LEVEL_BAY = %I
+               #IF ATTRIBUTE_EXISTS(%DAT_FILE, "BAY_NAME") #THEN #BLOCK
+                  @BAY_NAME_TRIMMED = %T_OI_STRING + SUBSTR(%IDENTIFIER_LIST.BAY, 1, %L_OBJ_IDENT.LEVELS(%I).WIDTH)
+                  @BAY_NAME = %IDENTIFIER_LIST.BAY 
+                  @T_OI_STRING = %BAY_NAME_TRIMMED
+               #BLOCK_END
+               #ELSE @T_OI_STRING = %T_OI_STRING + PAD(" ",  %L_OBJ_IDENT.LEVELS(%I).WIDTH)
+            #BLOCK_END
+            #ELSE_IF %L_OBJ_IDENT.LEVELS(%I).NAME == "DEV" #THEN #BLOCK
+               @LEVEL_DEVICE = %I
+               #IF ATTRIBUTE_EXISTS(%DAT_FILE, "DEVICE_NAME") #THEN #BLOCK
+                  @DEVICE_NAME_TRIMMED = %T_OI_STRING + SUBSTR(%IDENTIFIER_LIST.DEV, 1, %L_OBJ_IDENT.LEVELS(%I).WIDTH)
+                  @DEVICE_NAME = %IDENTIFIER_LIST.DEV
+                  @T_OI_STRING = %DEVICE_NAME_TRIMMED
+                  #IF LENGTH(%DEVICE_NAME_TRIMMED) < 63 #THEN @DEVICE_NAME_TRIMMED = %DEVICE_NAME_TRIMMED + "*"
+               #BLOCK_END
+               #ELSE @T_OI_STRING = %T_OI_STRING + PAD(" ",  %L_OBJ_IDENT.LEVELS(%I).WIDTH)
+            #BLOCK_END
+            #ELSE #BLOCK
+               @I_SPECIAL_FIELDS = %I_SPECIAL_FIELDS + 1
+               @NAME = %L_OBJ_IDENT.LEVELS(%I).NAME
+               #IF ATTRIBUTE_EXISTS(%DAT_FILE, "SPECIAL_IDENTIFIER_'I_SPECIAL_FIELDS'") #THEN #BLOCK
+                  @SPECIAL_IDENTIFIER_'I_SPECIAL_FIELDS'_TRIMMED = %T_OI_STRING + SUBSTR(%IDENTIFIER_LIST.'NAME', 1 , %L_OBJ_IDENT.LEVELS(%I).WIDTH)            
+                  @T_OI_STRING = %SPECIAL_IDENTIFIER_'I_SPECIAL_FIELDS'_TRIMMED
+                  #IF %I == %L_OBJ_IDENT.DEPTH #THEN #BLOCK
+                     #IF LENGTH(%SPECIAL_IDENTIFIER_'I_SPECIAL_FIELDS'_TRIMMED) < 63 #THEN @SPECIAL_IDENTIFIER_'I_SPECIAL_FIELDS'_TRIMMED = %SPECIAL_IDENTIFIER_'I_SPECIAL_FIELDS'_TRIMMED + "*"
+                  #BLOCK_END
+               #BLOCK_END
+               #ELSE @T_OI_STRING = %T_OI_STRING + PAD(" ", %L_OBJ_IDENT.LEVELS(%I).WIDTH)
+            #BLOCK_END
+      #LOOP_END
+      
+      #IF %DEVICE_NAME_TRIMMED == "" #THEN @DEVICE_NAME_TRIMMED = "*"
+      
+   #block_end
+#case_end
+
+;Define object indexes:
+#case %COMMAND_SELECTOR
+   #when "OPEN_SELECT","CLOSE_SELECT", "OPEN_EXECUTE","CLOSE_EXECUTE","CANCEL",-
+   "SELECT_ON_MONITOR" ,"UNSELECT_ON_MONITOR", "SET_SIMULATION", "GET_SIMULATION",-
+   "SEARCH_OBJECTS", "GET_INDICATIONS","GET_STRING_REPLACEMENTS",-
+   "AR_INTERRUPT", "AR_IN_USE", "TO_STATION_EXECUTE", "TO_NCC_EXECUTE" #block
+
+      @OBJECT_TYPE_ATTRS=VECTOR(-;#
+         "EXT_CNTR_BLK_IX",-     ;1
+         "SEL_ON_MON_IX",-       ;2
+         "CMD_EVENT_IX",-        ;3
+         "AUX_PLUG_IX",-         ;4
+         "INDICATION_UP1_IX",-   ;5
+         "INDICATION_UP2_IX",-   ;6
+         "CNTR_CMD_IX",-         ;7
+         "INDICATION2_UP1_IX",-  ;8 
+         "INDICATION2_UP2_IX",-  ;9
+         "EXECUTE_CMD_IX",-      ;10
+         "OPEN_CMD_IX",-         ;11
+         "CLOSE_CMD_IX",-        ;12
+         "CANCEL_CMD_IX",-       ;13
+         "OPEN_ILOCK_IX",-       ;14
+         "CLOSE_ILOCK_IX",-      ;15
+         "ILOCK_CAUSE_IX",-      ;16
+         "INDICATION_DB_IX",-    ;17
+         "INDICATION_UP1_IX",-   ;18
+         "INDICATION_UP2_IX",-   ;19
+         "EXECUTE_OPEN_CMD_IX",- ;20
+         "EXECUTE_CLOSE_CMD_IX",-;21
+         "STATUS_IX",-           ;22
+         "ADD_CAUSE_IX",-
+         "SYN_IND_IX",-
+         "OPEN_BLOCK_IX",-
+         "CLOSE_BLOCK_IX",-
+         "DEVICE_LOC_IX",-
+         "DEVICE_LOCSTA_IX",-
+         "DEVICE_LOCSTA_CMD_IX")         
+      
+      ;configuration data is red from the picture function
+      #ERROR STOP
+      @TYPE_PF              = DAT_FILE:VTYPE_PF
+      @SPECIAL_IDENTIFIER_1 = DAT_FILE:VSPECIAL_IDENTIFIER_1
+      @SPECIAL_IDENTIFIER_2 = DAT_FILE:VSPECIAL_IDENTIFIER_2
+      @SPECIAL_IDENTIFIER_3 = DAT_FILE:VSPECIAL_IDENTIFIER_3
+      @SWITCH_TYPE          = DAT_FILE:VSWITCHING_DEVICE_TYPE   
+      @SWITCH_PURPOSE       = DAT_FILE:VSWITCHING_DEVICE_PURPOSE
+      @SWITCH_SECTION       = DAT_FILE:VSWITCH_SECTION
+      @STATION_TYPE         = DAT_FILE:VSTATION_TYPE
+      @INDICATION_TYPE      = DAT_FILE:VINDICATION_TYPE
+      @MOTORIZED            = DAT_FILE:VMOTORIZED
+      @CONTROL_TYPE         = DAT_FILE:VCONTROL_TYPE
+      @CONTROL_PULSE_LENGTH = DAT_FILE:VCONTROL_PULSE_LENGTH
+      @CONTROL_BITS         = DAT_FILE:VCONTROL_BITS
+      @AUTHORIZATION_GROUP  = DAT_FILE:VAUTHORIZATION_GROUP
+      @CONTROL_DIALOG       = DAT_FILE:VCONTROL_DIALOG 
+      @CONTROL_DIALOG_WINDOW= DAT_FILE:VCONTROL_DIALOG_WINDOW
+      @EVENT_RECORDING      = DAT_FILE:VEVENT_RECORDING
+      @DATA_ACQUISITION_UNIT= DAT_FILE:VDATA_ACQUISITION_UNIT
+      @FUNCTION_BLOCK       = DAT_FILE:VFUNCTION_BLOCK
+      
+     ;command parameter from revision 4.0.3
+      #IF DATA_TYPE(DAT_FILE:VCMD_PARAMETER) <> "NONE" #THEN -
+         @COMMAND_PARAMETER = DAT_FILE:VCMD_PARAMETER
+      ;command parameter not defined
+      #ELSE @COMMAND_PARAMETER = -1
+
+      @e_state=ERROR_STATE
+      #error ignore
+      @QUALIFIERS = DAT_FILE:VQUALIFIERS
+      #error 'e_state'
+      @st=status
+      
+
+      ;move ID-list attributes to window attributes
+   @OBJECT_LN             = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+   @SWITCH_TYPE           = DAT_FILE:VSWITCHING_DEVICE_TYPE
+   @SWITCH_PURPOSE        = DAT_FILE:VSWITCHING_DEVICE_PURPOSE
+   @SWITCH_SECTION        = DAT_FILE:VSWITCH_SECTION
+   @STATION_TYPE          = DAT_FILE:VSTATION_TYPE
+   @INDICATION_TYPE       = DAT_FILE:VINDICATION_TYPE
+   @MOTORIZED             = DAT_FILE:VMOTORIZED
+   @CONTROL_TYPE          = DAT_FILE:VCONTROL_TYPE
+   @CONTROL_DIALOG        = DAT_FILE:VCONTROL_DIALOG
+   @CONTROL_DIALOG_WINDOW = DAT_FILE:VCONTROL_DIALOG_WINDOW
+
+   @OLD_SUFFIX_TEXT       = ""
+   @REPRESENTATION        = DAT_FILE:VREPRESENTATION
+   @INDICATION_IXS        = vector()
+   @COMMAND_IXS           = vector()
+   @CNTR_CMD_IX           = 0
+   @OPEN_ILOCK_IX         = 0
+   @CLOSE_ILOCK_IX        = 0
+   @ILOCK_CAUSE_IX        = 0
+   @EXT_CNTR_BLK_IX       = 0
+   @CMD_EVENT_IX          = 0
+   @SEL_ON_MON_IX         = 0
+   @AUX_PLUG_IX           = 0
+   @SYN_IND_IX            = 0
+   @SYN_CMD_IX            = 0  
+   @INDICATION_DB_IX      = 0
+   @INDICATION2_DB_IX     = 0
+   @INDICATION_UP1_IX     = 0
+   @INDICATION2_UP1_IX    = 0
+   @INDICATION_UP2_IX     = 0
+   @INDICATION2_UP2_IX    = 0
+   @OPEN_CMD_IX           = 0
+   @CLOSE_CMD_IX          = 0
+   @EXECUTE_CMD_IX        = 0
+   @CANCEL_CMD_IX         = 0
+   @EXECUTE_OPEN_CMD_IX   = 0
+    @EXECUTE_CLOSE_CMD_IX = 0
+   @OPEN_BLOCK_IX         = 0
+   @CLOSE_BLOCK_IX        = 0
+   @DEVICE_LOC_IX         = 0
+   @DEVICE_LOCSTA_IX      = 0
+   @DEVICE_LOCSTA_CMD_IX  = 0
+   
+   
+   @LIB_OBJECT_TYPE       = ""
+      
+      
+      #IF %SWITCH_TYPE == "Q3" #THEN #BLOCK
+         #IF %PF_INDICATION_INDEX == 10 #THEN @SWITCH_SECTION = 1
+         #ELSE_IF %PF_INDICATION_INDEX == 11 #THEN @SWITCH_SECTION = 2
+      #BLOCK_END
+      
+      #CASE %SWITCH_TYPE
+        
+        ;circuit breaker, disconnector and earth switch
+        #WHEN "QB","QI","QS","QD","QF","QL","QE","QM" #BLOCK
+          ;position indication indexes
+          #IF %INDICATION_TYPE=="DB" #THEN @INDICATION_IXS = VECTOR(10)
+          #ELSE_IF %INDICATION_TYPE=="2BI" #THEN @INDICATION_IXS = VECTOR(10,110,108)
+          #ELSE @INDICATION_IXS = VECTOR(10,110)
+          ;control command indexes
+          #IF %CONTROL_TYPE=="SEC-4BO" #THEN @COMMAND_IXS = VECTOR(11,12,13,14)
+          #ELSE_IF %CONTROL_TYPE=="SEC-5BO" OR %CONTROL_TYPE=="SEC-5AO" #THEN @COMMAND_IXS = VECTOR(11,12,13,14,25)
+          #ELSE_IF %CONTROL_TYPE=="SEC-2BO" OR %CONTROL_TYPE=="SEC-2DO" #THEN @COMMAND_IXS = VECTOR(11,12)
+          #ELSE @COMMAND_IXS = VECTOR(13)
+          ;other indexes
+          @EXT_CNTR_BLK_IX = 15
+          @ILOCK_IXS       = (16,17,18)
+          @SEL_ON_MON_IX   = 19
+          @CMD_EVENT_IX    = 20
+          @AUX_PLUG_IX     = 21
+          @BLOCK_IXS       = (41,42)
+          
+          #IF ATTRIBUTE_EXISTS(%DAT_FILE, "OPERATOR_PLACE_HANDLING") #THEN #BLOCK
+             #IF %DAT_FILE.OPERATOR_PLACE_HANDLING == "LOC" OR -
+             %DAT_FILE.OPERATOR_PLACE_HANDLING == "LOC_AND_LOCSTA" #THEN @DEVICE_LOC_IX   = 70
+             #IF %DAT_FILE.OPERATOR_PLACE_HANDLING == "LOCSTA" OR -
+               %DAT_FILE.OPERATOR_PLACE_HANDLING == "LOC_AND_LOCSTA" #THEN #BLOCK
+               @DEVICE_LOCSTA_IX = 71
+               @DEVICE_LOCSTA_CMD_IX = 72
+             #BLOCK_END
+           #BLOCK_END
+        #BLOCK_END
+        
+        ;truck
+        #WHEN "QT" #BLOCK
+          ;position indication indexes
+          #IF %INDICATION_TYPE=="DB" #THEN @INDICATION_IXS = VECTOR(30)
+          #ELSE_IF %INDICATION_TYPE=="2BI" #THEN @INDICATION_IXS = VECTOR(30,130,128)
+          #ELSE @INDICATION_IXS = VECTOR(30,130)
+          ;control command indexes
+          #IF %CONTROL_TYPE=="SEC-4BO" #THEN @COMMAND_IXS = VECTOR(31,32,33,34)
+          #ELSE_IF %CONTROL_TYPE=="SEC-5BO" OR %CONTROL_TYPE=="SEC-5AO" #THEN @COMMAND_IXS = VECTOR(31,32,33,34,45)
+          #ELSE_IF %CONTROL_TYPE=="SEC-2BO" OR %CONTROL_TYPE=="SEC-2DO" #THEN @COMMAND_IXS = VECTOR(31,32)
+          #ELSE @COMMAND_IXS = VECTOR(33)
+          ;other indexes
+          @EXT_CNTR_BLK_IX = 35
+          @ILOCK_IXS       = (36,37,38)
+          @SEL_ON_MON_IX   = 39
+          @CMD_EVENT_IX    = 40
+          @BLOCK_IXS       = (61,62)
+          #IF ATTRIBUTE_EXISTS(%DAT_FILE, "OPERATOR_PLACE_HANDLING") #THEN #BLOCK
+             #IF %DAT_FILE.OPERATOR_PLACE_HANDLING == "LOC" OR -
+             %DAT_FILE.OPERATOR_PLACE_HANDLING == "LOC_AND_LOCSTA" #THEN @DEVICE_LOC_IX   = 70
+             #IF %DAT_FILE.OPERATOR_PLACE_HANDLING == "LOCSTA" OR -
+               %DAT_FILE.OPERATOR_PLACE_HANDLING == "LOC_AND_LOCSTA" #THEN #BLOCK
+               @DEVICE_LOCSTA_IX = 71
+               @DEVICE_LOCSTA_CMD_IX = 72
+             #BLOCK_END
+           #BLOCK_END
+        #BLOCK_END
+        
+        ;three-state switch
+        #WHEN "Q3" #BLOCK
+          ;position indication indexes
+          #IF %INDICATION_TYPE=="DB" #THEN @INDICATION_IXS = VECTOR(10,11)
+          #ELSE_IF %INDICATION_TYPE=="2BI" #THEN @INDICATION_IXS = VECTOR(10,11,110,111,108,109)
+          #ELSE @INDICATION_IXS = VECTOR(10,11,110,111)
+          ;control command indexes
+          #IF %CONTROL_TYPE=="SEC-4BO" #THEN @COMMAND_IXS = VECTOR(12,14,13,15,16,17)
+          #ELSE_IF %CONTROL_TYPE=="SEC-2BO" OR %CONTROL_TYPE=="SEC-2DO" #THEN @COMMAND_IXS = VECTOR(12,14,13,15)
+          #ELSE_IF %CONTROL_TYPE=="SEC-5AO" #THEN #BLOCK
+            #IF %PF_INDICATION_INDEX == 10 #THEN @COMMAND_IXS = VECTOR(12,13,14,15,16)
+            #ELSE @COMMAND_IXS = VECTOR(27,28,29,30,31)
+          #BLOCK_END
+          #ELSE @COMMAND_IXS = VECTOR(16,17)
+          ;other indexes
+           @EXT_CNTR_BLK_IX = 18
+           @ILOCK_IXS       = (19,21,20,22,23,24)
+           @SEL_ON_MON_IX   = 25
+           @CMD_EVENT_IX    = 26
+           @BLOCK_IXS       = (41,61,42,62)
+           #IF ATTRIBUTE_EXISTS(%DAT_FILE, "OPERATOR_PLACE_HANDLING") #THEN #BLOCK
+              #IF %DAT_FILE.OPERATOR_PLACE_HANDLING == "LOC" OR -
+      %DAT_FILE.OPERATOR_PLACE_HANDLING == "LOC_AND_LOCSTA" #THEN #BLOCK
+      #IF %PF_INDICATION_INDEX == 10 #THEN @DEVICE_LOC_IX   = 70
+      #ELSE  @DEVICE_LOC_IX   = 73
+         #BLOCK_END
+             #IF %DAT_FILE.OPERATOR_PLACE_HANDLING == "LOCSTA" OR -
+      %DAT_FILE.OPERATOR_PLACE_HANDLING == "LOC_AND_LOCSTA" #THEN #BLOCK
+      #IF %PF_INDICATION_INDEX == 10 #THEN #BLOCK
+          @DEVICE_LOCSTA_IX = 71
+          @DEVICE_LOCSTA_CMD_IX = 72
+      #BLOCK_END
+      #ELSE #BLOCK
+          @DEVICE_LOCSTA_IX = 74
+          @DEVICE_LOCSTA_CMD_IX = 75
+      #BLOCK_END
+             #BLOCK_END
+           #BLOCK_END
+        #BLOCK_END
+      #CASE_END
+      
+      @INDICATION_IXS = %INDICATION_IXS
+      @COMMAND_IXS    = %COMMAND_IXS
+      #CASE %SWITCH_TYPE
+        #WHEN "Q3" #BLOCK
+          @INDICATION_DB_IX = %INDICATION_IXS(%SWITCH_SECTION)
+          #IF LENGTH(%INDICATION_IXS)>2 #THEN @INDICATION_UP1_IX = %INDICATION_IXS(%SWITCH_SECTION+2)
+          #IF LENGTH(%INDICATION_IXS)>4 #THEN @INDICATION_UP2_IX = %INDICATION_IXS(%SWITCH_SECTION+4)
+          @CNTR_CMD_IX = %COMMAND_IXS(%SWITCH_SECTION)
+        #BLOCK_END
+        #OTHERWISE #BLOCK
+          @INDICATION_DB_IX = %INDICATION_IXS(1)
+          #IF LENGTH(%INDICATION_IXS)>1 #THEN @INDICATION_UP1_IX = %INDICATION_IXS(2)
+          #IF LENGTH(%INDICATION_IXS)>2 #THEN @INDICATION_UP2_IX = %INDICATION_IXS(3)
+          @CNTR_CMD_IX = %COMMAND_IXS(1)
+        #BLOCK_END
+      #CASE_END
+      
+      
+      @INDICATION_IXS   = %INDICATION_IXS
+      @COMMAND_IXS      = %COMMAND_IXS
+      @INTERLOCKING_IXS = %ILOCK_IXS
+      
+      @INDICATION_DB_LN     = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @INDICATION2_DB_LN    = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @INDICATION_UP1_LN    = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @INDICATION2_UP1_LN   = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @INDICATION_UP2_LN    = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @INDICATION2_UP2_LN   = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @OPEN_CMD_LN          = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @CLOSE_CMD_LN         = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @EXECUTE_CMD_LN       = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @CANCEL_CMD_LN        = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @EXT_CNTR_BLK_LN      = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @OPEN_ILOCK_LN        = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @CLOSE_ILOCK_LN       = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @ILOCK_CAUSE_LN       = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @CMD_EVENT_LN         = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @SEL_ON_MON_LN        = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @AUX_PLUG_LN          = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @SYN_IND_LN           = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @SYN_CMD_LN           = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @EXECUTE_OPEN_CMD_LN  = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @EXECUTE_CLOSE_CMD_LN = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @OPEN_BLOCK_LN        = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @CLOSE_BLOCK_LN       = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      
+      #CASE %SWITCH_TYPE
+        ;truck (combination of two picture functions)
+        #WHEN "Q3" #BLOCK
+          ;position indication
+          @INDICATION_DB_IX  = %INDICATION_IXS(%SWITCH_SECTION)
+          @INDICATION2_DB_IX = %INDICATION_IXS(ABS(%SWITCH_SECTION**2-3))
+          #IF LENGTH(%INDICATION_IXS)>2 #THEN #BLOCK
+            @INDICATION_UP1_IX  = %INDICATION_IXS(%SWITCH_SECTION+2)
+            @INDICATION2_UP1_IX = %INDICATION_IXS(ABS(%SWITCH_SECTION**2-3)+2)
+          #BLOCK_END
+          #IF LENGTH(%INDICATION_IXS)>4 #THEN #BLOCK
+            @INDICATION_UP2_IX  = %INDICATION_IXS(%SWITCH_SECTION+4)
+            @INDICATION2_UP2_IX = %INDICATION_IXS(ABS(%SWITCH_SECTION**2-3)+4)
+          #BLOCK_END
+          
+          ;select and execute
+          #IF LENGTH(%COMMAND_IXS)==2 #THEN #BLOCK
+            @EXECUTE_CMD_IX     = %COMMAND_IXS(%SWITCH_SECTION)
+          #BLOCK_END
+          ;open/close or free/earth execute
+          #IF LENGTH(%COMMAND_IXS)==4 #THEN #BLOCK
+            @OPEN_CMD_IX        = %COMMAND_IXS(%SWITCH_SECTION)
+            @CLOSE_CMD_IX       = %COMMAND_IXS(%SWITCH_SECTION+2)
+            @EXECUTE_CMD_IX     = %OPEN_CMD_IX
+          #BLOCK_END
+          ;open/close or free/earth select and execute/cancel
+          #IF LENGTH(%COMMAND_IXS)==6 #THEN #BLOCK
+            @OPEN_CMD_IX        = %COMMAND_IXS(%SWITCH_SECTION)
+            @CLOSE_CMD_IX       = %COMMAND_IXS(%SWITCH_SECTION+2)
+            @EXECUTE_CMD_IX     = %COMMAND_IXS(5)
+            @CANCEL_CMD_IX      = %COMMAND_IXS(6)
+          #BLOCK_END
+          @OPEN_ILOCK_IX        = %INTERLOCKING_IXS(%SWITCH_SECTION)
+          @CLOSE_ILOCK_IX       = %INTERLOCKING_IXS(%SWITCH_SECTION+2)
+          @ILOCK_CAUSE_IX       = %INTERLOCKING_IXS(%SWITCH_SECTION+4)
+          @OPEN_BLOCK_IX        = %BLOCK_IXS(%SWITCH_SECTION)
+          @CLOSE_BLOCK_IX       = %BLOCK_IXS(%SWITCH_SECTION+2)
+          
+          #IF LENGTH(%COMMAND_IXS)==5 #THEN #BLOCK
+            @OPEN_CMD_IX          = %COMMAND_IXS(1)
+            @CLOSE_CMD_IX         = %COMMAND_IXS(2)
+            @EXECUTE_OPEN_CMD_IX  = %COMMAND_IXS(3)
+            @EXECUTE_CLOSE_CMD_IX = %COMMAND_IXS(4)
+            @CANCEL_CMD_IX        = %COMMAND_IXS(5)
+            @EXECUTE_CMD_IX       = %COMMAND_IXS(3)
+         #BLOCK_END
+        #BLOCK_END
+        ;others
+        #OTHERWISE #BLOCK
+          ;position indication
+          @INDICATION_DB_IX = %INDICATION_IXS(1)
+          #IF LENGTH(%INDICATION_IXS)>1 #THEN #BLOCK
+            @INDICATION_UP1_IX  = %INDICATION_IXS(2)
+          #BLOCK_END
+          #IF LENGTH(%INDICATION_IXS)>2 #THEN #BLOCK
+            @INDICATION_UP2_IX  = %INDICATION_IXS(3)
+          #BLOCK_END
+          
+          ;select and execute
+          #IF LENGTH(%COMMAND_IXS)==1 #THEN #BLOCK
+            @EXECUTE_CMD_IX     = %COMMAND_IXS(1)
+          #BLOCK_END
+          ;open/close execute
+          #IF LENGTH(%COMMAND_IXS)==2 #THEN #BLOCK
+            @OPEN_CMD_IX        = %COMMAND_IXS(1)
+            @CLOSE_CMD_IX       = %COMMAND_IXS(2)
+            @EXECUTE_CMD_IX     = %COMMAND_IXS(2)
+          #BLOCK_END
+          ;open/close select and execute/cancel
+          #IF LENGTH(%COMMAND_IXS)==4 #THEN #BLOCK
+            @OPEN_CMD_IX        = %COMMAND_IXS(1)
+            @CLOSE_CMD_IX       = %COMMAND_IXS(2)
+            @EXECUTE_CMD_IX     = %COMMAND_IXS(3)
+            @CANCEL_CMD_IX      = %COMMAND_IXS(4)
+          #BLOCK_END
+
+         ;open/close select and open execute/close execute/cancel
+         #IF LENGTH(%COMMAND_IXS)==5 #THEN #BLOCK
+           @OPEN_CMD_IX          = %COMMAND_IXS(1)
+           @CLOSE_CMD_IX         = %COMMAND_IXS(2)
+           @EXECUTE_OPEN_CMD_IX  = %COMMAND_IXS(3)
+           @EXECUTE_CLOSE_CMD_IX = %COMMAND_IXS(4)
+           @CANCEL_CMD_IX        = %COMMAND_IXS(5)
+           @EXECUTE_CMD_IX       = %COMMAND_IXS(3)
+         #BLOCK_END
+      
+          @OPEN_ILOCK_IX        = %INTERLOCKING_IXS(1)
+          @CLOSE_ILOCK_IX       = %INTERLOCKING_IXS(2)
+          @ILOCK_CAUSE_IX       = %INTERLOCKING_IXS(3)
+          
+          @OPEN_BLOCK_IX        = %BLOCK_IXS(1)
+          @CLOSE_BLOCK_IX       = %BLOCK_IXS(2)
+          
+        #BLOCK_END
+      #CASE_END
+
+      ;If indication type is not DB, assume that status is displayed in index 110 (like ANSI protocol):
+      #IF DAT_FILE:VINDICATION_TYPE<>"DB" #THEN #BLOCK
+  
+         @STATUS_IX=%PF_INDICATION_INDEX + 100
+      #BLOCK_END
+      #ELSE @STATUS_IX=%PF_INDICATION_INDEX
+
+      ;If object type is defined, override searched indexes:
+      #IF DATA_TYPE(DAT_FILE:VLIB_OBJECT_TYPE)<>"NONE" #THEN #BLOCK
+         @LIB_OBJECT_TYPE=DAT_FILE:VLIB_OBJECT_TYPE
+      #BLOCK_END
+      
+      #IF %LIB_OBJECT_TYPE=="" #THEN #BLOCK
+
+      #BLOCK_END
+      #ELSE #BLOCK
+         ;Object type is defined. Read object type file:
+         
+         @e_state=error_state
+         #error ignore
+         @OBJECT_TYPE_FILE=evaluate(read_text(%AplPath+"\APLMOD4\DEFAULTS\OBJECT_TYPES\'LIB_OBJECT_TYPE'"))
+         #error 'e_state'
+         @trash=status
+
+         #if data_type(%OBJECT_TYPE_FILE)=="NONE" #then #block
+            #error ignore
+            @OBJECT_TYPE_FILE=evaluate(read_text("/SA_LIB/DEFAULTS/OBJECT_TYPES/'LIB_OBJECT_TYPE'"))
+            #error 'e_state'
+            @trash=status
+         #block_end
+         
+         #if data_type(%OBJECT_TYPE_FILE)<>"NONE" #then #block
+            #loop_with ind=1..length(%OBJECT_TYPE_ATTRS)
+               @current_attr=%OBJECT_TYPE_ATTRS(%ind)
+               #if data_type(%OBJECT_TYPE_FILE.'current_attr')<>"NONE" #then @'current_attr'=%OBJECT_TYPE_FILE.'current_attr'
+            #loop_end
+         #block_end
+      #BLOCK_END   
+   #block_end
+#case_end
+
+;Main case structure for methods:
+#case %COMMAND_SELECTOR
+   #when "OBJECT_INFO" #block
+      #if data_type(%DAT_FILE) <> "LIST" #then #block
+         #return ;This indicates an error
+      #block_end
+      #if data_type(DAT_FILE:VB_CONTROL_TIMEOUT)=="NONE" #then #block
+         @apl_bsv_11=LIST(B_CONTROL_TIMEOUT=90)
+         @st=status
+         @e_state=ERROR_STATE
+         #error ignore
+         #modify apl_bsv_11:v=APL:BSV(11)
+         #error 'e_state'
+         #modify DAT_FILE:V=LIST(B_CONTROL_TIMEOUT=%apl_bsv_11.B_CONTROL_TIMEOUT)
+      #block_end
+      #if data_type(DAT_FILE:VB_CLOSE_DIALOG_AFTER_OPERATION)=="NONE" #then #block
+         @apl_bsv_11=LIST(B_CLOSE_DIALOG_AFTER_OPERATION=0)
+         @st=status
+         @e_state=ERROR_STATE
+         #error ignore
+         #modify apl_bsv_11:v=APL:BSV(11)
+         #error 'e_state'
+         #modify DAT_FILE:V=LIST(B_CLOSE_DIALOG_AFTER_OPERATION=%apl_bsv_11.B_CLOSE_DIALOG_AFTER_OPERATION)
+      #block_end
+
+      ;If object type is defined, override attribute values:
+      #IF DATA_TYPE(DAT_FILE:VLIB_OBJECT_TYPE)<>"NONE" #THEN #BLOCK
+         @LIB_OBJECT_TYPE=DAT_FILE:VLIB_OBJECT_TYPE
+      #BLOCK_END
+      
+      #IF %LIB_OBJECT_TYPE=="" #THEN #BLOCK
+
+      #BLOCK_END
+      #ELSE #BLOCK
+         ;Object type is defined. Read object type file:
+         
+         @e_state=error_state
+         #error ignore
+         @OBJECT_TYPE_FILE=evaluate(read_text(%AplPath+"\APLMOD4\DEFAULTS\OBJECT_TYPES\'LIB_OBJECT_TYPE'"))
+         #error 'e_state'
+         @trash=status
+
+         #if data_type(%OBJECT_TYPE_FILE)=="NONE" #then #block
+            #error ignore
+            @OBJECT_TYPE_FILE=evaluate(read_text("/SA_LIB/DEFAULTS/OBJECT_TYPES/'LIB_OBJECT_TYPE'"))
+            #error 'e_state'
+            @trash=status
+         #block_end
+         
+         #if data_type(%OBJECT_TYPE_FILE)<>"NONE" #then #block
+            @v_Attributes = list_attr(%DAT_FILE)
+            #loop_with ind=1..length(%v_Attributes)
+               @current_attr=%v_Attributes(%ind)
+               #if data_type(%OBJECT_TYPE_FILE.'current_attr')<>"NONE" #then #set DAT_FILE:V'current_attr' = OBJECT_TYPE_FILE:V'current_attr'
+            #loop_end
+         #block_end
+      #BLOCK_END
+      
+      #return %DAT_FILE
+   #block_end
+
+   #when "OPEN_SELECT","CLOSE_SELECT" #block
+      #case %COMMAND_SELECTOR
+         #when "OPEN_SELECT" #block
+            @OPER_DIRECTION="OPEN"
+            @SELECT_LN    = %OPEN_CMD_LN
+            @SELECT_IX    = %OPEN_CMD_IX
+         #block_end
+         #when "CLOSE_SELECT" #block
+            @SELECT_LN    = %CLOSE_CMD_LN
+            @SELECT_IX    = %CLOSE_CMD_IX
+            @OPER_DIRECTION="CLOSE"
+         #block_end
+      #case_end
+
+      @CMD_TYPE     = %CONTROL_TYPE
+      @STA_TYPE     = %STATION_TYPE
+      
+      @tmp_LN=%SEL_ON_MON_LN
+      @tmp_IX=%SEL_ON_MON_IX
+      
+      #IF %tmp_IX<>0 #then #block            ;0 means Not In Use
+         @OS='tmp_LN':POS'tmp_IX'
+         @UB='tmp_LN':PUB'tmp_IX'
+         #ERROR IGNORE
+         @OV='tmp_LN':POV'tmp_IX'
+         #ERROR STOP
+         
+         ;if object not updated
+         #IF %OS==10 #THEN #BLOCK
+           #IF %UB==1 #THEN #SET 'tmp_LN':PUB'tmp_IX'=0
+           #MODIFY 'tmp_LN':P'tmp_IX'=LIST(OV=1,RT=CLOCK,HI=0)
+           #IF %UB==1 #THEN #SET 'tmp_LN':PUB'tmp_IX'=1
+         #BLOCK_END
+         ;object value exists (OS<10)
+         #ELSE #BLOCK
+           #IF %UB==1 #THEN #SET 'tmp_LN':PUB'tmp_IX'=0
+           @OV='tmp_LN':POV'tmp_IX'
+           #IF %OV<0 #THEN #BLOCK
+             #MODIFY 'tmp_LN':P'tmp_IX'=LIST(OV=1,RT=CLOCK,HI=0)
+
+           #BLOCK_END
+           #ELSE #BLOCK                                           
+             #MODIFY 'tmp_LN':P'tmp_IX'=LIST(OV=%OV,RT=CLOCK,HI=0)
+           #BLOCK_END
+           #IF %UB ==1 #THEN #SET 'tmp_LN':PUB'tmp_IX'=1
+         #BLOCK_END
+      #block_end
+
+      #case %COMMAND_SELECTOR
+         #when "OPEN_SELECT" #block
+
+           #IF ARGUMENT_COUNT > 2 #THEN #BLOCK
+              @FORCED_OPERATION = TRUE
+              @FORCED_OPERATION_VALUE = ARGUMENT(3)     
+           #BLOCK_END
+           #ELSE #BLOCK
+              @FORCED_OPERATION = FALSE
+              @FORCED_OPERATION_VALUE = 1 
+           #BLOCK_END
+
+           ;OPEN:
+           @SELECT_VALUE = 1
+           #if data_type(%QUALIFIERS(1))<>"NONE" #then @QUALIFIER=%QUALIFIERS(1)
+           #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+              #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_OPEN_SELECT) <> "NONE" #THEN #BLOCK
+                 #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_OPEN_SELECT) > 0 #THEN @CONTROL_TYPE = "OBJECT_TYPE"
+              #BLOCK_END
+           #BLOCK_END
+           
+           #CASE %CONTROL_TYPE
+             ;secured control with 5-AO
+             #WHEN "SEC-5AO" #BLOCK
+                 #IF %FORCED_OPERATION #THEN @SELECT_VALUE = %FORCED_OPERATION_VALUE
+                 #ELSE @SELECT_VALUE = 1
+             #BLOCK_END
+             ;secured control with AO
+             #WHEN "AO" #BLOCK
+               #IF LENGTH(%CONTROL_BITS)==4 OR LENGTH(%CONTROL_BITS)==5 #THEN @SELECT_VALUE = 2**%CONTROL_BITS(1)
+               @SELECT_LN    = %EXECUTE_CMD_LN
+               @SELECT_IX    = %EXECUTE_CMD_IX
+             #BLOCK_END
+             ;secured control with BO
+             #WHEN "SEC-BO" #BLOCK
+               @SELECT_VALUE = 0
+              @SELECT_LN    = %EXECUTE_CMD_LN
+              @SELECT_IX    = %EXECUTE_CMD_IX
+             #BLOCK_END
+             #WHEN "OBJECT_TYPE" #BLOCK
+               #IF %FORCED_OPERATION #THEN @SELECT_VALUE = %FORCED_OPERATION_VALUE
+               #ELSE @SELECT_VALUE = 1
+               #DO OBJECT_TYPE_FILE:VMETHOD_OPEN_SELECT
+             #BLOCK_END
+           #CASE_END
+         #block_end
+           
+         #when "CLOSE_SELECT" #block
+
+           #IF ARGUMENT_COUNT > 2 #THEN #BLOCK
+              @FORCED_OPERATION = TRUE
+              @FORCED_OPERATION_VALUE = ARGUMENT(3)     
+           #BLOCK_END
+           #ELSE #BLOCK
+              @FORCED_OPERATION = FALSE
+              @FORCED_OPERATION_VALUE = 1 
+           #BLOCK_END
+
+           ;CLOSE:
+           @SELECT_VALUE = 1
+           #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+              #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_CLOSE_SELECT) <> "NONE" #THEN #BLOCK
+                 #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_CLOSE_SELECT) > 0 #THEN @CONTROL_TYPE = "OBJECT_TYPE"
+              #BLOCK_END
+           #BLOCK_END
+           
+           #if data_type(%QUALIFIERS(2))<>"NONE" #then @QUALIFIER=%QUALIFIERS(2)
+           #CASE %CONTROL_TYPE
+             ;secured control with 5-AO
+             #WHEN "SEC-5AO" #BLOCK
+                 #IF %FORCED_OPERATION #THEN @SELECT_VALUE = %FORCED_OPERATION_VALUE
+                 #ELSE @SELECT_VALUE = 1
+             #BLOCK_END
+             ;secured control with AO
+             #WHEN "AO" #BLOCK
+               #IF LENGTH(%CONTROL_BITS)==4 OR LENGTH(%CONTROL_BITS)==5 #THEN @SELECT_VALUE = 2**%CONTROL_BITS(2)
+               #ELSE @SELECT_VALUE = 0
+               @SELECT_LN    = %EXECUTE_CMD_LN
+               @SELECT_IX    = %EXECUTE_CMD_IX   
+             #BLOCK_END
+             ;secured control with BO
+             #WHEN "SEC-BO" #BLOCK
+               @SELECT_VALUE = 1
+              @SELECT_LN    = %EXECUTE_CMD_LN
+              @SELECT_IX    = %EXECUTE_CMD_IX
+             #BLOCK_END
+             #WHEN "OBJECT_TYPE" #BLOCK
+               #IF %FORCED_OPERATION #THEN @SELECT_VALUE = %FORCED_OPERATION_VALUE
+               #ELSE @SELECT_VALUE = 1
+               #DO OBJECT_TYPE_FILE:VMETHOD_CLOSE_SELECT
+             #BLOCK_END
+           #CASE_END
+         #block_end
+      #case_end
+
+      @st=status
+      @e_state=error_state
+      #error ignore
+      #IF %CONTROL_TYPE <> "OBJECT_TYPE" #THEN #DO READ_TEXT("/sa_lib/base/bbone/use/BGU_SW_SEL.TXT")
+      #error 'e_state'
+
+      #IF %NACK <> 0 #then #block
+         @trash=console_output(times + "BGU_CONTROL: Failed when making select. SCIL error='NACK'")
+      #block_end
+      #else #block
+      
+        ;search for the process objects related to the picture function itself
+        @CMD_EVENT = APPLICATION_OBJECT_EXISTS(0, "IX", LIST(LN ="'INDICATION_DB_LN'", IX = %CMD_EVENT_IX))
+       
+        #IF %NACK == 0 #THEN #BLOCK
+          ;set command event on if possible
+          #IF %CMD_EVENT #THEN #BLOCK
+            #IF 'CMD_EVENT_LN':PUB'CMD_EVENT_IX'==0 AND -
+            NOT ('CMD_EVENT_LN':PSS'CMD_EVENT_IX'>1 AND -
+            'CMD_EVENT_LN':PUN'CMD_EVENT_IX'<>0) #THEN #BLOCK
+              ;set command event object if simulated process
+              #SET 'CMD_EVENT_LN':POV'CMD_EVENT_IX' = 1
+            #BLOCK_END
+          #BLOCK_END
+        #BLOCK_END
+     #block_end      
+     #return %NACK
+      
+   #block_end
+   ;
+   ;
+   ;   ***********************************  EXECUTE, CANCEL  ***********************************
+   ;
+   ;
+   #when "OPEN_EXECUTE","CLOSE_EXECUTE","CANCEL","SELECT_ON_MONITOR" ,"UNSELECT_ON_MONITOR", -
+      "TO_STATION_EXECUTE", "TO_NCC_EXECUTE" #block
+      #if %COMMAND_SELECTOR=="OPEN_EXECUTE" #then #block
+         @OPER_DIRECTION="OPEN"
+      #block_end
+      #else #block
+         @OPER_DIRECTION="CLOSE"
+      #block_end
+            
+      #case %COMMAND_SELECTOR
+
+         #when "SELECT_ON_MONITOR" ,"UNSELECT_ON_MONITOR" #block 
+            ;This is never used?
+            #case %COMMAND_SELECTOR
+               #when "SELECT_ON_MONITOR" #block
+                  ;set switching device selected on monitor
+                  
+                  ;store the current state of status (OS), update blocking (UB) and value (OV)
+                  @OS='SEL_ON_MON_LN':POS'SEL_ON_MON_IX'
+                  @UB='SEL_ON_MON_LN':PUB'SEL_ON_MON_IX'
+                  #ERROR IGNORE
+                  @OV='SEL_ON_MON_LN':POV'SEL_ON_MON_IX'
+                  #ERROR STOP
+                  
+                  ;if object not updated
+                  #IF %OS==10 #THEN #BLOCK
+                    #IF %UB==1 #THEN #SET 'SEL_ON_MON_LN':PUB'SEL_ON_MON_IX'=0
+                    #MODIFY 'SEL_ON_MON_LN':P'SEL_ON_MON_IX'=LIST(OV=1,RT=CLOCK,HI=0)
+                    @MY_SESSION = 1
+                    #IF %UB==1 #THEN #SET 'SEL_ON_MON_LN':PUB'SEL_ON_MON_IX'=1
+                  #BLOCK_END
+                  ;object value exists (OS<10)
+                  #ELSE #BLOCK
+                    #IF %UB==1 #THEN #SET 'SEL_ON_MON_LN':PUB'SEL_ON_MON_IX'=0
+                    @OV='SEL_ON_MON_LN':POV'SEL_ON_MON_IX'
+                    #IF %OV<0 #THEN #BLOCK
+                      #MODIFY 'SEL_ON_MON_LN':P'SEL_ON_MON_IX'=LIST(OV=1,RT=CLOCK,HI=0)
+                      @MY_SESSION = 1
+                    #BLOCK_END
+                    #ELSE #BLOCK                                           
+                      #MODIFY 'SEL_ON_MON_LN':P'SEL_ON_MON_IX'=LIST(OV=%OV+1,RT=CLOCK,HI=0)
+                      @MY_SESSION = %OV + 1
+                    #BLOCK_END
+                    #IF %UB ==1 #THEN #SET 'SEL_ON_MON_LN':PUB'SEL_ON_MON_IX'=1
+                  #BLOCK_END
+                  #return %MY_SESSION
+               #block_end
+               #when "UNSELECT_ON_MONITOR" #block
+                  @MY_SESSION=argument(3)
+                  @MY_SESSION=0
+                  @UB='SEL_ON_MON_LN':PUB'SEL_ON_MON_IX'
+                  @OV='SEL_ON_MON_LN':POV'SEL_ON_MON_IX'
+                  #IF %OV <=0 #THEN @OV = 1
+                  
+                  #IF %UB ==1 #THEN #SET 'SEL_ON_MON_LN':PUB'SEL_ON_MON_IX'=0
+                  #MODIFY 'SEL_ON_MON_LN':P'SEL_ON_MON_IX'=LIST(OV=%OV-1,RT=CLOCK,HI=%MY_SESSION)
+                  #IF %UB ==1 #THEN #SET 'SEL_ON_MON_LN':PUB'SEL_ON_MON_IX'=1   
+                  #return 
+               #block_end
+            #case_end
+         #block_end
+;
+;
+;   ***********************************  EXECUTE  ***********************************
+;
+;
+
+         #WHEN "TO_STATION_EXECUTE", "TO_NCC_EXECUTE" #BLOCK
+            #IF %COMMAND_SELECTOR == "TO_STATION_EXECUTE" #THEN @EXECUTE_VALUE = 1
+            #ELSE @EXECUTE_VALUE = 0
+         
+            #SET 'OBJECT_LN':POV'DEVICE_LOCSTA_CMD_IX' = %EXECUTE_VALUE         
+            #IF NOT ('OBJECT_LN':PSS'DEVICE_LOCSTA_IX' > 1 AND 'OBJECT_LN':PUN'DEVICE_LOCSTA_IX' <> 0) #THEN #BLOCK
+               #PAUSE 0.1
+               #SET 'OBJECT_LN':P'DEVICE_LOCSTA_IX' = %EXECUTE_VALUE
+            #BLOCK_END
+         #BLOCK_END
+                
+         #when "OPEN_EXECUTE","CLOSE_EXECUTE" #block
+
+           ;Support for IEC 61850:
+           #IF %STATION_TYPE == "IEC61850" #THEN @INV_DB = TRUE
+           #ELSE @INV_DB = FALSE
+
+           #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_GET_INDICATIONS) <> "NONE" #THEN #BLOCK
+               #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_GET_INDICATIONS) > 0 #THEN #BLOCK
+                  #DO OBJECT_TYPE_FILE:VMETHOD_GET_INDICATIONS
+                  #IF DATA_TYPE(RESULT:VINDICATION_OV) <> "NONE" #THEN #BLOCK
+                     #IF RESULT:VINDICATION_OV == 1 AND %COMMAND_SELECTOR == "CLOSE_EXECUTE" #THEN @INV_DB = TRUE
+                     #IF RESULT:VINDICATION_OV == 2 AND %COMMAND_SELECTOR == "OPEN_EXECUTE" #THEN @INV_DB = TRUE
+                  #BLOCK_END
+               #BLOCK_END
+           #BLOCK_END
+
+           #IF LENGTH('INDICATION_DB_LN':PCC) == 0 #THEN #BLOCK
+              @TMP_EE='INDICATION_DB_LN':PEE'INDICATION_DB_IX'
+              @TMP_HE='INDICATION_DB_LN':PHE'INDICATION_DB_IX'
+              @TMP_PB='INDICATION_DB_LN':PPB'INDICATION_DB_IX'
+              @TMP_AC='INDICATION_DB_LN':PAC'INDICATION_DB_IX'
+              #IF %TMP_EE<>0 #THEN #SET 'INDICATION_DB_LN':PEE'INDICATION_DB_IX'=0
+              #IF %TMP_HE<>0 #THEN #SET 'INDICATION_DB_LN':PHE'INDICATION_DB_IX'=0
+              #IF %TMP_PB<>1 #THEN #SET 'INDICATION_DB_LN':PPB'INDICATION_DB_IX'=1
+              #IF %TMP_AC<>0 #THEN #SET 'INDICATION_DB_LN':PAC'INDICATION_DB_IX'=0
+              
+              ;set open unalarming (it is set back in exit program)
+              #IF %OPER_DIRECTION == "OPEN" AND NOT(%INV_DB) #THEN #BLOCK
+                #SET 'INDICATION_DB_LN':PLA'INDICATION_DB_IX'= 11
+              #BLOCK_END
+              #ELSE_IF %OPER_DIRECTION == "OPEN" AND %INV_DB #THEN #BLOCK
+                #SET 'INDICATION_DB_LN':PLA'INDICATION_DB_IX'= 13
+              #BLOCK_END
+   
+              ;set close unalarming (it is set back in exit program)
+              #IF %OPER_DIRECTION == "CLOSE" AND NOT(%INV_DB) #THEN #BLOCK
+                #SET 'INDICATION_DB_LN':PLA'INDICATION_DB_IX'= 13
+              #BLOCK_END
+              #ELSE_IF %OPER_DIRECTION == "CLOSE" AND %INV_DB #THEN #BLOCK
+                #SET 'INDICATION_DB_LN':PLA'INDICATION_DB_IX'= 11
+              #BLOCK_END
+   
+              #IF %TMP_AC<>0 #THEN #SET 'INDICATION_DB_LN':PAC'INDICATION_DB_IX'= %TMP_AC
+              #IF %TMP_PB<>1 #THEN #SET 'INDICATION_DB_LN':PPB'INDICATION_DB_IX'= %TMP_PB
+              #IF %TMP_HE<>0 #THEN #SET 'INDICATION_DB_LN':PHE'INDICATION_DB_IX'= %TMP_HE
+              #IF %TMP_EE<>0 #THEN #SET 'INDICATION_DB_LN':PEE'INDICATION_DB_IX'= %TMP_EE
+           #BLOCK_END
+         
+           #if %OPER_DIRECTION=="OPEN" #then #block
+              #if data_type(%QUALIFIERS(3))<>"NONE" #then @QUALIFIER=%QUALIFIERS(3)
+           #block_end
+           #if %OPER_DIRECTION=="CLOSE" #then #block
+              #if data_type(%QUALIFIERS(4))<>"NONE" #then @QUALIFIER=%QUALIFIERS(4)
+           #block_end
+
+           ;set flag for execution
+           @COMMAND_EXECUTED = TRUE
+         
+           ;default inputs for execution
+           @CMD_TYPE      = %CONTROL_TYPE
+           @STA_TYPE      = %STATION_TYPE
+           @EXECUTE_LN    = %EXECUTE_CMD_LN
+           @EXECUTE_IX    = %EXECUTE_CMD_IX
+           @CONTROL_BITS  = %CONTROL_BITS
+           @EXECUTE_VALUE = 1
+
+           #IF ARGUMENT_COUNT > 3 #THEN #BLOCK
+              @FORCED_OPERATION = TRUE
+              @FORCED_OPERATION_VALUE = ARGUMENT(4)     
+           #BLOCK_END
+           #ELSE #BLOCK
+              @FORCED_OPERATION = FALSE
+              @FORCED_OPERATION_VALUE = 1 
+           #BLOCK_END
+           
+           #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+              #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_'OPER_DIRECTION'_EXECUTE) <> "NONE" #THEN #BLOCK
+                 #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_'OPER_DIRECTION'_EXECUTE) > 0 #THEN @CONTROL_TYPE = "OBJECT_TYPE"
+              #BLOCK_END
+           #BLOCK_END
+              
+           #CASE %CONTROL_TYPE
+           
+             #WHEN "SEC-5AO" #BLOCK
+               #IF %OPER_DIRECTION=="OPEN" #THEN #BLOCK
+                 @EXECUTE_LN = %OPEN_CMD_LN
+                 @EXECUTE_IX = %EXECUTE_OPEN_CMD_IX
+               #BLOCK_END
+               #ELSE_IF %OPER_DIRECTION=="CLOSE" #THEN #BLOCK
+                 @EXECUTE_LN = %CLOSE_CMD_LN
+                 @EXECUTE_IX = %EXECUTE_CLOSE_CMD_IX
+               #BLOCK_END
+               #IF %FORCED_OPERATION #THEN @EXECUTE_VALUE = %FORCED_OPERATION_VALUE
+               #ELSE @EXECUTE_VALUE = 1
+             #BLOCK_END
+              ;secured control with five BO
+              #WHEN "SEC-5BO" #BLOCK
+                @EXECUTE_VALUE = 1
+                #IF %OPER_DIRECTION=="OPEN" #THEN #BLOCK
+                  @EXECUTE_LN = %OPEN_CMD_LN
+                  @EXECUTE_IX = %EXECUTE_OPEN_CMD_IX
+                #BLOCK_END
+                #ELSE_IF %OPER_DIRECTION=="CLOSE" #THEN #BLOCK
+                  @EXECUTE_LN = %CLOSE_CMD_LN
+                  @EXECUTE_IX = %EXECUTE_CLOSE_CMD_IX
+                #BLOCK_END
+              #BLOCK_END
+    
+             ;secured control with two BO or DO
+             #WHEN "SEC-2BO","SEC-2DO" #BLOCK
+               #IF %CONTROL_TYPE=="SEC-2DO" #THEN @EXECUTE_VALUE=%CONTROL_PULSE_LENGTH
+               #IF %OPER_DIRECTION=="OPEN" #THEN #BLOCK
+                 @EXECUTE_LN = %OPEN_CMD_LN
+                 @EXECUTE_IX = %OPEN_CMD_IX
+                 #IF %STATION_TYPE == "DNP_30" #THEN @EXECUTE_VALUE = 0
+               #BLOCK_END
+               #ELSE_IF %OPER_DIRECTION=="CLOSE" #THEN #BLOCK
+                 @EXECUTE_LN = %CLOSE_CMD_LN
+                 @EXECUTE_IX = %CLOSE_CMD_IX
+               #BLOCK_END
+             #BLOCK_END
+             ;secured or direct control with a single BO
+             #WHEN "SEC-BO","DIR-BO" #BLOCK
+               #IF %OPER_DIRECTION=="OPEN" #THEN @EXECUTE_VALUE=0
+               #ELSE_IF %OPER_DIRECTION=="CLOSE" #THEN @EXECUTE_VALUE=1
+             #BLOCK_END
+             ;secured control with AO
+             #WHEN "AO" #BLOCK
+               #IF LENGTH(%CONTROL_BITS)==4 #THEN @EXECUTE_VALUE = 2**%CONTROL_BITS(3)
+               #ELSE_IF LENGTH(%CONTROL_BITS)==5 #THEN #BLOCK
+                  #IF %OPER_DIRECTION=="OPEN" #THEN @EXECUTE_VALUE = 2**%CONTROL_BITS(3)
+                  #ELSE_IF %OPER_DIRECTION=="CLOSE" #THEN @EXECUTE_VALUE = 2**%CONTROL_BITS(4)
+               #BLOCK_END
+               #ELSE_IF LENGTH(%CONTROL_BITS)==2 #THEN #BLOCK
+                 #IF %OPER_DIRECTION=="OPEN" #THEN @EXECUTE_VALUE=2**%CONTROL_BITS(1)
+                 #ELSE_IF %OPER_DIRECTION=="CLOSE" #THEN @EXECUTE_VALUE=2**%CONTROL_BITS(2)
+               #BLOCK_END
+             #BLOCK_END
+             #WHEN "OBJECT_TYPE" #BLOCK
+               #DO OBJECT_TYPE_FILE:VMETHOD_'OPER_DIRECTION'_EXECUTE
+             #BLOCK_END
+           #CASE_END
+        
+           ;execute the actual set command
+           @st=status
+           @e_state=error_state
+           #ERROR IGNORE
+            #IF %CONTROL_TYPE <> "OBJECT_TYPE" #THEN #DO READ_TEXT("/sa_lib/base/bbone/use/BGU_SW_EXE.TXT")
+           #error 'e_state'
+           #IF %NACK <> 0 #then @trash=console_output(times + "BGU_CONTROL: Failed when making execute. SCIL error='NACK'")
+   
+               #IF %SEL_ON_MON_IX<>0 #THEN #BLOCK ; 0 means Not In Use
+                  ;Release 'selected on monitor' indication
+                  @UB='SEL_ON_MON_LN':PUB'SEL_ON_MON_IX'
+                  @OV='SEL_ON_MON_LN':POV'SEL_ON_MON_IX'
+                  
+                  #IF %UB ==1 #THEN #SET 'SEL_ON_MON_LN':PUB'SEL_ON_MON_IX'=0
+                  #MODIFY 'SEL_ON_MON_LN':P'SEL_ON_MON_IX'=LIST(OV=%OV,RT=CLOCK,HI=1) ;HI=MY SESSION
+                  #IF %UB ==1 #THEN #SET 'SEL_ON_MON_LN':PUB'SEL_ON_MON_IX'=1   
+               #BLOCK_END   
+   
+              @COMMAND_EXECUTED = FALSE
+            
+              ;if command was successful
+              #IF %NACK == 0 #THEN #BLOCK
+                @COMMAND_EXECUTED = TRUE
+              #BLOCK_END
+            
+              #IF 'INDICATION_DB_LN':PSS'STATUS_IX'<>2 #THEN #BLOCK           
+                #IF 'INDICATION_DB_LN':PUB'INDICATION_DB_IX'==0 #THEN #BLOCK
+                  #IF %INV_DB #THEN #BLOCK
+                     #IF %OPER_DIRECTION=="OPEN" #THEN @SIMULATE_POSITION=1
+                     #ELSE_IF %OPER_DIRECTION=="CLOSE" #THEN @SIMULATE_POSITION=2
+                  #BLOCK_END
+                  #ELSE #BLOCK
+                     #IF %OPER_DIRECTION=="OPEN" #THEN @SIMULATE_POSITION=2
+                     #ELSE_IF %OPER_DIRECTION=="CLOSE" #THEN @SIMULATE_POSITION=1
+                  #block_end
+                  #CASE %INDICATION_TYPE
+                    #WHEN "DB" #SET 'INDICATION_DB_LN':POV'INDICATION_DB_IX'=%SIMULATE_POSITION
+                    #WHEN "AI" #SET 'INDICATION_UP1_LN':POV'INDICATION_UP1_IX'=%SIMULATE_POSITION
+                    #WHEN "BI" #SET 'INDICATION_UP1_LN':POV'INDICATION_UP1_IX'=ROUND(ABS(%SIMULATE_POSITION**2-3))-1
+                    #WHEN "2BI" #BLOCK
+                      #IF %SIMULATE_POSITION == 2 #THEN #BLOCK
+                        #SET 'INDICATION_UP1_LN':POV'INDICATION_UP1_IX'=1
+                        #SET 'INDICATION_UP2_LN':POV'INDICATION_UP2_IX'=0
+                      #BLOCK_END
+                      #ELSE #BLOCK
+                        #SET 'INDICATION_UP1_LN':POV'INDICATION_UP1_IX'=0
+                        #SET 'INDICATION_UP2_LN':POV'INDICATION_UP2_IX'=1
+                      #BLOCK_END
+                    #BLOCK_END
+                  #CASE_END
+            
+                  ;simulation with event recording 
+                  #IF %EVENT_RECORDING #THEN #BLOCK
+                    #CASE %INDICATION_TYPE
+                      #WHEN "DB" #BLOCK
+                        @EVENT_REC_IX=%INDICATION_DB_IX+100
+                        #SET 'INDICATION_DB_LN':POV'EVENT_REC_IX'=%SIMULATE_POSITION
+                      #BLOCK_END
+                      #WHEN "AI" #BLOCK
+                        @EVENT_REC_IX=%INDICATION_UP1_IX+100
+                        #SET 'INDICATION_UP1_LN':POV'EVENT_REC_IX'=%SIMULATE_POSITION
+                      #BLOCK_END
+                      #WHEN "BI" #BLOCK
+                        @EVENT_REC_IX=%INDICATION_UP1_IX+100
+                        #SET 'INDICATION_UP1_LN':POV'EVENT_REC_IX'=ROUND(ABS(%SIMULATE_POSITION**2-3))-1
+                      #BLOCK_END
+                      #WHEN "2BI" #BLOCK
+                        #IF %SIMULATE_POSITION == 2 #THEN #BLOCK
+                          @EVENT_REC1_IX=%INDICATION_UP1_IX+100
+                          @EVENT_REC2_IX=%INDICATION_UP2_IX+100
+                          #SET 'INDICATION_UP1_LN':POV'EVENT_REC1_IX'=1
+                          #SET 'INDICATION_UP2_LN':POV'EVENT_REC2_IX'=0
+                        #BLOCK_END
+                        #ELSE #BLOCK
+                          @EVENT_REC1_IX=%INDICATION_UP1_IX+100
+                          @EVENT_REC2_IX=%INDICATION_UP2_IX+100
+                          #SET 'INDICATION_UP1_LN':POV'EVENT_REC1_IX'=0
+                          #SET 'INDICATION_UP2_LN':POV'EVENT_REC2_IX'=1
+                        #BLOCK_END
+                      #BLOCK_END
+                    #CASE_END
+                  #BLOCK_END
+                #BLOCK_END
+              #BLOCK_END
+       
+              ;search for the process objects related to the picture function itself
+              @CMD_EVENT = APPLICATION_OBJECT_EXISTS(0, "IX", LIST(LN ="'INDICATION_DB_LN'", IX = %CMD_EVENT_IX))
+              
+              ;set command event off if possible
+              #IF %CMD_EVENT #THEN #BLOCK
+                #IF 'CMD_EVENT_LN':PUB'CMD_EVENT_IX'==0 AND -
+                NOT ('CMD_EVENT_LN':PSS'CMD_EVENT_IX'>1 AND -
+                'CMD_EVENT_LN':PUN'CMD_EVENT_IX'<>0) #THEN #BLOCK
+                  ;set command event object if simulated process
+                  #SET 'CMD_EVENT_LN':POV'CMD_EVENT_IX' = 0
+                #BLOCK_END
+              #BLOCK_END
+         #return %NACK
+      #block_end
+;
+;
+;   ***********************************  CANCEL  ***********************************
+;
+;
+      #when "CANCEL" #block
+         @SYNCHROCHECK             = FALSE
+         
+         ;default inputs for execution
+         @CMD_TYPE      = %CONTROL_TYPE
+         @STA_TYPE      = %STATION_TYPE
+         @CANCEL_LN     = %CANCEL_CMD_LN
+         @CANCEL_IX     = %CANCEL_CMD_IX
+         @CONTROL_BITS  = %CONTROL_BITS
+         @CANCEL_VALUE  = 0
+         
+         ;---Deactivate Synchrocheck Bypass Mode
+         #IF %SYNCHROCHECK #THEN #BLOCK
+            ;---AUTO (connected to process)
+            #if 'CANCEL_LN':PSS'CANCEL_IX' == 2 #then #block
+               @t_AB_Action    = "SCB_MODE_DEACTIVATE"
+               
+               ;---Call FPU_SYN_BYPASS:C
+               @E_STATE=ERROR_STATE
+               #error ignore
+               #DO FPU_SYN_BYPASS:C
+               #error 'E_STATE'
+            #block_end
+            #SET 'CANCEL_LN':POV'SYN_CMD_IX' = 0         ;"Synchrocheck Bypass command unselected" (No Event List entry)
+         #BLOCK_END
+         
+         #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+            #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_CANCEL) <> "NONE" #THEN #BLOCK
+               #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_CANCEL) > 0 #THEN @CONTROL_TYPE = "OBJECT_TYPE"
+            #BLOCK_END
+         #BLOCK_END
+         
+         #CASE %CONTROL_TYPE
+           ;secured control with a single BO
+           #WHEN "SEC-BO" #BLOCK
+             @CANCEL_LN = %EXECUTE_CMD_LN
+             @CANCEL_IX = %EXECUTE_CMD_IX
+           #BLOCK_END
+           ;secured control with AO
+           #WHEN "AO" #BLOCK
+             #IF LENGTH(%CONTROL_BITS)==4 #THEN @CANCEL_VALUE = 2**%CONTROL_BITS(4)
+             @CANCEL_LN = %EXECUTE_CMD_LN
+             @CANCEL_IX = %EXECUTE_CMD_IX
+           #BLOCK_END
+           #WHEN "SEC-5AO" #BLOCK
+              #if argument_count > 2 #then @CANCEL_VALUE = argument(3)
+              #else @CANCEL_VALUE = 1
+           #BLOCK_END
+           #WHEN "OBJECT_TYPE" #BLOCK
+             #DO OBJECT_TYPE_FILE:VMETHOD_CANCEL
+           #BLOCK_END
+         #CASE_END
+
+         #if data_type(%QUALIFIERS(5))<>"NONE" #then @QUALIFIER=%QUALIFIERS(5)
+         
+         ;set control selection cancelled
+         @st=status
+         @e_state=ERROR_STATE
+         #ERROR IGNORE
+         #IF %CONTROL_TYPE <> "OBJECT_TYPE" #THEN #DO READ_TEXT("/sa_lib/base/bbone/use/BGU_SW_CAN.TXT")
+         #ERROR 'E_STATE'
+ 
+         #IF %NACK <> 0 #then @trash=console_output(times + "BGU_CONTROL: Failed when making cancel. SCIL error='NACK'")
+        
+         ;search for the process objects related to the picture function itself
+         @CMD_EVENT = APPLICATION_OBJECT_EXISTS(0, "IX", LIST(LN ="'INDICATION_DB_LN'", IX = %CMD_EVENT_IX))
+         
+         ;set command event off if possible
+         #IF %CMD_EVENT #THEN #BLOCK
+           #IF 'CMD_EVENT_LN':PUB'CMD_EVENT_IX'==0 AND -
+           NOT ('CMD_EVENT_LN':PSS'CMD_EVENT_IX'>1 AND -
+           'CMD_EVENT_LN':PUN'CMD_EVENT_IX'<>0) #THEN #BLOCK
+             ;set command event object if simulated process
+             #SET 'CMD_EVENT_LN':POV'CMD_EVENT_IX' = 0
+           #BLOCK_END
+         #BLOCK_END
+         
+         ;Release 'selected on monitor' indication
+         @UB='SEL_ON_MON_LN':PUB'SEL_ON_MON_IX'
+         @OV='SEL_ON_MON_LN':POV'SEL_ON_MON_IX'
+         
+         #IF %UB ==1 #THEN #SET 'SEL_ON_MON_LN':PUB'SEL_ON_MON_IX'=0
+         #MODIFY 'SEL_ON_MON_LN':P'SEL_ON_MON_IX'=LIST(OV=%OV,RT=CLOCK,HI=1) ;HI=MY SESSION
+         #IF %UB ==1 #THEN #SET 'SEL_ON_MON_LN':PUB'SEL_ON_MON_IX'=1   
+         #return %NACK
+      #block_end
+      #case_end
+   #block_end
+   #when "SEARCH_OBJECTS", "GET_INDICATIONS","AR_INTERRUPT", "AR_IN_USE" #block
+      @INDICATION_DB_LN     = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @INDICATION2_DB_LN    = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @INDICATION_UP1_LN    = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @INDICATION2_UP1_LN   = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @INDICATION_UP2_LN    = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @INDICATION2_UP2_LN   = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @OPEN_CMD_LN          = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @CLOSE_CMD_LN         = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @EXECUTE_CMD_LN       = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @CANCEL_CMD_LN        = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @EXT_CNTR_BLK_LN      = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @OPEN_ILOCK_LN        = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @CLOSE_ILOCK_LN       = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @ILOCK_CAUSE_LN       = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @CMD_EVENT_LN         = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @SEL_ON_MON_LN        = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @AUX_PLUG_LN          = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @SYN_IND_LN           = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @SYN_CMD_LN           = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @EXECUTE_OPEN_CMD_LN  = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+      @EXECUTE_CLOSE_CMD_LN = UPPER_CASE(DAT_FILE:VP_OBJECT_LN)
+
+      @TYPE_PF              = DAT_FILE:VTYPE_PF
+      @SPECIAL_IDENTIFIER_1 = DAT_FILE:VSPECIAL_IDENTIFIER_1
+      @SPECIAL_IDENTIFIER_2 = DAT_FILE:VSPECIAL_IDENTIFIER_2
+      @SPECIAL_IDENTIFIER_3 = DAT_FILE:VSPECIAL_IDENTIFIER_3
+      @SWITCH_TYPE          = DAT_FILE:VSWITCHING_DEVICE_TYPE   
+      @SWITCH_PURPOSE       = DAT_FILE:VSWITCHING_DEVICE_PURPOSE
+      @SWITCH_SECTION       = DAT_FILE:VSWITCH_SECTION
+      @STATION_TYPE         = DAT_FILE:VSTATION_TYPE
+      @INDICATION_TYPE      = DAT_FILE:VINDICATION_TYPE
+      @MOTORIZED            = DAT_FILE:VMOTORIZED
+      @CONTROL_TYPE         = DAT_FILE:VCONTROL_TYPE
+      @CONTROL_PULSE_LENGTH = DAT_FILE:VCONTROL_PULSE_LENGTH
+      @CONTROL_BITS         = DAT_FILE:VCONTROL_BITS
+      @AUTHORIZATION_GROUP  = DAT_FILE:VAUTHORIZATION_GROUP
+      @CONTROL_DIALOG       = DAT_FILE:VCONTROL_DIALOG 
+      @CONTROL_DIALOG_WINDOW= DAT_FILE:VCONTROL_DIALOG_WINDOW
+      @EVENT_RECORDING      = DAT_FILE:VEVENT_RECORDING
+      @DATA_ACQUISITION_UNIT= DAT_FILE:VDATA_ACQUISITION_UNIT
+      @FUNCTION_BLOCK       = DAT_FILE:VFUNCTION_BLOCK
+
+      ;initialize variables
+      @MY_SESSION                  = 0
+      @OLD_INDICATION_LA           = ""
+      @OPEN_DIALOG                 = "NONE"
+      @BLK_CHANGED                 = FALSE
+      @ALARM_ACKNOWLEDGED          = FALSE
+      @AUX_PLUG_DISCONNECTED_BV    = FALSE
+      @AUX_DIALOG_OPEN             = FALSE
+      @SYNCHROCHECK                = FALSE
+      @COMMAND_EXECUTED            = FALSE
+      @UPDATE_FAILED               = FALSE
+      @FORCED_OPERATION            = FALSE
+      @I_AM_EXECUTING              = FALSE
+      @EXT_INTERLOCKING_HW_IX      = 15
+      @EXT_INTERLOCKING_SW_IX      = 16
+      @INT_INTERLOCKING_IX         = 18
+      @AR_SW_IX                    = 10
+      @AR_HW_IX                    = 11
+      @SYN_IND_IX                  = 0
+      @SYN_CMD_IX                  = 0
+      @ADD_CAUSE_IX                = 0
+      @STA_LR_OBJECT               = FALSE
+      @BAY_LR_OBJECT               = FALSE
+      @BAY_OP_OBJECT               = FALSE
+      @BAY_MLT_OBJECT              = FALSE
+      @STA_LR_REQUIRED             = TRUE
+      @BAY_LR_REQUIRED             = TRUE
+      @BLOCKINGS                   = FALSE
+      @INT_INTERLOCK_IN_USE        = FALSE
+      @EXT_HW_INTERLOCK_IN_USE     = FALSE
+      @EXT_SW_INTERLOCK_IN_USE     = FALSE
+      @AR_IN_USE_HW                = FALSE
+      @AR_IN_USE_SW                = FALSE
+      @AR_INTERRUPT                = FALSE
+      @AR_IN_USE_CMD               = FALSE
+      @NUMBER_OF_AR_OBJECTS        = 0
+      @NUMBER_OF_LATCH_RELAYS      = 0
+      @NUMBER_OF_LATCH_RESETS      = 0
+      @FOUND_INDEXES               = VECTOR()
+      @INDICATION_DB               = FALSE
+      @INDICATION2_DB              = FALSE
+      @INDICATION_UP1              = FALSE
+      @INDICATION2_UP1             = FALSE
+      @INDICATION_UP2              = FALSE
+      @INDICATION2_UP2             = FALSE
+      @OPEN_CMD                    = FALSE
+      @CLOSE_CMD                   = FALSE
+      @EXECUTE_CMD                 = FALSE
+      @CANCEL_CMD                  = FALSE
+      @EXECUTE_OPEN_CMD            = FALSE
+      @EXECUTE_CLOSE_CMD           = FALSE      
+      @EXT_CNTR_BLK                = FALSE
+      @OPEN_ILOCK                  = FALSE
+      @CLOSE_ILOCK                 = FALSE
+      @ILOCK_CAUSE                 = FALSE
+      @CMD_EVENT                   = FALSE
+      @SEL_ON_MON                  = FALSE
+      @AUX_PLUG                    = FALSE
+      @POSITION_INDICATION_MISSING = FALSE
+      @CONTROL_OBJECTS_MISSING     = FALSE
+      @SYN_IND                     = FALSE
+      @SYN_CMD                     = FALSE
+      @INTERLOCKING_BYPASS         = FALSE
+      @SYNCHROCHECK_BYPASS         = FALSE
+      
+      @RESULT_LIST=LIST(-
+         STA_LR_OBJECT_LN = "",-
+         STA_LR_OBJECT_IX = 0,-
+         BAY_LR_OBJECT_LN = "",-
+         BAY_LR_OBJECT_IX = 0,-
+         BAY_LR_ALLOW_VALUES = VECTOR(),-
+         BAY_OP_OBJECT_LN = "",-
+         BAY_OP_OBJECT_IX = 0,-
+         BAY_MLT_OBJECT_LN = "",-
+         BAY_MLT_OBJECT_IX = 0,-
+         EXT_HW_INTERLOCK_IN_USE_LN = "",-
+         EXT_HW_INTERLOCK_IN_USE_IX = 0,-
+         EXT_SW_INTERLOCK_IN_USE_LN = "",-
+         EXT_SW_INTERLOCK_IN_USE_IX = 0,-
+         INT_INTERLOCK_IN_USE_LN = "",-
+         INT_INTERLOCK_IN_USE_IX = 0,-
+         AR_RUNNING_LN'NUMBER_OF_AR_OBJECTS' = "",-
+         AR_RUNNING_IX'NUMBER_OF_AR_OBJECTS' = 0,-
+         AR_IN_USE_SW_LN = "",-
+         AR_IN_USE_SW_IX = 0,-
+         AR_IN_USE_HW_LN = "",-
+         AR_IN_USE_HW_IX = 0,-
+         AR_INTERRUPT_LN = "",-
+         AR_INTERRUPT_IX = 0,-
+         AR_IN_USE_CMD_LN = "",-
+         AR_IN_USE_CMD_IX = 0,-
+         AR_RUNNING_LN'NUMBER_OF_AR_OBJECTS' = "",-
+         AR_RUNNING_IX'NUMBER_OF_AR_OBJECTS' = 0,-
+         LATCHED_RELAY_LN'NUMBER_OF_LATCH_RELAYS' = "",-
+         LATCHED_RELAY_IX'NUMBER_OF_LATCH_RELAYS' = 0,-
+         LATCHED_RESET_LN'NUMBER_OF_LATCH_RESETS' = "",-
+         LATCHED_RESET_IX'NUMBER_OF_LATCH_RESETS' = 0,-
+         SYN_IND_IX                  = 0,-
+         SYN_CMD_IX                  = 0,-
+         ADD_CAUSE_IX                = 0)    
+      
+      @e_state=error_state
+      #error ignore
+      #IF %DAT_FILE.SWITCHING_DEVICE_TYPE == "QS" #THEN #BLOCK
+         @SYN_IND_IX = %DAT_FILE.SYN_IND_IX
+         @SYN_CMD_IX = %DAT_FILE.SYN_CMD_IX
+      #BLOCK_END
+      @ADD_CAUSE_IX = %DAT_FILE.ADD_CAUSE_IX
+      #error 'e_state'
+     
+      
+      @STA_LR_OBJECT               = FALSE
+      @BAY_LR_OBJECT               = FALSE
+      @STA_LR_REQUIRED             = TRUE
+      @BAY_LR_REQUIRED             = TRUE
+
+      ;Search by hard-coded LN:s
+      @S = STATUS
+      @E_STATE=ERROR_STATE
+      #ERROR IGNORE
+      @HARD_CODED_INFO = DO(%DAT_FILE.U_OTHER_OBJECTS) 
+      @STA_LN = HARD_CODED_INFO:VSTATION_LN
+      @BAY_LN = HARD_CODED_INFO:VBAY_LN
+      @AR_LN  = HARD_CODED_INFO:VAR_LN
+      @TRIP_LN= HARD_CODED_INFO:VTRIP_LN
+      #ERROR 'E_STATE'
+      @S = STATUS
+      
+      ;if any hard coded information has been defined
+      #IF %S==0 #THEN #BLOCK
+        ;station local/remote-switch
+        #IF (DATA_TYPE(%STA_LN)=="TEXT" OR (DATA_TYPE(%STA_LN)=="VECTOR" AND LENGTH(%STA_LN)==1)) #THEN #BLOCK
+          ;if station local/remote-switch not required
+          #IF DATA_TYPE(%STA_LN)=="TEXT" #THEN #BLOCK
+            #IF %STA_LN=="NONE" #THEN @STA_LR_REQUIRED = FALSE
+          #BLOCK_END
+          #ELSE #BLOCK
+            #IF %STA_LN(1)=="NONE" #THEN @STA_LR_REQUIRED = FALSE
+            @STA_LN = %STA_LN(1)
+          #BLOCK_END
+          #IF %STA_LR_REQUIRED AND %STA_LN<>"" #THEN #BLOCK       
+            
+            @L_OBJECTS = APPLICATION_OBJECT_LIST(0, "IX", "I", "F", %STA_LN, "RX==""%%%%%%%%%%%%%%%%%%%%%%ASTAILRS*""",vector("IU"))
+            #IF %L_OBJECTS.COUNT > 0 #THEN #BLOCK
+               #LOOP_WITH I = 1 .. %L_OBJECTS.COUNT
+                  #IF %L_OBJECTS.IU(%I) == 1 #THEN #BLOCK
+                     @STA_LR_OBJECT = TRUE                   
+                     #MODIFY RESULT_LIST:V=LIST(STA_LR_OBJECT_LN = %L_OBJECTS.LN(%I))
+                     #MODIFY RESULT_LIST:V=LIST(STA_LR_OBJECT_IX = %L_OBJECTS.IX(%I))
+                  #BLOCK_END
+               #LOOP_END
+            #BLOCK_END
+            
+          #BLOCK_END
+        #BLOCK_END
+                  
+        ;bay objects
+        #IF (DATA_TYPE(%BAY_LN)=="TEXT" OR (DATA_TYPE(%BAY_LN)=="VECTOR" AND LENGTH(%BAY_LN)==1)) #THEN #BLOCK
+          ;if bay local/remote-switch not required
+          #IF DATA_TYPE(%BAY_LN)=="TEXT" #THEN #BLOCK
+            #IF %BAY_LN=="NONE" #THEN @BAY_LR_REQUIRED = FALSE
+          #BLOCK_END
+          #ELSE #BLOCK
+            #IF %BAY_LN(1)=="NONE" #THEN @BAY_LR_REQUIRED = FALSE
+            @BAY_LN = %BAY_LN(1)
+          #BLOCK_END
+          #IF %BAY_LR_REQUIRED AND %BAY_LN<>"" #THEN #BLOCK
+           
+            @BAY_SEARCH = "(RX==""%%%%%%%%%%%%%%%%%%%%%%ABAYILRS*"" OR RX==""%%%%%%%%%%%%%%%%%%%%%%ABAYIOPS*"" OR RX==""%%%%%%%%%%%%%%%%%%%%%%ABAYIMLT*"" OR RX==""%%%%%%%%%%%%%%%%%%%%%%ABAYXBLK*"" OR RX==""%%%%%%%%%%%%%%%%%%%%%%ABAYIINH*"")"
+            
+            #IF APPLICATION_OBJECT_EXISTS(0, "P", %BAY_LN) #THEN #BLOCK
+               
+               @L_OBJECTS = APPLICATION_OBJECT_LIST(0, "IX", "I", "F", %BAY_LN, %BAY_SEARCH, vector("IU", "RX"))
+            
+               #IF %L_OBJECTS.COUNT > 0 #THEN #BLOCK
+                  #LOOP_WITH I = 1 .. %L_OBJECTS.COUNT
+                  
+                     #IF %L_OBJECTS.IU(%I) == 1 #THEN #BLOCK
+                     
+                       ;bay local/remote-switch
+                       #IF NOT %BAY_LR_OBJECT AND SUBSTR(%L_OBJECTS.RX(%I),23,8)=="ABAYILRS" #THEN #BLOCK
+                         @BAY_LR_OBJECT    = TRUE
+                         #MODIFY RESULT_LIST:V=LIST(BAY_LR_OBJECT_LN = %L_OBJECTS.LN(%I))
+                         #MODIFY RESULT_LIST:V=LIST(BAY_LR_OBJECT_IX = %L_OBJECTS.IX(%I))
+                       #BLOCK_END
+                       
+                       ;bay software local/remote-switch
+                       #IF NOT %BAY_OP_OBJECT AND SUBSTR(%L_OBJECTS.RX(%I),23,8)=="ABAYIOPS" #THEN #BLOCK
+                         @BAY_OP_OBJECT    = TRUE
+                         #MODIFY RESULT_LIST:V=LIST(BAY_OP_OBJECT_LN = %L_OBJECTS.LN(%I))
+                         #MODIFY RESULT_LIST:V=LIST(BAY_OP_OBJECT_IX = %L_OBJECTS.IX(%I))
+                       #BLOCK_END
+                       
+                       ;bay multilevel control
+                       #IF NOT %BAY_MLT_OBJECT AND SUBSTR(%L_OBJECTS.RX(%I),23,8)=="ABAYIMLT" #THEN #BLOCK
+                         @BAY_MLT_OBJECT    = TRUE
+                         #MODIFY RESULT_LIST:V=LIST(BAY_MLT_OBJECT_LN = %L_OBJECTS.LN(%I))
+                         #MODIFY RESULT_LIST:V=LIST(BAY_MLT_OBJECT_IX = %L_OBJECTS.IX(%I))
+                       #BLOCK_END
+               
+                       ;blocking printout
+                       #ELSE_IF NOT %BLOCKINGS AND SUBSTR(%L_OBJECTS.RX(%I),23,8)=="ABAYXBLK" #THEN #BLOCK
+                         @BLOCKINGS    = TRUE
+                         #MODIFY RESULT_LIST:V=LIST(BLOCKINGS_LN = %L_OBJECTS.LN(%I))
+                         #MODIFY RESULT_LIST:V=LIST(BLOCKINGS_IX = %L_OBJECTS.IX(%I))
+                       #BLOCK_END
+               
+                       ;external interlocking (hardware) in use
+                       #ELSE_IF NOT %EXT_HW_INTERLOCK_IN_USE AND SUBSTR(%L_OBJECTS.RX(%I),23,8)=="ABAYIINH" AND - 
+                       %L_OBJECTS.IX(%I)==%EXT_INTERLOCKING_HW_IX #THEN #BLOCK
+                         @EXT_HW_INTERLOCK_IN_USE    = TRUE        
+                         #MODIFY RESULT_LIST:V=LIST(EXT_HW_INTERLOCK_IN_USE_LN = %L_OBJECTS.LN(%I))
+                         #MODIFY RESULT_LIST:V=LIST(EXT_HW_INTERLOCK_IN_USE_IX = %L_OBJECTS.IX(%I))
+                       #BLOCK_END
+               
+                       ;external interlocking (software) in use
+                       #ELSE_IF NOT %EXT_SW_INTERLOCK_IN_USE AND SUBSTR(%L_OBJECTS.RX(%I),23,8)=="ABAYIINH" AND -
+                       %L_OBJECTS.IX(%I)==%EXT_INTERLOCKING_SW_IX #THEN #BLOCK
+                         @EXT_SW_INTERLOCK_IN_USE    = TRUE
+                         #MODIFY RESULT_LIST:V=LIST(EXT_SW_INTERLOCK_IN_USE_LN = %L_OBJECTS.LN(%I))
+                         #MODIFY RESULT_LIST:V=LIST(EXT_SW_INTERLOCK_IN_USE_IX = %L_OBJECTS.IX(%I))
+                       #BLOCK_END
+               
+                       ;internal interlocking in use
+                       #ELSE_IF NOT %INT_INTERLOCK_IN_USE AND SUBSTR(%L_OBJECTS.RX(%I),23,8)=="ABAYIINH" AND -
+                       %L_OBJECTS.IX(%I)==%INT_INTERLOCKING_IX #THEN #BLOCK
+                         @INT_INTERLOCK_IN_USE    = TRUE
+                         #MODIFY RESULT_LIST:V=LIST(INT_INTERLOCK_IN_USE_LN = %L_OBJECTS.LN(%I))
+                         #MODIFY RESULT_LIST:V=LIST(INT_INTERLOCK_IN_USE_IX = %L_OBJECTS.IX(%I))
+                       #BLOCK_END
+                     
+                       ;all objects already found
+                       #ELSE_IF %BAY_LR_OBJECT AND %BLOCKINGS AND %EXT_HW_INTERLOCK_IN_USE AND -
+                       %EXT_SW_INTERLOCK_IN_USE AND %INT_INTERLOCK_IN_USE #THEN #LOOP_EXIT
+                        
+                     #BLOCK_END
+                  #LOOP_END
+               #BLOCK_END
+            #BLOCK_END
+            
+         #BLOCK_END
+      #BLOCK_END 
+     
+        ;if switching device type circuit breaker
+        #IF %SWITCH_TYPE=="QB" OR %SWITCH_TYPE=="QI" OR %SWITCH_TYPE=="QS" #THEN #BLOCK
+      
+          ;auto-reclosing
+          #IF DATA_TYPE(%AR_LN)=="TEXT" OR DATA_TYPE(%AR_LN)=="VECTOR" #THEN #BLOCK
+            #IF DATA_TYPE(%AR_LN)=="TEXT" #THEN @AR_LN = VECTOR(%AR_LN)
+            #IF %AR_LN(1)<>"NONE" AND %AR_LN(1)<>"" #THEN #BLOCK
+
+              @AR_SEARCH = "OI==""'BAY_NAME_TRIMMED'*"" AND (RX==""%%%%%%%%%%%%%%%%%%%%%%%%%%IARC"" OR RX==""%%%%%%%%%%%%%%%%%%%%FPFARC%%%%"")"
+              
+              #LOOP_WITH I = 1 .. LENGTH(%AR_LN)
+               
+                #IF APPLICATION_OBJECT_EXISTS(0, "P", %AR_LN(%I)) #THEN #BLOCK
+                
+                   @L_OBJECTS = APPLICATION_OBJECT_LIST(0, "IX", "I", "F", %AR_LN(%I), %AR_SEARCH, vector("IU", "RX"))
+                   
+                   #LOOP_WITH J = 1 .. %L_OBJECTS.COUNT
+                     ;auto-reclosing running
+                     #IF SUBSTR(%L_OBJECTS.RX(%J),27,4)=="IARC" #THEN #BLOCK
+                       @NUMBER_OF_AR_OBJECTS = %NUMBER_OF_AR_OBJECTS + 1
+                       #MODIFY RESULT_LIST:V=LIST(AR_RUNNING_LN'NUMBER_OF_AR_OBJECTS' = %L_OBJECTS.LN(%J))
+                       #MODIFY RESULT_LIST:V=LIST(AR_RUNNING_IX'NUMBER_OF_AR_OBJECTS' = %L_OBJECTS.IX(%J))
+                     #BLOCK_END
+         
+                     ;auto-reclosing in use (software)
+                     #ELSE_IF NOT %AR_IN_USE_SW AND SUBSTR(%L_OBJECTS.RX(%J),21,10)=="FPFARCISCE" AND %L_OBJECTS.IX(%J)==%AR_SW_IX #THEN #BLOCK
+                       @AR_IN_USE_SW    = TRUE
+                       #MODIFY RESULT_LIST:V=LIST(AR_IN_USE_SW_LN = %L_OBJECTS.LN(%J))
+                       #MODIFY RESULT_LIST:V=LIST(AR_IN_USE_SW_IX = %L_OBJECTS.IX(%J))
+                     #BLOCK_END
+         
+                     ;auto-reclosing in use (hardware)
+                     #ELSE_IF NOT %AR_IN_USE_HW AND SUBSTR(%L_OBJECTS.RX(%J),21,10)=="FPFARCISCE" AND %L_OBJECTS.IX(%J)==%AR_HW_IX #THEN #BLOCK
+                       @AR_IN_USE_HW    = TRUE
+                       #MODIFY RESULT_LIST:V=LIST(AR_IN_USE_HW_LN = %L_OBJECTS.LN(%J))
+                       #MODIFY RESULT_LIST:V=LIST(AR_IN_USE_HW_IX = %L_OBJECTS.IX(%J))
+                     #BLOCK_END
+         
+                    ;auto-reclosure interruption
+                     #ELSE_IF NOT %AR_INTERRUPT AND SUBSTR(%L_OBJECTS.RX(%J),21,10)=="FPFARCCINR" #THEN #BLOCK
+                       @AR_INTERRUPT    = TRUE
+                       #MODIFY RESULT_LIST:V=LIST(AR_INTERRUPT_LN = %L_OBJECTS.LN(%J))
+                       #MODIFY RESULT_LIST:V=LIST(AR_INTERRUPT_IX = %L_OBJECTS.IX(%J))
+                     #BLOCK_END
+                              
+                     ;auto-reclosing in use command
+                     #ELSE_IF NOT %AR_IN_USE_CMD AND SUBSTR(%L_OBJECTS.RX(%J),21,10)=="FPFARCCSCE" #THEN #BLOCK
+                       @AR_IN_USE_CMD    = TRUE
+                       #MODIFY RESULT_LIST:V=LIST(AR_IN_USE_CMD_LN = %L_OBJECTS.LN(%J))
+                       #MODIFY RESULT_LIST:V=LIST(AR_IN_USE_CMD_IX = %L_OBJECTS.IX(%J))
+                     #BLOCK_END
+                     
+                   #LOOP_END
+                #BLOCK_END
+              #LOOP_END
+            #BLOCK_END
+          #BLOCK_END
+      
+          ;latched trip relay
+          #IF DATA_TYPE(%TRIP_LN)=="TEXT" OR DATA_TYPE(%TRIP_LN)=="VECTOR" #THEN #BLOCK
+            #IF DATA_TYPE(%TRIP_LN)=="TEXT" #THEN @TRIP_LN = VECTOR(%TRIP_LN)
+               #IF %TRIP_LN(1)<>"NONE" AND %TRIP_LN(1)<>"" #THEN #BLOCK
+               
+                 @TRIP_SEARCH = "OI==""'BAY_NAME_TRIMMED'*"" AND (RX==""%%%%%%%%%%%%%%%%%%%%%%%%%%ITRL"" OR RX==""%%%%%%%%%%%%%%%%%%%%FPFTRPCTRL"")"
+                 
+                 #LOOP_WITH I = 1..LENGTH(%TRIP_LN)
+                   
+                   #IF APPLICATION_OBJECT_EXISTS(0, "P", %TRIP_LN(%I)) #THEN #BLOCK
+                   
+                      @L_OBJECTS = APPLICATION_OBJECT_LIST(0, "IX", "I", "F", %TRIP_LN(%I), %TRIP_SEARCH, vector("IU", "RX"))
+                      
+                      #LOOP_WITH J = 1 .. %L_OBJECTS.COUNT
+                      
+                        ;latched trip relay
+                        #IF SUBSTR(%L_OBJECTS.RX(%J),27,4)=="ITRL" #THEN #BLOCK
+                          @NUMBER_OF_LATCH_RELAYS = %NUMBER_OF_LATCH_RELAYS + 1
+                          #MODIFY RESULT_LIST:V=LIST(LATCHED_RELAY_LN'NUMBER_OF_LATCH_RELAYS' = %L_OBJECTS.LN(%J))
+                          #MODIFY RESULT_LIST:V=LIST(LATCHED_RELAY_IX'NUMBER_OF_LATCH_RELAYS' =  %L_OBJECTS.IX(%J))
+                        #BLOCK_END
+            
+                        ;latched trip relay reset
+                        #ELSE_IF SUBSTR(%L_OBJECTS.RX(%J),21,10)=="FPFTRPCTRL" #THEN #BLOCK
+                          @NUMBER_OF_LATCH_RESETS = %NUMBER_OF_LATCH_RESETS + 1
+                          #MODIFY RESULT_LIST:V=LIST(LATCHED_RESET_LN'NUMBER_OF_LATCH_RESETS' = %L_OBJECTS.LN(%J))
+                          #MODIFY RESULT_LIST:V=LIST(LATCHED_RESET_IX'NUMBER_OF_LATCH_RESETS' = %L_OBJECTS.IX(%J))
+                        #BLOCK_END
+                        
+                      #LOOP_END
+                   #BLOCK_END
+                 #LOOP_END
+               #BLOCK_END
+          #BLOCK_END
+        #BLOCK_END
+      #BLOCK_END
+   
+     ;search objects by checking the complete process object database
+     #IF (NOT %STA_LR_OBJECT AND %STA_LR_REQUIRED) OR (NOT %BAY_LR_OBJECT AND %BAY_LR_REQUIRED) #THEN #BLOCK
+     
+         ;search for objects by checking the complete process object database         
+         @TMP_LIST
+         @TMP_LN=VECTOR()
+         @TMP_IX=VECTOR()
+         
+         @l_Station = APPLICATION_OBJECT_LIST(0, "IX",  "OI", "", "'STATION_NAME_TRIMMED'", "RX==""%%%%%%%%%%%%%%%%%%%%%%ASTAILRS*""")
+         #IF %L_STATION.COUNT > 0 #THEN #BLOCK
+            @TMP_LN = %L_STATION.LN
+            @TMP_IX = %L_STATION.IX
+         #BLOCK_END
+         
+         @RX1 = "%%%%%%%%%%%%%%%%%%%%%%ABAYILRS*"
+         @RX2 = "%%%%%%%%%%%%%%%%%%%%%%ABAYIOPS*"
+         @RX3 = "%%%%%%%%%%%%%%%%%%%%%%ABAYIINH*"
+         @RX4 = "%%%%%%%%%%%%%%%%%%%%%%ABAYXBLK*"
+         @RX5 = "%%%%%%%%%%%%%%%%%%%%%%%%%%IARC*"
+         @RX6 = "%%%%%%%%%%%%%%%%%%%%FPFARCISCE*"
+         @RX7 = "%%%%%%%%%%%%%%%%%%%%FPFARCCINR*"
+         @RX8 = "%%%%%%%%%%%%%%%%%%%%FPFARCCSCE*"
+         @RX9 = "%%%%%%%%%%%%%%%%%%%%%%%%%%ITRL*"
+         @RX10= "%%%%%%%%%%%%%%%%%%%%FPFTRPCTRL"
+         @RX11 = "%%%%%%%%%%%%%%%%%%%%%%ABAYIMLT*"
+               
+         @L_BAY = APPLICATION_OBJECT_LIST(0, "IX",  "OI", "", "'BAY_NAME_TRIMMED'*", "RX==""'RX1'"" OR RX==""'RX2'"" OR RX==""'RX3'"" OR RX==""'RX4'"" OR RX==""'RX5'"" OR RX==""'RX6'"" OR RX==""'RX7'"" OR RX==""'RX8'"" OR RX==""'RX9'"" OR RX==""'RX10'"" OR RX==""'RX11'""")
+          
+         #IF %L_BAY.COUNT > 0 #THEN #BLOCK
+            @TMP_LN = APPEND(%TMP_LN, %L_BAY.LN)
+            @TMP_IX = APPEND(%TMP_IX, %L_BAY.IX)
+         #BLOCK_END
+         
+         #IF LENGTH(%TMP_LN) > 0 #THEN #BLOCK
+           #LOOP_WITH I = 1 .. LENGTH(%TMP_LN)
+             @LN = %TMP_LN('I')
+             @IX = %TMP_IX('I')
+         
+             ;station local/remote -switch
+             #IF SUBSTR('LN':PRX'IX',23,8) == "ASTAILRS" AND NOT %STA_LR_OBJECT AND %STA_LR_REQUIRED #THEN #BLOCK
+               @STA_LR_OBJECT    = TRUE
+               #MODIFY RESULT_LIST:V=LIST(STA_LR_OBJECT_LN = %TMP_LN('I'))
+               #MODIFY RESULT_LIST:V=LIST(STA_LR_OBJECT_IX = %TMP_IX('I'))
+             #BLOCK_END
+         
+             ;bay local/remote -switch
+             #ELSE_IF SUBSTR('LN':PRX'IX',23,8) == "ABAYILRS" AND NOT %BAY_LR_OBJECT AND %BAY_LR_REQUIRED #THEN #BLOCK
+               @BAY_LR_OBJECT    = TRUE
+               #MODIFY RESULT_LIST:V=LIST(BAY_LR_OBJECT_LN = %TMP_LN('I'))
+               #MODIFY RESULT_LIST:V=LIST(BAY_LR_OBJECT_IX = %TMP_IX('I'))
+             #BLOCK_END
+             
+             ;bay software local/remote -switch
+             #ELSE_IF SUBSTR('LN':PRX'IX',23,8) == "ABAYIOPS" AND NOT %BAY_OP_OBJECT AND %BAY_LR_REQUIRED #THEN #BLOCK
+               #IF 'LN':PIU'IX' > 0 #THEN #BLOCK
+                  @BAY_OP_OBJECT    = TRUE
+                  #MODIFY RESULT_LIST:V=LIST(BAY_OP_OBJECT_LN = %TMP_LN('I'))
+                  #MODIFY RESULT_LIST:V=LIST(BAY_OP_OBJECT_IX = %TMP_IX('I'))
+               #BLOCK_END
+             #BLOCK_END
+             
+             ;bay software local/remote -switch
+             #ELSE_IF SUBSTR('LN':PRX'IX',23,8) == "ABAYIMLT" AND NOT %BAY_MLT_OBJECT #THEN #BLOCK
+               #IF 'LN':PIU'IX' > 0 #THEN #BLOCK
+                  @BAY_MLT_OBJECT    = TRUE
+                  #MODIFY RESULT_LIST:V=LIST(BAY_MLT_OBJECT_LN = %TMP_LN('I'))
+                  #MODIFY RESULT_LIST:V=LIST(BAY_MLT_OBJECT_IX = %TMP_IX('I'))
+               #BLOCK_END
+             #BLOCK_END
+         
+             ;bay blocking objects
+             #ELSE_IF SUBSTR('LN':PRX'IX',23,8) == "ABAYXBLK" AND NOT %BLOCKINGS #THEN #BLOCK
+               @BLOCKINGS    = TRUE
+               #MODIFY RESULT_LIST:V=LIST(BLOCKINGS_LN = %TMP_LN('I'))
+               #MODIFY RESULT_LIST:V=LIST(BLOCKINGS_IX = %TMP_IX('I'))
+             #BLOCK_END
+         
+             #ELSE_IF SUBSTR('LN':PRX'IX',23,8) == "ABAYIINH" #THEN #BLOCK
+               ;external interlocking (hardware) in use
+               #IF NOT %EXT_HW_INTERLOCK_IN_USE AND %TMP_IX('I')==%EXT_INTERLOCKING_HW_IX #THEN #BLOCK
+                 @EXT_HW_INTERLOCK_IN_USE    = TRUE        
+                 #MODIFY RESULT_LIST:V=LIST(EXT_HW_INTERLOCK_IN_USE_LN = %TMP_LN('I'))
+                 #MODIFY RESULT_LIST:V=LIST(EXT_HW_INTERLOCK_IN_USE_IX = %TMP_IX('I'))
+               #BLOCK_END
+         
+               ;external interlocking (software) in use
+               #ELSE_IF NOT %EXT_SW_INTERLOCK_IN_USE AND %TMP_IX('I')==%EXT_INTERLOCKING_SW_IX #THEN #BLOCK
+                 @EXT_SW_INTERLOCK_IN_USE    = TRUE
+                 #MODIFY RESULT_LIST:V=LIST(EXT_SW_INTERLOCK_IN_USE_LN = %TMP_LN('I'))
+                 #MODIFY RESULT_LIST:V=LIST(EXT_SW_INTERLOCK_IN_USE_IX = %TMP_IX('I'))
+               #BLOCK_END
+         
+               ;internal interlocking in use
+               #ELSE_IF NOT %INT_INTERLOCK_IN_USE AND %TMP_IX('I')==%INT_INTERLOCKING_IX #THEN #BLOCK
+                 @INT_INTERLOCK_IN_USE    = TRUE
+                 #MODIFY RESULT_LIST:V=LIST(INT_INTERLOCK_IN_USE_LN = %TMP_LN('I'))
+                 #MODIFY RESULT_LIST:V=LIST(INT_INTERLOCK_IN_USE_IX = %TMP_IX('I'))
+               #BLOCK_END
+             #BLOCK_END
+         
+             ;if switching device type circuit breaker
+             #IF %SWITCH_TYPE=="QB" OR %SWITCH_TYPE=="QI" OR %SWITCH_TYPE=="QS" #THEN #BLOCK
+             
+               ;auto-reclosing running   
+               #IF SUBSTR('LN':PRX'IX',27,4) == "IARC" #THEN #BLOCK
+                 @NUMBER_OF_AR_OBJECTS = %NUMBER_OF_AR_OBJECTS + 1
+                 #MODIFY RESULT_LIST:V=LIST(AR_RUNNING_LN'NUMBER_OF_AR_OBJECTS' = %TMP_LN('I'))
+                 #MODIFY RESULT_LIST:V=LIST(AR_RUNNING_IX'NUMBER_OF_AR_OBJECTS' = %TMP_IX('I'))
+               #BLOCK_END
+         
+               #ELSE_IF SUBSTR('LN':PRX'IX',21,10) == "FPFARCISCE" #THEN #BLOCK
+                 ;auto-reclosing in use (software)
+                 #IF NOT %AR_IN_USE_SW AND %TMP_IX('I')==%AR_SW_IX #THEN #BLOCK
+                   @AR_IN_USE_SW    = TRUE
+                   #MODIFY RESULT_LIST:V=LIST(AR_IN_USE_SW_LN = %TMP_LN('I'))
+                   #MODIFY RESULT_LIST:V=LIST(AR_IN_USE_SW_IX = %TMP_IX('I'))
+                 #BLOCK_END
+         
+                  ;auto-reclosing in use (hardware)
+                 #IF NOT %AR_IN_USE_HW AND %TMP_IX('I')==%AR_HW_IX #THEN #BLOCK
+                   @AR_IN_USE_HW    = TRUE
+                   #MODIFY RESULT_LIST:V=LIST(AR_IN_USE_HW_LN = %TMP_LN('I'))
+                   #MODIFY RESULT_LIST:V=LIST(AR_IN_USE_HW_IX = %TMP_IX('I'))
+                 #BLOCK_END
+               #BLOCK_END
+         
+               ;auto-reclosure interruption       
+               #ELSE_IF SUBSTR('LN':PRX'IX',21,10) == "FPFARCCINR" AND NOT %AR_INTERRUPT #THEN #BLOCK
+                 @AR_INTERRUPT    = TRUE
+                 #MODIFY RESULT_LIST:V=LIST(AR_INTERRUPT_LN = %TMP_LN('I'))
+                 #MODIFY RESULT_LIST:V=LIST(AR_INTERRUPT_IX = %TMP_IX('I'))
+               #BLOCK_END
+         
+               ;auto-reclosing on/off -command
+               #ELSE_IF SUBSTR('LN':PRX'IX',21,10) == "FPFARCCSCE" AND NOT %AR_IN_USE_CMD #THEN #BLOCK
+                 @AR_IN_USE_CMD    = TRUE
+                 #MODIFY RESULT_LIST:V=LIST(AR_IN_USE_CMD_LN = %TMP_LN('I'))
+                 #MODIFY RESULT_LIST:V=LIST(AR_IN_USE_CMD_IX = %TMP_IX('I'))
+               #BLOCK_END
+         
+               ;latched trip relay        
+               #ELSE_IF SUBSTR('LN':PRX'IX',27,4) == "ITRL" #THEN #BLOCK
+                 @NUMBER_OF_LATCH_RELAYS = %NUMBER_OF_LATCH_RELAYS + 1
+                 #MODIFY RESULT_LIST:V=LIST(LATCHED_RELAY_LN'NUMBER_OF_LATCH_RELAYS' = %TMP_LN('I'))
+                 #MODIFY RESULT_LIST:V=LIST(LATCHED_RELAY_IX'NUMBER_OF_LATCH_RELAYS' = %TMP_IX('I'))
+               #BLOCK_END
+         
+               ;latched trip relay reset    
+               #ELSE_IF SUBSTR('LN':PRX'IX',21,10) == "FPFTRPCTRL" #THEN #BLOCK
+                 @NUMBER_OF_LATCH_RESETS = %NUMBER_OF_LATCH_RESETS + 1
+                 #MODIFY RESULT_LIST:V=LIST(LATCHED_RESET_LN'NUMBER_OF_LATCH_RESETS' = %TMP_LN('I'))
+                 #MODIFY RESULT_LIST:V=LIST(LATCHED_RESET_IX'NUMBER_OF_LATCH_RESETS' = %TMP_IX('I'))
+               #BLOCK_END
+             #BLOCK_END
+           #LOOP_END
+         #BLOCK_END
+      #BLOCK_END ;search objects by checking the complete process object database
+      #MODIFY RESULT_LIST:V=LIST(NUMBER_OF_AR_OBJECTS=%NUMBER_OF_AR_OBJECTS)
+      #MODIFY RESULT_LIST:V=LIST(NUMBER_OF_LATCH_RELAYS=%NUMBER_OF_LATCH_RELAYS)
+      #MODIFY RESULT_LIST:V=LIST(NUMBER_OF_LATCH_RESETS=%NUMBER_OF_LATCH_RESETS)
+      #MODIFY RESULT_LIST:V=LIST(SYN_IND_IX=%SYN_IND_IX, SYN_CMD_IX=%SYN_CMD_IX)
+      #MODIFY RESULT_LIST:V=LIST(STA_LR_REQUIRED=%STA_LR_REQUIRED)
+      #MODIFY RESULT_LIST:V=LIST(ADD_CAUSE_IX=%ADD_CAUSE_IX)
+      #MODIFY RESULT_LIST:V=LIST(DEVICE_LOC_IX=%DEVICE_LOC_IX)
+      #MODIFY RESULT_LIST:V=LIST(DEVICE_LOCSTA_IX=%DEVICE_LOCSTA_IX)
+      
+      ;search for objects by checking the complete process object database
+      #LOOP_WITH J = 1 .. 3
+         #IF DATA_TYPE(%SPECIAL_IDENTIFIER_'J'_TRIMMED) <> "NONE" #THEN #BLOCK
+            #IF %SPECIAL_IDENTIFIER_'J'_TRIMMED <> "" #THEN #BLOCK
+               @TMP_IDENT = %SPECIAL_IDENTIFIER_'J'_TRIMMED
+               
+               @TMP_LN=VECTOR()
+               @TMP_IX=VECTOR()
+               
+               @l_Special = APPLICATION_OBJECT_LIST(0, "IX",  "OI", "", "'TMP_IDENT'", "RX==""%%%%%%%%%%%%%%%%%%%%%%AGRPILRS*""")
+               
+               #IF %l_Special.COUNT > 0 #THEN #BLOCK
+                  @TMP_LN = %l_Special.LN
+                  @TMP_IX = %l_Special.IX
+               #BLOCK_END
+                        
+               #IF LENGTH(%TMP_LN) > 0 #THEN #BLOCK
+                 #LOOP_WITH I = 1 .. LENGTH(%TMP_LN)
+                   @LN = %TMP_LN('I')
+                   @IX = %TMP_IX('I')
+                   ;station local/remote -switch
+                   #IF SUBSTR('LN':PRX'IX',23,8) == "AGRPILRS" #THEN #BLOCK ;AND NOT %STA_LR_OBJECT AND %STA_LR_REQUIRED #THEN #BLOCK
+                     ;@STA_LR_OBJECT    = TRUE
+                     #MODIFY RESULT_LIST:V=LIST(SPECIAL_LR_OBJECT'J'_LN = %TMP_LN('I'))
+                     #MODIFY RESULT_LIST:V=LIST(SPECIAL_LR_OBJECT'J'_IX = %TMP_IX('I'))
+                   #BLOCK_END
+                  #LOOP_END
+               #BLOCK_END
+            #BLOCK_END
+         #BLOCK_END
+      #LOOP_END
+      
+      ;add allowed values if LR type is AI
+      #if %BAY_LR_OBJECT #then #block
+         ;read default convention for known IEDs
+         @tmpDO = ""
+         @valueConvention = LIST(THIS_SYSTEM_NAME = "", SIGNALS = VECTOR())
+         @tmpIN = separate('RESULT_LIST:VBAY_LR_OBJECT_LN':PIN'RESULT_LIST:VBAY_LR_OBJECT_IX', ".")
+         #if length(%tmpIN) > 1 #then @tmpDO = %tmpIN(length(%tmpIN) -1)                    
+         
+         @applicationFile = "aplmod4/use/BGU_U_LR_VALUE_CONVENTION.TXT"
+         @systemFile = "/sa_lib/base/bbone/use/BGU_U_LR_VALUE_CONVENTION.TXT"
+         #error ignore   
+         #if file_manager("EXISTS", fm_application_file(%applicationFile)) #then -
+            @tmpRes = do(read_text(fm_application_file(%applicationFile)), %tmpDO, %RESULT_LIST.BAY_LR_OBJECT_LN, %RESULT_LIST.BAY_LR_OBJECT_IX)
+         #else_if file_manager("EXISTS", fm_scil_file(%systemFile)) #then -
+            @tmpRes = do(read_text(fm_scil_file(%systemFile)), %tmpDO, %RESULT_LIST.BAY_LR_OBJECT_LN, %RESULT_LIST.BAY_LR_OBJECT_IX)
+         
+         #if data_type(%tmpRes) == "VECTOR" and length(%tmpRes) > 0 #then @valueConvention.SIGNALS = %tmpRes
+               
+          @bayLN = %RESULT_LIST.BAY_LR_OBJECT_LN
+          @bayCD = 'bayLN':PCD
+          @s = status
+          @tmpRes = do(%bayCD.U_LR_VALUE_CONVENTION)
+          #if data_type(%tmpRes.THIS_SYSTEM_NAME) == "TEXT" #then @valueConvention = merge_attributes(%valueConvention, list(THIS_SYSTEM_NAME = %tmpRes.THIS_SYSTEM_NAME))
+          #if data_type(%tmpRes.SIGNALS) == "VECTOR" #then @valueConvention = merge_attributes(%valueConvention, list(SIGNALS = %tmpRes.SIGNALS))
+          @s = status
+          
+          #if %s == 0 or length(%valueConvention.SIGNALS) > 0  #then #block
+              #if data_type(%valueConvention.THIS_SYSTEM_NAME) == "TEXT" #then #block
+               #if length(%valueConvention.THIS_SYSTEM_NAME) > 0 #then @myLocation = %valueConvention.THIS_SYSTEM_NAME
+               #else #block
+                   #if APL:BSV3 > 0 #then @myLocation = "STATION"
+                   #else @myLocation = "NCC"
+               #block_end
+              #block_end
+              #else #block
+                 #if APL:BSV3 > 0 #then @myLocation = "STATION"
+                  #else @myLocation = "NCC"
+              #block_end
+              #if data_type(%valueConvention.SIGNALS) == "VECTOR" #then #block
+                  #loop_with i = 1 .. length(%valueConvention.SIGNALS)
+                      @allowed = false
+                      #if attribute_exists(%valueConvention.SIGNALS(%i), "VALUE") and attribute_exists(%valueConvention.SIGNALS(%i), "CONTROL_PLACES") #then #block                                    
+                          @loc = locate(%valueConvention.SIGNALS(%i).CONTROL_PLACES, "ALL")
+                          #if length(select(%loc, "==1")) > 0  #then #block
+                              @RESULT_LIST.BAY_LR_ALLOW_VALUES = append(%RESULT_LIST.BAY_LR_ALLOW_VALUES, %valueConvention.SIGNALS(%i).VALUE)
+                              @allowed = true
+                          #block_end
+                          #if not %allowed #then #block
+                             @loc = locate(%valueConvention.SIGNALS(%i).CONTROL_PLACES, %myLocation)
+                             #if length(select(%loc, "==1")) > 0  #then -
+                                 @RESULT_LIST.BAY_LR_ALLOW_VALUES = append(%RESULT_LIST.BAY_LR_ALLOW_VALUES, %valueConvention.SIGNALS(%i).VALUE)
+                          #block_end
+                      #block_end
+                  #loop_end
+              #block_end
+          #block_end
+      #block_end
+      
+      #if length(%RESULT_LIST.BAY_LR_ALLOW_VALUES) > 0 #then @RESULT_LIST.BAY_OP_OBJECT_IX = 0
+
+      #loop_with ind=1..length(%OBJECT_TYPE_ATTRS)
+         @current_attr=%OBJECT_TYPE_ATTRS(%ind)
+         #MODIFY RESULT_LIST:V=LIST('current_attr'=%'current_attr')
+      #loop_end
+      
+      #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+         @e_state=error_state
+         #error ignore
+         @OBJECT_TYPE_FILE=evaluate(read_text(%AplPath+"\APLMOD4\DEFAULTS\OBJECT_TYPES\'LIB_OBJECT_TYPE'"))
+         #error 'e_state'
+         @trash=status
+
+         #if data_type(%OBJECT_TYPE_FILE)=="NONE" #then #block
+            #error ignore
+            @OBJECT_TYPE_FILE=evaluate(read_text("/SA_LIB/DEFAULTS/OBJECT_TYPES/'LIB_OBJECT_TYPE'"))
+            #error 'e_state'
+            @trash=status
+         #block_end
+         
+         #if data_type(%OBJECT_TYPE_FILE)<>"NONE" #then #block
+            #loop_with ind=1..length(%OBJECT_TYPE_ATTRS)
+               @current_attr=%OBJECT_TYPE_ATTRS(%ind)
+               #if data_type(%OBJECT_TYPE_FILE.'current_attr')<>"NONE" #then @'current_attr'=%OBJECT_TYPE_FILE.'current_attr'
+            #loop_end
+         #block_end
+        #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_GET_INDICATIONS) <> "NONE" #THEN #BLOCK
+           #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_GET_INDICATIONS) > 0 #THEN #BLOCK
+               @ln = %INDICATION_DB_LN
+               #DO OBJECT_TYPE_FILE:VMETHOD_GET_INDICATIONS
+               #modify result_list:v = %result
+           #BLOCK_END
+        #BLOCK_END
+      #BLOCK_END
+      #if %COMMAND_SELECTOR<>"AR_INTERRUPT" AND  %COMMAND_SELECTOR<>"AR_IN_USE" #then #block
+         #if %b_enable_debugging #then @trash=trace_end         
+         #return %RESULT_LIST
+      #block_end
+      #else #block
+         #case %COMMAND_SELECTOR
+            #when "AR_IN_USE" #block
+               @newState=argument(3)
+               @AR_IN_USE_CMD_LN=%RESULT_LIST.AR_IN_USE_CMD_LN
+               @AR_IN_USE_CMD_IX=%RESULT_LIST.AR_IN_USE_CMD_IX
+               #SET 'AR_IN_USE_CMD_LN':P'AR_IN_USE_CMD_IX' = %newState
+            #block_end
+            #when "AR_INTERRUPT" #block
+               @AR_INTERRUPT_LN=%RESULT_LIST.AR_INTERRUPT_LN
+               @AR_INTERRUPT_IX=%RESULT_LIST.AR_INTERRUPT_IX
+               #SET 'AR_INTERRUPT_LN':P'AR_INTERRUPT_IX' = 1
+            #block_end
+         #case_end
+      #block_end
+   #block_end 
+   #when "CHECK_AUTHORITY" #block
+      ; This function is used as a station control authority checking
+      ; In:  %LR_OBJECT_LN,        text, The name of the station local/remote-switch
+      ;      %LR_OBJECT_IX,        int,  The index of the station local/remote-switch
+      ;      %COMMAND_SOURCE_ID,   text, Name of the command source
+      ;      %COMMAND_SOURCE_TYPE, text, Source can be "local" or "remote"
+      ;
+      ; Out: %CONTROLS_ALLOWED,    int,  0=not authorized, 1=authorized, -1=error, 
+      ;                                  -2=command source is not among authorized centers
+      ;      %SCIL_CODE,           int,  status code of the function
+
+     @LR_OBJECT_LN=%PF_ID
+     @LR_OBJECT_IX=argument(3)
+     @COMMAND_SOURCE_ID = APL:BNA
+     #IF APL:BSV3 > 0 #THEN @COMMAND_SOURCE_TYPE="LOCAL"
+     #ELSE @COMMAND_SOURCE_TYPE="REMOTE"
+
+      #ERROR IGNORE
+      
+      ;reset status
+      @S=STATUS
+      
+      ;initialize output variable (-1=error)
+      @CONTROLS_ALLOWED=-1
+      
+      ;read stations local/remote switch state
+      @TMP_LR
+      @TMP_CX
+      ;if station local/remote-switch is not sampled, it is considered as a local state
+      #IF 'LR_OBJECT_LN':POS'LR_OBJECT_IX'==10 #THEN @TMP_LR=0
+      #ELSE @TMP_LR = 'LR_OBJECT_LN':POV'LR_OBJECT_IX'
+      @TMP_CX = 'LR_OBJECT_LN':PCX'LR_OBJECT_IX'
+      @B_IS_BAY_OP_SWITCH = (SUBSTR('LR_OBJECT_LN':PRX'LR_OBJECT_IX', 21, 10) == "FPABAYIOPS")
+      
+      ;if command source type is local (SCS)
+      #IF %COMMAND_SOURCE_TYPE=="LOCAL" #THEN #BLOCK
+         ;if station local/remote-switch is in "station"
+         #IF (%TMP_LR==1 AND 'LR_OBJECT_LN':PPT'LR_OBJECT_IX'== 12) OR (%TMP_LR==1 AND 'LR_OBJECT_LN':PPT'LR_OBJECT_IX'== 3) #THEN #BLOCK
+            ;check if command source is on the list of authorized control centers
+            @CHECK1=SEPARATE(%TMP_CX,"/")
+            @CHECK2=SELECT(%CHECK1,"==%COMMAND_SOURCE_ID")
+            #IF LENGTH(%CHECK2)<>0 #THEN @CONTROLS_ALLOWED = 1
+            #ELSE @CONTROLS_ALLOWED = -2
+         #BLOCK_END
+         ;if station local/remote-switch is in "reserved" then always authorized
+         #ELSE_IF %TMP_LR==3 #THEN #BLOCK
+            #IF %B_IS_BAY_OP_SWITCH #THEN #BLOCK
+               ;check if command source is on the list of authorized control centers
+               @CHECK1=SEPARATE(%TMP_CX,"/")
+               @CHECK2=SELECT(%CHECK1,"==%COMMAND_SOURCE_ID")
+               #IF LENGTH(%CHECK2)<>0 #THEN @CONTROLS_ALLOWED = 1
+               #ELSE @CONTROLS_ALLOWED = -2 
+            #BLOCK_END
+            #ELSE #BLOCK
+               #IF %TMP_LR==3 #THEN @CONTROLS_ALLOWED = 1
+            #BLOCK_END
+         #BLOCK_END
+         ;if station local/remote-switch is in "other"
+         #ELSE @CONTROLS_ALLOWED = 0
+      #BLOCK_END
+      
+      ;if command source type is remote (NCS)
+      #IF %COMMAND_SOURCE_TYPE=="REMOTE" #THEN #BLOCK
+         ;if station local/remote-switch is in "remote"
+         #IF (%TMP_LR==2 AND 'LR_OBJECT_LN':PPT'LR_OBJECT_IX'== 12) OR (%TMP_LR==0 AND 'LR_OBJECT_LN':PPT'LR_OBJECT_IX'== 3) #THEN #BLOCK
+            ;check if command source is on the list of authorized control centers
+            @CHECK1=SEPARATE(%TMP_CX,"/")
+            @CHECK2=SELECT(%CHECK1,"==%COMMAND_SOURCE_ID")
+            #IF LENGTH(%CHECK2)<>0 #THEN @CONTROLS_ALLOWED = 1
+            #ELSE @CONTROLS_ALLOWED = -2
+         #BLOCK_END
+         ;if station local/remote-switch is in "reserved" then always authorized
+         #ELSE_IF %TMP_LR==3 #THEN #BLOCK
+            #IF %B_IS_BAY_OP_SWITCH #THEN #BLOCK
+               ;check if command source is on the list of authorized control centers
+               @CHECK1=SEPARATE(%TMP_CX,"/")
+               @CHECK2=SELECT(%CHECK1,"==%COMMAND_SOURCE_ID")
+               #IF LENGTH(%CHECK2)<>0 #THEN @CONTROLS_ALLOWED = 1
+               #ELSE @CONTROLS_ALLOWED = -2 
+            #BLOCK_END
+            #ELSE @CONTROLS_ALLOWED = 1
+         #BLOCK_END
+         ;if station local/remote-switch is in "other"
+         #ELSE @CONTROLS_ALLOWED = 0
+      #BLOCK_END
+      
+      ;in case of errors
+      @SCIL_CODE=STATUS
+      #IF %SCIL_CODE<>0 #THEN @CONTROLS_ALLOWED = -1
+      @RESULT_LIST=LIST(CONTROLS_ALLOWED=%CONTROLS_ALLOWED, STATUS=%SCIL_CODE)
+      #return %result_list
+   #block_end
+   #when "CHECK_AUTHORITY1" #block
+      ; This function is used as a station control authority checking
+      ; In:  %LR_OBJECT_LN,        text, The name of the station local/remote-switch
+      ;      %LR_OBJECT_IX,        int,  The index of the station local/remote-switch
+      ;      %COMMAND_SOURCE_ID,   text, Name of the command source
+      ;      %COMMAND_SOURCE_TYPE, text, Source can be "local" or "remote"
+      ;
+      ; Out: %CONTROLS_ALLOWED,    int,  0=not authorized, 1=authorized, -1=error, 
+      ;                                  -2=command source is not among authorized centers
+      ;      %SCIL_CODE,           int,  status code of the function
+
+     @TMP = argument(1)
+     @LR_OBJECT_LN= %TMP(1)
+     @LR_OBJECT_IX=argument(3)
+     @LR_BAY_OP_LN=argument(4)
+     @LR_BAY_OP_IX=argument(5)
+     @COMMAND_SOURCE_ID = APL:BNA
+     #IF APL:BSV3 > 0 #THEN @COMMAND_SOURCE_TYPE="LOCAL"
+     #ELSE @COMMAND_SOURCE_TYPE="REMOTE"
+      #ERROR IGNORE
+      
+      ;reset status
+      @S=STATUS
+      
+      ;initialize output variable (-1=error)
+      @CONTROLS_ALLOWED=-1
+      
+      ;read stations local/remote switch state
+      @TMP_LR
+      @TMP_CX
+      ;if station local/remote-switch is not sampled, it is considered as a local state
+      #IF 'LR_OBJECT_LN':POS'LR_OBJECT_IX'==10 #THEN @TMP_LR=0
+      #ELSE @TMP_LR = 'LR_OBJECT_LN':POV'LR_OBJECT_IX'
+      @TMP_CX = 'LR_OBJECT_LN':PCX'LR_OBJECT_IX'
+      
+      ;if command source type is local (SCS)
+      #IF %COMMAND_SOURCE_TYPE=="LOCAL" #THEN #BLOCK
+         ;if station local/remote-switch is in "station"
+         #IF %TMP_LR==1 #THEN #BLOCK
+            ;check if command source is on the list of authorized control centers
+            @CHECK1=SEPARATE(%TMP_CX,"/")
+            @CHECK2=SELECT(%CHECK1,"==%COMMAND_SOURCE_ID")
+            #IF LENGTH(%CHECK2)<>0 #THEN @CONTROLS_ALLOWED = 1
+            #ELSE @CONTROLS_ALLOWED = -2
+         #BLOCK_END
+         ;if station local/remote-switch is in "reserved" then always authorized
+         #ELSE_IF %TMP_LR==3 #THEN @CONTROLS_ALLOWED = 1
+         ;if station local/remote-switch is in "other"
+         #ELSE @CONTROLS_ALLOWED = 0
+         #IF 'LR_BAY_OP_LN':POS'LR_BAY_OP_IX' < 10 #THEN #BLOCK
+            #IF 'LR_BAY_OP_LN':POV'LR_BAY_OP_IX' == 1 #THEN @CONTROLS_ALLOWED = 1
+         #BLOCK_END 
+      #BLOCK_END
+      
+      ;if command source type is remote (NCS)
+      #IF %COMMAND_SOURCE_TYPE=="REMOTE" #THEN #BLOCK
+         ;if station local/remote-switch is in "remote"
+         #IF (%TMP_LR==2 AND 'LR_OBJECT_LN':PPT'LR_OBJECT_IX'== 12) OR (%TMP_LR==0 AND 'LR_OBJECT_LN':PPT'LR_OBJECT_IX'== 3) #THEN #BLOCK
+            ;check if command source is on the list of authorized control centers
+            @CHECK1=SEPARATE(%TMP_CX,"/")
+            @CHECK2=SELECT(%CHECK1,"==%COMMAND_SOURCE_ID")
+            #IF LENGTH(%CHECK2)<>0 #THEN @CONTROLS_ALLOWED = 1
+            #ELSE @CONTROLS_ALLOWED = -2
+         #BLOCK_END
+         ;if station local/remote-switch is in "reserved" then always authorized
+         #ELSE_IF %TMP_LR==3 #THEN @CONTROLS_ALLOWED = 1
+         ;if station local/remote-switch is in "other"
+         #ELSE @CONTROLS_ALLOWED = 0
+         #IF 'LR_BAY_OP_LN':POS'LR_BAY_OP_IX' < 10 #THEN #BLOCK
+            #CASE 'LR_BAY_OP_LN':POV'LR_BAY_OP_IX' 
+               #WHEN 1 @CONTROLS_ALLOWED = 3
+            #CASE_END
+         #BLOCK_END 
+         
+      #BLOCK_END
+      
+      ;in case of errors
+      @SCIL_CODE=STATUS
+      #IF %SCIL_CODE<>0 #THEN @CONTROLS_ALLOWED = -1
+      @RESULT_LIST=LIST(CONTROLS_ALLOWED=%CONTROLS_ALLOWED, STATUS=%SCIL_CODE)
+      #return %result_list
+   #block_end  
+   #when "CHECK_AUTHORITY_WORKPLACE" #block
+      @wpAuthConfFile="par/apl/WP_AUTHORITY.txt"
+      @allowControl=TRUE
+      @denyReason=""
+      #if FILE_MANAGER("EXISTS",FM_APPLICATION_FILE(%wpAuthConfFile)) #then #block
+         @allowControl=FALSE
+         @wpName=argument(3)             
+         @statusCheck=status
+         #error ignore
+         @wpAuthConf=evaluate(read_text(FM_REPRESENT(FM_APPLICATION_FILE(%wpAuthConfFile))))
+         #error stop
+         @statusCheck=status
+         #if %statusCheck==0 #then #block
+            #if ATTRIBUTE_EXISTS(%wpAuthConf,"ALLOWED") #then #block
+               @allowedWorkplaces=%wpAuthConf.ALLOWED
+               #if length(select(%allowedWorkplaces,"==""'wpName'"""))>0 #then #block
+                  @allowControl=TRUE
+               #block_end
+            #block_end
+         #block_end
+         #if NOT %allowControl #then #block
+            @denyReason="<Description moved as dialog resource Id 572>"
+         #block_end
+      #block_end
+      #return list(-
+         ALLOWED=%allowControl,-
+         ERROR_MESSAGE=%denyReason)
+   #block_end   
+   #when "INTERRUPT_AR_SEQUENCE" #block
+      @AR_LN=%DAT_FILE.AUTO_RECLOSE_LN
+      @AUTO_RECLOSE_INTERRUPT_IX=%DAT_FILE.AUTO_RECLOSE_INTERRUPT_IX
+      #set 'AR_LN':P'AUTO_RECLOSE_INTERRUPT_IX'=1
+   #block_end
+   #when "SET_SIMULATION", "GET_SIMULATION" #block
+      ;From INIT_VARIABLES:
+      
+      @OLD_MODE_VALUE     = 0
+      @NEW_MODE_VALUE     = 0
+      
+      @OLD_POSITION_VALUE = 0
+      @NEW_POSITION_VALUE = 0
+
+      
+      @SIMULATION_ONLY = TRUE
+      
+      @SIMULATE_LN
+      @SIMULATE_IX
+      
+      @UPDATE_OBJECTS =LIST()
+      ;From COLLECT_PROCESS_OBJECTS:
+      ;collect all process objects for simulation
+      
+      ;define LNs & IXs to be used
+      #CASE %INDICATION_TYPE
+        #WHEN "DB" #BLOCK
+          @V_SIMULATE_LN = VECTOR(%INDICATION_DB_LN)
+          @V_SIMULATE_IX = VECTOR(%INDICATION_DB_IX)
+        #BLOCK_END
+      
+        #WHEN "AI","BI" #BLOCK
+          @V_SIMULATE_LN = ("'INDICATION_DB_LN'","'INDICATION_UP1_LN'")
+          @V_SIMULATE_IX = ("'INDICATION_DB_IX'","'INDICATION_UP1_IX'")
+        #BLOCK_END
+      
+        #WHEN "2BI" #BLOCK
+          @V_SIMULATE_LN = ("'INDICATION_DB_LN'","'INDICATION_UP1_LN'","'INDICATION_UP2_LN'")
+          @V_SIMULATE_IX = ("'INDICATION_DB_IX'","'INDICATION_UP1_IX'","'INDICATION_UP2_IX'")
+        #BLOCK_END
+      #CASE_END
+      
+      ;check the connection of the position indication(s) to the process
+      #LOOP_WITH I=1..LENGTH(%V_SIMULATE_LN)
+        @SIMULATE_LN    = %V_SIMULATE_LN('I')
+        @SIMULATE_IX    = %V_SIMULATE_IX('I')
+        @SSS'SIMULATE_LN' = VECTOR()
+      
+        #IF 'SIMULATE_LN':PIU'SIMULATE_IX'==1 #THEN #BLOCK
+          ;off
+          #IF 'SIMULATE_LN':PSS'SIMULATE_IX'==0 #THEN @OLD_MODE_VALUE = MAX(0,%OLD_MODE_VALUE)
+          ;connected to process
+          #ELSE_IF 'SIMULATE_LN':PSS'SIMULATE_IX'>1 AND 'SIMULATE_LN':PUN'SIMULATE_IX'<>0 #THEN #block
+             @OLD_MODE_VALUE = MAX(2,%OLD_MODE_VALUE)
+          #block_end
+          ;simulation
+          #ELSE @OLD_MODE_VALUE = MAX(1,%OLD_MODE_VALUE)
+          ;connection to process exists
+          #IF 'SIMULATE_LN':PUN'SIMULATE_IX'<>0 #THEN @SIMULATION_ONLY = FALSE
+        #BLOCK_END
+      #LOOP_END
+      
+      @SIMULATE_LN    = %V_SIMULATE_LN(1)  
+      @SIMULATE_IX    = %V_SIMULATE_IX(1)  
+      #IF 'SIMULATE_LN':PUB'SIMULATE_IX'==1 #THEN @UPDATE_BLOCKED = TRUE
+      #ELSE @UPDATE_BLOCKED = FALSE
+      
+      ;simulation ON
+      #IF %OLD_MODE_VALUE == 1 #THEN #BLOCK
+        @NEW_MODE_VALUE = 1
+      #BLOCK_END
+      
+      ;simulation OFF
+      #IF %OLD_MODE_VALUE == 2 #THEN #BLOCK
+        @NEW_MODE_VALUE = 2
+      #BLOCK_END
+
+      @PROTOCOL_IS_IEC61850 = FALSE
+      #IF 'INDICATION_DB_LN':PDX'INDICATION_DB_IX' == "E7D" #THEN @PROTOCOL_IS_IEC61850 = TRUE
+      
+      #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_GET_INDICATIONS) <> "NONE" #THEN #BLOCK
+         #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_GET_INDICATIONS) > 0 #THEN #BLOCK
+            #DO OBJECT_TYPE_FILE:VMETHOD_GET_INDICATIONS
+            #IF DATA_TYPE(RESULT:VINDICATION_OV) <> "NONE" #THEN #BLOCK
+               #IF 'SIMULATE_LN':POS'SIMULATE_IX'<10 #THEN #BLOCK
+                  #IF RESULT:VINDICATION_OV == 1 AND 'SIMULATE_LN':POV'SIMULATE_IX'==1 #THEN @PROTOCOL_IS_IEC61850 = TRUE
+                  #IF RESULT:VINDICATION_OV == 2  AND 'SIMULATE_LN':POV'SIMULATE_IX'==2 #THEN @PROTOCOL_IS_IEC61850 = TRUE
+               #BLOCK_END
+            #BLOCK_END
+         #BLOCK_END
+     #BLOCK_END
+            
+      ;show current position of switching device                          
+      #IF 'SIMULATE_LN':POS'SIMULATE_IX'<10 #THEN #BLOCK
+        #IF      'SIMULATE_LN':POV'SIMULATE_IX'==0 #THEN @OLD_POSITION_VALUE = 1
+        #ELSE_IF ('SIMULATE_LN':POV'SIMULATE_IX'==1 AND NOT(%PROTOCOL_IS_IEC61850)) OR -
+           ('SIMULATE_LN':POV'SIMULATE_IX'==2 AND %PROTOCOL_IS_IEC61850) #THEN  @OLD_POSITION_VALUE = 2
+        #ELSE_IF ('SIMULATE_LN':POV'SIMULATE_IX'==2 AND NOT(%PROTOCOL_IS_IEC61850)) OR -
+           ('SIMULATE_LN':POV'SIMULATE_IX'==1 AND %PROTOCOL_IS_IEC61850) #THEN @OLD_POSITION_VALUE = 3
+        #ELSE    @OLD_POSITION_VALUE = 4
+      #BLOCK_END
+      #ELSE @OLD_POSITION_VALUE = 0
+      
+      ;intermediate (00)
+      #IF %OLD_POSITION_VALUE == 1 #THEN #BLOCK
+        @NEW_POSITION_VALUE = 1
+      #BLOCK_END
+      
+      ;open       
+      #ELSE_IF %OLD_POSITION_VALUE == 3 #THEN #BLOCK
+        @NEW_POSITION_VALUE = 3
+      #BLOCK_END
+      
+      ;close
+      #ELSE_IF %OLD_POSITION_VALUE == 2 #THEN #BLOCK
+        @NEW_POSITION_VALUE = 2
+      #BLOCK_END
+      
+      ;faulty (11)
+      #ELSE_IF %OLD_POSITION_VALUE == 4 #THEN #BLOCK
+        @NEW_POSITION_VALUE = 4
+      #BLOCK_END
+      
+      ;not sampled, etc
+      #ELSE #BLOCK
+        @NEW_POSITION_VALUE = 0
+      #BLOCK_END         
+
+
+      #case %COMMAND_SELECTOR 
+         #when "GET_SIMULATION" #block
+            @num_connected=0
+            @current_ln=%SIMULATE_LN
+            #if %OLD_MODE_VALUE==1 #then #block
+               #loop_with I=1..length(%command_ixs)
+                  @current_ix=%command_ixs(%i) 
+                  @check_val=APPLICATION_OBJECT_LIST(0,"IX","I","F",%current_ln,"IX=='current_ix'")
+                  #if %check_val.count>0 #then #block
+                     #if 'current_ln':PSS'current_ix'>1 and 'current_ln':PUN'current_ix'<>0 #then #block
+                        @num_connected=%num_connected+1
+                     #block_end
+                  #block_end
+               #loop_end
+            #block_end
+            #return LIST(-
+               SIMULATION_MODE=%OLD_MODE_VALUE, -
+               SIMULATION_POSITION=%OLD_POSITION_VALUE, -
+               DISCREPANCY=(%num_connected>0)AND(%num_connected<length(%command_ixs)),-
+               CONTROLS_SIMULATED=(%num_connected==0))
+         #block_end
+         #when "SET_SIMULATION" #block
+
+            @NEW_POSITION_VALUE=argument(4)      
+            @NEW_MODE_VALUE=argument(3)      
+
+            ;From KEY_OK:
+            ;new operation mode          
+              ;set simulation ON
+              #IF %NEW_MODE_VALUE==1 #THEN #BLOCK
+                @EX_MODE_SS  = VECTOR()
+                @EX_MODE_UN  = VECTOR()
+                @EX_MODE_OA  = VECTOR()
+                @MODE_SS     = VECTOR()
+                @SET_SS = 0
+            
+                ;loop all process objects which has to be modified
+                #LOOP_WITH I=1..LENGTH(%V_SIMULATE_LN)
+                  @SIMULATE_LN = %V_SIMULATE_LN('I')
+                  @SIMULATE_IX = %V_SIMULATE_IX('I')
+                  #IF 'SIMULATE_LN':PIU'SIMULATE_IX'==1 #THEN #BLOCK
+                    ;store the original SS-attribute 
+                    #if 'SIMULATE_LN':PSS'SIMULATE_IX' <> 1 #then #block
+                       #SET 'SIMULATE_LN':PRX'SIMULATE_IX'=SUBSTR('SIMULATE_LN':PRX'SIMULATE_IX',1,62)+ -
+                       DEC('SIMULATE_LN':PSS'SIMULATE_IX',1,0)
+                    #block_end
+            
+                    ;set SS-attribute to manual
+                    #SET 'SIMULATE_LN':PSS'SIMULATE_IX'=1
+                  #BLOCK_END
+                #LOOP_END
+              #BLOCK_END
+            
+              ;set simulation OFF
+              #ELSE_IF %NEW_MODE_VALUE==2 #THEN #BLOCK
+            
+                @UPDATE_OBJECTS =LIST()
+            
+                ;loop all process objects which has been set to manual
+                #LOOP_WITH I=1..LENGTH(%V_SIMULATE_LN)
+                  @SIMULATE_LN    = %V_SIMULATE_LN('I')
+                  @SIMULATE_IX    = %V_SIMULATE_IX('I')
+            
+                  ;set SS-attribute to the original value
+                  #IF SUBSTR('SIMULATE_LN':PRX'SIMULATE_IX',63,1)<>" " #THEN #BLOCK
+                     @NEW_VAL=DEC_SCAN(SUBSTR('SIMULATE_LN':PRX'SIMULATE_IX',63,1))
+                     #IF %NEW_VAL==1 #then #SET 'SIMULATE_LN':PSS'SIMULATE_IX'= 2
+                     #ELSE  #SET 'SIMULATE_LN':PSS'SIMULATE_IX'= %NEW_VAL
+                  #BLOCK_END
+                  #ELSE #SET 'SIMULATE_LN':PSS'SIMULATE_IX'= 2
+                  
+            
+                  ;if connected to process
+                  #IF ('SIMULATE_LN':PSS'SIMULATE_IX'==2 OR 'SIMULATE_LN':PSS'SIMULATE_IX'==3) AND 'SIMULATE_LN':PUN'SIMULATE_IX'<>0 #THEN #BLOCK
+                    @SSS'SIMULATE_LN'=APPEND(%SSS'SIMULATE_LN',%SIMULATE_IX)
+                    #MODIFY UPDATE_OBJECTS:V=LIST(SSS'SIMULATE_LN'=%SSS'SIMULATE_LN')
+                  #BLOCK_END
+                  ;simulated process
+                  #ELSE_IF 'SIMULATE_LN':POS'SIMULATE_IX'==2 #THEN #BLOCK
+                    @TMP_HE='TMP_LN':PHE'TMP_IX'
+                    @TMP_PB='TMP_LN':PPB'TMP_IX'
+                    #IF %TMP_HE<>0 #THEN #SET 'SIMULATE_LN':PHE'SIMULATE_IX'=0
+                    #IF %TMP_PB<>1 #THEN #SET 'SIMULATE_LN':PPB'SIMULATE_IX'=1
+                   #SET 'SIMULATE_LN':POV'SIMULATE_IX' = 'SIMULATE_LN':POV'SIMULATE_IX'
+                    #IF %TMP_PB<>1 #THEN #SET 'SIMULATE_LN':PPB'SIMULATE_IX'=%TMP_PB
+                    #IF %TMP_HE<>0 #THEN #SET 'SIMULATE_LN':PHE'SIMULATE_IX'=%TMP_HE
+                  #BLOCK_END
+                #LOOP_END
+
+                ;update data from process
+                #EXEC BGU_UPDATE:C (@UPDATE_OBJECTS=%UPDATE_OBJECTS)
+              #BLOCK_END
+            ;#BLOCK_END
+            
+            ;new position for switching device
+              #LOOP_WITH I=1..LENGTH(%V_SIMULATE_LN)
+                @SIMULATE_LN_I    = %V_SIMULATE_LN('I')
+                @SIMULATE_IX_I    = %V_SIMULATE_IX('I')
+            
+                ;not connected to process
+                #IF NOT ('SIMULATE_LN_I':PSS'SIMULATE_IX_I'==2 AND ('SIMULATE_LN_I':PUN'SIMULATE_IX_I'<>0 OR -
+                'SIMULATE_LN_I':POA'SIMULATE_IX_I'<>0)) #THEN #BLOCK
+                  ;not update blocked, process object in use and not binary input
+                  #IF 'SIMULATE_LN_I':PUB'SIMULATE_IX_I'==0 AND 'SIMULATE_LN_I':PSS'SIMULATE_IX_I'<>0 AND -
+                  'SIMULATE_LN_I':PIU'SIMULATE_IX_I'==1 #THEN #BLOCK
+            
+                    ;set LA if double binary
+                    #IF %I==1 #THEN #BLOCK
+                      @TMP_HE='SIMULATE_LN_I':PHE'SIMULATE_IX_I'
+                      @TMP_PB='SIMULATE_LN_I':PPB'SIMULATE_IX_I'
+                      @TMP_AC='SIMULATE_LN_I':PAC'SIMULATE_IX_I'
+                      #IF %TMP_HE<>0 #THEN #SET 'SIMULATE_LN_I':PHE'SIMULATE_IX_I'=0
+                      #IF %TMP_PB<>1 #THEN #SET 'SIMULATE_LN_I':PPB'SIMULATE_IX_I'=1
+                      #IF %TMP_AC<>0 #THEN #SET 'SIMULATE_LN_I':PAC'SIMULATE_IX_I'=0
+                      #SET 'SIMULATE_LN_I':PLA'SIMULATE_IX_I' = 0
+                      #IF %TMP_AC<>0 #THEN #SET 'SIMULATE_LN_I':PAC'SIMULATE_IX_I'= %TMP_AC
+                      #IF %TMP_PB<>1 #THEN #SET 'SIMULATE_LN_I':PPB'SIMULATE_IX_I'= %TMP_PB
+                      #IF %TMP_HE<>0 #THEN #SET 'SIMULATE_LN_I':PHE'SIMULATE_IX_I'= %TMP_HE
+                    #BLOCK_END
+                    
+                    @PROTOCOL_IS_IEC61850 = FALSE
+                    #IF 'INDICATION_DB_LN':PDX'INDICATION_DB_IX' == "E7D" #THEN @PROTOCOL_IS_IEC61850 = TRUE
+                    
+                    #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_GET_INDICATIONS) <> "NONE" #THEN #BLOCK
+                        #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_GET_INDICATIONS) > 0 #THEN #BLOCK
+                           #DO OBJECT_TYPE_FILE:VMETHOD_GET_INDICATIONS
+                           #IF DATA_TYPE(RESULT:VINDICATION_OV) <> "NONE" #THEN #BLOCK
+                              #IF 'SIMULATE_LN':POS'SIMULATE_IX'<10 #THEN #BLOCK
+                                 #IF RESULT:VINDICATION_OV == 1 AND 'SIMULATE_LN':POV'SIMULATE_IX'==1 #THEN @PROTOCOL_IS_IEC61850 = TRUE
+                                 #IF RESULT:VINDICATION_OV == 2  AND 'SIMULATE_LN':POV'SIMULATE_IX'==2 #THEN @PROTOCOL_IS_IEC61850 = TRUE
+                              #BLOCK_END
+                           #BLOCK_END
+                        #BLOCK_END
+                    #BLOCK_END
+                    
+                    #IF %PROTOCOL_IS_IEC61850 #THEN #BLOCK
+                       
+                       #IF %I == 1 #THEN #BLOCK
+                          #IF %NEW_POSITION_VALUE == 2 #THEN @TMP_VALUE = 2
+                          #ELSE_IF %NEW_POSITION_VALUE == 3 #THEN @TMP_VALUE = 1
+                          #ELSE @TMP_VALUE = %NEW_POSITION_VALUE - 1
+                          #SET 'SIMULATE_LN_I':POV'SIMULATE_IX_I' = %TMP_VALUE
+                       #BLOCK_END
+                    #BLOCK_END
+                    #ELSE #BLOCK
+                       ;new position as double binary or double binary and analog input
+                       #IF %INDICATION_TYPE=="DB" OR %INDICATION_TYPE=="AI" #THEN #SET 'SIMULATE_LN_I':POV'SIMULATE_IX_I' = %NEW_POSITION_VALUE - 1
+               
+                       ;new position as double binary and single binary
+                       #ELSE_IF %INDICATION_TYPE=="BI" #THEN #BLOCK
+                         ;double binary
+                         #IF %I==1 #THEN #SET 'SIMULATE_LN_I':POV'SIMULATE_IX_I' = %NEW_POSITION_VALUE - 1
+                         ;single binary
+                         #ELSE #BLOCK
+                           ;closed
+                           #IF %NEW_POSITION_VALUE-1==1 #THEN #SET 'SIMULATE_LN_I':POV'SIMULATE_IX_I' = 1
+                           ;open
+                           #ELSE_IF %NEW_POSITION_VALUE-1==2 #THEN #SET 'SIMULATE_LN_I':POV'SIMULATE_IX_I' = 0
+                         #BLOCK_END
+                       #BLOCK_END                   
+                       ;new position as double binary and 2 x single binaries
+                       #ELSE_IF %INDICATION_TYPE=="2BI" #THEN #BLOCK
+                         ;double binary
+                         #IF %I==1 #THEN #SET 'SIMULATE_LN_I':POV'SIMULATE_IX_I' = %NEW_POSITION_VALUE - 1
+                         ;first single binary
+                         #ELSE_IF %I==2 #THEN #BLOCK
+                           ;intermediate or closed
+                           #IF %NEW_POSITION_VALUE-1==0 OR %NEW_POSITION_VALUE-1==1 #THEN #SET 'SIMULATE_LN_I':POV'SIMULATE_IX_I' = 0
+                           ;open or faulty
+                           #ELSE #SET 'SIMULATE_LN_I':POV'SIMULATE_IX_I' = 1
+                         #BLOCK_END
+                         ;second single binary
+                         #ELSE #BLOCK
+                           ;intermediate or open
+                           #IF %NEW_POSITION_VALUE-1==0 OR %NEW_POSITION_VALUE-1==2 #THEN #SET 'SIMULATE_LN_I':POV'SIMULATE_IX_I' = 0
+                           ;close or faulty
+                           #ELSE #SET 'SIMULATE_LN_I':POV'SIMULATE_IX_I' = 1
+                         #BLOCK_END
+                       #BLOCk_END
+                    #BLOCK_END
+                  #BLOCK_END
+                #BLOCK_END
+              #LOOP_END
+         #block_end
+      #case_end
+   #block_end
+   #when "GET_ALARMS" #block
+      @EXTRA_COND=""
+      #IF DATA_TYPE(argument(3))=="TEXT" #THEN @EXTRA_COND=argument(3)
+      @e_state=error_state
+      #error ignore
+      
+      @SWITCH_TYPE          = DAT_FILE:VSWITCHING_DEVICE_TYPE 
+      @SWITCH_PURPOSE       = DAT_FILE:VSWITCHING_DEVICE_PURPOSE
+      #error 'e_state'
+      @trash=status
+
+      ;selects the alarming objects and defines the alarming state & message      
+      #IF %DEVICE_NAME=="" AND %BAY_NAME=="" #THEN @OI_CONDITION = "'STATION_NAME_TRIMMED'*"
+      #ELSE_IF %DEVICE_NAME=="" #THEN @OI_CONDITION = "'BAY_NAME_TRIMMED'*"
+      #ELSE @OI_CONDITION = "'DEVICE_NAME_TRIMMED'"
+      
+      @b_SpecialGroupSwitch = False
+      #if %PF_INDICATION_INDEX > 0 #then #block
+         #IF SUBSTR('PF_ID':PRX'PF_INDICATION_INDEX',23,8) == "AGRPILRS" #THEN #BLOCK            
+            #IF %SPECIAL_IDENTIFIER_1 <> "" #THEN @OI_CONDITION = "'SPECIAL_IDENTIFIER_1_TRIMMED'*"
+            #IF %SPECIAL_IDENTIFIER_2 <> "" #THEN @OI_CONDITION = "'SPECIAL_IDENTIFIER_2_TRIMMED'*"
+            #IF %SPECIAL_IDENTIFIER_3 <> "" #THEN @OI_CONDITION = "'SPECIAL_IDENTIFIER_3_TRIMMED'*"
+            @b_SpecialGroupSwitch = True
+         #BLOCK_END
+      #block_end
+
+       #IF %EXTRA_COND =="FILTER_BY_LN" #THEN #BLOCK
+
+         @t_Filter = "IU==1 AND ((RX==""%%%%%%%%%%%%%%%%%%%%%%%%%%I%%%"" OR RX==""%%%%%%%%%%%%%%%%%%%%%%%%%%E%%%"" OR RX==""%%%%%%%%%%%%%%%%%%%%%%%%%%M%%%"") OR ((PT==3 OR PT==6 OR PT==9 OR PT==12 OR PT==13 OR PT==14) AND RX<>""%%%%%%%%%%%%%%%%%%%%%%%%%%X%%%""))"
+         @l_Alarms = APPLICATION_OBJECT_LIST(0, "IX", "I", "F", %PF_ID, %t_Filter)
+         #IF %l_Alarms.COUNT > 0 #THEN #BLOCK
+            @TMP_LN_IN = %l_Alarms.LN
+            @TMP_IX_IN = %l_Alarms.IX
+         #BLOCK_END
+      #BLOCK_END
+      #ELSE #BLOCK
+
+          @t_Filter = "IU==1 AND ((RX==""%%%%%%%%%%%%%%%%%%%%%%%%%%I%%%"" OR RX==""%%%%%%%%%%%%%%%%%%%%%%%%%%E%%%"" OR RX==""%%%%%%%%%%%%%%%%%%%%%%%%%%M%%%"") OR ((PT==3 OR PT==6 OR PT==9 OR PT==12 OR PT==13 OR PT==14) AND RX<>""%%%%%%%%%%%%%%%%%%%%%%%%%%X%%%""))"          
+          @l_Alarms = APPLICATION_OBJECT_LIST(0, "IX",  "OI", "", "'OI_CONDITION'", %t_Filter)
+          #IF %l_Alarms.COUNT > 0 #THEN #BLOCK
+            @TMP_LN_IN = %l_Alarms.LN
+            @TMP_IX_IN = %l_Alarms.IX
+          #BLOCK_END
+               
+      #BLOCK_END
+      
+      @Is_Alarm_Indicator = false
+      #if data_type(dat_file:vTYPE_PF) <> "NONE" #then #block
+         #if dat_file:vTYPE_PF == "SAGR_AI" or dat_file:vTYPE_PF == "FPI_AI" #then #block
+            @Is_Alarm_Indicator = true
+            @TMP_LN_IN = vector()
+            @TMP_IX_IN = vector()
+            #loop_with i = 1 .. 8
+               #if dat_file:vTYPE_OF_SIGNAL'i' == "LINK" #then #block
+                  #if validate("APPLICATION_OBJECT_NAME", dat_file:vLINK_SIGNAL'i'_TO_LN) == 0 #then #block
+                     @l_Check = fetch(0, "P", dat_file:vLINK_SIGNAL'i'_TO_LN, dat_file:vLINK_SIGNAL'i'_TO_IX)
+                     #if l_Check:vIU > 0 #then #block
+                        @TMP_LN_IN = append(%TMP_LN_IN, dat_file:vLINK_SIGNAL'i'_TO_LN)
+                        @TMP_IX_IN = append(%TMP_IX_IN, dat_file:vLINK_SIGNAL'i'_TO_IX)
+                     #block_end
+                  #block_end
+               #block_end
+               #else_if dat_file:vTYPE_OF_SIGNAL'i' <> "" #then #block
+                  #if validate("APPLICATION_OBJECT_NAME", %PF_ID) == 0 #then #block
+                     @l_Check = fetch(0, "P", %PF_ID, 9 + %i)
+                     #if l_Check:vIU > 0 #then #block
+                        @TMP_LN_IN = append(%TMP_LN_IN, %PF_ID)
+                        @TMP_IX_IN = append(%TMP_IX_IN, 9 + %i)
+                     #block_end
+                  #block_end
+               #block_end
+            #loop_end
+            
+         #block_end
+      #block_end
+      
+      @CO         = 1
+      @COMBO_LIST = VECTOR
+      
+      #if argument_count > 3 #then @t_TMP = set_language(argument(4))
+      #LOOP_WITH I=1..LENGTH(%TMP_IX_IN)
+         @IX = %TMP_IX_IN(%I)
+         @LN = %TMP_LN_IN(%I)
+         @IE = 'LN':PIE'IX'
+
+         #if %Is_Alarm_Indicator #then -
+            @IDENT = 'LN':PTX'IX'
+         #else #block
+            ;ID 12117: Use Translated Object Text (TX) instead of Object Text (OX).
+            ;Station:
+            #IF %DEVICE_NAME=="" AND %BAY_NAME=="" #THEN @IDENT = COLLECT(%IE(%LEVEL_BAY..), " ") + "   " + 'LN':PTX'IX'
+            ;Bay:
+            #ELSE_IF %DEVICE_NAME=="" #THEN #BLOCK
+               #IF %LEVEL_DEVICE > 0 #THEN @IDENT = COLLECT(%IE(%LEVEL_DEVICE..), " ") + "   " + 'LN':PTX'IX'
+               #ELSE @IDENT = COLLECT(%IE, " ") + "   " + 'LN':PTX'IX'
+            #BLOCK_END
+            ;Device:
+            #ELSE @IDENT = 'LN':PTX'IX'
+         #block_end
+         
+         @MSG = ""
+         @USER_ACKNOWLEDGE_ALLOWED = USM_Authorization_Level_for_Object("ALARM_HANDLING", %LN, %IX) >= 1 ; At least "Control" authorisation required
+         #IF 'LN':PSS'IX'<>0 #THEN #BLOCK
+            #IF 'LN':POS'IX'<>10 #THEN #BLOCK
+               #IF 'LN':PAR'IX'==0 #THEN #BLOCK
+                  #IF 'LN':PAL'IX'==1 #THEN #BLOCK
+                     @MSG   = "PERSISTING"
+                     @COMBO_LIST(%CO)=("'LN'",'IX',"'IDENT'","'MSG'", %USER_ACKNOWLEDGE_ALLOWED)
+                     @CO=%CO+1
+                  #BLOCK_END
+                  #ELSE #BLOCK
+                     @MSG   = "FLEETING"
+                     @COMBO_LIST(%CO)=("'LN'",'IX',"'IDENT'","'MSG'", %USER_ACKNOWLEDGE_ALLOWED)
+                     @CO=%CO+1
+                  #BLOCK_END
+               #BLOCK_END
+               #ELSE_IF 'LN':PAR'IX'==1 #THEN #BLOCK
+                  #IF 'LN':PAL'IX'==1 #THEN #BLOCK
+                     @MSG   = "ACTIVE_ACKNOWLEDGED"
+                     @COMBO_LIST(%CO)=("'LN'",'IX',"'IDENT'","'MSG'", %USER_ACKNOWLEDGE_ALLOWED)
+                     @CO=%CO+1
+                  #BLOCK_END
+               #BLOCK_END
+               
+               #if %Is_Alarm_Indicator #then #block
+                  #IF %MSG == "" #THEN #BLOCK
+                     #IF 'LN':POS'IX' == 1 OR 'LN':POS'IX' == 2 OR ('LN':POS'IX' > 3 AND 'LN':POS'IX' < 10) #THEN @MSG = "OS_1_2_4_9"
+                     #ELSE_IF 'LN':PSB'IX' == 1 OR 'LN':PSU'IX' == 1 #THEN @MSG = "SUBSTITUTED"
+                     #ELSE_IF 'LN':PAB'IX' == 1 OR 'LN':PPB'IX' == 1 OR 'LN':PHB'IX' == 1 OR 'LN':PXB'IX' == 1 #THEN @MSG = "BLOCKED"
+                     #ELSE_IF NOT ('LN':PSS'IX' > 1 AND 'LN':PUN'IX' <> 0)  #THEN @MSG = "MANUALLY_ENTERED"
+                     #ELSE_IF 'LN':PAR'IX'==1 AND 'LN':PAL'IX'==0 #THEN @MSG = "NORMAL"
+                     #ELSE @MSG = "NORMAL"
+                     @COMBO_LIST(%CO)=("'LN'",'IX',"'IDENT'","'MSG'", %USER_ACKNOWLEDGE_ALLOWED)
+                     @CO=%CO+1                   
+                  #BLOCK_END
+               #block_end
+               
+            #BLOCK_END
+            #ELSE #BLOCK
+               #if %Is_Alarm_Indicator #then #block
+                  @MSG   = "OS_10"
+                  @COMBO_LIST(%CO)=("'LN'",'IX',"'IDENT'","'MSG'", %USER_ACKNOWLEDGE_ALLOWED)
+                  @CO=%CO+1
+               #block_end
+            #BLOCK_END
+         #BLOCK_END
+      #LOOP_END
+            
+      @ACKNOWLEDGE_ALL=VECTOR()
+      @MULTI_ACK=TRUE
+      ;if more than one alarm acknowledge all function needed
+      #IF LENGTH(%COMBO_LIST)>1 #THEN #BLOCK
+      
+        ;check that there are unacknowledged alarms
+        #LOOP_WITH I=1..LENGTH(%COMBO_LIST)
+          @TMP=%COMBO_LIST(%I)
+          #IF %TMP(2)<>0 and %TMP(5) #THEN @ACKNOWLEDGE_ALL=APPEND(%ACKNOWLEDGE_ALL,%TMP(2))
+        #LOOP_END
+      
+      #BLOCK_END         
+      #return LIST(COMBO_LIST=%COMBO_LIST, ACKNOWLEDGE_ALL=%ACKNOWLEDGE_ALL)
+   #block_end
+   #when "ACKNOWLEDGE_ALARM" #block
+      @LN_TO_ACK=argument(3)
+      @IX_TO_ACK=argument(4)
+      #SET 'LN_TO_ACK':PAR'IX_TO_ACK' = 1
+   #block_end
+   #when "DO_BYPASS" #block
+   #block_end
+   #when "CANCEL_BYPASS" #block
+   #block_end
+   #when "DO_SYNCHRO_CHECK_BYPASS" #block
+      #if data_type(%DAT_FILE.SYNCHRO_CHECK_BYPASS_ON_PROCEDURE) == "VECTOR" #THEN #BLOCK
+         @st=status
+         #ERROR IGNORE
+         @SYN_CMD_IX=%DAT_FILE.SYN_CMD_IX
+         @SYN_IND_IX=%DAT_FILE.SYN_IND_IX
+         #DO %DAT_FILE.SYNCHRO_CHECK_BYPASS_ON_PROCEDURE  ;Execute custom commands from .DAT file
+         #SET 'PF_ID':POV'SYN_CMD_IX'=1 ;Execute the command
+         #IF 'PF_ID':PSS'SYN_IND_IX'<>2 OR 'PF_ID':PUN'SYN_IND_IX'==0 #THEN #BLOCK ;Simulate if not connected to process
+            #set 'PF_ID':POV'SYN_IND_IX'=1
+         #BLOCK_END
+         #return status
+      #BLOCK_END
+   #block_end
+   #when "CANCEL_SYNCHRO_CHECK_BYPASS" #block
+      #if data_type(%DAT_FILE.SYNCHRO_CHECK_BYPASS_OFF_PROCEDURE) == "VECTOR" #THEN #BLOCK
+         @st=status
+         #ERROR IGNORE
+         @SYN_CMD_IX=%DAT_FILE.SYN_CMD_IX
+         @SYN_IND_IX=%DAT_FILE.SYN_IND_IX
+         #DO %DAT_FILE.SYNCHRO_CHECK_BYPASS_OFF_PROCEDURE ;Execute custom commands from .DAT file
+         #SET 'PF_ID':POV'SYN_CMD_IX'=0 ;Execute the command
+         #IF 'PF_ID':PSS'SYN_IND_IX'<>2 OR 'PF_ID':PUN'SYN_IND_IX'==0 #THEN #BLOCK ;Simulate if not connected to process
+            #set 'PF_ID':POV'SYN_IND_IX'=0
+         #BLOCK_END
+         #return status
+      #BLOCK_END
+   #block_end
+   #when "RETURN_LA" #block
+     @Ln = %PF_ID
+     @IX = %PF_INDICATION_INDEX
+     #if length('Ln':pcc) == 0 #then #block
+        @OLD_INDICATION_LA = argument(3)
+        @TMP_HE='LN':PHE'IX'
+        @TMP_PB='LN':PPB'IX'
+        @TMP_AC='LN':PAC'IX'
+        #IF %TMP_HE<>0 #THEN #SET 'LN':PHE'IX'=0
+        #IF %TMP_PB<>1 #THEN #SET 'LN':PPB'IX'=1
+        ;alarm is unacknowledged
+        #IF 'LN':PAR'IX'==1 #THEN #BLOCK
+           #IF 'LN':PLA'IX' <> %OLD_INDICATION_LA #THEN #SET 'LN':PAC'IX'=0
+        #BLOCK_END
+        #SET 'LN':PLA'IX'=%OLD_INDICATION_LA
+        #IF %TMP_AC<>0 #THEN #SET 'LN':PAC'IX'= %TMP_AC
+        #IF %TMP_PB<>1 #THEN #SET 'LN':PPB'IX'= %TMP_PB
+        #IF %TMP_HE<>0 #THEN #SET 'LN':PHE'IX'= %TMP_HE
+     #block_end
+   #block_end
+   #when "GET_OI_TEXT" #block
+      @Ln = %PF_ID
+      @v_OI_Len = (10,15,5)
+      @t_Tmp = ""
+      @start = 1
+      @return_string = ("","")
+      ;;@l_IXs = application_object_list(0,"IX","A","F","","LN==""'Ln'""")
+      @l_IXs = application_object_list(0,"IX","I","F",%LN)
+      #if l_IXs:VCOUNT > 0 #then #block
+
+         #error ignore
+         ;read in apl:bsv15
+         @Apl_Bsv15 = apl:bsv15
+         @l_Tmp = Apl_Bsv15:vprocess_objects
+         @l_OI = l_Tmp:VOI
+         @Ix = %PF_INDICATION_INDEX
+         @t_Tmp = 'Ln':POI'Ix'
+         @i_Next_Loop_Length = 0
+         
+         #loop_with i = 1 .. 5
+            @i_OI_'i' = l_OI:vlength'i'
+            #if %i_OI_'i' > 0 #then #block
+               @v_OI_Len(%i) = %i_OI_'i'
+               @t_OI_ID = l_OI:vfield'i'(1)
+               @i_Next_Loop_Length = %i_Next_Loop_Length + 1 
+               #if substr('Ln':PRX'Ix',24,7) == "STAILRS" and %t_OI_ID == "STA" #then #loop_exit
+               #if substr('Ln':PRX'Ix',24,7) == "BAYILRS" and %t_OI_ID == "BAY" #then #loop_exit
+            #block_end
+         #loop_end
+         
+         #loop_with i = 1 .. %i_Next_Loop_Length
+            #if %i - %i_Next_Loop_Length < 0 #then #block
+               @return_string(1) = %return_string(1) + edit(substr(%t_Tmp, %start, %v_OI_Len(%i)),"RIGHT_TRIM") + " "
+               @start = %start + %v_OI_Len(%i)
+            #block_end
+            #else #block
+               #if %i == 1 #then @index = 1
+               #else @index = 2
+               @return_string(%index) =  %return_string(%index) + substr(%t_Tmp, %start, %v_OI_Len(%i))
+            #block_end
+         #loop_end
+      #block_end
+      
+      #return %return_string
+                
+  #block_end
+  #when "GET_OFFSETS" #block
+      @v_Offsets = vector(0,0,0,0,0,0,0)
+      @s = 0
+      #if data_type(DAT_FILE:VSA_LIB_INDEXES) == "TEXT" #then #block
+          @e_state = error_state
+          #error ignore
+              @s = STATUS
+              @v_Offsets = dec_scan(separate(DAT_FILE:VSA_LIB_INDEXES, ","))
+              @s = STATUS
+          #if %s <> 0 #then @v_Offsets = vector(0,0,0,0,0,0,0)
+          #error 'e_state'
+      #block_end
+
+      #if data_type(DAT_FILE:VTYPE_PF) <> "NONE" #then #block
+          #case DAT_FILE:VTYPE_PF
+              #WHEN "FPI_SSW", "SAGR_SW" #block
+                  ; Fill in default indexes if SA_LIB_INDEXES didn't exist
+                  @v_Default_Offsets = vector(20,19,13)
+                  #LOOP_WITH I = 1 .. MIN(LENGTH(%v_Offsets), LENGTH(%v_Default_Offsets))
+                      #IF %v_Offsets(%I) == 0 #then @v_Offsets(%I) = %v_Default_Offsets(%I)
+                  #LOOP_END
+
+
+                  #case DAT_FILE:VSWITCHING_DEVICE_TYPE
+                      #when "QT" #block
+                          @v_Offsets(1) = 40
+                          @v_Offsets(2) = 39
+                          @v_Offsets(3) = 33
+                      #block_end
+                      #when "Q3" #block
+                          @v_Offsets(1) = 26
+                          @v_Offsets(2) = 25
+                          @v_Offsets(3) = 16
+                      #block_end 
+                  #case_end    
+
+                  #case DAT_FILE:VCONTROL_TYPE
+                      #when "SEC-2BO", "SEC-2DO" #block
+                          #case DAT_FILE:VSWITCHING_DEVICE_TYPE
+                              #when "QT" @v_Offsets(3) = 32
+                              #when "Q3" -
+                                  #if %PF_INDICATION_INDEX == 10 #then @v_Offsets(3) = 13
+                                  #else @v_Offsets(3) = 14
+                              #otherwise @v_Offsets(3) = 12
+                          #case_end
+                      #block_end
+                      #when "SEC-4BO" #block
+                          #case DAT_FILE:VSWITCHING_DEVICE_TYPE
+                              #when "Q3" -
+                                  #if %PF_INDICATION_INDEX == 10 #then @v_Offsets(3) = 13
+                                  #else @v_Offsets(3) = 15
+                          #case_end    
+                      #block_end
+                      #when "SEC-5AO" #block
+                          #case DAT_FILE:VSWITCHING_DEVICE_TYPE
+                              #when "Q3" -
+                                  #if %PF_INDICATION_INDEX == 10 #then @v_Offsets(3) = 14
+                                  #else @v_Offsets(3) = 28
+                          #case_end               
+                      #block_end
+                      #when "SEC-BO", "DIR-BO", "AO" #block
+                          #case DAT_FILE:VSWITCHING_DEVICE_TYPE
+                              #when "Q3" @v_Offsets(3) = 16
+                          #case_end               
+                      #block_end
+                  #case_end
+
+
+                  @v_Offsets(4) = %PF_INDICATION_INDEX
+                  #if DAT_FILE:VINDICATION_TYPE <> "DB" #then #block
+                      #if %PF_INDICATION_INDEX > 100 #then #block
+                          @v_Offsets(4) = %PF_INDICATION_INDEX - 100
+                      #block_end
+                  #block_end
+
+              ; External Control Blocking
+              #if DAT_FILE:VSTATION_TYPE <> "IEC61850" #then #block
+                 #case DAT_FILE:VSWITCHING_DEVICE_TYPE
+                    #when "Q3" @v_Offsets(5) = 18
+                    #when "QT" @v_Offsets(5) = 35
+                    #otherwise @v_Offsets(5) = 15
+                 #case_end
+              #block_end
+              #else @v_Offsets(5) = 0
+
+                  ; External Open/Close blocking
+                  #if DAT_FILE:VSWITCHING_DEVICE_TYPE == "QT" or -
+                      (DAT_FILE:VSWITCHING_DEVICE_TYPE == "Q3" and-
+                      %PF_INDICATION_INDEX == 11) #then #block
+                      @v_Offsets(6) = 61
+                      @v_Offsets(7) = 62
+                  #block_end
+                  #else #block
+                      @v_Offsets(6) = 41
+                      @v_Offsets(7) = 42
+                  #block_end
+
+              #block_end
+              #when "SAGR_BAY", "FPI_BAY2" #block
+                  ; Use values from SA_LIB_INDEXES if set
+                  @v_Default_Offsets = vector(0,21,13,10)
+                  #LOOP_WITH I = 1 .. MIN(LENGTH(%v_Offsets), LENGTH(%v_Default_Offsets))
+                      #if %v_Offsets(%I) == 0 #then @v_Offsets(%I) = %v_Default_Offsets(%I)
+                  #LOOP_END
+              #block_end
+              #when "SAGR_STA", "FPI_STA2" #block
+                  @v_Default_Offsets = vector(0,16,13,10)
+                  #LOOP_WITH I = 1 .. MIN(LENGTH(%v_Offsets), LENGTH(%v_Default_Offsets))
+                      #if %v_Offsets(%I) == 0 #then @v_Offsets(%I) = %v_Default_Offsets(%I)
+                  #LOOP_END
+              #block_end
+              #when "SAGR_TAP", "FPI_TRT_2" #block
+                  @v_Default_Offsets = vector(0,30,14,10,20)
+                  #LOOP_WITH I = 1 .. MIN(LENGTH(%v_Offsets), LENGTH(%v_Default_Offsets))
+                      #if %v_Offsets(%I) == 0 #then @v_Offsets(%I) = %v_Default_Offsets(%I)
+                  #LOOP_END
+              #block_end
+          #case_end
+
+          ; Check that the indexes exist
+          #if data_type(DAT_FILE:VP_OBJECT_LN) <> "NONE" #then #block
+              #loop_with I = 1 .. length(%v_Offsets)
+                  #if %v_Offsets(%I) <> 0 #then #if not application_object_exists(0,  "IX",-
+                      list(LN = "'DAT_FILE:VP_OBJECT_LN'", IX = %v_Offsets(%I))) #then #block
+                          @v_Offsets(%I) = 0 
+                  #block_end
+              #loop_end
+          #block_end
+      #block_end
+
+      @t_Offsets = collect(DEC(%v_Offsets, 0), ",")
+      #return %t_Offsets
+  #block_end
+  #when "GET_DV_MAPPING" #block
+       @l_mapping = list()
+       #if data_type(DAT_FILE:VDV_MAPPING) <> "NONE" #then @l_mapping = DAT_FILE:VDV_MAPPING
+       #return %l_mapping
+   #block_end
+   #when "GET_U_OTHER_OBJECTS" #block
+      @result_list=LIST(STATION_LN="",BAY_LN="",AR_LN="",TRIP_LN="")
+      @e_state=ERROR_STATE
+      @st=status
+      #error ignore
+      #modify result_list:v=do(DAT_FILE:VU_OTHER_OBJECTS)
+      #error 'e_state'
+      @st=status
+      #return %result_list
+   #block_end
+   #when "GET_U_INTERLOCKING" #block
+      @OPEN_INTERLOCKED=FALSE
+      @CLOSE_INTERLOCKED=FALSE
+      @INTERLOCKING_CAUSE=""
+      @EVENT_OBJECTS = VECTOR()
+      @result_list=LIST(OPEN_INTERLOCKED=FALSE, CLOSE_INTERLOCKED=FALSE, INTERLOCKING_CAUSE="")
+      @e_state=ERROR_STATE
+      @st=status
+      #error ignore
+      #modify result_list:v=do(DAT_FILE:VU_INTERLOCKING)
+      #error 'e_state'
+      @st=status
+      #return %result_list
+   #block_end
+    #when "GET_INDICATIONS" #block
+      #IF %LIB_OBJECT_TYPE <> "" #THEN #BLOCK
+         @e_state=error_state
+         #error ignore
+         @OBJECT_TYPE_FILE=evaluate(read_text(%AplPath+"\APLMOD4\DEFAULTS\OBJECT_TYPES\'LIB_OBJECT_TYPE'"))
+         #error 'e_state'
+         @trash=status
+
+         #if data_type(%OBJECT_TYPE_FILE)=="NONE" #then #block
+            #error ignore
+            @OBJECT_TYPE_FILE=evaluate(read_text("/SA_LIB/DEFAULTS/OBJECT_TYPES/'LIB_OBJECT_TYPE'"))
+            #error 'e_state'
+            @trash=status
+         #block_end
+         
+         #if data_type(%OBJECT_TYPE_FILE)<>"NONE" #then #block
+            #loop_with ind=1..length(%OBJECT_TYPE_ATTRS)
+               @current_attr=%OBJECT_TYPE_ATTRS(%ind)
+               #if data_type(%OBJECT_TYPE_FILE.'current_attr')<>"NONE" #then @'current_attr'=%OBJECT_TYPE_FILE.'current_attr'
+            #loop_end
+         #block_end
+        #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_GET_INDICATIONS) <> "NONE" #THEN #BLOCK
+           #IF LENGTH(OBJECT_TYPE_FILE:VMETHOD_GET_INDICATIONS) > 0 #THEN #BLOCK
+               @ln = %INDICATION_DB_LN
+               #DO OBJECT_TYPE_FILE:VMETHOD_GET_INDICATIONS
+               #return %result
+           #BLOCK_END
+        #BLOCK_END
+      #BLOCK_END
+   #block_end
+   #when "GET_STRING_REPLACEMENTS" #block
+      @result=list()
+      #IF DATA_TYPE(OBJECT_TYPE_FILE:VMETHOD_GET_STRING_REPLACEMENTS) <> "NONE" #THEN #BLOCK
+         @language=argument(3)
+         @result=DO(OBJECT_TYPE_FILE:VMETHOD_GET_STRING_REPLACEMENTS)
+      #BLOCK_END
+      #if %b_enable_debugging #then @trash=trace_end
+      #return %result
+   #block_end
+   #when "GET_LOCATION" #block
+     @COMMAND_SOURCE_ID = APL:BNA
+     #IF APL:BSV3 > 0 #THEN @COMMAND_SOURCE_TYPE="STATION"
+     #ELSE @COMMAND_SOURCE_TYPE="REMOTE"
+     #return %COMMAND_SOURCE_TYPE
+   #block_end
+   #when "GET_OPERATOR_PLACE_DATA" #block
+      @result=LIST(-
+         MULTILEVEL_PRESENT = FALSE,-
+         MULTILEVEL_VALUE = -1,-
+         LOC_PRESENT = FALSE,-
+         LOC_VALUE = -1,-
+         LOCSTA_PRESENT = FALSE,-
+         LOCSTA_VALUE = -1)
+
+      #if argument_count > 2 #then #block
+         @t_BAY_LN = argument(3)
+         #IF %t_BAY_LN <> "" #THEN #BLOCK
+            @t_Filter = "RX == ""*IMLT*"""
+            @l_Obs = application_object_list(0, "IX", "I", "F", %t_BAY_LN, %t_Filter, vector("RX"))
+            #loop_with i = 1 .. %l_Obs.COUNT
+               #if substr(%l_Obs.RX(%I),27,4)=="IMLT" #then #block
+                  @result.MULTILEVEL_PRESENT = TRUE
+                  @i_IX = %l_Obs.IX(%i)
+                  #if 't_BAY_LN':pos'i_IX' < 10 #then @result.MULTILEVEL_VALUE = 't_BAY_LN':pov'i_IX'
+               #block_end            
+            #loop_end
+         #BLOCK_END
+      #block_end
+      
+      @t_Filter = "RX == ""*ILRS*"" OR RX == ""*IOPS*"""
+      @l_Obs = application_object_list(0, "IX", "I", "F", %PF_ID, %t_Filter, vector("RX"))
+      
+      #loop_with i = 1 .. %l_Obs.COUNT
+         #if substr(%l_Obs.RX(%I),27,4)=="ILRS" #then #block
+            @result.LOC_PRESENT = TRUE
+            @i_IX = %l_Obs.IX(%i)
+            #if 'PF_ID':pos'i_IX' < 10 #then @result.LOC_VALUE = 'PF_ID':pov'i_IX'
+         #block_end
+         #else_if substr(%l_Obs.RX(%I),27,4)=="IOPS" #then #block
+            @result.LOCSTA_PRESENT = TRUE
+            @i_IX = %l_Obs.IX(%i)
+            #if 'PF_ID':pos'i_IX' < 10 #then @result.LOCSTA_VALUE = 'PF_ID':pov'i_IX'
+         #block_end
+      #loop_end
+
+      #return %result    
+   #block_end
+   #when "GET_SUBSTITUTION" #block
+      #if argument_count > 2 #then @t_TMP = set_language(argument(3))
+      #if argument_count > 3 #then @b_Single_Index = argument(4)
+      #else @b_Single_Index = false
+      
+      @t_LN = %PF_ID
+      #if %b_Single_Index #then #block
+         @t_Filter = "IX == 'PF_INDICATION_INDEX'"
+      #block_end
+      #else @t_Filter = "IX > 0"
+      @v_tmp_DO = vector()
+      
+      @l_Objs = application_object_list(0, "IX", "I", "", %t_LN, "'t_Filter' AND UN <> 0 AND SS == 2 AND OS < 10 AND OS <> 2 AND IN<>"""" AND (PT==3 OR PT==9 OR PT==12)", vector("IN", "PT", "TX", "SB", "OV", "EH"))
+     
+      @l_ret_value = list(status = 0, signals = vector, message = "")
+      #if %l_Objs.COUNT > 0 #then #block
+         
+         #loop_with i = 1 .. %l_Objs.COUNT     
+            @v_data = vector
+            @v_IN = separate(%l_Objs.IN(%i), ".")
+            @t_LD = %v_IN(3)
+            @t_logNode = %v_IN(4)
+            @t_DO = %v_IN(5)
+            #if length(%v_IN) > 6 #then @t_DA = %v_IN(6) + "$subEna"
+            #else @t_DA = "subEna"
+            
+            #if length(select(%v_tmp_DO, "==""'t_logNode''t_DO'""")) == 0 #then #block              
+               @tmp_IX = %l_Objs.IX(%i)
+               @i_UN = 't_LN':PUN'tmp_IX'
+               #if length(%v_IN) == 6 #then @v_tmp_DO = append(%v_tmp_DO, %t_logNode + %t_DO)
+               @s = status
+               #error ignore
+               #SET STA'i_UN':SXT = "GetDataValue&result=noname&LDInst='t_LD'&LNName='t_logNode'&DORef='t_DO'&Attr='t_DA'&FunConstr=SV"
+               #error stop
+               @s = status
+               #if %s == 0 #then #block
+                  @response = STA'i_UN':SXT  
+                  @start = locate(%response , "<v>")
+                  @end = locate(%response , "</v>")
+                  
+                  #if %start > 0 and %end > 0 #then #block
+                     @start = %start + 3                   
+                     @len = %end - %start
+                     @answer = substr(%response, %start, %len)
+      
+                     @tmpIX = %l_Objs.IX(%i)
+                     @tmpEH = 't_LN':PEH'tmpIX'
+                     @vSX = 'tmpEH':HSX
+            
+                     @l_ret_value.signals = append(%l_ret_value.signals, list(-
+                        LOGICAL_DEVICE = %t_LD,-
+                        LOGICAL_NODE = %t_logNode,-
+                        DATA_OBJECT = %t_DO,-
+                        DATA_ATTRIBUTE = %t_DA,-
+                        SB = %l_Objs.SB(%i),-
+                        PT = %l_Objs.PT(%i),-
+                        OV = %l_Objs.OV(%i),-
+                        TX = %l_Objs.TX(%i),-
+                        LN = %l_Objs.LN(%i),-
+                        IX = %l_Objs.IX(%i),-
+                        STATE_TEXTS = %vSX,-
+                        MIN = 0,-
+                        MAX = 0,-
+                        ENABLED = %answer))
+                           
+                  #block_end
+                  #if locate('t_LN':PRX'tmp_IX', "MEAM") > 0 #then #block
+                     @vDataAttrs = ("rangeC$min", "rangeC$max")
+                     @vScilAttrs = ("MIN", "MAX")
+                     #loop_with j = 1 .. length(%vDataAttrs)
+                        #if length(%v_IN) > 6 #then @t_DA = %v_IN(6) + "$" + %vDataAttrs(%j)
+                        #else @t_DA = %vDataAttrs(%j)
+                        #error ignore
+                        @s = status
+                        #SET STA'i_UN':SXT = "GetDataValue&result=noname&LDInst='t_LD'&LNName='t_logNode'&DORef='t_DO'&Attr='t_DA'&FunConstr=CF"
+                        @s = status
+                        #if %s == 0 #then #block
+                           @response = STA'i_UN':SXT
+                           @start = locate(%response , "<v>", "ALL")
+                           @end = locate(%response , "</v>", "ALL")
+                           @start = %start(length(%start)) + 3
+                           @end = %end(length(%end))
+                           @len = %end - %start
+                           @answer = substr(%response, %start, %len)
+                           @tmp = %vScilAttrs(%j)
+                           @l_ret_value.signals(length(%l_ret_value.signals)).'tmp' = %answer
+                        #block_end
+                        #else #block
+                           @tmp = %vScilAttrs(%j)
+                           @l_ret_value.signals(length(%l_ret_value.signals)).'tmp' = 0
+                        #block_end
+                     #loop_end                     
+                  #block_end
+               #block_end  
+               #else #block
+                  #case %s
+                     #when 8303 #block
+                        @t_Message = translation("External OPC DA Client not responding")                 
+                        @l_ret_value = list(status = -1, signals = vector, message = %t_Message)
+                        #loop_exit
+                     #block_end
+                     #when 13206 #block
+                        @t_Message = translation("Index must be 0 in STA:SXT") + ": STA='i_Un'"                    
+                        @l_ret_value = list(status = -1, signals = vector, message = %t_Message)
+                        #loop_exit
+                     #block_end
+                     #when 13208 #block
+                        @t_Message = translation("STA:SXT not configured") + ": STA='i_Un'"                    
+                        @l_ret_value = list(status = -1, signals = vector, message = %t_Message)
+                        #loop_exit
+                     #block_end
+                  #case_end
+               #block_end    
+            #block_end            
+         #loop_end
+      #block_end
+      #else #block
+         @t_Message = translation("No signals having substitution capability found. ") +-
+            translation("Applying filter: ") +- 
+            "UN<>0 AND SS==2 AND OS<10 AND OS<>2 AND IN<>"""""
+         @l_ret_value = list(status = -1, signals = vector, message = %t_Message)
+      #block_end
+      #if %l_ret_value.STATUS == 0 and length(%l_ret_value.SIGNALS) == 0 #then #block
+         @t_Message = translation("No signals having substitution capability found.")
+         @l_ret_value = list(status = -1, signals = vector, message = %t_Message)
+      #block_end
+      #return %l_ret_value
+   #block_end
+    #when "SET_SUBSTITUTION" #block
+      @l_Item = argument(3)
+      @t_LN = %l_Item.LN
+      @i_IX = %l_Item.IX
+      @i_UN = 't_LN':PUN'i_IX'
+      @t_LD = %l_Item.LOGICAL_DEVICE
+      @t_logNode = %l_Item.LOGICAL_NODE
+      @t_DO = %l_Item.DATA_OBJECT
+      @t_DA = %l_Item.DATA_ATTRIBUTE
+      @subVal = "subVal"
+      #if locate('t_LN':PRX'i_IX', "MEAM") > 0 #then #block
+         @subVal = separate(%t_DA, "$")
+         #if length(%subVal) > 1 #then @subVal = %subVal(1) + "$subCVal$mag$f"
+         #else @subVal = "subMag$f"
+      #block_end
+      @value = %l_Item.Value
+      #if %i_UN <> 0 #then #block
+         #error ignore
+         #if %l_Item.ENABLED  == 1 #then #block
+            @b_Enable = "True"
+            #SET STA'i_UN':SXT = "SetDataValue&LDInst='t_LD'&LNName='t_logNode'&DORef='t_DO'&Attr='subVal'&FunConstr=SV&v='value'"
+            @response = STA'i_UN':SXT
+         #block_end
+         #else @b_Enable = "False"
+      
+         #SET STA'i_UN':SXT = "SetDataValue&LDInst='t_LD'&LNName='t_logNode'&DORef='t_DO'&Attr='t_DA'&FunConstr=SV&v='b_Enable'"
+         @response = STA'i_UN':SXT
+      #block_end
+      
+   #block_end
+
+#case_end

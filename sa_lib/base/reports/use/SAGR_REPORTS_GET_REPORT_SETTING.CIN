@@ -1,0 +1,61 @@
+;CM =Interface for Monitor Pro Reports, return some basic report settings
+; Function:    SAGR_REPORTS_GET_REPORT_SETTING:C
+; Version:     3.0 (build 3.2.2012)
+; Parameters:  object and setting name
+; Return data: content .dat file
+; Description: return some basic settings
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#local cot, t_ObjectName = %ArgumentList.Object_Name,-
+       t_AttrName = "", x_SettingValue = -1
+
+@output="ERROR: No such setting available"  
+
+#if t_ObjectName <>"" #then #block
+   t_AttrName = %ArgumentList.SETTING_NAME
+   #if ATTRIBUTE_EXISTS(%l_ReportObjects,"OBJ_'t_ObjectName'") #then -
+      #if ATTRIBUTE_EXISTS(%l_ReportObjects.OBJ_'t_ObjectName',t_AttrName) #then -       
+         x_SettingValue = %l_ReportObjects.OBJ_'t_ObjectName'.'t_AttrName'
+#block_end
+#else #block
+   t_AttrName = ""
+   #case %ArgumentList.SETTING_NAME
+      #when "SD"    #block
+                       @output = %l_GlobalSettings.SP_Delay
+                       #return
+                    #block_end
+      #when "PD"    #block
+                       @output = %l_GlobalSettings.BP_Delay
+                       #return
+                    #block_end
+      #when "BP_HL" #block
+                       #if attribute_exists(%l_PeriodData,"BP_HL_MAX") #then #block
+                          @output = %l_PeriodData.BP_HL_MAX
+                          #return
+                       #block_end
+                       t_AttrName = "BP_HL"
+                    #block_end
+      #when "SP_HL" #block
+                       #if attribute_exists(%l_PeriodData,"SP_HL_MAX") #then #block
+                          @output = %l_PeriodData.SP_HL_MAX
+                          #return
+                       #block_end
+                       t_AttrName = "SP_HL"
+                    #block_end
+      #when "BP"      t_AttrName = "BP"
+      #when "FP"      t_AttrName = "FC"
+      #when "SP"      t_AttrName = "SP"
+     ;*** Following settings are only available as global
+      #when "SP_BUFF" t_AttrName = "SP_BUFFER"
+      #when "BOD"     t_AttrName = "BOD"
+      #when "BOW"     t_AttrName = "BOW"
+      #when "FOREC"   t_AttrName = "FC"
+   #case_end
+   
+   #if ATTRIBUTE_EXISTS(%l_GlobalSettings,t_AttrName) #then -
+      x_SettingValue = %l_GlobalSettings.'t_AttrName'
+#block_end
+
+@output = x_SettingValue

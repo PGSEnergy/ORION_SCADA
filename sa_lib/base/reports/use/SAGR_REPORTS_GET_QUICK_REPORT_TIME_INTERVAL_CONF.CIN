@@ -1,0 +1,44 @@
+;CM =Interface for Monitor Pro Reports, Evaluate the used sampling period values
+; Function:    SAGR_REPORTS_GET_QUICK_REPORT_TIME_INTERVAL_CONF:C
+; Version:     3.0.1.2 (build 21.8.2012)
+; Parameters:  none
+; Return data: possible sampling period value description
+; Description: Evaluate the used sampling period values
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#local i,j,k, i_OrigValLen = 0, i_PeriodSeconds = 180, b_Remove = false, v_used_SP_Periods = vector(),-
+       l_Conf=LIST(Values = %Sampling_Periods,-
+                   Descriptions = vector(-
+                    translation("1 minute"),-
+                    translation("2 minutes"),-
+                    translation("3 minutes"),-
+                    translation("5 minutes"),-
+                    translation("6 minutes"),-
+                    translation("10 minutes"),-
+                    translation("15 minutes"),-
+                    translation("20 minutes"),-
+                    translation("30 minutes")))
+					  
+v_used_SP_Periods = list_attr(%l_PeriodData)
+#if length(select(v_Used_SP_Periods,"==""SP_*""","WILDCARDS"))==0 #then #block   
+   l_Conf.Values = vector(180)                                                  ;*** only default sampling interval is in use
+   l_Conf.Descriptions = vector(translation("3 minutes"))
+#block_end
+#else #block
+   i_origValLen = length(l_Conf.Values)
+   #loop_with i = 1 .. i_OrigValLen
+      j = i_origValLen - i + 1
+      i_PeriodSeconds = l_Conf.Values(j)
+		b_Remove = false
+      #if not attribute_exists(%l_PeriodData,"SP_'i_PeriodSeconds'") #then b_Remove = true
+      #else #if length(%l_PeriodData.SP_'i_PeriodSeconds')==0 #then        b_Remove = true
+      #if b_Remove #then #block
+         l_Conf.Values       = delete_element(l_Conf.Values,       j)
+         l_Conf.Descriptions = delete_element(l_Conf.Descriptions, j)
+      #block_end
+   #loop_end
+#block_end
+
+@output = l_Conf

@@ -1,0 +1,1896 @@
+﻿; This command procedure is used for sending commands to BO process objects depending on the
+; command type and protocol
+;
+; SYS600 10.2.0
+; Compilation status: Compiled
+; DO NOT edit this program without consulting with Hitachi Power Grids.
+;
+;  INPUT:@COMMAND_TYPE, type of the command (direct/secured-2/secured-4/secured-1), integer (COM_DSXREF:C)
+;        @NCC_PROTOCOL, protocol of the NCC sending the command (COM_DSXREF:C)
+;        @OUTPUT_OBJECT_LNS, logical name(s) of the output object(s), text vector (COM_DSXREF:C)
+;        @OUTPUT_OBJECT_IXS, index(es) of the output object(s), integer vector (COM_DSXREF:C)
+;        @CPI_CMD_TYPE, type of the cpi command, integer (COM_DSXREF:C)
+;        @VALUE, control direction (0 = open, 1 = close) (COM_DSXREF:C)
+;        @LN,@IX,@RI, from the command receiving process object
+; OUTPUT:@RI, selection flag (0=not selected,1=selected without direction,2=open select,3=close select),
+;        written to the command receiving process object        
+;------------------------------------------------------------------------------------------------
+
+;read general parameters
+@GEN_INFO = APL:BSV(20)
+
+#CASE %COMMAND_TYPE ; 1
+   #WHEN 5 #BLOCK ; ************** direct control/1 output object (IEC 870-5-103) ***************************************; 2 
+      @CONNECTED_LENGTH_LIMIT = 2
+      @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+      @OUT_IX = %OUTPUT_OBJECT_IXS(1)
+      #IF SUBSTR('OUT_LN':PDX'OUT_IX',1,1) == "C" #THEN #BLOCK ; 3
+         ;information number of the command
+         @INF = ('OUT_LN':POA'OUT_IX' MOD 65536) DIV 256
+         #CASE %NCC_PROTOCOL ; protocol of the NCC ; 4
+            #WHEN 1 #BLOCK ;RP-570 slave protocol ; 5
+               #SET 'OUT_LN':P'OUT_IX' = LIST(OV=%VALUE,CT=20,TY=256*20+%INF)
+            #BLOCK_END ; 5                  
+            #WHEN 2 #BLOCK ;IEC 870-5-101 slave protocol ; 5         
+               #IF %RA == 0 #THEN #SET 'OUT_LN':P'OUT_IX' = LIST(OV=%VALUE,CT=20,TY=256*20+%INF)
+            #BLOCK_END ; 5
+            #WHEN 3 #BLOCK ; 5
+               #CASE %VALUE  ; type of the cpi command ; 6
+                  #WHEN 0,32 #BLOCK ; immediate cmd off, execute cmd off
+                     #SET 'OUT_LN':P'OUT_IX' = LIST(OV=0,CT=20,TY=256*20+%INF)                     
+                  #BLOCK_END ; 7
+                  #WHEN 1,33 #BLOCK ; immediate cmd on, execute cmd on                  
+                     #SET 'OUT_LN':P'OUT_IX' = LIST(OV=1,CT=20,TY=256*20+%INF)                                                                   
+                  #BLOCK_END ; 7
+               #CASE_END ; 6
+            #BLOCK_END ; 5
+            #WHEN 4 #BLOCK ;DNP 3.0 slave protocol ; 6        
+               #IF %RA == 4 OR %RA == 5 OR %RA == 6 #THEN #SET 'OUT_LN':P'OUT_IX' = LIST(OV=%VALUE,CT=20,TY=256*20+%INF)
+            #BLOCK_END ; 5 
+         #CASE_END ; 4                                       
+      #BLOCK_END ; 3
+   #BLOCK_END  ; 2
+   #WHEN 1 #BLOCK ; ************** direct control/1 output object (Other protocols) ***************************************; 2    
+      @CONNECTED_LENGTH_LIMIT = 2
+      @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+      @OUT_IX = %OUTPUT_OBJECT_IXS(1)
+      @DX = SUBSTR('OUT_LN':PDX'OUT_IX',1,1)
+      #CASE %NCC_PROTOCOL ; 3
+         #WHEN 1 #BLOCK ; RP-570 slave ; 4
+            #CASE %DX ;protocol of the output objects ; 5
+               #WHEN "C" #BLOCK ; IEC 870-5-101/104 ; 6
+                  @TY = 'OUT_LN':PTY'OUT_IX' ; type of the command                                                                                                                                                           
+                  #IF  %TY == 0 #THEN @TYPE = 45
+                  #ELSE @TYPE = %TY         
+                  #SET 'OUT_LN':P'OUT_IX' = LIST(OV=%VALUE,CT=6,TY=%TYPE)            
+               #BLOCK_END ;6
+               #WHEN "D" #BLOCK ; DNP 3.0 ; 6
+                  @TY = 'OUT_LN':PTY'OUT_IX' ; type of the command                                                                                                                                                           
+                  #IF  %TY <> 6 #THEN @TYPE = 5 ;direct operate with ack
+                  #ELSE @TYPE = 6 ;direct operate no ack
+                  #SET 'OUT_LN':P'OUT_IX' = LIST(OV=%VALUE,TY=%TYPE,QL=2)            
+               #BLOCK_END ; other protocols ;6
+               #OTHERWISE #SET 'OUT_LN':POV'OUT_IX' = %VALUE ; 6
+            #CASE_END ; 5 
+         #BLOCK_END ; 4     
+         #WHEN 2 #BLOCK ; IEC 101/4 slave ; 4
+            #IF %RA == 0 #THEN #BLOCK ; 5
+               #CASE %DX ;protocol of the output objects ; 6
+                  #WHEN "C" #BLOCK ; IEC 870-5-101/104 ; 7
+                     @TY = 'OUT_LN':PTY'OUT_IX' ; type of the command                                                                                                                                                           
+                     #IF  %TY == 0 #THEN @TYPE = 45
+                     #ELSE @TYPE = %TY         
+                     #SET 'OUT_LN':P'OUT_IX' = LIST(OV=%VALUE,CT=6,TY=%TYPE)            
+                  #BLOCK_END ;7
+                  #WHEN "D" #BLOCK ; DNP 3.0 ; 7
+                     @TY = 'OUT_LN':PTY'OUT_IX' ; type of the command                                                                                                                                                           
+                     #IF  %TY <> 6 #THEN @TYPE = 5 ;direct operate with ack
+                     #ELSE @TYPE = 6 ;direct operate no ack
+                     #SET 'OUT_LN':P'OUT_IX' = LIST(OV=%VALUE,TY=%TYPE,QL=2)            
+                  #BLOCK_END ; other protocols ;7
+                  #OTHERWISE #SET 'OUT_LN':POV'OUT_IX' = %VALUE ; 7
+               #CASE_END ; 6
+            #BLOCK_END ; 5
+         #BLOCK_END ; 4              
+         #WHEN 3 #BLOCK ; CPI ; 4
+           #CASE %VALUE ; 5
+               #WHEN 0,32,64 @DIRECT_VALUE = 0 ; off         
+               #WHEN 1,33,66 @DIRECT_VALUE = 1 ; on
+               #OTHERWISE @DIRECT_VALUE = -1 ; direction not defined
+            #CASE_END ; 5
+            #IF %DIRECT_VALUE <> -1 #THEN #BLOCK ; 5
+               #CASE %DX ;protocol of the output objects ; 6
+                  #WHEN "C" #BLOCK ; IEC 870-5-101/104 ; 7
+                     @TY = 'OUT_LN':PTY'OUT_IX' ; type of the command                                                                                                                                                           
+                     #IF  %TY == 0 #THEN @TYPE = 45
+                     #ELSE @TYPE = %TY         
+                     #SET 'OUT_LN':P'OUT_IX' = LIST(OV=%DIRECT_VALUE,CT=6,TY=%TYPE)            
+                  #BLOCK_END ;7
+                  #WHEN "D" #BLOCK ; DNP 3.0 ; 7
+                     @TY = 'OUT_LN':PTY'OUT_IX' ; type of the command                                                                                                                                                           
+                     #IF  %TY <> 6 #THEN @TYPE = 5 ;direct operate with ack
+                     #ELSE @TYPE = 6 ;direct operate no ack
+                     #SET 'OUT_LN':P'OUT_IX' = LIST(OV=%DIRECT_VALUE,TY=%TYPE,QL=2)            
+                  #BLOCK_END ; other protocols ;7
+                  #OTHERWISE #SET 'OUT_LN':POV'OUT_IX' = %DIRECT_VALUE ; 7
+               #CASE_END ; 6
+            #BLOCK_END ; 5
+         #BLOCK_END ; 4
+         #WHEN 4 #BLOCK ; DNP 3.0 slave ; 4
+            #IF %RA == 4 OR %RA == 5 OR %RA == 6 #THEN #BLOCK ; 5
+               #CASE %DX ;protocol of the output objects ; 6
+                  #WHEN "C" #BLOCK ; IEC 870-5-101/104 ; 7
+                     @TY = 'OUT_LN':PTY'OUT_IX' ; type of the command                                                                                                                                                           
+                     #IF  %TY == 0 #THEN @TYPE = 45
+                     #ELSE @TYPE = %TY         
+                     #SET 'OUT_LN':P'OUT_IX' = LIST(OV=%VALUE,CT=6,TY=%TYPE)            
+                  #BLOCK_END ;7
+                  #WHEN "D" #BLOCK ; DNP 3.0 ; 7
+                     @TY = 'OUT_LN':PTY'OUT_IX' ; type of the command                                                                                                                                                           
+                     #IF  %TY <> 6 #THEN @TYPE = 5 ;direct operate with ack
+                     #ELSE @TYPE = 6 ;direct operate no ack
+                     #SET 'OUT_LN':P'OUT_IX' = LIST(OV=%VALUE,TY=%TYPE,QL=2)            
+                  #BLOCK_END ; other protocols ;7
+                  #OTHERWISE #SET 'OUT_LN':POV'OUT_IX' = %VALUE ; 7
+               #CASE_END ; 6
+            #BLOCK_END ; 5
+         #BLOCK_END ; 4
+      #CASE_END ; 3
+   #BLOCK_END  ; 2  
+   #WHEN 2 #BLOCK ; ************** secured control/2 output objects  ***************************************; 2
+      @CONNECTED_LENGTH_LIMIT = 3
+      @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+      @OUT_IX = %OUTPUT_OBJECT_IXS(1)
+      @DX = SUBSTR('OUT_LN':PDX'OUT_IX',1,1)
+      #CASE %NCC_PROTOCOL ; protocol of the NCC ; 3
+         #WHEN 1 #BLOCK ;RP-570 slave protocol ; 4
+            #IF %VALUE == 0 #THEN @OUT_IND = 1 ; open cmd
+            #ELSE @OUT_IND = 2 ; close cmd
+            @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+            @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+            #CASE %DX ;protocol of the output objects 
+               #WHEN "D" #BLOCK ; DNP 3.0   
+                  #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,TY=5,QL=2)
+               #BLOCK_END
+               #OTHERWISE #BLOCK
+                  #SET 'OUT_LN':POV'OUT_IX' = 1
+               #BLOCK_END 
+            #CASE_END 
+         #BLOCK_END ; 4
+         #WHEN 2 #BLOCK ;IEC 870-5-101/104 slave protocol ; 4
+            #IF %RA == 0 #THEN #BLOCK ; execute
+               #IF %VALUE == 0 #THEN @OUT_IND = 1 ; open cmd
+               #ELSE @OUT_IND = 2 ; close cmd
+               @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+               @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+               #CASE %DX ;protocol of the output objects 
+                  #WHEN "D" #BLOCK ; DNP 3.0   
+                     #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,TY=5,QL=2) 
+                  #BLOCK_END
+                  #OTHERWISE #BLOCK
+                     #SET 'OUT_LN':POV'OUT_IX' = 1
+                  #BLOCK_END 
+               #CASE_END 
+            #BLOCK_END
+         #BLOCK_END ; 4
+         #WHEN 3 #BLOCK ;CPI ; 4
+            #CASE %VALUE  ; type of the cpi command ; 5
+               #WHEN 0,32 #BLOCK ; immediate cmd off, execute cmd off
+                  @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+                  @OUT_IX = %OUTPUT_OBJECT_IXS(1)
+                  #CASE %DX ;protocol of the output objects 
+                     #WHEN "D" #BLOCK ; DNP 3.0   
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=0,TY=5,QL=2)
+                     #BLOCK_END
+                     #OTHERWISE #BLOCK
+                        #SET 'OUT_LN':POV'OUT_IX' = 1
+                     #BLOCK_END 
+                  #CASE_END 
+               #BLOCK_END ; 5
+               #WHEN 1,33 #BLOCK ; immediate cmd on, execute cmd on
+                  @OUT_LN = %OUTPUT_OBJECT_LNS(2)
+                  @OUT_IX = %OUTPUT_OBJECT_IXS(2)
+                  #CASE %DX ;protocol of the output objects 
+                     #WHEN "D" #BLOCK ; DNP 3.0   
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,TY=5,QL=2)
+                     #BLOCK_END
+                     #OTHERWISE #BLOCK
+                        #SET 'OUT_LN':POV'OUT_IX' = 1
+                     #BLOCK_END 
+                  #CASE_END 
+               #BLOCK_END ; 5
+               #WHEN 66 #BLOCK ; select cmd on
+                  ;set selection flag and execute flag reseting procedure
+                  #SET 'LN':PRI'IX' = 2
+                  #EXEC_AFTER GEN_INFO:VCPI_SELECTION_RESET_TIME COM_RESSEL:C (@COM_SELECTION_TIME = %RT+(%RM/1000),-
+                                                                               @COM_SELECTION_LN = %LN,-
+                                                                               @COM_SELECTION_IX = %IX)
+               #BLOCK_END
+               #WHEN 64 #BLOCK ; select cmd off
+                  ;set selection flag and execute flag reseting procedure
+                  #SET 'LN':PRI'IX' = 3
+                  #EXEC_AFTER GEN_INFO:VCPI_SELECTION_RESET_TIME COM_RESSEL:C (@COM_SELECTION_TIME = %RT+(%RM/1000),-
+                                                                               @COM_SELECTION_LN = %LN,-
+                                                                               @COM_SELECTION_IX = %IX)
+               #BLOCK_END
+               #WHEN 97 #BLOCK ; execute cmd without direction
+                  ;if selection flag is up
+                  @RI = 'LN':PRI'IX'
+                  #IF %RI == 2 OR %RI == 3 #THEN #BLOCK
+                     @OUT_LN = %OUTPUT_OBJECT_LNS(%RI-1)
+                     @OUT_IX = %OUTPUT_OBJECT_IXS(%RI-1)
+                     #CASE %DX ;protocol of the output objects 
+                        #WHEN "D" #BLOCK ; DNP 3.0   
+                           #IF %RI == 2 #THEN #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=0,TY=5,QL=2)
+                           #ELSE #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,TY=5,QL=2)
+                        #BLOCK_END
+                        #OTHERWISE #BLOCK
+                           #SET 'OUT_LN':POV'OUT_IX' = 1  
+                        #BLOCK_END 
+                     #CASE_END 
+                     #SET 'LN':PRI'IX' = 3 ; reset flag
+                  #BLOCK_END
+               #BLOCK_END
+            #CASE_END ; 5
+         #BLOCK_END ; 4
+         #WHEN 4 #BLOCK ;DNP 3.0 slave ; 4        
+            ;perform command depending on the function code                    
+            #CASE %RA ; 5  
+               ;operate, direct operate, direct operate no ack  
+               #WHEN 4,5,6 #BLOCK ; 6         
+                  #IF %VALUE == 0 #THEN @OUT_IND = 1 ; open cmd
+                  #ELSE @OUT_IND = 2 ; close cmd
+                  @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                  @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                  #CASE %DX ;protocol of the output objects 
+                     #WHEN "D" #BLOCK ; DNP 3.0   
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,TY=5,QL=2) 
+                     #BLOCK_END
+                     #OTHERWISE #BLOCK
+                        #SET 'OUT_LN':POV'OUT_IX' = 1
+                     #BLOCK_END 
+                  #CASE_END 
+               #BLOCK_END ; 6
+            #CASE_END ; 5                                   
+         #BLOCK_END ; 4                
+      #CASE_END ; 3
+   #BLOCK_END  ; 2
+   #WHEN 3 #BLOCK ; ************** secured control/4 output objects  ; 2 ************************************
+      @CONNECTED_LENGTH_LIMIT = 5
+      @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+      @OUT_IX = %OUTPUT_OBJECT_IXS(1)
+      #CASE %NCC_PROTOCOL ; protocol of the NCC ; 3
+         #WHEN 1 #BLOCK ;RP-570 slave protocol ; 4
+            @EXEC_LN = %OUTPUT_OBJECT_LNS(3)
+            @EXEC_IX = %OUTPUT_OBJECT_IXS(3)
+            #CASE 'EXEC_LN':PDX'EXEC_IX' ;protocol of the output objects ; 5 
+               #WHEN "X1","5","N1","E1","G5","I1"  #BLOCK; LON, ANSI, SPA, IEC61850, OPC, Modbus ; 6
+                  #IF %VALUE == 0 #THEN @OUT_IND = 1 ; open cmd ; 7
+                  #ELSE @OUT_IND = 2 ; close cmd  ; 7
+                  @SEL_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                  @SEL_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                  #SET 'SEL_LN':POV'SEL_IX' = 1 ; select
+                  #IF %RA == 0 #THEN #BLOCK   
+                     #IF 'EXEC_LN':PDX'EXEC_IX' == "X1" OR 'EXEC_LN':PDX'EXEC_IX' == "E1" OR 'EXEC_LN':PDX'EXEC_IX' == "G5" OR 'EXEC_LN':PDX'EXEC_IX' == "I1" #THEN #BLOCK
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                     #BLOCK_END
+                     #SET 'EXEC_LN':POV'EXEC_IX' = 1 ; execute
+                  #BLOCK_END
+                  #ELSE_IF %RA == 2 OR %RA == 4 #THEN #BLOCK
+                     #IF STATUS == 0 #THEN #BLOCK
+                        #IF 'EXEC_LN':PDX'EXEC_IX' == "X1" OR 'EXEC_LN':PDX'EXEC_IX' == "E1" OR 'EXEC_LN':PDX'EXEC_IX' == "G5" OR 'EXEC_LN':PDX'EXEC_IX' == "I1" #THEN #BLOCK
+                           #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                        #BLOCK_END
+                        #SET 'EXEC_LN':POV'EXEC_IX' = 1 ; execute
+                        @COMMAND_STATUS = STATUS
+                     #BLOCK_END
+                     #ELSE @COMMAND_STATUS = 1
+                  #BLOCK_END   
+               #BLOCK_END ; 6
+            #CASE_END ; 5
+          #BLOCK_END ; 4   
+          #WHEN 2 #BLOCK ;IEC 870-5-101/104 slave protocol ; 4
+             #CASE 'OUT_LN':PDX'OUT_IX' ;protocol of the output objects ; 5 
+               #WHEN "X1","5","N1", "E1","G5","I1" #BLOCK; LON, ANSI, SPA, IEC61850, OPC, Modbus ; 6
+                  #IF %IEC_COMMAND_RECEIVED_WITHOUT_SELECT OR BIT(%SIGNAL_HANDLING_ATTRS,3) == 1 #THEN #BLOCK ;7
+                     #IF %VALUE == 0 #THEN #BLOCK ; 8
+                        #IF %RA == 0 AND %CT == 6 #THEN #BLOCK ;9
+                           @OUT_IND = 1 ; open select
+                           @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                           @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                           #SET 'OUT_LN':POV'OUT_IX' = 1   
+                           #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                           @OUT_IND = 3 ; execute
+                           @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                           @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                           #SET 'OUT_LN':POV'OUT_IX' = 1  
+                        #BLOCK_END ;9
+                     #BLOCK_END ;8
+                     #ELSE #BLOCK ;8
+                        #IF %RA == 0 AND %CT == 6 #THEN #BLOCK ;9
+                           @OUT_IND = 2 ; close select
+                           @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                           @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                           #SET 'OUT_LN':POV'OUT_IX' = 1   
+                           #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                           @OUT_IND = 3 ; execute
+                           @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                           @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                           #SET 'OUT_LN':POV'OUT_IX' = 1  
+                        #BLOCK_END ;9
+                     #BLOCK_END ;8      
+                  #BLOCK_END ;7
+                  #ELSE #BLOCK
+                      #IF %VALUE == 0 #THEN #BLOCK ; 8
+                         #IF %RA == 0 #THEN #BLOCK ;9
+                            @OUT_IND = 3 ; execute
+                            #IF 'OUT_LN':PDX'OUT_IX' == "X1" OR 'OUT_LN':PDX'OUT_IX' == "E1" OR 'OUT_LN':PDX'OUT_IX' == "G5" OR 'OUT_LN':PDX'OUT_IX' == "I1" #THEN #BLOCK
+                              #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                            #BLOCK_END
+                         #BLOCK_END ;9   
+                         #ELSE_IF %RA == 1 AND %CT == 6 #THEN @OUT_IND = 1 ; open select
+                         #ELSE_IF %RA == 1 AND %CT == 8 #THEN @OUT_IND = 4 ; cancel
+                      #BLOCK_END  ; 8
+                      #ELSE #BLOCK ; 8
+                         #IF %RA == 0 #THEN #BLOCK ;9
+                            @OUT_IND = 3 ; execute
+                            #IF 'OUT_LN':PDX'OUT_IX' == "X1" OR 'OUT_LN':PDX'OUT_IX' == "E1" OR 'OUT_LN':PDX'OUT_IX' == "G5" OR 'OUT_LN':PDX'OUT_IX' == "I1" #THEN #BLOCK
+                              #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                            #BLOCK_END
+                         #BLOCK_END ;9   
+                         #ELSE_IF %RA == 1 AND %CT == 6 #THEN @OUT_IND = 2 ; close select
+                         #ELSE_IF %RA == 1 AND %CT == 8 #THEN @OUT_IND = 4 ; cancel
+                      #BLOCK_END ; 8
+                      @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                      @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                      #SET 'OUT_LN':POV'OUT_IX' = 1
+                  #BLOCK_END ;7    
+               #BLOCK_END ; 6
+            #CASE_END  ; 5
+         #BLOCK_END ; 4
+         #WHEN 3 #BLOCK ;CPI ; 4
+             #CASE 'OUT_LN':PDX'OUT_IX' ;protocol of the output objects ; 5 
+               #WHEN "X1","5","N1","E1","G5","I1" #BLOCK; LON, ANSI, SPA , IEC61850, OPC, Modbus; 6
+                   #CASE %VALUE  ; type of the cpi command ; 7
+                      #WHEN 0 #BLOCK ; immediate cmd off
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(1)
+                         #SET 'OUT_LN':POV'OUT_IX' = 1  ; open select
+                         #IF 'OUT_LN':PDX'OUT_IX' == "X1" OR 'OUT_LN':PDX'OUT_IX' == "E1" OR 'OUT_LN':PDX'OUT_IX' == "G5" OR 'OUT_LN':PDX'OUT_IX' == "I1" #THEN #BLOCK
+                           #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                         #BLOCK_END
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(3)
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(3)
+                         #SET 'OUT_LN':POV'OUT_IX' = 1  ; execute
+                      #BLOCK_END
+                      #WHEN 1 #BLOCK ; immediate cmd on
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(2)
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(2)
+                         #SET 'OUT_LN':POV'OUT_IX' = 1  ; close select
+                         #IF 'OUT_LN':PDX'OUT_IX' == "X1" OR 'OUT_LN':PDX'OUT_IX' == "E1" OR 'OUT_LN':PDX'OUT_IX' == "G5" OR 'OUT_LN':PDX'OUT_IX' == "I1" #THEN #BLOCK
+                           #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                         #BLOCK_END
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(3)
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(3)
+                         #SET 'OUT_LN':POV'OUT_IX' = 1  ; execute
+                      #BLOCK_END
+                      #WHEN 16,96 #BLOCK ; cancel cmd with or without direction
+                         ;reset selection flag
+                         #SET 'LN':PRI'IX' = 0
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(4)
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(4)
+                         #SET 'OUT_LN':POV'OUT_IX' = 1  ; cancel
+                      #BLOCK_END
+                      #WHEN 17 #BLOCK ; select cmd without direction
+                         ;set selection flag and execute flag reseting procedure
+                         #SET 'LN':PRI'IX' = 1
+                         #EXEC_AFTER GEN_INFO:VCPI_SELECTION_RESET_TIME COM_RESSEL:C (@COM_SELECTION_TIME = %RT+(%RM/1000),-
+                                                                                      @COM_SELECTION_LN = %LN,-
+                                                                                      @COM_SELECTION_IX = %IX)
+                      #BLOCK_END
+                      #WHEN 32 #BLOCK ; execute cmd off
+                         ;if selection flag is up, send also select command
+                         #IF 'LN':PRI'IX' == 1 #THEN #BLOCK
+                            @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+                            @OUT_IX = %OUTPUT_OBJECT_IXS(1)
+                            #SET 'OUT_LN':POV'OUT_IX' = 1  ; open select                            
+                         #BLOCK_END
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(3)
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(3)
+                         #IF 'OUT_LN':PDX'OUT_IX' == "X1" OR 'OUT_LN':PDX'OUT_IX' == "E1" OR 'OUT_LN':PDX'OUT_IX' == "G5" OR 'OUT_LN':PDX'OUT_IX' == "I1" #THEN #BLOCK
+                           #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                         #BLOCK_END
+                         #SET 'OUT_LN':POV'OUT_IX' = 1  ; execute
+                         #SET 'LN':PRI'IX' = 0 ; reset flag
+                      #BLOCK_END
+                      #WHEN 33 #BLOCK ; execute cmd on
+                         ;if selection flag is up, send also select command 
+                         #IF 'LN':PRI'IX' == 1 #THEN #BLOCK
+                            @OUT_LN = %OUTPUT_OBJECT_LNS(2)
+                            @OUT_IX = %OUTPUT_OBJECT_IXS(2)
+                            #SET 'OUT_LN':POV'OUT_IX' = 1  ; close select                           
+                         #BLOCK_END                         
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(3)
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(3)
+                         #IF 'OUT_LN':PDX'OUT_IX' == "X1" OR 'OUT_LN':PDX'OUT_IX' == "E1" OR 'OUT_LN':PDX'OUT_IX' == "G5" OR 'OUT_LN':PDX'OUT_IX' == "I1" #THEN #BLOCK
+                           #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                         #BLOCK_END
+                         #SET 'OUT_LN':POV'OUT_IX' = 1  ; execute
+                         #SET 'LN':PRI'IX' = 0 ; reset flag
+                      #BLOCK_END
+                      #WHEN 64 #BLOCK ; select cmd off
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(1)
+                         #SET 'OUT_LN':POV'OUT_IX' = 1  ; open select
+                         ;set selection flag and execute flag reseting procedure
+                         #SET 'LN':PRI'IX' = 2
+                         #EXEC_AFTER GEN_INFO:VCPI_SELECTION_RESET_TIME COM_RESSEL:C (@COM_SELECTION_TIME = %RT+(%RM/1000),-
+                                                                                      @COM_SELECTION_LN = %LN,-
+                                                                                      @COM_SELECTION_IX = %IX)
+                      #BLOCK_END
+                      #WHEN 66 #BLOCK ; select cmd on
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(2)
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(2)
+                         #SET 'OUT_LN':POV'OUT_IX' = 1  ; close select
+                         ;set selection flag and execute flag reseting procedure
+                         #SET 'LN':PRI'IX' = 3
+                         #EXEC_AFTER GEN_INFO:VCPI_SELECTION_RESET_TIME COM_RESSEL:C (@COM_SELECTION_TIME = %RT+(%RM/1000),-
+                                                                                      @COM_SELECTION_LN = %LN,-
+                                                                                      @COM_SELECTION_IX = %IX)
+                      #BLOCK_END 
+                      #WHEN 97 #BLOCK ; execute cmd without direction
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(3)
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(3)
+                         #IF 'OUT_LN':PDX'OUT_IX' == "X1" OR 'OUT_LN':PDX'OUT_IX' == "E1" OR 'OUT_LN':PDX'OUT_IX' == "G5" OR 'OUT_LN':PDX'OUT_IX' == "I1" #THEN #BLOCK
+                           #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                         #BLOCK_END
+                         #SET 'OUT_LN':POV'OUT_IX' = 1  ; execute
+                         #SET 'LN':PRI'IX' = 0 ; reset flag
+                      #BLOCK_END
+                   #CASE_END ; 7
+               #BLOCK_END ; 6
+            #CASE_END  ; 5
+         #BLOCK_END ; 4
+         #WHEN 4 #BLOCK ;DNP 3.0 slave ; 4  
+             #CASE 'OUT_LN':PDX'OUT_IX' ;protocol of the output objects ; 5 
+                #WHEN "X1","5","N1","E1","G5","I1" #BLOCK; LON, ANSI, SPA, IEC61850, OPC, Modbus ; 6               
+                   ;perform command depending on the function code                    
+                   #CASE %RA ; 7         
+                      ;select 
+                      #WHEN 3 #BLOCK ; 8
+                         #IF %VALUE == 1 #THEN @OUT_IND = 2 ; close select
+                         #ELSE @OUT_IND = 1 ; open select
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                         #SET 'OUT_LN':POV'OUT_IX' = 1                 
+                      #BLOCK_END ; 8
+                      ;operate 
+                      #WHEN 4 #BLOCK ; 8         
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(3) ; execute
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(3)
+                         #IF 'OUT_LN':PDX'OUT_IX' == "X1" OR 'OUT_LN':PDX'OUT_IX' == "E1" OR 'OUT_LN':PDX'OUT_IX' == "G5" OR 'OUT_LN':PDX'OUT_IX' == "I1" #THEN #BLOCK
+                           #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                         #BLOCK_END
+                         #SET 'OUT_LN':POV'OUT_IX' = 1                     
+                      #BLOCK_END ; 8
+                      ;direct operate, direct operate no ack 
+                      #WHEN 5,6 #BLOCK ; 8   
+                         #IF %VALUE == 1 #THEN @OUT_IND = 2 ; close select
+                         #ELSE @OUT_IND = 1 ; open select
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                         #SET 'OUT_LN':POV'OUT_IX' = 1
+                         #IF 'OUT_LN':PDX'OUT_IX' == "X1" OR 'OUT_LN':PDX'OUT_IX' == "E1" OR 'OUT_LN':PDX'OUT_IX' == "G5" OR 'OUT_LN':PDX'OUT_IX' == "I1" #THEN #BLOCK
+                           #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                         #BLOCK_END
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(3) ; execute
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(3)
+                         #SET 'OUT_LN':POV'OUT_IX' = 1                                                
+                      #BLOCK_END ; 8          
+                  #CASE_END ; 7
+               #BLOCK_END ; 6
+            #CASE_END ; 5         
+         #BLOCK_END ; 4         
+      #CASE_END  ; 3
+   #BLOCK_END  ; 2
+   #WHEN 4 #BLOCK ;  ************** secured control/1 output object  ; 2 *************************************
+      @CONNECTED_LENGTH_LIMIT = 2
+      @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+      @OUT_IX = %OUTPUT_OBJECT_IXS(1)      
+      #IF 'LN':PTY'IX' == 0 #THEN @TYPE = 46 ; type of the command
+      #ELSE @TYPE = 'LN':PTY'IX'
+      #CASE %NCC_PROTOCOL ; protocol of the NCC ; 3
+         #WHEN 1 #BLOCK ;RP-570 slave protocol ; 4
+            #CASE 'OUT_LN':PDX'OUT_IX' ;protocol of the output objects ; 5
+               #WHEN "R1","I1" #BLOCK ; RP 570,Modbus master ; 6
+                  #SET 'OUT_LN':PSE'OUT_IX' = 1 ; select
+                  #IF %RA == 0 #THEN #BLOCK  
+                     #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                     #SET 'OUT_LN':POV'OUT_IX' = %VALUE ; execute
+                  #BLOCK_END
+                  #ELSE_IF %RA == 2 OR %RA == 4 #THEN #BLOCK
+                     #IF STATUS == 0 #THEN #BLOCK
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = %VALUE ; execute
+                        @COMMAND_STATUS = STATUS
+                     #BLOCK_END
+                     #ELSE @COMMAND_STATUS = 1
+                  #BLOCK_END   
+               #BLOCK_END ; 6
+               #WHEN "C5" #BLOCK ; IEC 101/104 master ; 6
+                  #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=%VALUE,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; select
+                  #IF %RA == 0 #THEN #BLOCK  
+                     #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                     #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; execute
+                  #BLOCK_END
+                  #ELSE_IF %RA == 2 OR %RA == 4 #THEN #BLOCK
+                     #IF STATUS == 0 #THEN #BLOCK
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; execute
+                        @COMMAND_STATUS = STATUS
+                     #BLOCK_END
+                     #ELSE @COMMAND_STATUS = 1
+                  #BLOCK_END   
+               #BLOCK_END ; 6
+               #WHEN "D5" #BLOCK ; DNP 3.0 ; 6
+                  #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=%VALUE,TY=3,QL=2) ; select
+                  #IF %RA == 0 #THEN #BLOCK  
+                     #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                     #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,TY=4,QL=2) ; execute
+                  #BLOCK_END
+                  #ELSE_IF %RA == 2 OR %RA == 4 #THEN #BLOCK
+                     #IF STATUS == 0 #THEN #BLOCK
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,TY=4,QL=2) ; execute
+                        @COMMAND_STATUS = STATUS
+                     #BLOCK_END
+                     #ELSE @COMMAND_STATUS = 1
+                  #BLOCK_END   
+               #BLOCK_END ; 6
+               #WHEN "X1" #BLOCK ;  LON (LAG 1.3 & 1.4) ; 6
+                  #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=%VALUE,CT=6,OG=%ORIGINATOR,TY=%TYPE) ; select
+                  #IF %RA == 0 #THEN #BLOCK  
+                     #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                     #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,CT=6,OG=%ORIGINATOR,TY=%TYPE) ; execute
+                  #BLOCK_END
+                  #ELSE_IF %RA == 2 OR %RA == 4 #THEN #BLOCK
+                     #IF STATUS == 0 #THEN #BLOCK
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,CT=6,OG=%ORIGINATOR,TY=%TYPE) ; execute
+                        @COMMAND_STATUS = STATUS
+                     #BLOCK_END
+                     #ELSE @COMMAND_STATUS = 1
+                  #BLOCK_END   
+               #BLOCK_END ; 6               
+            #CASE_END  ; 5
+         #BLOCK_END ; 4
+         #WHEN 2 #BLOCK ;IEC 870-5-101/104 slave protocol ; 4
+            #CASE 'OUT_LN':PDX'OUT_IX' ;protocol of the output objects ; 5
+               #WHEN "R1","I1" #BLOCK ; RP 570,Modbus master ; 6
+                  #IF %IEC_COMMAND_RECEIVED_WITHOUT_SELECT OR BIT(%SIGNAL_HANDLING_ATTRS,3) == 1 #THEN #BLOCK ;7
+                     #IF %RA == 0 AND %CT == 6 #THEN #BLOCK ;8
+                        #SET 'OUT_LN':PSE'OUT_IX' = 1 ; select
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = %VALUE ; execute
+                     #BLOCK_END ;8  
+                  #BLOCK_END ;7
+                  #ELSE #BLOCK ;7                  
+                     #IF %RA == 0 #THEN #SET 'OUT_LN':POV'OUT_IX' = %VALUE ; execute
+                     #ELSE_IF %RA == 1 AND %CT == 6 #THEN #SET 'OUT_LN':PSE'OUT_IX' = 1 ; select
+                     #ELSE_IF %RA == 1 AND %CT == 8 #THEN #SET 'OUT_LN':PSE'OUT_IX' = 0 ; cancel
+                  #BLOCK_END ;7
+               #BLOCK_END ;6
+               #WHEN "C5" #BLOCK ; IEC 101/104 master ; 6
+                  #IF %IEC_COMMAND_RECEIVED_WITHOUT_SELECT OR BIT(%SIGNAL_HANDLING_ATTRS,3) == 1 #THEN #BLOCK ;7
+                     #IF %RA == 0 AND %CT == 6 #THEN #BLOCK ;8
+                        #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=%VALUE,CT=%CT,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; select
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,CT=%CT,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; execute
+                     #BLOCK_END ;8   
+                  #BLOCK_END ;7
+                  #ELSE #BLOCK ;7
+                     #IF %RA == 0 #THEN #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,CT=%CT,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; execute
+                     #ELSE_IF %RA == 1 AND %CT == 6 #THEN #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=%VALUE,CT=%CT,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; select
+                     #ELSE_IF %RA == 1 AND %CT == 8 #THEN #SET 'OUT_LN':PSE'OUT_IX' = LIST(SE=0,CT=%CT,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; cancel
+                  #BLOCK_END ;7   
+               #BLOCK_END ; 6
+               #WHEN "D5" #BLOCK ; DNP 3.0 master ; 6
+                  #IF %IEC_COMMAND_RECEIVED_WITHOUT_SELECT OR BIT(%SIGNAL_HANDLING_ATTRS,3) == 1 #THEN #BLOCK ;7
+                     #IF %RA == 0 AND %CT == 6 #THEN #BLOCK ;8
+                        #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=%VALUE,TY=3,QL=2) ; select
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,TY=4,QL=2) ; execute
+                     #BLOCK_END ;8   
+                  #BLOCK_END ;7
+                  #ELSE #BLOCK ;7
+                     #IF %RA == 0 #THEN #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,TY=4,QL=2) ; execute
+                     #ELSE_IF %RA == 1 AND %CT == 6 #THEN #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=%VALUE,TY=3,QL=2) ; select
+                  #BLOCK_END ;7
+               #BLOCK_END ; 6               
+               #WHEN "X1" #BLOCK ; LON (LAG 1.3 & 1.4) ; 6
+                  #IF %IEC_COMMAND_RECEIVED_WITHOUT_SELECT OR BIT(%SIGNAL_HANDLING_ATTRS,3) == 1 #THEN #BLOCK ;7
+                     #IF %RA == 0 AND %CT == 6 #THEN #BLOCK ;8
+                        #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=%VALUE,CT=%CT,OG=%ORIGINATOR,TY=%TYPE) ; select
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,CT=%CT,OG=%ORIGINATOR,TY=%TYPE) ; execute
+                     #BLOCK_END ;8 
+                  #BLOCK_END ;7
+                  #ELSE #BLOCK ;7               
+                     #IF %RA == 0 #THEN #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,CT=%CT,OG=%ORIGINATOR,TY=%TYPE) ; execute
+                     #ELSE_IF %RA == 1 AND %CT == 6 #THEN #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=%VALUE,CT=%CT,OG=%ORIGINATOR,TY=%TYPE) ; select
+                     #ELSE_IF %RA == 1 AND %CT == 8 #THEN #SET 'OUT_LN':PSE'OUT_IX' = LIST(SE=0,CT=%CT,OG=%ORIGINATOR,TY=%TYPE) ; cancel 
+                  #BLOCK_END ;7
+               #BLOCK_END ; 6               
+            #CASE_END  ; 5
+         #BLOCK_END ; 4
+         #WHEN 3 #BLOCK ;CPI ; 4
+            #CASE 'OUT_LN':PDX'OUT_IX' ;protocol of the output objects ; 5
+               #WHEN "R1","I1" #BLOCK ; RP 570,Modbus master ; 6
+                  #CASE %VALUE  ; type of the cpi command ; 7
+                     #WHEN 0 #BLOCK ; immediate cmd off
+                        #SET 'OUT_LN':PSE'OUT_IX' = 1 ; select
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = 0 ; execute
+                     #BLOCK_END
+                     #WHEN 1 #BLOCK ; immediate cmd on
+                        #SET 'OUT_LN':PSE'OUT_IX' = 1 ; select
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = 1 ; execute                     
+                     #BLOCK_END
+                     #WHEN 16,96 #BLOCK ; cancel cmd with or without direction
+                        #SET 'OUT_LN':PSE'OUT_IX' = 0
+                        #SET 'LN':PRI'IX' = 0 ; reset flag                       
+                     #BLOCK_END
+                     #WHEN 17 #SET 'OUT_LN':PSE'OUT_IX' = 1 ; select cmd without direction
+                     #WHEN 32 #SET 'OUT_LN':POV'OUT_IX' = 0 ; execute cmd off
+                     #WHEN 33 #SET 'OUT_LN':POV'OUT_IX' = 1 ; execute cmd on
+                     #WHEN 64 #BLOCK ; select off cmd
+                        #SET 'OUT_LN':PSE'OUT_IX' = 1
+                        ;set selection flag and execute flag reseting procedure
+                        #SET 'LN':PRI'IX' = 2
+                        #EXEC_AFTER GEN_INFO:VCPI_SELECTION_RESET_TIME COM_RESSEL:C (@COM_SELECTION_TIME = %RT+(%RM/1000),-
+                                                                                     @COM_SELECTION_LN = %LN,-
+                                                                                     @COM_SELECTION_IX = %IX)
+                     #BLOCK_END
+                     #WHEN 66 #BLOCK ; select on cmd
+                        #SET 'OUT_LN':PSE'OUT_IX' = 1
+                        ;set selection flag and execute flag reseting procedure
+                        #SET 'LN':PRI'IX' = 3
+                        #EXEC_AFTER GEN_INFO:VCPI_SELECTION_RESET_TIME COM_RESSEL:C (@COM_SELECTION_TIME = %RT+(%RM/1000),-
+                                                                                     @COM_SELECTION_LN = %LN,-
+                                                                                     @COM_SELECTION_IX = %IX)
+                     #BLOCK_END
+                     #WHEN 97 #BLOCK ; execute cmd without direction
+                        ;if selection flag is not up send execute cmd to the direction of selection
+                        #IF 'LN':PRI'IX' <> 0 #THEN #BLOCK                            
+                            @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+                            @OUT_IX = %OUTPUT_OBJECT_IXS(1)
+                            #SET 'OUT_LN':POV'OUT_IX' = 'LN':PRI'IX' - 2  
+                            #SET 'LN':PRI'IX' = 0 ; reset flag                       
+                         #BLOCK_END
+                     #BLOCK_END
+                  #CASE_END ; 7
+               #BLOCK_END
+               #WHEN "C5" #BLOCK ; IEC 101/104 master; 6
+                  #CASE %VALUE  ; type of the cpi command ; 7
+                     #WHEN 0 #BLOCK ; immediate cmd off
+                        #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=0,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; select
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=0,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; execute
+                     #BLOCK_END
+                     #WHEN 1 #BLOCK ; immediate cmd on
+                        #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; select
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; execute
+                     #BLOCK_END
+                     #WHEN 16,96 #SET 'OUT_LN':PSE'OUT_IX' = LIST(SE=0,CT=8,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; cancel cmd with or without direction
+                     #WHEN 17 #BLOCK ; select cmd without direction
+                        ;set selection flag and execute flag reseting procedure
+                        #SET 'LN':PRI'IX' = 1
+                        #EXEC_AFTER GEN_INFO:VCPI_SELECTION_RESET_TIME COM_RESSEL:C (@COM_SELECTION_TIME = %RT+(%RM/1000),-
+                                                                                     @COM_SELECTION_LN = %LN,-
+                                                                                     @COM_SELECTION_IX = %IX)
+                     #BLOCK_END
+                     #WHEN 32 #BLOCK ; execute cmd off
+                        ;if selection flag is up, send also select cmd
+                        #IF 'LN':PRI'IX' == 1 #THEN #BLOCK
+                           #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=0,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1)
+                           #SET 'LN':PRI'IX' = 0 ; reset flag 
+                        #BLOCK_END
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=0,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) 
+                     #BLOCK_END
+                     #WHEN 33 #BLOCK ; execute cmd on
+                        ;if selection flag is up, send also select cmd
+                        #IF 'LN':PRI'IX' == 1 #THEN #BLOCK
+                           #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1)
+                           #SET 'LN':PRI'IX' = 0 ; reset flag 
+                        #BLOCK_END
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1)
+                     #BLOCK_END 
+                     #WHEN 64 #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=0,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; select cmd off
+                     #WHEN 66 #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; select cmd on                        
+                  #CASE_END ; 7
+               #BLOCK_END ; 6               
+               #WHEN "D5" #BLOCK ; DNP 3.0 master; 6
+                  #CASE %VALUE  ; type of the cpi command ; 7
+                     #WHEN 0 #BLOCK ; immediate cmd off
+                        #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=0,TY=3,QL=2) ; select
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=0,TY=4,QL=2) ; execute
+                     #BLOCK_END
+                     #WHEN 1 #BLOCK ; immediate cmd on
+                        #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,TY=3,QL=2) ; select
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,TY=4,QL=2) ; execute
+                     #BLOCK_END
+                     #WHEN 16,96 #SET 'OUT_LN':PSE'OUT_IX' = LIST(SE=0,TY=%TYPE,QL=2) ; cancel cmd with or without direction
+                     #WHEN 17 #BLOCK ; select cmd without direction
+                        ;set selection flag and execute flag reseting procedure
+                        #SET 'LN':PRI'IX' = 1
+                        #EXEC_AFTER GEN_INFO:VCPI_SELECTION_RESET_TIME COM_RESSEL:C (@COM_SELECTION_TIME = %RT+(%RM/1000),-
+                                                                                     @COM_SELECTION_LN = %LN,-
+                                                                                     @COM_SELECTION_IX = %IX)
+                     #BLOCK_END
+                     #WHEN 32 #BLOCK ; execute cmd off
+                        ;if selection flag is up, send also select cmd
+                        #IF 'LN':PRI'IX' == 1 #THEN #BLOCK
+                           #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=0,TY=4,QL=2)
+                           #SET 'LN':PRI'IX' = 0 ; reset flag 
+                        #BLOCK_END
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=0,TY=4,QL=2) 
+                     #BLOCK_END
+                     #WHEN 33 #BLOCK ; execute cmd on
+                        ;if selection flag is up, send also select cmd
+                        #IF 'LN':PRI'IX' == 1 #THEN #BLOCK
+                           #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,TY=4,QL=2)
+                           #SET 'LN':PRI'IX' = 0 ; reset flag 
+                        #BLOCK_END
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,TY=4,QL=2)
+                     #BLOCK_END 
+                     #WHEN 64 #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=0,TY=3,QL=2) ; select cmd off
+                     #WHEN 66 #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,TY=3,QL=2) ; select cmd on                        
+                  #CASE_END ; 7
+               #BLOCK_END ; 6                              
+               #WHEN "X1" #BLOCK ; LON (LAG 1.3 & 1.4) ; 6
+                  #IF 'LN':PTY'IX' == 0 #THEN @TYPE = 45 ; type of the command
+                  #ELSE @TYPE = 'LN':PTY'IX'
+                  #CASE %VALUE  ; type of the cpi command ; 7
+                     #WHEN 0 #BLOCK ; immediate cmd off
+                        #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=0,CT=6,OG=%ORIGINATOR,TY=%TYPE) ; select
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=0,CT=6,OG=%ORIGINATOR,TY=%TYPE) ; execute
+                     #BLOCK_END
+                     #WHEN 1 #BLOCK ; immediate cmd on
+                        #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE) ; select
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE) ; execute
+                     #BLOCK_END
+                     #WHEN 16,96 #SET 'OUT_LN':PSE'OUT_IX' = LIST(SE=0,CT=8,OG=%ORIGINATOR,TY=%TYPE) ; cancel cmd with or without direction
+                     #WHEN 17 #BLOCK ; select cmd without direction
+                        ;set selection flag and execute flag reseting procedure
+                        #SET 'LN':PRI'IX' = 1
+                        #EXEC_AFTER GEN_INFO:VCPI_SELECTION_RESET_TIME COM_RESSEL:C (@COM_SELECTION_TIME = %RT+(%RM/1000),-
+                                                                                     @COM_SELECTION_LN = %LN,-
+                                                                                     @COM_SELECTION_IX = %IX)
+                     #BLOCK_END
+                     #WHEN 32 #BLOCK ; execute cmd off
+                        ;if selection flag is up, send also select cmd
+                        #IF 'LN':PRI'IX' == 1 #THEN #BLOCK
+                           #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=0,CT=6,OG=%ORIGINATOR,TY=%TYPE)
+                           #SET 'LN':PRI'IX' = 0 ; reset flag 
+                        #BLOCK_END
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=0,CT=6,OG=%ORIGINATOR,TY=%TYPE) 
+                     #BLOCK_END
+                     #WHEN 33 #BLOCK ; execute cmd on
+                        ;if selection flag is up, send also select cmd
+                        #IF 'LN':PRI'IX' == 1 #THEN #BLOCK
+                           #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE)
+                           #SET 'LN':PRI'IX' = 0 ; reset flag 
+                        #BLOCK_END
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE)
+                     #BLOCK_END 
+                     #WHEN 64 #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=0,CT=6,OG=%ORIGINATOR,TY=%TYPE) ; select cmd off
+                     #WHEN 66 #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE) ; select cmd on                        
+                  #CASE_END ; 7
+               #BLOCK_END ; 6               
+            #CASE_END  ; 5
+         #BLOCK_END ; 4
+         #WHEN 4 #BLOCK ;DNP 3.0 slave ; 4
+            #CASE 'OUT_LN':PDX'OUT_IX' ;protocol of the output objects ; 5
+               #WHEN "R1","I1" #BLOCK ; RP 570,Modbus master ; 6            
+                  ;perform command depending on the function code                    
+                  #CASE %RA ; 7  
+                     ;select 
+                     #WHEN 3 #BLOCK ; 8         
+                        #SET 'OUT_LN':PSE'OUT_IX' = 1 ; select                    
+                     #BLOCK_END ; 8
+                     ;operate 
+                     #WHEN 4 #BLOCK ; 8         
+                        #SET 'OUT_LN':POV'OUT_IX' = %VALUE ; execute                     
+                     #BLOCK_END ; 8
+                     ;direct operate, direct operate no ack 
+                     #WHEN 5,6 #BLOCK ; 8         
+                        #SET 'OUT_LN':PSE'OUT_IX' = 1 ; select           
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = %VALUE ; execute                                  
+                     #BLOCK_END ; 8
+                  #CASE_END ; 7
+               #BLOCK_END ; 6
+               #WHEN "C5" #BLOCK ; IEC 101/104 master ; 6
+                  ;perform command depending on the function code                    
+                  #CASE %RA ; 7  
+                     ;select 
+                     #WHEN 3 #BLOCK ; 8         
+                        #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=%VALUE,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; select                                 
+                     #BLOCK_END ; 8
+                     ;operate 
+                     #WHEN 4 #BLOCK ; 8         
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; execute                                    
+                     #BLOCK_END ; 8
+                     ;direct operate, direct operate no ack 
+                     #WHEN 5,6 #BLOCK ; 8
+                        #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=%VALUE,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; select
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; execute                                                                     
+                     #BLOCK_END ; 8
+                  #CASE_END ; 7
+               #BLOCK_END ; 6 
+               #WHEN "D5" #BLOCK ; DNP 3.0 master ; 6
+                  ;perform command depending on the function code                    
+                  #CASE %RA ; 7  
+                     ;select 
+                     #WHEN 3 #BLOCK ; 8         
+                        #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=%VALUE,TY=3,QL=2) ; select                                 
+                     #BLOCK_END ; 8
+                     ;operate 
+                     #WHEN 4 #BLOCK ; 8         
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,TY=4,QL=2) ; execute                                    
+                     #BLOCK_END ; 8
+                     ;direct operate, direct operate no ack 
+                     #WHEN 5,6 #BLOCK ; 8
+                        #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=%VALUE,TY=3,QL=2) ; select
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,TY=4,QL=2) ; execute                                                                     
+                     #BLOCK_END ; 8
+                  #CASE_END ; 7
+               #BLOCK_END ; 6                
+               #WHEN "X1" #BLOCK ; LON (LAG 1.3 & 1.4) ; 6
+                  ;perform command depending on the function code                    
+                  #CASE %RA ; 7  
+                     ;select 
+                     #WHEN 3 #BLOCK ; 8         
+                        #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=%VALUE,CT=6,OG=%ORIGINATOR,TY=%TYPE) ; select                                 
+                     #BLOCK_END ; 8
+                     ;operate 
+                     #WHEN 4 #BLOCK ; 8         
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,CT=6,OG=%ORIGINATOR,TY=%TYPE) ; execute                                    
+                     #BLOCK_END ; 8
+                     ;direct operate, direct operate no ack 
+                     #WHEN 5,6 #BLOCK ; 8
+                        #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=%VALUE,CT=6,OG=%ORIGINATOR,TY=%TYPE) ; select
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,CT=6,OG=%ORIGINATOR,TY=%TYPE) ; execute                                                                     
+                     #BLOCK_END ; 8
+                  #CASE_END ; 7
+               #BLOCK_END ; 6                                               
+            #CASE_END ;5                                           
+         #BLOCK_END ; 4
+      #CASE_END  ; 3
+   #BLOCK_END ; 2
+   #WHEN 6 #BLOCK ; ************** secured control/5 output objects  ; 2 ************************************
+      @CONNECTED_LENGTH_LIMIT = 6
+      @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+      @OUT_IX = %OUTPUT_OBJECT_IXS(1)
+      #CASE %NCC_PROTOCOL ; protocol of the NCC ; 3
+         #WHEN 1 #BLOCK ;RP-570 slave protocol ; 4
+            #CASE 'OUT_LN':PDX'OUT_IX' ;protocol of the output objects ; 5 
+               #WHEN "E1","G5"  #BLOCK; IEC61850, OPC ; 6
+                  #IF %VALUE == 0 #THEN @OUT_IND = 1 ; open cmd ; 7
+                  #ELSE @OUT_IND = 2 ; close cmd  ; 7
+                  @SEL_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                  @SEL_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                  #SET 'SEL_LN':POV'SEL_IX' = 1 ; select
+                  #IF %RA == 0 #THEN #BLOCK   
+                     #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                     @OUT_IND = %OUT_IND + 2
+                     @EXEC_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                     @EXEC_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                     #SET 'EXEC_LN':POV'EXEC_IX' = 1 ; open or close execute
+                  #BLOCK_END
+                  #ELSE_IF %RA == 2 OR %RA == 4 #THEN #BLOCK
+                     #IF STATUS == 0 #THEN #BLOCK
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                        @OUT_IND = %OUT_IND + 2
+                        @EXEC_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                        @EXEC_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                        #SET 'EXEC_LN':POV'EXEC_IX' = 1 ; open or close execute
+                        @COMMAND_STATUS = STATUS
+                     #BLOCK_END
+                     #ELSE @COMMAND_STATUS = 1
+                  #BLOCK_END   
+               #BLOCK_END ; 6
+            #CASE_END ; 5
+         #BLOCK_END ; 4   
+         #WHEN 2 #BLOCK ;IEC 870-5-101/104 slave protocol ; 4
+             #CASE 'OUT_LN':PDX'OUT_IX' ;protocol of the output objects ; 5 
+               #WHEN "E1","G5" #BLOCK; IEC61850, OPC ; 6
+                  #IF %IEC_COMMAND_RECEIVED_WITHOUT_SELECT OR BIT(%SIGNAL_HANDLING_ATTRS,3) == 1 #THEN #BLOCK ;7
+                     #IF %VALUE == 0 #THEN #BLOCK ; 8
+                        #IF %RA == 0 AND %CT == 6 #THEN #BLOCK ;9
+                           @OUT_IND = 1 ; open select
+                           @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                           @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                           #SET 'OUT_LN':POV'OUT_IX' = 1   
+                           #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                           @OUT_IND = 3 ; open execute
+                           @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                           @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                           #SET 'OUT_LN':POV'OUT_IX' = 1  
+                        #BLOCK_END ;9
+                     #BLOCK_END ;8
+                     #ELSE #BLOCK ;8
+                        #IF %RA == 0 AND %CT == 6 #THEN #BLOCK ;9
+                           @OUT_IND = 2 ; close select
+                           @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                           @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                           #SET 'OUT_LN':POV'OUT_IX' = 1   
+                           #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                           @OUT_IND = 4 ; close execute
+                           @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                           @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                           #SET 'OUT_LN':POV'OUT_IX' = 1  
+                        #BLOCK_END ;9
+                     #BLOCK_END ;8      
+                  #BLOCK_END ;7
+                  #ELSE #BLOCK
+                      #IF %VALUE == 0 #THEN #BLOCK ; 8
+                         #IF %RA == 0 #THEN #BLOCK ;9
+                            @OUT_IND = 3 ; open execute
+                            #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                         #BLOCK_END ;9   
+                         #ELSE_IF %RA == 1 AND %CT == 6 #THEN @OUT_IND = 1 ; open select
+                         #ELSE_IF %RA == 1 AND %CT == 8 #THEN @OUT_IND = 5 ; cancel
+                      #BLOCK_END  ; 8
+                      #ELSE #BLOCK ; 8
+                         #IF %RA == 0 #THEN #BLOCK ;9
+                            @OUT_IND = 4 ; close execute
+                            #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                         #BLOCK_END ;9   
+                         #ELSE_IF %RA == 1 AND %CT == 6 #THEN @OUT_IND = 2 ; close select
+                         #ELSE_IF %RA == 1 AND %CT == 8 #THEN @OUT_IND = 5 ; cancel
+                      #BLOCK_END ; 8
+                      @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                      @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                      #SET 'OUT_LN':POV'OUT_IX' = 1
+                  #BLOCK_END ;7    
+               #BLOCK_END ; 6
+            #CASE_END  ; 5
+         #BLOCK_END ; 4
+         #WHEN 3 #BLOCK ;CPI ; 4
+             #CASE 'OUT_LN':PDX'OUT_IX' ;protocol of the output objects ; 5 
+               #WHEN "E1","G5" #BLOCK; IEC61850, OPC; 6
+                   #CASE %VALUE  ; type of the cpi command ; 7
+                      #WHEN 0 #BLOCK ; immediate cmd off
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(1)
+                         #SET 'OUT_LN':POV'OUT_IX' = 1  ; open select
+                         #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(3)
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(3)
+                         #SET 'OUT_LN':POV'OUT_IX' = 1  ; open execute
+                      #BLOCK_END
+                      #WHEN 1 #BLOCK ; immediate cmd on
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(2)
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(2)
+                         #SET 'OUT_LN':POV'OUT_IX' = 1  ; close select
+                         #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(4)
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(4)
+                         #SET 'OUT_LN':POV'OUT_IX' = 1  ; close execute
+                      #BLOCK_END
+                      #WHEN 16,96 #BLOCK ; cancel cmd with or without direction
+                         ;reset selection flag
+                         #SET 'LN':PRI'IX' = 0
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(5)
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(5)
+                         #SET 'OUT_LN':POV'OUT_IX' = 1  ; cancel
+                      #BLOCK_END
+                      #WHEN 17 #BLOCK ; select cmd without direction
+                         ;set selection flag and execute flag reseting procedure
+                         #SET 'LN':PRI'IX' = 1
+                         #EXEC_AFTER GEN_INFO:VCPI_SELECTION_RESET_TIME COM_RESSEL:C (@COM_SELECTION_TIME = %RT+(%RM/1000),-
+                                                                                      @COM_SELECTION_LN = %LN,-
+                                                                                      @COM_SELECTION_IX = %IX)
+                      #BLOCK_END
+                      #WHEN 32 #BLOCK ; execute cmd off
+                         ;if selection flag is up, send also select command
+                         #IF 'LN':PRI'IX' == 1 #THEN #BLOCK
+                            @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+                            @OUT_IX = %OUTPUT_OBJECT_IXS(1)
+                            #SET 'OUT_LN':POV'OUT_IX' = 1  ; open select                            
+                         #BLOCK_END
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(3)
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(3)
+                         #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                         #SET 'OUT_LN':POV'OUT_IX' = 1  ; open execute
+                         #SET 'LN':PRI'IX' = 0 ; reset flag
+                      #BLOCK_END
+                      #WHEN 33 #BLOCK ; execute cmd on
+                         ;if selection flag is up, send also select command 
+                         #IF 'LN':PRI'IX' == 1 #THEN #BLOCK
+                            @OUT_LN = %OUTPUT_OBJECT_LNS(2)
+                            @OUT_IX = %OUTPUT_OBJECT_IXS(2)
+                            #SET 'OUT_LN':POV'OUT_IX' = 1  ; close select                           
+                         #BLOCK_END                         
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(4)
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(4)
+                         #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                         #SET 'OUT_LN':POV'OUT_IX' = 1  ; close execute
+                         #SET 'LN':PRI'IX' = 0 ; reset flag
+                      #BLOCK_END
+                      #WHEN 64 #BLOCK ; select cmd off
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(1)
+                         #SET 'OUT_LN':POV'OUT_IX' = 1  ; open select
+                         ;set selection flag and execute flag reseting procedure
+                         #SET 'LN':PRI'IX' = 2
+                         #EXEC_AFTER GEN_INFO:VCPI_SELECTION_RESET_TIME COM_RESSEL:C (@COM_SELECTION_TIME = %RT+(%RM/1000),-
+                                                                                      @COM_SELECTION_LN = %LN,-
+                                                                                      @COM_SELECTION_IX = %IX)
+                      #BLOCK_END
+                      #WHEN 66 #BLOCK ; select cmd on
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(2)
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(2)
+                         #SET 'OUT_LN':POV'OUT_IX' = 1  ; close select
+                         ;set selection flag and execute flag reseting procedure
+                         #SET 'LN':PRI'IX' = 3
+                         #EXEC_AFTER GEN_INFO:VCPI_SELECTION_RESET_TIME COM_RESSEL:C (@COM_SELECTION_TIME = %RT+(%RM/1000),-
+                                                                                      @COM_SELECTION_LN = %LN,-
+                                                                                      @COM_SELECTION_IX = %IX)
+                      #BLOCK_END 
+                      #WHEN 97 #BLOCK ; execute cmd without direction
+                        ; not supported      
+                      #BLOCK_END
+                   #CASE_END ; 7
+               #BLOCK_END ; 6
+            #CASE_END  ; 5
+         #BLOCK_END ; 4
+         #WHEN 4 #BLOCK ;DNP 3.0 slave ; 4  
+            #CASE 'OUT_LN':PDX'OUT_IX' ;protocol of the output objects ; 5 
+                #WHEN "E1","G5" #BLOCK; IEC61850, OPC ; 6               
+                   ;perform command depending on the function code                    
+                   #CASE %RA ; 7         
+                      ;select 
+                      #WHEN 3 #BLOCK ; 8
+                         #IF %VALUE == 1 #THEN @OUT_IND = 2 ; close select
+                         #ELSE @OUT_IND = 1 ; open select
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                         #SET 'OUT_LN':POV'OUT_IX' = 1                 
+                      #BLOCK_END ; 8
+                      ;operate 
+                      #WHEN 4 #BLOCK ; 8         
+                         #IF %VALUE == 1 #THEN @OUT_IND = 4 ; close execute
+                         #ELSE @OUT_IND = 3 ; open execute
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                         #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                         #SET 'OUT_LN':POV'OUT_IX' = 1                     
+                      #BLOCK_END ; 8
+                      ;direct operate, direct operate no ack 
+                      #WHEN 5,6 #BLOCK ; 8   
+                         #IF %VALUE == 1 #THEN @OUT_IND = 2 ; close select
+                         #ELSE @OUT_IND = 1 ; open select
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                         #SET 'OUT_LN':POV'OUT_IX' = 1
+                         #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)                 
+                         @OUT_IND = %OUT_IND + 2
+                         @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                         @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                         #SET 'OUT_LN':POV'OUT_IX' = 1  ; open or close execute                                                
+                      #BLOCK_END ; 8          
+                  #CASE_END ; 7
+               #BLOCK_END ; 6
+            #CASE_END ; 5            
+         #BLOCK_END ; 4         
+      #CASE_END  ; 3
+   #BLOCK_END  ; 2
+   #WHEN 7 #BLOCK ;  ************** secured control/2 output object with select ; 2 *************************************
+      @CONNECTED_LENGTH_LIMIT = 3
+      @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+      @OUT_IX = %OUTPUT_OBJECT_IXS(1)   
+      @TYPE = 45 ; type of the IEC command
+      #CASE %NCC_PROTOCOL ; protocol of the NCC ; 3
+         #WHEN 1 #BLOCK ;RP-570 slave protocol ; 4
+            #IF %VALUE == 0 #THEN @OUT_IND = 1 ; open cmd
+            #ELSE @OUT_IND = 2 ; close cmd
+            @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+            @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+            #CASE 'OUT_LN':PDX'OUT_IX' ;protocol of the output objects ; 5
+               #WHEN "C5" #BLOCK ; IEC 101/104 master ; 6
+                  #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; select
+                  #IF %RA == 0 #THEN #BLOCK 
+                     #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                     #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; execute
+                  #BLOCK_END
+                  #ELSE_IF %RA == 2 OR %RA == 4 #THEN #BLOCK
+                     #IF STATUS == 0 #THEN #BLOCK
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; execute
+                        @COMMAND_STATUS = STATUS
+                     #BLOCK_END
+                     #ELSE @COMMAND_STATUS = 1
+                  #BLOCK_END   
+               #BLOCK_END ; 6
+               #WHEN "D5" #BLOCK ; DNP 3.0 ; 6
+                  #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=%VALUE,TY=3,QL=2) ; select
+                  #IF %RA == 0 #THEN #BLOCK 
+                     #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                     #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,TY=4,QL=2) ; execute
+                  #BLOCK_END
+                  #ELSE_IF %RA == 2 OR %RA == 4 #THEN #BLOCK
+                     #IF STATUS == 0 #THEN #BLOCK
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,TY=4,QL=2) ; execute
+                        @COMMAND_STATUS = STATUS
+                     #BLOCK_END
+                     #ELSE @COMMAND_STATUS = 1
+                  #BLOCK_END   
+               #BLOCK_END ; 6            
+               #WHEN "X1" #BLOCK ;  LON (LAG 1.3 & 1.4) ; 6
+                  #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE) ; select
+                  #IF %RA == 0 #THEN #BLOCK 
+                     #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                     #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE) ; execute
+                  #BLOCK_END
+                  #ELSE_IF %RA == 2 OR %RA == 4 #THEN #BLOCK
+                     #IF STATUS == 0 #THEN #BLOCK
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE) ; execute
+                        @COMMAND_STATUS = STATUS
+                     #BLOCK_END
+                     #ELSE @COMMAND_STATUS = 1
+                  #BLOCK_END   
+               #BLOCK_END ; 6            
+               #OTHERWISE #BLOCK ;6
+                  #SET 'OUT_LN':PSE'OUT_IX' = 1 ; select
+                  #IF %RA == 0 #THEN #BLOCK 
+                     #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                     #SET 'OUT_LN':POV'OUT_IX' = 1 ; execute
+                  #BLOCK_END
+                  #ELSE_IF %RA == 2 OR %RA == 4 #THEN #BLOCK
+                     #IF STATUS == 0 #THEN #BLOCK
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = 1 ; execute
+                        @COMMAND_STATUS = STATUS
+                     #BLOCK_END
+                     #ELSE @COMMAND_STATUS = 1
+                  #BLOCK_END      
+               #BLOCK_END ;6
+            #CASE_END ;5
+         #BLOCK_END ; 4
+         #WHEN 2 #BLOCK ;IEC 870-5-101/104 slave protocol ; 4
+            #IF %VALUE == 0 #THEN @OUT_IND = 1 ; open cmd
+            #ELSE @OUT_IND = 2 ; close cmd
+            @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+            @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+            #CASE 'OUT_LN':PDX'OUT_IX' ;protocol of the output objects ; 5
+               #WHEN "C5" #BLOCK ; IEC 101/104 master ; 6
+                  #IF %IEC_COMMAND_RECEIVED_WITHOUT_SELECT OR BIT(%SIGNAL_HANDLING_ATTRS,3) == 1 #THEN #BLOCK ;7
+                     #IF %RA == 0 AND %CT == 6 #THEN #BLOCK ;8
+                        #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; select
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; execute
+                     #BLOCK_END ;8
+                  #BLOCK_END ;7
+                  #ELSE #BLOCK ;7
+                     #IF %RA == 0 #THEN #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,CT=%CT,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; execute
+                     #ELSE_IF %RA == 1 AND %CT == 6 #THEN #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,CT=%CT,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; select
+                     #ELSE_IF %RA == 1 AND %CT == 8 #THEN #SET 'OUT_LN':PSE'OUT_IX' = LIST(SE=0,CT=%CT,OG=%ORIGINATOR,TY=%TYPE,QL=1) ;cancel  
+                  #BLOCK_END ;7
+               #BLOCK_END ; 6
+               #WHEN "D5" #BLOCK ; DNP 3.0 ; 6
+                  #IF %IEC_COMMAND_RECEIVED_WITHOUT_SELECT OR BIT(%SIGNAL_HANDLING_ATTRS,3) == 1 #THEN #BLOCK ;7
+                     #IF %RA == 0 AND %CT == 6 #THEN #BLOCK ;8
+                        #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=%VALUE,TY=3,QL=2) ; select
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,TY=4,QL=2) ; execute
+                     #BLOCK_END ;8
+                  #BLOCK_END ;7
+                  #ELSE #BLOCK ;7
+                     #IF %RA == 0 #THEN #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,TY=4,QL=2) ; execute
+                     #ELSE_IF %RA == 1 AND %CT == 6 #THEN #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=%VALUE,TY=3,QL=2) ; select
+                  #BLOCK_END ;7
+               #BLOCK_END ; 6            
+               #WHEN "X1" #BLOCK ;  LON (LAG 1.3 & 1.4) ; 6
+                  #IF %IEC_COMMAND_RECEIVED_WITHOUT_SELECT OR BIT(%SIGNAL_HANDLING_ATTRS,3) == 1 #THEN #BLOCK ;7
+                     #IF %RA == 0 AND %CT == 6 #THEN #BLOCK ;8
+                        #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,CT=%CT,OG=%ORIGINATOR,TY=%TYPE) ; select
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,CT=%CT,OG=%ORIGINATOR,TY=%TYPE) ; execute
+                     #BLOCK_END ;8 
+                  #BLOCK_END ;7
+                  #ELSE #BLOCK ;7
+                     #IF %RA == 0 #THEN #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,CT=%CT,OG=%ORIGINATOR,TY=%TYPE) ; execute
+                     #ELSE_IF %RA == 1 AND %CT == 6 #THEN #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,CT=%CT,OG=%ORIGINATOR,TY=%TYPE) ; select
+                     #ELSE_IF %RA == 1 AND %CT == 8 #THEN #SET 'OUT_LN':PSE'OUT_IX' = LIST(SE=0,CT=%CT,OG=%ORIGINATOR,TY=%TYPE) ; cancel 
+                  #BLOCK_END ;7
+               #BLOCK_END ; 6            
+               #OTHERWISE #BLOCK ;6
+                  #IF %IEC_COMMAND_RECEIVED_WITHOUT_SELECT OR BIT(%SIGNAL_HANDLING_ATTRS,3) == 1 #THEN #BLOCK ;7
+                     #IF %RA == 0 AND %CT == 6 #THEN #BLOCK ;8
+                        #SET 'OUT_LN':PSE'OUT_IX' = 1 ; select
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = 1 ; execute
+                     #BLOCK_END ;8
+                  #BLOCK_END ;7
+                  #ELSE #BLOCK ;7
+                     #IF %RA == 0 #THEN #SET 'OUT_LN':POV'OUT_IX' = 1 ; execute
+                     #ELSE_IF %RA == 1 AND %CT == 6 #THEN #SET 'OUT_LN':PSE'OUT_IX' = 1 ; select
+                     #ELSE_IF %RA == 1 AND %CT == 8 #THEN #SET 'OUT_LN':PSE'OUT_IX' = 0 ; cancel
+                  #BLOCK_END ;7
+               #BLOCK_END ;6
+            #CASE_END ;5
+         #BLOCK_END ; 4
+         #WHEN 3 #BLOCK ;CPI ; 4
+            #CASE %VALUE  ; type of the cpi command ; 7
+               #WHEN 0,32 #BLOCK ; immediate cmd off, execute cmd off
+                  @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+                  @OUT_IX = %OUTPUT_OBJECT_IXS(1)
+                  ; select
+                  #CASE 'OUT_LN':PDX'OUT_IX'
+                     #WHEN "C5"  #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1); IEC 101/104 master ;
+                     #WHEN "D5"  #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=0,TY=3,QL=2); DNP 3.0 
+                     #WHEN "X1"  #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE) ;LON (LAG 1.3 & 1.4) 
+                     #OTHERWISE #SET 'OUT_LN':PSE'OUT_IX' = 1
+                  #CASE_END   
+                  #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                  ; open cmd 
+                  #CASE 'OUT_LN':PDX'OUT_IX'
+                     #WHEN "C5" #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; IEC 101/104 master ;
+                     #WHEN "D5" #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=0,TY=4,QL=2) ; DNP 3.0 
+                     #WHEN "X1" #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE)  ;LON (LAG 1.3 & 1.4) 
+                     #OTHERWISE #SET 'OUT_LN':POV'OUT_IX' = 1 
+                  #CASE_END   
+               #BLOCK_END ; 5
+               #WHEN 1,33 #BLOCK ; immediate cmd on, execute cmd on
+                  @OUT_LN = %OUTPUT_OBJECT_LNS(2)
+                  @OUT_IX = %OUTPUT_OBJECT_IXS(2)
+                  ;select
+                  #CASE 'OUT_LN':PDX'OUT_IX'
+                     #WHEN "C5"  #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1); IEC 101/104 master ;
+                     #WHEN "D5"  #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,TY=3,QL=2); DNP 3.0 
+                     #WHEN "X1"  #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE) ;LON (LAG 1.3 & 1.4) 
+                     #OTHERWISE #SET 'OUT_LN':PSE'OUT_IX' = 1
+                  #CASE_END   
+                  #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                  ; close cmd 
+                  #CASE 'OUT_LN':PDX'OUT_IX'
+                     #WHEN "C5" #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; IEC 101/104 master ;
+                     #WHEN "D5" #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,TY=4,QL=2) ; DNP 3.0 
+                     #WHEN "X1" #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE)  ;LON (LAG 1.3 & 1.4) 
+                     #OTHERWISE #SET 'OUT_LN':POV'OUT_IX' = 1
+                  #CASE_END   
+               #BLOCK_END ; 5
+               #WHEN 66 #BLOCK ; select cmd on
+                  ;set selection flag and execute flag reseting procedure
+                  #SET 'LN':PRI'IX' = 2
+                  #EXEC_AFTER GEN_INFO:VCPI_SELECTION_RESET_TIME COM_RESSEL:C (@COM_SELECTION_TIME = %RT+(%RM/1000),-
+                                                                               @COM_SELECTION_LN = %LN,-
+                                                                               @COM_SELECTION_IX = %IX)
+               #BLOCK_END
+               #WHEN 64 #BLOCK ; select cmd off
+                  ;set selection flag and execute flag reseting procedure
+                  #SET 'LN':PRI'IX' = 3
+                  #EXEC_AFTER GEN_INFO:VCPI_SELECTION_RESET_TIME COM_RESSEL:C (@COM_SELECTION_TIME = %RT+(%RM/1000),-
+                                                                               @COM_SELECTION_LN = %LN,-
+                                                                               @COM_SELECTION_IX = %IX)
+               #BLOCK_END
+               #WHEN 97 #BLOCK ; execute cmd without direction
+                  ;if selection flag is up
+                  @RI = 'LN':PRI'IX'
+                  #IF %RI == 2 OR %RI == 3 #THEN #BLOCK
+                     @OUT_LN = %OUTPUT_OBJECT_LNS(%RI-1)
+                     @OUT_IX = %OUTPUT_OBJECT_IXS(%RI-1)
+                     ;select
+                     #CASE 'OUT_LN':PDX'OUT_IX'
+                        #WHEN "C5"  #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1); IEC 101/104 master ;
+                        #WHEN "D5" #BLOCK
+                           #IF %RI == 2 #THEN #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=0,TY=3,QL=2); DNP 3.0 ;open select
+                           #ELSE #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,TY=3,QL=2); DNP 3.0 ;close select
+                        #BLOCK_END
+                        #WHEN "X1" #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE) ;LON (LAG 1.3 & 1.4) 
+                        #OTHERWISE #SET 'OUT_LN':PSE'OUT_IX' = 1
+                     #CASE_END   
+                     #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                     ;execute
+                     #CASE 'OUT_LN':PDX'OUT_IX'
+                        #WHEN "C5" #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; IEC 101/104 master ;
+                        #WHEN "D5" #BLOCK
+                           #IF %RI == 2 #THEN #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=0,TY=4,QL=2); DNP 3.0 ;open cmd
+                           #ELSE #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,TY=4,QL=2) ; DNP 3.0 ;close cmd
+                        #BLOCK_END
+                        #WHEN "X1" #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE)  ;LON (LAG 1.3 & 1.4) 
+                        #OTHERWISE #SET 'OUT_LN':POV'OUT_IX' = 1 
+                     #CASE_END   
+                     #SET 'LN':PRI'IX' = 3 ; reset flag
+                  #BLOCK_END
+               #BLOCK_END
+            #CASE_END ; 7
+         #BLOCK_END ; 4
+         #WHEN 4 #BLOCK ;DNP 3.0 slave ; 4        
+            #IF %VALUE == 0 #THEN @OUT_IND = 1 ; open cmd
+            #ELSE @OUT_IND = 2 ; close cmd
+            @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+            @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+            #CASE 'OUT_LN':PDX'OUT_IX' ;protocol of the output objects ; 5
+               #WHEN "C5" #BLOCK ; IEC 101/104 master ; 6
+                  ;perform command depending on the function code                    
+                  #CASE %RA ; 7  
+                     #WHEN 3 #BLOCK ; 8         
+                        #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; select                                 
+                     #BLOCK_END ; 8
+                     #WHEN 4 #BLOCK ; 8         
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; execute                                    
+                     #BLOCK_END ; 8
+                     ;direct operate, direct operate no ack 
+                     #WHEN 5,6 #BLOCK ; 8
+                        #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; select
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE,QL=1) ; execute                                                                     
+                     #BLOCK_END ; 8
+                  #CASE_END ; 7
+               #BLOCK_END ; 6
+               #WHEN "D5" #BLOCK ; DNP 3.0 ; 6
+                  ;perform command depending on the function code                    
+                  #CASE %RA ; 7  
+                     #WHEN 3 #BLOCK ; 8         
+                        #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=%VALUE,TY=3,QL=2) ; select                                 
+                     #BLOCK_END ; 8
+                     #WHEN 4 #BLOCK ; 8         
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,TY=4,QL=2) ; execute                                    
+                     #BLOCK_END ; 8
+                     ;direct operate, direct operate no ack 
+                     #WHEN 5,6 #BLOCK ; 8
+                        #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=%VALUE,TY=3,QL=2) ; select
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=%VALUE,TY=4,QL=2) ; execute                                                                     
+                     #BLOCK_END ; 8
+                  #CASE_END ; 7
+               #BLOCK_END ; 6            
+               #WHEN "X1" #BLOCK ;  LON (LAG 1.3 & 1.4) ; 6
+                  ;perform command depending on the function code                    
+                  #CASE %RA ; 7  
+                     #WHEN 3 #BLOCK ; 8         
+                        #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE) ; select                                 
+                     #BLOCK_END ; 8
+                     #WHEN 4 #BLOCK ; 8         
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE) ; execute                                    
+                     #BLOCK_END ; 8
+                     ;direct operate, direct operate no ack 
+                     #WHEN 5,6 #BLOCK ; 8
+                        #SET 'OUT_LN':PSE'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE) ; select
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = LIST(OV=1,CT=6,OG=%ORIGINATOR,TY=%TYPE) ; execute                                                                     
+                     #BLOCK_END ; 8
+                  #CASE_END ; 7
+               #BLOCK_END ; 6            
+               #OTHERWISE #BLOCK ;6
+                  ;perform command depending on the function code                    
+                  #CASE %RA ; 7  
+                     #WHEN 3 #BLOCK ; 8         
+                        #SET 'OUT_LN':PSE'OUT_IX' = 1 ; select                    
+                     #BLOCK_END ; 8
+                     #WHEN 4 #BLOCK ; 8         
+                        #SET 'OUT_LN':POV'OUT_IX' = 1 ; execute                     
+                     #BLOCK_END ; 8 
+                      ;direct operate, direct operate no ack 
+                     #WHEN 5,6 #BLOCK ; 8         
+                        #SET 'OUT_LN':PSE'OUT_IX' = 1 ; select           
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000) 
+                        #SET 'OUT_LN':POV'OUT_IX' = 1 ; execute                                  
+                     #BLOCK_END ; 8
+                  #CASE_END ; 7
+               #BLOCK_END ;6
+            #CASE_END ;5
+         #BLOCK_END ; 4                
+      #CASE_END ; 3        
+   #BLOCK_END  ; 2
+   
+   #WHEN 9 #BLOCK ; ************** secured control/3 output objects  ; 2 ************************************
+      @CONNECTED_LENGTH_LIMIT = 6
+      @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+      @OUT_IX = %OUTPUT_OBJECT_IXS(1)
+      #CASE %NCC_PROTOCOL ; protocol of the NCC ; 3
+         #WHEN 1 #BLOCK ;RP-570 slave protocol ; 4
+            @OUT_IND = 1 ;select
+            @SEL_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+            @SEL_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+            #SET 'SEL_LN':POV'SEL_IX' = 1
+            #IF %RA == 0 #THEN #BLOCK   
+               #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+               #IF %VALUE == 0 #THEN @OUT_IND = 2 ; open command
+               #ELSE @OUT_IND = 3 ; close command
+               @EXEC_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+               @EXEC_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+               #SET 'EXEC_LN':POV'EXEC_IX' = 1 ; open or close execute
+            #BLOCK_END
+            #ELSE_IF %RA == 2 OR %RA == 4 #THEN #BLOCK
+               #IF STATUS == 0 #THEN #BLOCK
+                  #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                  #IF %VALUE == 0 #THEN @OUT_IND = 2 ; open command
+                  #ELSE @OUT_IND = 3 ; close command
+                  @EXEC_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                  @EXEC_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                  #SET 'EXEC_LN':POV'EXEC_IX' = 1 ; open or close execute
+                  @COMMAND_STATUS = STATUS
+               #BLOCK_END
+               #ELSE @COMMAND_STATUS = 1
+            #BLOCK_END            
+         #BLOCK_END ; 4   
+         #WHEN 2 #BLOCK ;IEC 870-5-101/104 slave protocol ; 4
+            #IF %IEC_COMMAND_RECEIVED_WITHOUT_SELECT OR BIT(%SIGNAL_HANDLING_ATTRS,3) == 1 #THEN #BLOCK ;5
+               #IF %RA == 0 #THEN #BLOCK ;9 Execute
+                  #IF %VALUE == 0 #THEN #BLOCK 
+                     @OUT_IND = 1 ; select
+                     @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                     @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                     #SET 'OUT_LN':POV'OUT_IX' = 1
+                     #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)      
+                     @OUT_IND = 2 ;Open command 
+                     @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                     @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                     #SET 'OUT_LN':POV'OUT_IX' = 1
+                  #BLOCK_END
+                  #ELSE #BLOCK
+                     @OUT_IND = 1 ; select
+                     @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                     @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                     #SET 'OUT_LN':POV'OUT_IX' = 1
+                     #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                     @OUT_IND = 3 ; close command 
+                     @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                     @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                     #SET 'OUT_LN':POV'OUT_IX' = 1
+                  #BLOCK_END
+               #BLOCK_END 
+            #BLOCK_END
+            #ELSE #BLOCK
+               #IF %RA == 0 #THEN #BLOCK ;9 Execute
+                  #IF %VALUE == 0 #THEN @OUT_IND = 2 ;Open command 
+                  #ELSE @OUT_IND = 3 ; close command
+                  #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                  @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                  @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                  #SET 'OUT_LN':POV'OUT_IX' = 1 
+               #BLOCK_END 
+               #ELSE_IF %RA == 1 AND %CT == 6 #THEN #BLOCK
+                  @OUT_IND = 1 ; select
+                  @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                  @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                  #SET 'OUT_LN':POV'OUT_IX' = 1 
+               #BLOCK_END
+            #BLOCK_END ;5
+         #BLOCK_END ; 4
+         #WHEN 3 #BLOCK ;CPI ; 4                            
+            #CASE %VALUE  ; type of the cpi command ;5
+               #WHEN 0 #BLOCK ; immediate cmd off
+                  @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+                  @OUT_IX = %OUTPUT_OBJECT_IXS(1)
+                  #SET 'OUT_LN':POV'OUT_IX' = 1  ; select
+                  #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                  @OUT_LN = %OUTPUT_OBJECT_LNS(2)
+                  @OUT_IX = %OUTPUT_OBJECT_IXS(2)
+                  #SET 'OUT_LN':POV'OUT_IX' = 1  ; open execute
+               #BLOCK_END
+               #WHEN 1 #BLOCK ; immediate cmd on
+                  @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+                  @OUT_IX = %OUTPUT_OBJECT_IXS(1)
+                  #SET 'OUT_LN':POV'OUT_IX' = 1  ; select
+                  #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                  @OUT_LN = %OUTPUT_OBJECT_LNS(3)
+                  @OUT_IX = %OUTPUT_OBJECT_IXS(3)
+                  #SET 'OUT_LN':POV'OUT_IX' = 1  ; close execute
+               #BLOCK_END
+               #WHEN 16,96 #BLOCK ; cancel cmd with or without direction
+                 ; not supported      
+               #BLOCK_END
+               #WHEN 17 #BLOCK ; select cmd without direction
+                  @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+                  @OUT_IX = %OUTPUT_OBJECT_IXS(1)
+                  #SET 'OUT_LN':POV'OUT_IX' = 1  ; select
+               #BLOCK_END
+               #WHEN 32 #BLOCK ; execute cmd off
+                  ;if selection flag is up, send also select command
+                  #IF 'LN':PRI'IX' == 1 #THEN #BLOCK
+                     @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+                     @OUT_IX = %OUTPUT_OBJECT_IXS(1)
+                     #SET 'OUT_LN':POV'OUT_IX' = 1  ; select                            
+                  #BLOCK_END
+                  @OUT_LN = %OUTPUT_OBJECT_LNS(2)
+                  @OUT_IX = %OUTPUT_OBJECT_IXS(2)
+                  #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                  #SET 'OUT_LN':POV'OUT_IX' = 1  ; open execute
+                  #SET 'LN':PRI'IX' = 0 ; reset flag
+               #BLOCK_END
+               #WHEN 33 #BLOCK ; execute cmd on
+                  ;if selection flag is up, send also select command 
+                  #IF 'LN':PRI'IX' == 1 #THEN #BLOCK
+                     @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+                     @OUT_IX = %OUTPUT_OBJECT_IXS(1)
+                     #SET 'OUT_LN':POV'OUT_IX' = 1  ; select                           
+                  #BLOCK_END                         
+                  @OUT_LN = %OUTPUT_OBJECT_LNS(3)
+                  @OUT_IX = %OUTPUT_OBJECT_IXS(3)
+                  #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                  #SET 'OUT_LN':POV'OUT_IX' = 1  ; close execute
+                  #SET 'LN':PRI'IX' = 0 ; reset flag
+               #BLOCK_END
+               #WHEN 64 #BLOCK ; select cmd off
+                   ;set selection flag and execute flag reseting procedure
+                   #SET 'LN':PRI'IX' = 1
+                   #EXEC_AFTER GEN_INFO:VCPI_SELECTION_RESET_TIME COM_RESSEL:C (@COM_SELECTION_TIME = %RT+(%RM/1000),-
+                                                                                @COM_SELECTION_LN = %LN,-
+                                                                                @COM_SELECTION_IX = %IX)
+                #BLOCK_END
+                #WHEN 66 #BLOCK ; select cmd on
+                   ;set selection flag and execute flag reseting procedure
+                   #SET 'LN':PRI'IX' = 1
+                   #EXEC_AFTER GEN_INFO:VCPI_SELECTION_RESET_TIME COM_RESSEL:C (@COM_SELECTION_TIME = %RT+(%RM/1000),-
+                                                                                @COM_SELECTION_LN = %LN,-
+                                                                                @COM_SELECTION_IX = %IX)
+                #BLOCK_END 
+                #WHEN 97 #BLOCK ; execute cmd without direction
+                  ; not supported      
+                #BLOCK_END
+             #CASE_END ;5
+         #BLOCK_END ; 4
+         #WHEN 4 #BLOCK ;DNP 3.0 slave ; 4  
+            #CASE %RA ; 7         
+               ;select 
+               #WHEN 3 #BLOCK ; 8
+                  @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+                  @OUT_IX = %OUTPUT_OBJECT_IXS(1)
+                  #SET 'OUT_LN':POV'OUT_IX' = 1                 
+               #BLOCK_END ; 8
+               ;operate 
+               #WHEN 4 #BLOCK ; 8         
+                  #IF %VALUE == 1 #THEN @OUT_IND = 3 ; close execute
+                  #ELSE @OUT_IND = 2 ; open execute
+                  @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                  @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                  #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                  #SET 'OUT_LN':POV'OUT_IX' = 1                     
+               #BLOCK_END ; 8
+               ;direct operate, direct operate no ack 
+               #WHEN 5,6 #BLOCK ; 8   
+                  @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+                  @OUT_IX = %OUTPUT_OBJECT_IXS(1)
+                  #SET 'OUT_LN':POV'OUT_IX' = 1 ;select
+                  #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)                 
+                  #IF %VALUE == 1 #THEN @OUT_IND = 3 ; close execute
+                  #ELSE @OUT_IND = 2 ; open execute
+                  @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                  @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                  #SET 'OUT_LN':POV'OUT_IX' = 1 
+               #BLOCK_END ; 8     
+            #CASE_END ; 7     
+         #BLOCK_END ; 4         
+      #CASE_END  ; 3
+   #BLOCK_END  ; 2
+   #WHEN 10 #BLOCK ; ************** secured control/6 output objects  ; 2 ************************************
+      @CONNECTED_LENGTH_LIMIT = 6
+      @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+      @OUT_IX = %OUTPUT_OBJECT_IXS(1)
+      #CASE %NCC_PROTOCOL ; protocol of the NCC ; 3
+         #WHEN 1 #BLOCK ;RP-570 slave protocol ; 4
+            #IF 'IX' == 11 #THEN #BLOCK   
+               #IF %VALUE == 0 #THEN @OUT_IND = 3 ; free 
+               #ELSE @OUT_IND = 4 ; earth       
+            #BLOCK_END 
+            #ELSE #BLOCK   
+               #IF %VALUE == 0 #THEN @OUT_IND = 1 ; open  
+               #ELSE @OUT_IND = 2 ; close       
+            #BLOCK_END 
+            @SEL_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+            @SEL_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+            #SET 'SEL_LN':POV'SEL_IX' = 1 ; select
+            #IF %RA == 0 #THEN #BLOCK   
+               #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+               @OUT_IND = 5
+               @EXEC_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+               @EXEC_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+               #SET 'EXEC_LN':POV'EXEC_IX' = 1 ; execute
+            #BLOCK_END
+            #ELSE_IF %RA == 2 OR %RA == 4 #THEN #BLOCK
+               #IF STATUS == 0 #THEN #BLOCK
+                  #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                  @OUT_IND = 5
+                  @EXEC_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                  @EXEC_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                  #SET 'EXEC_LN':POV'EXEC_IX' = 1 ;execute
+                  @COMMAND_STATUS = STATUS
+               #BLOCK_END
+               #ELSE @COMMAND_STATUS = 1
+            #BLOCK_END   
+         #BLOCK_END ; 4   
+         #WHEN 2 #BLOCK ;IEC 870-5-101/104 slave protocol ; 4
+            #IF %IEC_COMMAND_RECEIVED_WITHOUT_SELECT OR BIT(%SIGNAL_HANDLING_ATTRS,3) == 1 #THEN #BLOCK ;7
+               #IF 'IX' == 11 #THEN #BLOCK         
+                  #IF %VALUE == 0 #THEN #BLOCK ; 8
+                     #IF %RA == 0 AND %CT == 6 #THEN #BLOCK ;9
+                        @OUT_IND = 3 ; Free select
+                        @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                        @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                        #SET 'OUT_LN':POV'OUT_IX' = 1   
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                        @OUT_IND = 5 ; execute
+                        @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                        @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                        #SET 'OUT_LN':POV'OUT_IX' = 1  
+                     #BLOCK_END ;9
+                  #BLOCK_END ;8
+                  #ELSE #BLOCK ;8  
+                     #IF %RA == 0 AND %CT == 6 #THEN #BLOCK ;9
+                        @OUT_IND = 4 ; earth select
+                        @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                        @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                        #SET 'OUT_LN':POV'OUT_IX' = 1   
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                        @OUT_IND = 5 ; execute
+                        @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                        @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                        #SET 'OUT_LN':POV'OUT_IX' = 1  
+                     #BLOCK_END ;9                                        
+                  #BLOCK_END
+               #BLOCK_END
+               #ELSE #BLOCK
+                  #IF %VALUE == 0 #THEN #BLOCK ; 8
+                     #IF %RA == 0 AND %CT == 6 #THEN #BLOCK ;9
+                        @OUT_IND = 1 ; open select
+                        @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                        @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                        #SET 'OUT_LN':POV'OUT_IX' = 1   
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                        @OUT_IND = 5 ; execute
+                        @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                        @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                        #SET 'OUT_LN':POV'OUT_IX' = 1  
+                     #BLOCK_END ;9
+                  #BLOCK_END ;8
+                  #ELSE #BLOCK ;8  
+                     #IF %RA == 0 AND %CT == 6 #THEN #BLOCK ;9
+                        @OUT_IND = 2 ; close select
+                        @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                        @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                        #SET 'OUT_LN':POV'OUT_IX' = 1   
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                        @OUT_IND = 5 ; execute
+                        @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                        @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                        #SET 'OUT_LN':POV'OUT_IX' = 1  
+                     #BLOCK_END ;9                                        
+                  #BLOCK_END
+               #BLOCK_END
+            #BLOCK_END ;7
+            #ELSE #BLOCK
+               #IF 'IX' == 11 #THEN #BLOCK
+                  #IF %VALUE == 0 #THEN #BLOCK ; 8
+                     #IF %RA == 0 #THEN #BLOCK ;9
+                        @OUT_IND = 5 ; execute
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                      #BLOCK_END ;9   
+                      #ELSE_IF %RA == 1 AND %CT == 6 #THEN @OUT_IND = 3 ; Free select
+                      #ELSE_IF %RA == 1 AND %CT == 8 #THEN @OUT_IND = 6 ; cancel
+                   #BLOCK_END  ; 8
+                   #ELSE #BLOCK ; 8
+                      #IF %RA == 0 #THEN #BLOCK ;9
+                         @OUT_IND = 5 ; execute
+                         #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                      #BLOCK_END ;9   
+                      #ELSE_IF %RA == 1 AND %CT == 6 #THEN @OUT_IND = 4 ; Earth select
+                      #ELSE_IF %RA == 1 AND %CT == 8 #THEN @OUT_IND = 6 ; cancel
+                   #BLOCK_END ; 8
+                   @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                   @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                   #SET 'OUT_LN':POV'OUT_IX' = 1
+               #BLOCK_END
+               #ELSE #BLOCK 
+                  #IF %VALUE == 0 #THEN #BLOCK ; 8
+                     #IF %RA == 0 #THEN #BLOCK ;9
+                        @OUT_IND = 5 ; execute
+                        #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                      #BLOCK_END ;9   
+                      #ELSE_IF %RA == 1 AND %CT == 6 #THEN @OUT_IND = 1 ; open select
+                      #ELSE_IF %RA == 1 AND %CT == 8 #THEN @OUT_IND = 6 ; cancel
+                   #BLOCK_END  ; 8
+                   #ELSE #BLOCK ; 8
+                      #IF %RA == 0 #THEN #BLOCK ;9
+                         @OUT_IND = 5 ; execute
+                         #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                      #BLOCK_END ;9   
+                      #ELSE_IF %RA == 1 AND %CT == 6 #THEN @OUT_IND = 2 ; close select
+                      #ELSE_IF %RA == 1 AND %CT == 8 #THEN @OUT_IND = 6 ; cancel
+                   #BLOCK_END ; 8
+                   @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                   @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                   #SET 'OUT_LN':POV'OUT_IX' = 1
+               #BLOCK_END
+            #BLOCK_END ;7    
+         #BLOCK_END ; 4
+         #WHEN 3 #BLOCK ;CPI ; 4
+            #CASE %VALUE  ; type of the cpi command ; 7
+             #WHEN 0 #BLOCK ; immediate cmd off
+                #IF 'IX' == 11 #THEN #BLOCK  
+                   @OUT_LN = %OUTPUT_OBJECT_LNS(3)
+                   @OUT_IX = %OUTPUT_OBJECT_IXS(3)
+                #BLOCK_END  
+                #ELSE #BLOCK
+                   @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+                   @OUT_IX = %OUTPUT_OBJECT_IXS(1)                
+                #BLOCK_END   
+                #SET 'OUT_LN':POV'OUT_IX' = 1  ; open/free select              
+                #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                @OUT_LN = %OUTPUT_OBJECT_LNS(5)
+                @OUT_IX = %OUTPUT_OBJECT_IXS(5)
+                #SET 'OUT_LN':POV'OUT_IX' = 1  ; execute
+             #BLOCK_END
+             #WHEN 1 #BLOCK ; immediate cmd on
+                #IF 'IX' == 11 #THEN #BLOCK  
+                   @OUT_LN = %OUTPUT_OBJECT_LNS(4)
+                   @OUT_IX = %OUTPUT_OBJECT_IXS(4)
+                #BLOCK_END  
+                #ELSE #BLOCK
+                   @OUT_LN = %OUTPUT_OBJECT_LNS(2)
+                   @OUT_IX = %OUTPUT_OBJECT_IXS(2)                
+                #BLOCK_END  
+                #SET 'OUT_LN':POV'OUT_IX' = 1  ; close/earth select
+                #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                @OUT_LN = %OUTPUT_OBJECT_LNS(5)
+                @OUT_IX = %OUTPUT_OBJECT_IXS(5)
+                #SET 'OUT_LN':POV'OUT_IX' = 1  ; execute
+             #BLOCK_END
+             #WHEN 16,96 #BLOCK ; cancel cmd with or without direction
+                ;reset selection flag
+                #SET 'LN':PRI'IX' = 0
+                @OUT_LN = %OUTPUT_OBJECT_LNS(6)
+                @OUT_IX = %OUTPUT_OBJECT_IXS(6)
+                #SET 'OUT_LN':POV'OUT_IX' = 1  ; cancel
+             #BLOCK_END
+             #WHEN 17 #BLOCK ; select cmd without direction
+                ;set selection flag and execute flag reseting procedure
+                #SET 'LN':PRI'IX' = 1
+                #EXEC_AFTER GEN_INFO:VCPI_SELECTION_RESET_TIME COM_RESSEL:C (@COM_SELECTION_TIME = %RT+(%RM/1000),-
+                                                                             @COM_SELECTION_LN = %LN,-
+                                                                             @COM_SELECTION_IX = %IX)
+             #BLOCK_END
+             #WHEN 32 #BLOCK ; execute cmd off
+                ;if selection flag is up, send also select command
+                #IF 'LN':PRI'IX' == 1 #THEN #BLOCK
+                   #IF 'IX' == 11 #THEN #BLOCK  
+                      @OUT_LN = %OUTPUT_OBJECT_LNS(3)
+                      @OUT_IX = %OUTPUT_OBJECT_IXS(3)
+                      #SET 'OUT_LN':POV'OUT_IX' = 1  ; free select 
+                   #BLOCK_END
+                   #ELSE #BLOCK
+                      @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+                      @OUT_IX = %OUTPUT_OBJECT_IXS(1)
+                      #SET 'OUT_LN':POV'OUT_IX' = 1  ; open select                            
+                   #BLOCK_END
+                #BLOCK_END
+                @OUT_LN = %OUTPUT_OBJECT_LNS(5)
+                @OUT_IX = %OUTPUT_OBJECT_IXS(5)
+                #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                #SET 'OUT_LN':POV'OUT_IX' = 1  ; execute
+                #SET 'LN':PRI'IX' = 0 ; reset flag
+             #BLOCK_END
+             #WHEN 33 #BLOCK ; execute cmd on
+                ;if selection flag is up, send also select command 
+                #IF 'LN':PRI'IX' == 1 #THEN #BLOCK
+                   #IF 'IX' == 11 #THEN #BLOCK  
+                      @OUT_LN = %OUTPUT_OBJECT_LNS(4)
+                      @OUT_IX = %OUTPUT_OBJECT_IXS(4)
+                      #SET 'OUT_LN':POV'OUT_IX' = 1  ; earth select 
+                   #BLOCK_END
+                   #ELSE #BLOCK             
+                      @OUT_LN = %OUTPUT_OBJECT_LNS(2)
+                      @OUT_IX = %OUTPUT_OBJECT_IXS(2)
+                      #SET 'OUT_LN':POV'OUT_IX' = 1  ; close select                           
+                   #BLOCK_END
+                #BLOCK_END                         
+                @OUT_LN = %OUTPUT_OBJECT_LNS(5)
+                @OUT_IX = %OUTPUT_OBJECT_IXS(5)
+                #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                #SET 'OUT_LN':POV'OUT_IX' = 1  ; execute
+                #SET 'LN':PRI'IX' = 0 ; reset flag
+             #BLOCK_END
+             #WHEN 64 #BLOCK ; select cmd off
+                #IF 'IX' == 11 #THEN #BLOCK  
+                  @OUT_LN = %OUTPUT_OBJECT_LNS(3)
+                  @OUT_IX = %OUTPUT_OBJECT_IXS(3)
+                  #SET 'OUT_LN':POV'OUT_IX' = 1  ; free select 
+                #BLOCK_END
+                #ELSE #BLOCK
+                  @OUT_LN = %OUTPUT_OBJECT_LNS(1)
+                  @OUT_IX = %OUTPUT_OBJECT_IXS(1)
+                  #SET 'OUT_LN':POV'OUT_IX' = 1  ; open select
+                #BLOCK_END
+                ;set selection flag and execute flag reseting procedure
+                #SET 'LN':PRI'IX' = 2
+                #EXEC_AFTER GEN_INFO:VCPI_SELECTION_RESET_TIME COM_RESSEL:C (@COM_SELECTION_TIME = %RT+(%RM/1000),-
+                                                                             @COM_SELECTION_LN = %LN,-
+                                                                             @COM_SELECTION_IX = %IX)
+             #BLOCK_END
+             #WHEN 66 #BLOCK ; select cmd on
+                #IF 'IX' == 11 #THEN #BLOCK  
+                   @OUT_LN = %OUTPUT_OBJECT_LNS(4)
+                   @OUT_IX = %OUTPUT_OBJECT_IXS(4)
+                   #SET 'OUT_LN':POV'OUT_IX' = 1  ; earth select 
+                #BLOCK_END  
+                #ELSE #BLOCK
+                   @OUT_LN = %OUTPUT_OBJECT_LNS(2)
+                   @OUT_IX = %OUTPUT_OBJECT_IXS(2)
+                   #SET 'OUT_LN':POV'OUT_IX' = 1  ; close select
+                #BLOCK_END    
+                ;set selection flag and execute flag reseting procedure
+                #SET 'LN':PRI'IX' = 3
+                #EXEC_AFTER GEN_INFO:VCPI_SELECTION_RESET_TIME COM_RESSEL:C (@COM_SELECTION_TIME = %RT+(%RM/1000),-
+                                                                             @COM_SELECTION_LN = %LN,-
+                                                                             @COM_SELECTION_IX = %IX)
+             #BLOCK_END 
+             #WHEN 97 #BLOCK ; execute cmd without direction
+                @OUT_LN = %OUTPUT_OBJECT_LNS(5)
+                @OUT_IX = %OUTPUT_OBJECT_IXS(5)
+                #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                #SET 'OUT_LN':POV'OUT_IX' = 1  ; execute
+                #SET 'LN':PRI'IX' = 0 ; reset flag
+             #BLOCK_END
+            #CASE_END ; 7
+         #BLOCK_END ; 4
+         #WHEN 4 #BLOCK ;DNP 3.0 slave ; 4  
+           #CASE %RA ; 7         
+             ;select 
+             #WHEN 3 #BLOCK ; 8
+                #IF 'IX' == 11 #THEN #BLOCK
+                   #IF %VALUE == 1 #THEN @OUT_IND = 2 ; close select
+                   #ELSE @OUT_IND = 1 ; open select
+                #BLOCK_END
+                #ELSE #BLOCK
+                   #IF %VALUE == 1 #THEN @OUT_IND = 4 ; earth select
+                   #ELSE @OUT_IND = 3 ; free select
+                #BLOCK_END
+                @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                #SET 'OUT_LN':POV'OUT_IX' = 1                 
+             #BLOCK_END ; 8
+             ;operate 
+             #WHEN 4 #BLOCK ; 8         
+                @OUT_LN = %OUTPUT_OBJECT_LNS(5) ; execute
+                @OUT_IX = %OUTPUT_OBJECT_IXS(5)
+                #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                #SET 'OUT_LN':POV'OUT_IX' = 1                     
+             #BLOCK_END ; 8
+             ;direct operate, direct operate no ack 
+             #WHEN 5,6 #BLOCK ; 8   
+                #IF 'IX' == 11 #THEN #BLOCK
+                   #IF %VALUE == 1 #THEN @OUT_IND = 2 ; close select
+                   #ELSE @OUT_IND = 1 ; open select
+                #BLOCK_END
+                #ELSE #BLOCK
+                   #IF %VALUE == 1 #THEN @OUT_IND = 4 ; earth select
+                   #ELSE @OUT_IND = 3 ; free select
+                #BLOCK_END
+                @OUT_LN = %OUTPUT_OBJECT_LNS(%OUT_IND)
+                @OUT_IX = %OUTPUT_OBJECT_IXS(%OUT_IND)
+                #SET 'OUT_LN':POV'OUT_IX' = 1
+                #PAUSE (GEN_INFO:VREX_SELECT_EXECUTE_DELAY/1000)
+                @OUT_LN = %OUTPUT_OBJECT_LNS(5) ; execute
+                @OUT_IX = %OUTPUT_OBJECT_IXS(5)
+                #SET 'OUT_LN':POV'OUT_IX' = 1                                                
+             #BLOCK_END ; 8          
+            #CASE_END ;
+         #BLOCK_END ; 4         
+      #CASE_END  ; 3
+   #BLOCK_END  ; 2
+   
+#CASE_END  ; 1
+

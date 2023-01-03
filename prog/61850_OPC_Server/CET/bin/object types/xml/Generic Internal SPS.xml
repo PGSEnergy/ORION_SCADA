@@ -1,0 +1,111 @@
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+  <Parameters type="InterfaceDefinition">
+    <Parameter name="ObjectType">Internal SPS</Parameter>
+    <Parameter name="Caption">objectTypeCaption</Parameter>
+    <Parameter name="Description">objectTypeDesc</Parameter>
+    <Parameter name="Group">Data objects</Parameter>
+    <Parameter name="Type">DO</Parameter>
+    <Parameter name="IconFileName">sps.ico</Parameter>
+	<Parameter name="Tools">OnlineDiagnosticsDataObject</Parameter>
+    <Parameter name="DataServers" />
+    <Parameter name="Verbs" />
+    <Parameter name="Visible">True</Parameter>
+    <Parameter name="CanInherit">False</Parameter>
+    <Parameter name="ParentControlConditions">
+      <Structure name="COMMUNICATION">
+        <Condition type="DataStructureObjectType">LN</Condition>
+      </Structure>
+    </Parameter>
+  </Parameters>
+  <Parameters type="SCLExport">
+    <Export name="sAddr">61850-Type,InternalSubType, ItemTagPath, MappedEvent, PrintBlock, Section</Export>
+  </Parameters>
+  <Properties type="PropertyDefinitions">
+		<Property name="61850-Type" category="[010] Basic">
+			<Value>SPS</Value>
+			<DescID>61850-TypeDesc</DescID>
+			<CaptionID>61850-Type</CaptionID>
+			<Values type="singleChoice">
+				<Enum textID="DPC" value="DPC"/>
+				<Enum textID="SPC" value="SPC"/>
+				<Enum textID="MV" value="MV"/>
+				<Enum textID="SPS" value="SPS"/>
+				<Enum textID="DPS" value="DPS"/>
+				<Enum textID="INS" value="INS"/>
+				<Enum textID="BCR" value="BCR"/>
+				<Enum textID="DPL" value="DPL"/>
+				<Enum textID="WYE" value="WYE"/>
+				<Enum textID="DEL" value="DEL"/>
+				<Enum textID="INC" value="INC"/>
+				<Enum textID="BSC" value="BSC"/>
+				<Enum textID="ISC" value="ISC"/>
+				<Enum textID="APC" value="APC"/>
+				<Enum textID="ACD" value="ACD"/>
+				<Enum textID="ACT" value="ACT"/>
+				<Enum textID="CMV" value="CMV"/>
+				<Enum textID="LPL" value="LPL"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>RRR</Access>
+			<AttributeName/>
+		</Property>
+    <Property name="InternalSubType" category="[020] Sub-Type">
+      <Value>INTERNAL</Value>
+      <DescID>InternalSubTypeDesc</DescID>
+      <CaptionID>InternalSubType</CaptionID>
+      <Values type="singleChoice">
+        <Enum value="INTERNAL" textID="Internal" />
+      </Values>
+      <DataType>System.String</DataType>
+      <HelpKey />
+      <Access>HHH</Access>
+      <AttributeName />
+    </Property>
+    <Property name="ItemTagPath" category="[030] Addresses">
+      <Value>Attributes\Device connection status</Value>
+      <DescID>ItemTagPathDesc</DescID>
+      <CaptionID>ItemTagPath</CaptionID>
+      <Values type="string" />
+      <DataType>System.String</DataType>
+      <HelpKey />
+      <Access>RWW</Access>
+      <AttributeName />
+    </Property>
+    <Property name="Section" category="[040] OPC Alarm and Event">
+      <Value>0</Value>
+      <DescID>SectionDesc</DescID>
+      <CaptionID>Section</CaptionID>
+      <Values type="numerical">
+        <Min>0</Min>
+        <Max>16</Max>
+      </Values>
+      <DataType>System.Int32</DataType>
+      <HelpKey />
+      <Access>HHW</Access>
+      <AttributeName>Section</AttributeName>
+    </Property>
+    <Property name="PrintBlock" category="[040] OPC Alarm and Event">
+      <Value>False</Value>
+      <DescID>PrintBlockDesc</DescID>
+      <CaptionID>PrintBlock</CaptionID>
+      <Values type="boolean" />
+      <DataType>System.Boolean</DataType>
+      <HelpKey />
+      <Access>HHW</Access>
+      <AttributeName>PrintBlock</AttributeName>
+    </Property>
+		<Property name="MappedEvent" category="[040] OPC Alarm and Event">
+			<Value/>
+			<DescID>MappedEventDesc</DescID>
+			<CaptionID>MappedEvent</CaptionID>
+      <Values type="singleChoiceDynamic">
+		<ListObjects findMethod="ancestorSecondChild" ancestorDsot="GATEWAY" firstchildObjectType="EventGroupDOEvents" secondchildObjectType="DiscreteEventGroup"/>
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HWW</Access>
+			<AttributeName/>
+		</Property>
+  </Properties>
+</ObjectType>

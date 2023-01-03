@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<d:document nature="http://www.w3.org/2000/svg" xmlns:n="http://www.webui-ap.com/schemata/naming/1.0" xmlns:s="http://www.w3.org/2000/svg" xmlns:y="http://www.webui-ap.com/schemata/styling/1.0" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:i18n="http://www.webui-ap.com/schemata/i18n/1.0" i18n:translate="false" xmlns:d="http://www.webui-ap.com/schemata/view/1.0">
+  <d:head>
+    <d:use name="power-process-symbols" />
+    <d:variable type="external" name="auth-group" default="''" />
+    <d:variable type="external" name="auth-level" default="''" />
+    <d:variable type="external" name="subdrawing_color" default="'rgb(255, 255, 255)'" />
+    <d:variable type="external" name="subdrawing_dynamics" default="1" />
+    <d:variable type="external" name="control_action_enabled" default="1" />
+    <d:meta name="SAVersionInfo" content="2" />
+    <d:meta name="dv-custom-attribute|SATopologyModel" content="Strict" />
+    <d:meta name="dv-custom-attribute|DefaultScalingFactor" content="1" />
+    <d:meta name="dv-custom-attribute|SADisplayName" content="Switch" />
+    <d:meta name="dv-custom-attribute|SAVersionInfo" content="2" />
+    <d:role name="symbol" />
+    <d:variable type="external" name="state" default="0" />
+    <d:variable type="external" name="color" default="0" />
+    <d:mapping name="f0" parameters="value">
+      <d:step value="'rgb(192, 255, 192)'" when="value &lt;= 36.500" />
+      <d:step value="'rgb(0, 128, 255)'" when="value &lt;= 37.500" />
+      <d:step value="'rgb(255, 0, 255)'" when="value &lt;= 39.499" />
+      <d:otherwise value="'rgb(192, 255, 192)'" />
+    </d:mapping>
+    <d:mapping name="f1" parameters="value">
+      <d:step value="false" when="value &lt;= 0.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f2" parameters="value">
+      <d:step value="false" when="value &lt;= 0.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f3" parameters="value">
+      <d:step value="true" when="value &lt;= 0.500" />
+      <d:step value="false" when="value &lt;= 1.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f4" parameters="value">
+      <d:step value="true" when="value &lt;= 0.500" />
+      <d:otherwise value="false" />
+    </d:mapping>
+    <d:mapping name="f5" parameters="value">
+      <d:step value="true" when="value &lt;= 0.500" />
+      <d:step value="false" when="value &lt;= 1.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f6" parameters="value">
+      <d:step value="false" when="value &lt;= 0.500" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f7" parameters="value">
+      <d:step value="true" when="value &lt;= 36.998" />
+      <d:step value="false" when="value &lt;= 39.498" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f8" parameters="value">
+      <d:step value="true" when="value &lt;= 36.998" />
+      <d:step value="false" when="value &lt;= 39.498" />
+      <d:otherwise value="true" />
+    </d:mapping>
+    <d:mapping name="f9" parameters="value">
+      <d:step value="true" when="value &lt;= 36.998" />
+      <d:step value="false" when="value &lt;= 39.498" />
+      <d:otherwise value="true" />
+    </d:mapping>
+  </d:head>
+  <d:body x1="327.680" y1="327.680" x2="-327.680" y2="-327.680">
+    <s:circle cx="0" cy="0" r="14.142" d:transform-anchor="center-center" y:fill="rgb(208, 208, 208)" y:fill-rule="evenodd" y:stroke="{if(`subdrawing_dynamics`, f0(`color`), colors[31])}" y:vector-effect="non-scaling-stroke" y:stroke-width="3" d:object-name=" 2759" />
+    <s:rect width="4" height="26" x="-2" y="-13" s:pointer-events="visiblePainted" d:hidden="f1(`state`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="rgb(160, 160, 160)" y:fill-rule="evenodd" y:stroke="rgb(128, 128, 128)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:rect width="4" height="5" x="-2" y="-13" s:pointer-events="visiblePainted" d:hidden="f2(`state`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="rgb(48, 48, 48)" y:fill-rule="evenodd" y:stroke="rgb(128, 128, 128)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:rect width="26" height="4" x="-13" y="-2" s:pointer-events="visiblePainted" d:hidden="f3(`state`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="rgb(160, 160, 160)" y:fill-rule="evenodd" y:stroke="rgb(128, 128, 128)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:rect width="5" height="4" x="8" y="-2" s:pointer-events="visiblePainted" d:hidden="f4(`state`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="rgb(48, 48, 48)" y:fill-rule="evenodd" y:stroke="rgb(128, 128, 128)" y:vector-effect="non-scaling-stroke" y:stroke-width="2" />
+    <s:text font-weight="bold" font-family="Arial" font-size="8.568" fill="{colors[30]}" x="16.900" y="5.240" text-anchor="start" dominant-baseline="ideographic" dx="0.857px" d:textScaleAdjustment="true" d:hidden="f5(`state`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="{colors[30]}" y:fill-rule="evenodd">ON</s:text>
+    <s:text font-weight="bold" font-family="Arial" font-size="8.568" fill="{colors[30]}" x="-8.640" y="-15.180" text-anchor="start" dominant-baseline="ideographic" dx="0.857px" d:textScaleAdjustment="true" d:hidden="f6(`state`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="{colors[30]}" y:fill-rule="evenodd">OFF</s:text>
+    <s:text font-weight="bold" font-family="Arial" font-size="8.568" fill="{colors[38]}" x="16.900" y="5.240" text-anchor="start" dominant-baseline="ideographic" dx="0.857px" d:textScaleAdjustment="true" d:hidden="f7(`color`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="{colors[38]}" y:fill-rule="evenodd">ON</s:text>
+    <s:text font-weight="bold" font-family="Arial" font-size="8.568" fill="{colors[39]}" x="-8.640" y="-15.180" text-anchor="start" dominant-baseline="ideographic" dx="0.857px" d:textScaleAdjustment="true" d:hidden="f8(`color`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="{colors[39]}" y:fill-rule="evenodd">OFF</s:text>
+    <s:circle cx="0" cy="0" r="14.142" d:hidden="f9(`color`) and `subdrawing_dynamics` = 1" d:transform-anchor="center-center" y:fill="{colors[38]}" y:fill-rule="evenodd" y:stroke="{colors[31]}" y:vector-effect="non-scaling-stroke" y:stroke-width="3" d:object-name=" 2759" />
+  </d:body>
+</d:document>

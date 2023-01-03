@@ -1,0 +1,19 @@
+#case %ix
+	#when 316 #block
+		@ix1 = %ix
+		@ix2 = %ix + 1
+	#block_end
+	#otherwise #block
+		@ix1 = %ix - 1
+		@ix2 = %ix
+	#block_end
+#case_end
+
+@obj1_status = 'ln':pos'ix1'
+@obj2_status = 'ln':pos'ix2'
+#if %obj1_status < 10 and %obj2_status < 10 #then #block
+  @obj1_value = 'ln':pov'ix1'
+  @obj2_value = 'ln':pov'ix2'
+  #if %obj1_value <> %obj2_value #then #exec fdu_setdb:c (@ln=%ln,@ix=%ix,@rt=%rt,@rm=%rm,@os=%os)
+  #else #exec_after 2 fdu_setdb:c (@ln=%ln,@ix=%ix,@rt=%rt,@rm=%rm,@os=%os)
+#block_end

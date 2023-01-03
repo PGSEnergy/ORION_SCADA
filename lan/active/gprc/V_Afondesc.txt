@@ -1,0 +1,41 @@
+;FONT DEFINITIONS FOR VS LOCAL MONITOR
+
+.GC 0 = DEFAULT_GC:
+@SG_FONT = FONT_IN(0)
+
+#Case SG_FONT:VHE
+
+   #When 10 #BLOCK
+   @X_AFONDESC = LIST(-
+      SCOPE_OF_SETTINGS   = "SYSTEM",-
+      FONT_1 = LIST(FAMILY = "Times New Roman" ,FACE = "Bold"   ,POINT_SIZE = 12),-
+      COMMENT_1 = "User Font 1")
+   #BLOCK_END
+
+   #When 15 #BLOCK
+   @X_AFONDESC = LIST(-
+      SCOPE_OF_SETTINGS   = "SYSTEM",-
+      FONT_1 = LIST(FAMILY = "Times New Roman" ,FACE = "Bold"   ,POINT_SIZE = 18),-
+      COMMENT_1 = "User Font 1")
+   #BLOCK_END
+
+   #When 20 #BLOCK
+   @X_AFONDESC = LIST(-
+      SCOPE_OF_SETTINGS   = "SYSTEM",-
+      FONT_1    = LIST(FAMILY = "Times New Roman" ,FACE = "Bold"   ,POINT_SIZE = 24),-
+      COMMENT_1 = "User Font 1")
+   #BLOCK_END
+   
+   #Otherwise #BLOCK
+   @X_AFONDESC = LIST(-
+      SCOPE_OF_SETTINGS   = "SYSTEM",-
+      FONT_1    = LIST(FAMILY = "Times New Roman" ,FACE = "Bold"   ,POINT_SIZE = 28),-
+      COMMENT_1 = "User Font 1")
+   #BLOCK_END
+
+#Case_End
+
+#ERROR IGNORE
+#DO READ_TEXT("PICT/VSFONT_U.TXT")
+@S=STATUS
+#ERROR STOP

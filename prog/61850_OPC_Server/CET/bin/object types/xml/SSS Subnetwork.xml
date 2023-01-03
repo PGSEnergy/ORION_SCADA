@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ObjectType xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="ObjectType.xsd">
+	<Parameters type="InterfaceDefinition">
+		<Parameter name="ObjectType">SSS Subnetwork</Parameter>
+		<Parameter name="Caption">SSS Subnetwork</Parameter>
+		<Parameter name="Description">objectTypeDesc</Parameter>
+		<Parameter name="Group">SSS</Parameter>
+		<Parameter name="Type">SubNetwork</Parameter>
+		<Parameter name="IconFileName">bus.ico</Parameter>
+		<Parameter name="Tools"></Parameter>
+		<Parameter name="DataServers"/>
+		<Parameter name="Verbs"/>
+		<Parameter name="Visible">True</Parameter>
+		<Parameter name="CanInherit">False</Parameter>
+		<Parameter name="ParentControlConditions">
+			<Structure name="COMMUNICATION">
+				<Condition type="PCMObjectType">SSS Server</Condition>
+			</Structure>
+		</Parameter>
+	</Parameters>
+	<Parameters type="SCLExport">
+		<Export name="CDATA">DeviceName, InUse</Export>
+		<Export name="Addresses">IP</Export>
+	</Parameters>
+	<Properties type="PropertyDefinitions">
+		<Property name="OPCObjectType" category="[010] Basic">
+			<Value>8-MMS</Value>
+			<DescID>OPCObjectTypeDesc</DescID>
+			<CaptionID>OPCObjectType</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHH</Access>
+			<AttributeName>OPCObjectType</AttributeName>
+		</Property>
+		<Property name="DeviceName" category="[020] Communication Port">
+			<Value>ETH0</Value>
+			<DescID>LAN port used by the IEC 61850 protocol</DescID>
+			<CaptionID>Communication port</CaptionID>
+			<Values type="singleChoice">
+				<Enum textID="ETH0" value="ETH0"/>
+			</Values>
+			<DataType>System.String</DataType>
+			<HelpKey>302</HelpKey>
+			<Access>HHW</Access>
+			<AttributeName>SD</AttributeName>
+		</Property>
+		<Property name="InUse" category="[010] Basic">
+			<Value>1</Value>
+			<DescID>Controls if the device communication is initially in use or not</DescID>
+			<CaptionID>In Use</CaptionID>
+			<Values type="singleChoice">
+				<Enum value="1" textID="In Use"/>
+				<Enum value="0" textID="Not In Use"/>
+			</Values>
+			<DataType>System.Int32</DataType>
+			<HelpKey/>
+			<Access>RWW</Access>
+			<AttributeName>InUse</AttributeName>
+		</Property>
+		<Property name="IP" category="[020] Communication Port">
+			<Value>127.0.0.1</Value>
+			<DescID>IP Address for communication channel. Dotted decimal or DNS name to be used</DescID>
+			<CaptionID>IP Address</CaptionID>
+			<Values type="string">
+      </Values>
+			<DataType>System.String</DataType>
+			<HelpKey/>
+			<Access>HHW</Access>
+			<AttributeName>IP</AttributeName>
+		</Property>
+	</Properties>
+</ObjectType>

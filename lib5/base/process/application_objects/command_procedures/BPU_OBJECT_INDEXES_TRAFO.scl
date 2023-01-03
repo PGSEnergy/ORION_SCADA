@@ -1,0 +1,211 @@
+;Function: BPU_OBJECT_INDEXES_TRAFO:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_object_indexes_trafo.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute)
+;Return data: l_Indexes
+;Description: list of object indexes depending on configuration
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info
+#local l_indexes, l_OT_Indexes, i, t_Attr, t_LN, l_POs
+
+t_LN = l_object_info.p_object_ln
+l_indexes = list(-
+         TAP_POSITION_IX         = list(ix=10, ln=t_LN),-
+         RAISE_SELECT_IX         = list(ix=16, ln=t_LN),-
+         RAISE_CANCEL_IX         = list(ix=16, ln=t_LN),-
+         LOWER_SELECT_IX         = list(ix=17, ln=t_LN),-
+         LOWER_CANCEL_IX         = list(ix=17, ln=t_LN),-
+         RAISE_EXECUTE_IX        = list(ix=16, ln=t_LN),-
+         LOWER_EXECUTE_IX        = list(ix=17, ln=t_LN),-
+         AUTO_MANUAL_IX          = list(ix=11, ln=t_LN),-
+         MANUAL_SELECT_IX        = list(ix=14, ln=t_LN),-
+         MANUAL_CANCEL_IX        = list(ix=14, ln=t_LN),-
+         AUTO_SELECT_IX          = list(ix=15, ln=t_LN),-
+         AUTO_CANCEL_IX          = list(ix=15, ln=t_LN),-
+         MANUAL_EXECUTE_IX       = list(ix=14, ln=t_LN),-
+         AUTO_EXECUTE_IX         = list(ix=15, ln=t_LN),-
+         SINGLE_PARALLEL_IX      = list(ix=12, ln=t_LN),-
+         SINGLE_SELECT_IX        = list(ix=12, ln=t_LN),-
+         SINGLE_CANCEL_IX        = list(ix=12, ln=t_LN),-
+         PARALLEL_SELECT_IX      = list(ix=12, ln=t_LN),-
+         PARALLEL_CANCEL_IX      = list(ix=12, ln=t_LN),-
+         SINGLE_EXECUTE_IX       = list(ix=12, ln=t_LN),-
+         PARALLEL_EXECUTE_IX     = list(ix=12, ln=t_LN),-
+         MASTER_SLAVE_IX         = list(ix=13, ln=t_LN),-
+         MASTER_IX               = list(ix=31, ln=t_LN),-
+         FOLLOWER_IX             = list(ix=32, ln=t_LN),-
+         MASTER_SELECT_IX        = list(ix=33, ln=t_LN),-
+         MASTER_CANCEL_IX        = list(ix=33, ln=t_LN),-
+         FOLLOWER_SELECT_IX      = list(ix=34, ln=t_LN),-
+         FOLLOWER_CANCEL_IX      = list(ix=34, ln=t_LN),-
+         MASTER_EXECUTE_IX       = list(ix=33, ln=t_LN),-
+         FOLLOWER_EXECUTE_IX     = list(ix=34, ln=t_LN),-
+         EXT_CNTR_BLK_IX         = list(ix= 0, ln=t_ln),-
+         VOLTAGE_IX              = list(ix=24, ln=t_ln),-
+         REF_VOLTAGE_IX          = list(ix=25, ln=t_LN),-
+         REF_VOLTAGE_SELECT_IX   = list(ix=26, ln=t_LN),-
+         REF_VOLTAGE_CANCEL_IX   = list(ix=26, ln=t_LN),-
+         REF_VOLTAGE_EXECUTE_IX  = list(ix=26, ln=t_LN),-
+         COUNTER_IX              = list(ix=29, ln=t_LN),-
+         SEL_ON_MON_IX           = list(ix=30, ln=t_LN))
+         
+#if attribute_exists(l_object_info, "OPERATOR_PLACE_HANDLING") #then #block
+   #case l_object_info.OPERATOR_PLACE_HANDLING
+      #when "LOC" #block
+         l_indexes = merge_attributes(l_indexes, list(SW_LOC_IX = list(ix=70, ln = t_ln)))
+      #block_end
+      #when "LOCSTA" #block
+         l_indexes = merge_attributes(l_indexes, list(SW_LOCSTA_IX = list(ix=71, ln = t_ln)))
+      #block_end
+      #when "LOC_AND_LOCSTA" #block
+         l_indexes = merge_attributes(l_indexes, list(SW_LOC_IX = list(ix=70, ln = t_ln)))
+         l_indexes = merge_attributes(l_indexes, list(SW_LOCSTA_IX = list(ix=71, ln = t_ln), SW_LOCSTA_CMD_IX = list(ix=72, ln = t_ln)))
+      #block_end
+   #case_end
+#block_end
+
+;external contol blocking
+l_POs = application_object_list(0, "IX", "I",  "F", t_LN, "RX==""*AVRIBLK*""")
+#case l_POs.COUNT
+   #when 1 #block
+      l_indexes = merge_attributes(l_indexes, list(-
+         EXT_CNTR_BLK_IX        = list(ix=l_POs.IX(1), ln=t_LN)))
+   #block_end
+#case_end
+
+;auto/manual command indexes
+l_POs = application_object_list(0, "IX", "I",  "F", t_LN, "RX==""*AVRCMAN*""")
+#case l_POs.COUNT
+   #when 1 #block
+      l_indexes = merge_attributes(l_indexes, list(-
+         MANUAL_SELECT_IX        = list(ix=l_POs.IX(1), ln=t_LN),-
+         MANUAL_CANCEL_IX        = list(ix=l_POs.IX(1), ln=t_LN),-
+         AUTO_SELECT_IX          = list(ix=l_POs.IX(1), ln=t_LN),-
+         AUTO_CANCEL_IX          = list(ix=l_POs.IX(1), ln=t_LN),-     
+         MANUAL_EXECUTE_IX       = list(ix=l_POs.IX(1), ln=t_LN),-
+         AUTO_EXECUTE_IX         = list(ix=l_POs.IX(1), ln=t_LN)))
+   #block_end
+   #when 2 #block
+      l_indexes = merge_attributes(l_indexes, list(-
+         MANUAL_SELECT_IX        = list(ix=l_POs.IX(1), ln=t_LN),-
+         MANUAL_CANCEL_IX        = list(ix=l_POs.IX(1), ln=t_LN),-
+         AUTO_SELECT_IX          = list(ix=l_POs.IX(2), ln=t_LN),-
+         AUTO_CANCEL_IX          = list(ix=l_POs.IX(2), ln=t_LN),-
+         MANUAL_EXECUTE_IX       = list(ix=l_POs.IX(1), ln=t_LN),-
+         AUTO_EXECUTE_IX         = list(ix=l_POs.IX(2), ln=t_LN)))
+   #block_end
+   #when 4 #block
+   #block_end
+   #when 5 #block
+   #block_end
+#case_end
+
+;raise/lower command indexes
+l_POs = application_object_list(0, "IX", "I",  "F", t_LN, "RX==""*AVRCPOS*""")
+#case l_POs.COUNT
+   #when 1 #block
+      l_indexes = merge_attributes(l_indexes, list(-
+         RAISE_SELECT_IX        = list(ix=l_POs.IX(1), ln=t_LN),-
+         RAISE_CANCEL_IX        = list(ix=l_POs.IX(1), ln=t_LN),-
+         LOWER_SELECT_IX        = list(ix=l_POs.IX(1), ln=t_LN),-
+         LOWER_CANCEL_IX        = list(ix=l_POs.IX(1), ln=t_LN),-
+         RAISE_EXECUTE_IX       = list(ix=l_POs.IX(1), ln=t_LN),-
+         LOWER_EXECUTE_IX       = list(ix=l_POs.IX(1), ln=t_LN)))
+   #block_end
+   #when 2 #block
+      l_indexes = merge_attributes(l_indexes, list(-
+         RAISE_SELECT_IX        = list(ix=l_POs.IX(1), ln=t_LN),-
+         RAISE_CANCEL_IX        = list(ix=l_POs.IX(1), ln=t_LN),-
+         MANUAL_SELECT_IX       = list(ix=l_POs.IX(2), ln=t_LN),-
+         MANUAL_CANCEL_IX       = list(ix=l_POs.IX(2), ln=t_LN),-
+         RAISE_EXECUTE_IX       = list(ix=l_POs.IX(1), ln=t_LN),-
+         LOWER_EXECUTE_IX       = list(ix=l_POs.IX(2), ln=t_LN)))
+   #block_end
+#case_end
+
+;single/parallel indexes
+l_POs = application_object_list(0, "IX", "I",  "F", t_LN, "RX==""*AVRCSGL*""")
+#case l_POs.COUNT
+   #when 1 #block
+      l_indexes = merge_attributes(l_indexes, list(-         
+         SINGLE_SELECT_IX        = list(ix=l_POs.IX(1), ln=t_LN),-
+         SINGLE_CANCEL_IX        = list(ix=l_POs.IX(1), ln=t_LN),-
+         PARALLEL_SELECT_IX      = list(ix=l_POs.IX(1), ln=t_LN),-
+         PARALLEL_CANCEL_IX      = list(ix=l_POs.IX(1), ln=t_LN),-
+         SINGLE_EXECUTE_IX       = list(ix=l_POs.IX(1), ln=t_LN),-
+         PARALLEL_EXECUTE_IX     = list(ix=l_POs.IX(1), ln=t_LN)))
+   #block_end
+   #when 2 #block
+      l_indexes = merge_attributes(l_indexes, list(-         
+         SINGLE_SELECT_IX        = list(ix=l_POs.IX(2), ln=t_LN),-
+         SINGLE_CANCEL_IX        = list(ix=l_POs.IX(2), ln=t_LN),-
+         PARALLEL_SELECT_IX      = list(ix=l_POs.IX(1), ln=t_LN),-
+         PARALLEL_CANCEL_IX      = list(ix=l_POs.IX(1), ln=t_LN),-
+         SINGLE_EXECUTE_IX       = list(ix=l_POs.IX(2), ln=t_LN),-
+         PARALLEL_EXECUTE_IX     = list(ix=l_POs.IX(1), ln=t_LN)))
+   #block_end
+   #when 4 #block
+      l_indexes = merge_attributes(l_indexes, list(-
+         SINGLE_SELECT_IX        = list(ix=l_POs.IX(2), ln=t_LN),-
+         SINGLE_CANCEL_IX        = list(ix=l_POs.IX(4), ln=t_LN),-
+         PARALLEL_SELECT_IX      = list(ix=l_POs.IX(1), ln=t_LN),-
+         PARALLEL_CANCEL_IX      = list(ix=l_POs.IX(4), ln=t_LN),-
+         SINGLE_EXECUTE_IX       = list(ix=l_POs.IX(3), ln=t_LN),-
+         PARALLEL_EXECUTE_IX     = list(ix=l_POs.IX(3), ln=t_LN)))
+   #block_end
+   #when 5 #block
+      l_indexes = merge_attributes(l_indexes, list(-         
+         SINGLE_SELECT_IX        = list(ix=l_POs.IX(2), ln=t_LN),-
+         SINGLE_CANCEL_IX        = list(ix=l_POs.IX(5), ln=t_LN),-
+         PARALLEL_SELECT_IX      = list(ix=l_POs.IX(1), ln=t_LN),-
+         PARALLEL_CANCEL_IX      = list(ix=l_POs.IX(5), ln=t_LN),-
+         SINGLE_EXECUTE_IX       = list(ix=l_POs.IX(4), ln=t_LN),-
+         PARALLEL_EXECUTE_IX     = list(ix=l_POs.IX(3), ln=t_LN)))
+   #block_end   
+   #when 7 #block
+      l_indexes = merge_attributes(l_indexes, list(-
+         MASTER_SELECT_IX        = list(ix=l_POs.IX(1), ln=t_LN),-
+         MASTER_CANCEL_IX        = list(ix=l_POs.IX(1), ln=t_LN),-
+         MASTER_EXECUTE_IX       = list(ix=l_POs.IX(1), ln=t_LN),-
+         FOLLOWER_SELECT_IX      = list(ix=l_POs.IX(2), ln=t_LN),-
+         FOLLOWER_CANCEL_IX      = list(ix=l_POs.IX(2), ln=t_LN),-
+         FOLLOWER_EXECUTE_IX     = list(ix=l_POs.IX(2), ln=t_LN),-
+         SINGLE_SELECT_IX        = list(ix=l_POs.IX(3), ln=t_LN),-
+         SINGLE_CANCEL_IX        = list(ix=l_POs.IX(3), ln=t_LN),-
+         PARALLEL_SELECT_IX      = list(ix=l_POs.IX(3), ln=t_LN),-
+         PARALLEL_CANCEL_IX      = list(ix=l_POs.IX(3), ln=t_LN),-
+         SINGLE_EXECUTE_IX       = list(ix=l_POs.IX(3), ln=t_LN),-
+         PARALLEL_EXECUTE_IX     = list(ix=l_POs.IX(3), ln=t_LN)))      
+   #block_end
+#case_end
+
+;;master/slave indexes
+l_POs = application_object_list(0, "IX", "I",  "F", t_LN, "RX==""*AVRIMST*""")
+#case l_POs.COUNT
+   #when 0 #block
+      l_indexes = delete_attribute(l_indexes, vector("MASTER_SLAVE_IX", "MASTER_IX", "FOLLOWER_IX"))
+   #block_end
+   #when 1 #block
+      l_indexes = merge_attributes(l_indexes, list(-         
+         MASTER_SLAVE_IX         = list(ix=l_POs.IX(1), ln=t_LN)))
+      l_indexes = delete_attribute(l_indexes, vector("MASTER_IX", "FOLLOWER_IX"))
+   #block_end
+   #when 2 #block
+      l_indexes = merge_attributes(l_indexes, list(-         
+         MASTER_IX               = list(ix=l_POs.IX(1), ln=t_LN),-
+         FOLLOWER_IX             = list(ix=l_POs.IX(2), ln=t_LN)))
+      l_indexes = delete_attribute(l_indexes, "MASTER_SLAVE_IX")
+   #block_end
+#case_end
+
+;override indexes if they are defined in object type definition
+l_OT_Indexes = list_attr(l_object_info.Type_Info.Indexes)
+#loop_with i = 1 .. length(l_OT_Indexes)
+   t_Attr = l_OT_Indexes(i)
+   #if l_object_info.Type_Info.Indexes.'t_Attr' > 0 #then l_indexes = merge_attributes(l_indexes, list('t_Attr' = list(ix=l_object_info.Type_Info.Indexes.'t_Attr', ln = t_ln)))
+#loop_end
+   
+#return l_indexes

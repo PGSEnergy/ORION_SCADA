@@ -1,0 +1,109 @@
+;Function: BPU_EXECUTE_TRAFO:C
+;Source file: sc/lib5/base/process/application_objects/command_procedures/bpu_execute_trafo.scl
+;Version: 1.0
+;Parameters: l_object_info (contents of CD-attribute),  search_result, command forced operation
+;Return data:
+;Description: Prepares execute command for operation
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_data, command, t_command_selector
+#local t_cancel_ln, t_sta_type, i_cancel = 0, t_control_type, l_execution, i_IX, l_POs, t_Filter = ""
+#local i_cancel_ix, i_cancel_value, i_cmd_parameter, t_procedure = "", trash
+#local l_result = list(status = 0, err_description = "")
+
+t_cancel_ln = l_object_info.p_object_ln
+t_sta_type = l_object_info.station_type
+
+t_control_type = ""
+i_cancel_ix = l_data.all_objects.'t_command_selector'_IX
+
+#case t_command_selector
+   #when "LOWER_CANCEL" #block
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "RAISE_LOWER_CONTROL_TYPE") #then -
+         t_control_type = l_object_info.type_info.fixed_sct_values.RAISE_LOWER_CONTROL_TYPE
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "LOWER_CANCEL_VALUE") #then -
+         i_cancel_value = l_object_info.type_info.fixed_sct_values.LOWER_CANCEL_VALUE
+      t_Filter = "*AVRCPOS*"
+   #block_end
+   #when "RAISE_CANCEL" #block
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "RAISE_LOWER_CONTROL_TYPE") #then -
+         t_control_type = l_object_info.type_info.fixed_sct_values.RAISE_LOWER_CONTROL_TYPE
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "RAISE_CANCEL_VALUE") #then -
+         i_cancel_value = l_object_info.type_info.fixed_sct_values.RAISE_CANCEL_VALUE
+      t_Filter = "*AVRCPOS*"
+   #block_end
+   #when "MANUAL_CANCEL" #block
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "AUTO_MANUAL_CONTROL_TYPE") #then -
+         t_control_type = l_object_info.type_info.fixed_sct_values.AUTO_MANUAL_CONTROL_TYPE
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "MANUAL_CANCEL_VALUE") #then -
+         i_cancel_value = l_object_info.type_info.fixed_sct_values.MANUAL_CANCEL_VALUE
+      t_Filter = "*AVRCMAN*"
+   #block_end
+   #when "AUTO_CANCEL" #block
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "AUTO_MANUAL_CONTROL_TYPE") #then -
+         t_control_type = l_object_info.type_info.fixed_sct_values.AUTO_MANUAL_CONTROL_TYPE
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "AUTO_CANCEL_VALUE") #then -
+         i_cancel_value = l_object_info.type_info.fixed_sct_values.AUTO_CANCEL_VALUE
+      t_Filter = "*AVRCMAN*"
+   #block_end
+   #when "SINGLE_CANCEL" #block
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "SINGLE_PARALLEL_CONTROL_TYPE") #then -
+         t_control_type = l_object_info.type_info.fixed_sct_values.SINGLE_PARALLEL_CONTROL_TYPE
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "SINGLE_CANCEL_VALUE") #then -
+         i_cancel_value = l_object_info.type_info.fixed_sct_values.SINGLE_CANCEL_VALUE
+      t_Filter = "*AVRCSGL*"
+   #block_end
+   #when "PARALLEL_CANCEL" #block
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "SINGLE_PARALLEL_CONTROL_TYPE") #then -
+         t_control_type = l_object_info.type_info.fixed_sct_values.SINGLE_PARALLEL_CONTROL_TYPE
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "PARALLEL_CANCEL_VALUE") #then -
+         i_cancel_value = l_object_info.type_info.fixed_sct_values.PARALLEL_CANCEL_VALUE
+      t_Filter = "*AVRCSGL*"
+   #block_end
+   #when "FOLLOWER_CANCEL" #block
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "MASTER_SLAVE_CONTROL_TYPE") #then -
+         t_control_type = l_object_info.type_info.fixed_sct_values.MASTER_SLAVE_CONTROL_TYPE
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "SLAVE_CANCEL_VALUE") #then -
+         i_cancel_value = l_object_info.type_info.fixed_sct_values.SLAVE_CANCEL_VALUE
+      t_Filter = "*AVRISGL RX WRONG IN DB*"
+   #block_end
+   #when "MASTER_CANCEL" #block
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "SINGLE_PARALLEL_CONTROL_TYPE") #then -
+         t_control_type = l_object_info.type_info.fixed_sct_values.SINGLE_PARALLEL_CONTROL_TYPE
+      #if attribute_exists(l_object_info.type_info.fixed_sct_values, "MASTER_CANCEL_VALUE") #then -
+         i_cancel_value = l_object_info.type_info.fixed_sct_values.MASTER_CANCEL_VALUE
+      t_Filter = "*AVRISGL RX WRONG IN DB*"
+   #block_end
+   #when "REF_VOLTAGE_CANCEL" #block
+      t_Filter = "*AVRSRVO*"
+      i_cancel_value = argument(3)
+   #block_end
+   #when "SET_COUNTER_CANCEL" #block
+      t_Filter = "*AVRICNR*"
+   #block_end
+   #otherwise #block
+      trash = console_output(translation("Not supported command") + ": 't_command_selector'", "D", "LIB5")
+      #return list(status = -1, err_description = translation("Not supported command") + ": 't_command_selector'")
+   #block_end
+#case_end
+
+t_procedure =  l_object_info.type_info.command_procedures.get_control_type_trafo
+#if t_control_type == "" #then t_control_type = do('t_procedure':c, t_cancel_ln, t_sta_type, t_filter)
+
+t_procedure =  l_object_info.type_info.command_procedures.get_control_value_trafo
+#if data_type(i_cancel_value) == "NONE" #then i_cancel_value = do('t_procedure':c, t_control_type, t_sta_type, t_command_selector)
+
+#if t_sta_type == "IEC101" or t_sta_type == "DNP_30" or t_sta_type == "ICCP" #then i_cmd_parameter = 't_cancel_ln':pty'i_cancel_ix'
+
+;send cancel command
+t_procedure =  "BPU_CANCEL" ;l_object_info.type_info.command_procedures.cancel
+i_cancel = do('t_procedure':c, t_cancel_ln, i_cancel_ix, i_cancel_value, t_sta_type, t_control_type, i_cmd_parameter)
+
+#if i_cancel <> 0 #then #block ;error code of failure
+   l_result.status = i_cancel
+   l_result.err_description = status_code_name(i_cancel)
+#block_end
+
+#return l_result

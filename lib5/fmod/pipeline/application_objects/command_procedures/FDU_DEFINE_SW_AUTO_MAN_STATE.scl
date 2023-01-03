@@ -1,0 +1,66 @@
+;Function: FDU_DEFINE_SW_AUTO_MAN_STATE:C
+;Source file: sc/lib5/fmod/pipeline/application_objects/command_procedures/fdu_define_sw_auto_man_state.scl
+;Version: 1.0
+;Parameters: 
+;Return data: 
+;Description:  
+;--------------------------------------------------------------------------------------------------
+;Revision History
+;Date       Vers.    Author Description
+;--------------------------------------------------------------------------------------------------
+#argument l_object_info, l_Objects
+
+#local t_LN, v_Inputs = vector, v_Outputs = vector, l_Attributes = list()
+#local l_result = list(-
+   indication_missing = false,-
+   control_missing = false)
+   
+;   indication_state = 0,-
+;   indication2_state = 0,-
+   
+;****************************************************************************************************
+;redirect command if application specific command procedure is found                               ;*
+#local t_Redirect_Proc = "APLMOD5_FDU_DEFINE_SW_AUTO_MAN_STATE"                                         ;*
+#local i_ArgCnt, t_Redirect_Command, i_arg_loop                                                    ;*
+#if application_object_exists(0, "C", "'t_Redirect_Proc'") #then #block                            ;*
+   #if data_type(%REDIRECTED)=="NONE" #then #block                                                 ;*
+      #if 't_Redirect_Proc':CIU == 1 #then #block                                                  ;*
+         @REDIRECTED = true                                                                        ;*
+         i_ArgCnt = argument_count                                                                 ;*
+         #if sys:bdm == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':C"                        ;*
+         #else_if 't_Redirect_Proc':ccs == 1 #then t_Redirect_Command = "do('t_Redirect_Proc':CCP" ;*
+         #else t_Redirect_Command = "do('t_Redirect_Proc':C"                                       ;*
+         #loop_with i_arg_loop = 1 .. i_ArgCnt                                                     ;*
+            t_Redirect_Command = t_Redirect_Command + ",argument('i_arg_loop')"                    ;*
+            #if i_arg_loop == i_ArgCnt #then t_Redirect_Command =  t_Redirect_Command + ")"        ;*
+         #loop_end                                                                                 ;*
+         #return 't_Redirect_Command' ;;;;;                                                        ;*
+      #block_end                                                                                   ;*
+   #block_end                                                                                      ;*
+   #else #delete REDIRECTED:V                                                                      ;*
+#block_end                                                                                         ;*
+;****************************************************************************************************
+;MAIN START
+   
+t_LN = l_object_info.p_object_ln
+
+#if attribute_exists(l_objects, "indication_auto_ix") #then v_Inputs = vector(l_objects.indication_auto_ix)
+#else l_result.indication_missing = true
+
+#if attribute_exists(l_objects, "indication_manual_ix") #then v_Inputs = vector(l_objects.indication_manual_ix)
+#else l_result.indication_missing = true
+
+#if attribute_exists(l_objects, "indication_auto_man_up_ix") #then v_Inputs = vector(l_objects.indication_auto_man_up_ix)
+#else l_result.indication_missing = true
+
+#if l_object_info.motorized #then #block
+
+   #if not attribute_exists(l_objects, "auto_cmd_ix") or -
+   not attribute_exists(l_objects, "manual_cmd_ix") #then l_result.control_missing = true
+   #if not l_result.control_missing #then v_Outputs = (l_objects.auto_cmd_ix, l_objects.manual_cmd_ix)
+
+#block_end
+
+l_result = do(bpu_get_po_attribute_states:c, v_Inputs, v_Outputs, t_LN, l_result)
+
+#return l_result

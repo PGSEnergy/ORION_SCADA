@@ -1,0 +1,44 @@
+;-- code to initialize SA_LIB specific issues
+#if substr(SYS:BPR, 1, 7) == "SYS_600" #then #block ; PP added for SA_LIB
+
+    #if argument_count == 1 #then #block
+       ;Read the language to use
+       @L
+       @TMP
+
+       #ERROR IGNORE
+          @L = MON:BSV4
+          @TMP = APL:BSV(11)
+          @TMP = TMP:VB_APPLICATION_LANGUAGE
+       #ERROR CONTINUE
+
+       #IF DATA_TYPE(%L) == "TEXT" AND DATA_TYPE(%TMP) == "INTEGER" #THEN @L = %TMP
+       #IF DATA_TYPE(%L) == "TEXT" #THEN @L = 0
+       ;-------------------------------------------------------------------------------
+
+       ;Path definitions added if other than default localization
+       #IF %L > 0 #THEN #BLOCK
+          #PATH SAGR_LANG +/SA_LIB/BASE/BBONE/LANG'L'
+          #PATH SAGR_LANG +/SA_LIB/BASE/REPORTS/LANG'L'
+          #PATH B_LANG +/SA_LIB/BASE/BBONE/LANG'L' ; ID 13484
+          #PATH F_LANG +/SA_LIB/BASE/REPORTS/LANG'L' ; ID 13484
+       #BLOCK_END
+
+       @L_STATUS = STATUS
+
+    #block_end
+    #else #block
+
+       ;first initialize application settings
+       #error ignore
+       #do read_text("/sa_lib/base/bbone/use/BGU_INITC.TXT" )
+       #error stop
+   
+       ;now the SA_LIB needs to be updated or initialized
+       #error ignore
+       #do read_text("/sa_lib/base/bbone/use/BGU_INIT.TXT")
+       #error stop
+       
+   #block_end
+    
+#block_end

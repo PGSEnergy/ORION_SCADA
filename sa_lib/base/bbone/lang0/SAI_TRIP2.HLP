@@ -1,0 +1,560 @@
+COMMON TRIP SIGNAL
+
+1. Environmental requirements
+
+In order for the tripping tag to have full
+functionality, the following components need to
+be installed:
+
+SA-LIB
+
+2. Configurable attributes
+
+It is important to configure attributes in the order
+of appearance since setting one attribute may
+enable/disable and/or reset another attribute
+later.
+
+STATION_NAME
+
+A selector type of an editable combo box to
+select or enter the name of the substation. As a
+default the maximum length of the text is 9
+characters. The selection list shows up to ten
+latest entries.
+
+The configurable attribute is being read directly
+from the process object database, if there is any
+process object linked to the selected protection
+tripping tag. Therefore, the configurable attribute
+within a standard function has meaning only when the
+process objects have not been created.
+
+This text will be used as a substation identifier of
+the tripping objects on event list, alarm list,
+printout, database query, etc. It is very important
+that this text is similar to all objects within the
+same substation.
+
+BAY_NAME
+
+A selector type of an editable combo box to
+select or enter the name of the bay (feeder). As a
+default the maximum length of the text is 14
+characters. The selection list shows up to ten
+latest entries.
+
+The configurable attribute is being read directly
+from the process object database, if there is any
+process object linked to the selected protection
+tripping tag. Therefore, the configurable attribute
+within a standard function has meaning only when the
+process objects have not been created.
+
+This text will be used as a bay (feeder) identifier
+of the tripping objects on event list, alarm list,
+printout, database query, etc. It is very important
+that this text is similar to all objects within the
+same bay (feeder).
+
+DEVICE_NAME
+
+A selector type of an editable combo box to
+select or enter the name (identifier) of the
+protection unit. As a default the maximum length
+of the text is 5 characters. The selection list shows
+up to ten latest entries.
+
+The configurable attribute is being read directly
+from the process object database, if there is any
+process object linked to the selected protection
+tripping tag. Therefore, the configurable attribute
+within a standard function has meaning only when the
+process objects have not been created.
+
+This text will be used as an identifier of the
+tripping objects on event list, alarm list,
+printout, database query, etc.
+
+P_OBJECT_LN
+
+The logical name of the database process objects.
+The maximum length of the text is 10 characters.
+Allowed characters are the letters A-Z, all
+digits and the underscore (_).
+
+The logical names of process objects have to be
+unique throughout the entire system, that is,
+different objects cannot have the same logical
+name. Therefore, it is very important to have a
+proper naming convention for the process object
+database.
+
+Certain naming convention is also required to speed
+up the opening time of the main dialogs. With the
+predefined naming convention it is possible to
+collect all station and bay related database
+objects without searching through the complete
+database. Therefore, it is advised to use following
+naming convention:
+
+   - The first three characters identify the
+     substation
+   - The following four characters identify the bay
+   - The last three characters can be freely used to
+     identify the source of the signal i.e. device,
+     unit, etc.
+
+The following list is presented as an example of
+the proper naming convention within one bay. The
+station name is Green Bay and the bay name is HA12
+Downtown:
+
+   - GRB, station
+   - GRBHA12BAY, bay
+   - GRBHA12Q0, circuit breaker Q0
+   - GRBHA12Q1, truck Q1
+   - GRBHA12Q9, earth switch Q9
+   - GRBHA12CT, measurements/current transformer
+   - GRBHA12VT, measurements/voltage
+     transformer
+   - GRBHA12ALA, alarm indicator
+   - GRBHA12AR, auto-reclosing tag
+   - GRBHA12TRP, tripping tag
+   - GRBHA12R1, feeder terminal or protection
+     unit 1
+   - GRBHA12R2, feeder terminal or protection
+     unit 1
+   - GRBHA12LS1, line segment 1 of busbar
+     coloring
+   - GRBHA12LS2, line segment 2 of busbar
+     coloring
+   - GRBHA12LS3, line segment 3 of busbar
+     coloring
+   - GRBHA12LI, line indicator of busbar
+     coloring
+
+STATION_TYPE
+
+A selector type of a combo box to select the
+station type of the objects. The configurable
+attribute is being enabled if the attribute
+P_OBJECT_LN has been configured.
+
+The database process objects will be created for
+the station type defined here. The list of supported
+protocols is as follows:
+
+   - SPA
+   - ANSI
+   - LON
+   - RP570
+   - RP570 with FTABs
+   - IEC 870-5-101
+   - IEC 870-5-103
+   - ICCP
+   - DNP 3.0
+   - MODBUS RTU
+   - IEC 61850-8
+   - PROCOL
+
+OUTPUT_STATUS
+
+An ON/OFF type of a toggle button to select
+whether there is need for output status process
+objects with the DNP 3.0 protocol. If
+STATION_TYPE is other than DNP 3.0, the
+configurable attribute is being disabled, and the
+value has no meaning.
+
+EVENT_RECORDING
+
+An ON/OFF type of a toggle button to select
+whether there is need for event recording process
+objects with the RP 570 protocol. If
+STATION_TYPE is other than RTU 2xx or RTU
+2xx/FTABs or P_OBJECT_LN has not been
+configured, the configurable attribute is being
+disabled, and the value has no meaning.
+
+With the RP 570 the time stamp from the process
+device comes into the event recording process
+object. If no accurate time stamp is needed or
+available, or the device is emulating the RP 570
+without an event recording possibility, do not set
+this attribute ON.
+
+LINK_TRIP_TAG_TO_LN_x
+
+The logical name of the database process objects
+of the protection module x (x=1..5). The maximum
+length of the text is 10 characters. Allowed
+characters are the letters A-Z, all digits and the
+underscore (_).
+
+The configurable attributes
+LINK_TRIP_TAG_TO_LN_x and
+LINK_TRIP_TAG_TO_MODULE_x is utilized to
+create a link between existing protection tripping
+indication objects from the other standard function
+(e.g. protection module) and the trip indication
+tag. It even supports linking of user-defined process
+objects as LINK_TRIP_TAG_TO_MODULE_x is an
+editable selector.
+
+LINK_TRIP_TAG_TO_MODULE_x
+
+An editable selector type of a combo box to
+select the type designation of the protection
+module x (x=1..5). The configurable attribute is
+being enabled if the attribute
+LINK_TRIP_TAG_TO_LN_x has been configured.
+
+As a default, all protection modules from the
+SPACOM family have been implemented for the
+users to choose from. The supported modules are:
+
+   - SPAM 05x
+   - SPCD 2D55
+   - SPCD 3C21
+   - SPCD 3C22
+   - SPCD 3C23
+   - SPCD 3D53
+   - SPCJ 1C7
+   - SPCJ 1C8
+   - SPCJ 2C30
+   - SPCJ 3C3
+   - SPCJ 3C48
+   - SPCJ 3D35
+   - SPCJ 4D24
+   - SPCJ 4D28
+   - SPCJ 4D29
+   - SPCJ 4D34
+   - SPCJ 4D36
+   - SPCJ 4D40
+   - SPCJ 4D44
+   - SPCJ 4D61
+   - SPCP 3C2
+   - SPCS 2D26
+   - SPCS 2D32
+   - SPCS 2D37
+   - SPCS 3C4
+   - SPCS 4D11
+   - SPCS 4D12
+   - SPCS 4D13
+   - SPCU 1C1
+   - SPCU 1C6
+   - SPCU 1D39
+   - SPCU 1D47
+   - SPCU 3C14
+   - SPCU 3C15
+   - SPEF 3A2
+
+The minimum requirement for the tripping tag to
+function is the following indeces have been created
+and SPACOM events have been enabled by using
+the Relay Configuration Tool:
+
+SPAM 05x
+
+   index 122 - thermal trip (E5/E6)
+   index 125 - dI> trip (E11/E12)
+   index 126 - Is> trip (E13/E14)
+   index 128 - I0> trip (E17/E18)
+   index 129 - I> trip (E19/E20)
+
+SPCD 2D55
+
+   index 26 - TS2 (E31/E32) note!
+   index 12 - dI01> (E3/E4)
+   index 15 - dI02> (E9/E10)
+
+SPCD 3C21
+
+   index 32 - dI> L1 (E3/E4)
+
+SPCD 3C22
+
+   index 34 - dI> L2 (E3/E4)
+
+SPCD 3C23
+
+   index 36 - dI> L3 (E3/E4)
+
+SPCD 3D53
+
+   index 44 - TS2 (E27/E28) note!
+   index 31 - 3dI> trip (E1/E2)
+   index 32 - 3dI>> trip (E3/E4)
+   index 49 - 3dI> trip/L1 (1E1/1E2)
+   index 50 - 3dI>> trip/L1 (1E3/1E4)
+   index 53 - 3dI> trip/L2 (2E1/2E2)
+   index 54 - 3dI>> trip/L2 (2E3/2E4)
+   index 57 - 3dI> trip/L3 (3E1/3E2)
+   index 58 - 3dI>> trip/L3 (3E3/3E4)
+
+SPCJ 1C7
+
+   index 12 - I0> trip (E3/E4)
+   index 14 - I0>> trip (E7/E8)
+
+SPCJ 1C8
+
+   index 16 - I0> trip (E3/E4)
+   index 18 - I0>> trip (E7/E8)
+
+SPCJ 2C30
+
+   index 23 - dI0> trip (E1/E2)
+   index 25 - I0> trip (E5/E6)
+
+SPCJ 3C3
+
+   index 20 - I> trip (E3/E4)
+   index 22 - I>> trip (E7/E8)
+
+SPCJ 3C48
+
+   index 57 - I> trip (E3/E4)
+   index 59 - I>> trip (E7/E8)
+   index 61 - I0> trip (E11/E12)
+
+SPCJ 3D35
+
+   index 51 - TS2 (E23/E24) note!
+   index 41 - I1> trip (E3/E4)
+   index 43 - I2> trip (E7/E8)
+   index 45 - I3> trip (E11/E12)
+   index 47 - I4> trip (E15/E16)
+
+SPCJ 4D24
+
+   index 44 - TS2 (E25/E26)
+   index 33 - I> trip (E3/E4)
+   index 35 - I>> trip (E7/E8)
+   index 37 - I0> trip (E11/E12)
+   index 39 - I0>> trip (E15/E16)
+
+SPCJ 4D28
+
+   index 80 - TS2 (E25/E26) note!
+   index 66 - I> trip (E3/E4)
+   index 68 - I>> trip (E7/E8)
+   index 70 - I>>> trip (E11/E12)
+   index 72 - I0> trip (E15/E16)
+   index 74 - I0>> trip (E19/E20)
+   index 76 - dI> trip (E23/E24)
+
+SPCJ 4D29
+
+   index 57 - TS2 (E25/E26)
+   index 46 - I> trip (E3/E4)
+   index 48 - I>> trip (E7/E8)
+   index 50 - I0> trip (E11/E12)
+   index 52 - I0>> trip (E15/E16)
+
+SPCJ 4D34
+
+   index 78 - TS2 (E41/E42)
+   index 60 - thermal alarm trip (E5/E6)
+   index 61 - thermal overload trip (E7/E8)
+   index 63 - Is> trip (E11/E12)
+   index 65 - I>> trip (E15/E16)
+   index 67 - I0> trip (E19/E20)
+   index 69 - dI> trip (E23/E24)
+   index 71 - I< trip (E27/E28)
+
+SPCJ 4D36
+
+   index 39 - TS2 (E25/E26)
+   index 28 - I> trip (E3/E4)
+   index 30 - I>> trip (E7/E8)
+   index 32 - I0> trip (E11/E12)
+   index 34 - I0>> trip (E15/E16)
+
+SPCJ 4D40
+
+   index 95 - TS2 (E33/E34)
+   index 80 - Ib> trip (E3/E4)
+   index 82 - Ia> trip (E7/E8)
+   index 84 - I< trip (E11/E12)
+   index 86 - dI1> trip (E15/E16)
+   index 88 - dI2> trip (E19/E20)
+
+SPCJ 4D44
+
+   index 108 - TS2 (E25/E26)
+   index 97  - I> trip (E3/E4)
+   index 99  - I>> trip (E7/E8)
+   index 101 - I01> trip (E11/E12)
+   index 103 - I02> trip (E15/E16)
+
+SPCJ 4D61
+
+   index 135 - TS2 (E31/E32) note!
+   index 121 - I> trip (E3/E4)
+   index 123 - I>> trip (E7/E8)
+   index 125 - I>>> trip (E11/E12)
+   index 127 - I0> trip (E15/E16)
+   index 129 - I0>> trip (E19/E20)
+   index 131 - dI> trip (E23/E24)
+
+SPCP 3C2
+
+   index 62 - U>, U>> trip (E3/E4)
+   index 64 - reverse power trip (E7/E8)
+
+SPCS 2D26
+
+   index 95 - TS2 (E19/E20) note!
+   index 87 - U0b> trip (E3/E4)
+
+SPCS 2D32
+
+   index 107 - TS2 (E22/E30) note!
+   index 97  - I0> trip (E5/E6)
+   index 99  - U02> trip (E9/E10)
+   index 101 - I0>> trip (E13/E14)
+   index 103 - Itr> trip (E17/E18)
+
+SPCS 2D37
+
+   index 22 - TS2 (E23/E24) note!
+   index 12 - I01> first trip (E3/E4)
+   index 14 - I01> second trip (E7/E8)
+   index 16 - I02> trip (E11/E12)
+   index 18 - I03> trip (E15/E16)
+
+SPCS 3C4
+
+   index 29 - I0> trip (E3/E4)
+   index 31 - I0>> trip (E7/E8)
+
+SPCS 4D11
+
+   index 121 - TS2 (E25/E26)
+   index 111 - I> trip (E5/E6)
+   index 113 - I>> trip (E9/E10)
+   index 115 - I>>> trip (E13/E14)
+
+SPCS 4D12
+
+   index 134 - TS2 (E25/E26)
+   index 124 - I> trip (E5/E6)
+   index 126 - I>> trip (E9/E10)
+   index 128 - I>>> trip (E13/E14)
+
+SPCS 4D13
+
+   index 147 - TS2 (E25/E26)
+   index 137 - I> trip (E5/E6)
+   index 139 - I>> trip (E9/E10)
+   index 141 - I>>> trip (E13/E14)
+
+SPCU 1C1
+
+   index 12 - U> trip (E3/E4)
+   index 14 - U< trip (E7/E8)
+
+SPCU 1C6
+
+   index 16 - U0> trip (E3/E4)
+   index 18 - U0>> trip (E7/E8)
+
+SPCU 1D39
+
+   index 126 - TS2 (E23/E24) note!
+   index 120 - U0> trip (E11/E12)
+
+SPCU 1D47
+
+   index 142 - TS2 (E23/E24) note!
+   index 136 - U> trip (E11/E12)
+
+SPCU 3C14
+
+   index 20 - U> trip (E3/E4)
+   index 22 - U< trip (E7/E8)
+
+SPCU 3C15
+
+   index 20 - U< trip (E3/E4)
+   index 22 - 3U<< trip (E7/E8)
+
+SPEF 3A2
+
+   index 101 - I> alarm (E3/E4)
+   index 103 - I0> alarm (E7/E8)
+   index 105 - dI> alarm (E11/E12)
+
+Note! As a presumption these modules are using TS2
+as the indicator of latched output.
+
+If there is no appropriate protection module to pick
+or if freely defined process objects are going to be
+used, it is possible to link those objects by using
+the following syntax:
+
+   "ID","I1","R1","I2","R2","I3","R3", ...
+
+   ID  - module ID (used only as a comment)
+   I1  - DB index of latch indication object
+   R1  - representation (symbol set) for latch ind.
+   I2  - DB index of trip indication object 1
+   R2  - representation (symbol set) for object 1
+   I3  - DB index of trip indication object 2
+   R3  - representation (symbol set) for object 2
+
+If the module does not support sending of an event
+of a latched output relay, the vector element I1
+has been left as an empty element i.e. "".
+
+As an example, non-directional overcurrent and
+neutral earth-fault of REF 54x feeder terminal:
+
+$   "REF54x","","F_REPR/F_LATCH1","1","F_REPR/F_TRIP3",-
+$      ”60","F_REPR/F_TRIP11"
+
+The type designation of the protection module x
+(x=1..5) is not necessary if there is no logical
+name for the protection module in question.
+
+3. Configurable attributes with Process Object
+Tool
+
+THE DATABASE OBJECTS WILL NOT BE
+CREATED UNTIL THE PROCESS OBJECT
+TOOL HAS BEEN USED TO CREATE THEM.
+
+Based on the configuration made with the Standard
+Configuration Tool, the Process Object Tool
+(POT) creates a set of process objects among those
+that have been listed below.
+
+General protection trip indication
+
+   - Optional
+   - Indicates if there is any protection trip within
+     the bay
+   - Index 10, BI
+
+General trip relay latched indication
+
+   - Optional
+   - Indicates if there is any latched trip relay
+     active within the bay
+   - Index 11, BI
+
+General trip relay reset command
+
+   - Optional
+   - Resets the latched trip relay
+   - Indeces 12 (13, 14, 15, 16, 17), BO
+
+Event recording for input signals with the RP 570
+protocol
+
+   - Optional
+   - Receives an accurate time stamp from the
+     protection unit
+   - Indeces 110, 111

@@ -1,0 +1,134 @@
+; File: SSS_Init.scl()
+; Version: SYS 600 9.3
+; Parameters: sys_ssset, list of general application parameters
+; Description: Resets the use of time channels and enables/disables the use of command procedures in the
+;              SYS 600 System Self Supervision (according to B_SSS_MECH_IN_USE switch in sys_bascon.com)
+; -------------------------------------------------------------------------------------------------------
+
+;read in system configuration data
+@l_System_Configuration_Data = SYS:BSV2
+
+;reset the use of time channels and enable/disable the use of command procedures
+#if data_type(%l_System_Configuration_Data) == "LIST" #then #block ; 1
+
+   ;--- GENERAL PARAMETERS ---
+   
+   ;check existance of general application parameters
+   #if data_type(%sys_ssset) <> "LIST" #then @sys_ssset = APL:BSV45
+
+   ;check existence of SSSEVENT.INI common parameters
+   @Apl_Name = APL:BNA
+   @File= "/APL/'APL_NAME'/SUPERV/SSSEVENT.INI"
+   @v_Section_Check = ("*", "ATTRIBUTE_MAPPING", "ATTRIBUTE_MAPPING")
+   @v_Keyname_Check = ("Version", "Event_Attributes", "Alarm_Attributes")
+   @v_Keyname_Value = ("1.0", "Event", "Alarm")
+
+   #loop_with i_Count = 1 .. length(%v_Section_Check)
+
+      @l_Common_Read = read_parameter(%File, %v_Section_Check(%i_Count), %v_Keyname_Check(%i_Count))
+      #if l_Common_Read:vSTATUS == 558 or l_Common_Read:vSTATUS == 559 #then @l_Common_Write = write_parameter(%File, %v_Section_Check(%i_Count), %v_Keyname_Check(%i_Count), %v_Keyname_Value(%i_Count))
+
+   #loop_end
+
+   ;--- TIME CHANNELS ---
+   
+   ;reset the use of time channels
+   #if application_object_count(0, "T", "", "", "", "LN == ""SYS_NETSR"" and IU == 1") > 0 #then #block
+      #modify SYS_NETSR:T = list(IU = 0, CY = (0,sys_ssset:vNET_STATUS_CHECK_INTERVAL))
+      #set SYS_NETSR:TIU = 1
+   #block_end   
+   
+   #if application_object_count(0, "T", "", "", "", "LN == ""SYS_APLH"" and IU == 1") > 0 #then #block
+      #modify SYS_APLH:T = list(IU = 0, CY = (0,sys_ssset:vAPL_STATUS_CHECK_INTERVAL))
+      #set SYS_APLH:TIU = 1
+   #block_end
+   
+   #if application_object_count(0, "T", "", "", "", "LN == ""SYS_APLE"" and IU == 1") > 0 #then #block
+      #modify SYS_APLE:T = list(IU = 0, CY = (0,sys_ssset:vAPL_STATUS_CHECK_INTERVAL))
+      #set SYS_APLE:TIU = 1
+   #block_end
+   
+   ;--- COMMAND PROCEDURES ---
+   
+   ;define command procedure names
+   @v_Objects = ("SYS_APLER", "SYS_NETLMR", "SYS_NETMR", "SYS_NETSR", "SYS_OSER", "SYS_PRIMR", "SYS_SLCMR", "SYS_STAMR", "SYS_SYSER")
+
+   ;define parallel queue number to be used
+   @i_PQ = 4
+
+   ;initialize variables
+   @b_Disable_Procedures = FALSE
+
+   ;check the switch state
+   #if length(select(list_attr(%l_System_Configuration_Data), "==""B_SSS_MECH_IN_USE""")) > 0 #then #block ; 1_1
+
+      ;enable the use of command procedures (if true)
+      #if l_System_Configuration_Data:vB_SSS_MECH_IN_USE #then #block
+
+         ;command procedures
+         #loop_with i = 1 .. length(%v_Objects)
+            @t_Object_Name = %v_Objects(%i)
+            #if 't_Object_Name':CIU == 0 #then #modify 't_Object_Name':C = list(IU = 1, MO = 1, PE = 1, PQ = %i_PQ)
+         #loop_end
+
+         ;command procedure for unknown process object events
+         #if application_object_count(0, "C", "", "", "", "LN == ""SYS_UPOER""") > 0 #then -
+            #if SYS_UPOER:CIU == 0 and SYS_UPOER:CFX == "TRUE" #then #modify SYS_UPOER:C = list(IU = 1, MO = 1, PE = 1, PQ = %i_PQ)
+
+         ;command procedures for base system supervision
+         #if application_object_count(0, "C", "", "", "", "LN == ""SYS_APLE1""") > 0 #then -
+            #if SYS_APLE1:CIU == 0 and SYS_APLE1:CFX == "TRUE" #then #modify SYS_APLE1:C = list(IU = 1, MO = 1, PE = 1, PQ = %i_PQ)
+
+         #if application_object_count(0, "C", "", "", "", "LN == ""SYS_APLE2""") > 0 #then -
+            #if SYS_APLE2:CIU == 0 and SYS_APLE2:CFX == "TRUE" #then #modify SYS_APLE2:C = list(IU = 1, MO = 1, PE = 1, PQ = %i_PQ)
+
+         #if application_object_count(0, "C", "", "", "", "LN == ""SYS_APLH1""") > 0 #then -
+            #if SYS_APLH1:CIU == 0 and SYS_APLH1:CFX == "TRUE" #then #modify SYS_APLH1:C = list(IU = 1, MO = 1, PE = 1, PQ = %i_PQ)
+
+         #if application_object_count(0, "C", "", "", "", "LN == ""SYS_APLH2""") > 0 #then -
+            #if SYS_APLH2:CIU == 0 and SYS_APLH2:CFX == "TRUE" #then #modify SYS_APLH2:C = list(IU = 1, MO = 1, PE = 1, PQ = %i_PQ)
+            
+         ;the switch status
+         #return TRUE
+      
+      #block_end
+         #else @b_Disable_Procedures = TRUE
+
+   #block_end ; 1_1
+      #else @b_Disable_Procedures = TRUE
+
+
+   ;disable the use of command procedures (if false)
+   #if %b_Disable_Procedures #then #block ; 1_2
+
+      ;command procedures
+      #loop_with i = 1..length(%v_Objects)
+         @t_Object_Name = %v_Objects(%i)
+         #if 't_Object_Name':CIU == 1 #then #modify 't_Object_Name':C = list(IU = 0, MO = 0, PE = 1, PQ = %i_PQ)
+      #loop_end
+
+      ;command procedure for unknown process object events
+      #if application_object_count(0, "C", "", "", "", "LN == ""SYS_UPOER""") > 0 #then -
+         #if SYS_UPOER:CIU == 1 #then #modify SYS_UPOER:C = list(IU = 0, MO = 0, PE = 1, PQ = %i_PQ)
+
+      ;command procedures for base system supervision
+      #if application_object_count(0, "C", "", "", "", "LN == ""SYS_APLE1""") > 0 #then -
+         #if SYS_APLE1:CIU == 1 #then #modify SYS_APLE1:C = list(IU = 0, MO = 0, PE = 1, PQ = %i_PQ)
+
+      #if application_object_count(0, "C", "", "", "", "LN == ""SYS_APLE2""") > 0 #then -
+         #if SYS_APLE2:CIU == 1 #then #modify SYS_APLE2:C = list(IU = 0, MO = 0, PE = 1, PQ = %i_PQ)
+
+      #if application_object_count(0, "C", "", "", "", "LN == ""SYS_APLH1""") > 0 #then -
+         #if SYS_APLH1:CIU == 1 #then #modify SYS_APLH1:C = list(IU = 0, MO = 0, PE = 1, PQ = %i_PQ)
+
+      #if application_object_count(0, "C", "", "", "", "LN == ""SYS_APLH2""") > 0 #then -
+         #if SYS_APLH2:CIU == 1 #then #modify SYS_APLH2:C = list(IU = 0, MO = 0, PE = 1, PQ = %i_PQ)
+
+      ;the switch status
+      #return FALSE
+
+   #block_end ; 1_2
+
+#block_end ; 1
+   #else #return FALSE
+

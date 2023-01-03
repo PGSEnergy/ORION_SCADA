@@ -1,0 +1,110 @@
+﻿; This command procedure is used for configuring line and station into NET 
+; for IEC 870-5-101 slave                           
+;
+; SYS600 10.2.0
+; Compilation status: Not Compiled
+; INPUT:  @NET, number of the NET, integer
+;         @LINE, number of the line that connects the station to NET, integer
+;         @PORT, Communication port definition, text string
+;         @MODE, 0=balanced, 1=unbalanced
+;         @STATIONS, number(s) of the station that is connected to line, integer vector   
+;         @APPLIC, application number that receives the system messages, integer
+;------------------------------------------------------------------------------
+
+; Create a line with IEC 870-5-101 slave if it does not exist
+; Balanced mode
+#IF %MODE==0 #THEN #BLOCK
+  #IF NET'NET':SPO'LINE'==0 #THEN #BLOCK
+    #SET NET'NET':SPO'LINE' = 30            ;balanced IEC 870-5-101 slave
+    #SET NET'NET':SMS'LINE' = %APPLIC       ;message application
+    #SET NET'NET':SMI'LINE' = %LINE+(6000+(%NET*100))  ;message identifier
+    #SET NET'NET':SBR'LINE' = 9600          ;baud rate
+    #SET NET'NET':SPY'LINE' = 2             ;parity  
+    #SET NET'NET':SRD'LINE' = 8             ;receive bit count
+    #SET NET'NET':STD'LINE' = 8             ;transmit bit count
+    #SET NET'NET':SSB'LINE' = 1             ;stop bit count
+    #SET NET'NET':SSD'LINE' = %PORT         ;Com port definition
+    #SET NET'NET':SLK'LINE' = 12            ;link type
+    #SET NET'NET':SPS'LINE' = 20            ;buffer pool size
+    #SET NET'NET':SDE'LINE' = 50            ;CTS delay (ms)
+    #SET NET'NET':STW'LINE' = 30            ;transmission wait delay (ms)
+    #SET NET'NET':SRK'LINE' = 0             ;RTS keep up padding characters
+    #SET NET'NET':SRI'LINE' = 0             ;receiver disabling time (ms)
+    #SET NET'NET':SPD'LINE' = 5000          ;polling detection (ms)
+    #SET NET'NET':SEN'LINE' = 3             ;enquiry limit                       
+  #BLOCK_END
+#BLOCK_END
+
+#ELSE_IF %MODE==1 #THEN #BLOCK
+  #IF NET'NET':SPO'LINE'==0 #THEN #BLOCK
+    #SET NET'NET':SPO'LINE' = 29            ;unbalanced IEC 870-5-101 slave
+    #SET NET'NET':SMS'LINE' = %APPLIC       ;message application
+    #SET NET'NET':SMI'LINE' = %LINE+(6000+(%NET*100))  ;message identifier
+    #SET NET'NET':SBR'LINE' = 9600          ;baud rate
+    #SET NET'NET':SPY'LINE' = 2             ;parity  
+    #SET NET'NET':SRD'LINE' = 8             ;receive bit count
+    #SET NET'NET':STD'LINE' = 8             ;transmit bit count
+    #SET NET'NET':SSB'LINE' = 1             ;stop bit count
+    #SET NET'NET':SSD'LINE' = %PORT         ;Com port definition    
+    #SET NET'NET':SLK'LINE' = 4             ;link type
+    #SET NET'NET':SPS'LINE' = 20            ;buffer pool size
+    #SET NET'NET':SDE'LINE' = 50            ;CTS delay (ms)
+    #SET NET'NET':STW'LINE' = 0             ;transmission wait delay (ms)
+    #SET NET'NET':SRK'LINE' = 0             ;RTS keep up padding characters
+    #SET NET'NET':SRI'LINE' = 0             ;receiver disabling time (ms)
+    #SET NET'NET':SPD'LINE' = 30000         ;polling detection (ms)
+    #SET NET'NET':SEN'LINE' = 3             ;enquiry limit                        
+  #BLOCK_END
+#BLOCK_END
+
+; Stop the net line before configuration
+#ERROR IGNORE
+#SET NET'NET':SIU'LINE' = 0
+#ERROR STOP
+
+; Requires a basesystem object for station
+#LOOP_WITH I = 1..LENGTH(%STATIONS)
+  @STA=%STATIONS(%I)
+  #IF (STA'STA':BST=="IEC") AND -
+      (STA'STA':BND==%NET) AND -
+      (STA'STA':BTT=="EXTERNAL") #THEN #BLOCK
+    #ERROR IGNORE
+    #SET STA'STA':SIU = 0
+    @STA_NR = STA'STA':BTN
+    #SET NET'NET':SDV29 = (%STA_NR,"D")
+    #ERROR STOP
+  #BLOCK_END
+#LOOP_END
+
+#LOOP_WITH I = 1..LENGTH(%STATIONS)
+  @STA=%STATIONS(%I)
+  @STA_NR = STA'STA':BTN
+  #SET NET'NET':SDV(29) = (%STA_NR,%LINE)      ;create station to line
+  #SET STA'STA':SIU           = 0              ;set station out of use
+  #SET STA'STA':SLI           = %LINE          ;line number
+  #SET STA'STA':SAL           = 1              ;allocated
+  #SET STA'STA':SAS           = %APPLIC        ;allocated system
+  #SET STA'STA':SMI           = 1000+%STA      ;message identification
+  #SET STA'STA':SMS           = %APPLIC        ;message application
+  #SET STA'STA':SSA           = %STA_NR        ;station address
+  #SET STA'STA':SSL           = 2              ;station address length (bytes)
+  #SET STA'STA':SPA           = %STA_NR        ;polling address link address)
+  #SET STA'STA':SPL           = 1              ;polling address length (bytes)
+  #SET STA'STA':SIL           = 3              ;information address length (bytes) 
+  #SET STA'STA':SCL           = 1              ;COT length (bytes) 
+  #SET STA'STA':STC           = 0              ;time synchronization (0,1,2,3)
+  #SET STA'STA':SCA           = 32000          ;command address
+  #SET STA'STA':SPC           = 0              ;process data confirmation (0=man, 1=auto)
+  #SET STA'STA':SMT           = 0              ;max. delayed response time (s)
+  #SET STA'STA':SST           = 5000           ;SYS waiting time (ms)
+  #SET STA'STA':SSU           = 0              ;summer time (0=no, 1=yes)
+  #SET STA'STA':SRW           = 90             ;reply window size          
+  #SET STA'STA':SML           = 230            ;max. message length
+  #SET STA'STA':SDR           = 0              ;direction                  
+  #SET STA'STA':SSR           = 0              ;single char response
+  #SET STA'STA':SRM           = 0              ;running mode
+  #SET STA'STA':SIU           = 1              ;set station in use
+#LOOP_END
+
+; Set line in use
+#SET NET'NET':SIU'LINE' = 1

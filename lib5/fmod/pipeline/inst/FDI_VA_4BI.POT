@@ -1,0 +1,231 @@
+;------------------------------------------------------------------------------------
+; Rev. 
+; 0.00     2005.04.26   TiLi    Initial
+;-----------------------------------------------------------------
+
+;
+@EH_PT3  = "FD_FORM5_3_7"
+@EH_PT5  = "FD_FORM5_5_1"
+@EH_PT12 = "FD_FORM5_12_10"
+
+;execute common DS%% code
+#DO READ_TEXT("F5_INST/FDI_VA.POT",1,10000)
+
+#CREATE fdi_va_4bi:v = LIST(-
+   BI42DI_COMMENT = "Updates from 4 separate alarms to DI",-
+   IMAGE = "Image for display",-
+   FAULT = "Valve malfunction",-
+   STATE = "Valve state",-
+   POSITION_ON = "Valve position",-
+   POSITION_OFF = "Valve position")
+
+;create needed scales, command procedures and event channels
+
+;create event channel for BI to DB updating command procedure
+@a_search_name = "FDU_4BI2DI"
+@A_SEARCH = FETCH(0, "A", %a_search_name)
+#IF A_SEARCH:VIU == -1 #THEN #BLOCK
+  #CREATE 'a_search_name':A = LIST(-
+    CM = fdi_va_4bi:vBI42DI_COMMENT,-
+    OT = "C",-
+    ON = %a_search_name)
+#BLOCK_END
+
+;command procedure for updating objects from the process
+@c_search_name = "FDU_4BI2DI"
+@C_SEARCH = FETCH(0, "C", %c_search_name)
+#IF C_SEARCH:VIU == -1 #THEN #BLOCK
+  @c_search_in = read_text("F5_USE/'c_search_name'.txt")
+  #CREATE 'c_search_name':C = LIST(-
+    IU = 1,-
+    MO = 1,-
+    HN = 9,-
+    CM = fdi_va_4bi:vBI42DI_COMMENT,-
+    IN = %c_search_in)
+#BLOCK_END
+
+;initialize variables
+
+@P_OBJ1000  ;DI - Abbildung für die Anzeige ix==310
+@P_OBJ1001  ;BI - gestört Meldung           ix==311
+@P_OBJ1002  ;BI - betriebsbereit Meldung    ix==312
+@P_OBJ1003  ;BI - geschlossen Meldung       ix==313 - Index10 = 2
+@P_OBJ1004  ;BI - geöffnet Meldung          ix==314 - Index10 = 1
+
+#MODIFY P_OBJECTS:V = LIST(P_OBJ1000 = LIST(-
+          IX = 310,-                                     ;index = 310
+          PT = 6,-                                       ;process object type = DI
+          DX = "6",-                                     ;directive text
+          DI = 0,-                                       ;object value = 0
+          OI = %OBJ_IDENT,-                              ;substation & bay name
+          OX = fdi_va_4bi:vIMAGE,-                      ;object text
+          IU = 1,-                                       ;in use = yes
+          SS = 3,-                                       ;switch state = fictive
+          EE = 1,-                                       ;event enable = yes
+          HE = 0,-                                       ;history enable
+          HA = 1,-                                       ;history activation = new value
+          HF = 0,-                                       ;history at first update = no
+          HL = BIT_MASK(15),-                            ;history log number = 15
+          PD = 0,-                                       ;picture device = none
+          PI = "",-                                      ;alarm picture
+          PF = "",-                                      ;physical format for printout
+          RI = 0,-                                       ;dynamic texts for printout
+          PA = 1,-                                       ;printout activation = new value
+          PU = 0,-                                       ;picture/ printout at first update = no
+          LD = 0,-                                       ;listing device
+          RX = %RX(1)))                                  ;data acquisition unit and group information from index 10
+          
+;4 binary inputs
+
+#CASE 'ID'_PICTURE_FUNCTION_CONF:VSTATION_TYPE
+  #WHEN "SPA" #BLOCK
+    @DX(1001..1004)   = "N7S"
+  #BLOCK_END
+  #WHEN "IEC101","IEC103" #BLOCK
+    @DX(1001..1004)   = "C3"
+  #BLOCK_END
+  #WHEN "ANSI" #BLOCK
+    @DX(1001..1004)   = "3"
+  #BLOCK_END
+  #WHEN "RTU" #BLOCK
+    @DX(1001..1004)   = "I7S"
+  #BLOCK_END
+  #WHEN "RTU_E" #BLOCK
+    @DX(1001..1004)   = "R7S"
+  #BLOCK_END
+#CASE_END
+
+@RX(1001..1004) = %ADDITIONAL_IDENT+%UNIT_IDENT+ -       ;function block or channel number, data acquisition unit
+                      "DP'XX''YY'EPOS"                   ;and group information
+
+#MODIFY P_OBJECTS:V = LIST(P_OBJ1001 = LIST(-
+          IX = 311,-                                     ;index = 311
+          PT = 3,-                                       ;process object type = BI
+          DX = %DX(1001),-                               ;directive text
+          BI = 0,-                                       ;object value = 0
+          OI = %OBJ_IDENT,-                              ;substation & bay name
+          OX = fdi_va_4bi:vFAULT,-                    ;object text
+          IU = 1,-                                       ;in use = yes
+          SS = 1,-                                       ;switch state = manual
+          EE = 1,-                                       ;event enable = yes
+          HE = 1,-                                       ;history enabled = yes
+          HA = 1,-                                       ;history activation = new value
+          HF = 0,-                                       ;history at first update = no
+          HL = BIT_MASK(15),-                            ;history log number = 15
+          EH = "FD_FORM5_3_0",-                          ;event handling object
+          RC = 1,-                                       ;receipt = acknowledgement required
+          AB = 0,-                                       ;alarm blocking = no
+          AC = 1,-                                       ;alarm class = 1 (enabled)
+          AG = 1,-                                       ;alarming value = 1
+          AD = 0,-                                       ;alarm delay = 0
+          PD = 0,-                                       ;picture device = none
+          PI = "",-                                      ;alarm picture
+          PF = "",-                                      ;physical format for printout
+          RI = 0,-                                       ;dynamic texts for printout
+          PA = 1,-                                       ;printout activation = new value
+          PU = 0,-                                       ;picture/ printout at first update = no
+          LD = 0,-                                       ;listing device
+          AN = "FDU_4BI2DI",-                            ;action name
+          AE = 1,-                                       ;action enabled
+          AA = 2,-                                       ;action activation = update
+          AF = 1,-                                       ;action at first update = yes
+          RX = %RX(1001)))                               ;data acquisition unit and group information
+
+#MODIFY P_OBJECTS:V = LIST(P_OBJ1002 = LIST(-
+          IX = 312,-                                     ;index = 312
+          PT = 3,-                                       ;process object type = BI
+          DX = %DX(1002),-                               ;directive text
+          BI = 1,-                                       ;object value = 1
+          OI = %OBJ_IDENT,-                              ;substation & bay name
+          OX = fdi_va_4bi:vSTATE,-                     ;object text
+          IU = 1,-                                       ;in use = yes
+          SS = 1,-                                       ;switch state = manual
+          EE = 1,-                                       ;event enable = yes
+          HE = 1,-                                       ;history enabled = yes
+          HA = 1,-                                       ;history activation = new value
+          HF = 0,-                                       ;history at first update = no
+          HL = BIT_MASK(15),-                            ;history log number = 15
+          EH = "FD_FORM5_3_14",-                         ;event handling object
+          RC = 0,-                                       ;receipt = acknowledgement not required
+          AB = 0,-                                       ;alarm blocking = no
+          AC = 0,-                                       ;alarm class = 0 (disabled)
+          AG = 1,-                                       ;alarming value = 1
+          AD = 0,-                                       ;alarm delay = 0
+          PD = 0,-                                       ;picture device = none
+          PI = "",-                                      ;alarm picture
+          PF = "",-                                      ;physical format for printout
+          RI = 0,-                                       ;dynamic texts for printout
+          PA = 1,-                                       ;printout activation = new value
+          PU = 0,-                                       ;picture/ printout at first update = no
+          LD = 0,-                                       ;listing device
+          AN = "FDU_4BI2DI",-                            ;action name
+          AE = 1,-                                       ;action enabled
+          AA = 2,-                                       ;action activation = update
+          AF = 1,-                                       ;action at first update = yes
+          RX = %RX(1002)))                               ;data acquisition unit and group information
+
+#MODIFY P_OBJECTS:V = LIST(P_OBJ1003 = LIST(-
+          IX = 313,-                                     ;index = 313
+          PT = 3,-                                       ;process object type = BI
+          DX = %DX(1003),-                               ;directive text
+          BI = 0,-                                       ;object value = 0
+          OI = %OBJ_IDENT,-                              ;substation & bay name
+          OX = fdi_va_4bi:vPOSITION_ON,-                 ;object text
+          IU = 1,-                                       ;in use = yes
+          SS = 1,-                                       ;switch state = manual
+          EE = 1,-                                       ;event enable = yes
+          HE = 0,-                                       ;history enabled = no
+          HA = 1,-                                       ;history activation = new value
+          HF = 0,-                                       ;history at first update = no
+          HL = BIT_MASK(15),-                            ;history log number = 15
+          EH = "FD_FORM5_3_12",-                         ;event handling object
+          RC = 1,-                                       ;receipt = acknowledgement required
+          AB = 0,-                                       ;alarm blocking = no
+          AC = 0,-                                       ;alarm class = 0 (disabled)
+          AG = 1,-                                       ;alarming value = 1
+          AD = 0,-                                       ;alarm delay = 0
+          PD = 0,-                                       ;picture device = none
+          PI = "",-                                      ;alarm picture
+          PF = "",-                                      ;physical format for printout
+          RI = 0,-                                       ;dynamic texts for printout
+          PA = 1,-                                       ;printout activation = new value
+          PU = 0,-                                       ;picture/ printout at first update = no
+          LD = 0,-                                       ;listing device
+          AN = "FDU_4BI2DI",-                            ;action name
+          AE = 1,-                                       ;action enabled
+          AA = 2,-                                       ;action activation = update
+          AF = 1,-                                       ;action at first update = yes
+          RX = %RX(1003)))                               ;data acquisition unit and group information
+
+#MODIFY P_OBJECTS:V = LIST(P_OBJ1004 = LIST(-
+          IX = 314,-                                     ;index = 314
+          PT = 3,-                                       ;process object type = BI
+          DX = %DX(1004),-                               ;directive text
+          BI = 0,-                                       ;object value = 0
+          OI = %OBJ_IDENT,-                              ;substation & bay name
+          OX = fdi_va_4bi:vPOSITION_OFF,-                ;object text
+          IU = 1,-                                       ;in use = yes
+          SS = 1,-                                       ;switch state = manual
+          EE = 1,-                                       ;event enable = yes
+          HE = 0,-                                       ;history enabled = no
+          HA = 1,-                                       ;history activation = new value
+          HF = 0,-                                       ;history at first update = no
+          HL = BIT_MASK(15),-                            ;history log number = 15
+          EH = "FD_FORM5_3_12X",-                        ;event handling object
+          RC = 1,-                                       ;receipt = acknowledgement required
+          AB = 0,-                                       ;alarm blocking = no
+          AC = 0,-                                       ;alarm class = 0 (disabled)
+          AG = 1,-                                       ;alarming value = 1
+          AD = 0,-                                       ;alarm delay = 0
+          PD = 0,-                                       ;picture device = none
+          PI = "",-                                      ;alarm picture
+          PF = "",-                                      ;physical format for printout
+          RI = 0,-                                       ;dynamic texts for printout
+          PA = 1,-                                       ;printout activation = new value
+          PU = 0,-                                       ;picture/ printout at first update = no
+          LD = 0,-                                       ;listing device
+          AN = "FDU_4BI2DI",-                            ;action name
+          AE = 1,-                                       ;action enabled
+          AA = 2,-                                       ;action activation = update
+          AF = 1,-                                       ;action at first update = yes
+          RX = %RX(1004)))                               ;data acquisition unit and group information
